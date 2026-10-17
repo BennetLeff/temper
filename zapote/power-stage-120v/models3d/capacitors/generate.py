@@ -82,6 +82,19 @@ def main() -> None:
     # KEMET R463N410000N1M (C1, C2): page-3 maximum body, centred on the pitch.
     film_box(26.8, 11.2, 20.1, 11.25, 0, [(0, 0), (22.5, 0)], 0.8,
              "KEMET_R463N410000N1M.wrl")
+    # TDK B32654A1104K000 (resonant bank from stage 13): p.22 maximum body 14.0 x 24.5 x 31.5,
+    # e = 27.5 mm, d1 = 0.8 mm (p.3), centred on the pitch.
+    film_box(31.5, 14.0, 24.5, 13.75, 0, [(0, 0), (27.5, 0)], 0.8,
+             "TDK_B32654A1104K000.wrl")
+    # TDK B32643B8104J000 (resonant bank from stage 49, DECISIONS 68): B3264*B p.11 maximum body w x h x l
+    # 14.5 x 29.5 x 26.5, e = 22.5 mm, d1 = 0.8 mm (p.2), centred on the pitch.
+    film_box(26.5, 14.5, 29.5, 11.25, 0, [(0, 0), (22.5, 0)], 0.8,
+             "TDK_B32643B8104J000.wrl")
+    # KNSCHA MMK104J3DF1KN208G2 (resonant bank from stage 51, DECISIONS 73; the TDK part above is its drop-in
+    # alternate on the same dual-pitch footprint): spec KNS20200505002 p.3 W 31.5 / H 19.5 / T 11, each +-0.5, so the
+    # maximum body 32 x 11.5 x 20; P 27.5, d 0.8 mm; centred on the pitch.
+    film_box(32.0, 11.5, 20.0, 13.75, 0, [(0, 0), (27.5, 0)], 0.8,
+             "KNSCHA_MMK104J3DF1KN208G2.wrl")
     murata()
 
 

@@ -2,16 +2,19 @@
 
 component Bias10u:
     designator_prefix = "C"
-    mpn = "UMK325AB7106KM-T"
-    manufacturer = "Taiyo Yuden"
+    mpn = "CL32B106KBJNNNE"            # stage 31 (DECISIONS 34): same part as parts.ato C10u1210
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_1210_3225Metric"
     value: capacitance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
 component BiasComparator:
+    """Rail-monitor quad comparator. Stage 46 (OPEN-ITEMS S16 / S17 hot copper): the 125 C grade LM2901BIDR, TA
+    -40..125 C (SLCS006Z 6.4 p.6) against the LM339B's -40..85 C; VIO +-5.5 mV, IB 50 nA over its range (6.8 p.8), the
+    LM339B's figures (6.7 p.7); same SOIC-14 (D) pinout (Table 5-1 p.4, one table for both)."""
     designator_prefix = "U"
-    mpn = "LM339BIDR"
+    mpn = "LM2901BIDR"
     manufacturer = "Texas Instruments"
     footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
     signal p1 ~ pin 1
@@ -30,8 +33,12 @@ component BiasComparator:
     signal p14 ~ pin 14
 
 component BiasReference:
+    """Rail-monitor reference. Stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): the B grade, Vref 2.483-2.507 V
+    at 25 C (SLVS543S Table 6.12 p.13) against the A grade's 2.470-2.520 V; same DBZ (SOT-23-3) package and pinout.
+    Stage 46 (S17 hot copper): the Q temperature grade TL431BQDBZR, TA -40..125 C (6.4 p.5), the same Vref and
+    VI(dev) 34 mV (Table 6.13 p.14) and the same DBZ pinout (p.4: 1 cathode, 2 REF, 3 anode)."""
     designator_prefix = "U"
-    mpn = "TL431AIDBZR"
+    mpn = "TL431BQDBZR"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal K ~ pin 1
@@ -50,8 +57,8 @@ component BiasOpto:
 
 component BiasNpn:
     designator_prefix = "Q"
-    mpn = "MMBT3904-7-F"
-    manufacturer = "Diodes Incorporated"
+    mpn = "MMBT3904"
+    manufacturer = "Jiangsu Changjing Electronics Technology Co., Ltd."
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal B ~ pin 1
     signal E ~ pin 2
@@ -59,8 +66,8 @@ component BiasNpn:
 
 component BiasSilicon:
     designator_prefix = "D"
-    mpn = "1N4148W-7-F"
-    manufacturer = "Diodes Incorporated"
+    mpn = "1N4148W"
+    manufacturer = "Semtech"
     footprint = "Diode_SMD:D_SOD-123"
     signal K ~ pin 1
     signal A ~ pin 2
@@ -82,27 +89,40 @@ component Bias4k42:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias7k62:
+component Bias750R:
+    """Stage 45 (S16 1c-4420): rail-monitor neg-UV tap top, 750 ohm 0.1 % 25 ppm (LCSC C861551)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD077K62L"
+    mpn = "RT0603BRD07750RL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias120k:
+component Bias2k94:
+    """Stage 45 (S16 1c-4420): rail-monitor neg-OV tap top, 2.94 k 0.1 % 25 ppm (LCSC C705761)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD07120KL"
+    mpn = "RT0603BRD072K94L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias133k:
+component Bias90k9:
+    """Stage 45 (S16 1c-4420): rail-monitor span-UV tap top, 90.9 k 0.1 % 25 ppm (LCSC C728600)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD07133KL"
+    mpn = "RT0603BRD0790K9L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias104k:
+    """Stage 45 (S16 1c-4420): rail-monitor span-OV tap top, 104 k 0.1 % 25 ppm (LCSC C861070)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD07104KL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -129,16 +149,16 @@ component Bias2k7:
 
 component Gate1R:
     designator_prefix = "R"
-    mpn = "RC1206FR-071RL"
-    manufacturer = "Yageo"
+    mpn = "1206W4F100KT5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias6k12:
+component Bias6k2:
     designator_prefix = "R"
-    mpn = "RT0603BRD076K12L"
+    mpn = "RT0603BRD076K2L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -147,26 +167,26 @@ component Bias6k12:
 
 component Bias4k99:
     designator_prefix = "R"
-    mpn = "RT0603BRD074K99L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF4991T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias18k2:
+component Bias18k:
     designator_prefix = "R"
-    mpn = "RT0603BRD0718K2L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1802T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias30k1:
+component Bias30k:
     designator_prefix = "R"
-    mpn = "RT0603BRD0730K1L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF3002T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -174,7 +194,7 @@ component Bias30k1:
 
 component BiasDamping:
     designator_prefix = "R"
-    mpn = "RC1206FR-070R68L"
+    mpn = "RL1206FR-070R68L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
@@ -201,8 +221,8 @@ component Line16k5:
 
 component Line33k:
     designator_prefix = "R"
-    mpn = "RC0603FR-0733KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF3302T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -219,8 +239,8 @@ component Bias1u:
 
 component Bias100n:
     designator_prefix = "C"
-    mpn = "GRM155R71E104KE14D"
-    manufacturer = "Murata"
+    mpn = "CL05B104KB54PNC"
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_0402_1005Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -228,7 +248,7 @@ component Bias100n:
 
 component Bias220u:
     designator_prefix = "C"
-    mpn = "6SVPC220M"
+    mpn = "6SVPC220MV"
     manufacturer = "Panasonic"
     footprint = "Capacitor_SMD:CP_Elec_6.3x5.9"
     value: capacitance
@@ -237,16 +257,19 @@ component Bias220u:
 
 component Bias4u7:
     designator_prefix = "C"
-    mpn = "GRM31CR71H475KA12L"
-    manufacturer = "Murata"
+    mpn = "1206B475K500NT"
+    manufacturer = "FH(Guangdong Fenghua Advanced Tech)"
     footprint = "Capacitor_SMD:C_1206_3216Metric"
     value: capacitance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
 component HotSupply24:
+    """Stage 38 (DECISIONS 47 item 2): MEAN WELL MPM-20-24 (was IRM-20-24). Same Case No. 219A (52.4 x 27.2 x 24 mm;
+    pins 3.4 / 45, 3.2 / 20.8 / 8 mm; MPM-20-SPEC 2024-10-30 p.4 = IRM-20-SPEC 2025-11-21 p.3), so the IRM-20 footprint
+    holds (pin 1.04 vs 1.0 mm in the 1.5 mm drill). Touch current < 80 uA / 264 VAC (p.2), 2 x MOPP."""
     designator_prefix = "PS"
-    mpn = "IRM-20-24"
+    mpn = "MPM-20-24"
     manufacturer = "Mean Well"
     footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
     signal ACL ~ pin 1
@@ -290,57 +313,11 @@ component SpanRegulator:
     signal p20 ~ pin 20
     signal p21 ~ pin 21
 
-component BiasPushPull:
-    designator_prefix = "U"
-    mpn = "SN6507DGQR"
-    manufacturer = "Texas Instruments"
-    footprint = "Package_SO:HVSSOP-10-1EP_3x3mm_P0.5mm_EP1.83x1.89mm"
-    signal SW1 ~ pin 1
-    signal GND1 ~ pin 2
-    signal VCC ~ pin 3
-    signal EN ~ pin 4
-    signal DC ~ pin 5
-    signal SR ~ pin 6
-    signal CLK ~ pin 7
-    signal SS ~ pin 8
-    signal GND2 ~ pin 9
-    signal SW2 ~ pin 10
-    signal EP ~ pin 11
-
-component BiasTransformer:
-    designator_prefix = "T"
-    mpn = "750320775"
-    manufacturer = "Wurth Elektronik"
-    footprint = "temper:WE_750320775_EP7HV_ReviewOnly"
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-    signal p3 ~ pin 3
-    signal p4 ~ pin 4
-    signal p5 ~ pin 5
-    signal p6 ~ pin 6
-    signal p7 ~ pin 7
-    signal p8 ~ pin 8
-
-component BiasRectifier:
-    designator_prefix = "D"
-    mpn = "PMEG10030ELPX"
-    manufacturer = "Nexperia"
-    footprint = "Diode_SMD:D_SOD-128"
-    signal K ~ pin 1
-    signal A ~ pin 2
-
-component BiasFilter:
-    designator_prefix = "L"
-    mpn = "74404064101"
-    manufacturer = "Wurth Elektronik"
-    footprint = "temper:WE_74404064101_6x6_ReviewOnly"
-    value: inductance
-    signal p1 ~ pin 1
-    signal p2 ~ pin 2
-
 component HotLdo:
+    # Stage 48 (OPEN-ITEMS S19): the TPS709-Q1 grade (SLVSCE6D: +/-1 % over -40 <= TJ, TA <= 125 C, 5.5 p.5; same DBV
+    # pinout IN 1 / GND 2 / EN 3 / NC 4 / OUT 5, Table 4-1 p.3; LCSC C485909). Was TPS70950DBVR (SBVS186H: +/-1 % to TA 85 C)
     designator_prefix = "U"
-    mpn = "TPS70950DBVR"
+    mpn = "TPS70950QDBVRQ1"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23-5"
     signal IN ~ pin 1
@@ -360,12 +337,121 @@ component DisOr:
     signal Y ~ pin 4
     signal VCC ~ pin 5
 
+component DisNand:
+    """Stage 22 (DECISIONS 27): DIS = NAND(permit_gate, BIAS_GOOD), replacing the AO3400A inverter + 330 ohm pull-up and the
+    LVC1G32 OR. Same SOT-23-5 pinout as the G32 it replaces (A1 B2 GND3 Y4 VCC5)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G00DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component BiasGoodSchmitt:
+    """Stage 22: inverting Schmitt (SN74LVC1G14DBVR) after the 10 us BIAS_BAD filter; output BIAS_GOOD feeds the DIS NANDs.
+    DBV pins NC1, A2, GND3, Y4, VCC5, as the LVC1G17 it replaces."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G14DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
 component LineOpto:
     designator_prefix = "U"
-    mpn = "VOL628A-3X001T"
+    mpn = "VOL628A-2X001T"   # stage 20: CTR bin -2 (63-125 %), stocked; same LSOP-4 / VDE option (DECISIONS 23)
     manufacturer = "Vishay"
     footprint = "temper:VOL628A_LSOP4_ReviewOnly"
     signal AC1 ~ pin 1
     signal AC2 ~ pin 2
     signal E ~ pin 3
     signal C ~ pin 4
+
+component IsoBiasModule:
+    """RECOM R24C2T25/R-R isolated gate-drive bias module (stage 14, DECISIONS 2026-10-09; ALT-BIAS option A1).
+    21-27 V in, single 17 V output (FBVOUT- tied to FBVOUT+, COM open; R24C2T25/R Rev.1-2024 p.4),
+    2 W, reinforced 5 kVAC / 1.4 kVDC working, Cio 3.5 pF max, CMTI 150 kV/us, 36-SSOP 12.83 x 7.5 mm.
+    Pins (p.12): 1,2,5,8-18 PGND; 3 PG; 4 CTRL; 6 AVIN; 7 PVIN; 19-27,30,31,36 VOUT-; 28,29 VOUT+;
+    32 COM; 33 FBVOUT-; 34 FBVOUT+; 35 FBCOM. Pin-compatible second source TI UCC14241QDWNRQ1."""
+    designator_prefix = "U"
+    mpn = "R24C2T25/R-R"
+    manufacturer = "RECOM"
+    footprint = "temper:RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+    signal p17 ~ pin 17
+    signal p18 ~ pin 18
+    signal p19 ~ pin 19
+    signal p20 ~ pin 20
+    signal p21 ~ pin 21
+    signal p22 ~ pin 22
+    signal p23 ~ pin 23
+    signal p24 ~ pin 24
+    signal p25 ~ pin 25
+    signal p26 ~ pin 26
+    signal p27 ~ pin 27
+    signal p28 ~ pin 28
+    signal p29 ~ pin 29
+    signal p30 ~ pin 30
+    signal p31 ~ pin 31
+    signal p32 ~ pin 32
+    signal p33 ~ pin 33
+    signal p34 ~ pin 34
+    signal p35 ~ pin 35
+    signal p36 ~ pin 36
+
+component BiasFb63k4:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0763K4L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BiasFb11k:
+    designator_prefix = "R"
+    mpn = "RT0603BRD0711KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias27k:
+    designator_prefix = "R"
+    mpn = "0603WAF2702T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C330pC0G0603:
+    designator_prefix = "C"
+    mpn = "CL10C331JB8NNNC"
+    manufacturer = "Samsung Electro-Mechanics"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

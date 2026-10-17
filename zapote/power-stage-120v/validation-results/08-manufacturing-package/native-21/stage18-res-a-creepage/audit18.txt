@@ -1,0 +1,9 @@
+# rustc --edition=2021 --test audit.rs -o AUDIT_T && AUDIT_T   (stage 18; audit.rs f46573fe79fd)
+test result: ok. 79 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.90s
+
+# rustc --edition=2021 audit.rs -o AUDIT && (cd native-21 && AUDIT frozen/default.net frozen/default.csv frozen/resolved-components.json)
+components 353, nets 195
+PASS: power-stage-120v connectivity audit
+
+# python3 native-21/verification/verify_source.py (verdict keys)
+{'components': 353, 'source_hashes_match': True, 'two_frozen_exports_identical': True, 'native20_protection_parts_retained': True, 'RECOM_only_hs_bias_modules': True, 'no_bootstrap': True, 'monitor_crossings_ISO7710': True}

@@ -1,0 +1,42 @@
+{
+ "base": "8496f67c6",
+ "target": "1121945d7",
+ "components": 357,
+ "nets": 218,
+ "topology_identical": true,
+ "footprints_identical": true,
+ "mpn_changes": 124,
+ "mpn_changes_all_reviewed": true,
+ "value_edits": {
+  "rtop": {
+   "-": "6.12kohm",
+   "+": "6.2kohm"
+  },
+  "rb1a": {
+   "-": "120kohm",
+   "+": "100kohm"
+  },
+  "rb1b": {
+   "-": "120kohm",
+   "+": "100kohm"
+  },
+  "r_th_top": {
+   "-": "10.6kohm",
+   "+": "12.4kohm"
+  },
+  "r_th_bot": {
+   "-": "10kohm",
+   "+": "11.7kohm"
+  },
+  "bias_rclk": {
+   "-": "18.2kohm",
+   "+": "18kohm"
+  },
+  "bias_rlim": {
+   "-": "30.1kohm",
+   "+": "30kohm"
+  }
+ },
+ "failures": [],
+ "pass": true
+}

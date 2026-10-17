@@ -1,0 +1,3212 @@
+{
+ "control_118p74A_198_280V": {
+  "max_I_off_A": 155.45,
+  "E_coil_Lmax_at_max_I_J": 0.8838,
+  "max_E_tank_J": 0.8964
+ },
+ "tank_at_gate_off": {
+  "CT band top 76.09 A (CT path alive; single fault)": {
+   "I_HI_A": 76.09,
+   "runs": 2787,
+   "max_I_off_A": 110.18,
+   "E_coil_Lmax_at_max_I_J": 0.444,
+   "max_E_tank_J": 0.4857,
+   "max_E_run": {
+    "I_off": 108.7512,
+    "V_off": -486.076,
+    "half_cycles": 3,
+    "corner": "Lmax_Cmin (max Z0)",
+    "L_uH": 73.15,
+    "C_uF": 0.45,
+    "R": 0.05,
+    "bus": 323.04,
+    "f_hz": 27740,
+    "E_tank_J": 0.4857,
+    "E_coil_J": 0.4326
+   },
+   "max_I_run": {
+    "I_off": 110.177,
+    "V_off": -364.4229,
+    "half_cycles": 3,
+    "corner": "Lmin_Cmin",
+    "L_uH": 59.85,
+    "C_uF": 0.45,
+    "R": 0.05,
+    "bus": 287.62,
+    "f_hz": 30662,
+    "E_tank_J": 0.3931,
+    "E_coil_J": 0.3633
+   }
+  },
+  "s47 shunt top 119.09 A (bands-s47.md:24)": {
+   "I_HI_A": 119.09,
+   "runs": 2673,
+   "max_I_off_A": 155.73,
+   "E_coil_Lmax_at_max_I_J": 0.887,
+   "max_E_tank_J": 0.8972,
+   "max_E_run": {
+    "I_off": -151.0216,
+    "V_off": 478.6285,
+    "half_cycles": 4,
+    "corner": "Lmax_Cmax",
+    "L_uH": 73.15,
+    "C_uF": 0.55,
+    "R": 0.15,
+    "bus": 280.0,
+    "f_hz": 25087,
+    "E_tank_J": 0.8972,
+    "E_coil_J": 0.8342
+   },
+   "max_I_run": {
+    "I_off": -155.7311,
+    "V_off": 327.3313,
+    "half_cycles": 4,
+    "corner": "Lmin_Cmin",
+    "L_uH": 59.85,
+    "C_uF": 0.45,
+    "R": 0.05,
+    "bus": 280.0,
+    "f_hz": 32814,
+    "E_tank_J": 0.7499,
+    "E_coil_J": 0.7257
+   }
+  },
+  "shunt top + CMRR R1 (Q1 HOT5) 121.98 A": {
+   "I_HI_A": 121.977,
+   "runs": 2654,
+   "max_I_off_A": 159.68,
+   "E_coil_Lmax_at_max_I_J": 0.9326,
+   "max_E_tank_J": 0.9459,
+   "max_E_run": {
+    "I_off": -154.9314,
+    "V_off": 497.0919,
+    "half_cycles": 4,
+    "corner": "Lmax_Cmax",
+    "L_uH": 73.15,
+    "C_uF": 0.55,
+    "R": 0.15,
+    "bus": 287.62,
+    "f_hz": 25092,
+    "E_tank_J": 0.9459,
+    "E_coil_J": 0.8779
+   },
+   "max_I_run": {
+    "I_off": -159.6784,
+    "V_off": 352.9562,
+    "half_cycles": 4,
+    "corner": "Lmin_Cmin",
+    "L_uH": 59.85,
+    "C_uF": 0.45,
+    "R": 0.15,
+    "bus": 287.62,
+    "f_hz": 30668,
+    "E_tank_J": 0.791,
+    "E_coil_J": 0.763
+   }
+  },
+  "shunt top + CMRR R1 (physical HOT5) 122.83 A": {
+   "I_HI_A": 122.827,
+   "runs": 2653,
+   "max_I_off_A": 161.02,
+   "E_coil_Lmax_at_max_I_J": 0.9484,
+   "max_E_tank_J": 0.9642,
+   "max_E_run": {
+    "I_off": -158.1931,
+    "V_off": 466.1295,
+    "half_cycles": 4,
+    "corner": "Lmax_Cmin (max Z0)",
+    "L_uH": 73.15,
+    "C_uF": 0.45,
+    "R": 0.15,
+    "bus": 323.04,
+    "f_hz": 26353,
+    "E_tank_J": 0.9642,
+    "E_coil_J": 0.9153
+   },
+   "max_I_run": {
+    "I_off": -161.0249,
+    "V_off": 348.8477,
+    "half_cycles": 4,
+    "corner": "Lmin_Cmin",
+    "L_uH": 59.85,
+    "C_uF": 0.45,
+    "R": 0.05,
+    "bus": 287.62,
+    "f_hz": 29134,
+    "E_tank_J": 0.8033,
+    "E_coil_J": 0.7759
+   }
+  }
+ },
+ "closed_form_V0_287p62": {
+  "stale E_t 0.475 J (ALT-D3, stage 13b)": {
+   "E_t_J": 0.475,
+   "Vpk_V": 451.63,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 451.6,
+     "ratio": 0.4516,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 451.6,
+     "ratio": 0.6022,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 451.6,
+     "ratio": 0.7923,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 451.6,
+     "ratio": 0.4516,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 451.6,
+     "ratio": 0.6569,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 451.6,
+     "ratio": 0.4516,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 451.6,
+     "ratio": 0.2556,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 225.8,
+     "ratio": 0.5645,
+     "pass": true
+    }
+   ]
+  },
+  "bank-ov 0.884 J (155.4 A, 73.15 uH)": {
+   "E_t_J": 0.8833,
+   "Vpk_V": 503.0,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 503.0,
+     "ratio": 0.503,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 503.0,
+     "ratio": 0.6707,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 503.0,
+     "ratio": 0.8825,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 503.0,
+     "ratio": 0.503,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 503.0,
+     "ratio": 0.7316,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 503.0,
+     "ratio": 0.503,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 503.0,
+     "ratio": 0.2847,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 251.5,
+     "ratio": 0.6287,
+     "pass": true
+    }
+   ]
+  },
+  "CT band top 76.09 A (CT path alive; single fault): max tank energy": {
+   "E_t_J": 0.4857,
+   "Vpk_V": 452.99,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 453.0,
+     "ratio": 0.453,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 453.0,
+     "ratio": 0.604,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 453.0,
+     "ratio": 0.7947,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 453.0,
+     "ratio": 0.453,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 453.0,
+     "ratio": 0.6589,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 453.0,
+     "ratio": 0.453,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 453.0,
+     "ratio": 0.2564,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 226.5,
+     "ratio": 0.5662,
+     "pass": true
+    }
+   ]
+  },
+  "s47 shunt top 119.09 A (bands-s47.md:24): max tank energy": {
+   "E_t_J": 0.8972,
+   "Vpk_V": 504.71,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 504.7,
+     "ratio": 0.5047,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 504.7,
+     "ratio": 0.6729,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 504.7,
+     "ratio": 0.8855,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 504.7,
+     "ratio": 0.5047,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 504.7,
+     "ratio": 0.7341,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 504.7,
+     "ratio": 0.5047,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 504.7,
+     "ratio": 0.2856,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 252.4,
+     "ratio": 0.6309,
+     "pass": true
+    }
+   ]
+  },
+  "shunt top + CMRR R1 (Q1 HOT5) 121.98 A: max tank energy": {
+   "E_t_J": 0.9459,
+   "Vpk_V": 510.67,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 510.7,
+     "ratio": 0.5107,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.7,
+     "ratio": 0.6809,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.7,
+     "ratio": 0.8959,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.7,
+     "ratio": 0.5107,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 510.7,
+     "ratio": 0.7428,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.7,
+     "ratio": 0.5107,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 510.7,
+     "ratio": 0.289,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 255.3,
+     "ratio": 0.6383,
+     "pass": true
+    }
+   ]
+  },
+  "shunt top + CMRR R1 (physical HOT5) 122.83 A: max tank energy": {
+   "E_t_J": 0.9642,
+   "Vpk_V": 512.89,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 512.9,
+     "ratio": 0.5129,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.9,
+     "ratio": 0.6839,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.9,
+     "ratio": 0.8998,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.9,
+     "ratio": 0.5129,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 512.9,
+     "ratio": 0.746,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.9,
+     "ratio": 0.5129,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 512.9,
+     "ratio": 0.2903,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 256.4,
+     "ratio": 0.6411,
+     "pass": true
+    }
+   ]
+  }
+ },
+ "ovp_delay": {
+  "nominal 15.67 k x 1 nF": {
+   "tau_us": 15.668,
+   "ring_peak_no_tank_V": 393.53,
+   "dVdt_at_trip_V_per_us": 2.013,
+   "filter_lag_us": 15.766,
+   "t_d_us": 2.267,
+   "V0_gate_off_V": 321.71,
+   "I0_gate_off_A": 26.139,
+   "overshoot_V": 34.09,
+   "naive_constant_30A_V": 36.31
+  },
+  "max (R +1 % / +0.1 %, C27 +5 %)": {
+   "tau_us": 16.469,
+   "ring_peak_no_tank_V": 393.53,
+   "dVdt_at_trip_V_per_us": 2.013,
+   "filter_lag_us": 16.526,
+   "t_d_us": 2.267,
+   "V0_gate_off_V": 323.04,
+   "I0_gate_off_A": 25.95,
+   "overshoot_V": 35.42,
+   "naive_constant_30A_V": 37.84
+  }
+ },
+ "stacked_with_ovp_delay": {
+  "nominal 15.67 k x 1 nF | E_t 0.475 J (stale)": {
+   "E_t_J": 0.475,
+   "coherent_ring_Vpk_V": 457.68,
+   "naive_plus_constant_30A_Vpk_V": 472.68,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 457.7,
+     "ratio": 0.4577,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.7,
+     "ratio": 0.6102,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.7,
+     "ratio": 0.803,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.7,
+     "ratio": 0.4577,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 457.7,
+     "ratio": 0.6657,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.7,
+     "ratio": 0.4577,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 457.7,
+     "ratio": 0.259,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 228.8,
+     "ratio": 0.5721,
+     "pass": true
+    }
+   ]
+  },
+  "nominal 15.67 k x 1 nF | E_t at the CT top 76.09 A": {
+   "E_t_J": 0.4857,
+   "coherent_ring_Vpk_V": 459.11,
+   "naive_plus_constant_30A_Vpk_V": 474.04,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 459.1,
+     "ratio": 0.4591,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.1,
+     "ratio": 0.6121,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.1,
+     "ratio": 0.8055,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.1,
+     "ratio": 0.4591,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 459.1,
+     "ratio": 0.6678,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.1,
+     "ratio": 0.4591,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 459.1,
+     "ratio": 0.2598,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 229.6,
+     "ratio": 0.5739,
+     "pass": true
+    }
+   ]
+  },
+  "nominal 15.67 k x 1 nF | E_t at 119.09 A": {
+   "E_t_J": 0.8972,
+   "coherent_ring_Vpk_V": 512.11,
+   "naive_plus_constant_30A_Vpk_V": 524.77,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 512.1,
+     "ratio": 0.5121,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.1,
+     "ratio": 0.6828,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.1,
+     "ratio": 0.8984,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.1,
+     "ratio": 0.5121,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 512.1,
+     "ratio": 0.7449,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.1,
+     "ratio": 0.5121,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 512.1,
+     "ratio": 0.2898,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 256.1,
+     "ratio": 0.6401,
+     "pass": true
+    }
+   ]
+  },
+  "nominal 15.67 k x 1 nF | E_t at the CMRR top": {
+   "E_t_J": 0.9459,
+   "coherent_ring_Vpk_V": 518.14,
+   "naive_plus_constant_30A_Vpk_V": 530.57,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 518.1,
+     "ratio": 0.5181,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.1,
+     "ratio": 0.6909,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.1,
+     "ratio": 0.909,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.1,
+     "ratio": 0.5181,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 518.1,
+     "ratio": 0.7537,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.1,
+     "ratio": 0.5181,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 518.1,
+     "ratio": 0.2932,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 259.1,
+     "ratio": 0.6477,
+     "pass": true
+    }
+   ]
+  },
+  "max (R +1 % / +0.1 %, C27 +5 %) | E_t 0.475 J (stale)": {
+   "E_t_J": 0.475,
+   "coherent_ring_Vpk_V": 457.9,
+   "naive_plus_constant_30A_Vpk_V": 473.62,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 457.9,
+     "ratio": 0.4579,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.9,
+     "ratio": 0.6105,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.9,
+     "ratio": 0.8033,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.9,
+     "ratio": 0.4579,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 457.9,
+     "ratio": 0.666,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 457.9,
+     "ratio": 0.4579,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 457.9,
+     "ratio": 0.2591,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 229.0,
+     "ratio": 0.5724,
+     "pass": true
+    }
+   ]
+  },
+  "max (R +1 % / +0.1 %, C27 +5 %) | E_t at the CT top 76.09 A": {
+   "E_t_J": 0.4857,
+   "coherent_ring_Vpk_V": 459.33,
+   "naive_plus_constant_30A_Vpk_V": 474.97,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 459.3,
+     "ratio": 0.4593,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.3,
+     "ratio": 0.6124,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.3,
+     "ratio": 0.8058,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.3,
+     "ratio": 0.4593,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 459.3,
+     "ratio": 0.6681,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 459.3,
+     "ratio": 0.4593,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 459.3,
+     "ratio": 0.2599,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 229.7,
+     "ratio": 0.5742,
+     "pass": true
+    }
+   ]
+  },
+  "max (R +1 % / +0.1 %, C27 +5 %) | E_t at 119.09 A": {
+   "E_t_J": 0.8972,
+   "coherent_ring_Vpk_V": 512.38,
+   "naive_plus_constant_30A_Vpk_V": 525.65,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 512.4,
+     "ratio": 0.5124,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.4,
+     "ratio": 0.6832,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.4,
+     "ratio": 0.8989,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.4,
+     "ratio": 0.5124,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 512.4,
+     "ratio": 0.7453,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 512.4,
+     "ratio": 0.5124,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 512.4,
+     "ratio": 0.29,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 256.2,
+     "ratio": 0.6405,
+     "pass": true
+    }
+   ]
+  },
+  "max (R +1 % / +0.1 %, C27 +5 %) | E_t at the CMRR top": {
+   "E_t_J": 0.9459,
+   "coherent_ring_Vpk_V": 518.41,
+   "naive_plus_constant_30A_Vpk_V": 531.45,
+   "rows_coherent": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 518.4,
+     "ratio": 0.5184,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.4,
+     "ratio": 0.6912,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.4,
+     "ratio": 0.9095,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.4,
+     "ratio": 0.5184,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 518.4,
+     "ratio": 0.7541,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 518.4,
+     "ratio": 0.5184,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 518.4,
+     "ratio": 0.2934,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 259.2,
+     "ratio": 0.648,
+     "pass": true
+    }
+   ]
+  }
+ },
+ "time_domain_event": {
+  "max-E run at 119.09 A | V0 287.62 V, I0 30 A | clamp none": {
+   "Vbus_peak_V": 498.97,
+   "clamp_I_peak_A": 0.0,
+   "clamp_energy_J": 0.0,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 499.0,
+     "ratio": 0.499,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 499.0,
+     "ratio": 0.6653,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 499.0,
+     "ratio": 0.8754,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 499.0,
+     "ratio": 0.499,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 499.0,
+     "ratio": 0.7258,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 499.0,
+     "ratio": 0.499,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 499.0,
+     "ratio": 0.2824,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 249.5,
+     "ratio": 0.6237,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 287.62 V, I0 30 A | clamp onset VBR min 335.2 V (low line)": {
+   "Vbus_peak_V": 406.32,
+   "clamp_I_peak_A": 70.15,
+   "clamp_energy_J": 1.0886,
+   "clamp_conduction_us": 84.82,
+   "clamp_t_above_half_peak_us": 37.5,
+   "pulse_check": {
+    "P_peak_W_upper": 14251.7,
+    "per": "device (string of 2)",
+    "td_us_to_half": 37.5,
+    "Fig4_Ppk_W": 93698.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2237,
+    "ratio_rect_0p66": 0.3389,
+    "energy_per_device_J": 0.5443
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 406.3,
+     "ratio": 0.4063,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 406.3,
+     "ratio": 0.5418,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 406.3,
+     "ratio": 0.7128,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 406.3,
+     "ratio": 0.4063,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 406.3,
+     "ratio": 0.591,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 406.3,
+     "ratio": 0.4063,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 406.3,
+     "ratio": 0.2299,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 203.2,
+     "ratio": 0.5079,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 287.62 V, I0 30 A | clamp onset 368.72 V (Littelfuse VBR max) (high line)": {
+   "Vbus_peak_V": 421.95,
+   "clamp_I_peak_A": 70.45,
+   "clamp_energy_J": 0.8973,
+   "clamp_conduction_us": 71.56,
+   "clamp_t_above_half_peak_us": 28.89,
+   "pulse_check": {
+    "P_peak_W_upper": 14863.2,
+    "per": "device (string of 2)",
+    "td_us_to_half": 28.89,
+    "Fig4_Ppk_W": 103433.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2113,
+    "ratio_rect_0p66": 0.3202,
+    "energy_per_device_J": 0.4486
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 421.9,
+     "ratio": 0.4219,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 421.9,
+     "ratio": 0.5626,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 421.9,
+     "ratio": 0.7403,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 421.9,
+     "ratio": 0.4219,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 421.9,
+     "ratio": 0.6137,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 421.9,
+     "ratio": 0.4219,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 421.9,
+     "ratio": 0.2388,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 211.0,
+     "ratio": 0.5274,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 287.62 V, I0 30 A | clamp high line hot, x(1 + 0.1 %/K x 48 K) at 73 C": {
+   "Vbus_peak_V": 435.91,
+   "clamp_I_peak_A": 62.5,
+   "clamp_energy_J": 0.772,
+   "clamp_conduction_us": 61.01,
+   "clamp_t_above_half_peak_us": 27.89,
+   "pulse_check": {
+    "P_peak_W_upper": 13622.2,
+    "per": "device (string of 2)",
+    "td_us_to_half": 27.89,
+    "Fig4_Ppk_W": 104823.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.1911,
+    "ratio_rect_0p66": 0.2896,
+    "energy_per_device_J": 0.386
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 435.9,
+     "ratio": 0.4359,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 435.9,
+     "ratio": 0.5812,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 435.9,
+     "ratio": 0.7648,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 435.9,
+     "ratio": 0.4359,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 435.9,
+     "ratio": 0.6341,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 435.9,
+     "ratio": 0.4359,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 435.9,
+     "ratio": 0.2467,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 218.0,
+     "ratio": 0.5449,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 287.62 V, I0 30 A | clamp near-ideal at VBR min -10 C, 323 V, 129.8 A at 329.5 V (bounds the clamp current)": {
+   "Vbus_peak_V": 330.16,
+   "clamp_I_peak_A": 142.97,
+   "clamp_energy_J": 1.2779,
+   "clamp_conduction_us": 115.89,
+   "clamp_t_above_half_peak_us": 24.24,
+   "pulse_check": {
+    "P_peak_W_upper": 23601.5,
+    "per": "device (string of 2)",
+    "td_us_to_half": 24.24,
+    "Fig4_Ppk_W": 110545.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.314,
+    "ratio_rect_0p66": 0.4757,
+    "energy_per_device_J": 0.639
+   },
+   "published_bound_applies": false,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 330.2,
+     "ratio": 0.3302,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.2,
+     "ratio": 0.4402,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.2,
+     "ratio": 0.5792,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.2,
+     "ratio": 0.3302,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 330.2,
+     "ratio": 0.4802,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.2,
+     "ratio": 0.3302,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 330.2,
+     "ratio": 0.1868,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 165.1,
+     "ratio": 0.4127,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 323.04 V, I0 25.95 A (OVP delay) | clamp none": {
+   "Vbus_peak_V": 505.72,
+   "clamp_I_peak_A": 0.0,
+   "clamp_energy_J": 0.0,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 505.7,
+     "ratio": 0.5057,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.7,
+     "ratio": 0.6743,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.7,
+     "ratio": 0.8872,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.7,
+     "ratio": 0.5057,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 505.7,
+     "ratio": 0.7356,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.7,
+     "ratio": 0.5057,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 505.7,
+     "ratio": 0.2862,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 252.9,
+     "ratio": 0.6321,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 323.04 V, I0 25.95 A (OVP delay) | clamp onset VBR min 335.2 V (low line)": {
+   "Vbus_peak_V": 407.86,
+   "clamp_I_peak_A": 71.67,
+   "clamp_energy_J": 1.1014,
+   "clamp_conduction_us": 72.44,
+   "clamp_t_above_half_peak_us": 41.96,
+   "pulse_check": {
+    "P_peak_W_upper": 14615.7,
+    "per": "device (string of 2)",
+    "td_us_to_half": 41.96,
+    "Fig4_Ppk_W": 89791.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2394,
+    "ratio_rect_0p66": 0.3627,
+    "energy_per_device_J": 0.5507
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 407.9,
+     "ratio": 0.4079,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 407.9,
+     "ratio": 0.5438,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 407.9,
+     "ratio": 0.7155,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 407.9,
+     "ratio": 0.4079,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 407.9,
+     "ratio": 0.5933,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 407.9,
+     "ratio": 0.4079,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 407.9,
+     "ratio": 0.2308,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 203.9,
+     "ratio": 0.5098,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 323.04 V, I0 25.95 A (OVP delay) | clamp onset 368.72 V (Littelfuse VBR max) (high line)": {
+   "Vbus_peak_V": 422.84,
+   "clamp_I_peak_A": 71.62,
+   "clamp_energy_J": 0.9202,
+   "clamp_conduction_us": 62.43,
+   "clamp_t_above_half_peak_us": 31.87,
+   "pulse_check": {
+    "P_peak_W_upper": 15141.9,
+    "per": "device (string of 2)",
+    "td_us_to_half": 31.87,
+    "Fig4_Ppk_W": 99655.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2234,
+    "ratio_rect_0p66": 0.3386,
+    "energy_per_device_J": 0.4601
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 422.8,
+     "ratio": 0.4228,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 422.8,
+     "ratio": 0.5638,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 422.8,
+     "ratio": 0.7418,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 422.8,
+     "ratio": 0.4228,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 422.8,
+     "ratio": 0.615,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 422.8,
+     "ratio": 0.4228,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 422.8,
+     "ratio": 0.2393,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 211.4,
+     "ratio": 0.5285,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 323.04 V, I0 25.95 A (OVP delay) | clamp high line hot, x(1 + 0.1 %/K x 48 K) at 73 C": {
+   "Vbus_peak_V": 438.43,
+   "clamp_I_peak_A": 65.68,
+   "clamp_energy_J": 0.792,
+   "clamp_conduction_us": 55.95,
+   "clamp_t_above_half_peak_us": 25.03,
+   "pulse_check": {
+    "P_peak_W_upper": 14398.0,
+    "per": "device (string of 2)",
+    "td_us_to_half": 25.03,
+    "Fig4_Ppk_W": 109210.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.1939,
+    "ratio_rect_0p66": 0.2938,
+    "energy_per_device_J": 0.396
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 438.4,
+     "ratio": 0.4384,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.4,
+     "ratio": 0.5846,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.4,
+     "ratio": 0.7692,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.4,
+     "ratio": 0.4384,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 438.4,
+     "ratio": 0.6377,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.4,
+     "ratio": 0.4384,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 438.4,
+     "ratio": 0.2481,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 219.2,
+     "ratio": 0.548,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at 119.09 A | V0 323.04 V, I0 25.95 A (OVP delay) | clamp near-ideal at VBR min -10 C, 323 V, 129.8 A at 329.5 V (bounds the clamp current)": {
+   "Vbus_peak_V": 331.37,
+   "clamp_I_peak_A": 167.05,
+   "clamp_energy_J": 1.2919,
+   "clamp_conduction_us": 102.22,
+   "clamp_t_above_half_peak_us": 25.68,
+   "pulse_check": {
+    "P_peak_W_upper": 27677.7,
+    "per": "device (string of 2)",
+    "td_us_to_half": 25.68,
+    "Fig4_Ppk_W": 108154.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.3763,
+    "ratio_rect_0p66": 0.5702,
+    "energy_per_device_J": 0.646
+   },
+   "published_bound_applies": false,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 331.4,
+     "ratio": 0.3314,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.4,
+     "ratio": 0.4418,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.4,
+     "ratio": 0.5814,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.4,
+     "ratio": 0.3314,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 331.4,
+     "ratio": 0.482,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.4,
+     "ratio": 0.3314,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 331.4,
+     "ratio": 0.1875,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 165.7,
+     "ratio": 0.4142,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 287.62 V, I0 30 A | clamp none": {
+   "Vbus_peak_V": 505.6,
+   "clamp_I_peak_A": 0.0,
+   "clamp_energy_J": 0.0,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 505.6,
+     "ratio": 0.5056,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.6,
+     "ratio": 0.6741,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.6,
+     "ratio": 0.887,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.6,
+     "ratio": 0.5056,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 505.6,
+     "ratio": 0.7354,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 505.6,
+     "ratio": 0.5056,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 505.6,
+     "ratio": 0.2861,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 252.8,
+     "ratio": 0.632,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 287.62 V, I0 30 A | clamp onset VBR min 335.2 V (low line)": {
+   "Vbus_peak_V": 408.71,
+   "clamp_I_peak_A": 72.51,
+   "clamp_energy_J": 1.1341,
+   "clamp_conduction_us": 84.13,
+   "clamp_t_above_half_peak_us": 38.0,
+   "pulse_check": {
+    "P_peak_W_upper": 14817.8,
+    "per": "device (string of 2)",
+    "td_us_to_half": 38.0,
+    "Fig4_Ppk_W": 93229.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2337,
+    "ratio_rect_0p66": 0.3541,
+    "energy_per_device_J": 0.5671
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 408.7,
+     "ratio": 0.4087,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 408.7,
+     "ratio": 0.5449,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 408.7,
+     "ratio": 0.717,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 408.7,
+     "ratio": 0.4087,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 408.7,
+     "ratio": 0.5945,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 408.7,
+     "ratio": 0.4087,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 408.7,
+     "ratio": 0.2313,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 204.4,
+     "ratio": 0.5109,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 287.62 V, I0 30 A | clamp onset 368.72 V (Littelfuse VBR max) (high line)": {
+   "Vbus_peak_V": 424.03,
+   "clamp_I_peak_A": 73.19,
+   "clamp_energy_J": 0.9453,
+   "clamp_conduction_us": 71.37,
+   "clamp_t_above_half_peak_us": 29.86,
+   "pulse_check": {
+    "P_peak_W_upper": 15517.4,
+    "per": "device (string of 2)",
+    "td_us_to_half": 29.86,
+    "Fig4_Ppk_W": 102146.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2234,
+    "ratio_rect_0p66": 0.3385,
+    "energy_per_device_J": 0.4727
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 424.0,
+     "ratio": 0.424,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.0,
+     "ratio": 0.5654,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.0,
+     "ratio": 0.7439,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.0,
+     "ratio": 0.424,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 424.0,
+     "ratio": 0.6168,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.0,
+     "ratio": 0.424,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 424.0,
+     "ratio": 0.24,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 212.0,
+     "ratio": 0.53,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 287.62 V, I0 30 A | clamp high line hot, x(1 + 0.1 %/K x 48 K) at 73 C": {
+   "Vbus_peak_V": 438.27,
+   "clamp_I_peak_A": 65.48,
+   "clamp_energy_J": 0.82,
+   "clamp_conduction_us": 61.01,
+   "clamp_t_above_half_peak_us": 28.82,
+   "pulse_check": {
+    "P_peak_W_upper": 14349.0,
+    "per": "device (string of 2)",
+    "td_us_to_half": 28.82,
+    "Fig4_Ppk_W": 103528.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2038,
+    "ratio_rect_0p66": 0.3088,
+    "energy_per_device_J": 0.41
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 438.3,
+     "ratio": 0.4383,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.3,
+     "ratio": 0.5844,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.3,
+     "ratio": 0.7689,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.3,
+     "ratio": 0.4383,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 438.3,
+     "ratio": 0.6375,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 438.3,
+     "ratio": 0.4383,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 438.3,
+     "ratio": 0.248,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 219.1,
+     "ratio": 0.5478,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 287.62 V, I0 30 A | clamp near-ideal at VBR min -10 C, 323 V, 129.8 A at 329.5 V (bounds the clamp current)": {
+   "Vbus_peak_V": 330.39,
+   "clamp_I_peak_A": 147.63,
+   "clamp_energy_J": 1.3214,
+   "clamp_conduction_us": 115.9,
+   "clamp_t_above_half_peak_us": 24.33,
+   "pulse_check": {
+    "P_peak_W_upper": 24387.7,
+    "per": "device (string of 2)",
+    "td_us_to_half": 24.33,
+    "Fig4_Ppk_W": 110390.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.3249,
+    "ratio_rect_0p66": 0.4923,
+    "energy_per_device_J": 0.6607
+   },
+   "published_bound_applies": false,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 330.4,
+     "ratio": 0.3304,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.4,
+     "ratio": 0.4405,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.4,
+     "ratio": 0.5796,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.4,
+     "ratio": 0.3304,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 330.4,
+     "ratio": 0.4806,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 330.4,
+     "ratio": 0.3304,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 330.4,
+     "ratio": 0.187,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 165.2,
+     "ratio": 0.413,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 323.04 V, I0 25.95 A (OVP delay) | clamp none": {
+   "Vbus_peak_V": 510.52,
+   "clamp_I_peak_A": 0.0,
+   "clamp_energy_J": 0.0,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 510.5,
+     "ratio": 0.5105,
+     "pass": false
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.5,
+     "ratio": 0.6807,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.5,
+     "ratio": 0.8956,
+     "pass": false
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.5,
+     "ratio": 0.5105,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 510.5,
+     "ratio": 0.7426,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 510.5,
+     "ratio": 0.5105,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 510.5,
+     "ratio": 0.2889,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 255.3,
+     "ratio": 0.6381,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 323.04 V, I0 25.95 A (OVP delay) | clamp onset VBR min 335.2 V (low line)": {
+   "Vbus_peak_V": 410.21,
+   "clamp_I_peak_A": 73.99,
+   "clamp_energy_J": 1.1462,
+   "clamp_conduction_us": 71.7,
+   "clamp_t_above_half_peak_us": 42.76,
+   "pulse_check": {
+    "P_peak_W_upper": 15175.7,
+    "per": "device (string of 2)",
+    "td_us_to_half": 42.76,
+    "Fig4_Ppk_W": 89151.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2503,
+    "ratio_rect_0p66": 0.3793,
+    "energy_per_device_J": 0.5731
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 410.2,
+     "ratio": 0.4102,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 410.2,
+     "ratio": 0.5469,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 410.2,
+     "ratio": 0.7197,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 410.2,
+     "ratio": 0.4102,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 410.2,
+     "ratio": 0.5967,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 410.2,
+     "ratio": 0.4102,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 410.2,
+     "ratio": 0.2322,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 205.1,
+     "ratio": 0.5128,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 323.04 V, I0 25.95 A (OVP delay) | clamp onset 368.72 V (Littelfuse VBR max) (high line)": {
+   "Vbus_peak_V": 424.82,
+   "clamp_I_peak_A": 74.24,
+   "clamp_energy_J": 0.9678,
+   "clamp_conduction_us": 62.04,
+   "clamp_t_above_half_peak_us": 32.85,
+   "pulse_check": {
+    "P_peak_W_upper": 15769.3,
+    "per": "device (string of 2)",
+    "td_us_to_half": 32.85,
+    "Fig4_Ppk_W": 98518.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2354,
+    "ratio_rect_0p66": 0.3567,
+    "energy_per_device_J": 0.4839
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 424.8,
+     "ratio": 0.4248,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.8,
+     "ratio": 0.5664,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.8,
+     "ratio": 0.7453,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.8,
+     "ratio": 0.4248,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 424.8,
+     "ratio": 0.6179,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 424.8,
+     "ratio": 0.4248,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 424.8,
+     "ratio": 0.2404,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 212.4,
+     "ratio": 0.531,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 323.04 V, I0 25.95 A (OVP delay) | clamp high line hot, x(1 + 0.1 %/K x 48 K) at 73 C": {
+   "Vbus_peak_V": 440.51,
+   "clamp_I_peak_A": 68.3,
+   "clamp_energy_J": 0.839,
+   "clamp_conduction_us": 55.67,
+   "clamp_t_above_half_peak_us": 25.81,
+   "pulse_check": {
+    "P_peak_W_upper": 15043.4,
+    "per": "device (string of 2)",
+    "td_us_to_half": 25.81,
+    "Fig4_Ppk_W": 107947.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.2049,
+    "ratio_rect_0p66": 0.3105,
+    "energy_per_device_J": 0.4195
+   },
+   "published_bound_applies": true,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 440.5,
+     "ratio": 0.4405,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 440.5,
+     "ratio": 0.5873,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 440.5,
+     "ratio": 0.7728,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 440.5,
+     "ratio": 0.4405,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 440.5,
+     "ratio": 0.6407,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 440.5,
+     "ratio": 0.4405,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 440.5,
+     "ratio": 0.2493,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 220.3,
+     "ratio": 0.5506,
+     "pass": true
+    }
+   ]
+  },
+  "max-E run at the CMRR top | V0 323.04 V, I0 25.95 A (OVP delay) | clamp near-ideal at VBR min -10 C, 323 V, 129.8 A at 329.5 V (bounds the clamp current)": {
+   "Vbus_peak_V": 331.57,
+   "clamp_I_peak_A": 171.13,
+   "clamp_energy_J": 1.3357,
+   "clamp_conduction_us": 102.17,
+   "clamp_t_above_half_peak_us": 25.79,
+   "pulse_check": {
+    "P_peak_W_upper": 28370.8,
+    "per": "device (string of 2)",
+    "td_us_to_half": 25.79,
+    "Fig4_Ppk_W": 107979.0,
+    "Fig1_derate_at_73C": 0.68,
+    "ratio_exp_pulse": 0.3864,
+    "ratio_rect_0p66": 0.5854,
+    "energy_per_device_J": 0.6679
+   },
+   "published_bound_applies": false,
+   "rows": [
+    {
+     "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+     "check": "bus no-clamp worst",
+     "limit_V": 1000.0,
+     "max_ratio": 0.5,
+     "stress_V": 331.6,
+     "ratio": 0.3316,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst",
+     "limit_V": 750.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.6,
+     "ratio": 0.4421,
+     "pass": true
+    },
+    {
+     "entry": "B32676G1905K000 (C5, C6)",
+     "check": "Vbus worst hot",
+     "limit_V": 570.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.6,
+     "ratio": 0.5817,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.6,
+     "ratio": 0.3316,
+     "pass": true
+    },
+    {
+     "entry": "B32652A0104K000 (C38-C41)",
+     "check": "V hot",
+     "limit_V": 687.5,
+     "max_ratio": 0.8,
+     "stress_V": 331.6,
+     "ratio": 0.4823,
+     "pass": true
+    },
+    {
+     "entry": "GBJ2510-F (BR1)",
+     "check": "V reverse",
+     "limit_V": 1000.0,
+     "max_ratio": 0.8,
+     "stress_V": 331.6,
+     "ratio": 0.3316,
+     "pass": true
+    },
+    {
+     "entry": "2EDR8259XXUMA1 (U1, U2)",
+     "check": "barrier",
+     "limit_V": 1767.0,
+     "max_ratio": 0.5,
+     "stress_V": 331.6,
+     "ratio": 0.1876,
+     "pass": true
+    },
+    {
+     "entry": "RC1206FR-07220KL (R3, R4)",
+     "check": "V transient",
+     "limit_V": 400.0,
+     "max_ratio": 1.0,
+     "stress_V": 165.8,
+     "ratio": 0.4145,
+     "pass": true
+    }
+   ]
+  }
+ },
+ "clamp_bound_published_25C": {
+  "Vc_max_string_V": 466.8,
+  "at_I_A": 129.8,
+  "rows": [
+   {
+    "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+    "check": "bus no-clamp worst",
+    "limit_V": 1000.0,
+    "max_ratio": 0.5,
+    "stress_V": 466.8,
+    "ratio": 0.4668,
+    "pass": true
+   },
+   {
+    "entry": "B32676G1905K000 (C5, C6)",
+    "check": "Vbus worst",
+    "limit_V": 750.0,
+    "max_ratio": 0.8,
+    "stress_V": 466.8,
+    "ratio": 0.6224,
+    "pass": true
+   },
+   {
+    "entry": "B32676G1905K000 (C5, C6)",
+    "check": "Vbus worst hot",
+    "limit_V": 570.0,
+    "max_ratio": 0.8,
+    "stress_V": 466.8,
+    "ratio": 0.8189,
+    "pass": false
+   },
+   {
+    "entry": "B32652A0104K000 (C38-C41)",
+    "check": "V",
+    "limit_V": 1000.0,
+    "max_ratio": 0.8,
+    "stress_V": 466.8,
+    "ratio": 0.4668,
+    "pass": true
+   },
+   {
+    "entry": "B32652A0104K000 (C38-C41)",
+    "check": "V hot",
+    "limit_V": 687.5,
+    "max_ratio": 0.8,
+    "stress_V": 466.8,
+    "ratio": 0.679,
+    "pass": true
+   },
+   {
+    "entry": "GBJ2510-F (BR1)",
+    "check": "V reverse",
+    "limit_V": 1000.0,
+    "max_ratio": 0.8,
+    "stress_V": 466.8,
+    "ratio": 0.4668,
+    "pass": true
+   },
+   {
+    "entry": "2EDR8259XXUMA1 (U1, U2)",
+    "check": "barrier",
+    "limit_V": 1767.0,
+    "max_ratio": 0.5,
+    "stress_V": 466.8,
+    "ratio": 0.2642,
+    "pass": true
+   },
+   {
+    "entry": "RC1206FR-07220KL (R3, R4)",
+    "check": "V transient",
+    "limit_V": 400.0,
+    "max_ratio": 1.0,
+    "stress_V": 233.4,
+    "ratio": 0.5835,
+    "pass": true
+   }
+  ],
+  "hot_assumed_+0.1%/K_at_73C_V": 489.2,
+  "rows_hot": [
+   {
+    "entry": "CC1206JKNPOCBN102 (C12, C13, C19, C20)",
+    "check": "bus no-clamp worst",
+    "limit_V": 1000.0,
+    "max_ratio": 0.5,
+    "stress_V": 489.2,
+    "ratio": 0.4892,
+    "pass": true
+   },
+   {
+    "entry": "B32676G1905K000 (C5, C6)",
+    "check": "Vbus worst",
+    "limit_V": 750.0,
+    "max_ratio": 0.8,
+    "stress_V": 489.2,
+    "ratio": 0.6523,
+    "pass": true
+   },
+   {
+    "entry": "B32676G1905K000 (C5, C6)",
+    "check": "Vbus worst hot",
+    "limit_V": 570.0,
+    "max_ratio": 0.8,
+    "stress_V": 489.2,
+    "ratio": 0.8583,
+    "pass": false
+   },
+   {
+    "entry": "B32652A0104K000 (C38-C41)",
+    "check": "V",
+    "limit_V": 1000.0,
+    "max_ratio": 0.8,
+    "stress_V": 489.2,
+    "ratio": 0.4892,
+    "pass": true
+   },
+   {
+    "entry": "B32652A0104K000 (C38-C41)",
+    "check": "V hot",
+    "limit_V": 687.5,
+    "max_ratio": 0.8,
+    "stress_V": 489.2,
+    "ratio": 0.7116,
+    "pass": true
+   },
+   {
+    "entry": "GBJ2510-F (BR1)",
+    "check": "V reverse",
+    "limit_V": 1000.0,
+    "max_ratio": 0.8,
+    "stress_V": 489.2,
+    "ratio": 0.4892,
+    "pass": true
+   },
+   {
+    "entry": "2EDR8259XXUMA1 (U1, U2)",
+    "check": "barrier",
+    "limit_V": 1767.0,
+    "max_ratio": 0.5,
+    "stress_V": 489.2,
+    "ratio": 0.2769,
+    "pass": true
+   },
+   {
+    "entry": "RC1206FR-07220KL (R3, R4)",
+    "check": "V transient",
+    "limit_V": 400.0,
+    "max_ratio": 1.0,
+    "stress_V": 244.6,
+    "ratio": 0.6115,
+    "pass": true
+   }
+  ]
+ }
+}

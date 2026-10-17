@@ -1,0 +1,20 @@
+Losses at 22 A tank: HS 7.38 W, LS 7.45 W; BR1 {'11.1 A hold': 20.98, '12.45 A trip': 23.53, '15 A (T03 bound)': 28.35}
+Grease per TO-247 interface: TC-5622 TDS 0.025-0.040 C/W; TIC1000A-proxy 0.172-0.273 C/W
+Pedestal + joint: 0.0161 C/W (shared)
+Sink load 58.0 W; Ts = 64.7 C at RSA 0.237 + pedestal
+SIL PAD K-10 0.152 mm (D-18 rejected)         Rcs opt 1.102-1.749  cons 1.102-1.749  <=0.7:False  Tj_LS  79.8 C  C [32.6, 51.7] pF  29.3.3 (c) only: single thin layer, lab test
+SIL PAD 1500ST 0.203 mm                       Rcs opt 0.618-0.981  cons 0.618-0.981  <=0.7:False  Tj_LS  74.1 C  C - pF  29.3.3 (c) only: single thin layer, lab test
+HI-FLOW 300P 0.102-0.127 mm (1 mil coat)      Rcs opt 0.349-0.555  cons 0.349-0.555  <=0.7:True   Tj_LS  70.9 C  C - pF  29.3.3 (c) only: single thin layer, lab test
+AlN 1.0 mm + 2x grease                        Rcs opt 0.078-0.123  cons 0.372-0.590  <=0.7:True   Tj_LS  71.2 C  C [11.5, 18.3] pF  29.3.3 (c) only: single thin layer, lab test
+AlN 2.0 mm + 2x grease (RECOMMENDED)          Rcs opt 0.106-0.168  cons 0.399-0.634  <=0.7:True   Tj_LS  71.5 C  C [5.8, 9.1] pF  29.3.1 (a): >= 2 mm
+Al2O3 2.0 mm (k 24 EST) + 2x grease           Rcs opt 0.397-0.631  cons 0.691-1.097  <=0.7:False  Tj_LS  74.9 C  C - pF  29.3.1 (a): >= 2 mm
+BR1 11.1 A hold: Rcs 0.378 C/W, Tj 77.9 C (Tj max 150 C)
+BR1 12.45 A trip: Rcs 0.378 C/W, Tj 79.5 C (Tj max 150 C)
+BR1 15 A (T03 bound): Rcs 0.378 C/W, Tj 82.5 C (Tj max 150 C)
+Clamp force for 25 N/cm2: [37.8, 60.0] N; for 50 psi: [52.1, 82.8] N
+Table 7 reinforced test V for U = 140/198/250/400 V: {140: 2500, 198: 3000, 250: 3000, 400: 3360.0}
+Tile B (76 mm) differential expansion vs Al over 50 K: 0.072 mm
+  E_pk at 470 V across 0.102 mm: 4.61 kV/mm
+  E_pk at 470 V across 0.152 mm: 3.09 kV/mm
+  E_pk at 470 V across 1.0 mm: 0.47 kV/mm
+  E_pk at 470 V across 2.0 mm: 0.23 kV/mm

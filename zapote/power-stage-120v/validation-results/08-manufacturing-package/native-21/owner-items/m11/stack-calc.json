@@ -1,0 +1,158 @@
+{
+ "losses_W": {
+  "FET_HS_22A": 7.378868433309639,
+  "FET_LS_22A": 7.448868433309639,
+  "BR1": {
+   "11.1 A hold": 20.979,
+   "12.45 A trip": 23.5305,
+   "15 A (T03 bound)": 28.35
+  }
+ },
+ "candidates": {
+  "SIL PAD K-10 0.152 mm (D-18 rejected)": {
+   "R_cs_opt_C_per_W": [
+    1.102,
+    1.749
+   ],
+   "R_cs_cons_C_per_W": [
+    1.102,
+    1.749
+   ],
+   "meets_0p7": false,
+   "thickness_mm": 0.152,
+   "breakdown_kV": 6.0,
+   "source": "[HNK] p.62-63",
+   "Tj_LS_worst_C": 79.8,
+   "C_tab_PE_pF": [
+    32.6,
+    51.7
+   ],
+   "29.3_route": "29.3.3 (c) only: single thin layer, lab test"
+  },
+  "SIL PAD 1500ST 0.203 mm": {
+   "R_cs_opt_C_per_W": [
+    0.618,
+    0.981
+   ],
+   "R_cs_cons_C_per_W": [
+    0.618,
+    0.981
+   ],
+   "meets_0p7": false,
+   "thickness_mm": 0.203,
+   "breakdown_kV": 3.0,
+   "source": "[HNK] p.62",
+   "Tj_LS_worst_C": 74.1,
+   "29.3_route": "29.3.3 (c) only: single thin layer, lab test"
+  },
+  "HI-FLOW 300P 0.102-0.127 mm (1 mil coat)": {
+   "R_cs_opt_C_per_W": [
+    0.349,
+    0.555
+   ],
+   "R_cs_cons_C_per_W": [
+    0.349,
+    0.555
+   ],
+   "meets_0p7": true,
+   "thickness_mm": 0.102,
+   "breakdown_kV": 5.0,
+   "source": "[HNK] p.51",
+   "Tj_LS_worst_C": 70.9,
+   "29.3_route": "29.3.3 (c) only: single thin layer, lab test"
+  },
+  "AlN 1.0 mm + 2x grease": {
+   "R_cs_opt_C_per_W": [
+    0.078,
+    0.123
+   ],
+   "R_cs_cons_C_per_W": [
+    0.372,
+    0.59
+   ],
+   "meets_0p7": true,
+   "thickness_mm": 1.0,
+   "breakdown_kV": 14.0,
+   "source": "[KYO] + [DOW]/[HNK]",
+   "Tj_LS_worst_C": 71.2,
+   "C_tab_PE_pF": [
+    11.5,
+    18.3
+   ],
+   "29.3_route": "29.3.3 (c) only: single thin layer, lab test"
+  },
+  "AlN 2.0 mm + 2x grease (RECOMMENDED)": {
+   "R_cs_opt_C_per_W": [
+    0.106,
+    0.168
+   ],
+   "R_cs_cons_C_per_W": [
+    0.399,
+    0.634
+   ],
+   "meets_0p7": true,
+   "thickness_mm": 2.0,
+   "breakdown_kV": 28.0,
+   "source": "[KYO] + [DOW]/[HNK]",
+   "Tj_LS_worst_C": 71.5,
+   "C_tab_PE_pF": [
+    5.8,
+    9.1
+   ],
+   "29.3_route": "29.3.1 (a): >= 2 mm"
+  },
+  "Al2O3 2.0 mm (k 24 EST) + 2x grease": {
+   "R_cs_opt_C_per_W": [
+    0.397,
+    0.631
+   ],
+   "R_cs_cons_C_per_W": [
+    0.691,
+    1.097
+   ],
+   "meets_0p7": false,
+   "thickness_mm": 2.0,
+   "breakdown_kV": null,
+   "source": "EST k=24 W/mK (96 % alumina class)",
+   "Tj_LS_worst_C": 74.9,
+   "29.3_route": "29.3.1 (a): >= 2 mm"
+  }
+ },
+ "requirements": {
+  "rated voltage": "120 V (Table 15 row ii: >50 and <=150 V) -> rated impulse 1500 V, OVC II",
+  "working voltage HOT->PE (normal)": "<= 99 V rms / 198 V pk at 127 V + 10 % (ORACLE-ANSWER Q2); |rail-PE| <= Vbus + Vf",
+  "clearance basic": "Table 16 @1500 V: 0.5 mm, PD3 footnote 0.8 mm; +0.5 mm (29.1, assembly-affected) -> 1.3 mm",
+  "clearance reinforced": "29.1.3 next step 2500 V: 1.5 mm; +0.5 mm (29.1) -> 2.0 mm; with 400 V bus (29.1.5: +202 V over 198 V pk) interpolate 2702 V -> 1.70 mm + 0.5 = 2.2 mm",
+  "creepage basic": "Table 17 row iii (>125-250 V) PD3: I 3.2 / II 3.6 / IIIa 4.0 mm; row iv (>250-400 V) PD3 IIIa 6.3 mm",
+  "creepage reinforced": "29.2.3: 2x -> 8.0 mm (row iii, IIIa) = D5-BASIS floor; 12.6 mm if 400 V were a working voltage",
+  "creepage ceramic": "Table 17 note 2: glass/ceramic that do not track -> creepage need not exceed clearance",
+  "solid reinforced": "29.3: (a) >= 2 mm thick (29.3.1), or (b) >= 3 layers each passing the supplementary 16.3 test (29.3.2), or (c) thermal assessment + 16.3 test (29.3.3)",
+  "solid supplementary": "29.3.1 >= 1 mm, or >= 2 layers (29.3.2), or 29.3.3",
+  "type test 16.3 (Table 7)": "basic 1250 V; supplementary 1250 V (<=150 V) / 1750 V (>150-250 V working); reinforced 2500 V (<=150 V) / 3000 V (>150-250 V working) / 2.4U + 2400 V above 250 V; 50 Hz, 1 min",
+  "routine (Annex A, Table 19)": "rated <=150 V: basic 800 V, double/reinforced 2000 V, 1 s; dc alternative 1.5x"
+ },
+ "BR1_Rcs_C_per_W": 0.3782324086892615,
+ "Ts_C": 64.68031530530895,
+ "R_pedestal_C_per_W": 0.016084999750579983,
+ "clamp_force_N_per_TO247": {
+  "25 N/cm2 (DOW test)": [
+   37.8,
+   60.0
+  ],
+  "50 psi (HNK test)": [
+   52.1,
+   82.8
+  ]
+ },
+ "hipot": {
+  "type_reinforced_V": {
+   "140": 2500,
+   "198": 3000,
+   "250": 3000,
+   "400": 3360.0
+  },
+  "routine_reinforced_V_ac_1s": 2000,
+  "routine_dc_V_1s": 3000
+ },
+ "tile_B_slip_mm_50K": 0.0722
+}

@@ -1,0 +1,57 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R76UR2820SE40J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R76UR2820SE40J",
+ "stock": {
+  "Avnet Americas": 0,
+  "Newark": 0
+ },
+ "price_breaks": [
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R76UR2820JE40K (fuzzy: pack JE, K tol)",
+   "stock": 0,
+   "min_qty": 864,
+   "lead_time": "31 weeks",
+   "currency": "USD",
+   "price_breaks": [
+    [
+     864,
+     1.3068
+    ],
+    [
+     1728,
+     1.2214
+    ],
+    [
+     3456,
+     1.2152
+    ]
+   ]
+  },
+  {
+   "distributor": "Newark",
+   "disti_pn": "92AC6678",
+   "matched_mpn": "R76UR2820JE40K",
+   "stock": 0,
+   "min_qty": 288,
+   "currency": "CAD",
+   "price_breaks": [
+    [
+     288,
+     1.38
+    ],
+    [
+     576,
+     1.35
+    ],
+    [
+     864,
+     1.32
+    ]
+   ],
+   "price_at_500": "CAD 1.38"
+  }
+ ]
+}

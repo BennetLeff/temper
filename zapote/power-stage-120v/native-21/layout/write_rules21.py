@@ -17,6 +17,11 @@ unchanged (same group only when joined by a conductor/low impedance and within
   rectifier, split, monitor HOT side) and the high-side F6 nodes.
 - Line zero-cross resistor-string taps are separate groups (like divider taps); the AC-input
   opto's two LED nodes (LED1, LED2) share one group (they differ by one LED drop).
+- Stage 18 (DECISIONS items 7, 18): RES_A is 297 V rms / 656 V pk to earth in normal use at 28 A,
+  so its reinforced creepage to SELV/PE at PD3 / IIIa is 12.6 mm (Table 17 x 2, >250-400 V band).
+  A last rule raises RES_A to SELV/PE to 12.6 mm clearance and creepage on the OUTER layers only;
+  inner-layer copper is embedded in laminate (solid insulation) and keeps the 8.0 mm floor. Every
+  other HOT net is <= 250 V rms and keeps 8.0 mm.
 """
 import importlib.util
 import re
@@ -32,27 +37,44 @@ sys.path.insert(0, str(HERE))
 from domains import SELV  # noqa: E402
 
 BOARD = UNIT / "native-21/section.kicad_pcb"
+RES_A_NETS = {"res_a"}
+RES_A_CREEPAGE_MM = 12.6     # IEC 60335-1 Table 17 x 2, PD3, IIIa, >250-400 V (DECISIONS item 7)
 nets = wr.board_nets(BOARD.read_text())
 
 
 def side1_nc(n):
-    return re.search(r"\.iso-nc(2|5|6|8)$", n) or n.endswith(("ldo5-nc", "-p2", "-p6", "-p11", "-p12", "-p17", "-p18", "-p19"))
+    return re.search(r"\.(iso|verdict)-nc(2|5|6|8)$", n) or n.endswith(("ldo5-nc", "-p2", "-p6", "-p11", "-p12", "-p17", "-p18", "-p19"))
 
 
 groups = {k: set(v) for k, v in wr.HOT_GROUPS.items()}
+# stage 16: the blower-supply tap after F2 is its own group (F2 can open, like AC_L_IN against l_f)
+groups["BLW_L"] = {"blw_l", "blw_lr"}   # stage 28: the limiter R130 between them drops < 0.3 V
 groups["LOW"] |= {"ocp_kelvin_p", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "bias_sn1", "bias_sn2",
-                  "hot5_ok_hot", "hot5_uv_raw", "hot5_uv_sense", "ocp_kelvin_n"}
+                  "hot5_ok_hot", "hot5_uv_raw", "hot5_uv_sense", "ocp_kelvin_n",
+                  # stage 14: module enable, the LS TPS7A47's NR node and unused ANY-OUT pins (unique names
+                  # now that only the LS split has an LDO), and each bias module's primary-side PG pin
+                  "bias_ha-en", "bias_hb-en", "ldo_nr", "p2", "p6", "p11", "p12", "p17", "p18", "p19",
+                  "bias_ha.iso-p3", "bias_hb.iso-p3",
+                  # stage 30 (DECISIONS 33): LS monitor 5 V (feeds the HS-A link and the heartbeat), the HS-A verdict
+                  # after its ISO6721FB link, the vote diode's open half, and the heartbeat's LS side
+                  "ls_v5", "mon_good_ha", "vote_nc", "hb_tx", "hb_rc", "hb.iso-nc2", "hb.iso-nc5", "hb.iso-nc6",
+                  "hb.iso-nc8",
+                  # stage 40 (candidate 30a): HS-B's verdict after its ISO6721FB link, and the second vote diode's open anode
+                  "mon_good_hb", "vote_b_nc",
+                  # stage 48 (c48-ldo-en-ref-watch): U3's EN divider tap (S19) and the REF25 watchdog tap (B13 H1)
+                  "hot5_en", "ref25_wd"}
 for n in nets:
-    if n in SELV or n in wr.SELV_NC or re.search(r"\.iso-nc(10|11|12|15)$", n):
+    if n in SELV or n in wr.SELV_NC or re.search(r"\.(iso|verdict)-nc(10|11|12|15)$", n):
         continue
     if n.startswith(("bias_ls", "monitor_ls")) or re.match(r"leg_[ab]-(gate_l|out_l|off_l)$", n) \
             or re.match(r"leg_[ab]\.bias_l-damp$", n) or n in ("clk", "ss", "sr", "dc", "en"):
         groups["LOW"].add(n)
     for leg in ("a", "b"):
         if n in (f"p_h{leg}", f"n_h{leg}", f"leg_{leg}-off_h", f"leg_{leg}.bias_h-damp") or \
-                (n.startswith(f"bias_h{leg}") and not n.endswith("_bad")):
+                (n.startswith(f"bias_h{leg}") and not n.endswith(("_bad", ".iso-p3", "-en"))):
             groups[f"SW_{leg.upper()}"].add(n)
-for n in nets:
+groups["SW_A"] |= {"outa_nc"} & nets   # stage 30: U43's open reverse-channel output (HS-A side 1; named bias_ha-outa_nc since stage 40)
+for n in sorted(nets):   # sorted: group order (hence the DRU text) must not follow the hash seed
     if n.startswith("line_zc-") and n not in SELV or n in ("r1mid", "r2mid"):
         groups[f"ZC_{n}"] = {n}
 # The VOL628A is an AC-input opto (pins AC1/AC2, f6_parts.ato LineOpto): antiparallel LEDs, so
@@ -65,7 +87,7 @@ for g in list(groups):
         del groups[g]
 wr.HOT_GROUPS = groups
 wr.TANK = {"res_a", "crbleed_1", "crbleed_2", "crbleed_3"} & nets
-wr.SELV_NC = wr.SELV_NC | {n for n in nets if re.search(r"\.iso-nc(10|11|12|15)$", n)} | \
+wr.SELV_NC = wr.SELV_NC | {n for n in nets if re.search(r"\.(iso|verdict)-nc(10|11|12|15)$", n)} | \
     {"line_zc.buffer-nc", "leg_a.driver-nc_7", "leg_b.driver-nc_7"}
 groups["LOW"] |= {n for n in nets if n in ("outb", "u_hot5_schmitt-nc", "u_ldo-nc", "u_ref-nc")
                   or re.fullmatch(r"u_iso-nc(2|5|6|8)", n)}
@@ -80,5 +102,12 @@ if unknown:
     sys.exit(1)
 if __name__ == "__main__":
     text = wr.rules(BOARD.read_text(), SELV)
+    barrier = (SELV | wr.SELV_NC | wr.PE) & nets
+    # last rule wins in KiCad, so this follows the SELV/PE floors and every component exception
+    text += ('\n(rule "RES_A to SELV/PE: reinforced 12.6 mm, outer layers (stage 18)"\n'
+             '  (layer outer)\n'
+             f'  (condition "{wr.any_of("A", RES_A_NETS & nets)} && {wr.any_of("B", barrier)}")\n'
+             f'  (constraint clearance (min {RES_A_CREEPAGE_MM}mm))\n'
+             f'  (constraint creepage (min {RES_A_CREEPAGE_MM}mm)))\n')
     (UNIT / "native-21/section.kicad_dru").write_text(text)
     print("wrote section.kicad_dru:", len(groups), "HOT groups,", len(nets), "nets")

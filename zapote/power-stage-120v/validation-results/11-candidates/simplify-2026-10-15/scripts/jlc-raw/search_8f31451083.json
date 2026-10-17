@@ -1,0 +1,215 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 53320,
+     "componentLibraryType": "expand",
+     "stockCount": 266489,
+     "componentTypeEn": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+     "erpComponentName": "22uF \u00b110% 25V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_samsung-electro-mechanics-cl32a226kajnnne_C52306.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 19,
+       "productPrice": 0.2448
+      },
+      {
+       "startNumber": 20,
+       "endNumber": 59,
+       "productPrice": 0.1951
+      },
+      {
+       "startNumber": 60,
+       "endNumber": 199,
+       "productPrice": 0.1707
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 999,
+       "productPrice": 0.1491
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.1179
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": -1,
+       "productPrice": 0.1143
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 999,
+       "productPrice": 0.1436
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": -1,
+       "productPrice": 0.1101
+      },
+      {
+       "startNumber": 60,
+       "endNumber": 199,
+       "productPrice": 0.1645
+      },
+      {
+       "startNumber": 20,
+       "endNumber": 59,
+       "productPrice": 0.1879
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 19,
+       "productPrice": 0.2358
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.1136
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "7e74f1d772c74e3d99bc4868d21962f2",
+     "canPresaleNumber": 234931,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "53320-CL32A226KAJNNNE/C52306",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.60877,
+     "preMinPurchaseNum": 47,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2448,
+     "componentCode": "C52306",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentModelEn": "CL32A226KAJNNNE",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582976696366059520",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL32A226KAJNNNE_C52306.pdf",
+     "dataManualFileAccessId": "8586178738215636992",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Samsung Electro-Mechanics CL32A226KAJNNNE",
+     "minImage": "",
+     "minImageAccessId": "8582976697327501312",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "1210",
+     "describe": "22uF 25V X5R \u00b110% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "25V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "22uF"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "X5R"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CL32A226KAJNNNE</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "CL32A226KAJNNNE"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T21:07:08Z"
+}

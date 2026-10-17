@@ -1,0 +1,1395 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 9,
+   "list": [
+    {
+     "componentId": 1610643,
+     "componentLibraryType": "expand",
+     "stockCount": 281,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "2.5mH @ 10kHz 25A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.7431
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.1443
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 11.1068
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 10.2029
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 10.2029
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 10.2029
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 9.8285
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 10.6992
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.2754
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 9.8285
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 9.8285
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.6987
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 258,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448052502/C1519845",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 53.98108,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.7431,
+     "componentCode": "C1519845",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448052502",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585518307298988032",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448052502.pdf",
+     "componentName": "Wurth 7448052502",
+     "minImage": "",
+     "minImageAccessId": "8585518308225388544",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin-4P,36x23mm",
+     "describe": "-40\u2103~+125\u2103 2 2.2m\u03a9 2.5mH@10kHz 250V 25A \u63d2\u4ef6-4P,36x23mm Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "2.2m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2.5mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>2502",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1610644,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "4.5mH @ 10kHz 18A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448051804/C1519846",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1519846",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448051804",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448051804.pdf",
+     "componentName": "Wurth 7448051804",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "18A 2 4.2m\u03a9 4.5mH@10kHz Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "18A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "4.5mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "4.2m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>1804",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1610645,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011900uH @ 10kHz 32A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_wurth-elektronik-7448053201_C1519847.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448053201/C1519847",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1519847",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448053201",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448053201.pdf",
+     "componentName": "Wurth 7448053201",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "1.1m\u03a9 2 32A 900uH@10kHz \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "32A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "900uH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "1.1m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>3201",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1618081,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "12mH @ 10kHz 10A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448051012/C1527282",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1527282",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448051012",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448051012.pdf",
+     "componentName": "Wurth 7448051012",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "10A 12mH@10kHz 15m\u03a9 2 Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "10A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "12mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "15m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>1012",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1624886,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "3mH @ 10kHz 23A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448052303/C1534084",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1534084",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448052303",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448052303.pdf",
+     "componentName": "Wurth 7448052303",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 2 2.1kV 23A 250V 3mH@10kHz 3m\u03a9 Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.1kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "23A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "3m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "3mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>2303",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625565,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "190mH @ 10kHz 2A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448050219/C1534763",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1534763",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448050219",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448050219.pdf",
+     "componentName": "Wurth 7448050219",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-55\u2103~+125\u2103 190mH@10kHz 2 2.1kV 2A 300V 310m\u03a9 Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.1kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "2A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "190mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "310m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>0219",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625566,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "30mH @ 10kHz 5A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448050530/C1534764",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1534764",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448050530",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448050530.pdf",
+     "componentName": "Wurth 7448050530",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-55\u2103~+125\u2103 2 2.1kV 30mH@10kHz 46m\u03a9 5A Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.1kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "5A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "30mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "46m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>0530",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625613,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "90mH @ 10kHz 3.5A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.6617
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.449
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.2223
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.1097
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.8855
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.2124
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.0503
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.9939
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.0503
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448050490/C1534811",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.6617,
+     "componentCode": "C1534811",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448050490",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448050490.pdf",
+     "componentName": "Wurth 7448050490",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-55\u2103~+125\u2103 110m\u03a9 2 2.1kV 3.5A 300V 90mH@10kHz Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.1kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3.5A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "90mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "110m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>0490",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20426256,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "7448051307",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448051307/C19190417",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C19190417",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448051307",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448051307.pdf",
+     "componentName": "Wurth 7448051307",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TH-4P",
+     "describe": "TH-4P New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>744805</span>1307",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "744805"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:01:01Z"
+}

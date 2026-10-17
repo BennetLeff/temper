@@ -3,29 +3,35 @@
 # Each distinct MPN is its own component type: Atopile 0.2.69 can alias
 # unlike MPNs that share a footprint, and the Rust audit checks every
 # reference's MPN in the built BOM.
-# Footprints named temper:*_ReviewOnly do not exist yet and must be drawn
-# from the manufacturer drawing before native board work.
+# Footprints named temper:*_ReviewOnly are drawn from the manufacturer drawing; the suffix is a
+# legacy name kept so library references do not change (FOOTPRINTS.md; checks recorded in
+# 13-external-review-2026-10-13/FINDINGS.md #8).
 
 # ---------------------------------------------------------------- mains entry
 
 component MainsTerminal2:
-    """Phoenix MKDS 3/2-5,08, L/N only. IEC 24 A; applicable UL use-group
-    rating must be checked. PE uses a separate chassis branch terminal."""
+    """Phoenix MKDS 5/2-9,5 (1714971), L/N only. UL/cUL use group B 300 V 30 A, CSA 300 V 30 A
+    (UL file E60425), IEC 32 A; 9.52 mm pitch, 14-10 AWG. Stage 27 (DECISIONS 29): the former
+    MKDS 3/2-5,08 (1711725) is only 15 A cULus / 10 A CSA against the 13.5-15 A input.
+    PE uses a separate chassis branch terminal."""
     designator_prefix = "J"
-    mpn = "1711725"
+    mpn = "1714971"
     manufacturer = "Phoenix Contact"
-    footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal"
+    footprint = "temper:Phoenix_MKDS-5-2-9.52_1714971"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
 component PowerTerminalM4:
-    """Wuerth REDCUBE THR M4, 50 A max at 20 C, 1.2 N m torque.
-    Four same-number solder pads are one metal terminal. No manufacturer
+    """Wuerth REDCUBE SMT WP-SMBU M4, internal through-hole thread (7466004R,
+    tape and reel): 50 A max at 20 C, 1.2 N m torque (datasheet rev 001.003 p.1).
+    One D8.5 SMD solder pad round a D5.2 non-plated hole; no PCB-thickness limit.
+    Stage 35 (candidate 35): replaces the REDCUBE THR 74650074, whose 1.6-2.0 mm
+    board-thickness window JLC cannot guarantee (DECISIONS 42). No manufacturer
     voltage rating: PCB, lug and wire spacing determine insulation."""
     designator_prefix = "J"
-    mpn = "74650074"
+    mpn = "7466004R"
     manufacturer = "Wuerth Elektronik"
-    footprint = "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR"
+    footprint = "temper:Wuerth_REDCUBE-SMT_WP-SMBU_7466004R"
     signal p1 ~ pin 1
 
 component PeBranchTerminal:
@@ -38,13 +44,56 @@ component PeBranchTerminal:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component MainsFuse20A:
-    """Littelfuse 0326020.MXP 20 A 250 V slo-blo ceramic 6.3x32 mm, in a
-    102071 clip pair (clip current rating to confirm >= 20 A)."""
+component MainsFuse25A:
+    """Littelfuse KLDR025.TXP: UL Class CC (UL 248-4), 25 A time-delay, 600 Vac, 200 kA interrupting,
+    10.3 x 38.1 mm (KLDR datasheet Rev 092821: p.1 ratings, p.5 I2t 226 / 1,710 A2s, p.6 ~10 %
+    downrating at 50 C, so 25 x 0.75 x 0.90 ~ 16.9 A continuous against the 15 A input limit).
+    Alternate: Eaton Bussmann LP-CC-25. Chosen 2026-10-09 for the 120-127 V~ nameplate (Mexico from
+    day 1): the 6.3 x 32 MDA-25-R is rated 1.5 kA at 250 Vac, against a cord-limited fault bound of
+    4.7-8.4 kA at 127 V + 10 %; 200 kA ends the question for UL, CSA and NOM. Held in 2 x Littelfuse
+    01250003H 125-series clips (30 A, LCSC C223911), custom footprint, hand-assembled
+    (validation-results/08-manufacturing-package/native-21/owner-items/f1cc/)."""
     designator_prefix = "F"
-    mpn = "0326020.MXP"
+    mpn = "KLDR025.TXP"
     manufacturer = "Littelfuse"
-    footprint = "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal"
+    footprint = "temper:Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BranchFuseT3A15:
+    """Schurter UMT-H 3403.0279.23: SMD 3.15 A time-lag (T), 15.4 x 5.35 mm, breaking capacity 1500 A at
+    277 VAC (UL 248-14, cURus E41599) / 1500 A at 250 VAC (IEC 60127-7); melting I2t 39 A2s at 10 In
+    (Schurter UMT-H data sheet, fetched 2026-10-13). Fuses the blower-supply mains tap (stage 16, DECISIONS
+    15-16) to PS3. Stage 28 (DECISIONS 30, F4): replaces the UMT 250 3403.0171, whose 200 A was below the
+    1.09-1.45 kA prospective fault at J11; with the series limiter R_blw the fault is bounded at 784 A."""
+    designator_prefix = "F"
+    mpn = "3403.0279.23"
+    manufacturer = "Schurter"
+    footprint = "temper:Fuse_Schurter_UMT-H_15.4x5.35mm"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component BranchLimiter0R15:
+    """Vishay AC05 0.15 ohm 5 W cemented wirewound (AC05000001507JAC00), D 7.5 x L 18 mm max, mounted
+    upright. Stage 28 (DECISIONS 30, F4): in series after F2, bounding the J11 fault current to
+    139.7 V / (0.0283 + 0.15) ohm = 784 A (1.91x inside F2's 1.5 kA); 0.30 W at 1.42 A. Pulse capacity
+    about 125 A2s at 0.15 ohm (Vishay AC chart) against F2's 39 A2s melting and the 56-67 A2s current-limiting
+    clearing estimate (11-candidates/c28-f2); a bench short at J11 confirms it."""
+    designator_prefix = "R"
+    mpn = "AC05000001507JAC00"
+    manufacturer = "Vishay"
+    footprint = "temper:R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component MainsTapHeader:
+    """JST B2P3-VH(LF)(SN) (as TcoLoopHeader): the blower-supply mains tap J11 to the chassis-mounted
+    PS3 (stage 16). 7.92 mm between the two posts (post 2 omitted), 250 V / 10 A; mates VHR-3N with
+    cavity 2 empty, SVH-21T-P1.1 crimps, 18 AWG. Cannot cross-mate the controller's 3.96 mm J13."""
+    designator_prefix = "J"
+    mpn = "B2P3-VH(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -71,13 +120,32 @@ component Cmc20A:
     signal b_in ~ pin 2
     signal b_out ~ pin 3
 
+component Cmc24A:
+    """TDK B82726S2243A020 current-compensated choke, 24 A, 0.75 mH (-30/+50 %), Lstray 8 uH typ, 3.2 mOhm per winding
+    (stage 52, DECISIONS 74, prototype lot). TDK B82726S22*3A020 data sheet (5/26, sha256 e8002bfe...) p.4 ordering
+    table: same sheet, same dimensional drawing and pin configuration as Cmc20A (windings 1-4 and 2-3, no polarity; 10 mm
+    within a row, 25 mm between rows, 2 mm pins), so it drops into temper:B82726S2_ReviewOnly. IR 24 A at TR 60 C, VR
+    250 V AC, 40/125/56. Fitted for the 10-20 board prototype lot (Mouser 62 / DigiKey 29 on 2026-10-16;
+    11-candidates/b15-proto-alternates); the production part stays B82726S2203A020 (Cmc20A, owner pre-order). Its lower
+    stray inductance moves the 70 kHz DM line: full EMI margin needs the inlet module's DM inductors >= 100 uH per line
+    at 21 A (MODULE-REQUEST.md); with today's 2 x 41 uH the model is INCONCLUSIVE (prototype EMI deviation)."""
+    designator_prefix = "L"
+    mpn = "B82726S2243A020"
+    manufacturer = "TDK"
+    footprint = "temper:B82726S2_ReviewOnly"
+    signal a_in ~ pin 1
+    signal a_out ~ pin 4
+    signal b_in ~ pin 2
+    signal b_out ~ pin 3
+
 component CapX2_1u:
-    """KEMET R463N410000N1M X2 1 uF 310 VAC, 22.5 mm pitch, 26.5 x 11.0 x 20.0 mm
-    (KEMET R46 datasheet p.10 row R463N4100(1)N1(2); p.3 maximum body 26.8 x
-    11.2 x 20.1 mm). Replaced R463R410000M1M, a 27.5 mm-pitch part that did not
-    fit this 22.5 mm footprint (validation task 07 round 2)."""
+    """KEMET R463N410050N1K X2 1 uF +/-10 % 310 VAC, 22.5 mm pitch, R46 N1 body 26.5 x 11.0 x 20.0 mm
+    (KEMET R46 datasheet p.10 row R463N4100(1)N1(2); p.3 maximum body 26.8 x 11.2 x 20.1 mm).
+    Packaging 50 = 25 mm leads: trim to 4 mm at hand assembly (p.2). Same series, body, rating and
+    approvals as R463N410000N1M (24-38 week lead time, 2026-10-09); tolerance tighter than the
+    +/-20 % basis. Replaced R463R410000M1M, a 27.5 mm-pitch part, in task 07 round 2."""
     designator_prefix = "C"
-    mpn = "R463N410000N1M"
+    mpn = "R463N410050N1K"
     manufacturer = "KEMET"
     footprint = "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly"
     signal p1 ~ pin 1
@@ -92,11 +160,27 @@ component CapY1_2n2:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R120k1206:
-    """X-capacitor bleed, 2 in series (tau 0.48 s with 2 uF)."""
+component CapY1_2n2H:
+    """Murata DE1E3RA222MJ4BH01F X1/Y1 2.2 nF +-20 % disc, Type RA, H01F (stage 52, DECISIONS 74). Murata reference
+    specification Type RA (Jun. 2023, EGD08G; LCSC copy sha256 c959488a...; PDF pages, the printed n/17 footer is one
+    less): p.6 approvals UL/cUL UL60384-14 / CSA E60384-14 E37921, ENEC (VDE) EN60384-14 40043033, CQC IEC60384-14
+    CQC16001138225; ratings X1 440 V AC, Y1 400 V AC, DC 1 kV, -40 .. 125 C; p.9 J4 drawing and part list D 9.0 / T 4.0
+    / F 10.0 / d 0.6 mm, lead style J4 (vertical crimp short type: 3.5 +1.0/-0.5 mm below the crimp, crimp <= 3.0 mm
+    below the disc, F +-0.8). Same body, pitch, lead and certificates
+    as DE1E3RA222MA4BP01F (CapY1_2n2, P01F: Y1 300 V; A4 long crimped leads), so the footprint is unchanged. JLC
+    C7170908 (104 on 2026-10-16), Mouser 6,002 (11-candidates/b15-proto-alternates)."""
+    designator_prefix = "C"
+    mpn = "DE1E3RA222MJ4BH01F"
+    manufacturer = "Murata"
+    footprint = "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R100k1206:
+    """X-capacitor bleed, 2 x 100 k in series (tau 0.40 s with 2 uF; 0.85 s to 34 V at +20 % C)."""
     designator_prefix = "R"
-    mpn = "RC1206FR-07120KL"
-    manufacturer = "Yageo"
+    mpn = "1206W4F1003T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -116,11 +200,13 @@ component BridgeGbj2510:
     signal MINUS ~ pin 4
 
 component BusFilm2u7:
-    """TDK 2.7 uF +/-5%, 1000 VDC, four-pin radial polypropylene.
-    Drawing B1: pairs at each x end share an electrode; numbers are local
-    pad assignments. 22.8 A RMS at 85 C / 100 kHz, not an all-frequency rating."""
+    """TDK B32676G1905K000 9 uF +/-10 %, 750 VDC (85 C), four-pin radial MKP DC link, 30 x 45 x 42 mm,
+    P1 20.3 / e 37.5 / d1 1.2, ESL ~12 nH (B3267* data sheet). Stage 14 (DECISIONS 2026-10-09): replaces
+    B32656G0275J000 (2.7 uF, no stock); bus 18.4 uF. Same pads: pairs at each x end share an electrode;
+    numbers are local pad assignments. Self-heating ~80 % of TDK's allowance at 85 C (ALT-C5C6): check
+    the case temperature at first power."""
     designator_prefix = "C"
-    mpn = "B32656G0275J000"
+    mpn = "B32676G1905K000"
     manufacturer = "TDK"
     footprint = "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly"
     signal p1 ~ pin 1
@@ -138,14 +224,15 @@ component LocalBus100n:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component BusTvsMrt130kp295:
-    """Microchip MRT130KP295CV bidirectional axial TVS across the DC link.
-    The footprint's formed lead pitch is an assembly selection; surge energy,
-    temperature and loop inductance still need hardware qualification."""
+component BusTvs30kpa150:
+    """Good-Ark 30KPA150CA bidirectional 30 kW P600 axial TVS; two in series across the DC link
+    (stage 14, DECISIONS 2026-10-09, ALT-D3): standoff 2 x 150 V, VBR min 2 x 167.5 V, clamp
+    2 x 233.4 V max at 129.8 A (10/1000 us; Good-Ark data sheet p.3). Replaces MRT130KP295CV
+    (42 weeks). Surge energy, temperature and loop still need the bench pulse qualification."""
     designator_prefix = "D"
-    mpn = "MRT130KP295CV"
-    manufacturer = "Microchip Technology"
-    footprint = "temper:MRT130KP_Axial_P20.00mm_ReviewOnly"
+    mpn = "30KPA150CA"
+    manufacturer = "Good-Ark Semiconductor"
+    footprint = "temper:P600_Axial_P12.70mm_ReviewOnly"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -160,13 +247,15 @@ component R220k1206:
     signal p2 ~ pin 2
 
 component Shunt1m:
-    """Vishay WSK25121L000FEA 1 mOhm 4-terminal. KiCad pads 1/4 current I1/I2, 2/3 sense E1/E2.
-    Vishay doc 30108: 1 mOhm uses T=2.21 mm and low-ohm L marking.
-    Same-end terminal relationships are internal to the part, not PCB joins."""
+    """Bourns CSS2H-2512R-1L00F 1 mOhm, 5 W @70 C terminal, +/-75 ppm/C, AEC-Q200 (stage 17, DECISIONS 17;
+    replaces Vishay WSK25121L000FEA, which failed derating at 28 A). Two-terminal part on Bourns' Kelvin
+    land (datasheet p.2): KiCad pads 1/4 current I_A/I_B, 2/3 sense fingers. The sense fingers are
+    net-tied to their current pad in the footprint (net_tie_pad_groups 1,2 / 3,4); the netlist keeps
+    the four nets separate, as for the WSK."""
     designator_prefix = "R"
-    mpn = "WSK25121L000FEA"
-    manufacturer = "Vishay Dale"
-    footprint = "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
+    mpn = "CSS2H-2512R-1L00F"
+    manufacturer = "Bourns"
+    footprint = "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin"
     signal I1 ~ pin 1
     signal S1 ~ pin 2
     signal S2 ~ pin 3
@@ -185,10 +274,13 @@ component MosfetCfd7:
     signal S ~ pin 3
 
 component Snubber1n1kV:
-    """Murata GRM31A5C3A102JW01D 1 nF 1 kV C0G 1206, drain-source."""
+    """YAGEO CC1206JKNPOCBN102 1 nF 5 % 1 kV C0G (NP0) 1206 (LCSC C113872), drain-source. Stage 43: replaces the
+    source MPN GRM31A5C3A102JW01D, which is not a Murata part (no GRM31A5C3A 102 exists); the JLC order already
+    placed C113872 as a declared substitute. YAGEO HV NP0/X7R 500 V-3 kV spec V.16 2023-05-10 p.2 (C = 1 kV),
+    p.3 (1206 L4 min 1.40 mm), p.5 Table 3 (1206 NP0 1 kV to 1.0 nF), p.10 (-55 to +125 C)."""
     designator_prefix = "C"
-    mpn = "GRM31A5C3A102JW01D"
-    manufacturer = "Murata"
+    mpn = "CC1206JKNPOCBN102"
+    manufacturer = "YAGEO"
     footprint = "Capacitor_SMD:C_1206_3216Metric"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
@@ -214,6 +306,59 @@ component UCC21550BDWK:
     signal VSSA ~ pin 14
     signal OUTA ~ pin 15
     signal VDDA ~ pin 16
+
+component Driver2EDR8259X:
+    """Infineon EiceDRIVER 2EDR8259XXUMA1, reinforced isolated dual gate driver, PG-DSO-14 (the DWK outline: positions
+    12/13 absent, so its pins 12/13/14 GNDA/OUTA/VDDA sit on footprint pads 14/15/16). Stage 29 (DECISIONS 31; candidate
+    25): replaces UCC21550BDWKR (no stock until 2027-06; CMTI 125 V/ns = 1.32x the modelled 95 V/ns edge). CMTI >= 150 V/ns
+    static; VIORM 1767 Vpk; 5 A / 9 A; VDD 8.5-21 V (abs max 22 V; rails 17.0 V); VDDI UVLO on <= 2.95 V; VINH <= 2.36 V.
+    STP/DTC pin: tdt = 10 x R[kohm] (Table 19 spread +-15 %). DIS is active high with an internal PULL-DOWN (open =
+    enabled), the opposite of the UCC21550's pull-up: R73 / R76 (10 k to V3V3) alone hold an open DIS disabled.
+    Infineon 2EDR8259H/X datasheet Rev 1.7 (2026-04-09); 11-candidates/c25-driver."""
+    designator_prefix = "U"
+    footprint = "lib:SOIC16W_Isolated"
+    mpn = "2EDR8259XXUMA1"
+    manufacturer = "Infineon"
+    signal INA ~ pin 1
+    signal INB ~ pin 2
+    signal VCCI_1 ~ pin 3
+    signal GNDI ~ pin 4
+    signal DIS ~ pin 5
+    signal DT ~ pin 6
+    signal NC_7 ~ pin 7
+    signal VCCI_2 ~ pin 8
+    signal VSSB ~ pin 9
+    signal OUTB ~ pin 10
+    signal VDDB ~ pin 11
+    signal VSSA ~ pin 14
+    signal OUTA ~ pin 15
+    signal VDDA ~ pin 16
+
+component R8R2Gate:
+    """FH RS-06L8R20FT 8.2 ohm 1 % 1206 (LCSC C323355). Stage 29 (DECISIONS 31): the 2EDR8259X's stronger output stage
+    (0.95 / 0.39 ohm) with 8.2 ohm restores the as-built edge (0.99x, 144/144 F6 cases; c25-driver), keeping the dv/dt
+    that the CMTI ratio is computed at."""
+    designator_prefix = "R"
+    mpn = "RS-06L8R20FT"
+    manufacturer = "FH"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R68Gate2512:
+    """UniRoyal 25121WF680JT4E 68 ohm 1 % 1 W 2512 thick film (LCSC C50371). Stage 42 (candidate 39, DECISIONS 54): the
+    turn-on resistor of the split gate network (the PMEG6030EP + 1 ohm turn-off path is unchanged). With Cgs 4.7 nF it
+    holds the S4 reverse-diode commutation of the CFD7 to 49.7 V/ns and 244 A/us at typical Qrr (gate-network study
+    2026-10-15, full grid 640/640). 2512 because R_on dissipates 0.17-0.22 W at 60 kHz: 1 W at 70 C derating to 0 W at
+    155 C (UniRoyal thick-film chip resistor data sheet V.3 2019-02-12 p.4/9, p.5/9)."""
+    designator_prefix = "R"
+    mpn = "25121WF680JT4E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
 
 component BootDiode:
     """Vishay UF4007-E3/54 1000 V 1 A ultrafast, bootstrap."""
@@ -254,8 +399,8 @@ component R49k9Dt:
 
 component R10k0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-0710KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1002T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -265,8 +410,8 @@ component R100R0603:
     """Permit FET gate series resistor: 100 ohm keeps PERMIT -> DIS fast
     (validation-results/02-protection-timing)."""
     designator_prefix = "R"
-    mpn = "RC0603FR-07100RL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1000T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -274,8 +419,8 @@ component R100R0603:
 
 component R100k0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-07100KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1003T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -283,8 +428,8 @@ component R100k0603:
 
 component R330R0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-07330RL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF3300T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -292,8 +437,8 @@ component R330R0603:
 
 component R1k0603:
     designator_prefix = "R"
-    mpn = "RC0603FR-071KL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF1001T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -301,17 +446,54 @@ component R1k0603:
 
 component C100n0603:
     designator_prefix = "C"
-    mpn = "C0603C104K5RACTU"
-    manufacturer = "KEMET"
+    mpn = "CC0603KRX7R9BB104"
+    manufacturer = "YAGEO"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: capacitance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component C10u1210:
+component C100n0805:
+    """Yageo CC0805KRX7R9BB104, 100 nF 50 V X7R 0805 (LCSC C49678). UCC21550 VDD-VSS decoupling,
+    straddling the output trace at the driver pins: 0805 pads are 1.9 mm apart and sit over VDDx / VSSx
+    (2.53 mm), and the 0.9 mm pad gap passes a 0.3 mm OUTx neck (stage 9, review B1)."""
     designator_prefix = "C"
-    mpn = "GRM32ER71H106KA12L"
+    mpn = "CC0805KRX7R9BB104"
+    manufacturer = "YAGEO"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C1u0805:
+    """Samsung CL21B105KBFNNNE, 1 uF 50 V X7R 0805 (LCSC C28323, JLC Basic). Second straddle cap at the
+    UCC21550 VDD-VSS pins (review B1: >= 1 uF + 100 nF within 2 mm); AMC1311 1 uF (SBAS786C 10)."""
+    designator_prefix = "C"
+    mpn = "CL21B105KBFNNNE"
+    manufacturer = "Samsung Electro-Mechanics"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C10u0805:
+    """Murata GRM21BZ71E106KE15L, 10 uF 25 V X7R 0805 (LCSC C237493). High-side VDDA-VSSA bulk at
+    the UCC21550 pins (TI SLUSE89C 11.1: ~10 uF + <= 100 nF at VDD-VSS); the 1210 does not fit
+    between the gate-drive lanes. ~3-4 uF effective at 17 V DC bias (estimate)."""
+    designator_prefix = "C"
+    mpn = "GRM21BZ71E106KE15L"
     manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0805_2012Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C10u1210:
+    # stage 31 (DECISIONS 34): Samsung keeps 6.0 uF at 17 V against the Taiyo UMK325AB7106KM-T's 3.7 uF
+    # (validation-results/11-candidates/c31-bom/mlcc_bias.py); 2.7 mm max thickness
+    designator_prefix = "C"
+    mpn = "CL32B106KBJNNNE"
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_1210_3225Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -319,30 +501,70 @@ component C10u1210:
 
 # ----------------------------------------------------------------- resonant tank
 
-component Res942C12P22:
-    """CDE 942C12P22K-F 0.22 uF 1200 Vdc, 10.3 A rms (70 C, 100 kHz)."""
+component ResB32654:
+    """TDK B32654A1104J000 (stage 20: J, +-5 %, was K +-10 %; DECISIONS 23) 0.10 uF 1600 Vdc / 500 Vac MKP, 27.5 mm radial, 7.3 A rms at 85 C / 100 kHz
+    (B3265*A data sheet p.22). Five in parallel form the 0.50 uF bank from stage 13: the 942C parts'
+    catalogue current does not support the 22 A tank ceiling (validation-results/05 round 4 and its review)."""
     designator_prefix = "C"
-    mpn = "942C12P22K-F"
-    manufacturer = "Cornell Dubilier"
-    footprint = "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly"
+    mpn = "B32654A1104J000"
+    manufacturer = "TDK"
+    footprint = "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Res942C12P1:
-    """CDE 942C12P1K-F 0.10 uF 1200 Vdc, 9.2 A rms (70 C, 100 kHz)."""
+component ResB32643B:
+    """TDK B32643B8104J000 (stage 49, candidate 34 / DECISIONS 68): 0.10 uF +-5 % 2000 Vdc / 500 Vac MMKP
+    "High frequency", 22.5 mm radial, AEC-Q200D. B3264*B data sheet (6/26): e 22.5 +-0.4 mm, d1 0.8 +-0.05 mm (p.2);
+    maximum body w x h x l 14.5 x 29.5 x 26.5 mm, IRMS,max 8.3 A at 85 C / 100 kHz for dT <= 15 C, ESR_typ 8 mOhm,
+    ESL_typ 11 nH, untaped MOQ 2080 (p.11); Top,max 125 C case (p.2, p.12); dV/dt 3800 V/us (p.13). Five in parallel
+    keep the 0.50 uF bank; replaces B32654A1104J000 (1600 Vdc, P27.5), which sits at TDK's self-heating limit in the
+    0.5 mm column (bank28-air). Not stocked at JLC: an owner pre-order / consigned line (28 weeks, MOQ 2080)."""
     designator_prefix = "C"
-    mpn = "942C12P1K-F"
-    manufacturer = "Cornell Dubilier"
-    footprint = "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly"
+    mpn = "B32643B8104J000"
+    manufacturer = "TDK"
+    footprint = "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component CST3015_100E:
-    """Coilcraft CST3015-100ED 1:100 CT, 88 A, 5 kVrms reinforced.
-    Pads P1/P2/S1/S2 = 1/2/3/4 (repo footprint temper:CST3015)."""
+component ResMmkp82Bank:
+    """KNSCHA MMK104J3DF1KN208G2 (stage 51, DECISIONS 73): 0.10 uF +-5 % 2000 Vdc / 700 Vac MMKP82 double-side
+    metallised polypropylene, 27.5 mm radial. Spec KNS20200505002 (LCSC C528962): W 31.5 / H 19.5 / T 11 +-0.5 mm,
+    P 27.5 +-0.5, d 0.8 +-0.05 mm (p.3); 40/105/56, flammability B, 1.6 UR 5 s, tan d <= 0.1 % at 1 kHz (p.4). Family
+    current curve 6.2 A at 35 kHz for a 10 K internal rise, ambient <= 85 C (11-candidates/c51-bank-source). Five in
+    parallel keep the 0.50 uF bank. Replaces B32643B8104J000 (JLC 0, 28-week lead, MOQ 2080), which stays the 28 A
+    drop-in alternate on the same dual-pitch footprint (pad 2 at 22.5 mm for TDK, 27.5 mm for KNSCHA). JLC C528962."""
+    designator_prefix = "C"
+    mpn = "MMK104J3DF1KN208G2"
+    manufacturer = "KNSCHA"
+    footprint = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ResB32643HBank:
+    """TDK B32643H8104J000 (stage 52, DECISIONS 74, prototype lot): 0.10 uF +-5 % 2000 Vdc / 700 Vac MMKP, 22.5 mm
+    radial, B3264*H data sheet (June 2026, owner-supplied, sha256 69b56e62...): p.3 e 22.5 +-0.4 mm, d1 0.8 +-0.05 mm;
+    p.14 maximum body w x h x l 14.5 x 29.5 x 26.5 mm (the B32643B body), IRMS,max 100 kHz 11.03 A at TA 60 C
+    (self-heating <= 30 K) / 9.17 A at 85 C (<= 20 K), ESRtyp 10.9 mOhm; p.15 TR 105 C, Top,max 125 C (case), tan d <=
+    0.3e-3 at 1 kHz / 1.0e-3 at 100 kHz, AEC-Q200D, IEC 60384-16; p.16 dV/dt 3800 V/us; p.2 case UL 94 V-0. Fitted in
+    the dual-pitch footprint's 22.5 mm hole (pad 2 at x 22.5); the 27.5 mm hole stays empty. Rated 24 A strict on this
+    board (11-candidates/c51-bank-source, 'Alternates to B32643B'). DigiKey 306 on 2026-10-16 (no JLC listing):
+    consigned / global-sourcing line for the 10-20 board prototype lot. KNSCHA MMK104J3DF1KN208G2 (ResMmkp82Bank) stays
+    the in-stock fallback (22 A strict) and TDK B32643B8104J000 (ResB32643B) the 28 A part, both on the same footprint."""
+    designator_prefix = "C"
+    mpn = "B32643H8104J000"
+    manufacturer = "TDK"
+    footprint = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component CST3015_200E:
+    """Coilcraft CST3015-200ED 1:200 CT, 5 kVrms reinforced (series datasheet 1608-1). Stage 20 (DECISIONS 23):
+    replaces the 1:100 -100ED with R39 doubled to 3.0 ohm, so volts per primary amp (0.015 V/A) and every CT
+    threshold in amps are unchanged; secondary volt-time 1276 V-us (was 638), JLC SMT (C50132500).
+    Pads P1/P2/S1/S2 = 1/2/3/4 (repo footprint temper:CST3015, the series' common outline)."""
     designator_prefix = "T"
     footprint = "temper:CST3015"
-    mpn = "CST3015-100ED"
+    mpn = "CST3015-200ED"
     manufacturer = "Coilcraft"
     signal P1 ~ pin 1
     signal P2 ~ pin 2
@@ -363,24 +585,17 @@ component Irm05_15:
     signal VN ~ pin 3
     signal VP ~ pin 4
 
-component Irm20_15:
-    """MEAN WELL IRM-20-15, 15 V 1.4 A, 4.2 kVac I/O. Pin 1 = AC/L, 2 = AC/N."""
-    designator_prefix = "PS"
-    mpn = "IRM-20-15"
-    manufacturer = "MEAN WELL"
-    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
-    signal ACL ~ pin 1
-    signal ACN ~ pin 2
-    signal VN ~ pin 3
-    signal VP ~ pin 4
-
 component TcoLoopHeader:
-    """JST B2P-VH(LF)(SN), 3.96 mm, 250 V 10 A: series loop through the
-    off-board heatsink and under-glass Microtemp G4A thermal cutoffs."""
+    """JST B2P3-VH(LF)(SN): VH header with post 2 omitted (7.92 mm pitch, 250 V AC/DC 10 A, JST
+    eVH.pdf p.1 / p.6 item 3; "headers with posts omitted are available", p.3), series loop through
+    the off-board heatsink and under-glass Microtemp G4A thermal cutoffs. With the TCO open the two
+    posts see line voltage: the 3.96 mm B2P-VH left 1.26 mm of copper, this leaves 5.22 mm (review
+    M7, 2026-10-08). Unshrouded: the shrouded -FB-B (14.9 mm courtyard) does not fit between PS2 and
+    F1. Mates VHR-3M (cavity 2 empty), SVH-21T-P1.1 / SVH-41T-P1.1 crimps."""
     designator_prefix = "J"
-    mpn = "B2P-VH(LF)(SN)"
+    mpn = "B2P3-VH(LF)(SN)"
     manufacturer = "JST"
-    footprint = "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical"
+    footprint = "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -441,10 +656,22 @@ component C1nC0G0603:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component C4n7C0G0603:
+    """Murata GRM1885C1H472JA01D 4.7 nF 5 % 50 V C0G 0603 (LCSC C85980). Stage 42 (candidate 39, DECISIONS 54): the
+    gate-source capacitor of each CFD7 (C55 / C56 / C62 / C63), with the 68 ohm turn-on resistor. Murata C02E
+    2017-11-27 p.88 (part list, 50 Vdc C0G 4700 pF +/-5 %) and p.8 (5C = C0G, 0 +/- 30 ppm/C, -55 to 125 C)."""
+    designator_prefix = "C"
+    mpn = "GRM1885C1H472JA01D"
+    manufacturer = "Murata"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component C100pC0G0603:
     designator_prefix = "C"
-    mpn = "C0603C101J5GACTU"
-    manufacturer = "KEMET"
+    mpn = "CL10C101JB8NNNC"
+    manufacturer = "Samsung Electro-Mechanics"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: capacitance
     signal p1 ~ pin 1
@@ -463,9 +690,13 @@ component Tlv3201:
     signal VCC ~ pin 5
 
 component Ref2V5:
-    """TI LM4040A25IDBZR 2.5 V shunt reference, SOT-23: 1 K, 2 A, 3 NC."""
+    """2.5 V shunt reference (REF25: OCP and OVP thresholds), SOT-23: 1 K, 2 A, 3 NC.
+    Stage 47 (S17 hot copper; c47-ref25-grade): TI LM4050AEM3-2.5/NOPB, the extended-range A grade, was LM4040A25IDBZR
+    (TA -40..85 C). SNOS455H: TA = TJ -40..125 C (5.3 p.5; orderable addendum p.25, marking RCA); +-2.5 mV at 25 C
+    and +-15 mV over -40..125 C (5.6 p.7, note 5 p.11), dVR/dIR 1.2 mV for IRMIN..1 mA over temperature, IRMIN 65 uA
+    (p.7); DBZ 1 cathode, 2 anode, 3 no internal connection, float or tie to pin 2 (4 p.3), the LM4040 DBZ pinout."""
     designator_prefix = "U"
-    mpn = "LM4040A25IDBZR"
+    mpn = "LM4050AEM3-2.5/NOPB"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal K ~ pin 1
@@ -482,9 +713,51 @@ component R10kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R10k6Thin:
+component R12k6Thin:
+    """0.1 % 25 ppm thin film, OCP threshold top leg (stage 15, 28 A hardware: LCSC C861103)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD0710K6L"
+    mpn = "RT0603BRD0712K6L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R11k7Thin:
+    """0.1 % 25 ppm thin film, OCP threshold bottom leg (LCSC C4553285)."""
+    designator_prefix = "R"
+    mpn = "TNPW060311K7BEEA"
+    manufacturer = "Vishay Dale"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R7k5Thin:
+    """0.1 % 25 ppm thin film, OCP offset sense leg R33 (stage 49, S23 B'-1.02 V: LCSC C728597)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD077K5L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R16kThin:
+    """0.1 % 25 ppm thin film, OCP threshold top leg R34 (stage 49, S23 B'-1.02 V: LCSC C326732)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD0716KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R11kThin:
+    """0.1 % 25 ppm thin film, OCP threshold bottom leg R35 (stage 49, S23 B'-1.02 V: LCSC C728581, the BOM line of
+    f6_parts BiasFb11k)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD0711KL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -515,7 +788,7 @@ component Nand3Lvc1g10:
     signal C ~ pin 6
 
 component Hot5Supervisor:
-    """TI TPS3700DDCR; V15-powered HOT5 undervoltage detector. DDC SOT-6."""
+    """TI TPS3700DDCR; HOT5 undervoltage detector (channel A) and REF25 watchdog (channel B); HOT5-powered since stage 48. DDC SOT-6."""
     designator_prefix = "U"
     mpn = "TPS3700DDCR"
     manufacturer = "Texas Instruments"
@@ -553,21 +826,49 @@ component R5k6Bias:
     """LM4040 bias, including the OCP and OVP divider loads. Worst-case
     cathode-current calculation: REFERENCE-BIAS.md."""
     designator_prefix = "R"
-    mpn = "RC0603FR-075K6L"
-    manufacturer = "Yageo"
+    mpn = "0603WAF5601T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Iso7710:
-    """TI ISO7710DWR, reinforced 5 kVrms, default-HIGH output on input-side
-    power loss. DW: 1/7 GND1, 3 VCC1, 4 IN, 9/16 GND2, 13 OUT, 14 VCC2."""
+component IsoReinfH:
+    """Chipanalog CA-IS3720HW (stage 31, DECISIONS 34; was TI ISO7710DWR): reinforced (VDE 0884-17 40057278,
+    UL 1577 E511334 5 kVrms), SOIC16-WB, default output HIGH on input-side power loss or an open input (datasheet
+    v1.05 Table 9-1). ISO7710DW pinout on every used pin (Table 6-2: 1/7 GNDA, 3 VDDA, 4 VI1, 9/16 GNDB, 13 VO1,
+    14 VDDB). It is a 2-channel part: pin 5 is the spare channel's A-side INPUT and pin 12 its B-side OUTPUT. Both
+    must stay unconnected (pin 12 is a driven output; an open pin 5 puts it at its default), which audit.rs checks.
+    Lead foot 4.20-5.25 mm from the centre line (s.11.3) lies inside TI's DW0016B HV pads (4.05-5.70 mm)."""
     designator_prefix = "U"
-    mpn = "ISO7710DWR"
-    manufacturer = "Texas Instruments"
+    mpn = "CA-IS3720HW"
+    manufacturer = "Chipanalog"
     # TI DW0016B HV / isolation land pattern: 8.1 mm across the barrier
     # (SLLSER9E p. 33); the IPC-7351 nominal pattern gives only 7.3 mm.
+    footprint = "lib:SOIC16W_DW0016B_HV"
+    signal GND1 ~ pin 1
+    signal NC2 ~ pin 2
+    signal VCC1 ~ pin 3
+    signal IN ~ pin 4
+    signal NC5 ~ pin 5
+    signal NC6 ~ pin 6
+    signal GND1B ~ pin 7
+    signal NC8 ~ pin 8
+    signal GND2 ~ pin 9
+    signal NC10 ~ pin 10
+    signal NC11 ~ pin 11
+    signal NC12 ~ pin 12
+    signal OUT ~ pin 13
+    signal VCC2 ~ pin 14
+    signal NC15 ~ pin 15
+    signal GND2B ~ pin 16
+
+component IsoReinfL:
+    """Chipanalog CA-IS3720LW (stage 31, DECISIONS 34; was TI ISO7710FDWR): as IsoReinfH, but default output LOW on
+    input-side power loss or an open input (datasheet v1.05 Table 9-1, 'L' suffix)."""
+    designator_prefix = "U"
+    mpn = "CA-IS3720LW"
+    manufacturer = "Chipanalog"
     footprint = "lib:SOIC16W_DW0016B_HV"
     signal GND1 ~ pin 1
     signal NC2 ~ pin 2
@@ -615,8 +916,8 @@ component FunctionalEarthLink:
     """Removable functional 0 ohm link, never a protective-earth conductor.
     HOT-to-controller insulation must remain valid with this link open."""
     designator_prefix = "R"
-    mpn = "RC0603JR-070RL"
-    manufacturer = "Yageo"
+    mpn = "0603WAF0000T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -626,11 +927,11 @@ component FunctionalEarthLink:
 # Ported from zapote/current-sense/circuit/current_sense_unit.ato; model and
 # retuned trip band: tools/ct_detector/ct_detector_model.rs.
 
-component Burden1R5:
-    """CT burden, 1.50 ohm 1 % 0.25 W, across T1's secondary at the CT.
-    1.5 ohm keeps the biased swing within the 3.3 V rail up to 88 A."""
+component Burden3R0:
+    """CT burden, 3.0 ohm 1 % 0.25 W, across T1's secondary at the CT (stage 20: 1:200 CT, was 1.5 ohm with
+    1:100). 3.0 / 200 = 0.015 V per primary amp, so the biased swing stays within the 3.3 V rail up to 88 A."""
     designator_prefix = "R"
-    mpn = "RC1206FR-071R5L"
+    mpn = "RC1206FR-073RL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
@@ -657,10 +958,10 @@ component R1kThin:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component R3k32Thin:
-    """0.1 % thin film, CT trip references: 3.3 V * 10/13.32 = 2.477 V."""
+component R2k21Thin:
+    """0.1 % thin film, CT trip references: 3.3 V * 10/12.21 = 2.703 V (stage 15, 28 A hardware: LCSC C705758)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD073K32L"
+    mpn = "RT0603BRD072K21L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
@@ -670,8 +971,8 @@ component R3k32Thin:
 component R1k1206:
     """1 kohm 1 % 1206 series input from the CT secondary to SENSE_MON."""
     designator_prefix = "R"
-    mpn = "RC1206FR-071KL"
-    manufacturer = "Yageo"
+    mpn = "1206W4F1001T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
     footprint = "Resistor_SMD:R_1206_3216Metric"
     value: resistance
     signal p1 ~ pin 1
@@ -702,3 +1003,66 @@ component Or3Lvc1g332:
     signal Y ~ pin 4
     signal VCC ~ pin 5
     signal C ~ pin 6
+
+# ------------------------------------------------------------------ stage 30 (candidate 24, DECISIONS 33)
+
+component Iso6721Fb:
+    """TI ISO6721FBDR: 1 forward + 1 reverse channel, basic (3 kVrms, VIORM 637 Vpk), default output LOW (F option)
+    when side 1 is unpowered or the input is open. D (SOIC-8): 1 VCC1, 2 OUTA, 3 INB, 4 GND1, 5 GND2, 6 OUTB, 7 INA,
+    8 VCC2 (SLLSFJ0F Table 5-1). Used HS island -> LS domain only (functional crossing, 3.2 mm group rule)."""
+    designator_prefix = "U"
+    mpn = "ISO6721FBDR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal VCC1 ~ pin 1
+    signal OUTA ~ pin 2
+    signal INB ~ pin 3
+    signal GND1 ~ pin 4
+    signal GND2 ~ pin 5
+    signal OUTB ~ pin 6
+    signal INA ~ pin 7
+    signal VCC2 ~ pin 8
+
+component SchottkyPairSeries:
+    """Diodes BAT54S-7-F, series pair, SOT-23: 1 A1, 2 K2, 3 K1/A2 (DS11005 p.1 diagram)."""
+    designator_prefix = "D"
+    mpn = "BAT54S-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal A1 ~ pin 1
+    signal K2 ~ pin 2
+    signal MID ~ pin 3
+
+component SchmittNand132:
+    """TI SN74LVC1G132DBVR Schmitt NAND, DBV: 1 A, 2 B, 3 GND, 4 Y, 5 VCC (SCES546E Pin Functions)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G132DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component SchmittBuf17:
+    """TI SN74LVC1G17DBVR non-inverting Schmitt buffer (the U15/U24 line); DBV pins NC1, A2, GND3, Y4, VCC5."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G17DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component R220R0603:
+    """220 ohm 1 % 0603: heartbeat pump series resistor (buffer peak <= 11.2 mA, m1_pump_spice.py design J)."""
+    designator_prefix = "R"
+    mpn = "0603WAF2200T5E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2

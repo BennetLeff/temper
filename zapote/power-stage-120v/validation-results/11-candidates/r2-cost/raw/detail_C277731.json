@@ -1,0 +1,320 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C277731",
+  "componentBrandEn": "MOLEX",
+  "componentModelEn": "430451600",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583259990387249152",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "",
+  "dataManualFileAccessId": "",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/430/43045/430451600_sd.pdf?inline\\",
+  "componentName": "MOLEX 430451600",
+  "minImage": "",
+  "minImageAccessId": "8583259991322714112",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583259991322714112",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583259990387249152",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583259994670714880",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583259993701289984",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583259997669642240",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583259996797091840",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "MOLEX 430451600",
+  "componentSpecificationEn": "Push-Pull,P=3mm",
+  "describe": "-40\u2103~+105\u2103 12.24mm 16P 2 27.65mm 2x8P 3mm 3mm 600V 8 8.5A 8.77mm Black Brass Harpoon Contact (Plastic) Micro-Fit(MX 3.0) Right Angle Tin UL94V-0 \u5f2f\u63d2,P=3mm Wire To Board Connector ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C277731",
+    "attribute_value_name": "-40\u2103~+105\u2103"
+   },
+   {
+    "attribute_name_en": "Number of Rows",
+    "component_code": "C277731",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Voltage Rating",
+    "component_code": "C277731",
+    "attribute_value_name": "600V"
+   },
+   {
+    "attribute_name_en": "Color",
+    "component_code": "C277731",
+    "attribute_value_name": "Black"
+   },
+   {
+    "attribute_name_en": "Current Rating",
+    "component_code": "C277731",
+    "attribute_value_name": "8.5A"
+   },
+   {
+    "attribute_name_en": "Row Spacing",
+    "component_code": "C277731",
+    "attribute_value_name": "3mm"
+   },
+   {
+    "attribute_name_en": "Pins Structure",
+    "component_code": "C277731",
+    "attribute_value_name": "2x8P"
+   },
+   {
+    "attribute_name_en": "Mounting Type",
+    "component_code": "C277731",
+    "attribute_value_name": "Right Angle"
+   },
+   {
+    "attribute_name_en": "Flame Retardant Rating",
+    "component_code": "C277731",
+    "attribute_value_name": "UL94V-0"
+   },
+   {
+    "attribute_name_en": "Y-Width of Bottom Edge on Board",
+    "component_code": "C277731",
+    "attribute_value_name": "12.24mm"
+   },
+   {
+    "attribute_name_en": "X-Length of Bottom Edge on Board (Spacing Line)",
+    "component_code": "C277731",
+    "attribute_value_name": "27.65mm"
+   },
+   {
+    "attribute_name_en": "Reference Series",
+    "component_code": "C277731",
+    "attribute_value_name": "Micro-Fit(MX 3.0)"
+   },
+   {
+    "attribute_name_en": "Contact Plating",
+    "component_code": "C277731",
+    "attribute_value_name": "Tin"
+   },
+   {
+    "attribute_name_en": "Number of Pins",
+    "component_code": "C277731",
+    "attribute_value_name": "16P"
+   },
+   {
+    "attribute_name_en": "Pitch",
+    "component_code": "C277731",
+    "attribute_value_name": "3mm"
+   },
+   {
+    "attribute_name_en": "Contact Material",
+    "component_code": "C277731",
+    "attribute_value_name": "Brass"
+   },
+   {
+    "attribute_name_en": "Supplementary Features",
+    "component_code": "C277731",
+    "attribute_value_name": "Harpoon Contact (Plastic)"
+   },
+   {
+    "attribute_name_en": "Z-Height of the Board",
+    "component_code": "C277731",
+    "attribute_value_name": "8.77mm"
+   },
+   {
+    "attribute_name_en": "Number of PINs Per Row",
+    "component_code": "C277731",
+    "attribute_value_name": "8"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Connectors",
+  "secondSortName": "Wire To Board Connector",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 265047,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 1302,
+  "overseasStockCount": 1302,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C277731",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 1.5201,
+    "erpComponentPriceKeyId": 189998375,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C277731",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 1.3146,
+    "erpComponentPriceKeyId": 189998376,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C277731",
+    "startNumber": 30,
+    "endNumber": 131,
+    "productPrice": 1.2021,
+    "erpComponentPriceKeyId": 189998372,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C277731",
+    "startNumber": 132,
+    "endNumber": 527,
+    "productPrice": 0.9966,
+    "erpComponentPriceKeyId": 189998377,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C277731",
+    "startNumber": 528,
+    "endNumber": 791,
+    "productPrice": 0.9395,
+    "erpComponentPriceKeyId": 189998373,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C277731",
+    "startNumber": 792,
+    "endNumber": -1,
+    "productPrice": 0.915,
+    "erpComponentPriceKeyId": 189998374,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 66,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.2286,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/wire-to-board-connector_molex-430451600_C277731.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "2x8P \u95f4\u8ddd:3mm \u5f2f\u63d2 \u7cfb\u5217:Micro-Fit(MX 3.0) \u3010\u63d2\u4ef6\u3011",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Wire To Board Connector",
+  "firstTypeNameEn": "Connectors",
+  "secondTypeNameId": 2132,
+  "firstTypeNameId": 8,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 1198,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "manualWeld",
+  "assemblyModeBatch": "manualWeld",
+  "assemblyProcess": "THT",
+  "minPurchaseNum": 1,
+  "initialPrice": 1.5201,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 6,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277636,
+  "overseasComponentBrandBizKey": "385285312455118849",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "MOLEX-40\u2103~+105\u2103 12.24mm 16P 2 27.65mm 2x8P 3mm 3mm 600V 8 8.5A 8.77mm Black Brass Harpoon Contact (Plastic) Micro-Fit(MX 3.0) Right Angle Tin UL94V-0 \u5f2f\u63d2,P=3mm Wire To Board Connector ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:31Z"
+}

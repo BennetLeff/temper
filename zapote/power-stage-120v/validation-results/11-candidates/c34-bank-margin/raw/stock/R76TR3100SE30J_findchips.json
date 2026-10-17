@@ -1,0 +1,64 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R76TR3100SE30J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R76TR3100SE30J",
+ "stock": {
+  "Newark": 0,
+  "Avnet Americas": 560
+ },
+ "price_breaks": [
+  {
+   "distributor": "Newark",
+   "disti_pn": "92AC5982",
+   "matched_mpn": "R76TR3100SE30J",
+   "stock": 0,
+   "min_qty": 560,
+   "currency": "CAD",
+   "price_breaks": [
+    [
+     560,
+     1.07
+    ],
+    [
+     1120,
+     1.02
+    ],
+    [
+     1680,
+     0.996
+    ]
+   ]
+  },
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R76TR3100SE30J",
+   "stock": 560,
+   "min_qty": 560,
+   "lead_time": "31 weeks",
+   "currency": "USD",
+   "price_breaks": [
+    [
+     560,
+     0.8845
+    ],
+    [
+     1120,
+     0.8669
+    ],
+    [
+     2240,
+     0.8544
+    ],
+    [
+     4480,
+     0.8423
+    ],
+    [
+     8960,
+     0.8181
+    ]
+   ]
+  }
+ ]
+}

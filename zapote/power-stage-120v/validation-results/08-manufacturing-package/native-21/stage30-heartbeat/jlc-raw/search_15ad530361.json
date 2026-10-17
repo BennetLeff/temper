@@ -1,0 +1,267 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 389806,
+     "componentLibraryType": "expand",
+     "stockCount": 28977,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "\u5e26\u65bd\u5bc6\u7279\u89e6\u53d1\u5668\u8f93\u5165\u7684\u5355\u8def2\u8f93\u5165\u4e0e\u975e\u95e8",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_texas-instruments-sn74lvc1g132dbvr_C403723.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1636
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1327
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1172
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1056
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0904
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0857
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0871
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1129
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0826
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1017
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1576
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1278
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "8a5c5fc4ea64473f9dd1615c34608d41",
+     "canPresaleNumber": 21536,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-SN74LVC1G132DBVR/C403723",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.39509,
+     "preMinPurchaseNum": 68,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1636,
+     "componentCode": "C403723",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "SN74LVC1G132DBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583019985802944513",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912111437_Texas-Instruments-SN74LVC1G132DBVR_C403723.pdf",
+     "dataManualFileAccessId": "8588884545794158592",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc1g132",
+     "componentName": "TI SN74LVC1G132DBVR",
+     "minImage": "",
+     "minImageAccessId": "8583019986730831872",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-5",
+     "describe": "-40\u2103~+125\u2103 1 1.16V~3.33V 1.65V~5.5V 10uA 2 2.3V\u30013.8V 32mA 32mA 5.3ns@3.3V,15pF 550mV 74LVC Series Local shutdown mode NAND Gate SOT-23-5 Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "550mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "5.3ns@3.3V,15pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "2.3V\u30013.8V"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "NAND Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "32mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74LVC Series"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.16V~3.33V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.65V~5.5V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "10uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "32mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>SN74LVC1G132DBVR</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "SN74LVC1G132DBVR"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-14T16:24:06Z"
+}

@@ -1,0 +1,45 @@
+{
+ "controls_ok": true,
+ "source": "02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py",
+ "variants": [
+  {
+   "variant": "base",
+   "C_tol": 0.1,
+   "L_tol": 0.1,
+   "steady_no_floor_V": 1702.4,
+   "steady_35k_floor_V": 1178.4,
+   "td_F1_runaway_V": 1688.8,
+   "td_F2_loop_intact_V": 1494.8,
+   "gov_V": 1702.4,
+   "gov_over_1600": 1.064,
+   "gov_over_2000": 0.851,
+   "floor_table": null
+  },
+  {
+   "variant": "J_tol",
+   "C_tol": 0.05,
+   "L_tol": 0.1,
+   "steady_no_floor_V": 1662.4,
+   "steady_35k_floor_V": 951.0,
+   "td_F1_runaway_V": 1682.7,
+   "td_F2_loop_intact_V": 1392.7,
+   "gov_V": 1682.7,
+   "gov_over_1600": 1.052,
+   "gov_over_2000": 0.841,
+   "floor_table": null
+  },
+  {
+   "variant": "J_tol+L5",
+   "C_tol": 0.05,
+   "L_tol": 0.05,
+   "steady_no_floor_V": 1628.8,
+   "steady_35k_floor_V": 790.0,
+   "td_F1_runaway_V": 1663.8,
+   "td_F2_loop_intact_V": 0,
+   "gov_V": 1663.8,
+   "gov_over_1600": 1.04,
+   "gov_over_2000": 0.832,
+   "floor_table": null
+  }
+ ]
+}

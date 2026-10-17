@@ -1,0 +1,481 @@
+{
+ "board": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s27/s27b/section.kicad_pcb",
+ "board_sha256": "44644390f1ee41760407400ac4a620d97512e388c9902c625c50d84a37dfd124",
+ "outline_mm": [
+  0.0,
+  0.0,
+  290.0,
+  190.0
+ ],
+ "outline_segments": [
+  [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    290.0,
+    0.0
+   ]
+  ],
+  [
+   [
+    0.0,
+    190.0
+   ],
+   [
+    0.0,
+    0.0
+   ]
+  ],
+  [
+   [
+    91.0,
+    140.0
+   ],
+   [
+    91.0,
+    190.0
+   ]
+  ],
+  [
+   [
+    91.0,
+    190.0
+   ],
+   [
+    0.0,
+    190.0
+   ]
+  ],
+  [
+   [
+    290.0,
+    0.0
+   ],
+   [
+    290.0,
+    140.0
+   ]
+  ],
+  [
+   [
+    290.0,
+    140.0
+   ],
+   [
+    91.0,
+    140.0
+   ]
+  ]
+ ],
+ "board_area_mm2": 45150,
+ "footprints": 397,
+ "occupied_both_sides_mm2": 22291,
+ "free_mm2": 22859,
+ "occupied_fraction": 0.49370985603543743,
+ "mains_parts": {
+  "C1": {
+   "lib": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+   "value": "R463N410050N1K",
+   "at": [
+    238.25,
+    20.1,
+    0.0
+   ],
+   "bbox": [
+    236.0,
+    14.25,
+    263.0,
+    25.95
+   ],
+   "tht": true
+  },
+  "C2": {
+   "lib": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+   "value": "R463N410050N1K",
+   "at": [
+    263.25,
+    49.5,
+    0.0
+   ],
+   "bbox": [
+    261.0,
+    43.65,
+    288.0,
+    55.35
+   ],
+   "tht": true
+  },
+  "J11": {
+   "lib": "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+   "value": "B2P3-VH(LF)(SN)",
+   "at": [
+    262.54,
+    125.25,
+    0.0
+   ],
+   "bbox": [
+    260.09,
+    121.05,
+    272.91,
+    130.55
+   ],
+   "tht": true
+  },
+  "R1": {
+   "lib": "Resistor_SMD:R_1206_3216Metric",
+   "value": "1206W4F1003T5E",
+   "at": [
+    226.0,
+    15.9,
+    0.0
+   ],
+   "bbox": [
+    223.72,
+    14.77,
+    228.28,
+    17.03
+   ],
+   "tht": false
+  },
+  "RV1": {
+   "lib": "temper:TMOV20RP_ReviewOnly",
+   "value": "TMOV20RP175E",
+   "at": [
+    276.5,
+    24.251,
+    -90.0
+   ],
+   "bbox": [
+    264.5,
+    16.0,
+    288.5,
+    40.0
+   ],
+   "tht": true
+  },
+  "L1": {
+   "lib": "temper:B82726S2_ReviewOnly",
+   "value": "B82726S2203A020",
+   "at": [
+    232.0,
+    31.0,
+    0.0
+   ],
+   "bbox": [
+    214.0,
+    28.5,
+    260.0,
+    58.5
+   ],
+   "tht": true
+  },
+  "PS2": {
+   "lib": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+   "value": "IRM-20-24",
+   "at": [
+    163.7,
+    3.6,
+    0.0
+   ],
+   "bbox": [
+    160.05,
+    0.15,
+    212.95,
+    27.85
+   ],
+   "tht": true
+  },
+  "BR1": {
+   "lib": "temper:Diode_Bridge_GBJ2510",
+   "value": "GBJ2510-F",
+   "at": [
+    81.7,
+    4.6,
+    0.0
+   ],
+   "bbox": [
+    79.4,
+    2.1,
+    109.4,
+    7.1
+   ],
+   "tht": true
+  },
+  "PS1": {
+   "lib": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+   "value": "IRM-20-15",
+   "at": [
+    255.8,
+    136.4,
+    180.0
+   ],
+   "bbox": [
+    206.55,
+    112.15,
+    259.45,
+    139.85
+   ],
+   "tht": true
+  },
+  "C4": {
+   "lib": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+   "value": "DE1E3RA222MA4BP01F",
+   "at": [
+    225.0,
+    109.1,
+    180.0
+   ],
+   "bbox": [
+    213.75,
+    106.35,
+    226.25,
+    111.85
+   ],
+   "tht": true
+  },
+  "R2": {
+   "lib": "Resistor_SMD:R_1206_3216Metric",
+   "value": "1206W4F1003T5E",
+   "at": [
+    226.0,
+    23.9,
+    0.0
+   ],
+   "bbox": [
+    223.72,
+    22.77,
+    228.28,
+    25.03
+   ],
+   "tht": false
+  },
+  "J3": {
+   "lib": "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+   "value": "B2P3-VH(LF)(SN)",
+   "at": [
+    217.65,
+    11.81,
+    90.0
+   ],
+   "bbox": [
+    213.45,
+    1.44,
+    222.95,
+    14.26
+   ],
+   "tht": true
+  },
+  "C3": {
+   "lib": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+   "value": "DE1E3RA222MA4BP01F",
+   "at": [
+    225.0,
+    102.8,
+    180.0
+   ],
+   "bbox": [
+    213.75,
+    100.05,
+    226.25,
+    105.55
+   ],
+   "tht": true
+  },
+  "F2": {
+   "lib": "Fuse:Fuse_Schurter_UMT250",
+   "value": "3403.0171",
+   "at": [
+    266.5,
+    118.4,
+    0.0
+   ],
+   "bbox": [
+    260.8,
+    116.27,
+    272.2,
+    120.53
+   ],
+   "tht": false
+  },
+  "F1": {
+   "lib": "temper:Fuseholder_Clip-10.3x38mm_Littelfuse_125_Inline_P41.76x10.80mm_Slot1.2x2.5mm_Horizontal",
+   "value": "KLDR025.TXP",
+   "at": [
+    246.35,
+    7.25,
+    0.0
+   ],
+   "bbox": [
+    223.75,
+    0.5,
+    268.95,
+    14.0
+   ],
+   "tht": true
+  },
+  "J6": {
+   "lib": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+   "value": "1704004",
+   "at": [
+    150.6,
+    134.5,
+    90.0
+   ],
+   "bbox": [
+    146.25,
+    131.71,
+    173.75,
+    137.29
+   ],
+   "tht": true
+  },
+  "J1": {
+   "lib": "temper:Phoenix_MKDS-5-2-9.52_1714971",
+   "value": "1714971",
+   "at": [
+    274.6,
+    9.2,
+    0.0
+   ],
+   "bbox": [
+    269.59,
+    1.05,
+    289.13,
+    14.05
+   ],
+   "tht": true
+  }
+ },
+ "corner_parts_top_right_110x80": [
+  "C1",
+  "C2",
+  "C5",
+  "C6",
+  "F1",
+  "J1",
+  "J3",
+  "L1",
+  "R1",
+  "R2",
+  "R25",
+  "RV1"
+ ],
+ "free_rects_both_sides": [
+  {
+   "x0": 101.0,
+   "y0": 8.0,
+   "w": 54,
+   "h": 42,
+   "area_mm2": 2268
+  },
+  {
+   "x0": 0.0,
+   "y0": 136.0,
+   "w": 54,
+   "h": 40,
+   "area_mm2": 2160
+  },
+  {
+   "x0": 61.0,
+   "y0": 130.0,
+   "w": 30,
+   "h": 46,
+   "area_mm2": 1380
+  },
+  {
+   "x0": 147.0,
+   "y0": 50.0,
+   "w": 13,
+   "h": 81,
+   "area_mm2": 1053
+  },
+  {
+   "x0": 64.0,
+   "y0": 72.0,
+   "w": 30,
+   "h": 24,
+   "area_mm2": 720
+  },
+  {
+   "x0": 19.0,
+   "y0": 78.0,
+   "w": 27,
+   "h": 26,
+   "area_mm2": 702
+  },
+  {
+   "x0": 155.0,
+   "y0": 28.0,
+   "w": 59,
+   "h": 11,
+   "area_mm2": 649
+  },
+  {
+   "x0": 193.0,
+   "y0": 93.0,
+   "w": 13,
+   "h": 33,
+   "area_mm2": 429
+  },
+  {
+   "x0": 85.0,
+   "y0": 8.0,
+   "w": 16,
+   "h": 25,
+   "area_mm2": 400
+  },
+  {
+   "x0": 193.0,
+   "y0": 39.0,
+   "w": 21,
+   "h": 19,
+   "area_mm2": 399
+  }
+ ],
+ "free_rects_top_right_quadrant": [
+  {
+   "x0": 146.0,
+   "y0": 0.0,
+   "w": 9,
+   "h": 93,
+   "area_mm2": 837
+  },
+  {
+   "x0": 155.0,
+   "y0": 28.0,
+   "w": 59,
+   "h": 11,
+   "area_mm2": 649
+  },
+  {
+   "x0": 193.0,
+   "y0": 39.0,
+   "w": 9,
+   "h": 56,
+   "area_mm2": 504
+  },
+  {
+   "x0": 246.0,
+   "y0": 59.0,
+   "w": 44,
+   "h": 8,
+   "area_mm2": 352
+  },
+  {
+   "x0": 202.0,
+   "y0": 39.0,
+   "w": 12,
+   "h": 19,
+   "area_mm2": 228
+  },
+  {
+   "x0": 213.0,
+   "y0": 15.0,
+   "w": 10,
+   "h": 13,
+   "area_mm2": 130
+  }
+ ]
+}

@@ -1,0 +1,309 @@
+{
+ "code": 200,
+ "msg": null,
+ "result": {
+  "parentCatalogList": [
+   {
+    "catalogId": 10,
+    "catalogNameEn": "Connectors, Interconnects"
+   },
+   {
+    "catalogId": 174,
+    "catalogNameEn": "Terminal Blocks"
+   }
+  ],
+  "isCableCategory": true,
+  "productId": 90300,
+  "productCode": "C89120",
+  "productModel": "1711725",
+  "productNameEn": "TERM BLK 2POS 5.08mm TH",
+  "productKeyAttributes": "TERM BLK 2POS 5.08mm TH",
+  "parentCatalogId": 365,
+  "parentCatalogName": "Connectors",
+  "catalogId": 819,
+  "catalogName": "Wire to Board",
+  "brandId": 968,
+  "brandNameEn": "Phoenix Contact",
+  "encapStandard": "Through Hole,P=5.08mm",
+  "split": 1,
+  "productUnit": "Piece",
+  "minPacketUnit": "Box",
+  "minBuyNumber": 1,
+  "maxBuyNumber": -1,
+  "minPacketNumber": 100,
+  "isEnvironment": true,
+  "allHotLevel": null,
+  "isHot": false,
+  "isPreSale": false,
+  "isReel": false,
+  "reelPrice": 0,
+  "stockNumber": 1986,
+  "stockSz": 1986,
+  "domesticStockVO": {
+   "total": 1986,
+   "shipImmediately": 1986,
+   "ship3Days": 0
+  },
+  "overseasStockVO": {
+   "total": 1986,
+   "shipImmediately": 1986,
+   "ship3Days": 0
+  },
+  "productPriceList": [
+   {
+    "ladder": 1,
+    "productPrice": "1.1014",
+    "usdPrice": 1.1014,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.1014,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 10,
+    "productPrice": "0.9310",
+    "usdPrice": 0.931,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.931,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 30,
+    "productPrice": "0.8458",
+    "usdPrice": 0.8458,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.8458,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 100,
+    "productPrice": "0.7605",
+    "usdPrice": 0.7605,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.7605,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 500,
+    "productPrice": "0.7097",
+    "usdPrice": 0.7097,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.7097,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 1000,
+    "productPrice": "0.6835",
+    "usdPrice": 0.6835,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.6835,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   }
+  ],
+  "productImages": [
+   "https://assets.lcsc.com/images/lcsc/900x900/20221231_Phoenix-Contact-1711725_C89120_front.jpg",
+   "https://assets.lcsc.com/images/lcsc/900x900/20221231_Phoenix-Contact-1711725_C89120_back.jpg",
+   "https://assets.lcsc.com/images/lcsc/900x900/20221231_Phoenix-Contact-1711725_C89120_blank.jpg"
+  ],
+  "edaSvgInfo": {
+   "schSvg": "//image.easyeda.com/component_svgs/prod/3d81358d1cf644cfbc260df0c855f95f.svg?t=1720403255",
+   "pcbSvg": "//image.easyeda.com/component_svgs/prod/e33f49e2b3194cdf8041c0deed8e9f8f.svg?t=1720403255"
+  },
+  "faqs": null,
+  "pdfUrl": "https://datasheet.lcsc.com/datasheet/pdf/6f5b62ff7ed24511940fa0361cb5cf25.pdf?productCode=C89120",
+  "authenticationList": [
+   "ROHS3 \u8ba4\u8bc1"
+  ],
+  "isRohsCert": true,
+  "rohsCertType": "ROHS3",
+  "rohsCertList": [
+   {
+    "fileCode": "wj1759600",
+    "fileName": "\u5168\u91cf\u901a\u7528_ROHS\u8ba4\u8bc1_Phoenix Contact(\u83f2\u5c3c\u514b\u65af).pdf",
+    "url": "https://datasheet.lcsc.com/certification/rohs/f1d7485240cbb7fdc173f54d0bb44e43.pdf"
+   }
+  ],
+  "productDescEn": "2 Position Wire to Board Terminal Block Through Hole 5.08mm",
+  "productIntroEn": "2 Position Wire to Board Terminal Block Through Hole 5.08mm",
+  "paramVOList": [
+   {
+    "paramCode": "param_13335_n",
+    "paramName": "\u989d\u5b9a\u7535\u6d41",
+    "paramNameEn": "Current Rating",
+    "paramValue": "24A",
+    "paramValueEn": "24A",
+    "paramValueEnForSearch": 24.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 29
+   },
+   {
+    "paramCode": "param_13341_s",
+    "paramName": "\u5de5\u4f5c\u6e29\u5ea6",
+    "paramNameEn": "Operating Temperature",
+    "paramValue": "-",
+    "paramValueEn": "-",
+    "paramValueEnForSearch": null,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 40
+   },
+   {
+    "paramCode": "param_15630",
+    "paramName": "\u7ed3\u6784",
+    "paramNameEn": "Number of Positions or Pins",
+    "paramValue": "1x2P",
+    "paramValueEn": "1x2P",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 1
+   },
+   {
+    "paramCode": "param_13336_n",
+    "paramName": "\u989d\u5b9a\u7535\u538b",
+    "paramNameEn": "Voltage Rating (Max)",
+    "paramValue": "400V",
+    "paramValueEn": "400V",
+    "paramValueEnForSearch": 400.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 32
+   },
+   {
+    "paramCode": "param_13408",
+    "paramName": "\u989c\u8272",
+    "paramNameEn": "Color",
+    "paramValue": "\u7eff\u8272",
+    "paramValueEn": "Green",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 19
+   },
+   {
+    "paramCode": "param_18213",
+    "paramName": "\u603bPIN\u6570",
+    "paramNameEn": "Number of Pins",
+    "paramValue": "2P",
+    "paramValueEn": "2P",
+    "paramValueEnForSearch": -1.0,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 17
+   },
+   {
+    "paramCode": "param_13337",
+    "paramName": "\u7ebf\u89c4 - AWG",
+    "paramNameEn": "Wire Gauge - AWG",
+    "paramValue": "12~30",
+    "paramValueEn": "12~30",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 35
+   },
+   {
+    "paramCode": "param_13334",
+    "paramName": "\u5b89\u88c5\u65b9\u5f0f",
+    "paramNameEn": "Mounting Type",
+    "paramValue": "\u76f4\u63d2",
+    "paramValueEn": "Through Hole",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 10
+   },
+   {
+    "paramCode": "param_13676_n",
+    "paramName": "\u6bcf\u6392PIN\u6570",
+    "paramNameEn": "Number of PINs Per Row",
+    "paramValue": "2",
+    "paramValueEn": "2",
+    "paramValueEnForSearch": 2.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 18
+   },
+   {
+    "paramCode": "param_13677_n",
+    "paramName": "\u6392\u6570",
+    "paramNameEn": "Number of Rows",
+    "paramValue": "1",
+    "paramValueEn": "1",
+    "paramValueEnForSearch": 1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 14
+   },
+   {
+    "paramCode": "param_13333_n",
+    "paramName": "\u95f4\u8ddd",
+    "paramNameEn": "Pitch",
+    "paramValue": "5.08mm",
+    "paramValueEn": "5.08mm",
+    "paramValueEnForSearch": 5.08,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 5
+   }
+  ],
+  "wmCatalogId": 819,
+  "wmCatalogNameEn": "Wire to Board",
+  "productArrange": "Box-packed",
+  "productWeight": 0.0017,
+  "foreignWeight": 0.0,
+  "isForeignOnsale": true,
+  "isForeignDisplay": true,
+  "isNotOverstock": false,
+  "productCycle": "normal",
+  "isHasBattery": false,
+  "pdfLinkUrl": null,
+  "isShowForeignPrice": true,
+  "isRealPrice": true,
+  "productLadderPrice": null,
+  "ladderDiscountRate": null,
+  "eccn": "EAR99",
+  "currencyType": "USD",
+  "currencySymbol": "$",
+  "title": "Phoenix Contact 1711725",
+  "weight": 1.7,
+  "hasThirdPartyStock": false,
+  "flashSaleProductPO": null,
+  "htsMap": {
+   "BR": "85369010",
+   "TARIC": "8536901000",
+   "IN": "85369010",
+   "CN": "8536901100",
+   "MX": "8536.90.11",
+   "CA": "8536900090",
+   "US": "8536908585"
+  },
+  "isAsianBrand": null,
+  "isMro": false,
+  "isInfringement": false,
+  "isSample": false,
+  "sampleNumber": null,
+  "alternatePartList": []
+ },
+ "ok": true,
+ "_url": "https://wmsc.lcsc.com/ftps/wm/product/detail?productCode=C89120",
+ "_fetched_utc": "2026-10-14T02:46:56Z"
+}

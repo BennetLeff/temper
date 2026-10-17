@@ -1,0 +1,94 @@
+{
+ "CST3015-100ED": {
+  "V_per_A": 0.015,
+  "trip_pos_A": 70.18,
+  "rt_check_V_per_100A_at_RT": 1.0,
+  "swing_at_88A_V": 1.32,
+  "volt_time": {
+   "76.09A@35k": {
+    "Vsec_pk": 2.313,
+    "Vus": 21.0,
+    "frac_of_limit": 0.033
+   },
+   "76.09A@25k": {
+    "Vsec_pk": 2.313,
+    "Vus": 29.5,
+    "frac_of_limit": 0.046
+   },
+   "118.74A@25k": {
+    "Vsec_pk": 3.61,
+    "Vus": 46.0,
+    "frac_of_limit": 0.072
+   },
+   "59.17A@35k": {
+    "Vsec_pk": 1.799,
+    "Vus": 16.4,
+    "frac_of_limit": 0.026
+   }
+  },
+  "magnetising_worst_L": {
+   "25k": {
+    "mag_err_pct": 0.806,
+    "lead_ns": 51.3
+   },
+   "35k": {
+    "mag_err_pct": 0.576,
+    "lead_ns": 26.2
+   }
+  },
+  "burden_W_at_28A_rms": 0.1176,
+  "burden_tau_ns": 150.0,
+  "pickup_equiv_A": {
+   "C_ww=2pF": 0.26,
+   "C_ww=5pF": 0.66,
+   "C_ww=10pF": 1.32,
+   "C_ww=20pF": 2.64
+  }
+ },
+ "CST3015-200ED": {
+  "V_per_A": 0.015,
+  "trip_pos_A": 70.18,
+  "rt_check_V_per_100A_at_RT": 1.0,
+  "swing_at_88A_V": 1.32,
+  "volt_time": {
+   "76.09A@35k": {
+    "Vsec_pk": 3.401,
+    "Vus": 30.9,
+    "frac_of_limit": 0.024
+   },
+   "76.09A@25k": {
+    "Vsec_pk": 3.401,
+    "Vus": 43.3,
+    "frac_of_limit": 0.034
+   },
+   "118.74A@25k": {
+    "Vsec_pk": 5.308,
+    "Vus": 67.6,
+    "frac_of_limit": 0.053
+   },
+   "59.17A@35k": {
+    "Vsec_pk": 2.645,
+    "Vus": 24.1,
+    "frac_of_limit": 0.019
+   }
+  },
+  "magnetising_worst_L": {
+   "25k": {
+    "mag_err_pct": 0.593,
+    "lead_ns": 37.7
+   },
+   "35k": {
+    "mag_err_pct": 0.423,
+    "lead_ns": 19.3
+   }
+  },
+  "burden_W_at_28A_rms": 0.0588,
+  "burden_tau_ns": 300.0,
+  "pickup_equiv_A": {
+   "C_ww=2pF": 0.26,
+   "C_ww=5pF": 0.66,
+   "C_ww=10pF": 1.32,
+   "C_ww=20pF": 2.64
+  }
+ }
+}

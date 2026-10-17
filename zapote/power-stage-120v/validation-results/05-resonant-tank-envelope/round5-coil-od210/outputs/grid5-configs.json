@@ -1,0 +1,233 @@
+{
+ "basis-d180-pan200": {
+  "geom": "basis_d180",
+  "pan_d_mm": 200,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.0001,
+  "f_r": 1.0,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 584,
+  "t_s": 72
+ },
+ "d228-2sec-pan180": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.0485,
+  "f_r": 0.7269,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 583,
+  "t_s": 90
+ },
+ "d228-2sec-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 72
+ },
+ "d228-2sec-pan260": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.2045,
+  "f_r": 0.9211,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 73
+ },
+ "d240-pan180": {
+  "geom": "d240_cont",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.0864,
+  "f_r": 0.7552,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 584,
+  "t_s": 90
+ },
+ "d240-pan220": {
+  "geom": "d240_cont",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.2271,
+  "f_r": 0.8922,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 72
+ },
+ "d240-pan260": {
+  "geom": "d240_cont",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.2421,
+  "f_r": 0.9317,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 74
+ },
+ "d228-L53-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 53.0,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 475,
+  "t_s": 80
+ },
+ "d228-L58-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 58.0,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 560,
+  "t_s": 86
+ },
+ "d228-L75-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 75.0,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 548,
+  "t_s": 73
+ },
+ "d228-L82-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 82.0,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 446,
+  "t_s": 54
+ },
+ "d210-2sec-pan220": {
+  "geom": "d210_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 66.34,
+  "f_k": 1.1145,
+  "f_r": 0.9087,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 73
+ },
+ "gap84-pan180": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 66.5,
+  "f_k": 1.0573,
+  "f_r": 0.8019,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 584,
+  "t_s": 73
+ },
+ "gap84-pan220": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 66.5,
+  "f_k": 1.165,
+  "f_r": 0.9,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 73
+ },
+ "gap84-pan260": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 66.5,
+  "f_k": 1.1751,
+  "f_r": 0.9284,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 585,
+  "t_s": 74
+ },
+ "gap84-L76-pan180": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.0573,
+  "f_r": 0.8019,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 472,
+  "t_s": 76
+ },
+ "gap84-L76-pan220": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.165,
+  "f_r": 0.9,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 524,
+  "t_s": 74
+ },
+ "gap84-L76-pan260": {
+  "geom": "d228_gap84",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.1751,
+  "f_r": 0.9284,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 534,
+  "t_s": 66
+ },
+ "d228-L76-pan180": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 180,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.0485,
+  "f_r": 0.7269,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 503,
+  "t_s": 60
+ },
+ "d228-L76-pan220": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 220,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.191,
+  "f_r": 0.8828,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 534,
+  "t_s": 66
+ },
+ "d228-L76-pan260": {
+  "geom": "d228_2sec",
+  "pan_d_mm": 260,
+  "L0_installed_uH": 76.0,
+  "f_k": 1.2045,
+  "f_r": 0.9211,
+  "C_bank_uF": 0.5,
+  "n_cases": 45,
+  "n_sims": 534,
+  "t_s": 87
+ }
+}

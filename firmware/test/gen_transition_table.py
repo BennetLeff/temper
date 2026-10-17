@@ -22,13 +22,18 @@ TRANSITIONS = [
     # INIT transitions
     ("STATE_INIT", "SELFTEST_PASS", "STATE_IDLE", None, False),
     ("STATE_INIT", "SELFTEST_FAIL", "STATE_FAULT", "FAULT_SELF_TEST_FAILED", False),
+    ("STATE_INIT", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
 
     # IDLE transitions
     ("STATE_IDLE", "START_BUTTON", "STATE_PAN_DET", None, False),
+    ("STATE_IDLE", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
 
     # PAN_DET transitions
     ("STATE_PAN_DET", "PAN_DETECTED", "STATE_PREHEAT", None, False),
     ("STATE_PAN_DET", "PAN_TIMEOUT", "STATE_IDLE", None, False),
+    ("STATE_PAN_DET", "BIAS_GOOD_LOW_AT_START", "STATE_IDLE", None, False),
+    ("STATE_PAN_DET", "BIAS_GOOD_LOST", "STATE_FAULT", "FAULT_BIAS_GOOD_LOST", False),
+    ("STATE_PAN_DET", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
 
     # PREHEAT transitions
     ("STATE_PREHEAT", "NEAR_TARGET", "STATE_HEATING", None, False),
@@ -38,6 +43,9 @@ TRANSITIONS = [
     ("STATE_PREHEAT", "FAN_FAILURE", "STATE_FAULT", "FAULT_FAN_FAILURE", False),
     ("STATE_PREHEAT", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
     ("STATE_PREHEAT", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
+    ("STATE_PREHEAT", "BIAS_GOOD_LOST", "STATE_FAULT", "FAULT_BIAS_GOOD_LOST", False),
+    ("STATE_PREHEAT", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
+    ("STATE_PREHEAT", "BIAS_GOOD_LOW_AT_START", "STATE_COOLDOWN", None, False),
     ("STATE_PREHEAT", "PAN_REMOVED", "STATE_NO_PAN", None, False),
     ("STATE_PREHEAT", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
 
@@ -49,6 +57,9 @@ TRANSITIONS = [
     ("STATE_HEATING", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
     ("STATE_HEATING", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
     ("STATE_HEATING", "THERMAL_RUNAWAY", "STATE_FAULT", "FAULT_THERMAL_RUNAWAY", False),
+    ("STATE_HEATING", "BIAS_GOOD_LOST", "STATE_FAULT", "FAULT_BIAS_GOOD_LOST", False),
+    ("STATE_HEATING", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
+    ("STATE_HEATING", "BIAS_GOOD_LOW_AT_START", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "PAN_REMOVED", "STATE_NO_PAN", None, False),
     ("STATE_HEATING", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "TIMER_EXPIRED", "STATE_COOLDOWN", None, False),
@@ -57,10 +68,12 @@ TRANSITIONS = [
     ("STATE_NO_PAN", "PAN_REPLACED_SAME", "STATE_PREHEAT", None, False),
     ("STATE_NO_PAN", "PAN_REPLACED_DIFFERENT", "STATE_COOLDOWN", None, False),
     ("STATE_NO_PAN", "NO_PAN_TIMEOUT", "STATE_COOLDOWN", None, False),
+    ("STATE_NO_PAN", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
 
     # COOLDOWN transitions
     ("STATE_COOLDOWN", "COOLED_DOWN", "STATE_IDLE", None, False),
     ("STATE_COOLDOWN", "COOLDOWN_OVERHEAT", "STATE_FAULT", "FAULT_COOLDOWN_OVERHEAT", False),
+    ("STATE_COOLDOWN", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
 
     # FAULT transitions (require fault_setup = True)
     ("STATE_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
@@ -93,7 +106,7 @@ EVENT_STUBS = {
     "NEAR_TARGET": "mock_sm_set_pan_temperature(92.0f);",
     "PREHEAT_TIMEOUT": "mock_sm_advance_time(600001);",
     "OVER_TEMP": "mock_sm_set_heatsink_temperature(105.0f);",
-    "OVER_CURRENT": "mock_sm_set_dc_bus_current(45.0f);",
+    "OVER_CURRENT": "mock_sm_set_power_tank_trip(true);",
     "FAN_FAILURE": "mock_sm_set_fan_running(false);",
     "PROBE_OPEN": "mock_sm_set_rtd_resistance(15000.0f);",
     "PROBE_SHORT": "mock_sm_set_rtd_resistance(5.0f);",
@@ -120,13 +133,20 @@ EVENT_STUBS = {
     "COOLDOWN_OVERHEAT": "mock_sm_set_heatsink_temperature(105.0f);",
     "FAULT_RESET_CLEARED": (
         "mock_sm_set_heatsink_temperature(65.0f);\n"
-        "    mock_sm_press_button(BUTTON_RESET);"
+        "    mock_sm_press_button(BUTTON_BACK);"
     ),
     "FAULT_RESET_PERSISTS": (
         "mock_sm_set_heatsink_temperature(105.0f);\n"
-        "    mock_sm_press_button(BUTTON_RESET);"
+        "    mock_sm_press_button(BUTTON_BACK);"
     ),
     "RUNAWAY_ABSOLUTE_TEMP": "mock_sm_set_pan_temperature(310.0f);",
+    # B13 H2 (BIAS_GOOD on J4.1, option P: BIAS_GOOD = bias_ok AND PERMIT; the stubs model PERMIT
+    # as "power requested and the start not refused"). STUCK: check 1's verdict (the platform's,
+    # debounced). LOW_AT_START: the binding refused the current request (check 2). LOST: the bias
+    # drops while PERMIT is up (check 3; PREHEAT / HEATING preconditions hold a request).
+    "BIAS_GOOD_STUCK": "mock_sm_set_bias_stuck(true);",
+    "BIAS_GOOD_LOW_AT_START": "mock_sm_set_bias_start_refused(true);",
+    "BIAS_GOOD_LOST": "mock_sm_set_bias_good(false);",
     "RUNAWAY_RISE_RATE": (
         "mock_sm_set_pan_temperature(30.0f);\n"
         "    state_machine_update();\n"
@@ -288,11 +308,13 @@ def _c_preconditions():
 
     # PREHEAT / HEATING: must set pan PRESENT to avoid immediate pan-removal transition;
     # also set pan temp just below target to avoid immediate thermal-runaway
+    # and hold a power request (PERMIT up in the stub model), as PAN_DET hands over to PREHEAT
     lines.append("    case STATE_PREHEAT:")
     lines.append("    case STATE_HEATING:")
     lines.append("        mock_sm_set_pan_status(MOCK_PAN_PRESENT);")
     lines.append("        mock_sm_set_pan_temperature(92.0f);")
     lines.append("        state_machine_reset_temp_baseline();")
+    lines.append("        power_set_level(50);")
     lines.append("        break;")
 
     # NO_PAN: set pan status absent so the state logic sees no pan
@@ -325,7 +347,8 @@ def _c_fault_setup():
         "    mock_sm_set_pan_status(MOCK_PAN_PRESENT);",
         "    mock_sm_set_pan_temperature(25.0f);",
         "    mock_sm_set_fan_running(true);",
-        "    mock_sm_set_dc_bus_current(0.0f);",
+        "    mock_sm_set_power_bus_fault(false);",
+        "    mock_sm_set_power_tank_trip(false);",
         "    mock_sm_set_rtd_resistance(100.0f);",
         "    switch (code) {",
         "    case FAULT_OVER_TEMP:",
@@ -544,7 +567,12 @@ def generate_c_output(transitions, output_path):
         "extern void mock_sm_advance_time(uint32_t ms);",
         "extern void mock_sm_set_pan_temperature(float temp_c);",
         "extern void mock_sm_set_heatsink_temperature(float temp_c);",
-        "extern void mock_sm_set_dc_bus_current(float amps);",
+        "extern void mock_sm_set_power_bus_fault(bool tripped);",
+        "extern void mock_sm_set_power_tank_trip(bool tripped);",
+        "extern void mock_sm_set_bias_good(bool high);",
+        "extern void mock_sm_set_bias_stuck(bool stuck);",
+        "extern void mock_sm_set_bias_start_refused(bool refused);",
+        "extern void power_set_level(uint8_t level);",
         "extern void mock_sm_set_rtd_resistance(float ohms);",
         "extern void mock_sm_set_pan_status(int status);",
         "extern void mock_sm_set_pan_impedance(float impedance);",

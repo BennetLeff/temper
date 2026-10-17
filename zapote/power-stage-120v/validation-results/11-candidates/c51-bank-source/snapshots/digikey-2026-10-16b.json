@@ -1,0 +1,23 @@
+{
+ "_about": "DigiKey reads by this lane in a normal browser tab (claude-in-chrome), 2026-10-16 ~19:58-20:05Z, transcribed from the page text (get_page_text / table innerText). No login, no cart. Follow-up for the 28 A options survey.",
+ "detail_pages": {
+  "R76UR24704030J": {"stock": 998, "lead_weeks": 20, "dims": "32.0 x 11.0 x 20.1 mm, P27.5", "ladder": [[1, 2.35], [10, 1.605], [50, 1.3076], [336, 1.09256], [672, 1.03885], [1008, 1.01194], [2688, 0.95821], [5040, 0.93077]]},
+  "R76UN24704040J": {"stock": 408, "lead_weeks": 24, "dims": "26.5 x 10.0 x 18.5 mm, P22.5, AEC-Q200", "ladder": [[1, 2.13], [10, 1.439], [50, 1.166], [300, 0.97783], [600, 0.92697], [1200, 0.88508], [2700, 0.84537], [5100, 0.81996]]}
+ },
+ "searches": {
+  "film caps, keyword '0.047uF 2000V' (first 25 of 128, in-stock rows)": [
+   ["940C20S47K-F", 2192, "CDE 940C axial 15 dia x 34, 10%"],
+   ["R76UN24704040J", 408, "KEMET R76 P22.5 26.5 x 10 x 18.5, AEC-Q200"],
+   ["R76UR24704030J", 998, "KEMET R76 P27.5 32 x 11 x 20.1"],
+   ["B32654A2473J000", 768, "TDK B3265x P27.5 31.5 x 18, $3.63 @1"],
+   ["R75UN24704030J", 300, "KEMET R75 P22.5 26.5 x 10 x 18.6"],
+   ["MKP1845347204", 658, "Vishay axial 15 x 44"],
+   ["MKS4U024705I00KSSD", 830, "WIMA MKS4 polyester (marketplace)"],
+   ["942C20S47K-F", 78, "CDE axial"],
+   ["PHE450SD5470JR06L2", 5, "KEMET PHE450"]
+  ],
+  "keyword '0.039uF 2000V'": [["R76UN23905050J", 250, "KEMET R76 P22.5, ESR 16.3 mOhm, $1.22 @1"], ["R75UN239050H3J", 448, "KEMET R75H 125 C"], ["R76UN239050H4J", 209, "KEMET R76 H4 125 C, ESR 49 mOhm"]],
+  "keyword '0.033uF 2000V'": [["940C20S33K-F", 319, "axial"], ["B32654A2333K000", 820, "TDK 10%, 31.5 x 13.5"], ["MKP1845333204", 654, "axial"], ["R76UN233050H4J", 40, "R76H 125 C"]],
+  "keyword '0.056uF 2000V'": [["R75UN256050H3J", 562, "R75H 125 C"], ["R76UN256050H4J", 752, "R76 H4 125 C, ESR 45 mOhm"], ["PHE450SD5560JR06L2", 361, "PHE450"]]
+ }
+}

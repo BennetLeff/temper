@@ -1,0 +1,51 @@
+--- a/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py
++++ b/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py
+@@ -136,10 +136,48 @@
+ C28 = {"R5": I_T["c28"] ** 2 * 1e-3, "R39": (I_T["c28"] / 100) ** 2 * 1.5}
+ C28.update({ref: (SHARE * I_T["c28"]) ** 2 * ESR_TYP for ref in BANK})
+ C28_SCALE = {"C5": (I_T["c28"] / 21.47) ** 2, "C6": (I_T["c28"] / 21.47) ** 2, "L1": (11.1 / (1710 / 120)) ** 2}
++# thermal-refine 2026-10-15: in the c28 file the frequency-set rows sit at the 60 kHz top of the control window (DECISIONS 1:
++# "module temperature at the 60 kHz control-window maximum (~1.4 W)") and the gate rows follow the s29 drive (DECISIONS 31:
++# 2EDR8259X, R10/R12/R18/R20 8.2 ohm RS-06L8R20FT, R53/R54/R57/R58 1 ohm 1206W4F100KT5E via the PMEG discharge diode).
++# Q_DECK = the worst gate-loop charge per edge on the as-built 2EDR8259X + 8.2 ohm deck, 382.6 nC (S2; device study
++# validation-results/01-switching-parasitics/device-study-2026-10-15/results/bias.json, DECISIONS 49) - not the 740 nC
++# Q_WORST allowance, which stays the sizing basis of the worst-case file above.
++# Load per channel as native-21/bias_sizing.py (I_ch = Q f + 22.9 mA); module P_out = 17 V x I_ch at the
++# ALT-BIAS 45 % allocation; U26 = (24 - 17 V)(2 I_ch + 30 mA); PS2 = the ALT-BIAS budget (7.45 W at 40 kHz reproduced).
++# Gate energy Q x 17 V per FET per cycle, half in each path, split by resistance: on = Ron_SRC 0.95 (2EDR8259 Rev.1.7
++# p.15) + 8.2 + Rg,int 2.7 (IPW65R018CFD7 p.5); off = 2.7 + [8.2 || (PMEG Vf 0.35 V, 0.1 ohm + 1.0)] + Ron_SNK 0.39.
++# Driver quiescent 2 x 1.14 mA x 17 V + 2.12 mA x 3.3 V (2EDR8259 Table 12 p.12).
++F_WIN, Q_DECK = 60e3, 382.6e-9
++I_CH = Q_DECK * F_WIN + 0.0044 + 0.003 + 0.0015 + 0.014
++E_F = Q_DECK * SWING * F_WIN                                     # W of gate drive per FET
++
++
++def gate_split():
++    on = 0.95 + 8.2 + 2.7
++    vf = Q_DECK * 0.35 / (0.5 * Q_DECK * SWING)                 # diode forward-drop share of the turn-off energy
++    rbr = 1.0 + 0.1
++    rpar = 8.2 * rbr / (8.2 + rbr)
++    tot, res = 2.7 + rpar + 0.39, 1.0 - vf
++    p_par = res * rpar / tot
++    return {"rg": 0.5 * 8.2 / on + 0.5 * p_par * rbr / (8.2 + rbr),
++            "roff": 0.5 * p_par * 8.2 / (8.2 + rbr) * 1.0 / rbr,
++            "drv": 0.5 * 0.95 / on + 0.5 * res * 0.39 / tot}
++
++
++SPLIT = gate_split()
++C28_F = {"U41": 17.0 * I_CH * (1 / 0.45 - 1), "U42": 17.0 * I_CH * (1 / 0.45 - 1), "U26": (24 - 17) * (2 * I_CH + 0.030),
++         "PS2": (2 * 17.0 * I_CH / 0.45 + 24 * (2 * I_CH + 0.030) + 24 * 0.010) * (1 / 0.84 - 1)}
++for drv, rg, roff in (("U1", ("R10", "R12"), ("R53", "R54")), ("U2", ("R18", "R20"), ("R57", "R58"))):
++    C28_F[drv] = 2 * SPLIT["drv"] * E_F + 2 * 1.14e-3 * 17.0 + 2.12e-3 * 3.3
++    C28_F.update({r: SPLIT["rg"] * E_F for r in rg})
++    C28_F.update({r: SPLIT["roff"] * E_F for r in roff})
++C28.update(C28_F)
+ c28_rows = []
+ for r in rows:
+     w = C28.get(r["ref"], r["watts_nominal"] * C28_SCALE.get(r["ref"], 1.0))
+     c28_rows.append({**r, "watts_nominal": w, "watts_worst": w})
++    if r["ref"] in C28_F:
++        c28_rows[-1]["note"] = f"60 kHz window top, 2EDR8259X / 8.2 ohm drive, Q {Q_DECK * 1e9:.1f} nC (thermal-refine 2026-10-15)"
+ (HERE / "inputs").mkdir(exist_ok=True)
+ (HERE / "inputs" / "native21-board-heat-sources-c28.json").write_text(json.dumps(
+     {"status": "native-21 board heat at the 28 A ceiling case (stage 15; watts_nominal = watts_worst = the case)",

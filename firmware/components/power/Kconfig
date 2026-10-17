@@ -1,0 +1,151 @@
+menu "Temper native-21 power binding"
+
+config TEMPER_POWER_HW_BINDING
+    bool "Build the native-21 hardware binding (integrated SELV controller)"
+    default n
+    help
+        Compiles n21_hw_esp32.c and starts it from app_main. Off by default: the source has not yet
+        been compiled against ESP-IDF or run on hardware (see COMMISSIONING.md). With this off the
+        power service stays unbound and inhibited, as before.
+
+choice TEMPER_POWER_MODE
+    prompt "Power-stage authorisation"
+    depends on TEMPER_POWER_HW_BINDING
+    default TEMPER_POWER_MODE_INHIBITED
+    help
+        INHIBITED: PWM pads held low, acquisition runs for telemetry only. BENCH: bounded,
+        operator-confirmed bench PWM sessions (COMMISSIONING.md steps 3-9); the adapter is never
+        bound. COMMISSIONED: binds the fullbridge adapter with commissioned=true. It is refused at
+        run time unless TEMPER_POWER_CALIBRATED is set AND the hardware has a firmware run gate
+        (open hardware question H1; the controller as captured has none).
+
+config TEMPER_POWER_MODE_INHIBITED
+    bool "Inhibited (default)"
+config TEMPER_POWER_MODE_BENCH
+    bool "Bench bring-up (never ship)"
+config TEMPER_POWER_MODE_COMMISSIONED
+    bool "Commissioned (COMMISSIONING.md step 10 sign-off only)"
+endchoice
+
+config TEMPER_POWER_CALIBRATED
+    bool "Calibration record complete (COMMISSIONING.md section 'Commissioning record')"
+    depends on TEMPER_POWER_HW_BINDING
+    default n
+
+config TEMPER_POWER_TANK_CEILING_DA
+    int "Commissioned tank RMS ceiling, 0.1 A (175 = 17.5 A ships; raise only per COMMISSIONING.md)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 100 280
+    default 175
+    help
+        The one tank-current parameter. The firmware ships at 17.5 A. The release basis is the
+        hot-copper B3 thermal model (power-stage OPEN-ITEMS S17: copper loss evaluated at the
+        copper's solved temperature). On board s45 in still air at the worst bay air (61 C) its
+        binding row, R10's 2512 terminal derating, keeps +1.0 K at 17.5 A and fails by 0.7 K at
+        the earlier 18.0 A release (DECISIONS 55 / 56, which used 20 C copper). Evidence:
+        zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/
+        b3-ratings/hot-copper-2026-10-15/. The hardware (stage 15) is sized for 28 A, but only
+        with board-face airflow. Raising this above 175 needs, first, a hot-copper B3 thermal
+        basis that passes at the higher ceiling: board-face airflow per
+        zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/
+        b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay air below 61 C; then each step's bench
+        gates (COMMISSIONING.md "Raising the commissioned tank ceiling"). Derived from it:
+        half-cycle RMS trip 1.05 x, per-sample crest guard 1.5 x, peak trip min(2.17 x + 3, 62) A.
+        With no pan established the loop holds the tank at or below 17.5 A
+        (TANK_CEILING_DEFAULT_A) whatever this is set to.
+
+config TEMPER_POWER_F_MAX_HZ
+    int "Frequency loop start / maximum, Hz (bench sessions run here)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 35000 60000
+    default 60000
+
+config TEMPER_POWER_F_MIN_HZ
+    int "Frequency loop absolute floor, Hz (the ZVS floor 1.05 f_res is applied on top)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 35000 60000
+    default 35000
+
+config TEMPER_POWER_PAN_Q_MAX_X10
+    int "Pan established: loaded Q from the f_res fit at most this / 10 (bench-tunable)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 20 300
+    default 100
+
+config TEMPER_POWER_PAN_R_MIN_MOHM
+    int "Pan established: p_inv / I_rms^2 at least this, milliohm (bench-tunable)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 100 5000
+    default 800
+
+config TEMPER_POWER_EST_ERROR_PPM
+    int "Inlet estimator error bound e_est, ppm (bench step 8; provisional 100000 = 10 %)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 500000
+    default 100000
+
+config TEMPER_POWER_LINE_ZC_OFFSET_US
+    int "LINE_ZC pulse centre minus true zero, us (bench step 2)"
+    depends on TEMPER_POWER_HW_BINDING
+    range -2000 2000
+    default 0
+
+config TEMPER_POWER_VSW_DELAY_NS
+    int "PWM timer zero to switch-node transition, ns (bench step 7)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 2000
+    default 100
+
+config TEMPER_POWER_CT_ZC_DELAY_NS
+    int "Tank-current zero to CT_ZC edge, ns (bench step 7)"
+    depends on TEMPER_POWER_HW_BINDING
+    range -2000 2000
+    default 0
+
+config TEMPER_POWER_CT_ZC_INVERTED
+    bool "CT_ZC rising edge marks the negative-going tank current (bench step 7)"
+    depends on TEMPER_POWER_HW_BINDING
+    default n
+
+config TEMPER_POWER_VBUS_OFFSET_UV
+    int "VBUS reading at 0 V bus minus 247.77 mV, uV (bench step 2)"
+    depends on TEMPER_POWER_HW_BINDING
+    range -50000 50000
+    default 0
+
+config TEMPER_POWER_VBUS_GAIN_PPM
+    int "VBUS gain trim, ppm of 1.0 (0 = nominal; bench step 4)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 1100000
+    default 0
+
+config TEMPER_POWER_CT_MON_ZERO_MV
+    int "CT_MON idle level, mV (0 = nominal 1650; bench step 2)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 2000
+    default 0
+
+config TEMPER_POWER_RMS_GAIN_PPM
+    int "Tank RMS gain trim, ppm of 1.0 (0 = nominal; bench step 5)"
+    depends on TEMPER_POWER_HW_BINDING
+    range 0 1100000
+    default 0
+
+config TEMPER_POWER_SHADOW_RMS
+    bool "Bench shadow tank RMS from raw CT_MON (never ships)"
+    depends on TEMPER_POWER_HW_BINDING
+    default n
+    help
+        Computes a second tank RMS from the ADC1 continuous CT_MON samples (rms_shadow.h, option C2 of
+        zapote/controller/evidence/rms-alternatives/) and logs it next to the AD8436 reading, once a
+        second, and in n21_telemetry_t.shadow_*. It never feeds a limit, a trip, the frequency loop or
+        the power estimate. To avoid sampling phase lock it re-selects the ADC sample clock
+        (72.1-80 kS/s) when the commanded bridge frequency makes the current clock worse than
+        RMS_SHADOW_LOCK_HOLD; each re-selection stops and restarts the ADC1 stream (about a frame,
+        under 2 ms), which can make the VBUS / CT_MON snapshot stale for that long. The binding fails
+        safe on a stale snapshot (inhibit), so keep this off on anything but the comparison bench
+        (COMMISSIONING.md Step 6.1a). The half boundary is taken at the ADC frame that contains the
+        LINE_ZC edge: up to one 64-result frame (about 0.8 ms) of smear, which moves the shadow RMS
+        by less than 0.2 %.
+
+endmenu

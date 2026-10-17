@@ -1,0 +1,32 @@
+{
+ "boards": [
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s46/c46int/section.kicad_pcb",
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/c47/section.kicad_pcb"
+ ],
+ "footprint_refs_equal": true,
+ "footprints_differing_in_geometry": [],
+ "tracks_vias": {
+  "a": 5115,
+  "b": 5115,
+  "equal": true
+ },
+ "zones": {
+  "a": 87,
+  "b": 87,
+  "outlines_equal": true
+ },
+ "edge_cuts_equal": true,
+ "field_changes": {
+  "U5": {
+   "MPN": [
+    "LM4040A25IDBZR",
+    "LM4050AEM3-2.5/NOPB"
+   ],
+   "Value": [
+    "LM4040A25IDBZR",
+    "LM4050AEM3-2.5/NOPB"
+   ]
+  }
+ },
+ "geometry_identical": true
+}

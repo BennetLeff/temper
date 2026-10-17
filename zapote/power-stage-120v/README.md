@@ -8,14 +8,17 @@ LOSS-REFACTOR.md, COIL-MC.md). Front-end decision: `docs/adr/2026-09-25-front-en
 One board carries the mains entry, EMI filter, bridge rectifier and film bus, the full
 bridge with both UCC21550 drivers next to the MOSFETs, the resonant capacitor bank and tank
 current transformer, the DC-bus shoot-through OCP, isolated bus-voltage sense, the
-thermal-cutoff-gated gate supply, and the SELV 15 V supply. The ESP32 controller, current-sense,
-thermal, interlock and RTD boards connect through one SELV header.
+thermal-cutoff-gated gate supply, and the SELV 15 V supply. The SELV controller (ESP32 plus the
+integrated interlock, thermal-sense and RTD front end) connects through one SELV header (J4). Tank
+over-current sensing is on this board (T1, U10–U13 → bus_fault); zapote/current-sense is a
+bench-qualification unit only.
 
 Native construction records: [progress](BUILD-PROGRESS.md),
 [toolchain](TOOLCHAIN.md), [local footprints](FOOTPRINTS.md),
 [earlier native results](NATIVE-02.md), [current routing](ROUTING.md),
 [placement review](PLACEMENT-REVIEW.md), [oracle assessment](ORACLE-REVIEW.md),
-[placement decisions](DECISIONS.md), and
+[placement decisions](DECISIONS.md),
+[return-current rules](RETURN-PATHS.md), and
 [insulation preflight](RULES-PREFLIGHT.md). The revised 240 × 160 mm outline
 and four layers are approved; the revised placement needs renewed D4 review.
 D5 conditionally permits an 8.0 mm placement floor on
@@ -68,7 +71,7 @@ return-wire faults and complete shutdown timing remain unqualified; see
 
 | Pin | Net | Direction / meaning |
 | ---: | --- | --- |
-| 1 | V15_SELV | Out: IRM-20-15 output for the controller, fan and sensor boards |
+| 1 | BIAS_GOOD_J4 | Out: BIAS_GOOD (U40) through R146 220 k, high while the bias monitors are good and the heartbeat runs (stage 48, OPEN-ITEMS B13 H2). The controller must read it high-Z (≥ 1 MΩ pull-down). Was V15_SELV (PS1) until stage 38; the controller is powered through its J13 |
 | 2, 4, 15, 16 | SELV_GND | Return |
 | 3 | V3V3 | In: controller 3.135–3.465 V rail matching the interlock contract; powers the SELV sides of U1, U2, U4, U9 |
 | 5 / 6 | PWM_HA / PWM_LA | In: leg A high / low gate commands |
@@ -89,7 +92,7 @@ Required on the controller side (not on this board):
 HOT reference is `LEG_RET`, the leg side of the 1 mΩ shunt; layout must star it at shunt pad 2.
 Only these parts may cross HOT↔SELV, and the audit enforces each pin's side:
 
-- UCC21550 (U1, U2)
+- Infineon 2EDR8259X (U1, U2; UCC21550 until stage 28, DECISIONS 31)
 - AMC1311 (U4)
 - ISO7710 (U9)
 - CST3015 (T1)
@@ -107,24 +110,24 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 
 | Fault | Path |
 | --- | --- |
-| Hard short or bridge failure | F1 20 A slow-blow ceramic |
+| Hard short or bridge failure | F1 25 A time-delay ceramic (Eaton Bussmann MDA-25-R: 10 kA @ 125 Vac, 1.5 kA @ 250 Vac) in 30 A 01220088Z clips |
 | Shoot-through / MOSFET short | 1 mΩ DC-return shunt → TLV3201 (nominal ≈61 A) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS |
 | Elevated DC bus | Bus divider → TLV3201 (nominal ≈280 V) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS; this inhibits restart but does not clamp bus voltage |
-| Tank over-current / pan fault | CT → current-sense board comparators → interlock latch |
+| Tank over-current / pan fault | CT (T1) → on-board comparators U10/U11, ORed with the bus fault in U13 → bus_fault → controller interlock latch |
 | Heatsink or glass over-temperature | Off-board Microtemp cutoffs in the J3 loop open the IRM-05-15 input: gate drive and HOT 5 V drop; BUS_FAULT defaults high if controller 3.3 V remains valid. No electronics or firmware involved |
 | Controller hang / reset | Interlock-board watchdog; PERMIT floating = disabled |
-| Gate-supply loss | UCC21550 UVLO holds outputs low; 10 kΩ gate-source hold-off |
+| Gate-supply loss | 2EDR8259X UVLO and active output clamp hold outputs low; 10 kΩ gate-source hold-off |
 | Line surge | TMOV20RP175E (175 Vrms, 455 V clamp) ahead of 650 V MOSFETs |
 
 ## Open before fabrication and powered qualification
 
 1. **Coil measurement** (COIL-MC.md). Sets the resonant bank value (0.54 µF now, for 70 µH / 32 kHz), CT burden and frequency limits.
 2. **Parts to confirm against manufacturer drawings:**
-   - J1 is Phoenix 1711725 for L/N only; J6 is a Phoenix 1704004 PE branch from the chassis stud. J2/J5 and the four disconnect terminals use Würth 74650074; assembly, temperature and spacing qualification remain open.
-   - Littelfuse 102071 clip current rating (≥ 20 A)
+   - J1 is Phoenix 1714971 (MKDS 5/2-9,5, UL/CSA group B 30 A; stage 27) for L/N only; J6 is a Phoenix 1704004 PE branch from the chassis stud. J2/J5 and the four disconnect terminals use Würth 74650074; assembly, temperature and spacing qualification remain open.
+   - ~~Littelfuse 102071 clip current rating~~ (10 A): replaced by 30 A 01220088Z clips. The fuse is now Eaton Bussmann MDA-25-R (25 A, 10 kA @ 125 Vac), DECISIONS.md 2026-10-08
    - ~~TDK B82726S2203A020 pin numbering~~ (confirmed from datasheet 2026-09-25: windings 1-4, 2-3)
-   - Molex 0430451612 order code
-   - 942C AC voltage rating vs frequency (≈236 V rms at line crest, 35 kHz)
+   - ~~Molex 0430451612 order code~~: a real, current Micro-Fit 3.0 2×8 vertical part that matches the footprint and pinout. Its mate is 43025-1600 + 43030-0007 (`validation-results/08-manufacturing-package/native-21/owner-items/order/ORDER-PACKAGE.md` §1c). Only the post-hole check against Molex drawing 430451612_sd is left
+   - 942C AC voltage rating vs frequency (≈ 236 V rms at line crest, 35 kHz): CDE's 1200 Vdc curves (942C.pdf p.4) have no 0.22 µF trace. The 0.33 µF trace allows ≈ 270 V rms at 35 kHz (read from the plot), and the smaller value allows more, so it passes at 25 °C. The hot-spot rating stays a bench item
 3. **Footprint qualification:** all current local footprints are now
    in `libraries/`. [FOOTPRINTS.md](FOOTPRINTS.md) records their drawing
    references and provisional formed-lead, retention and assembly limits.
@@ -132,3 +135,8 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 5. **Bench:** dead time (39 kΩ ≈ 348 ns nominal), gate resistors, snubber value, OCP trip calibration, ZVS at light load.
 
 Physical assembly, powered test, EMI, insulation and certification: **NOT RUN**.
+
+The release gates (two tiers: bench prototype lot vs mains-connected / product release) are in
+`validation-results/08-manufacturing-package/native-21/fab/FAB-NOTE.md`. The owner decisions M6, M10
+and M11 are in DECISIONS.md (2026-10-08). The integrated SELV controller that drives J4 is captured in
+`zapote/controller/`.

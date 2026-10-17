@@ -1,0 +1,2654 @@
+{
+ "dump": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s32/b2/copper-dump.json",
+ "plans": {
+  "4L-s32": {
+   "what": "stage 32 as built (control: 18 open changes)",
+   "ops": [],
+   "stack": "stackup.json",
+   "open_changes": 18,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      117.847,
+      55.095
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "bus_fault"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 0,
+   "stitch_mm_max": null,
+   "stitched_list": [],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": true,
+   "failures": []
+  },
+  "6L-A0": {
+   "what": "six layers, today's In1 / In2 roles, In3 / In4 empty",
+   "ops": [],
+   "stack": "stackup-6L.json",
+   "open_changes": 18,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      117.847,
+      55.095
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "bus_fault"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 0,
+   "stitch_mm_max": null,
+   "stitched_list": [],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": true,
+   "failures": []
+  },
+  "6L-A": {
+   "what": "In1 / In2 as today; In3 signal; In4 = image of In1's reference planes (v3v3 SELV, n_ha / n_hb / n_ls / ocp_kelvin_p islands); no In4 under the switching copper",
+   "ops": [
+    [
+     "copy",
+     "v3v3",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ha",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_hb",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ls",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "ocp_kelvin_p",
+     "In1.Cu",
+     "In4.Cu"
+    ]
+   ],
+   "stack": "stackup-6L.json",
+   "open_changes": 15,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "stitch": "ocp_kelvin_p",
+     "nets": [
+      "ocp_kelvin_p"
+     ],
+     "cap": null,
+     "mm": 3.74,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 6.06,
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 21.19,
+     "net": "permit"
+    },
+    {
+     "at": [
+      113.298,
+      125.875
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 7.84,
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 5.09,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 6.26,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 21,
+   "stitch_mm_max": 21.19,
+   "stitched_list": [
+    {
+     "net": "ocp_ok_hot",
+     "mm": 2.55,
+     "at": [
+      103.8,
+      55.895
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 1.23,
+     "at": [
+      117.847,
+      55.095
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 3.74,
+     "at": [
+      114.448,
+      55.695
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 1.76,
+     "at": [
+      56.155,
+      157.275
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 1.97,
+     "at": [
+      55.155,
+      128.675
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 2.38,
+     "at": [
+      35.2,
+      125.0
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 3.78,
+     "at": [
+      38.955,
+      127.075
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 2.95,
+     "at": [
+      28.955,
+      55.875
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 2.11,
+     "at": [
+      34.4,
+      110.6
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 1.71,
+     "at": [
+      55.955,
+      175.0
+     ]
+    },
+    {
+     "net": "ct_zc",
+     "mm": 3.68,
+     "at": [
+      26.907,
+      128.795
+     ]
+    },
+    {
+     "net": "pwm_ha",
+     "mm": 8.71,
+     "at": [
+      75.9,
+      56.275
+     ]
+    },
+    {
+     "net": "pwm_la",
+     "mm": 8.49,
+     "at": [
+      76.825,
+      56.075
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 6.06,
+     "at": [
+      70.0,
+      127.8
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 21.19,
+     "at": [
+      36.5,
+      178.6
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 2.89,
+     "at": [
+      33.2,
+      120.2
+     ]
+    },
+    {
+     "net": "bus_fault_iso",
+     "mm": 7.84,
+     "at": [
+      113.298,
+      125.875
+     ]
+    },
+    {
+     "net": "bus_fault_iso",
+     "mm": 1.74,
+     "at": [
+      76.825,
+      125.875
+     ]
+    },
+    {
+     "net": "bus_fault",
+     "mm": 1.86,
+     "at": [
+      34.843,
+      131.565
+     ]
+    },
+    {
+     "net": "bias_good",
+     "mm": 5.09,
+     "at": [
+      74.0,
+      123.4
+     ]
+    },
+    {
+     "net": "bias_good",
+     "mm": 6.26,
+     "at": [
+      33.2,
+      70.4
+     ]
+    }
+   ],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": false,
+   "failures": [
+    "pwm_hb: reference change 3.78 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "ct_zc: reference change 3.68 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "pwm_ha: reference change 8.71 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "pwm_la: reference change 8.49 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)"
+   ]
+  },
+  "6L-A-islands": {
+   "what": "as A without the In4 v3v3 (islands only)",
+   "ops": [
+    [
+     "copy",
+     "n_ha",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_hb",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ls",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "ocp_kelvin_p",
+     "In1.Cu",
+     "In4.Cu"
+    ]
+   ],
+   "stack": "stackup-6L.json",
+   "open_changes": 17,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "stitch": "ocp_kelvin_p",
+     "nets": [
+      "ocp_kelvin_p"
+     ],
+     "cap": null,
+     "mm": 3.74,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "bus_fault"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 3,
+   "stitch_mm_max": 3.74,
+   "stitched_list": [
+    {
+     "net": "ocp_ok_hot",
+     "mm": 2.55,
+     "at": [
+      103.8,
+      55.895
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 1.23,
+     "at": [
+      117.847,
+      55.095
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 3.74,
+     "at": [
+      114.448,
+      55.695
+     ]
+    }
+   ],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": true,
+   "failures": []
+  },
+  "6L-A-selv": {
+   "what": "as A, In4 v3v3 only",
+   "ops": [
+    [
+     "copy",
+     "v3v3",
+     "In1.Cu",
+     "In4.Cu"
+    ]
+   ],
+   "stack": "stackup-6L.json",
+   "open_changes": 16,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      117.847,
+      55.095
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 6.06,
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 21.19,
+     "net": "permit"
+    },
+    {
+     "at": [
+      113.298,
+      125.875
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 7.84,
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 5.09,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "stitch": "v3v3",
+     "nets": [
+      "v3v3"
+     ],
+     "cap": null,
+     "mm": 6.26,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 18,
+   "stitch_mm_max": 21.19,
+   "stitched_list": [
+    {
+     "net": "pwm_hb",
+     "mm": 1.76,
+     "at": [
+      56.155,
+      157.275
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 1.97,
+     "at": [
+      55.155,
+      128.675
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 2.38,
+     "at": [
+      35.2,
+      125.0
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 3.78,
+     "at": [
+      38.955,
+      127.075
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 2.95,
+     "at": [
+      28.955,
+      55.875
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 2.11,
+     "at": [
+      34.4,
+      110.6
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 1.71,
+     "at": [
+      55.955,
+      175.0
+     ]
+    },
+    {
+     "net": "ct_zc",
+     "mm": 3.68,
+     "at": [
+      26.907,
+      128.795
+     ]
+    },
+    {
+     "net": "pwm_ha",
+     "mm": 8.71,
+     "at": [
+      75.9,
+      56.275
+     ]
+    },
+    {
+     "net": "pwm_la",
+     "mm": 8.49,
+     "at": [
+      76.825,
+      56.075
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 6.06,
+     "at": [
+      70.0,
+      127.8
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 21.19,
+     "at": [
+      36.5,
+      178.6
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 2.89,
+     "at": [
+      33.2,
+      120.2
+     ]
+    },
+    {
+     "net": "bus_fault_iso",
+     "mm": 7.84,
+     "at": [
+      113.298,
+      125.875
+     ]
+    },
+    {
+     "net": "bus_fault_iso",
+     "mm": 1.74,
+     "at": [
+      76.825,
+      125.875
+     ]
+    },
+    {
+     "net": "bus_fault",
+     "mm": 1.86,
+     "at": [
+      34.843,
+      131.565
+     ]
+    },
+    {
+     "net": "bias_good",
+     "mm": 5.09,
+     "at": [
+      74.0,
+      123.4
+     ]
+    },
+    {
+     "net": "bias_good",
+     "mm": 6.26,
+     "at": [
+      33.2,
+      70.4
+     ]
+    }
+   ],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": false,
+   "failures": [
+    "pwm_hb: reference change 3.78 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "ct_zc: reference change 3.68 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "pwm_ha: reference change 8.71 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "pwm_la: reference change 8.49 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)"
+   ]
+  },
+  "6L-A2": {
+   "what": "as A, but the SELV pair swapped: In1 selv_gnd (under F.Cu), In2 v3v3, In4 selv_gnd",
+   "ops": [
+    [
+     "swap",
+     "v3v3",
+     "In1.Cu",
+     "selv_gnd",
+     "In2.Cu"
+    ],
+    [
+     "copy",
+     "selv_gnd",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ha",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_hb",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ls",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "ocp_kelvin_p",
+     "In1.Cu",
+     "In4.Cu"
+    ]
+   ],
+   "stack": "stackup-6L.json",
+   "open_changes": 17,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "stitch": "ocp_kelvin_p",
+     "nets": [
+      "ocp_kelvin_p"
+     ],
+     "cap": null,
+     "mm": 3.74,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 5.9,
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 23.26,
+     "net": "permit"
+    },
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 6.73,
+     "net": "permit"
+    },
+    {
+     "at": [
+      113.298,
+      125.875
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 5.58,
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 3.41,
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 5.16,
+     "net": "bus_fault"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "stitch": "selv_gnd",
+     "nets": [
+      "selv_gnd"
+     ],
+     "cap": null,
+     "mm": 3.52,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 21,
+   "stitch_mm_max": 23.26,
+   "stitched_list": [
+    {
+     "net": "ocp_ok_hot",
+     "mm": 2.55,
+     "at": [
+      103.8,
+      55.895
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 1.23,
+     "at": [
+      117.847,
+      55.095
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 3.74,
+     "at": [
+      114.448,
+      55.695
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 3.52,
+     "at": [
+      56.155,
+      157.275
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 3.52,
+     "at": [
+      55.155,
+      128.675
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 7.03,
+     "at": [
+      35.2,
+      125.0
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 4.21,
+     "at": [
+      38.955,
+      127.075
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 4.5,
+     "at": [
+      28.955,
+      55.875
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 3.2,
+     "at": [
+      34.4,
+      110.6
+     ]
+    },
+    {
+     "net": "pwm_hb",
+     "mm": 3.52,
+     "at": [
+      55.955,
+      175.0
+     ]
+    },
+    {
+     "net": "ct_zc",
+     "mm": 1.94,
+     "at": [
+      26.907,
+      128.795
+     ]
+    },
+    {
+     "net": "pwm_ha",
+     "mm": 4.41,
+     "at": [
+      75.9,
+      56.275
+     ]
+    },
+    {
+     "net": "pwm_la",
+     "mm": 3.62,
+     "at": [
+      76.825,
+      56.075
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 5.9,
+     "at": [
+      70.0,
+      127.8
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 23.26,
+     "at": [
+      36.5,
+      178.6
+     ]
+    },
+    {
+     "net": "permit",
+     "mm": 6.73,
+     "at": [
+      33.2,
+      120.2
+     ]
+    },
+    {
+     "net": "bus_fault_iso",
+     "mm": 5.58,
+     "at": [
+      113.298,
+      125.875
+     ]
+    },
+    {
+     "net": "bus_fault_iso",
+     "mm": 3.41,
+     "at": [
+      76.825,
+      125.875
+     ]
+    },
+    {
+     "net": "bus_fault",
+     "mm": 5.16,
+     "at": [
+      34.843,
+      131.565
+     ]
+    },
+    {
+     "net": "bias_good",
+     "mm": 3.52,
+     "at": [
+      74.0,
+      123.4
+     ]
+    },
+    {
+     "net": "bias_good",
+     "mm": 2.94,
+     "at": [
+      33.2,
+      70.4
+     ]
+    }
+   ],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": false,
+   "failures": [
+    "pwm_hb: reference change 7.03 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "pwm_ha: reference change 4.41 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)",
+    "pwm_la: reference change 3.62 mm from a v3v3-selv_gnd cap or stitch via (limit 3.0)"
+   ]
+  },
+  "6L-A3": {
+   "what": "as A, but In4 SELV = selv_gnd (B over ground, F over v3v3, as today)",
+   "ops": [
+    [
+     "copy",
+     "selv_gnd",
+     "In2.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ha",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_hb",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "n_ls",
+     "In1.Cu",
+     "In4.Cu"
+    ],
+    [
+     "copy",
+     "ocp_kelvin_p",
+     "In1.Cu",
+     "In4.Cu"
+    ]
+   ],
+   "stack": "stackup-6L.json",
+   "open_changes": 17,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "stitch": "ocp_kelvin_p",
+     "nets": [
+      "ocp_kelvin_p"
+     ],
+     "cap": null,
+     "mm": 3.74,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "bus_fault"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 3,
+   "stitch_mm_max": 3.74,
+   "stitched_list": [
+    {
+     "net": "ocp_ok_hot",
+     "mm": 2.55,
+     "at": [
+      103.8,
+      55.895
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 1.23,
+     "at": [
+      117.847,
+      55.095
+     ]
+    },
+    {
+     "net": "ovp_ok_hot",
+     "mm": 3.74,
+     "at": [
+      114.448,
+      55.695
+     ]
+    }
+   ],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": true,
+   "failures": []
+  },
+  "6L-B": {
+   "what": "PLAN.md's F / In1 plane / In2 sig / In3 sig / In4 plane / B: today's In2 (bus_p, selv_gnd) on In4",
+   "ops": [
+    [
+     "move",
+     "In2.Cu",
+     "In4.Cu"
+    ]
+   ],
+   "stack": "stackup-6L.json",
+   "open_changes": 18,
+   "open": [
+    {
+     "at": [
+      101.1,
+      74.9
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      113.635,
+      114.5
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      100.6,
+      114.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bus_fault_hot"
+    },
+    {
+     "at": [
+      117.0,
+      54.995
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "ocp_ok_hot"
+    },
+    {
+     "at": [
+      117.847,
+      55.095
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      114.448,
+      55.695
+     ],
+     "cap": null,
+     "nets": [
+      "none",
+      "ocp_kelvin_p"
+     ],
+     "mm": null,
+     "net": "ovp_ok_hot"
+    },
+    {
+     "at": [
+      70.0,
+      127.8
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 8.69,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      36.5,
+      178.6
+     ],
+     "cap": "C156",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 20.89,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 0.85,
+      "selv_gnd": 0.85
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      33.2,
+      120.2
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 6.94,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "permit"
+    },
+    {
+     "at": [
+      76.825,
+      125.875
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 9.83,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bus_fault_iso"
+    },
+    {
+     "at": [
+      34.843,
+      131.565
+     ],
+     "cap": "C47",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 4.55,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 2.93,
+      "selv_gnd": 3.58
+     },
+     "net": "bus_fault"
+    },
+    {
+     "at": [
+      74.0,
+      123.4
+     ],
+     "cap": "C144",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 12.2,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.16,
+      "selv_gnd": 0.31
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      33.2,
+      70.4
+     ],
+     "cap": "C61",
+     "nets": [
+      "selv_gnd",
+      "v3v3"
+     ],
+     "mm": 7.15,
+     "cap_pad_to_plane_via_mm": {
+      "v3v3": 1.68,
+      "selv_gnd": 0.56
+     },
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      69.2,
+      127.0
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "bias_good"
+    },
+    {
+     "at": [
+      48.0,
+      63.4
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      55.6,
+      49.8
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      57.8,
+      46.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    },
+    {
+     "at": [
+      101.0,
+      87.6
+     ],
+     "cap": null,
+     "nets": [
+      "none"
+     ],
+     "mm": null,
+     "net": "mon_good_ha"
+    }
+   ],
+   "stitched": 0,
+   "stitch_mm_max": null,
+   "stitched_list": [],
+   "wrong_reference_samples": {
+    "mon_good_ha": 100
+   },
+   "pass": true,
+   "failures": []
+  }
+ }
+}

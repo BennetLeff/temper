@@ -1,0 +1,237 @@
+{
+ "controls": [
+  {
+   "control": "current partition reproduces electrical.json Q (all nets)",
+   "detail": "",
+   "pass": true
+  }
+ ],
+ "method": "Alternative partitions: re-cut gate drive / bias / monitors (G05 / G06 / G07) by isolation island.\n\n    python3 -I validation-results/13-coupling/scripts/regroup.py make       # writes results/assignment-<alt>.json\n    python3 -I validation-results/13-coupling/scripts/electrical.py --alt islands   (and physical.py; also islands_selv)\n    python3 -I validation-results/13-coupling/scripts/regroup.py compare    # writes results/regroup.json\n\nThe electrical communities (electrical.json, all nets) follow the isolation islands, not the functions: each of G05,\nG06 and G07 has parts on the HS-A island (SW_A), the HS-B island (SW_B), the low-side (LOW) island and the SELV side.\nRule (pin domains from native-21/layout/domains.py over each part's pins):\n  islands:       G05 / G06 / G07 parts become HSA (pins on SW_A, incl. U41 and U43), HSB (SW_B, incl. U42 and U44),\n                 LS (LOW / HOT, incl. U1 / U2 drivers whose isolated outputs and supply are LS-referenced, U32, PS2, J3)\n                 and SLOG (SELV-only drive / supervision logic); G01-G04, G08, G09, G10 unchanged.\n  islands_selv:  as islands, with SLOG, G09 and G10 merged into one SELV-side group (SELV).\nCompare: modularity (all nets, no rails), conductance, the largest normalised pair cut, courtyard contacts between\ngroups, routed copper in another group's territory, routed adjacency, contested corridor tiles, and the share of the\nHOT / SELV pairs inside 9 mm that fall inside one group.",
+ "partitions": {
+  "current": {
+   "Q_all": 0.4401,
+   "Q_no_rails": 0.5972,
+   "barrier_pairs_inside_one_group": 252,
+   "barrier_pairs_within_9mm": 260,
+   "contested_corridor_pairs": 133,
+   "courtyard_contacts_2mm": 107,
+   "groups": 10,
+   "inter_group_cut_share_all": 0.3843,
+   "inter_group_cut_share_no_rails": 0.2447,
+   "max_pair_norm_cut_all": 0.4043,
+   "max_pair_norm_cut_no_rails": 0.4043,
+   "mean_conductance_all": 0.4324,
+   "mean_conductance_no_rails": 0.3392,
+   "routed_adjacency_mm2": 52.25,
+   "routed_copper_in_other_territory_mm2": 2002.2113,
+   "sizes": {
+    "G01": 12,
+    "G02": 6,
+    "G03": 12,
+    "G04": 11,
+    "G05": 92,
+    "G06": 42,
+    "G07": 90,
+    "G08": 42,
+    "G09": 32,
+    "G10": 10
+   }
+  },
+  "islands": {
+   "Q_all": 0.5948,
+   "Q_no_rails": 0.6188,
+   "barrier_pairs_inside_one_group": 242,
+   "barrier_pairs_within_9mm": 260,
+   "contested_corridor_pairs": 180,
+   "courtyard_contacts_2mm": 92,
+   "groups": 11,
+   "inter_group_cut_share_all": 0.2559,
+   "inter_group_cut_share_no_rails": 0.2543,
+   "max_pair_norm_cut_all": 0.3533,
+   "max_pair_norm_cut_no_rails": 0.3533,
+   "mean_conductance_all": 0.3628,
+   "mean_conductance_no_rails": 0.3272,
+   "routed_adjacency_mm2": 63.9375,
+   "routed_copper_in_other_territory_mm2": 1887.6301,
+   "sizes": {
+    "G01": 12,
+    "G02": 6,
+    "G03": 12,
+    "G04": 11,
+    "G08": 42,
+    "G09": 32,
+    "G10": 10,
+    "HSA": 52,
+    "HSB": 52,
+    "LS": 94,
+    "SLOG": 26
+   }
+  },
+  "islands_selv": {
+   "Q_all": 0.6258,
+   "Q_no_rails": 0.6131,
+   "barrier_pairs_inside_one_group": 244,
+   "barrier_pairs_within_9mm": 260,
+   "contested_corridor_pairs": 60,
+   "courtyard_contacts_2mm": 82,
+   "groups": 9,
+   "inter_group_cut_share_all": 0.196,
+   "inter_group_cut_share_no_rails": 0.2299,
+   "max_pair_norm_cut_all": 0.3533,
+   "max_pair_norm_cut_no_rails": 0.3533,
+   "mean_conductance_all": 0.2883,
+   "mean_conductance_no_rails": 0.2921,
+   "routed_adjacency_mm2": 48.9375,
+   "routed_copper_in_other_territory_mm2": 1693.7183,
+   "sizes": {
+    "G01": 12,
+    "G02": 6,
+    "G03": 12,
+    "G04": 11,
+    "G08": 42,
+    "HSA": 52,
+    "HSB": 52,
+    "LS": 94,
+    "SELV": 68
+   }
+  }
+ },
+ "straddlers": {
+  "islands": {
+   "PS2": [
+    "G06",
+    "LS",
+    [
+     "HOT",
+     "MAINS"
+    ]
+   ],
+   "U1": [
+    "G05",
+    "LS",
+    [
+     "HOT",
+     "SELV",
+     "SW_A"
+    ]
+   ],
+   "U2": [
+    "G05",
+    "LS",
+    [
+     "HOT",
+     "SELV",
+     "SW_B"
+    ]
+   ],
+   "U32": [
+    "G07",
+    "LS",
+    [
+     "HOT",
+     "SELV"
+    ]
+   ],
+   "U41": [
+    "G06",
+    "HSA",
+    [
+     "HOT",
+     "SW_A"
+    ]
+   ],
+   "U42": [
+    "G06",
+    "HSB",
+    [
+     "HOT",
+     "SW_B"
+    ]
+   ],
+   "U43": [
+    "G07",
+    "HSA",
+    [
+     "HOT",
+     "SW_A"
+    ]
+   ],
+   "U44": [
+    "G07",
+    "HSB",
+    [
+     "SELV",
+     "SW_B"
+    ]
+   ]
+  },
+  "islands_selv": {
+   "PS2": [
+    "G06",
+    "LS",
+    [
+     "HOT",
+     "MAINS"
+    ]
+   ],
+   "U1": [
+    "G05",
+    "LS",
+    [
+     "HOT",
+     "SELV",
+     "SW_A"
+    ]
+   ],
+   "U2": [
+    "G05",
+    "LS",
+    [
+     "HOT",
+     "SELV",
+     "SW_B"
+    ]
+   ],
+   "U32": [
+    "G07",
+    "LS",
+    [
+     "HOT",
+     "SELV"
+    ]
+   ],
+   "U41": [
+    "G06",
+    "HSA",
+    [
+     "HOT",
+     "SW_A"
+    ]
+   ],
+   "U42": [
+    "G06",
+    "HSB",
+    [
+     "HOT",
+     "SW_B"
+    ]
+   ],
+   "U43": [
+    "G07",
+    "HSA",
+    [
+     "HOT",
+     "SW_A"
+    ]
+   ],
+   "U44": [
+    "G07",
+    "HSB",
+    [
+     "SELV",
+     "SW_B"
+    ]
+   ]
+  }
+ }
+}

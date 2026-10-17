@@ -1,0 +1,42 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R75UR2680AA40J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R75UR2680AA40J",
+ "stock": {
+  "Avnet Americas": 0
+ },
+ "price_breaks": [
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R75UR26804040J (fuzzy match; lead/pack code 40 not AA)",
+   "stock": 0,
+   "min_qty": 1224,
+   "lead_time": "29 weeks",
+   "currency": "USD",
+   "price_breaks": [
+    [
+     1224,
+     0.9314
+    ],
+    [
+     2448,
+     0.9267
+    ],
+    [
+     4896,
+     0.922
+    ],
+    [
+     9792,
+     0.9173
+    ],
+    [
+     19584,
+     0.9126
+    ]
+   ],
+   "price_at_500": "n/a (MOQ 1224)"
+  }
+ ]
+}

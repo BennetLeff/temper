@@ -1,0 +1,48 @@
+{
+ "PS2_load_W_by_f": {
+  "33000": 5.93536,
+  "40000": 6.480000000000001,
+  "80000": 9.592228571428574
+ },
+ "PS2 @33 kHz (24 V, 21.6 W)": {
+  "load_W": 5.94,
+  "load_pct": 27.5,
+  "max_ambient_C": 76.7
+ },
+ "PS2 @40 kHz (24 V, 21.6 W)": {
+  "load_W": 6.48,
+  "load_pct": 30.0,
+  "max_ambient_C": 75.8
+ },
+ "PS2 @80 kHz (24 V, 21.6 W)": {
+  "load_W": 9.59,
+  "load_pct": 44.4,
+  "max_ambient_C": 70.5
+ },
+ "PS1 now: 4.83 W controller": {
+  "load_W": 4.83,
+  "load_pct": 23.0,
+  "max_ambient_C": 78.4
+ },
+ "PS3 now: 39.7 W blower": {
+  "load_W": 39.7,
+  "load_pct": 66.2,
+  "max_ambient_C": 63.7
+ },
+ "PS3 after P1: 39.7 + 4.83 W": {
+  "load_W": 44.53,
+  "load_pct": 74.2,
+  "max_ambient_C": 60.3
+ },
+ "PS3 after P1 at the 40 W-class blower corner 35.7/0.9 + 4.83 W": {
+  "load_W": 44.5,
+  "load_pct": 74.2,
+  "max_ambient_C": 60.3
+ },
+ "PS1 loss at that load (W)": 0.92,
+ "PS2 loss at that load (W)": 1.41,
+ "PS3 loss after P1 (W, 89 % eff, in chassis)": 5.5,
+ "P1 BOM delta at 500 (USD, DK basis for PS1/F2 line)": -9.39,
+ "P1 BOM delta at 500 (USD, LCSC price for PS1)": -7.34,
+ "bom_note": "clip price is a placeholder: RS lists Littelfuse 100 series at ~0.62-0.69 per clip (currency unclear), pair ~1.2-1.4; replace with the lead quote. Delta with clips at 1.40: -8.69"
+}

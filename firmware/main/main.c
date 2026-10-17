@@ -22,8 +22,14 @@
 
 #include "state_machine.h"
 #include "hal.h"
+#include "controller_board.h"
+#include "esp_timer.h"
 #include "rtd_service.h"
 #include "power_service.h"
+#include "sdkconfig.h"
+#if CONFIG_TEMPER_POWER_HW_BINDING
+#include "n21_hw.h"
+#endif
 /* These will be included when components are built */
 /* #include "pan_detect.h" */
 /* #include "pid_control.h" */
@@ -31,6 +37,20 @@
 #include "../components/safety/safety.h"
 
 static const char *TAG = "main";
+
+/* MAX31865 DRDY is TCA9555 P07 on the controller (layout L2, DECISIONS C23). The control task
+ * refreshes the expander snapshot first thing every tick; only a snapshot from this tick counts.
+ * refresh: re-poll the expander now (control task, after a data read, to confirm DRDY released). */
+static bool expander_drdy_level(void *context, bool refresh, bool *drdy_low)
+{
+    (void)context;
+    ctrl_exp_cache_t c;
+    if (refresh && !ctrl_board_poll_expander()) return false;
+    (void)ctrl_board_expander(&c);
+    if (!ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(), 10000u)) return false;
+    *drdy_low = ctrl_exp_decode(c.raw).rtd_drdy;
+    return true;
+}
 
 /* Task priorities */
 #define CONTROL_TASK_PRIORITY   (configMAX_PRIORITIES - 1)  /* Highest */
@@ -62,8 +82,12 @@ static void control_task(void *arg) {
     const TickType_t xFrequency = pdMS_TO_TICKS(CONTROL_LOOP_PERIOD_MS);
     
     while (1) {
-        /* DRDY ISR only records completion. Keep MAX31865 SPI and resulting
-         * state changes in this task so it is the sole state-machine owner. */
+        /* One I2C read of the TCA9555 inputs per tick: RTD DRDY (P07), SUP_RUN_OK (P14) and the
+         * fault read-backs. A failed read ages the snapshot out; consumers then read "not ok". */
+        (void)ctrl_board_poll_expander();
+
+        /* MAX31865 SPI and resulting state changes stay in this task so it is
+         * the sole state-machine owner. */
         rtd_service_control_tick();
 
         /* Update state machine (handles PID, PLL internally) */
@@ -107,6 +131,8 @@ static void ui_task(void *arg) {
  * - Fan status
  * - Safety interlocks
  */
+extern void thermal_blower_tick(void); /* thermal_io.c */
+
 static void monitor_task(void *arg) {
     ESP_LOGI(TAG, "Monitor task started");
     
@@ -114,6 +140,10 @@ static void monitor_task(void *arg) {
     const TickType_t xFrequency = pdMS_TO_TICKS(MONITOR_LOOP_PERIOD_MS);
     
     while (1) {
+        /* L3 blower (DECISIONS C28): fan law, GPIO46 duty, FG tach, stall derate, coil derate
+         * (thermal_io.c / thermal_mgmt.c blower_ctrl_step()). 100 ms = its BLOWER_TICK_S. */
+        thermal_blower_tick();
+
         /* Run safety checks */
         /* safety_monitor_update(); */
         
@@ -140,14 +170,19 @@ static void init_nvs(void) {
 static void init_peripherals(void) {
     ESP_LOGI(TAG, "Initializing peripherals...");
 
+    /* Controller board first: RUN_EN (GPIO14) preset low and made an output, IL_WDI and UI D/C
+     * (strap GPIO45) preset low, I2C to the TCA9555 on SDA 37 / SCL 0, UI SPI3 bus. The console is
+     * USB-Serial-JTAG: GPIO44 (U0RXD) is UI MISO (DECISIONS C26). */
+    if (!ctrl_board_init()) {
+        ESP_LOGE(TAG, "controller board init incomplete; RUN_EN stays low");
+    }
+    (void)ctrl_board_poll_expander();
+
     if (hal_init() != HAL_OK) {
         /* rtd_service_control_tick() will fail closed before the power stage
          * can run. Continue initialization only to preserve the boot owner. */
         ESP_LOGE(TAG, "HAL initialization failed");
     }
-    
-    /* Initialize GPIO */
-    /* gpio_init(); */
     
     /* Initialize ADC for temperature sensing */
     /* adc_init(); */
@@ -155,15 +190,20 @@ static void init_peripherals(void) {
     /* Inhibited until a reviewed full-bridge board binding is installed. */
     power_service_bootstrap();
     
-    /* Board-owned SPI2/MAX31865 bootstrap. DRDY on GPIO9 is configured as a
-     * falling-edge handoff; no SPI transfer is performed in its ISR. */
+    /* Board-owned SPI2/MAX31865 bootstrap (SCK 11, SDI 13, SDO 12, CS 10, mode 3). DRDY is
+     * expander P07, sampled by the control task; GPIO9 is the rim NTC ADC on this board. */
+    rtd_service_set_drdy_source(expander_drdy_level, NULL);
     if (rtd_service_bootstrap() != HAL_OK) {
         ESP_LOGE(TAG, "MAX31865 bootstrap failed; control task will fail closed");
     }
-    
-    /* Initialize I2C for display */
-    /* i2c_init(); */
-    
+
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    /* Native-21 binding (components/power/COMMISSIONING.md). Default mode INHIBITED: pads low,
+     * acquisition for telemetry only. It binds the power service only in the COMMISSIONED mode;
+     * power_service_tick() stays in the control task as the adapter's sole owner. */
+    (void)n21_hw_start();
+#endif
+
     ESP_LOGI(TAG, "Peripherals initialized");
 }
 

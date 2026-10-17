@@ -1,0 +1,4992 @@
+{
+ "controls": "healthy monitors: good at 16.6/17.4 V span and 1.97/2.07 V neg; every H and Q excursion caught",
+ "variants": {
+  "V0": [
+   {
+    "kind": "res_open",
+    "label": "R81 (neg UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R81 (neg UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R82 (neg UV bottom) open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "name": "R82 (neg UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R83 (neg OV top) open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "R83 (neg OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R84 (neg OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R84 (neg OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R85 (span UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R85 (span UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86 (span UV bottom) open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "name": "R86 (span UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R87 (span OV top) open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "R87 (span OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88 (span OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88 (span OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R91 rpull open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R91 rpull",
+    "normal_status": "undetermined",
+    "notes": [
+     "rpull open: 'good' floats unless pulled low"
+    ],
+    "overstress": false,
+    "part": "resistor",
+    "status": "undetermined"
+   },
+   {
+    "kind": "res_open",
+    "label": "R59 rref open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R59 rref",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R79 halfref top open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R79 halfref top",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R80 halfref bottom open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R80 halfref bottom",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C66 (neg UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C66 (neg UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C67 (neg OV 1 nF) short",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "C67 (neg OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C68 (span UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C68 (span UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C69 (span OV 1 nF) short",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "C69 (span OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "cmonitor 100 nF (p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "cmonitor 100 nF (p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "ic": "U17 TL431",
+    "kind": "pin_open",
+    "label": "U17 TL431 pin 1 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "pin": 1,
+    "status": "announced"
+   },
+   {
+    "ic": "U17 TL431",
+    "kind": "pin_open",
+    "label": "U17 TL431 pin 2 open",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [
+     "TL431 REF pin open: regulation state unknown"
+    ],
+    "overstress": false,
+    "part": "TL431",
+    "pin": 2,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U17 TL431",
+    "kind": "pin_open",
+    "label": "U17 TL431 pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U17 TL431",
+    "kind": "pin_short",
+    "label": "U17 TL431 pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "no effect"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U17 TL431",
+    "kind": "pin_short",
+    "label": "U17 TL431 pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "a": 1,
+    "b": 3,
+    "ic": "U17 TL431",
+    "kind": "pin_short",
+    "label": "U17 TL431 pins 1-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "die": "open",
+    "ic": "U17 TL431",
+    "kind": "die",
+    "label": "U17 TL431 die open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "die": "short",
+    "ic": "U17 TL431",
+    "kind": "die",
+    "label": "U17 TL431 die short",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 1 open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 2 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 3 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 3,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 4 open",
+    "masked_H": {
+     "neg OV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 4,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 5 open",
+    "masked_H": {
+     "neg OV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 5,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 6 open",
+    "masked_H": {
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 6,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 7 open",
+    "masked_H": {
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 7,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 8 open",
+    "masked_H": {
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 8,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 9 open",
+    "masked_H": {
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 9,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 10 open",
+    "masked_H": {
+     "span OV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 10,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 11 open",
+    "masked_H": {
+     "span OV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 11,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 12 open",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [
+     "LM339B GND open: 'lowest voltage pin will drive GND pin internally' (class A)"
+    ],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 12,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 13 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 13,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 14 open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 14,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 2-3 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 4-5 shorted",
+    "masked_H": {},
+    "masked_Q": {
+     "neg OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 5-6 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "a": 6,
+    "b": 7,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 6-7 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 7,
+    "b": 8,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 7-8 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 8,
+    "b": 9,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 8-9 shorted",
+    "masked_H": {
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 9,
+    "b": 10,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 9-10 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 10,
+    "b": 11,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 10-11 shorted",
+    "masked_H": {
+     "span OV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 11,
+    "b": 12,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 11-12 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 12,
+    "b": 13,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 12-13 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 13,
+    "b": 14,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 13-14 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "a": 14,
+    "b": 1,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 14-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "ch": 1,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch1 (neg UV) die hiz",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 1,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch1 (neg UV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "ch": 2,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch2 (neg OV) die hiz",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 2,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch2 (neg OV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "ch": 3,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch3 (span UV) die hiz",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 3,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch3 (span UV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "ch": 4,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch4 (span OV) die hiz",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 4,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch4 (span OV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   }
+  ],
+  "V1": [
+   {
+    "kind": "res_open",
+    "label": "R81 (neg UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R81 (neg UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R82 (neg UV bottom) open",
+    "masked_H": {},
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "name": "R82 (neg UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R83 (neg OV top) open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "R83 (neg OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R84 (neg OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R84 (neg OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R85 (span UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R85 (span UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86 (span UV bottom) open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "name": "R86 (span UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R87 (span OV top) open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "R87 (span OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88 (span OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88 (span OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R91 rpull open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R91 rpull",
+    "normal_status": "undetermined",
+    "notes": [
+     "rpull open: 'good' floats unless pulled low"
+    ],
+    "overstress": false,
+    "part": "resistor",
+    "status": "undetermined"
+   },
+   {
+    "kind": "res_open",
+    "label": "R59 rref open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R59 rref",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R79 halfref top open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R79 halfref top",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R80 halfref bottom open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R80 halfref bottom",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C66 (neg UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C66 (neg UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C67 (neg OV 1 nF) short",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "C67 (neg OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C68 (span UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C68 (span UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C69 (span OV 1 nF) short",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "C69 (span OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "cmonitor 100 nF (p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "cmonitor 100 nF (p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "ic": "U17 TL431",
+    "kind": "pin_open",
+    "label": "U17 TL431 pin 1 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "pin": 1,
+    "status": "announced"
+   },
+   {
+    "ic": "U17 TL431",
+    "kind": "pin_open",
+    "label": "U17 TL431 pin 2 open",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [
+     "TL431 REF pin open: regulation state unknown"
+    ],
+    "overstress": false,
+    "part": "TL431",
+    "pin": 2,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U17 TL431",
+    "kind": "pin_open",
+    "label": "U17 TL431 pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U17 TL431",
+    "kind": "pin_short",
+    "label": "U17 TL431 pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "no effect"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U17 TL431",
+    "kind": "pin_short",
+    "label": "U17 TL431 pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "a": 1,
+    "b": 3,
+    "ic": "U17 TL431",
+    "kind": "pin_short",
+    "label": "U17 TL431 pins 1-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "die": "open",
+    "ic": "U17 TL431",
+    "kind": "die",
+    "label": "U17 TL431 die open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "die": "short",
+    "ic": "U17 TL431",
+    "kind": "die",
+    "label": "U17 TL431 die short",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TL431",
+    "status": "announced"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 1 open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 2 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 3 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 3,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 4 open",
+    "masked_H": {
+     "neg OV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 4,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 5 open",
+    "masked_H": {
+     "neg OV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 5,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 6 open",
+    "masked_H": {
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 6,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 7 open",
+    "masked_H": {
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 7,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 8 open",
+    "masked_H": {
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 8,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 9 open",
+    "masked_H": {
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 9,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 10 open",
+    "masked_H": {
+     "span OV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 10,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 11 open",
+    "masked_H": {
+     "span OV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 11,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 12 open",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u",
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [
+     "LM339B GND open: 'lowest voltage pin will drive GND pin internally' (class A)"
+    ],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 12,
+    "status": "undetermined"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 13 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 13,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 LM339B",
+    "kind": "pin_open",
+    "label": "U29 LM339B pin 14 open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "pin": 14,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 2-3 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 4-5 shorted",
+    "masked_H": {},
+    "masked_Q": {
+     "neg OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 5-6 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "a": 6,
+    "b": 7,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 6-7 shorted",
+    "masked_H": {},
+    "masked_Q": {
+     "neg UV": "k_u",
+     "span OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 7,
+    "b": 8,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 7-8 shorted",
+    "masked_H": {},
+    "masked_Q": {
+     "neg UV": "k_u",
+     "span OV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 8,
+    "b": 9,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 8-9 shorted",
+    "masked_H": {
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 9,
+    "b": 10,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 9-10 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 10,
+    "b": 11,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 10-11 shorted",
+    "masked_H": {
+     "span OV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "undetermined"
+   },
+   {
+    "a": 11,
+    "b": 12,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 11-12 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 12,
+    "b": 13,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 12-13 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "a": 13,
+    "b": 14,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 13-14 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "a": 14,
+    "b": 1,
+    "ic": "U29 LM339B",
+    "kind": "pin_short",
+    "label": "U29 LM339B pins 14-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "no effect"
+   },
+   {
+    "ch": 1,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch1 (neg UV) die hiz",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 1,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch1 (neg UV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "ch": 2,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch2 (neg OV) die hiz",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 2,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch2 (neg OV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "ch": 3,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch3 (span UV) die hiz",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 3,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch3 (span UV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   },
+   {
+    "ch": 4,
+    "die": "hiz",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch4 (span OV) die hiz",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "dormant"
+   },
+   {
+    "ch": 4,
+    "die": "low",
+    "ic": "U29 LM339B",
+    "kind": "die",
+    "label": "U29 LM339B ch4 (span OV) die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "LM339B",
+    "status": "announced"
+   }
+  ],
+  "V2": [
+   {
+    "kind": "res_open",
+    "label": "R81 (neg UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R81 (neg UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R82 (neg UV bottom) open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "name": "R82 (neg UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R83 (neg OV top) open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "R83 (neg OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R84 (neg OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R84 (neg OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R85 (span UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R85 (span UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86 (span UV bottom) open",
+    "masked_H": {
+     "span OV": "k_u",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "1"
+    },
+    "name": "R86 (span UV bottom)",
+    "normal_status": "dormant",
+    "notes": [
+     "OVERSTRESS U47 TPS3701 (span window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "resistor",
+    "status": "overstress: dormant if the pin survives, else unknown"
+   },
+   {
+    "kind": "res_open",
+    "label": "R87 (span OV top) open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "R87 (span OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88 (span OV bottom) open",
+    "masked_H": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "name": "R88 (span OV bottom)",
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U47 TPS3701 (span window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "resistor",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "kind": "res_open",
+    "label": "R91 rpull open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R91 rpull",
+    "normal_status": "undetermined",
+    "notes": [
+     "rpull open: 'good' floats unless pulled low"
+    ],
+    "overstress": false,
+    "part": "resistor",
+    "status": "undetermined"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C66 (neg UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C66 (neg UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C67 (neg OV 1 nF) short",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "C67 (neg OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C68 (span UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C68 (span UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C69 (span OV 1 nF) short",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "C69 (span OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "cmonitor 100 nF (p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "cmonitor 100 nF (p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C176 100 nF (U47 VDD, new; p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C176 100 nF (U47 VDD, new; p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 1 open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 2 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 4 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 5 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 6 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 4-5 shorted",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u"
+    },
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U29 TPS3701 (neg window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "TPS3701",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die hiz",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die hiz",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 1 open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 2 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 4 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 5 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 6 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 4-5 shorted",
+    "masked_H": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U47 TPS3701 (span window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "TPS3701",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die hiz",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die hiz",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   }
+  ],
+  "V2+F2": [
+   {
+    "kind": "res_open",
+    "label": "R81 (neg UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R81 (neg UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R82 (neg UV bottom) open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "name": "R82 (neg UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R83 (neg OV top) open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "R83 (neg OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R84 (neg OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R84 (neg OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R85 (span UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R85 (span UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86a (span UV bottom, half) open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "name": "R86a (span UV bottom, half)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86b (span UV bottom, half) open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "name": "R86b (span UV bottom, half)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R87 (span OV top) open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "R87 (span OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88a (span OV bottom, half) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88a (span OV bottom, half)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88b (span OV bottom, half) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88b (span OV bottom, half)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R91 rpull open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R91 rpull",
+    "normal_status": "undetermined",
+    "notes": [
+     "rpull open: 'good' floats unless pulled low"
+    ],
+    "overstress": false,
+    "part": "resistor",
+    "status": "undetermined"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C66 (neg UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C66 (neg UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C67 (neg OV 1 nF) short",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "C67 (neg OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C68 (span UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C68 (span UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C69 (span OV 1 nF) short",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "C69 (span OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "cmonitor 100 nF (p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "cmonitor 100 nF (p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C176 100 nF (U47 VDD, new; p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C176 100 nF (U47 VDD, new; p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 1 open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 2 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 4 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 5 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 6 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 4-5 shorted",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u"
+    },
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U29 TPS3701 (neg window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "TPS3701",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die hiz",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die hiz",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 1 open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 2 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 4 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 5 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 6 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 4-5 shorted",
+    "masked_H": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U47 TPS3701 (span window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "TPS3701",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die hiz",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die hiz",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   }
+  ],
+  "V2+F2+v5": [
+   {
+    "kind": "res_open",
+    "label": "R81 (neg UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R81 (neg UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R82 (neg UV bottom) open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "name": "R82 (neg UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R83 (neg OV top) open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "R83 (neg OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R84 (neg OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R84 (neg OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R85 (span UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R85 (span UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86a (span UV bottom, half) open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "name": "R86a (span UV bottom, half)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86b (span UV bottom, half) open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "name": "R86b (span UV bottom, half)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R87 (span OV top) open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "R87 (span OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88a (span OV bottom, half) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88a (span OV bottom, half)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88b (span OV bottom, half) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88b (span OV bottom, half)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R91 rpull open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R91 rpull",
+    "normal_status": "undetermined",
+    "notes": [
+     "rpull open: 'good' floats unless pulled low"
+    ],
+    "overstress": false,
+    "part": "resistor",
+    "status": "undetermined"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C66 (neg UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C66 (neg UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C67 (neg OV 1 nF) short",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "C67 (neg OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C68 (span UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C68 (span UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C69 (span OV 1 nF) short",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "C69 (span OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "cmonitor 100 nF (p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "cmonitor 100 nF (p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C176 100 nF (U47 VDD, new; v5-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C176 100 nF (U47 VDD, new; v5-n)",
+    "normal_status": "announced",
+    "notes": [
+     "local 5 V shorted: isolator side 1 / oscillator unpowered, announced as LDO5_FAIL"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 1 open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 2 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 4 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 5 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 6 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 4-5 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to the local 5 V: no output can pull it low (whole rail masked, no overstress)"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die hiz",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die hiz",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 1 open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 2 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 4 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 5 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 6 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 4-5 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to the local 5 V: no output can pull it low (whole rail masked, no overstress)"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die hiz",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die hiz",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   }
+  ],
+  "V2+F2ov": [
+   {
+    "kind": "res_open",
+    "label": "R81 (neg UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R81 (neg UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R82 (neg UV bottom) open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "name": "R82 (neg UV bottom)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R83 (neg OV top) open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "R83 (neg OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R84 (neg OV bottom) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R84 (neg OV bottom)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R85 (span UV top) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R85 (span UV top)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R86 (span UV bottom) open",
+    "masked_H": {
+     "span OV": "k_u",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "1"
+    },
+    "name": "R86 (span UV bottom)",
+    "normal_status": "dormant",
+    "notes": [
+     "OVERSTRESS U47 TPS3701 (span window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "resistor",
+    "status": "overstress: dormant if the pin survives, else unknown"
+   },
+   {
+    "kind": "res_open",
+    "label": "R87 (span OV top) open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "R87 (span OV top)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "dormant"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88a (span OV bottom, half) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88a (span OV bottom, half)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R88b (span OV bottom, half) open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R88b (span OV bottom, half)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "resistor",
+    "status": "announced"
+   },
+   {
+    "kind": "res_open",
+    "label": "R91 rpull open",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "R91 rpull",
+    "normal_status": "undetermined",
+    "notes": [
+     "rpull open: 'good' floats unless pulled low"
+    ],
+    "overstress": false,
+    "part": "resistor",
+    "status": "undetermined"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C66 (neg UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C66 (neg UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C67 (neg OV 1 nF) short",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "name": "C67 (neg OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C68 (span UV 1 nF) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C68 (span UV 1 nF)",
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C69 (span OV 1 nF) short",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "name": "C69 (span OV 1 nF)",
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "dormant"
+   },
+   {
+    "kind": "cap_short",
+    "label": "cmonitor 100 nF (p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "cmonitor 100 nF (p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "kind": "cap_short",
+    "label": "C176 100 nF (U47 VDD, new; p-n) short",
+    "masked_H": {},
+    "masked_Q": {},
+    "name": "C176 100 nF (U47 VDD, new; p-n)",
+    "normal_status": "announced",
+    "notes": [
+     "p-n short: span rail collapses (DEAD), announced as in truth_table DEAD"
+    ],
+    "overstress": false,
+    "part": "capacitor",
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 1 open",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 2 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 4 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 5 open",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_open",
+    "label": "U29 TPS3701 (neg window) pin 6 open",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "undetermined",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "undetermined"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 4-5 shorted",
+    "masked_H": {
+     "neg OV": "k_u",
+     "neg UV": "k_u"
+    },
+    "masked_Q": {
+     "neg OV": "k_u",
+     "neg UV": "k_u"
+    },
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U29 TPS3701 (neg window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "TPS3701",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "pin_short",
+    "label": "U29 TPS3701 (neg window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die hiz",
+    "masked_H": {
+     "neg UV": "1"
+    },
+    "masked_Q": {
+     "neg UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die hiz",
+    "masked_H": {
+     "neg OV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U29 TPS3701 (neg window)",
+    "kind": "die",
+    "label": "U29 TPS3701 (neg window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 1 open",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 1,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 2 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 2,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 3 open",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 3,
+    "status": "announced"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 4 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 4,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 5 open",
+    "masked_H": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 5,
+    "status": "dormant"
+   },
+   {
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_open",
+    "label": "U47 TPS3701 (span window) pin 6 open",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "pin": 6,
+    "status": "dormant"
+   },
+   {
+    "a": 1,
+    "b": 2,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 1-2 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 2,
+    "b": 3,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 2-3 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 3,
+    "b": 4,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 3-4 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "a": 4,
+    "b": 5,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 4-5 shorted",
+    "masked_H": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "masked_Q": {
+     "span OV": "k_u",
+     "span UV": "k_u"
+    },
+    "normal_status": "announced",
+    "notes": [
+     "OVERSTRESS U47 TPS3701 (span window): an input is above the 7 V absolute maximum"
+    ],
+    "overstress": true,
+    "part": "TPS3701",
+    "status": "overstress: announced if the pin survives, else unknown"
+   },
+   {
+    "a": 5,
+    "b": 6,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 5-6 shorted",
+    "masked_H": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "neg OV": "1",
+     "neg UV": "1",
+     "span OV": "1",
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [
+     "'good' tied to P: no output can pull it low; P (12-21 V) reaches the downstream input (ISO6721FB IN or the LS oscillator gate): downstream overstress"
+    ],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "a": 6,
+    "b": 1,
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "pin_short",
+    "label": "U47 TPS3701 (span window) pins 6-1 shorted",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "no effect",
+    "notes": [],
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "no effect"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die hiz",
+    "masked_H": {
+     "span UV": "1"
+    },
+    "masked_Q": {
+     "span UV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTA die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "A",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   },
+   {
+    "die": "hiz",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die hiz",
+    "masked_H": {
+     "span OV": "1"
+    },
+    "masked_Q": {
+     "span OV": "1"
+    },
+    "normal_status": "dormant",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "dormant"
+   },
+   {
+    "die": "low",
+    "ic": "U47 TPS3701 (span window)",
+    "kind": "die",
+    "label": "U47 TPS3701 (span window) OUTB die low",
+    "masked_H": {},
+    "masked_Q": {},
+    "normal_status": "announced",
+    "notes": [],
+    "out": "B",
+    "overstress": false,
+    "part": "TPS3701",
+    "status": "announced"
+   }
+  ]
+ }
+}

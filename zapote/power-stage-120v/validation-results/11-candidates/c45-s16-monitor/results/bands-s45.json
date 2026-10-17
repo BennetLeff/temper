@@ -1,0 +1,921 @@
+{
+ "controls": {
+  "R1": "s44 (= study s43) monitor values reproduce study s43 thresholds to 1e-4",
+  "R2": "frozen s45 values reproduce study option 1c-4420 thresholds to 1e-4"
+ },
+ "frozen_values": {
+  "LS": {
+   "design": {
+    "ref": "TL431BIDBZR",
+    "rref": 2200.0,
+    "r79": 4420.0,
+    "r80": 10000.0,
+    "taps": {
+     "neg UV": [
+      750.0,
+      10000.0
+     ],
+     "neg OV": [
+      2940.0,
+      10000.0
+     ],
+     "span UV": [
+      90900.0,
+      11000.0
+     ],
+     "span OV": [
+      104000.0,
+      11000.0
+     ]
+    }
+   },
+   "parts": [
+    {
+     "part": "monitor_ls.rref",
+     "designator": "R59",
+     "mpn": "RC1206FR-072K2L",
+     "ohm": 2200.0,
+     "footprint": "Resistor_SMD:R_1206_3216Metric"
+    },
+    {
+     "part": "monitor_ls.rhalf_top",
+     "designator": "R79",
+     "mpn": "RT0603BRD074K42L",
+     "ohm": 4420.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rhalf_bot",
+     "designator": "R80",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.ruv_top",
+     "designator": "R81",
+     "mpn": "RT0603BRD07750RL",
+     "ohm": 750.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.ruv_bot",
+     "designator": "R82",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rov_top",
+     "designator": "R83",
+     "mpn": "RT0603BRD072K94L",
+     "ohm": 2940.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rov_bot",
+     "designator": "R84",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rspanuv_top",
+     "designator": "R85",
+     "mpn": "RT0603BRD0790K9L",
+     "ohm": 90900.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rspanuv_bot",
+     "designator": "R86",
+     "mpn": "RT0603BRD0711KL",
+     "ohm": 11000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rspanov_top",
+     "designator": "R87",
+     "mpn": "RT0603BRD07104KL",
+     "ohm": 104000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "monitor_ls.rspanov_bot",
+     "designator": "R88",
+     "mpn": "RT0603BRD0711KL",
+     "ohm": 11000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    }
+   ],
+   "reference": {
+    "designator": "U17",
+    "mpn": "TL431BIDBZR",
+    "footprint": "Package_TO_SOT_SMD:SOT-23"
+   }
+  },
+  "HS-A": {
+   "design": {
+    "ref": "TL431BIDBZR",
+    "rref": 2200.0,
+    "r79": 4420.0,
+    "r80": 10000.0,
+    "taps": {
+     "neg UV": [
+      750.0,
+      10000.0
+     ],
+     "neg OV": [
+      2940.0,
+      10000.0
+     ],
+     "span UV": [
+      90900.0,
+      11000.0
+     ],
+     "span OV": [
+      104000.0,
+      11000.0
+     ]
+    }
+   },
+   "parts": [
+    {
+     "part": "bias_ha.monitor.rref",
+     "designator": "R63",
+     "mpn": "RC1206FR-072K2L",
+     "ohm": 2200.0,
+     "footprint": "Resistor_SMD:R_1206_3216Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rhalf_top",
+     "designator": "R97",
+     "mpn": "RT0603BRD074K42L",
+     "ohm": 4420.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rhalf_bot",
+     "designator": "R98",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.ruv_top",
+     "designator": "R99",
+     "mpn": "RT0603BRD07750RL",
+     "ohm": 750.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.ruv_bot",
+     "designator": "R100",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rov_top",
+     "designator": "R101",
+     "mpn": "RT0603BRD072K94L",
+     "ohm": 2940.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rov_bot",
+     "designator": "R102",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rspanuv_top",
+     "designator": "R103",
+     "mpn": "RT0603BRD0790K9L",
+     "ohm": 90900.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rspanuv_bot",
+     "designator": "R104",
+     "mpn": "RT0603BRD0711KL",
+     "ohm": 11000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rspanov_top",
+     "designator": "R105",
+     "mpn": "RT0603BRD07104KL",
+     "ohm": 104000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_ha.monitor.rspanov_bot",
+     "designator": "R106",
+     "mpn": "RT0603BRD0711KL",
+     "ohm": 11000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    }
+   ],
+   "reference": {
+    "designator": "U19",
+    "mpn": "TL431BIDBZR",
+    "footprint": "Package_TO_SOT_SMD:SOT-23"
+   }
+  },
+  "HS-B": {
+   "design": {
+    "ref": "TL431BIDBZR",
+    "rref": 2200.0,
+    "r79": 4420.0,
+    "r80": 10000.0,
+    "taps": {
+     "neg UV": [
+      750.0,
+      10000.0
+     ],
+     "neg OV": [
+      2940.0,
+      10000.0
+     ],
+     "span UV": [
+      90900.0,
+      11000.0
+     ],
+     "span OV": [
+      104000.0,
+      11000.0
+     ]
+    }
+   },
+   "parts": [
+    {
+     "part": "bias_hb.monitor.rref",
+     "designator": "R65",
+     "mpn": "RC1206FR-072K2L",
+     "ohm": 2200.0,
+     "footprint": "Resistor_SMD:R_1206_3216Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rhalf_top",
+     "designator": "R112",
+     "mpn": "RT0603BRD074K42L",
+     "ohm": 4420.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rhalf_bot",
+     "designator": "R113",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.ruv_top",
+     "designator": "R114",
+     "mpn": "RT0603BRD07750RL",
+     "ohm": 750.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.ruv_bot",
+     "designator": "R115",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rov_top",
+     "designator": "R116",
+     "mpn": "RT0603BRD072K94L",
+     "ohm": 2940.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rov_bot",
+     "designator": "R117",
+     "mpn": "RT0603BRD0710KL",
+     "ohm": 10000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rspanuv_top",
+     "designator": "R118",
+     "mpn": "RT0603BRD0790K9L",
+     "ohm": 90900.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rspanuv_bot",
+     "designator": "R119",
+     "mpn": "RT0603BRD0711KL",
+     "ohm": 11000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rspanov_top",
+     "designator": "R120",
+     "mpn": "RT0603BRD07104KL",
+     "ohm": 104000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    },
+    {
+     "part": "bias_hb.monitor.rspanov_bot",
+     "designator": "R121",
+     "mpn": "RT0603BRD0711KL",
+     "ohm": 11000.0,
+     "footprint": "Resistor_SMD:R_0603_1608Metric"
+    }
+   ],
+   "reference": {
+    "designator": "U21",
+    "mpn": "TL431BIDBZR",
+    "footprint": "Package_TO_SOT_SMD:SOT-23"
+   }
+  }
+ },
+ "s44": {
+  "neg UV": {
+   "nominal_V": 1.7989,
+   "trip_wc_V": [
+    1.7395,
+    1.8583
+   ],
+   "release_wc_V": [
+    1.7395,
+    1.8583
+   ],
+   "trip_rss_V": [
+    1.767,
+    1.8304
+   ],
+   "release_rss_V": [
+    1.767,
+    1.8304
+   ],
+   "Q": {
+    "catch_side_V": -0.0148,
+    "rail_side_V": 0.1071,
+    "lim_catch": 1.7543,
+    "lim_rail": 1.9654,
+    "target_V": 0.009,
+    "verdict": "FAIL"
+   },
+   "H": {
+    "catch_side_V": 0.2339,
+    "rail_side_V": 0.1071,
+    "lim_catch": 1.5056,
+    "lim_rail": 1.9654,
+    "target_V": 0.009,
+    "verdict": "PASS"
+   },
+   "rss_vs_wc_rail_V": 0.135,
+   "joint_rss": {
+    "margin_V": 0.1657,
+    "z_sigma": 13.3593,
+    "tail_ppm_per_rail_normal": 0.0
+   },
+   "rss_contrib_V": {
+    "dev": 0.02451,
+    "v25": 0.01802,
+    "vos": 0.00793,
+    "r80": 0.00225,
+    "r79": 0.00225,
+    "rb": 0.00138,
+    "rt": 0.00138,
+    "zk": 0.00082,
+    "ibh": 0.00072,
+    "ibt": 0.00011
+   }
+  },
+  "neg OV": {
+   "nominal_V": 2.2056,
+   "trip_wc_V": [
+    2.1313,
+    2.2798
+   ],
+   "release_wc_V": [
+    2.1313,
+    2.2798
+   ],
+   "trip_rss_V": [
+    2.1664,
+    2.2442
+   ],
+   "release_rss_V": [
+    2.1664,
+    2.2442
+   ],
+   "Q": {
+    "catch_side_V": 0.1202,
+    "rail_side_V": 0.0556,
+    "lim_catch": 2.4,
+    "lim_rail": 2.0757,
+    "recovery_V": 0.0556,
+    "target_V": 0.011,
+    "verdict": "PASS"
+   },
+   "H": {
+    "catch_side_V": 3.2202,
+    "rail_side_V": 0.0556,
+    "lim_catch": 5.5,
+    "lim_rail": 2.0757,
+    "recovery_V": 0.0556,
+    "target_V": 0.011,
+    "verdict": "PASS"
+   },
+   "rss_vs_wc_rail_V": 0.0907,
+   "joint_rss": {
+    "margin_V": 0.1308,
+    "z_sigma": 10.2575,
+    "tail_ppm_per_rail_normal": 0.0
+   },
+   "rss_contrib_V": {
+    "dev": 0.03006,
+    "v25": 0.0221,
+    "vos": 0.00972,
+    "r80": 0.00276,
+    "r79": 0.00275,
+    "rb": 0.0024,
+    "rt": 0.00239,
+    "zk": 0.001,
+    "ibh": 0.00088,
+    "ibt": 0.00019
+   }
+  },
+  "span UV": {
+   "nominal_V": 16.2175,
+   "trip_wc_V": [
+    15.6299,
+    16.8044
+   ],
+   "release_wc_V": [
+    15.6299,
+    16.8044
+   ],
+   "trip_rss_V": [
+    15.9237,
+    16.5036
+   ],
+   "release_rss_V": [
+    15.9237,
+    16.5036
+   ],
+   "Q": {
+    "catch_side_V": 0.1299,
+    "rail_side_V": -0.2294,
+    "lim_catch": 15.5,
+    "lim_rail": 16.575,
+    "target_V": 0.0811,
+    "verdict": "FAIL"
+   },
+   "H": {
+    "catch_side_V": 3.3501,
+    "rail_side_V": -0.2294,
+    "lim_catch": 12.2798,
+    "lim_rail": 16.575,
+    "target_V": 0.0811,
+    "verdict": "FAIL"
+   },
+   "rss_vs_wc_rail_V": 0.0714,
+   "joint_rss": {
+    "margin_V": 0.2719,
+    "z_sigma": 4.5852,
+    "tail_ppm_per_rail_normal": 2.2679
+   },
+   "rss_contrib_V": {
+    "dev": 0.221,
+    "v25": 0.1625,
+    "vos": 0.0715,
+    "rb": 0.03742,
+    "rt": 0.03742,
+    "r80": 0.02027,
+    "r79": 0.02025,
+    "zk": 0.00736,
+    "ibh": 0.0065,
+    "ibt": 0.003
+   }
+  },
+  "span OV": {
+   "nominal_V": 17.8392,
+   "trip_wc_V": [
+    17.1923,
+    18.4855
+   ],
+   "release_wc_V": [
+    17.1923,
+    18.4855
+   ],
+   "trip_rss_V": [
+    17.5159,
+    18.154
+   ],
+   "release_rss_V": [
+    17.5159,
+    18.154
+   ],
+   "Q": {
+    "catch_side_V": -0.4855,
+    "rail_side_V": -0.2327,
+    "lim_catch": 18.0,
+    "lim_rail": 17.425,
+    "recovery_V": -0.2327,
+    "target_V": 0.0892,
+    "verdict": "FAIL"
+   },
+   "H": {
+    "catch_side_V": 2.5145,
+    "rail_side_V": -0.2327,
+    "lim_catch": 21.0,
+    "lim_rail": 17.425,
+    "recovery_V": -0.2327,
+    "target_V": 0.0892,
+    "verdict": "FAIL"
+   },
+   "rss_vs_wc_rail_V": 0.0909,
+   "joint_rss": {
+    "margin_V": 0.3035,
+    "z_sigma": 4.7135,
+    "tail_ppm_per_rail_normal": 1.2173
+   },
+   "rss_contrib_V": {
+    "dev": 0.2431,
+    "v25": 0.17875,
+    "vos": 0.07865,
+    "rb": 0.04148,
+    "rt": 0.04147,
+    "r80": 0.0223,
+    "r79": 0.02228,
+    "zk": 0.0081,
+    "ibh": 0.00715,
+    "ibt": 0.00333
+   }
+  }
+ },
+ "s45": {
+  "neg UV": {
+   "nominal_V": 1.86,
+   "trip_wc_V": [
+    1.8146,
+    1.9044
+   ],
+   "release_wc_V": [
+    1.8146,
+    1.9044
+   ],
+   "trip_rss_V": [
+    1.8318,
+    1.8871
+   ],
+   "release_rss_V": [
+    1.8318,
+    1.8871
+   ],
+   "Q": {
+    "catch_side_V": 0.0603,
+    "rail_side_V": 0.061,
+    "lim_catch": 1.7543,
+    "lim_rail": 1.9654,
+    "target_V": 0.0093,
+    "verdict": "PASS"
+   },
+   "H": {
+    "catch_side_V": 0.309,
+    "rail_side_V": 0.061,
+    "lim_catch": 1.5056,
+    "lim_rail": 1.9654,
+    "target_V": 0.0093,
+    "verdict": "PASS"
+   },
+   "rss_vs_wc_rail_V": 0.0783,
+   "joint_rss": {
+    "margin_V": 0.1075,
+    "z_sigma": 10.1033,
+    "tail_ppm_per_rail_normal": 0.0
+   },
+   "rss_contrib_V": {
+    "dev": 0.02535,
+    "v25": 0.00895,
+    "vos": 0.00591,
+    "r80": 0.00142,
+    "r79": 0.00142,
+    "zk": 0.00085,
+    "ibh": 0.00033,
+    "rb": 0.00032,
+    "rt": 0.00032,
+    "ibt": 2e-05
+   }
+  },
+  "neg OV": {
+   "nominal_V": 2.2389,
+   "trip_wc_V": [
+    2.1825,
+    2.2942
+   ],
+   "release_wc_V": [
+    2.1825,
+    2.2942
+   ],
+   "trip_rss_V": [
+    2.2049,
+    2.2715
+   ],
+   "release_rss_V": [
+    2.2049,
+    2.2715
+   ],
+   "Q": {
+    "catch_side_V": 0.1058,
+    "rail_side_V": 0.1068,
+    "lim_catch": 2.4,
+    "lim_rail": 2.0757,
+    "recovery_V": 0.1068,
+    "target_V": 0.0112,
+    "verdict": "PASS"
+   },
+   "H": {
+    "catch_side_V": 3.2058,
+    "rail_side_V": 0.1068,
+    "lim_catch": 5.5,
+    "lim_rail": 2.0757,
+    "recovery_V": 0.1068,
+    "target_V": 0.0112,
+    "verdict": "PASS"
+   },
+   "rss_vs_wc_rail_V": 0.1293,
+   "joint_rss": {
+    "margin_V": 0.1676,
+    "z_sigma": 13.0269,
+    "tail_ppm_per_rail_normal": 0.0
+   },
+   "rss_contrib_V": {
+    "dev": 0.03051,
+    "v25": 0.01077,
+    "vos": 0.00712,
+    "r80": 0.00172,
+    "r79": 0.00171,
+    "rb": 0.00127,
+    "rt": 0.00127,
+    "zk": 0.00103,
+    "ibh": 0.0004,
+    "ibt": 7e-05
+   }
+  },
+  "span UV": {
+   "nominal_V": 16.0283,
+   "trip_wc_V": [
+    15.5689,
+    16.4788
+   ],
+   "release_wc_V": [
+    15.5689,
+    16.4788
+   ],
+   "trip_rss_V": [
+    15.7782,
+    16.2647
+   ],
+   "release_rss_V": [
+    15.7782,
+    16.2647
+   ],
+   "Q": {
+    "catch_side_V": 0.0689,
+    "rail_side_V": 0.0962,
+    "lim_catch": 15.5,
+    "lim_rail": 16.575,
+    "target_V": 0.0801,
+    "verdict": "MARGINAL"
+   },
+   "H": {
+    "catch_side_V": 3.2746,
+    "rail_side_V": 0.0962,
+    "lim_catch": 12.2942,
+    "lim_rail": 16.575,
+    "target_V": 0.0801,
+    "verdict": "PASS"
+   },
+   "rss_vs_wc_rail_V": 0.3103,
+   "joint_rss": {
+    "margin_V": 0.4888,
+    "z_sigma": 5.9947,
+    "tail_ppm_per_rail_normal": 0.001
+   },
+   "rss_contrib_V": {
+    "dev": 0.21842,
+    "v25": 0.07709,
+    "vos": 0.05095,
+    "rb": 0.03574,
+    "rt": 0.03573,
+    "r80": 0.01228,
+    "r79": 0.01227,
+    "zk": 0.00735,
+    "ibh": 0.00284,
+    "ibt": 0.00227
+   }
+  },
+  "span OV": {
+   "nominal_V": 18.0888,
+   "trip_wc_V": [
+    17.5692,
+    18.5984
+   ],
+   "release_wc_V": [
+    17.5692,
+    18.5984
+   ],
+   "trip_rss_V": [
+    17.8065,
+    18.3558
+   ],
+   "release_rss_V": [
+    17.8065,
+    18.3558
+   ],
+   "Q": {
+    "catch_side_V": -0.5984,
+    "rail_side_V": 0.1442,
+    "lim_catch": 18.0,
+    "lim_rail": 17.425,
+    "recovery_V": 0.1442,
+    "target_V": 0.0904,
+    "verdict": "FAIL"
+   },
+   "H": {
+    "catch_side_V": 2.4016,
+    "rail_side_V": 0.1442,
+    "lim_catch": 21.0,
+    "lim_rail": 17.425,
+    "recovery_V": 0.1442,
+    "target_V": 0.0904,
+    "verdict": "PASS"
+   },
+   "rss_vs_wc_rail_V": 0.3815,
+   "joint_rss": {
+    "margin_V": 0.5751,
+    "z_sigma": 6.4094,
+    "tail_ppm_per_rail_normal": 0.0001
+   },
+   "rss_contrib_V": {
+    "dev": 0.2465,
+    "v25": 0.087,
+    "vos": 0.0575,
+    "rb": 0.04089,
+    "rt": 0.04088,
+    "r80": 0.01386,
+    "r79": 0.01385,
+    "zk": 0.0083,
+    "ibh": 0.0032,
+    "ibt": 0.0026
+   }
+  }
+ },
+ "allowed": {
+  "span UV": {
+   "lo_Q": 15.5,
+   "lo_H": 12.2942,
+   "hi": 16.575
+  },
+  "span OV": {
+   "lo": 17.425,
+   "hi_Q": 18.0,
+   "hi_H": 21.0
+  },
+  "neg UV": {
+   "lo_Q": 1.7543,
+   "lo_H": 1.5056,
+   "lo_corner_infeasible": 1.8846,
+   "hi": 1.9654
+  },
+  "neg OV": {
+   "lo": 2.0757,
+   "hi_Q": 2.4,
+   "hi_H": 5.5
+  }
+ },
+ "span_OV_qualified_ceiling_V": {
+  "value": 19.0,
+  "evidence": "validation-results/01-switching-parasitics/round17/delegation/out-D33/rail-hot-19V/hot-load.json",
+  "s45_margin_V": 0.4016
+ },
+ "stresses": {
+  "basis": {
+   "span_op_max_V": 18.5984,
+   "span_op_min_V": 15.5689,
+   "neg_rail_max_V": 2.0757,
+   "span_fault_V": 24.0,
+   "span_fault_note": "V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own tolerance / OVP is not in the ledger, so this is a stated case, not a bound"
+  },
+  "TL431": {
+   "vka_max_V": 2.541,
+   "ik_min_mA": 5.652,
+   "ik_max_op_mA": 7.291,
+   "ik_max_fault_mA": 9.786,
+   "p_max_fault_mW": 24.87,
+   "self_heat_fault_K": 5.12
+  },
+  "resistors": {
+   "neg UV top 750": {
+    "operating": {
+     "V": 0.145,
+     "mW": 0.028
+    },
+    "fault": {
+     "V": 1.298,
+     "mW": 2.245
+    },
+    "fault_raw": {
+     "V": 1.674,
+     "mW": 3.738
+    }
+   },
+   "neg UV bottom 10000": {
+    "operating": {
+     "V": 1.931,
+     "mW": 0.373
+    },
+    "fault": {
+     "V": 17.301,
+     "mW": 29.932
+    },
+    "fault_raw": {
+     "V": 22.326,
+     "mW": 49.843
+    }
+   },
+   "neg OV top 2940": {
+    "operating": {
+     "V": 0.472,
+     "mW": 0.076
+    },
+    "fault": {
+     "V": 4.226,
+     "mW": 6.073
+    },
+    "fault_raw": {
+     "V": 5.453,
+     "mW": 10.113
+    }
+   },
+   "neg OV bottom 10000": {
+    "operating": {
+     "V": 1.604,
+     "mW": 0.257
+    },
+    "fault": {
+     "V": 14.373,
+     "mW": 20.658
+    },
+    "fault_raw": {
+     "V": 18.547,
+     "mW": 34.4
+    }
+   },
+   "span UV top 90900": {
+    "operating": {
+     "V": 16.591,
+     "mW": 3.028
+    },
+    "fault": {
+     "V": 21.409,
+     "mW": 5.042
+    }
+   },
+   "span UV bottom 11000": {
+    "operating": {
+     "V": 2.008,
+     "mW": 0.366
+    },
+    "fault": {
+     "V": 2.591,
+     "mW": 0.61
+    }
+   },
+   "span OV top 104000": {
+    "operating": {
+     "V": 16.819,
+     "mW": 2.72
+    },
+    "fault": {
+     "V": 21.704,
+     "mW": 4.53
+    }
+   },
+   "span OV bottom 11000": {
+    "operating": {
+     "V": 1.779,
+     "mW": 0.288
+    },
+    "fault": {
+     "V": 2.296,
+     "mW": 0.479
+    }
+   }
+  },
+  "2EDR8259X_VDD_at_span_OV_trip": {
+   "V": 18.5984,
+   "ratio_of_21V": 0.8856
+  }
+ }
+}

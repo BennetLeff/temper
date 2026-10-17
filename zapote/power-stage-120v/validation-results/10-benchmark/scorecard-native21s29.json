@@ -1,0 +1,70 @@
+{
+ "tag": "native21s29",
+ "build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s29/s29b",
+ "board_sha256": "3ae1ddb47c8c4c4e7c26c663ce54248c8797651e0066dc3bf516225403cba128",
+ "gates": {
+  "drc_errors_0": true,
+  "drc_unconnected_0": true,
+  "drc_parity_0": true,
+  "barrier_8mm": true,
+  "res_a_outer_12p6mm": true,
+  "jlc_dfm": true,
+  "return_path19": true,
+  "bypass": true,
+  "pi_distances": true,
+  "res_a_creepage18": true,
+  "d5": true,
+  "enclosure_fit": true,
+  "audit_rs": true
+ },
+ "performance": {
+  "d5_hot_selv_mm": 8.047,
+  "d5_hot_pe_mm": 8.507,
+  "res_a_outer_min_mm": 13.375,
+  "return_path_open_changes": 37,
+  "return_path_worst_asserted_mm": 2.72,
+  "kelvin_band_low_A": 67.77,
+  "b3_c28_h25_peak_C": 135.1,
+  "b3_nominal_h10_peak_C": 162.0,
+  "emi_min_margin_dB": 10.5,
+  "leakage_touch_mA": 0.974,
+  "fuse_copper_fusing_ratio": 0.993,
+  "cmti_gate_ratio_min": 1.579,
+  "bank_ratio_tdk_28A_40k": 1.022,
+  "ocp_pickup_stack_pan60_A": 4.17,
+  "ledger_violations": 0,
+  "ledger_unaudited_safety_power": 0
+ },
+ "cost": {
+  "bom_lines": 92,
+  "placements": 350,
+  "jlc_extended_lines": 65,
+  "jlc_basic_lines": 20,
+  "hand_or_consign_lines": 21,
+  "tht_lines": 19,
+  "consign_lines": 6,
+  "parts_usd_at_5": 320.66,
+  "parts_usd_at_500": 211.78,
+  "unpriced_lines": [],
+  "zero_stock_lines": 9,
+  "single_source_lines": 16,
+  "vias": 745,
+  "board_bbox_mm2": 55100.0
+ },
+ "sources": {
+  "d5": "native-21/verification/d5-audit.json",
+  "kelvin": "02-protection-timing/kelvin/budget-native21s29.json",
+  "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
+  "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
+  "fuse_copper": "02-protection-timing/shoot-through-f1/s29_necks.json (min_ratio_all)",
+  "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
+  "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
+  "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s29.json",
+  "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 28, 'UNAUDITED': 62, 'VERIFIED': 2, 'VIOLATION': 0}"
+ },
+ "restated": {
+  "date": "2026-10-14",
+  "parts_usd_at_500_as_scored": 222.68,
+  "reason": "KLDR025.TXP at $18.516 (DK 500 break), not $29.412 (the 10-piece break): DECISIONS 32 price correction, sourcing/STOCK-2026-10-13_pricefix-kldr.csv. Recomputed with scorecard.cost() on this tag's fab BOM and today's stock glob; the same call without the fix file reproduces the as-scored value."
+ }
+}

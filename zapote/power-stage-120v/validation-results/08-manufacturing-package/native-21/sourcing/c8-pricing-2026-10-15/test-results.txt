@@ -1,0 +1,30 @@
+ok   ladder: 25,500 parts takes the 24,000 break
+ok   ladder: 23,999 parts takes the 4,000 break
+ok   ladder: need below the first break takes it and says so
+ok   price_line: JLC in stock, lot 25,500 -> P1 at the 24,000 break
+ok   tier P2: JLC short (3 < 1000), authorised Mouser holds 5,000 -> 1.5, broker/unauthorised offer ignored
+ok   tier P1 beats a cheaper-or-dearer authorised offer when JLC holds the lot
+ok   tier P4: listed_no_stock alone is used last and flagged
+ok   A3: 0.0204 against 7.37 is rejected
+ok   A3: exactly 10 % of the median is not rejected
+ok   A3: no other read, no rejection
+ok   A1: a zero price is rejected
+ok   A2: listed_no_stock with no ladder is rejected
+ok   synthetic RECOM: the $0.0204 row is rejected, DK $7.37 is priced
+ok   no read, estimate survey row -> P5, flagged
+ok   a JLC read beats the estimate
+ok   no read, no estimate -> unpriced
+ok   a SET EQUAL proxy is not a read
+ok   RECOM R24C2T25/R-R (s45): JLC $0.0204 / $0.0397 rejected by A3 at 5 and 500 boards
+ok   RECOM R24C2T25/R-R priced from DigiKey $7.954 / $7.37148, not $0.02
+ok   TL431B is $0.0467 and LM4040A $1.2636 at 500 boards (JLC 2026-10-15 ladders)
+ok   s44 -> s45 delta at 500 boards +0.1807 matches cost45.py's JLC-basis +0.1807 within $0.01
+ok   every changed line matches cost45.py's per-line JLC delta (worst 0.00000)
+ok   no line is estimated or unpriced while a read exists (s44, s45)
+ok   s45: price_estimated_lines and price_unpriced_lines match the P5 / none tiers
+ok   two in-process runs are byte-identical
+ok   two CLI runs (python3 -I) write byte-identical JSON
+ok   compare: new-basis card vs old-basis benchmark says so and uses the legacy key
+ok   compare --strict-basis: refuses (REJECT, exit 1)
+ok   compare: two v2 cards compare on parts_usd_at_500_v2
+PASS

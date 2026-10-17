@@ -1,6 +1,11 @@
 /**
  * @file fan_guard.c
  * @brief Implementation of airflow monitoring logic
+ *
+ * LEGACY (elec/ board). SUPERSEDED on the integrated controller by the R32 fan law and the L3
+ * blower controller in components/control/thermal_mgmt.c (blower_ctrl_step(); DECISIONS C28/C32).
+ * Its T_MAX 80 C full-speed point is IGBT-era (docs/evidence/2026-10-12-thermal-trip-ladder-l3.md)
+ * and is not a trip; this file is not built into the controller target.
  */
 
 #include "fan_guard.h"

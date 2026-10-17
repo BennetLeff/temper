@@ -1,0 +1,332 @@
+{
+ "stresses": {
+  "V_pk_28A": 566.0,
+  "V_rms_28A": 268.0,
+  "V_nopan_pk": 775.0,
+  "F3_worst_R0_R1_V": 1693.2,
+  "F3_worst_any_V": 1786.6,
+  "Z0max_x_top_worst_V": 1607.1,
+  "dVdt_V_per_us": 345.4,
+  "k0_F3_at_35kHz_V2_per_us": 1980680,
+  "k0_normal_28A_35kHz_V2_per_us": 221325,
+  "source": "data/bank-voltage-s49.json (s49 OCP band, board 73702f18)"
+ },
+ "parts": {
+  "c34": {
+   "mpn": "B32643B8104J000",
+   "VR": 2000,
+   "VRMS": 500,
+   "Top_max_C": 125,
+   "VC_at_Top_max_V": 1000.0,
+   "source": "TDK B3264*B p.11/p.12/p.13",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.354,
+    "no-pan (<= 0.8 VC(Top,max))": 0.969,
+    "Vrms (<= 0.8 VRMS)": 0.67,
+    "F3 R0/R1 (<= 0.85 VR)": 0.996,
+    "F3 any reading (<= VR)": 0.893,
+    "double fault Z0max x top (<= VR)": 0.804,
+    "dV/dt": 0.091,
+    "k0 F3 sine (info)": 0.132
+   },
+   "all_pass": true
+  },
+  "knscha": {
+   "mpn": "MMK104J3DF1KN208G2",
+   "VR": 2000,
+   "VRMS": 700,
+   "Top_max_C": 105,
+   "VC_at_Top_max_V": 1500.0,
+   "source": "KNSCHA MMKP82: VR 2000 V / 700 VAC (family chart title), DC derating 1.25 %/C above 85 C (family sheet 2026.9.16), Top,max 105 C (C528962 sheet 40/105/56), dV/dt 2200 V/us at P27.5 2000 V (family sheet table)",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.354,
+    "no-pan (<= 0.8 VC(Top,max))": 0.646,
+    "Vrms (<= 0.8 VRMS)": 0.479,
+    "F3 R0/R1 (<= 0.85 VR)": 0.996,
+    "F3 any reading (<= VR)": 0.893,
+    "double fault Z0max x top (<= VR)": 0.804,
+    "dV/dt": 0.157,
+    "k0 F3 sine (info)": null
+   },
+   "all_pass": true
+  },
+  "r75": {
+   "mpn": "R75UR31004030J",
+   "VR": 2000,
+   "VRMS": 700,
+   "Top_max_C": 105,
+   "VC_at_Top_max_V": 1200.0,
+   "source": "KEMET F3106_R75 p.5 (2 %/C DC derating above 85 C), p.24 row (dV/dt 2000 V/us, k0 8e6 V2/us)",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.354,
+    "no-pan (<= 0.8 VC(Top,max))": 0.807,
+    "Vrms (<= 0.8 VRMS)": 0.479,
+    "F3 R0/R1 (<= 0.85 VR)": 0.996,
+    "F3 any reading (<= VR)": 0.893,
+    "double fault Z0max x top (<= VR)": 0.804,
+    "dV/dt": 0.173,
+    "k0 F3 sine (info)": 0.248
+   },
+   "all_pass": true
+  },
+  "r76": {
+   "mpn": "R76UR3100SE30J",
+   "VR": 2000,
+   "VRMS": 700,
+   "Top_max_C": 110,
+   "VC_at_Top_max_V": 1375.0,
+   "source": "KEMET F3034_R76 p.5 / p.22 (c34 parts_kemet.json: 2000 V / 700 VAC, dV/dt 2500); derating 1.25 %/C ASSUMED",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.354,
+    "no-pan (<= 0.8 VC(Top,max))": 0.705,
+    "Vrms (<= 0.8 VRMS)": 0.479,
+    "F3 R0/R1 (<= 0.85 VR)": 0.996,
+    "F3 any reading (<= VR)": 0.893,
+    "double fault Z0max x top (<= VR)": 0.804,
+    "dV/dt": 0.138,
+    "k0 F3 sine (info)": null
+   },
+   "all_pass": true
+  },
+  "wima": {
+   "mpn": "MKP1U031006D00JSSD",
+   "VR": 2000,
+   "VRMS": 700,
+   "Top_max_C": 100,
+   "VC_at_Top_max_V": 1595.0,
+   "source": "WIMA MKP 10 (03.26): 2000 VDC / 700 VAC, 1.35 %/K derating (p.1, from 85 C ASSUMED), 55/100/56",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.354,
+    "no-pan (<= 0.8 VC(Top,max))": 0.607,
+    "Vrms (<= 0.8 VRMS)": 0.479,
+    "F3 R0/R1 (<= 0.85 VR)": 0.996,
+    "F3 any reading (<= VR)": 0.893,
+    "double fault Z0max x top (<= VR)": 0.804,
+    "dV/dt": null,
+    "k0 F3 sine (info)": null
+   },
+   "all_pass": true
+  },
+  "1600V generic (e.g. KNSCHA MMK104J3CESKN158G2, JLC 11,383)": {
+   "mpn": "1600 V class",
+   "VR": 1600,
+   "VRMS": 650,
+   "Top_max_C": 105,
+   "VC_at_Top_max_V": 1200.0,
+   "source": "KNSCHA family sheet, 1600 V P22.5 dV/dt 3000 V/us",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.442,
+    "no-pan (<= 0.8 VC(Top,max))": 0.807,
+    "Vrms (<= 0.8 VRMS)": 0.515,
+    "F3 R0/R1 (<= 0.85 VR)": 1.245,
+    "F3 any reading (<= VR)": 1.117,
+    "double fault Z0max x top (<= VR)": 1.004,
+    "dV/dt": 0.115,
+    "k0 F3 sine (info)": null
+   },
+   "all_pass": false
+  },
+  "fitted (reference)": {
+   "mpn": "B32654A1104J000",
+   "VR": 1600,
+   "VRMS": 500,
+   "Top_max_C": 110,
+   "VC_at_Top_max_V": 1100.0,
+   "source": "TDK B3265x p.35/p.36 (VC rule ASSUMED 1.25 %/C)",
+   "utilisation_of_limit": {
+    "V 28 A (<= 0.8 VR)": 0.442,
+    "no-pan (<= 0.8 VC(Top,max))": 0.881,
+    "Vrms (<= 0.8 VRMS)": 0.67,
+    "F3 R0/R1 (<= 0.85 VR)": 1.245,
+    "F3 any reading (<= VR)": 1.117,
+    "double fault Z0max x top (<= VR)": 1.004,
+    "dV/dt": 0.345,
+    "k0 F3 sine (info)": null
+   },
+   "all_pass": false
+  }
+ },
+ "margins_1600V": [
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "ocp_top_A": 114.575,
+   "F3_V": 1624.0,
+   "F3_minus_0.85x1600_V": 264.0,
+   "F3_minus_1600_V": 24.0,
+   "Z0max_x_top_V": 1460.8,
+   "1600_minus_Z0max_x_top_V": 139.2
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "ocp_top_A": 114.967,
+   "F3_V": 1629.5,
+   "F3_minus_0.85x1600_V": 269.5,
+   "F3_minus_1600_V": 29.5,
+   "Z0max_x_top_V": 1465.8,
+   "1600_minus_Z0max_x_top_V": 134.2
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "ocp_top_A": 117.313,
+   "F3_V": 1662.8,
+   "F3_minus_0.85x1600_V": 302.8,
+   "F3_minus_1600_V": 62.8,
+   "Z0max_x_top_V": 1495.7,
+   "1600_minus_Z0max_x_top_V": 104.3
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "ocp_top_A": 118.052,
+   "F3_V": 1673.2,
+   "F3_minus_0.85x1600_V": 313.2,
+   "F3_minus_1600_V": 73.2,
+   "Z0max_x_top_V": 1505.1,
+   "1600_minus_Z0max_x_top_V": 94.9
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "ocp_top_A": 115.105,
+   "F3_V": 1631.5,
+   "F3_minus_0.85x1600_V": 271.5,
+   "F3_minus_1600_V": 31.5,
+   "Z0max_x_top_V": 1467.6,
+   "1600_minus_Z0max_x_top_V": 132.4
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "ocp_top_A": 115.564,
+   "F3_V": 1638.0,
+   "F3_minus_0.85x1600_V": 278.0,
+   "F3_minus_1600_V": 38.0,
+   "Z0max_x_top_V": 1473.4,
+   "1600_minus_Z0max_x_top_V": 126.6
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "ocp_top_A": 124.215,
+   "F3_V": 1760.6,
+   "F3_minus_0.85x1600_V": 400.6,
+   "F3_minus_1600_V": 160.6,
+   "Z0max_x_top_V": 1583.7,
+   "1600_minus_Z0max_x_top_V": 16.3
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "ocp_top_A": 124.607,
+   "F3_V": 1766.2,
+   "F3_minus_0.85x1600_V": 406.2,
+   "F3_minus_1600_V": 166.2,
+   "Z0max_x_top_V": 1588.7,
+   "1600_minus_Z0max_x_top_V": 11.3
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "ocp_top_A": 115.961,
+   "F3_V": 1643.6,
+   "F3_minus_0.85x1600_V": 283.6,
+   "F3_minus_1600_V": 43.6,
+   "Z0max_x_top_V": 1478.5,
+   "1600_minus_Z0max_x_top_V": 121.5
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "ocp_top_A": 116.355,
+   "F3_V": 1649.2,
+   "F3_minus_0.85x1600_V": 289.2,
+   "F3_minus_1600_V": 49.2,
+   "Z0max_x_top_V": 1483.5,
+   "1600_minus_Z0max_x_top_V": 116.5
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "ocp_top_A": 118.714,
+   "F3_V": 1682.6,
+   "F3_minus_0.85x1600_V": 322.6,
+   "F3_minus_1600_V": 82.6,
+   "Z0max_x_top_V": 1513.6,
+   "1600_minus_Z0max_x_top_V": 86.4
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "ocp_top_A": 119.458,
+   "F3_V": 1693.2,
+   "F3_minus_0.85x1600_V": 333.2,
+   "F3_minus_1600_V": 93.2,
+   "Z0max_x_top_V": 1523.1,
+   "1600_minus_Z0max_x_top_V": 76.9
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "ocp_top_A": 116.494,
+   "F3_V": 1651.2,
+   "F3_minus_0.85x1600_V": 291.2,
+   "F3_minus_1600_V": 51.2,
+   "Z0max_x_top_V": 1485.3,
+   "1600_minus_Z0max_x_top_V": 114.7
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "ocp_top_A": 116.956,
+   "F3_V": 1657.7,
+   "F3_minus_0.85x1600_V": 297.7,
+   "F3_minus_1600_V": 57.7,
+   "Z0max_x_top_V": 1491.2,
+   "1600_minus_Z0max_x_top_V": 108.8
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "ocp_top_A": 125.654,
+   "F3_V": 1781.0,
+   "F3_minus_0.85x1600_V": 421.0,
+   "F3_minus_1600_V": 181.0,
+   "Z0max_x_top_V": 1602.1,
+   "1600_minus_Z0max_x_top_V": -2.1
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "ocp_top_A": 126.048,
+   "F3_V": 1786.6,
+   "F3_minus_0.85x1600_V": 426.6,
+   "F3_minus_1600_V": 186.6,
+   "Z0max_x_top_V": 1607.1,
+   "1600_minus_Z0max_x_top_V": -7.1
+  }
+ ],
+ "top_needed_for_1600V": {
+  "F3 <= 0.85 x 1600 (1360 V)": 95.95,
+  "F3 <= 1600 V": 112.88,
+  "Z0max x top <= 1600 V": 125.49
+ }
+}

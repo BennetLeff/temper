@@ -1,0 +1,82 @@
+{
+ "G1_s32_basis": {
+  "exit": 1,
+  "output": "b3 ratings gate (c22_h10,c28_h10, bay 55.0 C): laminate margin -56.4 K, rated-part margin -38.9 K, advisory -41.4 K; worst gated: laminate: 1 mm-block copper peak -> FAIL"
+ },
+ "G2_hot_must_fail": {
+  "exit": 1,
+  "output": "b3 ratings gate (c22_h10, bay 50.0 C): laminate margin -45.4 K, rated-part margin -24.3 K, advisory -45.4 K; worst gated: laminate: 1 mm-block copper peak -> FAIL",
+  "ok": true
+ },
+ "G3_cool_must_pass": {
+  "exit": 0,
+  "output": "b3 ratings gate (c22_h10, bay 50.0 C): laminate margin 54.4 K, rated-part margin 57.2 K, advisory 40.4 K; worst gated: laminate: 1 mm-block copper peak -> PASS",
+  "ok": true
+ },
+ "G4_single_part": {
+  "laminate_margin_base": 2.4,
+  "base_pass": true,
+  "trip_pass": false,
+  "u42_rows": [
+   {
+    "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+    "gated": true,
+    "limit_c": 150.0,
+    "est_c": 151.0,
+    "margin_k": -1.0
+   }
+  ],
+  "ok": true
+ },
+ "G5_mesh_allowance": {
+  "est_before": 141.9,
+  "est_after": 171.9,
+  "expected_rise": 30.0,
+  "ok": true
+ },
+ "G6_gate_vs_verdict_info": {
+  "c22_h10": {
+   "board block: gate / verdict": [
+    135.4,
+    137.1
+   ],
+   "R5 element: gate / verdict": [
+    141.9,
+    148.3
+   ],
+   "U42 Tj: gate / verdict": [
+    130.7,
+    130.6
+   ]
+  },
+  "c28_h10": {
+   "board block: gate / verdict": [
+    181.4,
+    180.6
+   ],
+   "R5 element: gate / verdict": [
+    192.4,
+    196.6
+   ],
+   "U42 Tj: gate / verdict": [
+    139.3,
+    139.3
+   ]
+  },
+  "c28_h25": {
+   "board block: gate / verdict": [
+    127.6,
+    127.2
+   ],
+   "R5 element: gate / verdict": [
+    137.3,
+    137.5
+   ],
+   "U42 Tj: gate / verdict": [
+    105.5,
+    104.9
+   ]
+  }
+ },
+ "all_controls_pass": true
+}

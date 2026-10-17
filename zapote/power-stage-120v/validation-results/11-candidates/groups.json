@@ -1,0 +1,6902 @@
+{
+ "board": "native-21 stage 19c (native21s19c)",
+ "board_sha256": "3d3a2c69c07a210262f0dc66789a2631e29370f6816c45869a7dea1813460d92",
+ "coverage": {
+  "assigned": 357,
+  "placements": 357,
+  "bom_designators": 357,
+  "unassigned": [],
+  "ok": true
+ },
+ "board_cost_check": {
+  "sum_groups_usd500": 231.94,
+  "scorecard_usd500": 231.94,
+  "sum_groups_usd5": 329.57,
+  "scorecard_usd5": 329.58
+ },
+ "groups": {
+  "G01": {
+   "name": "mains_emi_rectifier",
+   "description": "Mains input, fuse, MOV, X/Y caps, line choke, bridge rectifier, PE bond",
+   "parts_count": 12,
+   "refs": [
+    "BR1",
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "F1",
+    "J1",
+    "J6",
+    "L1",
+    "R1",
+    "R2",
+    "RV1"
+   ],
+   "bom_lines": 9,
+   "lines": [
+    {
+     "mpn": "KLDR025.TXP",
+     "refs": [
+      "F1"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 38.43,
+     "unit500": 29.412,
+     "cost500": 29.412,
+     "flags": "NO_LCSC_CODE(consign/hand);SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "B82726S2203A020",
+     "refs": [
+      "L1"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C1534260",
+     "assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+     "unit5": 15.9,
+     "unit500": 9.88484,
+     "cost500": 9.8848,
+     "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_29wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "GBJ2510-F",
+     "refs": [
+      "BR1"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C526644",
+     "assembly": "JLC (Extended); stock at survey: JLC 1589 / LCSC 1589",
+     "unit5": 4.02,
+     "unit500": 4.02,
+     "cost500": 4.02,
+     "flags": "LEAD_12wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "1704004",
+     "refs": [
+      "J6"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C5481600",
+     "assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+     "unit5": 2.91,
+     "unit500": 2.366,
+     "cost500": 2.366,
+     "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "1711725",
+     "refs": [
+      "J1"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C89120",
+     "assembly": "JLC (Extended); stock at survey: JLC 2393 / LCSC 2393",
+     "unit5": 1.81,
+     "unit500": 1.487,
+     "cost500": 1.487,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "TMOV20RP175E",
+     "refs": [
+      "RV1"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C1527834",
+     "assembly": "JLC (Extended); stock at survey: JLC 114 / LCSC 114",
+     "unit5": 1.8083,
+     "unit500": 1.1946,
+     "cost500": 1.1946,
+     "flags": "SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "R463N410050N1K",
+     "refs": [
+      "C1",
+      "C2"
+     ],
+     "qty": 2,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 0.928,
+     "unit500": 0.57212,
+     "cost500": 1.1442,
+     "flags": "NO_LCSC_CODE(consign/hand);LEAD_24wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "DE1E3RA222MA4BP01F",
+     "refs": [
+      "C3",
+      "C4"
+     ],
+     "qty": 2,
+     "mount": "THT",
+     "lcsc": "C907949",
+     "assembly": "JLC (Extended); stock at survey: JLC 6 / LCSC 5",
+     "unit5": 0.1142,
+     "unit500": 0.0707,
+     "cost500": 0.1414,
+     "flags": "LCSC_STOCK<10x_5board_need;LOW_JLC_STOCK(<10x 5-board need)",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "1206W4F1003T5E",
+     "refs": [
+      "R1",
+      "R2"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C17900",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.04,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 67.06,
+   "cost_usd_at_500": 49.69,
+   "extended_lines": 6,
+   "basic_lines": 1,
+   "hand_or_consign_lines": 8,
+   "zero_stock_lines": [
+    "B82726S2203A020",
+    "1704004"
+   ],
+   "single_source_lines": [
+    "KLDR025.TXP",
+    "B82726S2203A020",
+    "1704004",
+    "TMOV20RP175E"
+   ],
+   "region": {
+    "bbox_mm": [
+     66.7,
+     0.5,
+     288.5,
+     137.3
+    ],
+    "bbox_area_mm2": 30362,
+    "median_centre_mm": [
+     232.0,
+     24.3
+    ],
+    "core_10_90_pct_bbox_mm": [
+     150.6,
+     7.2,
+     276.5,
+     109.1
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "ac_l_in",
+    "ac_n_in",
+    "l_f",
+    "xbleed_mid"
+   ],
+   "nets_interface": {
+    "l_filt": [
+     "G06",
+     "G09",
+     "G10"
+    ],
+    "n_filt": [
+     "G06",
+     "G09",
+     "G10"
+    ],
+    "pe": [
+     "G10"
+    ],
+    "rect_n": [
+     "G02"
+    ],
+    "rect_p": [
+     "G02"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "rect_n",
+     "rect_p",
+     "xbleed_mid"
+    ],
+    "MAINS": [
+     "ac_l_in",
+     "ac_n_in",
+     "l_f",
+     "l_filt",
+     "n_filt"
+    ],
+    "PE": [
+     "pe"
+    ]
+   },
+   "potential_groups": [
+    "AC_L_IN",
+    "L_F",
+    "MAINS_N",
+    "PE",
+    "RECT_N",
+    "RECT_P",
+    "XBLEED"
+   ],
+   "barrier_straddling_parts": [
+    "C3",
+    "C4"
+   ],
+   "isolation_note": "MAINS (ac_l_in, l_f/l_filt, ac_n_in, n_filt, led/ZC taps, tco_l/blw_l are their own potential groups behind fuses) plus PE. Rectifier outputs rect_p/rect_n are separate HOT potential groups (3.2 mm functional). Barrier: every HOT net to SELV/PE 8.0 mm (rules21.BARRIER, D5); C3/C4 Y1 caps and J6 are the HOT-to-PE bridges (PE branch >= 8.0 mm from all HOT, D5-BASIS.md); J1 pads see 8 mm to SELV.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 752.0,
+    "F.Cu": 806.5,
+    "In1.Cu": 90.9,
+    "In2.Cu": 90.9
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 1577.6,
+    "F.Cu": 2239.1,
+    "In1.Cu": 906.6,
+    "In2.Cu": 476.9
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 2284.5,
+    "F.Cu": 3013.3,
+    "In1.Cu": 994.7,
+    "In2.Cu": 565.0
+   },
+   "via_count_internal_nets": 4,
+   "track_len_internal_nets_mm": 30.0,
+   "net_copper_mm2": {
+    "ac_l_in": {
+     "F.Cu": 217.0,
+     "In1.Cu": 22.0,
+     "In2.Cu": 22.0,
+     "B.Cu": 22.0
+    },
+    "ac_n_in": {
+     "B.Cu": 688.5,
+     "F.Cu": 29.8,
+     "In1.Cu": 27.4,
+     "In2.Cu": 27.4
+    },
+    "l_f": {
+     "F.Cu": 553.9,
+     "In1.Cu": 41.5,
+     "In2.Cu": 41.5,
+     "B.Cu": 41.5
+    },
+    "xbleed_mid": {
+     "F.Cu": 5.8
+    },
+    "l_filt": {
+     "B.Cu": 1215.1,
+     "F.Cu": 155.8,
+     "In1.Cu": 48.7,
+     "In2.Cu": 48.7
+    },
+    "n_filt": {
+     "F.Cu": 1842.0,
+     "In1.Cu": 51.7,
+     "In2.Cu": 51.7,
+     "B.Cu": 160.1
+    },
+    "pe": {
+     "F.Cu": 79.8,
+     "In1.Cu": 15.8,
+     "In2.Cu": 15.8,
+     "B.Cu": 40.9
+    },
+    "rect_n": {
+     "F.Cu": 79.0,
+     "B.Cu": 79.0,
+     "In2.Cu": 312.8,
+     "In1.Cu": 44.6
+    },
+    "rect_p": {
+     "F.Cu": 82.5,
+     "B.Cu": 82.5,
+     "In1.Cu": 746.0,
+     "In2.Cu": 48.0
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "L1": 1.229
+    },
+    "total": 1.23
+   },
+   "metrics": {
+    "emi_min_margin_dB": 10.5,
+    "leakage_touch_mA": 0.974,
+    "fuse_copper_fusing_ratio": 0.208
+   },
+   "findings": [
+    "F10 EMI module has no MPN (DM >= 100 uH assumed; D-22 as specified fails by 5.1 dB)",
+    "F5 leakage FAIL 0.974 mA vs 0.5 mA: Y total must drop to <= 5.0 nF/line (board 2.2 nF + module 6.9 nF; DECISIONS 22)",
+    "F2/DECISIONS 22: BR1 (GBJ2510, 510 A2s) cannot survive F1 clearing (1,710 A2s); declared sacrificial",
+    "F11 Y-cap PE path 75-81 mm (~125 nH) and J6 placement; re-spin item",
+    "F12 L1 modelled at 1.23 W (c28) vs ~2.0-2.7 W real at 15 A; L1 zero stock, 29 wk (F13)",
+    "F13 BP-07 restraint callouts for C1/C2, L1, RV1; J1 UL use group unchecked; C3/C4 JLC stock 6 pcs (LOW_JLC_STOCK); J6 1704004 zero stock",
+    "F1 KLDR025.TXP: no LCSC code / single source, $29.41 at 500 (12.7 % of board parts cost)"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Cheaper (largest single line on the board, $29.41 at 500 = 12.7 %): F1 KLDR025.TXP 25 A fuse (single-source, no LCSC code, hand-assembled) - a cheaper/stocked fuse or a smaller rating",
+     "disturbs": "F1's clearing I2t (1,710 A2s) is the reference for the copper-neck target (3,420 A2s = 2x) in G02/G08, for BR1 survival (510 A2s) and for F2 coordination in G10 (F2 melts at 11.6 A2s); rating must stay above the 22-28 A tank current plus L1 inrush and below the breaker/enclosure limit"
+    },
+    {
+     "angle": "Cheaper/available: replace L1 (TDK B82726S2203A020, 0 stock, $9.88) with an in-stock DM/CM choke or fold it into the inlet module",
+     "disturbs": "L1 sits in the l_filt/n_filt path ahead of BR1: changes EMI margin (G01/offboard module), leakage if Y moves, and B3 heat near C5/C6/PS2 (G02, G06)"
+    },
+    {
+     "angle": "Cheaper: drop RV1 or C1/C2 X2 pair size if the inlet module carries X; R1/R2 bleeders are then redundant",
+     "disturbs": "Surge clamp is what protects BR1/C5/C6 (G02) and the TVS stack sees less; X bleed time must still meet touch-voltage rule"
+    },
+    {
+     "angle": "Better margin: reduce Y (C3/C4 2.2 nF -> <= 1 nF) to pass leakage",
+     "disturbs": "Raises CM impedance: coil-PE CM EMI margin (10.5 dB) in G04/G01 and SELV earth strap R38 (G10); PS1/PS2 module Y caps are fixed leakage in G10/G06"
+    },
+    {
+     "angle": "Better: replace GBJ2510 (THT, sink-mounted, 25 A) with a part that survives F1 clearing, or accept sacrificial and drop fault-copper ask",
+     "disturbs": "BR1 pin order fixes the rectifier/link routing (FLOORPLAN stage 3); the sink row order; fusing-ratio metric couples to G02 copper necks"
+    }
+   ]
+  },
+  "G02": {
+   "name": "dc_link_clamp",
+   "description": "DC link bulk (C5/C6), bus TVS stack + bleed, bring-up link studs J7-J10",
+   "parts_count": 10,
+   "refs": [
+    "C5",
+    "C6",
+    "D3",
+    "D17",
+    "J7",
+    "J8",
+    "J9",
+    "J10",
+    "R3",
+    "R4"
+   ],
+   "bom_lines": 4,
+   "lines": [
+    {
+     "mpn": "30KPA150CA",
+     "refs": [
+      "D3",
+      "D17"
+     ],
+     "qty": 2,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 9.82,
+     "unit500": 9.82,
+     "cost500": 19.64,
+     "flags": "NO_LCSC_CODE(consign/hand);ZERO_DK_STOCK;LEAD_12wk",
+     "zero_stock": true,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "B32676G1905K000",
+     "refs": [
+      "C5",
+      "C6"
+     ],
+     "qty": 2,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 8.015,
+     "unit500": 6.17074,
+     "cost500": 12.3415,
+     "flags": "NO_LCSC_CODE(consign/hand);LEAD_27wk;SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "74650074",
+     "refs": [
+      "J7",
+      "J8",
+      "J9",
+      "J10"
+     ],
+     "qty": 4,
+     "mount": "THT",
+     "lcsc": "C5118857",
+     "assembly": "JLC (Extended); stock at survey: JLC 0",
+     "unit5": 3.411,
+     "unit500": 2.73,
+     "cost500": 10.92,
+     "flags": "ZERO_JLC_LCSC_STOCK;LEAD_26wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": [
+      "G04"
+     ]
+    },
+    {
+     "mpn": "RC1206FR-07220KL",
+     "refs": [
+      "R3",
+      "R4"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C130275",
+     "assembly": "JLC (Extended); stock at survey: JLC 56239 / LCSC 54400",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.04,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 49.41,
+   "cost_usd_at_500": 42.94,
+   "extended_lines": 2,
+   "basic_lines": 0,
+   "hand_or_consign_lines": 3,
+   "zero_stock_lines": [
+    "30KPA150CA",
+    "74650074"
+   ],
+   "single_source_lines": [
+    "B32676G1905K000",
+    "74650074"
+   ],
+   "region": {
+    "bbox_mm": [
+     124.9,
+     1.4,
+     289.2,
+     110.8
+    ],
+    "bbox_area_mm2": 17976,
+    "median_centre_mm": [
+     248.2,
+     73.8
+    ],
+    "core_10_90_pct_bbox_mm": [
+     130.0,
+     6.5,
+     288.0,
+     106.0
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "busbleed_mid"
+   ],
+   "nets_interface": {
+    "bus_p": [
+     "G03",
+     "G08"
+    ],
+    "hv_ret": [
+     "G03",
+     "G08"
+    ],
+    "rect_n": [
+     "G01"
+    ],
+    "rect_p": [
+     "G01"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "bus_p",
+     "hv_ret",
+     "rect_n",
+     "rect_p"
+    ],
+    "MAINS": [
+     "busbleed_mid"
+    ]
+   },
+   "potential_groups": [
+    "BUSBLEED",
+    "BUS_P",
+    "LOW",
+    "RECT_N",
+    "RECT_P"
+   ],
+   "barrier_straddling_parts": [],
+   "isolation_note": "HOT: bus_p and hv_ret are separate potential groups (BUS_P, LOW); busbleed_mid is its own group (BUSBLEED); rect_p/rect_n (RECT_P/RECT_N) sit at the link studs. All of it keeps 8.0 mm to SELV/PE (barrier) and 3.2 mm between differing HOT groups.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 18.2,
+    "F.Cu": 42.5,
+    "In1.Cu": 18.2,
+    "In2.Cu": 18.2
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 877.4,
+    "F.Cu": 907.3,
+    "In1.Cu": 9397.8,
+    "In2.Cu": 8574.1
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 808.8,
+    "F.Cu": 839.5,
+    "In1.Cu": 6011.9,
+    "In2.Cu": 5560.7
+   },
+   "via_count_internal_nets": 0,
+   "track_len_internal_nets_mm": 55.0,
+   "net_copper_mm2": {
+    "busbleed_mid": {
+     "F.Cu": 42.5,
+     "In1.Cu": 18.2,
+     "In2.Cu": 18.2,
+     "B.Cu": 18.2
+    },
+    "bus_p": {
+     "F.Cu": 153.4,
+     "B.Cu": 139.6,
+     "In2.Cu": 8108.8,
+     "In1.Cu": 105.2
+    },
+    "hv_ret": {
+     "F.Cu": 592.4,
+     "B.Cu": 576.3,
+     "In1.Cu": 8502.1,
+     "In2.Cu": 104.5
+    },
+    "rect_n": {
+     "F.Cu": 79.0,
+     "B.Cu": 79.0,
+     "In2.Cu": 312.8,
+     "In1.Cu": 44.6
+    },
+    "rect_p": {
+     "F.Cu": 82.5,
+     "B.Cu": 82.5,
+     "In1.Cu": 746.0,
+     "In2.Cu": 48.0
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "C5": 0.563,
+     "C6": 0.563
+    },
+    "total": 1.13
+   },
+   "metrics": {
+    "fuse_copper_fusing_ratio": 0.208,
+    "b3_c28_h25_peak_C": 136.0
+   },
+   "findings": [
+    "F2/DECISIONS 22: fuse_copper_fusing_ratio 0.208 (R5->J10 HV_RET neck 1.17 mm, 355 A2s vs 1,710) - needs >= 2x (3,420 A2s); J8->Q2/Q5 drains 884 A2s",
+    "F7 bulk path FET row -> C5/C6 ~20 nH +/-50% (S4 fails at 28-32 nH); sw_b/bus_p plane C ~182 pF unmodelled",
+    "F12 C5/C6 12.6 K rise vs 9.8 K allowed (27 K margin per converged B3, bench IR)",
+    "F13 C5/C6 (TDK B32676G1905K000) and D3/D17 (30KPA150CA, $9.82 each) have no LCSC code: hand/consign; J7-J10 (74650074) 0 JLC stock",
+    "F2 original: the build has copper straps J7-J8/J9-J10 and no FC1 / catch circuit"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Better margin: widen HV_RET / BUS_P necks to 3,420 A2s - the first fix candidate against the benchmark",
+     "disturbs": "Copper-only, but HV_RET/BUS_P necks sit between R5 (G08 Kelvin geometry) and the FET row (G03); touching In1/In2 planes disturbs the Kelvin pair, the barrier gates and sw_b/bus_p capacitance"
+    },
+    {
+     "angle": "Cheaper/available: JLC-stocked DC-link film (or fewer/larger) alternatives to the two hand-assembled TDK B32676G1905K000 (19 uF, $12.34 at 500 for the pair)",
+     "disturbs": "Bulk C sets the bus-cap dump energy (F2), LF ripple on the tank (G04), the clamp rating of D3/D17 and the bulk-path inductance (F7); also BUS-CAP-SCREEN.md limits"
+    },
+    {
+     "angle": "Cheaper (the two 30KPA150CA TVS are $19.64 of this group's $42.94 and are hand-assembled): replace the TVS stack with a stocked clamp or drop it if RV1 plus bank limit the bus",
+     "disturbs": "D3/D17 define the bus surge limit protecting BR1/FETs/C5-C6 and the tank over-voltage story (F3); busbleed_mid is its own potential group with R3/R4 (2 x 220k), which also bleed the bus (touch-voltage discharge)"
+    },
+    {
+     "angle": "Simpler: remove the J7-J10 link studs (4 x Wuerth 74650074, 0 JLC stock) once shoot-through containment is settled",
+     "disturbs": "The studs ARE the bring-up current path and FC1 option (ASSEMBLY.md); also the main bus copper layout and fusing-ratio necks"
+    }
+   ]
+  },
+  "G03": {
+   "name": "bridge_power_stage",
+   "description": "Four 650 V FETs, snubbers, HF film row (the commutation loop)",
+   "parts_count": 12,
+   "refs": [
+    "C12",
+    "C13",
+    "C19",
+    "C20",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "Q2",
+    "Q3",
+    "Q5",
+    "Q6"
+   ],
+   "bom_lines": 3,
+   "lines": [
+    {
+     "mpn": "IPW65R018CFD7",
+     "refs": [
+      "Q2",
+      "Q3",
+      "Q5",
+      "Q6"
+     ],
+     "qty": 4,
+     "mount": "THT",
+     "lcsc": "C3289047",
+     "assembly": "JLC (Extended); stock at survey: JLC 6 / LCSC 6",
+     "unit5": 19.72,
+     "unit500": 10.17612,
+     "cost500": 40.7045,
+     "flags": "LCSC_STOCK<10x_5board_need;SINGLE_SOURCE;LOW_JLC_STOCK(<10x 5-board need)",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "B32652A0104K000",
+     "refs": [
+      "C38",
+      "C39",
+      "C40",
+      "C41"
+     ],
+     "qty": 4,
+     "mount": "THT",
+     "lcsc": "C125402",
+     "assembly": "JLC (Extended); stock at survey: JLC 288 / LCSC 263",
+     "unit5": 0.748,
+     "unit500": 0.44916,
+     "cost500": 1.7966,
+     "flags": "LEAD_26wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "GRM31A5C3A102JW01D",
+     "refs": [
+      "C12",
+      "C13",
+      "C19",
+      "C20"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C113872",
+     "assembly": "JLC substitute CC1206JKNPOCBN102 (equivalent: 1206 1 nF 5 % 1 kV C0G)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 82.07,
+   "cost_usd_at_500": 42.58,
+   "extended_lines": 2,
+   "basic_lines": 0,
+   "hand_or_consign_lines": 2,
+   "zero_stock_lines": [],
+   "single_source_lines": [
+    "IPW65R018CFD7"
+   ],
+   "region": {
+    "bbox_mm": [
+     -6.9,
+     1.4,
+     92.1,
+     33.0
+    ],
+    "bbox_area_mm2": 3127,
+    "median_centre_mm": [
+     44.6,
+     9.7
+    ],
+    "core_10_90_pct_bbox_mm": [
+     4.5,
+     4.2,
+     70.8,
+     28.2
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [],
+   "nets_interface": {
+    "bus_p": [
+     "G02",
+     "G08"
+    ],
+    "hv_ret": [
+     "G02",
+     "G08"
+    ],
+    "leg_a-gate_h": [
+     "G05"
+    ],
+    "leg_a-gate_l": [
+     "G05"
+    ],
+    "leg_b-gate_h": [
+     "G05"
+    ],
+    "leg_b-gate_l": [
+     "G05"
+    ],
+    "leg_ret": [
+     "G05",
+     "G06",
+     "G07",
+     "G08"
+    ],
+    "sw_a": [
+     "G05",
+     "G06",
+     "G07",
+     "G09"
+    ],
+    "sw_b": [
+     "G04",
+     "G05",
+     "G06",
+     "G07"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "bus_p",
+     "hv_ret",
+     "leg_a-gate_l",
+     "leg_b-gate_l",
+     "leg_ret"
+    ],
+    "SW_A": [
+     "leg_a-gate_h",
+     "sw_a"
+    ],
+    "SW_B": [
+     "leg_b-gate_h",
+     "sw_b"
+    ]
+   },
+   "potential_groups": [
+    "BUS_P",
+    "LOW",
+    "SW_A",
+    "SW_B"
+   ],
+   "barrier_straddling_parts": [],
+   "isolation_note": "HOT. sw_a/sw_b are SW_A/SW_B potential groups (high-side islands ride them), bus_p BUS_P, leg_ret/hv_ret LOW. 5.0 mm tank rule applies to res_a only (G04); FET drain/source pads keep 3.2 mm functional spacing to differing HOT groups, 8 mm to SELV.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 0,
+    "F.Cu": 0,
+    "In1.Cu": 0,
+    "In2.Cu": 0
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 4344.1,
+    "F.Cu": 2935.2,
+    "In1.Cu": 9046.0,
+    "In2.Cu": 8380.7
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 1323.5,
+    "F.Cu": 706.0,
+    "In1.Cu": 1731.3,
+    "In2.Cu": 1397.9
+   },
+   "via_count_internal_nets": 0,
+   "track_len_internal_nets_mm": 0,
+   "net_copper_mm2": {
+    "bus_p": {
+     "F.Cu": 153.4,
+     "B.Cu": 139.6,
+     "In2.Cu": 8108.8,
+     "In1.Cu": 105.2
+    },
+    "hv_ret": {
+     "F.Cu": 592.4,
+     "B.Cu": 576.3,
+     "In1.Cu": 8502.1,
+     "In2.Cu": 104.5
+    },
+    "leg_a-gate_h": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_a-gate_l": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_b-gate_h": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_b-gate_l": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_ret": {
+     "F.Cu": 177.4,
+     "In1.Cu": 324.4,
+     "In2.Cu": 32.1,
+     "B.Cu": 38.3
+    },
+    "sw_a": {
+     "F.Cu": 1802.8,
+     "B.Cu": 223.0,
+     "In1.Cu": 23.1,
+     "In2.Cu": 26.3
+    },
+    "sw_b": {
+     "B.Cu": 3321.9,
+     "F.Cu": 91.3,
+     "In1.Cu": 46.2,
+     "In2.Cu": 64.0
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "C38": 0.05,
+     "C39": 0.05,
+     "C40": 0.05,
+     "C41": 0.05
+    },
+    "total": 0.2
+   },
+   "metrics": {
+    "b3_c28_h25_peak_C": 136.0,
+    "b3_nominal_h10_peak_C": 163.2,
+    "kelvin_band_low_A": 67.72
+   },
+   "findings": [
+    "F7 loop parasitics stale on 19b copper (provisional FEM 2026-10-08: leg A 37.6 nH, leg B 24.5 nH); worst die VDS 490 V vs 520 V",
+    "F12 FET row 134-140 C on conservative switching loss (converged B3: FET-row copper 126 C, 21 K to Tg 150)",
+    "F13 IPW65R018CFD7 x4 JLC stock 6 each (LOW_JLC_STOCK), hand/consign THT",
+    "Sink load 133-150 W at 28 A basis A (DECISIONS 15); K1 trigger 125 W"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Cheaper (4 x IPW65R018CFD7 = $40.70 at 500, 17.5 % of board parts; JLC stock 6): lower-cost / stocked 650 V FET with enough Rds(on) and avalanche",
+     "disturbs": "Switching loss, Tj, sink load (enclosure), gate charge -> driver choice and Rg (G05), shoot-through energy (F2) and the commutation loop geometry (F7)"
+    },
+    {
+     "angle": "Simpler: half-bridge instead of full bridge (2 FETs, 1 driver, 1 bias) if tank can be single-ended",
+     "disturbs": "Changes the resonant bank (G04), voltage swing/bank 1702 V case (F3), CT, bus voltage, controller PWM pins on J4 (G10), most of G05-G07"
+    }
+   ]
+  },
+  "G04": {
+   "name": "resonant_tank",
+   "description": "Resonant bank C21-C23/C151/C152, tank bleed string, coil terminals J2/J5",
+   "parts_count": 11,
+   "refs": [
+    "C21",
+    "C22",
+    "C23",
+    "C151",
+    "C152",
+    "J2",
+    "J5",
+    "R22",
+    "R23",
+    "R24",
+    "R25"
+   ],
+   "bom_lines": 3,
+   "lines": [
+    {
+     "mpn": "B32654A1104K000",
+     "refs": [
+      "C21",
+      "C22",
+      "C23",
+      "C151",
+      "C152"
+     ],
+     "qty": 5,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 1.99,
+     "unit500": 1.41142,
+     "cost500": 7.0571,
+     "flags": "NO_LCSC_CODE(consign/hand);LEAD_23wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "74650074",
+     "refs": [
+      "J2",
+      "J5"
+     ],
+     "qty": 2,
+     "mount": "THT",
+     "lcsc": "C5118857",
+     "assembly": "JLC (Extended); stock at survey: JLC 0",
+     "unit5": 3.411,
+     "unit500": 2.73,
+     "cost500": 5.46,
+     "flags": "ZERO_JLC_LCSC_STOCK;LEAD_26wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": [
+      "G02"
+     ]
+    },
+    {
+     "mpn": "RC1206FR-07470KL",
+     "refs": [
+      "R22",
+      "R23",
+      "R24",
+      "R25"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C137273",
+     "assembly": "JLC (Extended); stock at survey: JLC 121554 / LCSC 102400",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G08"
+     ]
+    }
+   ],
+   "cost_usd_at_5": 16.97,
+   "cost_usd_at_500": 12.6,
+   "extended_lines": 2,
+   "basic_lines": 0,
+   "hand_or_consign_lines": 2,
+   "zero_stock_lines": [
+    "74650074"
+   ],
+   "single_source_lines": [
+    "74650074"
+   ],
+   "region": {
+    "bbox_mm": [
+     126.9,
+     39.8,
+     190.3,
+     118.7
+    ],
+    "bbox_area_mm2": 5001,
+    "median_centre_mm": [
+     163.0,
+     67.7
+    ],
+    "core_10_90_pct_bbox_mm": [
+     132.0,
+     41.0,
+     178.0,
+     97.0
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "crbleed_1",
+    "crbleed_2",
+    "crbleed_3",
+    "res_a"
+   ],
+   "nets_interface": {
+    "coil_feed": [
+     "G09"
+    ],
+    "sw_b": [
+     "G03",
+     "G05",
+     "G06",
+     "G07"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "coil_feed",
+     "crbleed_1",
+     "crbleed_2",
+     "crbleed_3",
+     "res_a"
+    ],
+    "SW_B": [
+     "sw_b"
+    ]
+   },
+   "potential_groups": [
+    "CRBLEED_1",
+    "CRBLEED_2",
+    "CRBLEED_3",
+    "RES_A",
+    "SW_A",
+    "SW_B"
+   ],
+   "barrier_straddling_parts": [],
+   "isolation_note": "RES_A (single-node potential group, 12.6 mm to SELV/PE on OUTER layers, 8.0 mm inner; DECISIONS 7/18, rules21.RES_A_CREEPAGE), crbleed_1..3 string taps are own groups at 5.0 mm tank rule; coil_feed rides sw_a; 5.0 mm (TANK_CREEPAGE) to every other HOT net.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 1212.3,
+    "F.Cu": 121.4,
+    "In1.Cu": 60.8,
+    "In2.Cu": 60.8
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 3512.5,
+    "F.Cu": 291.2,
+    "In1.Cu": 78.3,
+    "In2.Cu": 96.0
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 2148.1,
+    "F.Cu": 313.4,
+    "In1.Cu": 102.1,
+    "In2.Cu": 102.1
+   },
+   "via_count_internal_nets": 0,
+   "track_len_internal_nets_mm": 37.0,
+   "net_copper_mm2": {
+    "crbleed_1": {
+     "F.Cu": 6.2
+    },
+    "crbleed_2": {
+     "F.Cu": 6.2
+    },
+    "crbleed_3": {
+     "F.Cu": 6.2
+    },
+    "res_a": {
+     "F.Cu": 102.8,
+     "B.Cu": 1212.3,
+     "In1.Cu": 60.8,
+     "In2.Cu": 60.8
+    },
+    "coil_feed": {
+     "F.Cu": 199.9,
+     "B.Cu": 190.6,
+     "In1.Cu": 32.0,
+     "In2.Cu": 32.0
+    },
+    "sw_b": {
+     "B.Cu": 3321.9,
+     "F.Cu": 91.3,
+     "In1.Cu": 46.2,
+     "In2.Cu": 64.0
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "C21": 0.913,
+     "C22": 0.913,
+     "C23": 0.913,
+     "C151": 0.913,
+     "C152": 0.913,
+     "R22": 0.005,
+     "R23": 0.005,
+     "R24": 0.005,
+     "R25": 0.005
+    },
+    "total": 4.58
+   },
+   "metrics": {
+    "res_a_outer_min_mm": 13.375,
+    "d5_hot_selv_mm": 8.047,
+    "b3_c28_h25_peak_C": 136.0
+   },
+   "findings": [
+    "F3 bank sees 1702 V in CT-blind double fault vs 1600 V DC rating (pre-28A)",
+    "F12 bank film at 1.12x curve; HF/bank caps at 5-15 K margin (C21 15 K); bench IR",
+    "F13 C21-C23/C151/C152 (TDK B32654A1104K000) no LCSC code: hand/consign; BP-07 restraint",
+    "F11 no CM model of coil leads; F10 coil-PE split 31 pF (pan floating) drives EMI margin",
+    "J5 res_a / J2 coil terminals 74650074 (0 JLC stock)"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Cheaper/available: five TDK B32654A1104K000 1.1 uF bank caps ($7.06 at 500, hand-assembled) -> fewer/larger or a stocked MKP alternative",
+     "disturbs": "Resonant frequency/tank impedance -> CT trip band (G09), OCP band (G08), switching frequency range (controller), ESR heat (B3)"
+    },
+    {
+     "angle": "Simpler: drop the 4-resistor tank bleed string R22-R25 (4 x 470k) for a single stocked HV bleed",
+     "disturbs": "crbleed taps are separate 5.0 mm potential groups (D5 rules) - fewer nets relaxes the barrier layout; discharge-time requirement for touch safety"
+    }
+   ]
+  },
+  "G05": {
+   "name": "gate_drive",
+   "description": "UCC21550 drivers, gate/off networks, permit/disable logic, driver-side bias reservoirs",
+   "parts_count": 96,
+   "refs": [
+    "C7",
+    "C8",
+    "C9",
+    "C10",
+    "C11",
+    "C14",
+    "C15",
+    "C16",
+    "C17",
+    "C18",
+    "C50",
+    "C51",
+    "C52",
+    "C53",
+    "C54",
+    "C55",
+    "C56",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C61",
+    "C62",
+    "C63",
+    "C90",
+    "C91",
+    "C92",
+    "C93",
+    "C94",
+    "C95",
+    "C96",
+    "C97",
+    "C110",
+    "C111",
+    "C112",
+    "C113",
+    "C114",
+    "C115",
+    "C116",
+    "C117",
+    "C118",
+    "C119",
+    "C120",
+    "C121",
+    "C122",
+    "C123",
+    "C124",
+    "C125",
+    "C126",
+    "C127",
+    "C128",
+    "C129",
+    "C145",
+    "C146",
+    "C147",
+    "C148",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "Q1",
+    "Q4",
+    "R6",
+    "R7",
+    "R8",
+    "R9",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "R15",
+    "R16",
+    "R17",
+    "R18",
+    "R19",
+    "R20",
+    "R21",
+    "R51",
+    "R52",
+    "R53",
+    "R54",
+    "R55",
+    "R56",
+    "R57",
+    "R58",
+    "R71",
+    "R72",
+    "R73",
+    "R74",
+    "R75",
+    "R76",
+    "U1",
+    "U2",
+    "U22",
+    "U23"
+   ],
+   "bom_lines": 22,
+   "lines": [
+    {
+     "mpn": "6SVPC220M",
+     "refs": [
+      "C126",
+      "C127",
+      "C128",
+      "C129"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C2162098",
+     "assembly": "JLC (Extended); stock at survey: JLC 13 / LCSC 13",
+     "unit5": 0.9881,
+     "unit500": 0.6962,
+     "cost500": 2.7848,
+     "flags": "LCSC_STOCK<10x_5board_need;LOW_JLC_STOCK(<10x 5-board need)",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "UCC21550BDWKR",
+     "refs": [
+      "U1",
+      "U2"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 1.409,
+     "unit500": 1.03682,
+     "cost500": 2.0736,
+     "flags": "NO_LCSC_CODE(consign/hand);ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_20wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "UMK325AB7106KM-T",
+     "refs": [
+      "C9",
+      "C16",
+      "C90",
+      "C91",
+      "C92",
+      "C93",
+      "C94",
+      "C95",
+      "C96",
+      "C97"
+     ],
+     "qty": 10,
+     "mount": "SMD",
+     "lcsc": "C386167",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.25,
+     "unit500": 0.12,
+     "cost500": 1.2,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06",
+      "G07",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "AO3400A",
+     "refs": [
+      "Q1",
+      "Q4"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C20917",
+     "assembly": "JLC (Basic); stock at survey: JLC 892927 / LCSC 344570",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.8,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "PMEG6030EP,115",
+     "refs": [
+      "D6",
+      "D7",
+      "D8",
+      "D9"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C456127",
+     "assembly": "JLC (Extended); stock at survey: JLC 13136 / LCSC 13136",
+     "unit5": 0.35,
+     "unit500": 0.2,
+     "cost500": 0.8,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "SN74LVC1G32DBVR",
+     "refs": [
+      "U22",
+      "U23"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C10096",
+     "assembly": "JLC (Extended); stock at survey: JLC 111646 / LCSC 110260",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.8,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "GRM21BZ71E106KE15L",
+     "refs": [
+      "C11",
+      "C18"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C237493",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.2,
+     "unit500": 0.1,
+     "cost500": 0.2,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "CL05B104KB54PNC",
+     "refs": [
+      "C110",
+      "C111",
+      "C112",
+      "C113",
+      "C114",
+      "C115",
+      "C116",
+      "C117",
+      "C118",
+      "C119",
+      "C120",
+      "C121",
+      "C122",
+      "C123",
+      "C124",
+      "C125"
+     ],
+     "qty": 16,
+     "mount": "SMD",
+     "lcsc": "C307331",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.128,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "1206W4F100KT5E",
+     "refs": [
+      "R53",
+      "R54",
+      "R57",
+      "R58"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C17928",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "CC0805KRX7R9BB104",
+     "refs": [
+      "C8",
+      "C10",
+      "C15",
+      "C17"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C49678",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "CL21B105KBFNNNE",
+     "refs": [
+      "C145",
+      "C146",
+      "C147",
+      "C148"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C28323",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G08"
+     ]
+    },
+    {
+     "mpn": "RC1206FR-073R9L",
+     "refs": [
+      "R10",
+      "R12",
+      "R18",
+      "R20"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C137280",
+     "assembly": "JLC (Extended); stock at survey: JLC 1901 / LCSC 560",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RL1206FR-070R68L",
+     "refs": [
+      "R51",
+      "R52",
+      "R55",
+      "R56"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C728510",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "GRM188R71E105KA12D",
+     "refs": [
+      "C50",
+      "C51",
+      "C52",
+      "C53",
+      "C57",
+      "C58",
+      "C59",
+      "C60"
+     ],
+     "qty": 8,
+     "mount": "SMD",
+     "lcsc": "C86020",
+     "assembly": "JLC (Extended); stock at survey: JLC 27921 / LCSC 24150",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.064,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06"
+     ]
+    },
+    {
+     "mpn": "0603WAF1002T5E",
+     "refs": [
+      "R11",
+      "R13",
+      "R19",
+      "R21",
+      "R73",
+      "R76"
+     ],
+     "qty": 6,
+     "mount": "SMD",
+     "lcsc": "C25804",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.048,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07"
+     ]
+    },
+    {
+     "mpn": "0603WAF4991T5E",
+     "refs": [
+      "R71",
+      "R72",
+      "R74",
+      "R75"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C23046",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.032,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "C0603C102J5GACTU",
+     "refs": [
+      "C55",
+      "C56",
+      "C62",
+      "C63"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C2181873",
+     "assembly": "JLC (Extended); stock at survey: JLC 7526 / LCSC 7340",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.032,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "CC0603KRX7R9BB104",
+     "refs": [
+      "C7",
+      "C14",
+      "C54",
+      "C61"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C14663",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.032,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ]
+    },
+    {
+     "mpn": "0603WAF1000T5E",
+     "refs": [
+      "R6",
+      "R14"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C22775",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "0603WAF1003T5E",
+     "refs": [
+      "R7",
+      "R15"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C25803",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06"
+     ]
+    },
+    {
+     "mpn": "0603WAF3300T5E",
+     "refs": [
+      "R8",
+      "R16"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C23138",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0749K9L",
+     "refs": [
+      "R9",
+      "R17"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C705780",
+     "assembly": "JLC (Extended); stock at survey: JLC 184932 / LCSC 166300",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 16.27,
+   "cost_usd_at_500": 9.46,
+   "extended_lines": 11,
+   "basic_lines": 10,
+   "hand_or_consign_lines": 1,
+   "zero_stock_lines": [
+    "UCC21550BDWKR"
+   ],
+   "single_source_lines": [
+    "UCC21550BDWKR"
+   ],
+   "region": {
+    "bbox_mm": [
+     1.0,
+     10.3,
+     100.4,
+     71.1
+    ],
+    "bbox_area_mm2": 6043,
+    "median_centre_mm": [
+     48.5,
+     42.8
+    ],
+    "core_10_90_pct_bbox_mm": [
+     22.5,
+     17.9,
+     87.0,
+     66.0
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "leg_a-dis",
+    "leg_a-driver_dis",
+    "leg_a-off_h",
+    "leg_a-off_l",
+    "leg_a-out_h",
+    "leg_a-out_l",
+    "leg_a-permit_gate",
+    "leg_a.bias_h-damp",
+    "leg_a.bias_l-damp",
+    "leg_a.driver-dt",
+    "leg_a.driver-nc_7",
+    "leg_b-dis",
+    "leg_b-driver_dis",
+    "leg_b-off_h",
+    "leg_b-off_l",
+    "leg_b-out_h",
+    "leg_b-out_l",
+    "leg_b-permit_gate",
+    "leg_b.bias_h-damp",
+    "leg_b.bias_l-damp",
+    "leg_b.driver-dt",
+    "leg_b.driver-nc_7"
+   ],
+   "nets_interface": {
+    "bias_bad": [
+     "G07"
+    ],
+    "leg_a-gate_h": [
+     "G03"
+    ],
+    "leg_a-gate_l": [
+     "G03"
+    ],
+    "leg_b-gate_h": [
+     "G03"
+    ],
+    "leg_b-gate_l": [
+     "G03"
+    ],
+    "leg_ret": [
+     "G03",
+     "G06",
+     "G07",
+     "G08"
+    ],
+    "n_ha": [
+     "G06",
+     "G07"
+    ],
+    "n_hb": [
+     "G06",
+     "G07"
+    ],
+    "n_ls": [
+     "G06",
+     "G07"
+    ],
+    "p_ha": [
+     "G06",
+     "G07"
+    ],
+    "p_hb": [
+     "G06",
+     "G07"
+    ],
+    "permit": [
+     "G10"
+    ],
+    "pwm_ha": [
+     "G10"
+    ],
+    "pwm_hb": [
+     "G10"
+    ],
+    "pwm_la": [
+     "G10"
+    ],
+    "pwm_lb": [
+     "G10"
+    ],
+    "selv_gnd": [
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "sw_a": [
+     "G03",
+     "G06",
+     "G07",
+     "G09"
+    ],
+    "sw_b": [
+     "G03",
+     "G04",
+     "G06",
+     "G07"
+    ],
+    "v15_ls": [
+     "G06",
+     "G07",
+     "G08"
+    ],
+    "v3v3": [
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "leg_a-gate_l",
+     "leg_a-off_l",
+     "leg_a-out_l",
+     "leg_a.bias_l-damp",
+     "leg_b-gate_l",
+     "leg_b-off_l",
+     "leg_b-out_l",
+     "leg_b.bias_l-damp",
+     "leg_ret",
+     "n_ls",
+     "v15_ls"
+    ],
+    "SELV": [
+     "bias_bad",
+     "leg_a-dis",
+     "leg_a-driver_dis",
+     "leg_a-permit_gate",
+     "leg_a.driver-dt",
+     "leg_a.driver-nc_7",
+     "leg_b-dis",
+     "leg_b-driver_dis",
+     "leg_b-permit_gate",
+     "leg_b.driver-dt",
+     "leg_b.driver-nc_7",
+     "permit",
+     "pwm_ha",
+     "pwm_hb",
+     "pwm_la",
+     "pwm_lb",
+     "selv_gnd",
+     "v3v3"
+    ],
+    "SW_A": [
+     "leg_a-gate_h",
+     "leg_a-off_h",
+     "leg_a-out_h",
+     "leg_a.bias_h-damp",
+     "n_ha",
+     "p_ha",
+     "sw_a"
+    ],
+    "SW_B": [
+     "leg_b-gate_h",
+     "leg_b-off_h",
+     "leg_b-out_h",
+     "leg_b.bias_h-damp",
+     "n_hb",
+     "p_hb",
+     "sw_b"
+    ]
+   },
+   "potential_groups": [
+    "LOW",
+    "SELV",
+    "SW_A",
+    "SW_B"
+   ],
+   "barrier_straddling_parts": [
+    "U1",
+    "U2"
+   ],
+   "isolation_note": "Straddles the barrier: UCC21550 (U1/U2) input side SELV (v3v3/selv_gnd, PWM, permit), output sides LS (leg_ret/n_ls, LOW) and HS (sw_a/sw_b, n_ha/n_hb = SW_A/SW_B). 8.0 mm reinforced between SELV and HOT pins inside the SOIC16W (driver is the isolation element), Q1/Q4 permit FETs and U22/U23 disable ORs are SELV. D5 minimum 8.047 mm is a zone n_ha / via leg_a-dis pair at (67.46, 42.32).",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 10.2,
+    "F.Cu": 218.2,
+    "In1.Cu": 32.3,
+    "In2.Cu": 14.3
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 5443.6,
+    "F.Cu": 3289.1,
+    "In1.Cu": 12337.5,
+    "In2.Cu": 8977.3
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 2554.4,
+    "F.Cu": 1336.6,
+    "In1.Cu": 888.4,
+    "In2.Cu": 448.8
+   },
+   "via_count_internal_nets": 92,
+   "track_len_internal_nets_mm": 434.0,
+   "net_copper_mm2": {
+    "leg_a-dis": {
+     "F.Cu": 4.2,
+     "In1.Cu": 2.5,
+     "In2.Cu": 0.6,
+     "B.Cu": 0.6
+    },
+    "leg_a-driver_dis": {
+     "F.Cu": 4.0,
+     "In1.Cu": 2.5,
+     "In2.Cu": 0.8,
+     "B.Cu": 0.8
+    },
+    "leg_a-off_h": {
+     "F.Cu": 8.7
+    },
+    "leg_a-off_l": {
+     "F.Cu": 8.7
+    },
+    "leg_a-out_h": {
+     "F.Cu": 27.1
+    },
+    "leg_a-out_l": {
+     "F.Cu": 24.2,
+     "B.Cu": 1.3,
+     "In1.Cu": 16.7,
+     "In2.Cu": 1.1
+    },
+    "leg_a-permit_gate": {
+     "F.Cu": 5.3,
+     "In1.Cu": 1.8,
+     "In2.Cu": 0.6,
+     "B.Cu": 0.6
+    },
+    "leg_a.bias_h-damp": {
+     "F.Cu": 10.4
+    },
+    "leg_a.bias_l-damp": {
+     "F.Cu": 7.9
+    },
+    "leg_a.driver-dt": {
+     "F.Cu": 2.3,
+     "In1.Cu": 0.6,
+     "In2.Cu": 4.3,
+     "B.Cu": 0.6
+    },
+    "leg_a.driver-nc_7": {
+     "F.Cu": 1.0
+    },
+    "leg_b-dis": {
+     "F.Cu": 3.7,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.2,
+     "B.Cu": 0.8
+    },
+    "leg_b-driver_dis": {
+     "F.Cu": 3.0,
+     "In1.Cu": 3.6,
+     "In2.Cu": 0.8,
+     "B.Cu": 0.8
+    },
+    "leg_b-off_h": {
+     "F.Cu": 8.7
+    },
+    "leg_b-off_l": {
+     "F.Cu": 8.7
+    },
+    "leg_b-out_h": {
+     "F.Cu": 38.5
+    },
+    "leg_b-out_l": {
+     "F.Cu": 27.1
+    },
+    "leg_b-permit_gate": {
+     "F.Cu": 4.3,
+     "In1.Cu": 1.8,
+     "In2.Cu": 3.3,
+     "B.Cu": 1.1
+    },
+    "leg_b.bias_h-damp": {
+     "F.Cu": 8.9
+    },
+    "leg_b.bias_l-damp": {
+     "F.Cu": 7.9
+    },
+    "leg_b.driver-dt": {
+     "F.Cu": 2.6,
+     "In1.Cu": 0.6,
+     "In2.Cu": 0.6,
+     "B.Cu": 3.5
+    },
+    "leg_b.driver-nc_7": {
+     "F.Cu": 1.0
+    },
+    "bias_bad": {
+     "F.Cu": 19.9,
+     "B.Cu": 33.1,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0
+    },
+    "leg_a-gate_h": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_a-gate_l": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_b-gate_h": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_b-gate_l": {
+     "F.Cu": 29.5,
+     "In1.Cu": 11.2,
+     "In2.Cu": 11.2,
+     "B.Cu": 11.2
+    },
+    "leg_ret": {
+     "F.Cu": 177.4,
+     "In1.Cu": 324.4,
+     "In2.Cu": 32.1,
+     "B.Cu": 38.3
+    },
+    "n_ha": {
+     "F.Cu": 151.3,
+     "B.Cu": 429.3,
+     "In1.Cu": 1211.3,
+     "In2.Cu": 17.3
+    },
+    "n_hb": {
+     "F.Cu": 154.6,
+     "B.Cu": 435.6,
+     "In1.Cu": 1154.6,
+     "In2.Cu": 20.8
+    },
+    "n_ls": {
+     "F.Cu": 345.8,
+     "B.Cu": 638.1,
+     "In1.Cu": 939.9,
+     "In2.Cu": 150.8
+    },
+    "p_ha": {
+     "F.Cu": 44.0,
+     "In1.Cu": 4.5,
+     "In2.Cu": 20.2,
+     "B.Cu": 10.7
+    },
+    "p_hb": {
+     "F.Cu": 35.5,
+     "B.Cu": 11.5,
+     "In1.Cu": 3.9,
+     "In2.Cu": 24.0
+    },
+    "permit": {
+     "F.Cu": 27.4,
+     "In1.Cu": 3.4,
+     "In2.Cu": 3.4,
+     "B.Cu": 43.8
+    },
+    "pwm_ha": {
+     "F.Cu": 3.1,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 43.8
+    },
+    "pwm_hb": {
+     "F.Cu": 19.3,
+     "In1.Cu": 4.0,
+     "In2.Cu": 4.0,
+     "B.Cu": 33.9
+    },
+    "pwm_la": {
+     "F.Cu": 3.0,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 44.1
+    },
+    "pwm_lb": {
+     "F.Cu": 43.4,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0,
+     "B.Cu": 2.0
+    },
+    "selv_gnd": {
+     "In2.Cu": 8520.0,
+     "F.Cu": 96.2,
+     "In1.Cu": 31.6,
+     "B.Cu": 39.6
+    },
+    "sw_a": {
+     "F.Cu": 1802.8,
+     "B.Cu": 223.0,
+     "In1.Cu": 23.1,
+     "In2.Cu": 26.3
+    },
+    "sw_b": {
+     "B.Cu": 3321.9,
+     "F.Cu": 91.3,
+     "In1.Cu": 46.2,
+     "In2.Cu": 64.0
+    },
+    "v15_ls": {
+     "F.Cu": 81.6,
+     "In1.Cu": 57.0,
+     "In2.Cu": 21.1,
+     "B.Cu": 31.7
+    },
+    "v3v3": {
+     "In1.Cu": 8480.0,
+     "F.Cu": 74.6,
+     "In2.Cu": 20.0,
+     "B.Cu": 18.2
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "R10": 0.033,
+     "R12": 0.033,
+     "R18": 0.033,
+     "R20": 0.033,
+     "R53": 0.033,
+     "R54": 0.033,
+     "R57": 0.033,
+     "R58": 0.033,
+     "U1": 0.231,
+     "U2": 0.231
+    },
+    "total": 0.73
+   },
+   "metrics": {
+    "cmti_gate_ratio_min": 1.316,
+    "d5_hot_selv_mm": 8.047,
+    "return_path_open_changes": 39,
+    "return_path_worst_asserted_mm": 2.72
+   },
+   "findings": [
+    "F6 UCC21550 CMTI ratio 1.316 (125 V/ns vs 95 V/ns); UCC21550BDWKR zero stock until 2027-06, no LCSC code; candidate NCP51561 (pinout to check)",
+    "F9 return-path: 19c closed pwm_ha/pwm_la (2.11/1.84 mm); permit run 20.89 mm and bias_bad 22 mm remain reported not asserted",
+    "F13 BP-04 MLCC DC-bias on the -1.6 V gate rails unverified",
+    "F1 D5 8.0 mm floor margin (8.047) and CTI/thickness unconfirmed",
+    "B3: UCC21550 79 C converged (70 K margin); gate resistors 107 C (RC1206FR-073R9L, 155 C class value unverified)"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Better/available: higher-CMTI, stocked isolated driver (onsemi NCP51561 lead) - fixes cmti ratio and the single zero-stock line",
+     "disturbs": "Pinout/footprint (SOIC16W straddling barrier), UVLO and the split-rail levels from G06 (LS rail +22/-2 V per write_rules21; gate off at -1.6/-2 V), DIS/DT logic with the G05 permit path and G07 BIAS_BAD, D5 barrier geometry (the 8.047 mm minimum is next to leg A's n_ha/dis)"
+    },
+    {
+     "angle": "Simpler: share one permit FET/OR per bridge (Q1,Q4,U22,U23) or drive DIS directly from the controller",
+     "disturbs": "Permit and BIAS_BAD are J4 safety signals (G10) with return-path gate; changes the shoot-through/permit interlock story in FAULT-INTERFACE.md"
+    },
+    {
+     "angle": "Simpler: fewer reservoir/bypass caps - 96 placements for 22 lines, almost all passives (4 x 220 uF 6SVPC220M, 10 x 10 uF 1210, 4 x 100 nF per rail)",
+     "disturbs": "PI/bypass gates (bypass 11/11, pi_distances), F6 off-gate <= 1.9 V decks, bias dv/dt loop; each cap sits at a driver VSS pin by design (FLOORPLAN power core)"
+    }
+   ]
+  },
+  "G06": {
+   "name": "bias_supplies",
+   "description": "PS2 24 V gate supply, TCO loop J3, three isolated bias converters (LS TPS7A47 + 2 x Recom module + splits)",
+   "parts_count": 42,
+   "refs": [
+    "C24",
+    "C64",
+    "C65",
+    "C71",
+    "C72",
+    "C74",
+    "C75",
+    "C81",
+    "C82",
+    "C98",
+    "C99",
+    "C100",
+    "C102",
+    "C103",
+    "C104",
+    "C105",
+    "C106",
+    "C107",
+    "C108",
+    "C109",
+    "J3",
+    "PS2",
+    "R61",
+    "R62",
+    "R77",
+    "R78",
+    "R92",
+    "R93",
+    "R94",
+    "R95",
+    "R96",
+    "R110",
+    "R111",
+    "R127",
+    "R128",
+    "R129",
+    "U16",
+    "U18",
+    "U20",
+    "U26",
+    "U41",
+    "U42"
+   ],
+   "bom_lines": 15,
+   "lines": [
+    {
+     "mpn": "R24C2T25/R-R",
+     "refs": [
+      "U41",
+      "U42"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 7.954,
+     "unit500": 7.37148,
+     "cost500": 14.743,
+     "flags": "NO_LCSC_CODE(consign/hand);SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "IRM-20-24",
+     "refs": [
+      "PS2"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C194964",
+     "assembly": "JLC (Extended); stock at survey: JLC 7413 / LCSC 6682",
+     "unit5": 9.1,
+     "unit500": 8.4,
+     "cost500": 8.4,
+     "flags": "LEAD_17wk;SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "TPS7A4700RGWR",
+     "refs": [
+      "U26"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C114839",
+     "assembly": "JLC (Extended); stock at survey: JLC 2045 / LCSC 1597",
+     "unit5": 6.75,
+     "unit500": 4.232,
+     "cost500": 4.232,
+     "flags": "ZERO_DK_STOCK;LEAD_20wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "TLVH431BQDBZR",
+     "refs": [
+      "U16",
+      "U18",
+      "U20"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C545172",
+     "assembly": "JLC (Extended); stock at survey: JLC 1590 / LCSC 1590",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 1.2,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "UMK325AB7106KM-T",
+     "refs": [
+      "C24",
+      "C98",
+      "C99",
+      "C100",
+      "C102",
+      "C103",
+      "C104",
+      "C106",
+      "C107",
+      "C108"
+     ],
+     "qty": 10,
+     "mount": "SMD",
+     "lcsc": "C386167",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.25,
+     "unit500": 0.12,
+     "cost500": 1.2,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G07",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "B2P3-VH(LF)(SN)",
+     "refs": [
+      "J3"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 0.153,
+     "unit500": 0.11626,
+     "cost500": 0.1163,
+     "flags": "NO_LCSC_CODE(consign/hand);LEAD_16wk;SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": [
+      "G10"
+     ]
+    },
+    {
+     "mpn": "CC0603KRX7R9BB104",
+     "refs": [
+      "C65",
+      "C74",
+      "C75",
+      "C81",
+      "C82"
+     ],
+     "qty": 5,
+     "mount": "SMD",
+     "lcsc": "C14663",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.04,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ]
+    },
+    {
+     "mpn": "CL10C331JB8NNNC",
+     "refs": [
+      "C71",
+      "C72",
+      "C105",
+      "C109"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C1664",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.032,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0710KL",
+     "refs": [
+      "R78",
+      "R96",
+      "R111"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C95204",
+     "assembly": "JLC (Extended); stock at survey: JLC 2140811 / LCSC 383720",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07",
+      "G08",
+      "G09"
+     ]
+    },
+    {
+     "mpn": "RT0603BRD076K2L",
+     "refs": [
+      "R77",
+      "R95",
+      "R110"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C136960",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "0603WAF1003T5E",
+     "refs": [
+      "R62",
+      "R128"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C25803",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05"
+     ]
+    },
+    {
+     "mpn": "0603WAF2702T5E",
+     "refs": [
+      "R127",
+      "R129"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C22967",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0711KL",
+     "refs": [
+      "R61",
+      "R93"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C728581",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0763K4L",
+     "refs": [
+      "R92",
+      "R94"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C326723",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "GRM188R71E105KA12D",
+     "refs": [
+      "C64"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C86020",
+     "assembly": "JLC (Extended); stock at survey: JLC 27921 / LCSC 24150",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05"
+     ]
+    }
+   ],
+   "cost_usd_at_5": 37.29,
+   "cost_usd_at_500": 30.08,
+   "extended_lines": 9,
+   "basic_lines": 4,
+   "hand_or_consign_lines": 3,
+   "zero_stock_lines": [
+    "TPS7A4700RGWR"
+   ],
+   "single_source_lines": [
+    "R24C2T25/R-R",
+    "IRM-20-24",
+    "TPS7A4700RGWR",
+    "B2P3-VH(LF)(SN)"
+   ],
+   "region": {
+    "bbox_mm": [
+     3.5,
+     -10.3,
+     222.4,
+     118.0
+    ],
+    "bbox_area_mm2": 28076,
+    "median_centre_mm": [
+     59.1,
+     72.0
+    ],
+    "core_10_90_pct_bbox_mm": [
+     10.4,
+     52.5,
+     115.4,
+     103.2
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "bias_ha-en",
+    "bias_ha-fbm",
+    "bias_ha.iso-p3",
+    "bias_ha.iso-p32",
+    "bias_ha.split-fb",
+    "bias_hb-en",
+    "bias_hb-fbm",
+    "bias_hb.iso-p3",
+    "bias_hb.iso-p32",
+    "bias_hb.split-fb",
+    "bias_ls-fb",
+    "ldo_nr",
+    "p11",
+    "p12",
+    "p17",
+    "p18",
+    "p19",
+    "p2",
+    "p6",
+    "tco_l",
+    "v24_raw"
+   ],
+   "nets_interface": {
+    "l_filt": [
+     "G01",
+     "G09",
+     "G10"
+    ],
+    "leg_ret": [
+     "G03",
+     "G05",
+     "G07",
+     "G08"
+    ],
+    "n_filt": [
+     "G01",
+     "G09",
+     "G10"
+    ],
+    "n_ha": [
+     "G05",
+     "G07"
+    ],
+    "n_hb": [
+     "G05",
+     "G07"
+    ],
+    "n_ls": [
+     "G05",
+     "G07"
+    ],
+    "p_ha": [
+     "G05",
+     "G07"
+    ],
+    "p_hb": [
+     "G05",
+     "G07"
+    ],
+    "sw_a": [
+     "G03",
+     "G05",
+     "G07",
+     "G09"
+    ],
+    "sw_b": [
+     "G03",
+     "G04",
+     "G05",
+     "G07"
+    ],
+    "v15_ls": [
+     "G05",
+     "G07",
+     "G08"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "bias_ha-en",
+     "bias_ha.iso-p3",
+     "bias_hb-en",
+     "bias_hb.iso-p3",
+     "bias_ls-fb",
+     "ldo_nr",
+     "leg_ret",
+     "n_ls",
+     "p11",
+     "p12",
+     "p17",
+     "p18",
+     "p19",
+     "p2",
+     "p6",
+     "v15_ls",
+     "v24_raw"
+    ],
+    "MAINS": [
+     "l_filt",
+     "n_filt",
+     "tco_l"
+    ],
+    "SW_A": [
+     "bias_ha-fbm",
+     "bias_ha.iso-p32",
+     "bias_ha.split-fb",
+     "n_ha",
+     "p_ha",
+     "sw_a"
+    ],
+    "SW_B": [
+     "bias_hb-fbm",
+     "bias_hb.iso-p32",
+     "bias_hb.split-fb",
+     "n_hb",
+     "p_hb",
+     "sw_b"
+    ]
+   },
+   "potential_groups": [
+    "LOW",
+    "L_F",
+    "MAINS_N",
+    "SW_A",
+    "SW_B",
+    "TCO_L"
+   ],
+   "barrier_straddling_parts": [],
+   "isolation_note": "Mixed. Module PS2 (IRM-20-24) is MAINS-in (tco_l/n_filt), LOW-out (v24_raw/n_ls) - its isolation is the module's. Recom R24C2T25 modules (U41/U42) are the HS isolation element: primary LOW/hv_ret side, secondary SW_A/SW_B (own potential groups), 8.0 mm to SELV. LS TPS7A47 (U26) is HOT (LOW group).",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 36.4,
+    "F.Cu": 118.8,
+    "In1.Cu": 163.2,
+    "In2.Cu": 40.4
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 6515.3,
+    "F.Cu": 4882.1,
+    "In1.Cu": 3865.3,
+    "In2.Cu": 476.8
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 6035.6,
+    "F.Cu": 4155.6,
+    "In1.Cu": 3754.6,
+    "In2.Cu": 426.9
+   },
+   "via_count_internal_nets": 76,
+   "track_len_internal_nets_mm": 648.0,
+   "net_copper_mm2": {
+    "bias_ha-en": {
+     "F.Cu": 4.5
+    },
+    "bias_ha-fbm": {
+     "F.Cu": 5.1
+    },
+    "bias_ha.iso-p3": {
+     "F.Cu": 0.8
+    },
+    "bias_ha.iso-p32": {
+     "F.Cu": 0.8
+    },
+    "bias_ha.split-fb": {
+     "F.Cu": 4.1,
+     "In1.Cu": 0.6,
+     "In2.Cu": 6.6,
+     "B.Cu": 0.6
+    },
+    "bias_hb-en": {
+     "F.Cu": 4.1
+    },
+    "bias_hb-fbm": {
+     "F.Cu": 5.2,
+     "In1.Cu": 0.6,
+     "In2.Cu": 1.6,
+     "B.Cu": 0.6
+    },
+    "bias_hb.iso-p3": {
+     "F.Cu": 0.8
+    },
+    "bias_hb.iso-p32": {
+     "F.Cu": 0.8
+    },
+    "bias_hb.split-fb": {
+     "F.Cu": 3.9,
+     "In1.Cu": 0.6,
+     "In2.Cu": 0.6,
+     "B.Cu": 6.4
+    },
+    "bias_ls-fb": {
+     "F.Cu": 2.9,
+     "In1.Cu": 0.8,
+     "In2.Cu": 7.1,
+     "B.Cu": 0.8
+    },
+    "ldo_nr": {
+     "F.Cu": 1.3
+    },
+    "p11": {
+     "F.Cu": 0.4
+    },
+    "p12": {
+     "F.Cu": 0.4
+    },
+    "p17": {
+     "F.Cu": 0.4
+    },
+    "p18": {
+     "F.Cu": 0.4
+    },
+    "p19": {
+     "F.Cu": 0.4
+    },
+    "p2": {
+     "F.Cu": 0.4
+    },
+    "p6": {
+     "F.Cu": 0.4
+    },
+    "tco_l": {
+     "F.Cu": 35.2,
+     "In1.Cu": 14.7,
+     "In2.Cu": 14.7,
+     "B.Cu": 14.7
+    },
+    "v24_raw": {
+     "F.Cu": 46.6,
+     "In1.Cu": 146.0,
+     "In2.Cu": 9.8,
+     "B.Cu": 13.3
+    },
+    "l_filt": {
+     "B.Cu": 1215.1,
+     "F.Cu": 155.8,
+     "In1.Cu": 48.7,
+     "In2.Cu": 48.7
+    },
+    "leg_ret": {
+     "F.Cu": 177.4,
+     "In1.Cu": 324.4,
+     "In2.Cu": 32.1,
+     "B.Cu": 38.3
+    },
+    "n_filt": {
+     "F.Cu": 1842.0,
+     "In1.Cu": 51.7,
+     "In2.Cu": 51.7,
+     "B.Cu": 160.1
+    },
+    "n_ha": {
+     "F.Cu": 151.3,
+     "B.Cu": 429.3,
+     "In1.Cu": 1211.3,
+     "In2.Cu": 17.3
+    },
+    "n_hb": {
+     "F.Cu": 154.6,
+     "B.Cu": 435.6,
+     "In1.Cu": 1154.6,
+     "In2.Cu": 20.8
+    },
+    "n_ls": {
+     "F.Cu": 345.8,
+     "B.Cu": 638.1,
+     "In1.Cu": 939.9,
+     "In2.Cu": 150.8
+    },
+    "p_ha": {
+     "F.Cu": 44.0,
+     "In1.Cu": 4.5,
+     "In2.Cu": 20.2,
+     "B.Cu": 10.7
+    },
+    "p_hb": {
+     "F.Cu": 35.5,
+     "B.Cu": 11.5,
+     "In1.Cu": 3.9,
+     "In2.Cu": 24.0
+    },
+    "sw_a": {
+     "F.Cu": 1802.8,
+     "B.Cu": 223.0,
+     "In1.Cu": 23.1,
+     "In2.Cu": 26.3
+    },
+    "sw_b": {
+     "B.Cu": 3321.9,
+     "F.Cu": 91.3,
+     "In1.Cu": 46.2,
+     "In2.Cu": 64.0
+    },
+    "v15_ls": {
+     "F.Cu": 81.6,
+     "In1.Cu": 57.0,
+     "In2.Cu": 21.1,
+     "B.Cu": 31.7
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "PS2": 1.419,
+     "U26": 0.872,
+     "U41": 1.09,
+     "U42": 1.09
+    },
+    "total": 4.47
+   },
+   "metrics": {
+    "b3_c28_h25_peak_C": 136.0,
+    "leakage_touch_mA": 0.974
+   },
+   "findings": [
+    "F13 U41/U42 R24C2T25/R-R (no LCSC code) and U26 TPS7A4700RGWR (zero DK stock, 20 wk) single-source; PS2 IRM-20-24 and J3 single-source/consign",
+    "F12 PS1/PS2 98/86 C case vs 85 C AMBIENT rating (judge against local air); U41/U42 1.09 W each, U26 0.87 W - largest bias heat",
+    "F5 module Y leakage: IRM modules add 0.43 mA at datasheet max (shared with PS1)",
+    "BP-04 MLCC DC-bias on the split rails unverified"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Cheaper (2 x Recom R24C2T25/R-R = $14.74 at 500, hand-assembled, single-source; plus 2 x 22 V split LDO chains): a stocked isolated bias module or a different HS supply (e.g. bootstrap)",
+     "disturbs": "HS islands must stay referenced to sw_a/sw_b (SW_A/SW_B potential groups, 8 mm to SELV); the G07 monitors, the G05 driver rails/UVLO and the CMTI story all assume isolated, stable rails; module footprint (SSOP-36) fixes the island layout"
+    },
+    {
+     "angle": "Cheaper: drop LS TPS7A4700 (0 DK stock, $4.2) for a simple LDO/zener since LS rail is non-critical",
+     "disturbs": "LS split (+22/-2 V) feeds G05 drivers; the -2 V level sets off-gate margin (F6) and monitor (G07) thresholds"
+    },
+    {
+     "angle": "Available/simpler: merge PS2 (IRM-20-24, $8.40) into another module, or feed v24_raw from a different isolated source",
+     "disturbs": "v24_raw/n_ls is the LOW-side raw rail for the LS split and the HS modules; PS2 hangs on the TCO loop J3 (tco_l) and is the one 98 C-case part against an 85 C ambient rating (F12)"
+    }
+   ]
+  },
+  "G07": {
+   "name": "bias_monitors_isolation",
+   "description": "Rail monitors (LM339/TL431/ISO7710) for LS, HS-A, HS-B + BIAS_BAD aggregation",
+   "parts_count": 93,
+   "refs": [
+    "C66",
+    "C67",
+    "C68",
+    "C69",
+    "C70",
+    "C76",
+    "C77",
+    "C78",
+    "C79",
+    "C80",
+    "C83",
+    "C84",
+    "C85",
+    "C86",
+    "C87",
+    "C88",
+    "C131",
+    "C132",
+    "C133",
+    "C134",
+    "C135",
+    "C136",
+    "C137",
+    "C138",
+    "C139",
+    "C140",
+    "C141",
+    "C142",
+    "C143",
+    "C144",
+    "D14",
+    "D15",
+    "D16",
+    "Q7",
+    "Q8",
+    "Q9",
+    "R59",
+    "R63",
+    "R65",
+    "R79",
+    "R80",
+    "R81",
+    "R82",
+    "R83",
+    "R84",
+    "R85",
+    "R86",
+    "R87",
+    "R88",
+    "R89",
+    "R90",
+    "R91",
+    "R97",
+    "R98",
+    "R99",
+    "R100",
+    "R101",
+    "R102",
+    "R103",
+    "R104",
+    "R105",
+    "R106",
+    "R107",
+    "R108",
+    "R109",
+    "R112",
+    "R113",
+    "R114",
+    "R115",
+    "R116",
+    "R117",
+    "R118",
+    "R119",
+    "R120",
+    "R121",
+    "R122",
+    "R123",
+    "R124",
+    "R126",
+    "U17",
+    "U19",
+    "U21",
+    "U25",
+    "U29",
+    "U30",
+    "U31",
+    "U32",
+    "U33",
+    "U34",
+    "U37",
+    "U38",
+    "U39",
+    "U40"
+   ],
+   "bom_lines": 19,
+   "lines": [
+    {
+     "mpn": "ISO7710DWR",
+     "refs": [
+      "U32",
+      "U33",
+      "U34"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C2859830",
+     "assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+     "unit5": 1.581,
+     "unit500": 1.287,
+     "cost500": 3.861,
+     "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_12wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G08"
+     ]
+    },
+    {
+     "mpn": "TPS70950DBVR",
+     "refs": [
+      "U37",
+      "U38",
+      "U39"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C96028",
+     "assembly": "JLC (Extended); stock at survey: JLC 9976 / LCSC 9976",
+     "unit5": 1.102,
+     "unit500": 0.80122,
+     "cost500": 2.4037,
+     "flags": "LEAD_20wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G08"
+     ]
+    },
+    {
+     "mpn": "MMBT3904",
+     "refs": [
+      "Q7",
+      "Q8",
+      "Q9"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C20526",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 1.2,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "TL431AIDBZR",
+     "refs": [
+      "U17",
+      "U19",
+      "U21"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C23892",
+     "assembly": "JLC (Extended); stock at survey: JLC 147262 / LCSC 140005",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 1.2,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "LM339BIDR",
+     "refs": [
+      "U29",
+      "U30",
+      "U31"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C22416291",
+     "assembly": "JLC (Extended); stock at survey: JLC 7604 / LCSC 7215",
+     "unit5": 0.4,
+     "unit500": 0.25,
+     "cost500": 0.75,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "SN74LVC1G17DBVR",
+     "refs": [
+      "U40"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C7836",
+     "assembly": "JLC (Extended); stock at survey: JLC 21347 / LCSC 18965",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G08",
+      "G09"
+     ]
+    },
+    {
+     "mpn": "SN74LVC1G332DBVR",
+     "refs": [
+      "U25"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C43368",
+     "assembly": "JLC (Extended); stock at survey: JLC 15983 / LCSC 13110",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G09"
+     ]
+    },
+    {
+     "mpn": "UMK325AB7106KM-T",
+     "refs": [
+      "C132",
+      "C136",
+      "C140"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C386167",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.25,
+     "unit500": 0.12,
+     "cost500": 0.36,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G06",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "RT0603BRD0710KL",
+     "refs": [
+      "R79",
+      "R80",
+      "R82",
+      "R84",
+      "R86",
+      "R88",
+      "R97",
+      "R98",
+      "R100",
+      "R102",
+      "R104",
+      "R106",
+      "R112",
+      "R113",
+      "R115",
+      "R117",
+      "R119",
+      "R121"
+     ],
+     "qty": 18,
+     "mount": "SMD",
+     "lcsc": "C95204",
+     "assembly": "JLC (Extended); stock at survey: JLC 2140811 / LCSC 383720",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.144,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06",
+      "G08",
+      "G09"
+     ]
+    },
+    {
+     "mpn": "1N4148W",
+     "refs": [
+      "D14",
+      "D15",
+      "D16"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C81598",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.1,
+     "unit500": 0.04,
+     "cost500": 0.12,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "CC0603KRX7R9BB104",
+     "refs": [
+      "C70",
+      "C80",
+      "C87",
+      "C88",
+      "C131",
+      "C133",
+      "C134",
+      "C135",
+      "C137",
+      "C138",
+      "C139",
+      "C141",
+      "C142",
+      "C144"
+     ],
+     "qty": 14,
+     "mount": "SMD",
+     "lcsc": "C14663",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.112,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G06",
+      "G08",
+      "G09",
+      "G10"
+     ]
+    },
+    {
+     "mpn": "C0603C102J5GACTU",
+     "refs": [
+      "C66",
+      "C67",
+      "C68",
+      "C69",
+      "C76",
+      "C77",
+      "C78",
+      "C79",
+      "C83",
+      "C84",
+      "C85",
+      "C86",
+      "C143"
+     ],
+     "qty": 13,
+     "mount": "SMD",
+     "lcsc": "C2181873",
+     "assembly": "JLC (Extended); stock at survey: JLC 7526 / LCSC 7340",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.104,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "RC1206FR-072K2L",
+     "refs": [
+      "R59",
+      "R63",
+      "R65"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C114933",
+     "assembly": "JLC (Extended); stock at survey: JLC 151459 / LCSC 131150",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.06,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "0603WAF1002T5E",
+     "refs": [
+      "R90",
+      "R91",
+      "R108",
+      "R109",
+      "R123",
+      "R124",
+      "R126"
+     ],
+     "qty": 7,
+     "mount": "SMD",
+     "lcsc": "C25804",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.056,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05"
+     ]
+    },
+    {
+     "mpn": "0603WAF1001T5E",
+     "refs": [
+      "R89",
+      "R107",
+      "R122"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C21190",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G09"
+     ]
+    },
+    {
+     "mpn": "ARG03BTC1333",
+     "refs": [
+      "R87",
+      "R105",
+      "R120"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C1509631",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD07120KL",
+     "refs": [
+      "R85",
+      "R103",
+      "R118"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C705720",
+     "assembly": "JLC (Extended); stock at survey: JLC 58620 / LCSC 43680",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD074K42L",
+     "refs": [
+      "R81",
+      "R99",
+      "R114"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C861442",
+     "assembly": "JLC (Extended); stock at survey: JLC 8672 / LCSC 8660",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD077K68L",
+     "refs": [
+      "R83",
+      "R101",
+      "R116"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C375517",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 18.19,
+   "cost_usd_at_500": 11.29,
+   "extended_lines": 14,
+   "basic_lines": 5,
+   "hand_or_consign_lines": 0,
+   "zero_stock_lines": [
+    "ISO7710DWR"
+   ],
+   "single_source_lines": [
+    "ISO7710DWR"
+   ],
+   "region": {
+    "bbox_mm": [
+     0.8,
+     65.7,
+     121.3,
+     131.5
+    ],
+    "bbox_area_mm2": 7924,
+    "median_centre_mm": [
+     55.4,
+     109.5
+    ],
+    "core_10_90_pct_bbox_mm": [
+     4.5,
+     87.1,
+     113.3,
+     114.6
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "bias_bad_flt",
+    "bias_bad_raw",
+    "bias_ha.monitor-base",
+    "bias_ha.monitor-good",
+    "bias_ha.monitor-halfref",
+    "bias_ha.monitor-isoin",
+    "bias_ha.monitor-ov",
+    "bias_ha.monitor-ref",
+    "bias_ha.monitor-spanov",
+    "bias_ha.monitor-spanuv",
+    "bias_ha.monitor-uv",
+    "bias_ha.monitor-v5",
+    "bias_ha.monitor.iso-nc10",
+    "bias_ha.monitor.iso-nc11",
+    "bias_ha.monitor.iso-nc12",
+    "bias_ha.monitor.iso-nc15",
+    "bias_ha.monitor.iso-nc2",
+    "bias_ha.monitor.iso-nc5",
+    "bias_ha.monitor.iso-nc6",
+    "bias_ha.monitor.iso-nc8",
+    "bias_ha.monitor.ldo5-nc",
+    "bias_ha_bad",
+    "bias_hb.monitor-base",
+    "bias_hb.monitor-good",
+    "bias_hb.monitor-halfref",
+    "bias_hb.monitor-isoin",
+    "bias_hb.monitor-ov",
+    "bias_hb.monitor-ref",
+    "bias_hb.monitor-spanov",
+    "bias_hb.monitor-spanuv",
+    "bias_hb.monitor-uv",
+    "bias_hb.monitor-v5",
+    "bias_hb.monitor.iso-nc10",
+    "bias_hb.monitor.iso-nc11",
+    "bias_hb.monitor.iso-nc12",
+    "bias_hb.monitor.iso-nc15",
+    "bias_hb.monitor.iso-nc2",
+    "bias_hb.monitor.iso-nc5",
+    "bias_hb.monitor.iso-nc6",
+    "bias_hb.monitor.iso-nc8",
+    "bias_hb.monitor.ldo5-nc",
+    "bias_hb_bad",
+    "bias_ls_bad",
+    "monitor_ls-base",
+    "monitor_ls-good",
+    "monitor_ls-halfref",
+    "monitor_ls-isoin",
+    "monitor_ls-ov",
+    "monitor_ls-ref",
+    "monitor_ls-spanov",
+    "monitor_ls-spanuv",
+    "monitor_ls-uv",
+    "monitor_ls-v5",
+    "monitor_ls.iso-nc10",
+    "monitor_ls.iso-nc11",
+    "monitor_ls.iso-nc12",
+    "monitor_ls.iso-nc15",
+    "monitor_ls.iso-nc2",
+    "monitor_ls.iso-nc5",
+    "monitor_ls.iso-nc6",
+    "monitor_ls.iso-nc8",
+    "monitor_ls.ldo5-nc",
+    "u_bias_flt-nc"
+   ],
+   "nets_interface": {
+    "bias_bad": [
+     "G05"
+    ],
+    "leg_ret": [
+     "G03",
+     "G05",
+     "G06",
+     "G08"
+    ],
+    "n_ha": [
+     "G05",
+     "G06"
+    ],
+    "n_hb": [
+     "G05",
+     "G06"
+    ],
+    "n_ls": [
+     "G05",
+     "G06"
+    ],
+    "p_ha": [
+     "G05",
+     "G06"
+    ],
+    "p_hb": [
+     "G05",
+     "G06"
+    ],
+    "selv_gnd": [
+     "G05",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "sw_a": [
+     "G03",
+     "G05",
+     "G06",
+     "G09"
+    ],
+    "sw_b": [
+     "G03",
+     "G04",
+     "G05",
+     "G06"
+    ],
+    "v15_ls": [
+     "G05",
+     "G06",
+     "G08"
+    ],
+    "v3v3": [
+     "G05",
+     "G08",
+     "G09",
+     "G10"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "leg_ret",
+     "monitor_ls-base",
+     "monitor_ls-good",
+     "monitor_ls-halfref",
+     "monitor_ls-isoin",
+     "monitor_ls-ov",
+     "monitor_ls-ref",
+     "monitor_ls-spanov",
+     "monitor_ls-spanuv",
+     "monitor_ls-uv",
+     "monitor_ls-v5",
+     "monitor_ls.iso-nc2",
+     "monitor_ls.iso-nc5",
+     "monitor_ls.iso-nc6",
+     "monitor_ls.iso-nc8",
+     "monitor_ls.ldo5-nc",
+     "n_ls",
+     "v15_ls"
+    ],
+    "SELV": [
+     "bias_bad",
+     "bias_bad_flt",
+     "bias_bad_raw",
+     "bias_ha.monitor.iso-nc10",
+     "bias_ha.monitor.iso-nc11",
+     "bias_ha.monitor.iso-nc12",
+     "bias_ha.monitor.iso-nc15",
+     "bias_ha_bad",
+     "bias_hb.monitor.iso-nc10",
+     "bias_hb.monitor.iso-nc11",
+     "bias_hb.monitor.iso-nc12",
+     "bias_hb.monitor.iso-nc15",
+     "bias_hb_bad",
+     "bias_ls_bad",
+     "monitor_ls.iso-nc10",
+     "monitor_ls.iso-nc11",
+     "monitor_ls.iso-nc12",
+     "monitor_ls.iso-nc15",
+     "selv_gnd",
+     "u_bias_flt-nc",
+     "v3v3"
+    ],
+    "SW_A": [
+     "bias_ha.monitor-base",
+     "bias_ha.monitor-good",
+     "bias_ha.monitor-halfref",
+     "bias_ha.monitor-isoin",
+     "bias_ha.monitor-ov",
+     "bias_ha.monitor-ref",
+     "bias_ha.monitor-spanov",
+     "bias_ha.monitor-spanuv",
+     "bias_ha.monitor-uv",
+     "bias_ha.monitor-v5",
+     "bias_ha.monitor.iso-nc2",
+     "bias_ha.monitor.iso-nc5",
+     "bias_ha.monitor.iso-nc6",
+     "bias_ha.monitor.iso-nc8",
+     "bias_ha.monitor.ldo5-nc",
+     "n_ha",
+     "p_ha",
+     "sw_a"
+    ],
+    "SW_B": [
+     "bias_hb.monitor-base",
+     "bias_hb.monitor-good",
+     "bias_hb.monitor-halfref",
+     "bias_hb.monitor-isoin",
+     "bias_hb.monitor-ov",
+     "bias_hb.monitor-ref",
+     "bias_hb.monitor-spanov",
+     "bias_hb.monitor-spanuv",
+     "bias_hb.monitor-uv",
+     "bias_hb.monitor-v5",
+     "bias_hb.monitor.iso-nc2",
+     "bias_hb.monitor.iso-nc5",
+     "bias_hb.monitor.iso-nc6",
+     "bias_hb.monitor.iso-nc8",
+     "bias_hb.monitor.ldo5-nc",
+     "n_hb",
+     "p_hb",
+     "sw_b"
+    ]
+   },
+   "potential_groups": [
+    "LOW",
+    "SELV",
+    "SW_A",
+    "SW_B"
+   ],
+   "barrier_straddling_parts": [
+    "U32",
+    "U33",
+    "U34"
+   ],
+   "isolation_note": "Each monitor (LM339 U29/U30/U31 + TL431 reference + ISO7710 U32/U33/U34) is split across the barrier: HOT side on its island (LS=LOW, HS=SW_A/SW_B), SELV side v3v3/selv_gnd. ISO7710 and the monitor straddle the island edge (FLOORPLAN SELV island). bias_*_bad reported not asserted in return_path19.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 213.2,
+    "F.Cu": 346.1,
+    "In1.Cu": 70.3,
+    "In2.Cu": 169.3
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 5231.1,
+    "F.Cu": 3075.0,
+    "In1.Cu": 12278.6,
+    "In2.Cu": 8918.4
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 516.1,
+    "F.Cu": 831.3,
+    "In1.Cu": 4426.5,
+    "In2.Cu": 1753.4
+   },
+   "via_count_internal_nets": 648,
+   "track_len_internal_nets_mm": 2081.0,
+   "net_copper_mm2": {
+    "bias_bad_flt": {
+     "F.Cu": 25.6,
+     "In1.Cu": 2.2,
+     "In2.Cu": 2.2,
+     "B.Cu": 12.5
+    },
+    "bias_bad_raw": {
+     "F.Cu": 21.5,
+     "In1.Cu": 1.7,
+     "In2.Cu": 1.7,
+     "B.Cu": 8.7
+    },
+    "bias_ha.monitor-base": {
+     "F.Cu": 3.8,
+     "In1.Cu": 0.8,
+     "In2.Cu": 0.8,
+     "B.Cu": 7.9
+    },
+    "bias_ha.monitor-good": {
+     "F.Cu": 11.1,
+     "In1.Cu": 1.7,
+     "In2.Cu": 6.6,
+     "B.Cu": 7.7
+    },
+    "bias_ha.monitor-halfref": {
+     "F.Cu": 8.8,
+     "In1.Cu": 2.2,
+     "In2.Cu": 12.7,
+     "B.Cu": 2.9
+    },
+    "bias_ha.monitor-isoin": {
+     "F.Cu": 3.6,
+     "In1.Cu": 0.8,
+     "In2.Cu": 9.0,
+     "B.Cu": 0.8
+    },
+    "bias_ha.monitor-ov": {
+     "F.Cu": 5.8,
+     "In1.Cu": 1.1,
+     "In2.Cu": 8.2,
+     "B.Cu": 4.1
+    },
+    "bias_ha.monitor-ref": {
+     "F.Cu": 10.1,
+     "In1.Cu": 1.7,
+     "In2.Cu": 3.0,
+     "B.Cu": 6.8
+    },
+    "bias_ha.monitor-spanov": {
+     "F.Cu": 6.0,
+     "In1.Cu": 1.1,
+     "In2.Cu": 8.8,
+     "B.Cu": 5.1
+    },
+    "bias_ha.monitor-spanuv": {
+     "F.Cu": 6.5,
+     "In1.Cu": 1.4,
+     "In2.Cu": 13.8,
+     "B.Cu": 2.9
+    },
+    "bias_ha.monitor-uv": {
+     "F.Cu": 6.3,
+     "In1.Cu": 1.1,
+     "In2.Cu": 1.1,
+     "B.Cu": 9.2
+    },
+    "bias_ha.monitor-v5": {
+     "F.Cu": 13.1,
+     "In1.Cu": 2.0,
+     "In2.Cu": 3.1,
+     "B.Cu": 6.5
+    },
+    "bias_ha.monitor.iso-nc10": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc11": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc12": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc15": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc2": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc5": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc6": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.iso-nc8": {
+     "F.Cu": 1.0
+    },
+    "bias_ha.monitor.ldo5-nc": {
+     "F.Cu": 0.8
+    },
+    "bias_ha_bad": {
+     "F.Cu": 22.2,
+     "In1.Cu": 1.7,
+     "In2.Cu": 1.7,
+     "B.Cu": 11.2
+    },
+    "bias_hb.monitor-base": {
+     "F.Cu": 3.6,
+     "In1.Cu": 0.8,
+     "In2.Cu": 7.7,
+     "B.Cu": 0.8
+    },
+    "bias_hb.monitor-good": {
+     "F.Cu": 8.8,
+     "In1.Cu": 1.1,
+     "In2.Cu": 7.9,
+     "B.Cu": 4.8
+    },
+    "bias_hb.monitor-halfref": {
+     "F.Cu": 10.2,
+     "In1.Cu": 0.8,
+     "In2.Cu": 0.8,
+     "B.Cu": 10.1
+    },
+    "bias_hb.monitor-isoin": {
+     "F.Cu": 10.7,
+     "In1.Cu": 0.6,
+     "In2.Cu": 3.7,
+     "B.Cu": 0.6
+    },
+    "bias_hb.monitor-ov": {
+     "F.Cu": 7.2,
+     "In1.Cu": 2.0,
+     "In2.Cu": 4.6,
+     "B.Cu": 15.1
+    },
+    "bias_hb.monitor-ref": {
+     "F.Cu": 10.0,
+     "In1.Cu": 1.1,
+     "In2.Cu": 3.6,
+     "B.Cu": 2.8
+    },
+    "bias_hb.monitor-spanov": {
+     "F.Cu": 5.1,
+     "In1.Cu": 1.1,
+     "In2.Cu": 10.4,
+     "B.Cu": 3.7
+    },
+    "bias_hb.monitor-spanuv": {
+     "F.Cu": 6.9,
+     "In1.Cu": 1.1,
+     "In2.Cu": 4.3,
+     "B.Cu": 6.6
+    },
+    "bias_hb.monitor-uv": {
+     "F.Cu": 6.6,
+     "In1.Cu": 0.6,
+     "In2.Cu": 0.6,
+     "B.Cu": 8.3
+    },
+    "bias_hb.monitor-v5": {
+     "F.Cu": 11.2,
+     "In1.Cu": 1.1,
+     "In2.Cu": 8.7,
+     "B.Cu": 1.1
+    },
+    "bias_hb.monitor.iso-nc10": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc11": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc12": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc15": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc2": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc5": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc6": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.iso-nc8": {
+     "F.Cu": 1.0
+    },
+    "bias_hb.monitor.ldo5-nc": {
+     "F.Cu": 0.8
+    },
+    "bias_hb_bad": {
+     "F.Cu": 3.2,
+     "In1.Cu": 12.2,
+     "In2.Cu": 1.1,
+     "B.Cu": 4.7
+    },
+    "bias_ls_bad": {
+     "F.Cu": 18.5,
+     "In1.Cu": 2.2,
+     "In2.Cu": 2.2,
+     "B.Cu": 18.2
+    },
+    "monitor_ls-base": {
+     "F.Cu": 4.6,
+     "In1.Cu": 1.1,
+     "In2.Cu": 3.7,
+     "B.Cu": 3.5
+    },
+    "monitor_ls-good": {
+     "F.Cu": 8.6,
+     "In1.Cu": 1.1,
+     "In2.Cu": 3.8,
+     "B.Cu": 7.8
+    },
+    "monitor_ls-halfref": {
+     "F.Cu": 10.4,
+     "In1.Cu": 0.8,
+     "In2.Cu": 3.0,
+     "B.Cu": 4.7
+    },
+    "monitor_ls-isoin": {
+     "F.Cu": 6.1,
+     "In1.Cu": 2.5,
+     "In2.Cu": 2.3,
+     "B.Cu": 8.6
+    },
+    "monitor_ls-ov": {
+     "F.Cu": 5.6,
+     "In1.Cu": 1.4,
+     "In2.Cu": 5.7,
+     "B.Cu": 4.8
+    },
+    "monitor_ls-ref": {
+     "F.Cu": 12.8,
+     "In1.Cu": 0.6,
+     "In2.Cu": 3.9,
+     "B.Cu": 0.6
+    },
+    "monitor_ls-spanov": {
+     "F.Cu": 4.8,
+     "In1.Cu": 2.8,
+     "In2.Cu": 9.9,
+     "B.Cu": 5.3
+    },
+    "monitor_ls-spanuv": {
+     "F.Cu": 4.9,
+     "In1.Cu": 0.8,
+     "In2.Cu": 0.8,
+     "B.Cu": 8.7
+    },
+    "monitor_ls-uv": {
+     "F.Cu": 6.3,
+     "In1.Cu": 1.4,
+     "In2.Cu": 5.7,
+     "B.Cu": 4.5
+    },
+    "monitor_ls-v5": {
+     "F.Cu": 9.3,
+     "In1.Cu": 13.2,
+     "In2.Cu": 1.9,
+     "B.Cu": 1.4
+    },
+    "monitor_ls.iso-nc10": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc11": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc12": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc15": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc2": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc5": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc6": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.iso-nc8": {
+     "F.Cu": 1.0
+    },
+    "monitor_ls.ldo5-nc": {
+     "F.Cu": 0.8
+    },
+    "u_bias_flt-nc": {
+     "F.Cu": 0.8
+    },
+    "bias_bad": {
+     "F.Cu": 19.9,
+     "B.Cu": 33.1,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0
+    },
+    "leg_ret": {
+     "F.Cu": 177.4,
+     "In1.Cu": 324.4,
+     "In2.Cu": 32.1,
+     "B.Cu": 38.3
+    },
+    "n_ha": {
+     "F.Cu": 151.3,
+     "B.Cu": 429.3,
+     "In1.Cu": 1211.3,
+     "In2.Cu": 17.3
+    },
+    "n_hb": {
+     "F.Cu": 154.6,
+     "B.Cu": 435.6,
+     "In1.Cu": 1154.6,
+     "In2.Cu": 20.8
+    },
+    "n_ls": {
+     "F.Cu": 345.8,
+     "B.Cu": 638.1,
+     "In1.Cu": 939.9,
+     "In2.Cu": 150.8
+    },
+    "p_ha": {
+     "F.Cu": 44.0,
+     "In1.Cu": 4.5,
+     "In2.Cu": 20.2,
+     "B.Cu": 10.7
+    },
+    "p_hb": {
+     "F.Cu": 35.5,
+     "B.Cu": 11.5,
+     "In1.Cu": 3.9,
+     "In2.Cu": 24.0
+    },
+    "selv_gnd": {
+     "In2.Cu": 8520.0,
+     "F.Cu": 96.2,
+     "In1.Cu": 31.6,
+     "B.Cu": 39.6
+    },
+    "sw_a": {
+     "F.Cu": 1802.8,
+     "B.Cu": 223.0,
+     "In1.Cu": 23.1,
+     "In2.Cu": 26.3
+    },
+    "sw_b": {
+     "B.Cu": 3321.9,
+     "F.Cu": 91.3,
+     "In1.Cu": 46.2,
+     "In2.Cu": 64.0
+    },
+    "v15_ls": {
+     "F.Cu": 81.6,
+     "In1.Cu": 57.0,
+     "In2.Cu": 21.1,
+     "B.Cu": 31.7
+    },
+    "v3v3": {
+     "In1.Cu": 8480.0,
+     "F.Cu": 74.6,
+     "In2.Cu": 20.0,
+     "B.Cu": 18.2
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "U37": 0.05,
+     "U38": 0.05,
+     "U39": 0.05
+    },
+    "total": 0.15
+   },
+   "metrics": {
+    "cmti_gate_ratio_min": 1.316,
+    "return_path_open_changes": 39
+   },
+   "findings": [
+    "F13 ISO7710DWR x4 (U9,U32,U33,U34): 0 stock, 12 wk, single-source (U9 is in G08)",
+    "F6 CMTI: ISO7710 85 kV/us min but only a 10 us filter protects it; false upset gives BIAS_BAD (fail-safe)",
+    "F9 BIAS_*_BAD stay reported not asserted (19c); 22 mm run",
+    "Largest passive count of the board: ~29 parts per monitor x 3 + 6 common = 93 placements for $11.29"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Cheaper/simpler: replace the 29-part analogue window monitor (UV/OV/span comparators, TL431, notice transistor) per rail with a stocked supervisor + one ISO7710",
+     "disturbs": "UV/OV window thresholds and timing of the rail monitors (f6_bias.ato), the drive-off path (G05 DIS ORs via bias_bad), and bias_bad's route to J4/return path (G10)"
+    },
+    {
+     "angle": "Available: ISO7710DWR zero stock - swap to a stocked digital isolator (ISO7710 -> ISO7710F / Si86xx / ADuM)",
+     "disturbs": "Same SOIC16W straddling footprint and fail-safe default state; CMTI >= 95 V/ns x1.5; D5 barrier geometry under the package"
+    }
+   ]
+  },
+  "G08": {
+   "name": "sense_protect",
+   "description": "R5 shunt, OCP/OVP comparators, HOT5 supply + UV, bus-voltage sense (AMC1311), bus-fault isolator",
+   "parts_count": 42,
+   "refs": [
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "C29",
+    "C30",
+    "C31",
+    "C32",
+    "C33",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C48",
+    "C49",
+    "C149",
+    "C150",
+    "R5",
+    "R26",
+    "R27",
+    "R28",
+    "R29",
+    "R30",
+    "R31",
+    "R32",
+    "R33",
+    "R34",
+    "R35",
+    "R36",
+    "R37",
+    "R48",
+    "R49",
+    "R50",
+    "U3",
+    "U4",
+    "U5",
+    "U6",
+    "U7",
+    "U8",
+    "U9",
+    "U14",
+    "U15"
+   ],
+   "bom_lines": 22,
+   "lines": [
+    {
+     "mpn": "AMC1311BDWVR",
+     "refs": [
+      "U4"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C783598",
+     "assembly": "JLC (Extended); stock at survey: JLC 1586 / LCSC 663",
+     "unit5": 2.2527,
+     "unit500": 1.4316,
+     "cost500": 1.4316,
+     "flags": "DK_STOCK<10x_5board_need;LEAD_20wk;SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "ISO7710DWR",
+     "refs": [
+      "U9"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C2859830",
+     "assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+     "unit5": 1.581,
+     "unit500": 1.287,
+     "cost500": 1.287,
+     "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_12wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07"
+     ]
+    },
+    {
+     "mpn": "TLV3201AIDBVR",
+     "refs": [
+      "U6",
+      "U7"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C105188",
+     "assembly": "JLC (Extended); stock at survey: JLC 30200 / LCSC 27302",
+     "unit5": 0.7,
+     "unit500": 0.45,
+     "cost500": 0.9,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G09"
+     ]
+    },
+    {
+     "mpn": "TPS70950DBVR",
+     "refs": [
+      "U3"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C96028",
+     "assembly": "JLC (Extended); stock at survey: JLC 9976 / LCSC 9976",
+     "unit5": 1.102,
+     "unit500": 0.80122,
+     "cost500": 0.8012,
+     "flags": "LEAD_20wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07"
+     ]
+    },
+    {
+     "mpn": "CSS2H-2512R-1L00F",
+     "refs": [
+      "R5"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C4175647",
+     "assembly": "JLC (Extended)",
+     "unit5": 1.38,
+     "unit500": 0.50108,
+     "cost500": 0.5011,
+     "flags": "ZERO_DK_STOCK;LEAD_19wk",
+     "zero_stock": true,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "LM4040A25IDBZR",
+     "refs": [
+      "U5"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C9421",
+     "assembly": "JLC (Extended); stock at survey: JLC 4845 / LCSC 4558",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "SN74LVC1G10DBVR",
+     "refs": [
+      "U8"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C403721",
+     "assembly": "JLC (Extended); stock at survey: JLC 1525 / LCSC 1525",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "SN74LVC1G17DBVR",
+     "refs": [
+      "U15"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C7836",
+     "assembly": "JLC (Extended); stock at survey: JLC 21347 / LCSC 18965",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07",
+      "G09"
+     ]
+    },
+    {
+     "mpn": "TPS3700DDCR",
+     "refs": [
+      "U14"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C33002",
+     "assembly": "JLC (Extended); stock at survey: JLC 14580 / LCSC 14120",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "UMK325AB7106KM-T",
+     "refs": [
+      "C26"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C386167",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.25,
+     "unit500": 0.12,
+     "cost500": 0.12,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G06",
+      "G07"
+     ]
+    },
+    {
+     "mpn": "CC0603KRX7R9BB104",
+     "refs": [
+      "C25",
+      "C28",
+      "C29",
+      "C32",
+      "C34",
+      "C35",
+      "C36",
+      "C37",
+      "C48",
+      "C49"
+     ],
+     "qty": 10,
+     "mount": "SMD",
+     "lcsc": "C14663",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.08,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G06",
+      "G07",
+      "G09",
+      "G10"
+     ]
+    },
+    {
+     "mpn": "RC1206FR-07470KL",
+     "refs": [
+      "R26",
+      "R27",
+      "R28",
+      "R29"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C137273",
+     "assembly": "JLC (Extended); stock at survey: JLC 121554 / LCSC 102400",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G04"
+     ]
+    },
+    {
+     "mpn": "CL21B105KBFNNNE",
+     "refs": [
+      "C149",
+      "C150"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C28323",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.04,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05"
+     ]
+    },
+    {
+     "mpn": "RT0603BRD0710KL",
+     "refs": [
+      "R32",
+      "R33",
+      "R36",
+      "R49",
+      "R50"
+     ],
+     "qty": 5,
+     "mount": "SMD",
+     "lcsc": "C95204",
+     "assembly": "JLC (Extended); stock at survey: JLC 2140811 / LCSC 383720",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.04,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06",
+      "G07",
+      "G09"
+     ]
+    },
+    {
+     "mpn": "C0603C102J5GACTU",
+     "refs": [
+      "C27",
+      "C31",
+      "C33"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C2181873",
+     "assembly": "JLC (Extended); stock at survey: JLC 7526 / LCSC 7340",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.024,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G07"
+     ]
+    },
+    {
+     "mpn": "0603WAF5601T5E",
+     "refs": [
+      "R31"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C23189",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "CL10C101JB8NNNC",
+     "refs": [
+      "C30"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C14858",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD07105KL",
+     "refs": [
+      "R48"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C861072",
+     "assembly": "JLC (Extended); stock at survey: JLC 18263 / LCSC 18100",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0712K6L",
+     "refs": [
+      "R34"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C861103",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD07140KL",
+     "refs": [
+      "R37"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C861125",
+     "assembly": "JLC (Extended); stock at survey: JLC 9034 / LCSC 8960",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0715K8L",
+     "refs": [
+      "R30"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C861143",
+     "assembly": "JLC (Extended); stock at survey: JLC 7479 / LCSC 7460",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "TNPW060311K7BEEA",
+     "refs": [
+      "R35"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C4553285",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 11.97,
+   "cost_usd_at_500": 6.96,
+   "extended_lines": 18,
+   "basic_lines": 4,
+   "hand_or_consign_lines": 0,
+   "zero_stock_lines": [
+    "ISO7710DWR",
+    "CSS2H-2512R-1L00F"
+   ],
+   "single_source_lines": [
+    "AMC1311BDWVR",
+    "ISO7710DWR"
+   ],
+   "region": {
+    "bbox_mm": [
+     35.8,
+     8.8,
+     121.3,
+     132.3
+    ],
+    "bbox_area_mm2": 10565,
+    "median_centre_mm": [
+     108.4,
+     71.0
+    ],
+    "core_10_90_pct_bbox_mm": [
+     95.2,
+     53.1,
+     119.0,
+     121.0
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "bus_fault_hot",
+    "hot5",
+    "hot5_ok_hot",
+    "hot5_uv_raw",
+    "hot5_uv_sense",
+    "ocp_kelvin_n",
+    "ocp_kelvin_p",
+    "ocp_node",
+    "ocp_ok_hot",
+    "ocp_thresh",
+    "outb",
+    "ovp_ok_hot",
+    "ovp_thresh",
+    "ref25",
+    "u_hot5_schmitt-nc",
+    "u_iso-nc10",
+    "u_iso-nc11",
+    "u_iso-nc12",
+    "u_iso-nc15",
+    "u_iso-nc2",
+    "u_iso-nc5",
+    "u_iso-nc6",
+    "u_iso-nc8",
+    "u_ldo-nc",
+    "u_ref-nc",
+    "vdiv_1",
+    "vdiv_2",
+    "vdiv_3",
+    "vsense_in"
+   ],
+   "nets_interface": {
+    "bus_fault_iso": [
+     "G09"
+    ],
+    "bus_p": [
+     "G02",
+     "G03"
+    ],
+    "hv_ret": [
+     "G02",
+     "G03"
+    ],
+    "leg_ret": [
+     "G03",
+     "G05",
+     "G06",
+     "G07"
+    ],
+    "selv_gnd": [
+     "G05",
+     "G07",
+     "G09",
+     "G10"
+    ],
+    "v15_ls": [
+     "G05",
+     "G06",
+     "G07"
+    ],
+    "v3v3": [
+     "G05",
+     "G07",
+     "G09",
+     "G10"
+    ],
+    "vbus_n": [
+     "G10"
+    ],
+    "vbus_p": [
+     "G10"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "bus_fault_hot",
+     "bus_p",
+     "hot5",
+     "hot5_ok_hot",
+     "hot5_uv_raw",
+     "hot5_uv_sense",
+     "hv_ret",
+     "leg_ret",
+     "ocp_kelvin_n",
+     "ocp_kelvin_p",
+     "ocp_node",
+     "ocp_ok_hot",
+     "ocp_thresh",
+     "outb",
+     "ovp_ok_hot",
+     "ovp_thresh",
+     "ref25",
+     "u_hot5_schmitt-nc",
+     "u_iso-nc2",
+     "u_iso-nc5",
+     "u_iso-nc6",
+     "u_iso-nc8",
+     "u_ldo-nc",
+     "u_ref-nc",
+     "v15_ls",
+     "vdiv_1",
+     "vdiv_2",
+     "vdiv_3",
+     "vsense_in"
+    ],
+    "SELV": [
+     "bus_fault_iso",
+     "selv_gnd",
+     "u_iso-nc10",
+     "u_iso-nc11",
+     "u_iso-nc12",
+     "u_iso-nc15",
+     "v3v3",
+     "vbus_n",
+     "vbus_p"
+    ]
+   },
+   "potential_groups": [
+    "BUS_P",
+    "LOW",
+    "SELV",
+    "VDIV_1",
+    "VDIV_2",
+    "VDIV_3"
+   ],
+   "barrier_straddling_parts": [
+    "U4",
+    "U9"
+   ],
+   "isolation_note": "HOT (LOW group via ocp_kelvin_p/hot5, bus_p dividers vdiv_1..3 own potential groups) with SELV halves: U4 AMC1311 and U9 ISO7710 straddle the barrier (vbus_p/vbus_n isolated-sense to J4, bus_fault_hot->bus_fault_iso). R5 shunt Kelvin pair ocp_kelvin_p/n runs on In1/In2.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 62.8,
+    "F.Cu": 186.7,
+    "In1.Cu": 469.5,
+    "In2.Cu": 86.9
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 876.9,
+    "F.Cu": 1224.5,
+    "In1.Cu": 17507.6,
+    "In2.Cu": 16813.9
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 160.7,
+    "F.Cu": 461.9,
+    "In1.Cu": 3339.0,
+    "In2.Cu": 3000.6
+   },
+   "via_count_internal_nets": 340,
+   "track_len_internal_nets_mm": 1012.0,
+   "net_copper_mm2": {
+    "bus_fault_hot": {
+     "F.Cu": 6.5,
+     "B.Cu": 16.0,
+     "In1.Cu": 1.4,
+     "In2.Cu": 6.4
+    },
+    "hot5": {
+     "F.Cu": 36.6,
+     "In1.Cu": 18.5,
+     "In2.Cu": 21.7,
+     "B.Cu": 9.0
+    },
+    "hot5_ok_hot": {
+     "F.Cu": 2.3,
+     "In1.Cu": 0.6,
+     "In2.Cu": 5.6,
+     "B.Cu": 0.6
+    },
+    "hot5_uv_raw": {
+     "F.Cu": 4.3,
+     "In1.Cu": 0.6,
+     "In2.Cu": 4.6,
+     "B.Cu": 0.6
+    },
+    "hot5_uv_sense": {
+     "F.Cu": 5.4,
+     "In1.Cu": 0.6,
+     "In2.Cu": 0.6,
+     "B.Cu": 4.5
+    },
+    "ocp_kelvin_n": {
+     "F.Cu": 4.1,
+     "In1.Cu": 42.2,
+     "In2.Cu": 4.1,
+     "B.Cu": 1.4
+    },
+    "ocp_kelvin_p": {
+     "In1.Cu": 388.7,
+     "F.Cu": 55.3,
+     "B.Cu": 19.5,
+     "In2.Cu": 23.5
+    },
+    "ocp_node": {
+     "F.Cu": 7.8,
+     "B.Cu": 1.1,
+     "In1.Cu": 0.6,
+     "In2.Cu": 1.6
+    },
+    "ocp_ok_hot": {
+     "F.Cu": 2.9,
+     "In1.Cu": 0.6,
+     "In2.Cu": 0.6,
+     "B.Cu": 3.4
+    },
+    "ocp_thresh": {
+     "F.Cu": 6.1,
+     "In1.Cu": 1.1,
+     "In2.Cu": 2.0,
+     "B.Cu": 3.4
+    },
+    "outb": {
+     "F.Cu": 0.8
+    },
+    "ovp_ok_hot": {
+     "F.Cu": 4.0,
+     "In1.Cu": 1.3,
+     "In2.Cu": 0.6,
+     "B.Cu": 0.6
+    },
+    "ovp_thresh": {
+     "F.Cu": 6.9,
+     "In1.Cu": 0.6,
+     "In2.Cu": 2.4,
+     "B.Cu": 0.6
+    },
+    "ref25": {
+     "F.Cu": 7.2,
+     "In1.Cu": 0.8,
+     "In2.Cu": 5.3,
+     "B.Cu": 0.8
+    },
+    "u_hot5_schmitt-nc": {
+     "F.Cu": 0.8
+    },
+    "u_iso-nc10": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc11": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc12": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc15": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc2": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc5": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc6": {
+     "F.Cu": 1.0
+    },
+    "u_iso-nc8": {
+     "F.Cu": 1.0
+    },
+    "u_ldo-nc": {
+     "F.Cu": 0.8
+    },
+    "u_ref-nc": {
+     "F.Cu": 0.9
+    },
+    "vdiv_1": {
+     "F.Cu": 5.8
+    },
+    "vdiv_2": {
+     "F.Cu": 5.8
+    },
+    "vdiv_3": {
+     "F.Cu": 5.8
+    },
+    "vsense_in": {
+     "F.Cu": 9.1,
+     "In1.Cu": 12.0,
+     "In2.Cu": 8.2,
+     "B.Cu": 1.4
+    },
+    "bus_fault_iso": {
+     "F.Cu": 11.9,
+     "In1.Cu": 1.7,
+     "In2.Cu": 1.7,
+     "B.Cu": 14.5
+    },
+    "bus_p": {
+     "F.Cu": 153.4,
+     "B.Cu": 139.6,
+     "In2.Cu": 8108.8,
+     "In1.Cu": 105.2
+    },
+    "hv_ret": {
+     "F.Cu": 592.4,
+     "B.Cu": 576.3,
+     "In1.Cu": 8502.1,
+     "In2.Cu": 104.5
+    },
+    "leg_ret": {
+     "F.Cu": 177.4,
+     "In1.Cu": 324.4,
+     "In2.Cu": 32.1,
+     "B.Cu": 38.3
+    },
+    "selv_gnd": {
+     "In2.Cu": 8520.0,
+     "F.Cu": 96.2,
+     "In1.Cu": 31.6,
+     "B.Cu": 39.6
+    },
+    "v15_ls": {
+     "F.Cu": 81.6,
+     "In1.Cu": 57.0,
+     "In2.Cu": 21.1,
+     "B.Cu": 31.7
+    },
+    "v3v3": {
+     "In1.Cu": 8480.0,
+     "F.Cu": 74.6,
+     "In2.Cu": 20.0,
+     "B.Cu": 18.2
+    },
+    "vbus_n": {
+     "F.Cu": 18.5,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 7.8
+    },
+    "vbus_p": {
+     "F.Cu": 18.6,
+     "In1.Cu": 3.4,
+     "In2.Cu": 3.4,
+     "B.Cu": 10.8
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "R5": 0.864,
+     "U3": 0.1
+    },
+    "total": 0.96
+   },
+   "metrics": {
+    "kelvin_band_low_A": 67.72,
+    "fuse_copper_fusing_ratio": 0.208,
+    "b3_c28_h25_peak_C": 136.0
+   },
+   "findings": [
+    "F8 OCP Kelvin pickup stale (13b copper, 31 A pk/31 kHz -> 59 A/60 kHz scales 3.0 A to ~11 A vs 8.5 A margin); KELVIN_N-under-KELVIN_P move recorded",
+    "Kelvin band 67.72-116.44 A (floor 64.17 A after 28 A: 59.17 A pk + 3.0 A + 2 A)",
+    "F2 fusing ratio: R5->J10 HV_RET neck 1.17 mm, 355 A2s",
+    "F13 R5 (Bourns CSS2H-2512R-1L00F) 0 stock; U9 ISO7710DWR 0 stock; U4 AMC1311BDWVR single-source (JLC 1586 / LCSC 663)",
+    "R5 0.86 W (c28); element 140 C, terminal 129.5 C, 18.8 K to 20%-power bound; bench IR R5.4"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Cheaper: swap AMC1311 isolated amplifier + 4 x 470k divider for a stocked equivalent or let the controller sense VBUS via G01 rect",
+     "disturbs": "vbus_p/vbus_n are J4 analog signals (G10) and BUS OVP trip (U7); divider taps are 3.2 mm potential groups; sets the 28 A OCP/OVP interlocks"
+    },
+    {
+     "angle": "Simpler: OCP/OVP comparators TLV3201 x2 + NAND + references (LM4040) could share one window comparator",
+     "disturbs": "Kelvin band 67.72-116.44 A and T1 CT band (G09) are cross-checked (OCP vs CT trip ordering); HOT5 supply sequencing (G06)"
+    },
+    {
+     "angle": "Available: replace R5 CSS2H-2512R-1L00F (0 stock) with a stocked 1 mohm 2512 Kelvin shunt",
+     "disturbs": "R5 footprint and pad geometry fix the Kelvin copper, LEG_RET/HV_RET planes and the low-side source path in G03/G02; B3 R5 heat"
+    }
+   ]
+  },
+  "G09": {
+   "name": "ct_zc_detect",
+   "description": "Tank CT T1 + burden, CT OC/ZC comparators, fault OR, line zero-cross opto",
+   "parts_count": 30,
+   "refs": [
+    "C42",
+    "C43",
+    "C44",
+    "C45",
+    "C46",
+    "C47",
+    "C89",
+    "D4",
+    "D5",
+    "R39",
+    "R40",
+    "R41",
+    "R42",
+    "R43",
+    "R44",
+    "R45",
+    "R46",
+    "R47",
+    "R67",
+    "R68",
+    "R69",
+    "R70",
+    "R125",
+    "T1",
+    "U10",
+    "U11",
+    "U12",
+    "U13",
+    "U24",
+    "U36"
+   ],
+   "bom_lines": 16,
+   "lines": [
+    {
+     "mpn": "CST3015-100ED",
+     "refs": [
+      "T1"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 11.43,
+     "unit500": 11.43,
+     "cost500": 11.43,
+     "flags": "NO_LCSC_CODE(consign/hand);SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "TLV3201AIDBVR",
+     "refs": [
+      "U10",
+      "U11",
+      "U12"
+     ],
+     "qty": 3,
+     "mount": "SMD",
+     "lcsc": "C105188",
+     "assembly": "JLC (Extended); stock at survey: JLC 30200 / LCSC 27302",
+     "unit5": 0.7,
+     "unit500": 0.45,
+     "cost500": 1.35,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G08"
+     ]
+    },
+    {
+     "mpn": "SN74LVC1G17DBVR",
+     "refs": [
+      "U24"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C7836",
+     "assembly": "JLC (Extended); stock at survey: JLC 21347 / LCSC 18965",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "SN74LVC1G332DBVR",
+     "refs": [
+      "U13"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C43368",
+     "assembly": "JLC (Extended); stock at survey: JLC 15983 / LCSC 13110",
+     "unit5": 0.8,
+     "unit500": 0.4,
+     "cost500": 0.4,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07"
+     ]
+    },
+    {
+     "mpn": "VOL628A-3X001T",
+     "refs": [
+      "U36"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C17618137",
+     "assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+     "unit5": 0.85,
+     "unit500": 0.36242,
+     "cost500": 0.3624,
+     "flags": "ZERO_JLC_LCSC_STOCK;LEAD_28wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "BAS116H,115",
+     "refs": [
+      "D4",
+      "D5"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C74210",
+     "assembly": "JLC (Extended); stock at survey: JLC 65672 / LCSC 65670",
+     "unit5": 0.1,
+     "unit500": 0.04,
+     "cost500": 0.08,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RC1206FR-0716K5L",
+     "refs": [
+      "R67",
+      "R68",
+      "R69",
+      "R70"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C274054",
+     "assembly": "JLC (Extended); stock at survey: JLC 5024 / LCSC 4900",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.08,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "CC0603KRX7R9BB104",
+     "refs": [
+      "C44",
+      "C45",
+      "C46",
+      "C47",
+      "C89"
+     ],
+     "qty": 5,
+     "mount": "SMD",
+     "lcsc": "C14663",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.04,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G06",
+      "G07",
+      "G08",
+      "G10"
+     ]
+    },
+    {
+     "mpn": "GRM31C5C1H104JA01L",
+     "refs": [
+      "C42",
+      "C43"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C97946",
+     "assembly": "JLC (Extended); stock at survey: JLC 83031 / LCSC 59510",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.04,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "1206W4F1001T5E",
+     "refs": [
+      "R42"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C4410",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.02,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RC1206FR-071R5L",
+     "refs": [
+      "R39"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C137360",
+     "assembly": "JLC (Extended); stock at survey: JLC 37142 / LCSC 35800",
+     "unit5": 0.05,
+     "unit500": 0.02,
+     "cost500": 0.02,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD0710KL",
+     "refs": [
+      "R44",
+      "R45"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C95204",
+     "assembly": "JLC (Extended); stock at survey: JLC 2140811 / LCSC 383720",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G06",
+      "G07",
+      "G08"
+     ]
+    },
+    {
+     "mpn": "RT0603BRD071KL",
+     "refs": [
+      "R40",
+      "R41"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C110776",
+     "assembly": "JLC (Extended); stock at survey: JLC 974650 / LCSC 637880",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "RT0603BRD072K21L",
+     "refs": [
+      "R43",
+      "R46"
+     ],
+     "qty": 2,
+     "mount": "SMD",
+     "lcsc": "C705758",
+     "assembly": "JLC (Extended)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.016,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "0603WAF1001T5E",
+     "refs": [
+      "R47"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C21190",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G07"
+     ]
+    },
+    {
+     "mpn": "0603WAF3302T5E",
+     "refs": [
+      "R125"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C4216",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 16.84,
+   "cost_usd_at_500": 14.29,
+   "extended_lines": 11,
+   "basic_lines": 4,
+   "hand_or_consign_lines": 1,
+   "zero_stock_lines": [
+    "VOL628A-3X001T"
+   ],
+   "single_source_lines": [
+    "CST3015-100ED",
+    "VOL628A-3X001T"
+   ],
+   "region": {
+    "bbox_mm": [
+     2.0,
+     92.7,
+     243.8,
+     133.6
+    ],
+    "bbox_area_mm2": 9911,
+    "median_centre_mm": [
+     33.2,
+     129.7
+    ],
+    "core_10_90_pct_bbox_mm": [
+     9.2,
+     101.5,
+     233.0,
+     132.9
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "ct_oc_neg",
+    "ct_oc_pos",
+    "ct_ref_hi",
+    "ct_ref_lo",
+    "ct_s1",
+    "ct_s2",
+    "ct_sense_mon",
+    "led1",
+    "led2",
+    "line_zc.buffer-nc",
+    "line_zc_raw",
+    "r1mid",
+    "r2mid"
+   ],
+   "nets_interface": {
+    "bus_fault": [
+     "G10"
+    ],
+    "bus_fault_iso": [
+     "G08"
+    ],
+    "coil_feed": [
+     "G04"
+    ],
+    "ct_mon": [
+     "G10"
+    ],
+    "ct_zc": [
+     "G10"
+    ],
+    "l_filt": [
+     "G01",
+     "G06",
+     "G10"
+    ],
+    "line_zc": [
+     "G10"
+    ],
+    "n_filt": [
+     "G01",
+     "G06",
+     "G10"
+    ],
+    "selv_gnd": [
+     "G05",
+     "G07",
+     "G08",
+     "G10"
+    ],
+    "sw_a": [
+     "G03",
+     "G05",
+     "G06",
+     "G07"
+    ],
+    "v3v3": [
+     "G05",
+     "G07",
+     "G08",
+     "G10"
+    ]
+   },
+   "domains": {
+    "HOT": [
+     "coil_feed",
+     "r1mid",
+     "r2mid"
+    ],
+    "MAINS": [
+     "l_filt",
+     "led1",
+     "led2",
+     "n_filt"
+    ],
+    "SELV": [
+     "bus_fault",
+     "bus_fault_iso",
+     "ct_mon",
+     "ct_oc_neg",
+     "ct_oc_pos",
+     "ct_ref_hi",
+     "ct_ref_lo",
+     "ct_s1",
+     "ct_s2",
+     "ct_sense_mon",
+     "ct_zc",
+     "line_zc",
+     "line_zc.buffer-nc",
+     "line_zc_raw",
+     "selv_gnd",
+     "v3v3"
+    ],
+    "SW_A": [
+     "sw_a"
+    ]
+   },
+   "potential_groups": [
+    "L_F",
+    "MAINS_N",
+    "SELV",
+    "SW_A",
+    "ZC_led",
+    "ZC_r1mid",
+    "ZC_r2mid"
+   ],
+   "barrier_straddling_parts": [
+    "T1",
+    "U36"
+   ],
+   "isolation_note": "Mixed. T1 (CST3015-100ED, 1.5 ohm burden R39) primary is the tank/coil_feed on sw_a (HOT), secondary SELV-referenced (ct_s1/ct_s2, v3v3 bias) - T1 straddles the barrier. Line ZC (VOL628A U36 + 4 x 16.5k R67-R70) taps MAINS potential groups (zc_r1mid, zc_r2mid, led1/led2) - its opto straddles the SELV spur.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 83.9,
+    "F.Cu": 170.2,
+    "In1.Cu": 13.9,
+    "In2.Cu": 7.9
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 1907.5,
+    "F.Cu": 4232.4,
+    "In1.Cu": 8678.0,
+    "In2.Cu": 8709.5
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 270.0,
+    "F.Cu": 531.3,
+    "In1.Cu": 2333.3,
+    "In2.Cu": 2357.7
+   },
+   "via_count_internal_nets": 112,
+   "track_len_internal_nets_mm": 736.0,
+   "net_copper_mm2": {
+    "ct_oc_neg": {
+     "F.Cu": 2.2,
+     "In1.Cu": 4.6,
+     "In2.Cu": 0.6,
+     "B.Cu": 0.6
+    },
+    "ct_oc_pos": {
+     "F.Cu": 4.2
+    },
+    "ct_ref_hi": {
+     "F.Cu": 2.7,
+     "In1.Cu": 0.8,
+     "In2.Cu": 0.8,
+     "B.Cu": 5.7
+    },
+    "ct_ref_lo": {
+     "F.Cu": 3.5
+    },
+    "ct_s1": {
+     "F.Cu": 25.6
+    },
+    "ct_s2": {
+     "F.Cu": 53.9,
+     "In1.Cu": 4.3,
+     "In2.Cu": 2.2,
+     "B.Cu": 17.0
+    },
+    "ct_sense_mon": {
+     "F.Cu": 27.8,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0,
+     "B.Cu": 14.8
+    },
+    "led1": {
+     "F.Cu": 5.8
+    },
+    "led2": {
+     "F.Cu": 5.0
+    },
+    "line_zc.buffer-nc": {
+     "F.Cu": 0.8
+    },
+    "line_zc_raw": {
+     "F.Cu": 28.5,
+     "In1.Cu": 2.2,
+     "In2.Cu": 2.2,
+     "B.Cu": 45.9
+    },
+    "r1mid": {
+     "F.Cu": 5.2
+    },
+    "r2mid": {
+     "F.Cu": 5.2
+    },
+    "bus_fault": {
+     "F.Cu": 2.8,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 16.0
+    },
+    "bus_fault_iso": {
+     "F.Cu": 11.9,
+     "In1.Cu": 1.7,
+     "In2.Cu": 1.7,
+     "B.Cu": 14.5
+    },
+    "coil_feed": {
+     "F.Cu": 199.9,
+     "B.Cu": 190.6,
+     "In1.Cu": 32.0,
+     "In2.Cu": 32.0
+    },
+    "ct_mon": {
+     "F.Cu": 12.8,
+     "In1.Cu": 2.6,
+     "In2.Cu": 2.6,
+     "B.Cu": 8.3
+    },
+    "ct_zc": {
+     "F.Cu": 2.8,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 20.2
+    },
+    "l_filt": {
+     "B.Cu": 1215.1,
+     "F.Cu": 155.8,
+     "In1.Cu": 48.7,
+     "In2.Cu": 48.7
+    },
+    "line_zc": {
+     "F.Cu": 30.8,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0,
+     "B.Cu": 2.0
+    },
+    "n_filt": {
+     "F.Cu": 1842.0,
+     "In1.Cu": 51.7,
+     "In2.Cu": 51.7,
+     "B.Cu": 160.1
+    },
+    "selv_gnd": {
+     "In2.Cu": 8520.0,
+     "F.Cu": 96.2,
+     "In1.Cu": 31.6,
+     "B.Cu": 39.6
+    },
+    "sw_a": {
+     "F.Cu": 1802.8,
+     "B.Cu": 223.0,
+     "In1.Cu": 23.1,
+     "In2.Cu": 26.3
+    },
+    "v3v3": {
+     "In1.Cu": 8480.0,
+     "F.Cu": 74.6,
+     "In2.Cu": 20.0,
+     "B.Cu": 18.2
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "R39": 0.13,
+     "R67": 0.074,
+     "R68": 0.074,
+     "R69": 0.074,
+     "R70": 0.074
+    },
+    "total": 0.43
+   },
+   "metrics": {
+    "return_path_open_changes": 39,
+    "return_path_worst_asserted_mm": 2.72,
+    "leakage_touch_mA": 0.974
+   },
+   "findings": [
+    "F3 CT-blind double fault gives 1702 V on the bank (G04): the CT trip (band 64.55-76.09 A) is the detector that fails",
+    "F9 ct_zc asserted; line_zc/ct_mon return paths; ct_mon sits across from pwm_la on J4 (F11)",
+    "F13 T1 CST3015-100ED no LCSC code (hand/consign); U36 VOL628A-3X001T 0 stock; U10-U12 TLV3201 stocked",
+    "T1 CST3015-100ED is the second-most expensive line in this group ($11.43 at 500; hand-assembled)"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Simpler (only if firmware does not need mains-synchronous timing): drop the 8-part line zero-cross string + VOL628A opto (0 stock)",
+     "disturbs": "LINE_ZC is a J4 input (G10) and the VOL628A bridges the barrier on the SELV spur (FLOORPLAN stage 3); its removal also deletes ZC_* potential groups from the rule file"
+    },
+    {
+     "angle": "Cheaper: one comparator window (D4/D5 + U10-U12) instead of three TLV3201; fewer bias resistors",
+     "disturbs": "CT trip band 64.55-76.09 A and ct_zc timing; interacts with OCP (G08) and F3 bank over-voltage logic"
+    }
+   ]
+  },
+  "G10": {
+   "name": "selv_interface_aux",
+   "description": "J4 controller interface, PS1 SELV supply, blower tap (F2/J11), SELV-PE strap, reference-transfer caps",
+   "parts_count": 9,
+   "refs": [
+    "C153",
+    "C154",
+    "C155",
+    "C156",
+    "F2",
+    "J4",
+    "J11",
+    "PS1",
+    "R38"
+   ],
+   "bom_lines": 6,
+   "lines": [
+    {
+     "mpn": "IRM-20-15",
+     "refs": [
+      "PS1"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C6211072",
+     "assembly": "JLC (Extended); stock at survey: JLC 1568 / LCSC 1568",
+     "unit5": 9.1,
+     "unit500": 8.4,
+     "cost500": 8.4,
+     "flags": "ZERO_DK_STOCK;LEAD_17wk;SINGLE_SOURCE",
+     "zero_stock": true,
+     "single_source": true,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "3403.0171",
+     "refs": [
+      "F2"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 1.8,
+     "unit500": 1.8,
+     "cost500": 1.8,
+     "flags": "NO_LCSC_CODE(consign/hand)",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "0430451612",
+     "refs": [
+      "J4"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "C491447",
+     "assembly": "JLC (Extended); stock at survey: LCSC 7797 (2026-10-08 re-check; C17616543 had 0)",
+     "unit5": 2.35,
+     "unit500": 1.6944,
+     "cost500": 1.6944,
+     "flags": "LEAD_17wk",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": true,
+     "hand_or_consign": true,
+     "line_spans_groups": []
+    },
+    {
+     "mpn": "B2P3-VH(LF)(SN)",
+     "refs": [
+      "J11"
+     ],
+     "qty": 1,
+     "mount": "THT",
+     "lcsc": "",
+     "assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+     "unit5": 0.153,
+     "unit500": 0.11626,
+     "cost500": 0.1163,
+     "flags": "NO_LCSC_CODE(consign/hand);LEAD_16wk;SINGLE_SOURCE",
+     "zero_stock": false,
+     "single_source": true,
+     "extended": false,
+     "hand_or_consign": true,
+     "line_spans_groups": [
+      "G06"
+     ]
+    },
+    {
+     "mpn": "CC0603KRX7R9BB104",
+     "refs": [
+      "C153",
+      "C154",
+      "C155",
+      "C156"
+     ],
+     "qty": 4,
+     "mount": "SMD",
+     "lcsc": "C14663",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.032,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": [
+      "G05",
+      "G06",
+      "G07",
+      "G08",
+      "G09"
+     ]
+    },
+    {
+     "mpn": "0603WAF0000T5E",
+     "refs": [
+      "R38"
+     ],
+     "qty": 1,
+     "mount": "SMD",
+     "lcsc": "C21189",
+     "assembly": "JLC (Basic)",
+     "unit5": 0.02,
+     "unit500": 0.008,
+     "cost500": 0.008,
+     "flags": "JLC_STOCK_NOT_RECORDED",
+     "zero_stock": false,
+     "single_source": false,
+     "extended": false,
+     "hand_or_consign": false,
+     "line_spans_groups": []
+    }
+   ],
+   "cost_usd_at_5": 13.5,
+   "cost_usd_at_500": 12.05,
+   "extended_lines": 2,
+   "basic_lines": 2,
+   "hand_or_consign_lines": 4,
+   "zero_stock_lines": [
+    "IRM-20-15"
+   ],
+   "single_source_lines": [
+    "IRM-20-15",
+    "B2P3-VH(LF)(SN)"
+   ],
+   "region": {
+    "bbox_mm": [
+     19.9,
+     116.2,
+     282.3,
+     185.0
+    ],
+    "bbox_area_mm2": 18052,
+    "median_centre_mm": [
+     57.9,
+     132.9
+    ],
+    "core_10_90_pct_bbox_mm": [
+     25.4,
+     118.4,
+     266.5,
+     180.1
+    ],
+    "note": "board KiCad frame, mm; courtyard-extent bbox from placement.json + parts.json w/h"
+   },
+   "nets_internal": [
+    "blw_l",
+    "v15_selv"
+   ],
+   "nets_interface": {
+    "bus_fault": [
+     "G09"
+    ],
+    "ct_mon": [
+     "G09"
+    ],
+    "ct_zc": [
+     "G09"
+    ],
+    "l_filt": [
+     "G01",
+     "G06",
+     "G09"
+    ],
+    "line_zc": [
+     "G09"
+    ],
+    "n_filt": [
+     "G01",
+     "G06",
+     "G09"
+    ],
+    "pe": [
+     "G01"
+    ],
+    "permit": [
+     "G05"
+    ],
+    "pwm_ha": [
+     "G05"
+    ],
+    "pwm_hb": [
+     "G05"
+    ],
+    "pwm_la": [
+     "G05"
+    ],
+    "pwm_lb": [
+     "G05"
+    ],
+    "selv_gnd": [
+     "G05",
+     "G07",
+     "G08",
+     "G09"
+    ],
+    "v3v3": [
+     "G05",
+     "G07",
+     "G08",
+     "G09"
+    ],
+    "vbus_n": [
+     "G08"
+    ],
+    "vbus_p": [
+     "G08"
+    ]
+   },
+   "domains": {
+    "MAINS": [
+     "blw_l",
+     "l_filt",
+     "n_filt"
+    ],
+    "PE": [
+     "pe"
+    ],
+    "SELV": [
+     "bus_fault",
+     "ct_mon",
+     "ct_zc",
+     "line_zc",
+     "permit",
+     "pwm_ha",
+     "pwm_hb",
+     "pwm_la",
+     "pwm_lb",
+     "selv_gnd",
+     "v15_selv",
+     "v3v3",
+     "vbus_n",
+     "vbus_p"
+    ]
+   },
+   "potential_groups": [
+    "BLW_L",
+    "L_F",
+    "MAINS_N",
+    "PE",
+    "SELV"
+   ],
+   "barrier_straddling_parts": [
+    "PS1"
+   ],
+   "isolation_note": "SELV (J4, v3v3, v15_selv, selv_gnd, PWM/permit/ct/vbus signals) with PE strap R38 (0 ohm, SELV earthed); PS1 (IRM-20-15) straddles the barrier (MAINS in, SELV out) and F2/J11 are the blw_l MAINS group (F2 can open). 8.0 mm to every HOT net.",
+   "copper_internal_nets_mm2_per_layer": {
+    "B.Cu": 81.2,
+    "F.Cu": 42.7,
+    "In1.Cu": 25.2,
+    "In2.Cu": 17.9
+   },
+   "copper_interface_nets_mm2_per_layer_whole_net": {
+    "B.Cu": 1706.5,
+    "F.Cu": 2430.8,
+    "In1.Cu": 8656.5,
+    "In2.Cu": 8684.9
+   },
+   "copper_all_group_nets_inside_bbox_mm2_per_layer": {
+    "B.Cu": 330.3,
+    "F.Cu": 395.4,
+    "In1.Cu": 6021.3,
+    "In2.Cu": 6029.7
+   },
+   "via_count_internal_nets": 16,
+   "track_len_internal_nets_mm": 214.0,
+   "net_copper_mm2": {
+    "blw_l": {
+     "F.Cu": 15.9,
+     "In1.Cu": 14.8,
+     "In2.Cu": 7.5,
+     "B.Cu": 7.5
+    },
+    "v15_selv": {
+     "F.Cu": 26.8,
+     "In1.Cu": 10.4,
+     "In2.Cu": 10.4,
+     "B.Cu": 73.7
+    },
+    "bus_fault": {
+     "F.Cu": 2.8,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 16.0
+    },
+    "ct_mon": {
+     "F.Cu": 12.8,
+     "In1.Cu": 2.6,
+     "In2.Cu": 2.6,
+     "B.Cu": 8.3
+    },
+    "ct_zc": {
+     "F.Cu": 2.8,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 20.2
+    },
+    "l_filt": {
+     "B.Cu": 1215.1,
+     "F.Cu": 155.8,
+     "In1.Cu": 48.7,
+     "In2.Cu": 48.7
+    },
+    "line_zc": {
+     "F.Cu": 30.8,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0,
+     "B.Cu": 2.0
+    },
+    "n_filt": {
+     "F.Cu": 1842.0,
+     "In1.Cu": 51.7,
+     "In2.Cu": 51.7,
+     "B.Cu": 160.1
+    },
+    "pe": {
+     "F.Cu": 79.8,
+     "In1.Cu": 15.8,
+     "In2.Cu": 15.8,
+     "B.Cu": 40.9
+    },
+    "permit": {
+     "F.Cu": 27.4,
+     "In1.Cu": 3.4,
+     "In2.Cu": 3.4,
+     "B.Cu": 43.8
+    },
+    "pwm_ha": {
+     "F.Cu": 3.1,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 43.8
+    },
+    "pwm_hb": {
+     "F.Cu": 19.3,
+     "In1.Cu": 4.0,
+     "In2.Cu": 4.0,
+     "B.Cu": 33.9
+    },
+    "pwm_la": {
+     "F.Cu": 3.0,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 44.1
+    },
+    "pwm_lb": {
+     "F.Cu": 43.4,
+     "In1.Cu": 2.0,
+     "In2.Cu": 2.0,
+     "B.Cu": 2.0
+    },
+    "selv_gnd": {
+     "In2.Cu": 8520.0,
+     "F.Cu": 96.2,
+     "In1.Cu": 31.6,
+     "B.Cu": 39.6
+    },
+    "v3v3": {
+     "In1.Cu": 8480.0,
+     "F.Cu": 74.6,
+     "In2.Cu": 20.0,
+     "B.Cu": 18.2
+    },
+    "vbus_n": {
+     "F.Cu": 18.5,
+     "In1.Cu": 2.3,
+     "In2.Cu": 2.3,
+     "B.Cu": 7.8
+    },
+    "vbus_p": {
+     "F.Cu": 18.6,
+     "In1.Cu": 3.4,
+     "In2.Cu": 3.4,
+     "B.Cu": 10.8
+    }
+   },
+   "heat_b3_c28_W": {
+    "parts": {
+     "PS1": 1.524
+    },
+    "total": 1.52
+   },
+   "metrics": {
+    "return_path_open_changes": 39,
+    "return_path_worst_asserted_mm": 2.72,
+    "leakage_touch_mA": 0.974
+   },
+   "findings": [
+    "F4 F2 breaking capacity FAIL: UMT 250 at 200 A vs 0.37-3.6 kA at J11; needs >= 1,500 A 5x20 (02153.15MXP lead) or remove the blower tap",
+    "F11 J4 has 3 ground pins for 12 signals, ct_mon across from pwm_la, unfiltered PWM; re-pin needs controller change (re-spin)",
+    "F9 closed pwm_ha/pwm_la with C153-C156 reference-transfer caps (19b/19c)",
+    "F5 R38 0 ohm earths SELV: PS1 leakage reaches PE; IRM-20-15 0.43 mA datasheet max shared",
+    "F13 PS1 IRM-20-15 ZERO_DK_STOCK 17 wk; F2 3403.0171 no LCSC; J11 B2P3-VH consign; J4 only stocked at LCSC 7797"
+   ],
+   "improvement_angles": [
+    {
+     "angle": "Simpler/safer: delete the blower tap (F2 + J11 + PS3 off-board) and run the blower from the controller supply",
+     "disturbs": "Fixes F4 breaking capacity; but DECISIONS 15/16 chose the separate PS3 to stop blower start from browning out the controller; touches 12 V rail budget on the controller board"
+    },
+    {
+     "angle": "Cheaper/available: swap PS1 IRM-20-15 for a stocked 15 V module or derive v15_selv from PS2/IRM-60",
+     "disturbs": "PS1 supplies v15_selv to the controller through J4; it straddles the barrier on the SELV spur and sets with PS2 the module Y/leakage (F5); R38 earths SELV"
+    },
+    {
+     "angle": "Better: re-pin J4 with interleaved grounds and add RC at PWM inputs",
+     "disturbs": "Controller board LAYOUT J4 and R44 harness must change together (F11); return-path gate assertions"
+    }
+   ]
+  }
+ },
+ "group_pair_shared_nets": {
+  "G01-G02": [
+   "rect_n",
+   "rect_p"
+  ],
+  "G01-G06": [
+   "l_filt",
+   "n_filt"
+  ],
+  "G01-G09": [
+   "l_filt",
+   "n_filt"
+  ],
+  "G01-G10": [
+   "l_filt",
+   "n_filt",
+   "pe"
+  ],
+  "G02-G03": [
+   "bus_p",
+   "hv_ret"
+  ],
+  "G02-G08": [
+   "bus_p",
+   "hv_ret"
+  ],
+  "G03-G04": [
+   "sw_b"
+  ],
+  "G03-G05": [
+   "leg_a-gate_h",
+   "leg_a-gate_l",
+   "leg_b-gate_h",
+   "leg_b-gate_l",
+   "leg_ret",
+   "sw_a",
+   "sw_b"
+  ],
+  "G03-G06": [
+   "leg_ret",
+   "sw_a",
+   "sw_b"
+  ],
+  "G03-G07": [
+   "leg_ret",
+   "sw_a",
+   "sw_b"
+  ],
+  "G03-G08": [
+   "bus_p",
+   "hv_ret",
+   "leg_ret"
+  ],
+  "G03-G09": [
+   "sw_a"
+  ],
+  "G04-G05": [
+   "sw_b"
+  ],
+  "G04-G06": [
+   "sw_b"
+  ],
+  "G04-G07": [
+   "sw_b"
+  ],
+  "G04-G09": [
+   "coil_feed"
+  ],
+  "G05-G06": [
+   "leg_ret",
+   "n_ha",
+   "n_hb",
+   "n_ls",
+   "p_ha",
+   "p_hb",
+   "sw_a",
+   "sw_b",
+   "v15_ls"
+  ],
+  "G05-G07": [
+   "bias_bad",
+   "leg_ret",
+   "n_ha",
+   "n_hb",
+   "n_ls",
+   "p_ha",
+   "p_hb",
+   "selv_gnd",
+   "sw_a",
+   "sw_b",
+   "v15_ls",
+   "v3v3"
+  ],
+  "G05-G08": [
+   "leg_ret",
+   "selv_gnd",
+   "v15_ls",
+   "v3v3"
+  ],
+  "G05-G09": [
+   "selv_gnd",
+   "sw_a",
+   "v3v3"
+  ],
+  "G05-G10": [
+   "permit",
+   "pwm_ha",
+   "pwm_hb",
+   "pwm_la",
+   "pwm_lb",
+   "selv_gnd",
+   "v3v3"
+  ],
+  "G06-G07": [
+   "leg_ret",
+   "n_ha",
+   "n_hb",
+   "n_ls",
+   "p_ha",
+   "p_hb",
+   "sw_a",
+   "sw_b",
+   "v15_ls"
+  ],
+  "G06-G08": [
+   "leg_ret",
+   "v15_ls"
+  ],
+  "G06-G09": [
+   "l_filt",
+   "n_filt",
+   "sw_a"
+  ],
+  "G06-G10": [
+   "l_filt",
+   "n_filt"
+  ],
+  "G07-G08": [
+   "leg_ret",
+   "selv_gnd",
+   "v15_ls",
+   "v3v3"
+  ],
+  "G07-G09": [
+   "selv_gnd",
+   "sw_a",
+   "v3v3"
+  ],
+  "G07-G10": [
+   "selv_gnd",
+   "v3v3"
+  ],
+  "G08-G09": [
+   "bus_fault_iso",
+   "selv_gnd",
+   "v3v3"
+  ],
+  "G08-G10": [
+   "selv_gnd",
+   "v3v3",
+   "vbus_n",
+   "vbus_p"
+  ],
+  "G09-G10": [
+   "bus_fault",
+   "ct_mon",
+   "ct_zc",
+   "l_filt",
+   "line_zc",
+   "n_filt",
+   "selv_gnd",
+   "v3v3"
+  ]
+ },
+ "assignment": {
+  "BR1": "G01",
+  "C1": "G01",
+  "C10": "G05",
+  "C100": "G06",
+  "C102": "G06",
+  "C103": "G06",
+  "C104": "G06",
+  "C105": "G06",
+  "C106": "G06",
+  "C107": "G06",
+  "C108": "G06",
+  "C109": "G06",
+  "C11": "G05",
+  "C110": "G05",
+  "C111": "G05",
+  "C112": "G05",
+  "C113": "G05",
+  "C114": "G05",
+  "C115": "G05",
+  "C116": "G05",
+  "C117": "G05",
+  "C118": "G05",
+  "C119": "G05",
+  "C12": "G03",
+  "C120": "G05",
+  "C121": "G05",
+  "C122": "G05",
+  "C123": "G05",
+  "C124": "G05",
+  "C125": "G05",
+  "C126": "G05",
+  "C127": "G05",
+  "C128": "G05",
+  "C129": "G05",
+  "C13": "G03",
+  "C131": "G07",
+  "C132": "G07",
+  "C133": "G07",
+  "C134": "G07",
+  "C135": "G07",
+  "C136": "G07",
+  "C137": "G07",
+  "C138": "G07",
+  "C139": "G07",
+  "C14": "G05",
+  "C140": "G07",
+  "C141": "G07",
+  "C142": "G07",
+  "C143": "G07",
+  "C144": "G07",
+  "C145": "G05",
+  "C146": "G05",
+  "C147": "G05",
+  "C148": "G05",
+  "C149": "G08",
+  "C15": "G05",
+  "C150": "G08",
+  "C151": "G04",
+  "C152": "G04",
+  "C153": "G10",
+  "C154": "G10",
+  "C155": "G10",
+  "C156": "G10",
+  "C16": "G05",
+  "C17": "G05",
+  "C18": "G05",
+  "C19": "G03",
+  "C2": "G01",
+  "C20": "G03",
+  "C21": "G04",
+  "C22": "G04",
+  "C23": "G04",
+  "C24": "G06",
+  "C25": "G08",
+  "C26": "G08",
+  "C27": "G08",
+  "C28": "G08",
+  "C29": "G08",
+  "C3": "G01",
+  "C30": "G08",
+  "C31": "G08",
+  "C32": "G08",
+  "C33": "G08",
+  "C34": "G08",
+  "C35": "G08",
+  "C36": "G08",
+  "C37": "G08",
+  "C38": "G03",
+  "C39": "G03",
+  "C4": "G01",
+  "C40": "G03",
+  "C41": "G03",
+  "C42": "G09",
+  "C43": "G09",
+  "C44": "G09",
+  "C45": "G09",
+  "C46": "G09",
+  "C47": "G09",
+  "C48": "G08",
+  "C49": "G08",
+  "C5": "G02",
+  "C50": "G05",
+  "C51": "G05",
+  "C52": "G05",
+  "C53": "G05",
+  "C54": "G05",
+  "C55": "G05",
+  "C56": "G05",
+  "C57": "G05",
+  "C58": "G05",
+  "C59": "G05",
+  "C6": "G02",
+  "C60": "G05",
+  "C61": "G05",
+  "C62": "G05",
+  "C63": "G05",
+  "C64": "G06",
+  "C65": "G06",
+  "C66": "G07",
+  "C67": "G07",
+  "C68": "G07",
+  "C69": "G07",
+  "C7": "G05",
+  "C70": "G07",
+  "C71": "G06",
+  "C72": "G06",
+  "C74": "G06",
+  "C75": "G06",
+  "C76": "G07",
+  "C77": "G07",
+  "C78": "G07",
+  "C79": "G07",
+  "C8": "G05",
+  "C80": "G07",
+  "C81": "G06",
+  "C82": "G06",
+  "C83": "G07",
+  "C84": "G07",
+  "C85": "G07",
+  "C86": "G07",
+  "C87": "G07",
+  "C88": "G07",
+  "C89": "G09",
+  "C9": "G05",
+  "C90": "G05",
+  "C91": "G05",
+  "C92": "G05",
+  "C93": "G05",
+  "C94": "G05",
+  "C95": "G05",
+  "C96": "G05",
+  "C97": "G05",
+  "C98": "G06",
+  "C99": "G06",
+  "D14": "G07",
+  "D15": "G07",
+  "D16": "G07",
+  "D17": "G02",
+  "D3": "G02",
+  "D4": "G09",
+  "D5": "G09",
+  "D6": "G05",
+  "D7": "G05",
+  "D8": "G05",
+  "D9": "G05",
+  "F1": "G01",
+  "F2": "G10",
+  "J1": "G01",
+  "J10": "G02",
+  "J11": "G10",
+  "J2": "G04",
+  "J3": "G06",
+  "J4": "G10",
+  "J5": "G04",
+  "J6": "G01",
+  "J7": "G02",
+  "J8": "G02",
+  "J9": "G02",
+  "L1": "G01",
+  "PS1": "G10",
+  "PS2": "G06",
+  "Q1": "G05",
+  "Q2": "G03",
+  "Q3": "G03",
+  "Q4": "G05",
+  "Q5": "G03",
+  "Q6": "G03",
+  "Q7": "G07",
+  "Q8": "G07",
+  "Q9": "G07",
+  "R1": "G01",
+  "R10": "G05",
+  "R100": "G07",
+  "R101": "G07",
+  "R102": "G07",
+  "R103": "G07",
+  "R104": "G07",
+  "R105": "G07",
+  "R106": "G07",
+  "R107": "G07",
+  "R108": "G07",
+  "R109": "G07",
+  "R11": "G05",
+  "R110": "G06",
+  "R111": "G06",
+  "R112": "G07",
+  "R113": "G07",
+  "R114": "G07",
+  "R115": "G07",
+  "R116": "G07",
+  "R117": "G07",
+  "R118": "G07",
+  "R119": "G07",
+  "R12": "G05",
+  "R120": "G07",
+  "R121": "G07",
+  "R122": "G07",
+  "R123": "G07",
+  "R124": "G07",
+  "R125": "G09",
+  "R126": "G07",
+  "R127": "G06",
+  "R128": "G06",
+  "R129": "G06",
+  "R13": "G05",
+  "R14": "G05",
+  "R15": "G05",
+  "R16": "G05",
+  "R17": "G05",
+  "R18": "G05",
+  "R19": "G05",
+  "R2": "G01",
+  "R20": "G05",
+  "R21": "G05",
+  "R22": "G04",
+  "R23": "G04",
+  "R24": "G04",
+  "R25": "G04",
+  "R26": "G08",
+  "R27": "G08",
+  "R28": "G08",
+  "R29": "G08",
+  "R3": "G02",
+  "R30": "G08",
+  "R31": "G08",
+  "R32": "G08",
+  "R33": "G08",
+  "R34": "G08",
+  "R35": "G08",
+  "R36": "G08",
+  "R37": "G08",
+  "R38": "G10",
+  "R39": "G09",
+  "R4": "G02",
+  "R40": "G09",
+  "R41": "G09",
+  "R42": "G09",
+  "R43": "G09",
+  "R44": "G09",
+  "R45": "G09",
+  "R46": "G09",
+  "R47": "G09",
+  "R48": "G08",
+  "R49": "G08",
+  "R5": "G08",
+  "R50": "G08",
+  "R51": "G05",
+  "R52": "G05",
+  "R53": "G05",
+  "R54": "G05",
+  "R55": "G05",
+  "R56": "G05",
+  "R57": "G05",
+  "R58": "G05",
+  "R59": "G07",
+  "R6": "G05",
+  "R61": "G06",
+  "R62": "G06",
+  "R63": "G07",
+  "R65": "G07",
+  "R67": "G09",
+  "R68": "G09",
+  "R69": "G09",
+  "R7": "G05",
+  "R70": "G09",
+  "R71": "G05",
+  "R72": "G05",
+  "R73": "G05",
+  "R74": "G05",
+  "R75": "G05",
+  "R76": "G05",
+  "R77": "G06",
+  "R78": "G06",
+  "R79": "G07",
+  "R8": "G05",
+  "R80": "G07",
+  "R81": "G07",
+  "R82": "G07",
+  "R83": "G07",
+  "R84": "G07",
+  "R85": "G07",
+  "R86": "G07",
+  "R87": "G07",
+  "R88": "G07",
+  "R89": "G07",
+  "R9": "G05",
+  "R90": "G07",
+  "R91": "G07",
+  "R92": "G06",
+  "R93": "G06",
+  "R94": "G06",
+  "R95": "G06",
+  "R96": "G06",
+  "R97": "G07",
+  "R98": "G07",
+  "R99": "G07",
+  "RV1": "G01",
+  "T1": "G09",
+  "U1": "G05",
+  "U10": "G09",
+  "U11": "G09",
+  "U12": "G09",
+  "U13": "G09",
+  "U14": "G08",
+  "U15": "G08",
+  "U16": "G06",
+  "U17": "G07",
+  "U18": "G06",
+  "U19": "G07",
+  "U2": "G05",
+  "U20": "G06",
+  "U21": "G07",
+  "U22": "G05",
+  "U23": "G05",
+  "U24": "G09",
+  "U25": "G07",
+  "U26": "G06",
+  "U29": "G07",
+  "U3": "G08",
+  "U30": "G07",
+  "U31": "G07",
+  "U32": "G07",
+  "U33": "G07",
+  "U34": "G07",
+  "U36": "G09",
+  "U37": "G07",
+  "U38": "G07",
+  "U39": "G07",
+  "U4": "G08",
+  "U40": "G07",
+  "U41": "G06",
+  "U42": "G06",
+  "U5": "G08",
+  "U6": "G08",
+  "U7": "G08",
+  "U8": "G08",
+  "U9": "G08"
+ }
+}

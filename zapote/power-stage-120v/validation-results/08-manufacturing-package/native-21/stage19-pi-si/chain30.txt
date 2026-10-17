@@ -1,0 +1,42 @@
+22 signal TPs, 17 reference TPs, 6 missing: ['leg_b-out_l', 'leg_a-out_h', 'leg_b-out_h', 'permit', 'leg_a-driver_dis', 'line_zc']
+fiducials [{'ref': 'FID1', 'at': [4, 36]}, {'ref': 'FID2', 'at': [278, 128]}, {'ref': 'FID3', 'at': [6, 186]}]
+holes [('H1', 'metal', [285.0, 135.0]), ('H2', 'nylon', [6, 180]), ('H3', 'nylon', [86, 180]), ('H4', 'nylon', [24, 74]), ('H5', 'nylon', [88, 100]), ('H6', 'nylon', [128, 54]), ('H7', 'nylon', [194, 
+{"contested_pairs": 19, "equal_priority": []}
+thermal reliefs on 35 low-current THT pads
+labels: 353 on silk, 75 on F.Fab (no clear legend spot)
+unconnected 0
+plane splits 0
+barrier (plan view, 8.0 mm): 0 violations; RES_A outer (12.6 mm): 0 violations (min F.Cu 20.393, B.Cu 13.375)
+errors 0
+violations [(('lib_footprint_issues', 'warning'), 199), (('silk_overlap', 'warning'), 199), (('silk_over_copper', 'warning'), 199), (('silk_edge_clearance', 'warning'), 21)]
+BOARD 4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd
+D5 True 8.047 8.507
+BRINGUP-PROBES.md: 22 signal pads, 7 holes
+ERC {('warning', 'footprint_link_issues'): 348, ('warning', 'isolated_pin_label'): 48, ('warning', 'ground_pin_not_ground'): 5}
+FIT 401 0 0 403 0
+RUST 0 4fcae4bf8971 5734 RES_A outer 12.6 0 {'F.Cu': 946, 'B.Cu': 513}
+DFM PASS 710 0.2
+RES_A outer-layer creepage: 0 pairs under 12.6 mm -> PASS
+PASS
+PASS
+BYPASS True {'U10': ('C44', 1.7), 'U11': ('C45', 1.7), 'U12': ('C46', 1.7), 'U13': ('C47', 2.65), 'U24': ('C89', 1.7), 'U40': ('C144', 1.74), 'U46': ('C163', 1.98), 'U45': ('C161', 2.83), 'U43.1': ('C157', 2.54), 'U43.8': ('C158', 3.02), 'U44.3': ('C159', 2.7), 'U44.14': ('C160', 2.7), 'U15': ('C49', 4.38), 'U29': ('C70', 2.2), 'U30': ('C80', 2.2), 'U31': ('C87', 4.23)}
+{"R_eff_R35_2_mohm": 152.8225, "max_transfer": {"pad": "R35.2", "mohm": 152.8225}, "trip_shift_A_per_mV_at_R35_2": -1.037, "trip_shift_A_per_10mA_returned_bound": -1.5848, "unused_island_cells": 0}
+{"total_mA": 13.648, "e_th_mV": 2.0469, "trip_shift_A": -2.123, "bound_all_at_max_transfer": {"e_th_mV": 2.0858, "trip_shift_A": -2.163}, "band_after_A": [67.77, 116.44], "meets_44A_min": true, "floor_A": 64.17, "meets_floor_at_bound": true}
+{"scenarios": 39, "failed": [], "bus_p_span_percent": 2.918514138794439}
+22.0 23.1 130.0 14.5 56.5 F.Cu
+24.0 25.2 130.9 14.5 56.5 F.Cu
+26.0 27.3 131.9 14.5 56.5 F.Cu
+28.0 29.4 135.2 39.5 14.5 F.Cu
+B3 [('nominal_h10_p1p0', 162.1), ('nominal_h25_p1p0', 129.0), ('extreme_h10_p1p0', 247.1), ('c28_h10_p1p0', 192.6), ('c28_h25_p1p0', 135.2)]
+94 BOM lines, 349 placements (35 THT, 314 SMD/other)
+{'exact': 41, 'changed': 46, 'substitute': 1, 'consign': 6}
+{"OK": 275, "NEEDS-PREVIEW": 55, "CORRECTED": 8} excluded: 11
+CPL audit covers 349 of 349
+validation-results/08-manufacturing-package/native-21/fab/cpl-jlcpcb.csv: BOM-only none; CPL-only none
+validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected.csv: BOM-only none; CPL-only none
+BOM/CPL designators: PASS
+{"no_outer_copper": 0, "no_mask_opening": 0, "silk_on_land": 0} 812 11 [290.0, 190.0] PASS
+    Total plated holes count 816
+    Total unplated holes count 11
+ZIP ba738003a82a2c25c5040a0d10ddb8edab3d5442713dc923f79588ca97e88288
+CHAIN_DONE

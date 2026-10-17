@@ -1,0 +1,293 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 7156228,
+     "componentLibraryType": "expand",
+     "stockCount": 1497,
+     "componentTypeEn": "Power Module/Power Supply",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011MW(\u660e\u7eac) \u5355\u8f93\u51fa\u5c01\u88c5\u578bPCB\u5b89\u88c5\u578b\u80f6\u56ca\u578b\u7eff\u8272\u6a21\u5757\u5f00\u5173\u7535\u6e90 AC-DC 20W IRM-20-15",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/ac-dc-power-modules_mw-mean-well-enterprises-irm-20-15_C6211072.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.3604
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 6.3604
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 239,
+       "productPrice": 6.3588
+      },
+      {
+       "startNumber": 240,
+       "endNumber": -1,
+       "productPrice": 6.3588
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 240,
+       "endNumber": -1,
+       "productPrice": 6.1254
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 239,
+       "productPrice": 6.1254
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.127
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 49,
+       "productPrice": 6.127
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "487a56db6e9f459f92762fcd583b450a",
+     "canPresaleNumber": 1487,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MW_MEAN_WELL_Enterprises-IRM_2015/C6211072",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 240,
+     "shopCostPrice": 30.3,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.3604,
+     "componentCode": "C6211072",
+     "componentBrandEn": "MW(MEAN WELL Enterprises)",
+     "componentModelEn": "IRM-20-15",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8706628009394933760",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312090050_MW-MEAN-WELL-Enterprises-IRM-20-15_C6211072.pdf",
+     "dataManualFileAccessId": "8586208279063613440",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MEAN WELL IRM-20-15",
+     "minImage": "",
+     "minImageAccessId": "8706628010443644928",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP,52.4x27.2mm",
+     "describe": "1 1.4A 15V 21W 84% 85VAC~305VAC AC-DC Short Circuit Protection DIP,52.4x27.2mm Power Module/Power Supply ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "1.4A"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "84%"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "21W"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(DC)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Input(AC)",
+       "attribute_value_name": "85VAC~305VAC"
+      },
+      {
+       "attribute_name_en": "Conversion Type",
+       "attribute_value_name": "AC-DC"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "15V"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Power Module/Power Supply",
+     "secondSortName": "Industrial control electrical",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>IRM-20-15</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3456800,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "IRM-20-15",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0007
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0003
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0002
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0007
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-IRM_2015/C9900012941",
+     "leastPatchNumber": 2,
+     "lossNumber": 1,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.001,
+     "preMinPurchaseNum": 100,
+     "minPurchaseNum": 100,
+     "initialPrice": 0.0007,
+     "componentCode": "C9900012941",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "IRM-20-15",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT IRM-20-15",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "219A",
+     "describe": "219A SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>IRM-20-15</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "IRM-20-15"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:41:24Z"
+}

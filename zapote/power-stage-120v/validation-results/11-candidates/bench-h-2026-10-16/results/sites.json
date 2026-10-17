@@ -1,0 +1,213 @@
+{
+ "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+ "frame": "model / KiCad, mm, y down",
+ "sites": [
+  {
+   "site": "LAM_R5.4",
+   "cluster": "C1",
+   "x_mm": 38.5,
+   "y_mm": 15.5,
+   "layer": "F.Cu",
+   "kind": "pt",
+   "note": "laminate 1 mm block at R5.4 (binding at 22 / 28 A)"
+  },
+  {
+   "site": "R12.1",
+   "cluster": "C1",
+   "x_mm": 44.6,
+   "y_mm": 9.44,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R12 2512 terminal (binding at 24 / 26 / 28 A)"
+  },
+  {
+   "site": "R12.2",
+   "cluster": "C1",
+   "x_mm": 44.6,
+   "y_mm": 15.36,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R12 2512 terminal"
+  },
+  {
+   "site": "R10.1",
+   "cluster": "C1",
+   "x_mm": 62.6,
+   "y_mm": 9.44,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R10 2512 terminal (binding at 18 / 20 A)"
+  },
+  {
+   "site": "R10.2",
+   "cluster": "C1",
+   "x_mm": 62.6,
+   "y_mm": 15.36,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R10 2512 terminal"
+  },
+  {
+   "site": "R20.1",
+   "cluster": "C1",
+   "x_mm": 22.5,
+   "y_mm": 9.44,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R20 2512 terminal"
+  },
+  {
+   "site": "R20.2",
+   "cluster": "C1",
+   "x_mm": 22.5,
+   "y_mm": 15.36,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R20 2512 terminal"
+  },
+  {
+   "site": "R18.2",
+   "cluster": "C1",
+   "x_mm": 4.5,
+   "y_mm": 15.36,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R18 2512 terminal"
+  },
+  {
+   "site": "R5.1",
+   "cluster": "C1",
+   "x_mm": 38.5,
+   "y_mm": 10.0,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "R5 current terminal (leg_ret side)"
+  },
+  {
+   "site": "FETROW_B",
+   "cluster": "C1",
+   "x_mm": 44.5,
+   "y_mm": 19.5,
+   "layer": "B.Cu",
+   "kind": "pt",
+   "note": "FET-row copper under R12 / Q3, solder side (binds top-only flow)"
+  },
+  {
+   "site": "Q2S_F",
+   "cluster": "C1",
+   "x_mm": 73.5,
+   "y_mm": 7.5,
+   "layer": "F.Cu",
+   "kind": "pt",
+   "note": "bus / BR1 edge, component side, 3 mm off the Q2.3 pad (In2 hot spot at 73.5, 4.5)"
+  },
+  {
+   "site": "Q2S_B",
+   "cluster": "C1",
+   "x_mm": 73.5,
+   "y_mm": 7.5,
+   "layer": "B.Cu",
+   "kind": "pt",
+   "note": "bus / BR1 edge, solder side"
+  },
+  {
+   "site": "TANK_T1.1",
+   "cluster": "C2",
+   "x_mm": 140.58,
+   "y_mm": 98.45,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "T1.1 pad, tank path (binds at 61 C when only the corner is cooled)"
+  },
+  {
+   "site": "J2.1",
+   "cluster": "C2",
+   "x_mm": 132.0,
+   "y_mm": 85.5,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "coil terminal J2 ring land"
+  },
+  {
+   "site": "J5.1",
+   "cluster": "C2",
+   "x_mm": 132.0,
+   "y_mm": 70.5,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "coil terminal J5 ring land"
+  },
+  {
+   "site": "BANK_C152.1",
+   "cluster": "C2",
+   "x_mm": 163.0,
+   "y_mm": 111.5,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "bank column, top end"
+  },
+  {
+   "site": "BANK_C21.2",
+   "cluster": "C2",
+   "x_mm": 190.5,
+   "y_mm": 53.2,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "bank column, bottom end"
+  },
+  {
+   "site": "C40.2",
+   "cluster": "D",
+   "x_mm": 39.2,
+   "y_mm": 28.2,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "HF film cap C40 lead pad"
+  },
+  {
+   "site": "U26.21",
+   "cluster": "D",
+   "x_mm": 115.4,
+   "y_mm": 81.05,
+   "layer": "F.Cu",
+   "kind": "pad",
+   "note": "U26 exposed pad (TC on the body top in practice)"
+  },
+  {
+   "site": "Q2.2",
+   "cluster": "G",
+   "x_mm": 68.05,
+   "y_mm": 4.22,
+   "layer": "B.Cu",
+   "kind": "pad",
+   "note": "drain pad fillet (guard pair with the Q2 tab TC)"
+  },
+  {
+   "site": "Q3.2",
+   "cluster": "G",
+   "x_mm": 50.05,
+   "y_mm": 4.22,
+   "layer": "B.Cu",
+   "kind": "pad",
+   "note": "drain pad fillet"
+  },
+  {
+   "site": "Q5.2",
+   "cluster": "G",
+   "x_mm": 9.95,
+   "y_mm": 4.22,
+   "layer": "B.Cu",
+   "kind": "pad",
+   "note": "drain pad fillet"
+  },
+  {
+   "site": "Q6.2",
+   "cluster": "G",
+   "x_mm": 27.95,
+   "y_mm": 4.22,
+   "layer": "B.Cu",
+   "kind": "pad",
+   "note": "drain pad fillet"
+  }
+ ]
+}

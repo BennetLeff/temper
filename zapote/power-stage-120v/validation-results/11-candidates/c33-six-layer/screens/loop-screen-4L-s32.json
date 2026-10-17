@@ -1,0 +1,299 @@
+{
+ "inputs": {
+  "dump": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s32/b2/copper-dump.json",
+  "pads": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s32/b2/pads-board.json",
+  "dump6": null
+ },
+ "method": "    python3 loop_screen.py COPPER_DUMP.json PADS_BOARD.json OUT.json [--dump6 COPPER_DUMP6.json]",
+ "plans": {
+  "4L-s32": {
+   "pair_gap_mm": 0.5,
+   "paths": {
+    "A_C38_bus_to_Q2": {
+     "length_mm": 25.0,
+     "covered_mm": 15.0,
+     "covered_nH": 0.7788
+    },
+    "A_C39_bus_to_Q2": {
+     "length_mm": 28.16,
+     "covered_mm": 11.86,
+     "covered_nH": 0.3139
+    },
+    "A_Q3_source_to_R5": {
+     "length_mm": 17.96,
+     "covered_mm": 0.0,
+     "covered_nH": 0.0
+    },
+    "A_R5_to_C38_return": {
+     "length_mm": 15.01,
+     "covered_mm": 2.42,
+     "covered_nH": 0.9043
+    },
+    "A_R5_to_C39_return": {
+     "length_mm": 32.05,
+     "covered_mm": 17.26,
+     "covered_nH": 1.2053
+    },
+    "B_C40_bus_to_Q5": {
+     "length_mm": 27.9,
+     "covered_mm": 14.45,
+     "covered_nH": 0.6706
+    },
+    "B_C41_bus_to_Q5": {
+     "length_mm": 25.15,
+     "covered_mm": 11.34,
+     "covered_nH": 0.5246
+    },
+    "B_Q6_source_to_R5": {
+     "length_mm": 7.71,
+     "covered_mm": 0.0,
+     "covered_nH": 0.0
+    },
+    "B_R5_to_C40_return": {
+     "length_mm": 13.02,
+     "covered_mm": 5.3,
+     "covered_nH": 0.3562
+    },
+    "B_R5_to_C41_return": {
+     "length_mm": 24.78,
+     "covered_mm": 7.43,
+     "covered_nH": 0.2954
+    }
+   },
+   "plane_pair_term_nH_by_leg": {
+    "A": 3.202,
+    "B": 1.847
+   },
+   "via_term_nH": {
+    "In1.Cu": 0.2403,
+    "In2.Cu": 0.7148
+   },
+   "switch_node_overlap": {
+    "sw_a F.Cu / hv_ret In1.Cu": {
+     "mm2": 896.0,
+     "gap_mm": 0.4355,
+     "pF": 78.15
+    },
+    "sw_a F.Cu / bus_p In2.Cu": {
+     "mm2": 152.5,
+     "gap_mm": 0.9965,
+     "pF": 5.92
+    },
+    "sw_a B.Cu / bus_p In2.Cu": {
+     "mm2": 80.7,
+     "gap_mm": 0.4355,
+     "pF": 7.04
+    },
+    "sw_a B.Cu / leg_ret In1.Cu": {
+     "mm2": 0.0,
+     "gap_mm": 0.9965,
+     "pF": 0.0
+    },
+    "sw_b B.Cu / bus_p In2.Cu": {
+     "mm2": 2401.7,
+     "gap_mm": 0.4355,
+     "pF": 209.47
+    },
+    "sw_b B.Cu / hv_ret In1.Cu": {
+     "mm2": 54.8,
+     "gap_mm": 0.9965,
+     "pF": 2.13
+    },
+    "sw_b B.Cu / leg_ret In1.Cu": {
+     "mm2": 2.5,
+     "gap_mm": 0.9965,
+     "pF": 0.1
+    }
+   },
+   "switch_node_pF_total": {
+    "sw_a": 91.11,
+    "sw_b": 211.7
+   },
+   "delta_vs_4L_nH": {
+    "A": 0.0,
+    "B": 0.0
+   }
+  },
+  "6L-A": {
+   "pair_gap_mm": 0.3,
+   "paths": {
+    "A_C38_bus_to_Q2": {
+     "length_mm": 25.0,
+     "covered_mm": 15.0,
+     "covered_nH": 0.4673
+    },
+    "A_C39_bus_to_Q2": {
+     "length_mm": 28.16,
+     "covered_mm": 11.86,
+     "covered_nH": 0.1883
+    },
+    "A_Q3_source_to_R5": {
+     "length_mm": 17.96,
+     "covered_mm": 0.0,
+     "covered_nH": 0.0
+    },
+    "A_R5_to_C38_return": {
+     "length_mm": 15.01,
+     "covered_mm": 2.42,
+     "covered_nH": 0.5426
+    },
+    "A_R5_to_C39_return": {
+     "length_mm": 32.05,
+     "covered_mm": 17.26,
+     "covered_nH": 0.7232
+    },
+    "B_C40_bus_to_Q5": {
+     "length_mm": 27.9,
+     "covered_mm": 14.45,
+     "covered_nH": 0.4023
+    },
+    "B_C41_bus_to_Q5": {
+     "length_mm": 25.15,
+     "covered_mm": 11.34,
+     "covered_nH": 0.3148
+    },
+    "B_Q6_source_to_R5": {
+     "length_mm": 7.71,
+     "covered_mm": 0.0,
+     "covered_nH": 0.0
+    },
+    "B_R5_to_C40_return": {
+     "length_mm": 13.02,
+     "covered_mm": 5.3,
+     "covered_nH": 0.2137
+    },
+    "B_R5_to_C41_return": {
+     "length_mm": 24.78,
+     "covered_mm": 7.43,
+     "covered_nH": 0.1772
+    }
+   },
+   "plane_pair_term_nH_by_leg": {
+    "A": 1.921,
+    "B": 1.108
+   },
+   "via_term_nH": {
+    "In1.Cu": 0.0923,
+    "In2.Cu": 0.3553
+   },
+   "switch_node_overlap": {
+    "sw_a F.Cu / hv_ret In1.Cu": {
+     "mm2": 896.0,
+     "gap_mm": 0.2215,
+     "pF": 140.04
+    },
+    "sw_a F.Cu / bus_p In2.Cu": {
+     "mm2": 152.5,
+     "gap_mm": 0.5825,
+     "pF": 9.74
+    },
+    "sw_a B.Cu / bus_p In2.Cu": {
+     "mm2": 80.7,
+     "gap_mm": 0.8745,
+     "pF": 3.39
+    },
+    "sw_b B.Cu / bus_p In2.Cu": {
+     "mm2": 2401.7,
+     "gap_mm": 0.8745,
+     "pF": 100.91
+    }
+   },
+   "switch_node_pF_total": {
+    "sw_a": 153.17,
+    "sw_b": 100.91
+   },
+   "delta_vs_4L_nH": {
+    "A": -1.281,
+    "B": -0.739
+   }
+  },
+  "6L-B": {
+   "pair_gap_mm": 0.953,
+   "paths": {
+    "A_C38_bus_to_Q2": {
+     "length_mm": 25.0,
+     "covered_mm": 15.0,
+     "covered_nH": 1.4845
+    },
+    "A_C39_bus_to_Q2": {
+     "length_mm": 28.16,
+     "covered_mm": 11.86,
+     "covered_nH": 0.5982
+    },
+    "A_Q3_source_to_R5": {
+     "length_mm": 17.96,
+     "covered_mm": 0.0,
+     "covered_nH": 0.0
+    },
+    "A_R5_to_C38_return": {
+     "length_mm": 15.01,
+     "covered_mm": 2.42,
+     "covered_nH": 1.7237
+    },
+    "A_R5_to_C39_return": {
+     "length_mm": 32.05,
+     "covered_mm": 17.26,
+     "covered_nH": 2.2974
+    },
+    "B_C40_bus_to_Q5": {
+     "length_mm": 27.9,
+     "covered_mm": 14.45,
+     "covered_nH": 1.2781
+    },
+    "B_C41_bus_to_Q5": {
+     "length_mm": 25.15,
+     "covered_mm": 11.34,
+     "covered_nH": 1.0
+    },
+    "B_Q6_source_to_R5": {
+     "length_mm": 7.71,
+     "covered_mm": 0.0,
+     "covered_nH": 0.0
+    },
+    "B_R5_to_C40_return": {
+     "length_mm": 13.02,
+     "covered_mm": 5.3,
+     "covered_nH": 0.6789
+    },
+    "B_R5_to_C41_return": {
+     "length_mm": 24.78,
+     "covered_mm": 7.43,
+     "covered_nH": 0.563
+    }
+   },
+   "plane_pair_term_nH_by_leg": {
+    "A": 6.104,
+    "B": 3.52
+   },
+   "via_term_nH": {
+    "In1.Cu": 0.0923,
+    "In4.Cu": 0.9394
+   },
+   "switch_node_overlap": {
+    "sw_a F.Cu / hv_ret In1.Cu": {
+     "mm2": 896.0,
+     "gap_mm": 0.2215,
+     "pF": 140.04
+    },
+    "sw_a B.Cu / bus_p In4.Cu": {
+     "mm2": 80.7,
+     "gap_mm": 0.2215,
+     "pF": 12.61
+    },
+    "sw_b B.Cu / bus_p In4.Cu": {
+     "mm2": 2401.7,
+     "gap_mm": 0.2215,
+     "pF": 375.37
+    }
+   },
+   "switch_node_pF_total": {
+    "sw_a": 152.65,
+    "sw_b": 375.37
+   },
+   "delta_vs_4L_nH": {
+    "A": 2.902,
+    "B": 1.673
+   }
+  }
+ }
+}

@@ -1,0 +1,32 @@
+* Task 05 round 4 (assumed basis): series-resonant tank over one rectified-line half-cycle.
+* Derived from validation-plan/sim-kit/05-tank/tank.cir (same ideal drive and measures);
+* the load is the ASSUMED coil/pan basis (scripts/basis.py), with frequency-dependent L and R:
+*   LLOAD(f) = L0 * KL40 * (FREQ/40k)^BETA
+*   RTOT(f)  = L0[uH] * ( Q40 * (FREQ/40k)^GAMMA + R40 * (FREQ/40k)^ALPHA )
+* Drive: ideal full bridge, +/- Vbus square wave at FREQ, Vbus = |Vpk sin(2 pi 60 t)|.
+* Dead time, MOSFET drops, phase shift and burst are not modelled: tank stresses only.
+.include ../common/options.inc
+.param VRMS=120 FREQ=40k L0U=70 KL40=0.69 BETA=-0.13 Q40=0.0035 GAMMA=0.55 R40=0.034 ALPHA=0.62
+.param CRES=0.54u TEDGE=4.16667m
+.include params.inc
+.param VPK={VRMS*1.41421356} FR={FREQ/40k}
+.param LLOAD={L0U*1e-6*KL40*pwr(FR,BETA)}
+.param RTOT={L0U*(Q40*pwr(FR,GAMMA) + R40*pwr(FR,ALPHA))}
+
+Bdrv drv 0 V={VPK*abs(sin(6.283185307*60*time))*tanh(sin(6.283185307*FREQ*time)/0.02)}
+Rt drv a {RTOT}
+Lt a b {LLOAD}
+Vim b c 0
+Cr c 0 {CRES}
+
+.tran 50n 8.3333m 0 50n
+.meas tran i_rms RMS i(Vim) from=0 to=8.3333m
+.meas tran i_pk MAX par('abs(i(Vim))') from=0 to=8.3333m
+.meas tran vc_pk MAX par('abs(v(c))') from=0 to=8.3333m
+.meas tran vc_rms RMS v(c) from=0 to=8.3333m
+.meas tran p_avg AVG par('i(Vim)*i(Vim)*RTOT') from=0 to=8.3333m
+.meas tran i_rms_crest RMS i(Vim) from=3.75m to=4.5833m
+.meas tran i_edge FIND i(Vim) AT={TEDGE}
+.meas tran rtot_used PARAM='RTOT'
+.meas tran lload_used PARAM='LLOAD'
+.end

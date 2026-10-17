@@ -1,0 +1,7622 @@
+{
+ "_qrr": {},
+ "asbuilt": {
+  "s4screen": {
+   "cfg": "asbuilt",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 479.0,
+    "max_off_V": -1.22,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 350.9,
+    "max_slew2080_esl10": 85.78,
+    "max_slew1090_esl10": 39.9,
+    "max_slew2080_esl1.06": 81.87,
+    "max_slew1090_esl1.06": 35.62,
+    "max_difdt_75_25": 2024.0,
+    "max_difdt_50_0": 2433.0,
+    "max_irr_A": 89.2,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.7
+   }
+  },
+  "full": {
+   "cfg": "asbuilt",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 358.1,
+    "max_off_V": -1.01,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 351.9,
+    "max_slew2080_esl10": 20.76,
+    "max_slew1090_esl10": 14.53,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 190.4,
+    "margin_340_ns": 149.6,
+    "margin_408_ns": 217.9
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 401.4,
+    "max_off_V": -0.467,
+    "max_vgs_abs": 14.97,
+    "max_q_gate_inc_nC": 351.5,
+    "max_slew2080_esl10": 28.69,
+    "max_slew1090_esl10": 22.69,
+    "max_slew2080_esl1.06": 27.5,
+    "max_slew1090_esl1.06": 22.63
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 479.0,
+    "max_off_V": -0.182,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 351.2,
+    "max_slew2080_esl10": 85.8,
+    "max_slew1090_esl10": 39.9,
+    "max_slew2080_esl1.06": 81.87,
+    "max_slew1090_esl1.06": 35.62,
+    "max_difdt_75_25": 2101.0,
+    "max_difdt_50_0": 2538.0,
+    "max_irr_A": 98.1,
+    "pass_diode56": 260,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.7
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 441.1,
+    "max_off_V": -0.447,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 355.5,
+    "max_slew2080_esl10": 72.03,
+    "max_slew1090_esl10": 20.16,
+    "max_slew2080_esl1.06": 71.77,
+    "max_slew1090_esl1.06": 19.43,
+    "max_partner_i_A": 76.0
+   }
+  },
+  "repro": {
+   "cfg": "asbuilt",
+   "grid": "repro",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 320,
+   "complete": 320,
+   "pass": 320,
+   "pass_hot": 320,
+   "S1": {
+    "n": 32,
+    "pass": 32,
+    "pass_hot": 32,
+    "max_vds": 357.8,
+    "max_off_V": -1.011,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 351.9,
+    "max_slew2080_esl10": 20.74,
+    "max_slew1090_esl10": 14.53,
+    "zvs": "32/32",
+    "worst_t_trans_ns": 183.4,
+    "margin_340_ns": 156.6,
+    "margin_408_ns": 224.9
+   },
+   "S2": {
+    "n": 40,
+    "pass": 40,
+    "pass_hot": 40,
+    "max_vds": 398.0,
+    "max_off_V": -0.448,
+    "max_vgs_abs": 14.97,
+    "max_q_gate_inc_nC": 365.8,
+    "max_slew2080_esl10": 27.58,
+    "max_slew1090_esl10": 22.16,
+    "max_slew2080_esl1.06": 24.28,
+    "max_slew1090_esl1.06": 22.16
+   },
+   "S4": {
+    "n": 128,
+    "pass": 128,
+    "pass_hot": 128,
+    "max_vds": 475.7,
+    "max_off_V": -0.473,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 349.3,
+    "max_slew2080_esl10": 85.78,
+    "max_slew1090_esl10": 37.23,
+    "max_slew2080_esl1.06": 81.87,
+    "max_slew1090_esl1.06": 34.37,
+    "max_difdt_75_25": 2045.0,
+    "max_difdt_50_0": 2463.0,
+    "max_irr_A": 96.1,
+    "pass_diode56": 92,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.4
+   },
+   "S5": {
+    "n": 120,
+    "pass": 120,
+    "pass_hot": 120,
+    "max_vds": 434.7,
+    "max_off_V": -0.505,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 353.8,
+    "max_slew2080_esl10": 72.26,
+    "max_slew1090_esl10": 19.86,
+    "max_slew2080_esl1.06": 71.49,
+    "max_slew1090_esl1.06": 19.1,
+    "max_partner_i_A": 75.4
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 0.32,
+    "max_e_off_edge_uJ": 0.83,
+    "max_e_in_uJ": 2.91,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 1.88,
+    "max_e_off_edge_uJ": 2.53,
+    "max_e_in_uJ": 10.27,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 8.08,
+    "max_e_off_edge_uJ": 9.2,
+    "max_e_in_uJ": 24.98,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1010.66,
+    "max_e_off_edge_uJ": 8.97,
+    "max_e_in_uJ": 1008.66,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 38.53,
+    "max_e_tot_uJ": 41.38,
+    "min_vgs_inc_1us_V": 14.74,
+    "min_vgs_inc_2us_V": 14.8,
+    "min_vgs_inc_3us_V": 14.77,
+    "max_q_gate_inc_nC": 374.7,
+    "max_e_ron_cycle_uJ": 3.15,
+    "P_ron_W_at_35_60_80kHz": [
+     0.11,
+     0.189,
+     0.252
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 92.93,
+    "max_e_tot_uJ": 100.79,
+    "min_vgs_inc_1us_V": 14.85,
+    "min_vgs_inc_2us_V": 14.52,
+    "min_vgs_inc_3us_V": 14.59,
+    "max_q_gate_inc_nC": 377.3,
+    "max_e_ron_cycle_uJ": 2.8,
+    "P_ron_W_at_35_60_80kHz": [
+     0.098,
+     0.168,
+     0.224
+    ]
+   }
+  }
+ },
+ "asbuilt_bom": {
+  "s4screen": {
+   "cfg": "asbuilt_bom",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 479.4,
+    "max_off_V": -1.226,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 350.6,
+    "max_slew2080_esl10": 85.48,
+    "max_slew1090_esl10": 39.83,
+    "max_slew2080_esl1.06": 82.28,
+    "max_slew1090_esl1.06": 35.59,
+    "max_difdt_75_25": 2024.0,
+    "max_difdt_50_0": 2427.0,
+    "max_irr_A": 89.6,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.7
+   }
+  }
+ },
+ "asbuilt_tt125": {
+  "s4screen": {
+   "cfg": "asbuilt_tt125",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 21,
+   "pass_hot": 21,
+   "S4": {
+    "n": 56,
+    "pass": 21,
+    "pass_hot": 21,
+    "max_vds": 585.2,
+    "max_off_V": -1.044,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 347.4,
+    "max_slew2080_esl10": 109.26,
+    "max_slew1090_esl10": 25.82,
+    "max_slew2080_esl1.06": 112.36,
+    "max_slew1090_esl1.06": 23.73,
+    "max_difdt_75_25": 2024.0,
+    "max_difdt_50_0": 2433.0,
+    "max_irr_A": 113.8,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 71.7
+   }
+  },
+  "s4b": {
+   "cfg": "asbuilt_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 42,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 620.4,
+    "max_off_V": 0.896,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 320.4,
+    "max_slew2080_esl10": 109.26,
+    "max_slew1090_esl10": 25.82,
+    "max_slew2080_esl1.06": 112.36,
+    "max_slew1090_esl1.06": 23.73,
+    "max_difdt_75_25": 2101.0,
+    "max_difdt_50_0": 2538.0,
+    "max_irr_A": 116.2,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 70.6
+   }
+  }
+ },
+ "asbuilt_tt260": {
+  "s4screen": {
+   "cfg": "asbuilt_tt260",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "tt": "260e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 676.8,
+    "max_off_V": 0.465,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 332.8,
+    "max_slew2080_esl10": 137.73,
+    "max_slew1090_esl10": 93.02,
+    "max_slew2080_esl1.06": 130.94,
+    "max_slew1090_esl1.06": 69.2,
+    "max_difdt_75_25": 2024.0,
+    "max_difdt_50_0": 2433.0,
+    "max_irr_A": 148.2,
+    "pass_diode56": 30,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.7
+   }
+  }
+ },
+ "c8_asbuilt": {
+  "s4screen": {
+   "cfg": "c8_asbuilt",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 423.2,
+    "max_off_V": -0.856,
+    "max_vgs_abs": 15.17,
+    "max_q_gate_inc_nC": 276.4,
+    "max_slew2080_esl10": 56.59,
+    "max_slew1090_esl10": 13.71,
+    "max_slew2080_esl1.06": 52.81,
+    "max_slew1090_esl1.06": 28.71,
+    "max_difdt_75_25": 2123.0,
+    "max_difdt_50_0": 2577.0,
+    "max_irr_A": 71.1,
+    "pass_diode56": 55,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 45.2
+   }
+  },
+  "full": {
+   "cfg": "c8_asbuilt",
+   "grid": "full",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 626,
+   "pass": 626,
+   "pass_hot": 626,
+   "S1": {
+    "n": 78,
+    "pass": 78,
+    "pass_hot": 78,
+    "max_vds": 352.3,
+    "max_off_V": -0.836,
+    "max_vgs_abs": 15.26,
+    "max_q_gate_inc_nC": 277.5,
+    "max_slew2080_esl10": 21.96,
+    "max_slew1090_esl10": 14.68,
+    "zvs": "78/78",
+    "worst_t_trans_ns": 121.9,
+    "margin_340_ns": 218.1,
+    "margin_408_ns": 286.4
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 489.2,
+    "max_off_V": 0.129,
+    "max_vgs_abs": 15.59,
+    "max_q_gate_inc_nC": 283.4,
+    "max_slew2080_esl10": 37.94,
+    "max_slew1090_esl10": 30.1,
+    "max_slew2080_esl1.06": 36.65,
+    "max_slew1090_esl1.06": 29.91
+   },
+   "S4": {
+    "n": 328,
+    "pass": 328,
+    "pass_hot": 328,
+    "max_vds": 423.2,
+    "max_off_V": -0.84,
+    "max_vgs_abs": 15.19,
+    "max_q_gate_inc_nC": 276.8,
+    "max_slew2080_esl10": 82.02,
+    "max_slew1090_esl10": 13.71,
+    "max_slew2080_esl1.06": 82.28,
+    "max_slew1090_esl1.06": 28.71,
+    "max_difdt_75_25": 2165.0,
+    "max_difdt_50_0": 2632.0,
+    "max_irr_A": 75.3,
+    "pass_diode56": 287,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 45.3
+   },
+   "S5": {
+    "n": 164,
+    "pass": 164,
+    "pass_hot": 164,
+    "max_vds": 416.5,
+    "max_off_V": -0.506,
+    "max_vgs_abs": 15.09,
+    "max_q_gate_inc_nC": 274.9,
+    "max_slew2080_esl10": 46.6,
+    "max_slew1090_esl10": 22.72,
+    "max_slew2080_esl1.06": 45.85,
+    "max_slew1090_esl1.06": 21.79,
+    "max_partner_i_A": 62.0
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 0.7,
+    "max_e_off_edge_uJ": 0.57,
+    "max_e_in_uJ": 3.1,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.29,
+    "max_e_off_edge_uJ": 1.38,
+    "max_e_in_uJ": 11.28,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 4.75,
+    "max_e_off_edge_uJ": 3.86,
+    "max_e_in_uJ": 28.02,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 751.14,
+    "max_e_off_edge_uJ": 7.83,
+    "max_e_in_uJ": 753.57,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 40.14,
+    "max_e_tot_uJ": 41.77,
+    "min_vgs_inc_1us_V": 14.85,
+    "min_vgs_inc_2us_V": 14.63,
+    "min_vgs_inc_3us_V": 14.82,
+    "max_q_gate_inc_nC": 280.9,
+    "max_e_ron_cycle_uJ": 3.06,
+    "P_ron_W_at_35_60_80kHz": [
+     0.107,
+     0.184,
+     0.245
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 97.67,
+    "max_e_tot_uJ": 102.24,
+    "min_vgs_inc_1us_V": 14.48,
+    "min_vgs_inc_2us_V": 14.35,
+    "min_vgs_inc_3us_V": 14.76,
+    "max_q_gate_inc_nC": 282.6,
+    "max_e_ron_cycle_uJ": 2.78,
+    "P_ron_W_at_35_60_80kHz": [
+     0.097,
+     0.167,
+     0.222
+    ]
+   }
+  }
+ },
+ "c8_split15_1": {
+  "s4screen": {
+   "cfg": "c8_split15_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 394.4,
+    "max_off_V": -1.268,
+    "max_vgs_abs": 15.06,
+    "max_q_gate_inc_nC": 256.6,
+    "max_slew2080_esl10": 48.25,
+    "max_slew1090_esl10": 21.37,
+    "max_slew2080_esl1.06": 47.67,
+    "max_slew1090_esl1.06": 20.6,
+    "max_difdt_75_25": 1287.0,
+    "max_difdt_50_0": 1433.0,
+    "max_irr_A": 57.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 66.0
+   }
+  }
+ },
+ "c8_split22_1": {
+  "s4screen": {
+   "cfg": "c8_split22_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 378.0,
+    "max_off_V": -1.648,
+    "max_vgs_abs": 15.05,
+    "max_q_gate_inc_nC": 229.7,
+    "max_slew2080_esl10": 45.18,
+    "max_slew1090_esl10": 17.38,
+    "max_slew2080_esl1.06": 43.69,
+    "max_slew1090_esl1.06": 16.9,
+    "max_difdt_75_25": 894.0,
+    "max_difdt_50_0": 940.0,
+    "max_irr_A": 54.5,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 88.9
+   }
+  }
+ },
+ "c8_split27_1": {
+  "s4screen": {
+   "cfg": "c8_split27_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 373.4,
+    "max_off_V": -1.533,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 210.8,
+    "max_slew2080_esl10": 40.99,
+    "max_slew1090_esl10": 17.28,
+    "max_slew2080_esl1.06": 38.83,
+    "max_slew1090_esl1.06": 17.25,
+    "max_difdt_75_25": 729.0,
+    "max_difdt_50_0": 801.0,
+    "max_irr_A": 51.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 105.6
+   }
+  },
+  "s4b": {
+   "cfg": "c8_split27_1",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 370.6,
+    "max_off_V": -1.837,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 209.4,
+    "max_slew2080_esl10": 43.13,
+    "max_slew1090_esl10": 17.28,
+    "max_slew2080_esl1.06": 44.84,
+    "max_slew1090_esl1.06": 17.25,
+    "max_difdt_75_25": 744.0,
+    "max_difdt_50_0": 811.0,
+    "max_irr_A": 51.9,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 104.6
+   }
+  },
+  "full": {
+   "cfg": "c8_split27_1",
+   "grid": "full",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 350.9,
+    "max_off_V": -1.345,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 222.9,
+    "max_slew2080_esl10": 21.94,
+    "max_slew1090_esl10": 14.67,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 120.1,
+    "margin_340_ns": 219.9,
+    "margin_408_ns": 288.2
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 473.0,
+    "max_off_V": -1.275,
+    "max_vgs_abs": 14.96,
+    "max_q_gate_inc_nC": 221.6,
+    "max_slew2080_esl10": 41.86,
+    "max_slew1090_esl10": 31.14,
+    "max_slew2080_esl1.06": 40.55,
+    "max_slew1090_esl1.06": 30.71
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 373.4,
+    "max_off_V": -1.473,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 211.0,
+    "max_slew2080_esl10": 43.35,
+    "max_slew1090_esl10": 17.28,
+    "max_slew2080_esl1.06": 44.89,
+    "max_slew1090_esl1.06": 17.25,
+    "max_difdt_75_25": 744.0,
+    "max_difdt_50_0": 811.0,
+    "max_irr_A": 51.9,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 106.5
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 369.8,
+    "max_off_V": -1.073,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 216.5,
+    "max_slew2080_esl10": 34.11,
+    "max_slew1090_esl10": 14.29,
+    "max_slew2080_esl1.06": 32.85,
+    "max_slew1090_esl1.06": 14.18,
+    "max_partner_i_A": 43.9
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 1.52,
+    "max_e_off_edge_uJ": 0.57,
+    "max_e_in_uJ": 3.67,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 3.55,
+    "max_e_off_edge_uJ": 1.36,
+    "max_e_in_uJ": 12.18,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 6.12,
+    "max_e_off_edge_uJ": 3.71,
+    "max_e_in_uJ": 30.06,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 853.18,
+    "max_e_off_edge_uJ": 8.81,
+    "max_e_in_uJ": 854.17,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 40.99,
+    "max_e_tot_uJ": 42.59,
+    "min_vgs_inc_1us_V": 12.93,
+    "min_vgs_inc_2us_V": 14.64,
+    "min_vgs_inc_3us_V": 14.77,
+    "max_q_gate_inc_nC": 278.2,
+    "max_e_ron_cycle_uJ": 3.51,
+    "P_ron_W_at_35_60_80kHz": [
+     0.123,
+     0.211,
+     0.281
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 99.04,
+    "max_e_tot_uJ": 103.47,
+    "min_vgs_inc_1us_V": 12.97,
+    "min_vgs_inc_2us_V": 14.34,
+    "min_vgs_inc_3us_V": 14.61,
+    "max_q_gate_inc_nC": 278.6,
+    "max_e_ron_cycle_uJ": 3.11,
+    "P_ron_W_at_35_60_80kHz": [
+     0.109,
+     0.187,
+     0.249
+    ]
+   }
+  }
+ },
+ "c8_split27_1_tt60": {
+  "s4b": {
+   "cfg": "c8_split27_1_tt60",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "60e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 387.9,
+    "max_off_V": -1.838,
+    "max_vgs_abs": 15.86,
+    "max_q_gate_inc_nC": 203.3,
+    "max_slew2080_esl10": 50.03,
+    "max_slew1090_esl10": 21.63,
+    "max_slew2080_esl1.06": 48.93,
+    "max_slew1090_esl1.06": 21.25,
+    "max_difdt_75_25": 744.0,
+    "max_difdt_50_0": 812.0,
+    "max_irr_A": 70.1,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.6
+   }
+  }
+ },
+ "c8_split27_1_tt80": {
+  "s4b": {
+   "cfg": "c8_split27_1_tt80",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "80e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 401.4,
+    "max_off_V": -1.838,
+    "max_vgs_abs": 15.65,
+    "max_q_gate_inc_nC": 195.7,
+    "max_slew2080_esl10": 55.12,
+    "max_slew1090_esl10": 24.14,
+    "max_slew2080_esl1.06": 53.79,
+    "max_slew1090_esl1.06": 23.6,
+    "max_difdt_75_25": 744.0,
+    "max_difdt_50_0": 812.0,
+    "max_irr_A": 71.1,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.6
+   }
+  }
+ },
+ "c8_split33_1": {
+  "s4screen": {
+   "cfg": "c8_split33_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 368.8,
+    "max_off_V": -1.327,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 190.4,
+    "max_slew2080_esl10": 35.86,
+    "max_slew1090_esl10": 17.29,
+    "max_slew2080_esl1.06": 34.31,
+    "max_slew1090_esl1.06": 17.16,
+    "max_difdt_75_25": 618.0,
+    "max_difdt_50_0": 702.0,
+    "max_irr_A": 48.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 125.5
+   }
+  }
+ },
+ "c8_split39_1": {
+  "s4screen": {
+   "cfg": "c8_split39_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 366.1,
+    "max_off_V": -1.118,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 172.7,
+    "max_slew2080_esl10": 32.81,
+    "max_slew1090_esl10": 16.82,
+    "max_slew2080_esl1.06": 31.93,
+    "max_slew1090_esl1.06": 16.28,
+    "max_difdt_75_25": 547.0,
+    "max_difdt_50_0": 631.0,
+    "max_irr_A": 45.8,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 145.3
+   }
+  },
+  "s4b": {
+   "cfg": "c8_split39_1",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 361.9,
+    "max_off_V": -2.004,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 172.2,
+    "max_slew2080_esl10": 40.5,
+    "max_slew1090_esl10": 16.82,
+    "max_slew2080_esl1.06": 38.52,
+    "max_slew1090_esl1.06": 16.28,
+    "max_difdt_75_25": 554.0,
+    "max_difdt_50_0": 638.0,
+    "max_irr_A": 46.2,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 144.3
+   }
+  },
+  "full": {
+   "cfg": "c8_split39_1",
+   "grid": "full",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 350.6,
+    "max_off_V": -1.516,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 188.4,
+    "max_slew2080_esl10": 21.97,
+    "max_slew1090_esl10": 14.66,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 120.2,
+    "margin_340_ns": 219.8,
+    "margin_408_ns": 288.1
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 474.9,
+    "max_off_V": -1.637,
+    "max_vgs_abs": 15.76,
+    "max_q_gate_inc_nC": 182.3,
+    "max_slew2080_esl10": 41.65,
+    "max_slew1090_esl10": 31.01,
+    "max_slew2080_esl1.06": 40.32,
+    "max_slew1090_esl1.06": 30.63
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 366.1,
+    "max_off_V": -1.056,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 172.7,
+    "max_slew2080_esl10": 40.58,
+    "max_slew1090_esl10": 16.82,
+    "max_slew2080_esl1.06": 39.11,
+    "max_slew1090_esl1.06": 16.5,
+    "max_difdt_75_25": 554.0,
+    "max_difdt_50_0": 639.0,
+    "max_irr_A": 46.3,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 146.4
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 368.3,
+    "max_off_V": -0.844,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 182.8,
+    "max_slew2080_esl10": 29.65,
+    "max_slew1090_esl10": 12.61,
+    "max_slew2080_esl1.06": 29.2,
+    "max_slew1090_esl1.06": 12.43,
+    "max_partner_i_A": 39.0
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 2.02,
+    "max_e_off_edge_uJ": 0.57,
+    "max_e_in_uJ": 4.1,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 4.23,
+    "max_e_off_edge_uJ": 1.36,
+    "max_e_in_uJ": 13.2,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 7.24,
+    "max_e_off_edge_uJ": 3.72,
+    "max_e_in_uJ": 31.5,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 913.99,
+    "max_e_off_edge_uJ": 9.53,
+    "max_e_in_uJ": 915.25,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 41.57,
+    "max_e_tot_uJ": 43.18,
+    "min_vgs_inc_1us_V": 10.96,
+    "min_vgs_inc_2us_V": 14.04,
+    "min_vgs_inc_3us_V": 14.72,
+    "max_q_gate_inc_nC": 277.6,
+    "max_e_ron_cycle_uJ": 3.43,
+    "P_ron_W_at_35_60_80kHz": [
+     0.12,
+     0.206,
+     0.274
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 100.26,
+    "max_e_tot_uJ": 104.4,
+    "min_vgs_inc_1us_V": 11.09,
+    "min_vgs_inc_2us_V": 14.02,
+    "min_vgs_inc_3us_V": 14.57,
+    "max_q_gate_inc_nC": 277.7,
+    "max_e_ron_cycle_uJ": 3.05,
+    "P_ron_W_at_35_60_80kHz": [
+     0.107,
+     0.183,
+     0.244
+    ]
+   }
+  }
+ },
+ "c8_split39_1_tt60": {
+  "s4b": {
+   "cfg": "c8_split39_1_tt60",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "60e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 370.5,
+    "max_off_V": -1.754,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 169.4,
+    "max_slew2080_esl10": 44.85,
+    "max_slew1090_esl10": 19.04,
+    "max_slew2080_esl1.06": 45.25,
+    "max_slew1090_esl1.06": 18.75,
+    "max_difdt_75_25": 554.0,
+    "max_difdt_50_0": 638.0,
+    "max_irr_A": 54.3,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 144.3
+   }
+  }
+ },
+ "c8_split39_1_tt80": {
+  "s4b": {
+   "cfg": "c8_split39_1_tt80",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "80e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 379.3,
+    "max_off_V": -1.511,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 164.2,
+    "max_slew2080_esl10": 48.75,
+    "max_slew1090_esl10": 21.42,
+    "max_slew2080_esl1.06": 47.69,
+    "max_slew1090_esl1.06": 20.84,
+    "max_difdt_75_25": 554.0,
+    "max_difdt_50_0": 638.0,
+    "max_irr_A": 59.3,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 144.3
+   }
+  }
+ },
+ "c8_split47_1": {
+  "s4screen": {
+   "cfg": "c8_split47_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 363.4,
+    "max_off_V": -0.897,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 152.5,
+    "max_slew2080_esl10": 30.47,
+    "max_slew1090_esl10": 15.07,
+    "max_slew2080_esl1.06": 29.76,
+    "max_slew1090_esl1.06": 14.85,
+    "max_difdt_75_25": 481.0,
+    "max_difdt_50_0": 565.0,
+    "max_irr_A": 43.2,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 171.9
+   }
+  }
+ },
+ "c8_split47_1_tt60": {
+  "s4b": {
+   "cfg": "c8_split47_1_tt60",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "60e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 363.6,
+    "max_off_V": -1.399,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 151.1,
+    "max_slew2080_esl10": 48.28,
+    "max_slew1090_esl10": 18.37,
+    "max_slew2080_esl1.06": 48.39,
+    "max_slew1090_esl1.06": 18.17,
+    "max_difdt_75_25": 486.0,
+    "max_difdt_50_0": 569.0,
+    "max_irr_A": 51.3,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 171.2
+   }
+  }
+ },
+ "c8_split47_1_tt80": {
+  "s4b": {
+   "cfg": "c8_split47_1_tt80",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "80e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 370.2,
+    "max_off_V": -1.14,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 147.9,
+    "max_slew2080_esl10": 49.7,
+    "max_slew1090_esl10": 19.84,
+    "max_slew2080_esl1.06": 49.99,
+    "max_slew1090_esl1.06": 19.53,
+    "max_difdt_75_25": 486.0,
+    "max_difdt_50_0": 569.0,
+    "max_irr_A": 55.5,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 171.2
+   }
+  }
+ },
+ "c8_split56_1": {
+  "s4screen": {
+   "cfg": "c8_split56_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 369.6,
+    "max_off_V": -0.69,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 133.9,
+    "max_slew2080_esl10": 28.17,
+    "max_slew1090_esl10": 14.24,
+    "max_slew2080_esl1.06": 27.21,
+    "max_slew1090_esl1.06": 13.97,
+    "max_difdt_75_25": 425.0,
+    "max_difdt_50_0": 504.0,
+    "max_irr_A": 41.0,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 202.3
+   }
+  }
+ },
+ "c8_split56_1_tt60": {
+  "s4b": {
+   "cfg": "c8_split56_1_tt60",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "60e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 359.0,
+    "max_off_V": -1.098,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 133.2,
+    "max_slew2080_esl10": 47.14,
+    "max_slew1090_esl10": 17.84,
+    "max_slew2080_esl1.06": 45.65,
+    "max_slew1090_esl1.06": 17.26,
+    "max_difdt_75_25": 429.0,
+    "max_difdt_50_0": 507.0,
+    "max_irr_A": 48.2,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 201.4
+   }
+  }
+ },
+ "c8_split56_1_tt80": {
+  "s4b": {
+   "cfg": "c8_split56_1_tt80",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "80e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 362.9,
+    "max_off_V": -0.823,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 131.8,
+    "max_slew2080_esl10": 51.25,
+    "max_slew1090_esl10": 19.06,
+    "max_slew2080_esl1.06": 50.87,
+    "max_slew1090_esl1.06": 18.87,
+    "max_difdt_75_25": 429.0,
+    "max_difdt_50_0": 507.0,
+    "max_irr_A": 52.1,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 201.4
+   }
+  }
+ },
+ "c8_split68_1": {
+  "s4screen": {
+   "cfg": "c8_split68_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 362.5,
+    "max_off_V": -0.481,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 114.2,
+    "max_slew2080_esl10": 22.57,
+    "max_slew1090_esl10": 12.67,
+    "max_slew2080_esl1.06": 22.77,
+    "max_slew1090_esl1.06": 12.56,
+    "max_difdt_75_25": 369.0,
+    "max_difdt_50_0": 443.0,
+    "max_irr_A": 38.4,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 1,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 243.0
+   }
+  }
+ },
+ "c8_split68_1_tt60": {
+  "s4b": {
+   "cfg": "c8_split68_1_tt60",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "60e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 355.2,
+    "max_off_V": -0.794,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 114.1,
+    "max_slew2080_esl10": 37.74,
+    "max_slew1090_esl10": 15.47,
+    "max_slew2080_esl1.06": 36.78,
+    "max_slew1090_esl1.06": 15.34,
+    "max_difdt_75_25": 372.0,
+    "max_difdt_50_0": 446.0,
+    "max_irr_A": 44.7,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 273.4
+   }
+  }
+ },
+ "c8_split68_1_tt80": {
+  "s4b": {
+   "cfg": "c8_split68_1_tt80",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "80e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 356.9,
+    "max_off_V": -0.493,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 113.7,
+    "max_slew2080_esl10": 48.46,
+    "max_slew1090_esl10": 18.11,
+    "max_slew2080_esl1.06": 47.16,
+    "max_slew1090_esl1.06": 17.68,
+    "max_difdt_75_25": 372.0,
+    "max_difdt_50_0": 446.0,
+    "max_irr_A": 48.5,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 273.4
+   }
+  }
+ },
+ "c8_sym10": {
+  "s4screen": {
+   "cfg": "c8_sym10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "sym",
+    "ron": 10,
+    "roff": 10,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 49,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 49,
+    "max_vds": 400.2,
+    "max_off_V": 2.208,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 272.7,
+    "max_slew2080_esl10": 52.06,
+    "max_slew1090_esl10": 23.89,
+    "max_slew2080_esl1.06": 49.63,
+    "max_slew1090_esl1.06": 26.43,
+    "max_difdt_75_25": 1866.0,
+    "max_difdt_50_0": 2237.0,
+    "max_irr_A": 64.1,
+    "pass_diode56": 56,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 51.2
+   }
+  }
+ },
+ "c8_sym12": {
+  "s4screen": {
+   "cfg": "c8_sym12",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "sym",
+    "ron": 12,
+    "roff": 12,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 20,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 20,
+    "max_vds": 392.6,
+    "max_off_V": 2.344,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 266.9,
+    "max_slew2080_esl10": 49.6,
+    "max_slew1090_esl10": 23.54,
+    "max_slew2080_esl1.06": 48.09,
+    "max_slew1090_esl1.06": 23.24,
+    "max_difdt_75_25": 1626.0,
+    "max_difdt_50_0": 1905.0,
+    "max_irr_A": 59.2,
+    "pass_diode56": 56,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 57.4
+   }
+  }
+ },
+ "c8_sym15": {
+  "s4screen": {
+   "cfg": "c8_sym15",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "sym",
+    "ron": 15,
+    "roff": 15,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 14,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 14,
+    "pass_hot": 0,
+    "max_vds": 390.7,
+    "max_off_V": 3.242,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 256.4,
+    "max_slew2080_esl10": 48.43,
+    "max_slew1090_esl10": 21.73,
+    "max_slew2080_esl1.06": 47.53,
+    "max_slew1090_esl1.06": 21.3,
+    "max_difdt_75_25": 1335.0,
+    "max_difdt_50_0": 1527.0,
+    "max_irr_A": 56.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 67.3
+   }
+  }
+ },
+ "c8_sym18": {
+  "s4screen": {
+   "cfg": "c8_sym18",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "sym",
+    "ron": 18,
+    "roff": 18,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 384.4,
+    "max_off_V": 4.352,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 245.4,
+    "max_slew2080_esl10": 47.55,
+    "max_slew1090_esl10": 20.12,
+    "max_slew2080_esl1.06": 46.63,
+    "max_slew1090_esl1.06": 19.42,
+    "max_difdt_75_25": 1155.0,
+    "max_difdt_50_0": 1274.0,
+    "max_irr_A": 55.7,
+    "pass_diode56": 56,
+    "pass_difdt1040": 33,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 77.4
+   }
+  }
+ },
+ "c8_sym22": {
+  "s4screen": {
+   "cfg": "c8_sym22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW60R016CM8_L1",
+    "topo": "sym",
+    "ron": 22,
+    "roff": 22,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 378.7,
+    "max_off_V": 5.556,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 230.0,
+    "max_slew2080_esl10": 44.2,
+    "max_slew1090_esl10": 18.14,
+    "max_slew2080_esl1.06": 43.37,
+    "max_slew1090_esl1.06": 17.74,
+    "max_difdt_75_25": 952.0,
+    "max_difdt_50_0": 1032.0,
+    "max_irr_A": 54.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 91.0
+   }
+  }
+ },
+ "cm8_asbuilt": {
+  "s4screen": {
+   "cfg": "cm8_asbuilt",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 457.2,
+    "max_off_V": -0.783,
+    "max_vgs_abs": 15.36,
+    "max_q_gate_inc_nC": 240.4,
+    "max_slew2080_esl10": 94.75,
+    "max_slew1090_esl10": 15.29,
+    "max_slew2080_esl1.06": 82.87,
+    "max_slew1090_esl1.06": 47.46,
+    "max_difdt_75_25": 2337.0,
+    "max_difdt_50_0": 2841.0,
+    "max_irr_A": 82.0,
+    "pass_diode56": 42,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 43.9
+   }
+  },
+  "full": {
+   "cfg": "cm8_asbuilt",
+   "grid": "full",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 357.7,
+    "max_off_V": -0.836,
+    "max_vgs_abs": 15.41,
+    "max_q_gate_inc_nC": 240.7,
+    "max_slew2080_esl10": 22.05,
+    "max_slew1090_esl10": 17.48,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 106.9,
+    "margin_340_ns": 233.1,
+    "margin_408_ns": 301.4
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 447.7,
+    "max_off_V": 0.135,
+    "max_vgs_abs": 15.87,
+    "max_q_gate_inc_nC": 247.3,
+    "max_slew2080_esl10": 35.02,
+    "max_slew1090_esl10": 34.53,
+    "max_slew2080_esl1.06": 34.31,
+    "max_slew1090_esl1.06": 34.06
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 457.2,
+    "max_off_V": -0.424,
+    "max_vgs_abs": 15.39,
+    "max_q_gate_inc_nC": 240.7,
+    "max_slew2080_esl10": 96.39,
+    "max_slew1090_esl10": 50.91,
+    "max_slew2080_esl1.06": 96.08,
+    "max_slew1090_esl1.06": 47.46,
+    "max_difdt_75_25": 2392.0,
+    "max_difdt_50_0": 2899.0,
+    "max_irr_A": 87.5,
+    "pass_diode56": 240,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 44.0
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 420.1,
+    "max_off_V": -1.144,
+    "max_vgs_abs": 15.13,
+    "max_q_gate_inc_nC": 237.0,
+    "max_slew2080_esl10": 55.43,
+    "max_slew1090_esl10": 29.86,
+    "max_slew2080_esl1.06": 51.89,
+    "max_slew1090_esl1.06": 28.48,
+    "max_partner_i_A": 52.1
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 0.5,
+    "max_e_off_edge_uJ": 0.77,
+    "max_e_in_uJ": 4.58,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.33,
+    "max_e_off_edge_uJ": 2.07,
+    "max_e_in_uJ": 13.63,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 6.68,
+    "max_e_off_edge_uJ": 5.59,
+    "max_e_in_uJ": 31.7,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 799.68,
+    "max_e_off_edge_uJ": 9.39,
+    "max_e_in_uJ": 809.27,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 48.7,
+    "max_e_tot_uJ": 50.41,
+    "min_vgs_inc_1us_V": 14.76,
+    "min_vgs_inc_2us_V": 14.63,
+    "min_vgs_inc_3us_V": 14.85,
+    "max_q_gate_inc_nC": 241.9,
+    "max_e_ron_cycle_uJ": 2.65,
+    "P_ron_W_at_35_60_80kHz": [
+     0.093,
+     0.159,
+     0.212
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 112.55,
+    "max_e_tot_uJ": 117.5,
+    "min_vgs_inc_1us_V": 14.35,
+    "min_vgs_inc_2us_V": 14.37,
+    "min_vgs_inc_3us_V": 14.84,
+    "max_q_gate_inc_nC": 244.2,
+    "max_e_ron_cycle_uJ": 2.2,
+    "P_ron_W_at_35_60_80kHz": [
+     0.077,
+     0.132,
+     0.176
+    ]
+   }
+  }
+ },
+ "cm8_split15_1": {
+  "s4screen": {
+   "cfg": "cm8_split15_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 423.2,
+    "max_off_V": -1.179,
+    "max_vgs_abs": 15.06,
+    "max_q_gate_inc_nC": 226.7,
+    "max_slew2080_esl10": 56.52,
+    "max_slew1090_esl10": 29.72,
+    "max_slew2080_esl1.06": 55.79,
+    "max_slew1090_esl1.06": 27.91,
+    "max_difdt_75_25": 1495.0,
+    "max_difdt_50_0": 1724.0,
+    "max_irr_A": 64.8,
+    "pass_diode56": 49,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 63.8
+   }
+  }
+ },
+ "cm8_split22_1": {
+  "s4screen": {
+   "cfg": "cm8_split22_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 393.2,
+    "max_off_V": -1.372,
+    "max_vgs_abs": 15.05,
+    "max_q_gate_inc_nC": 209.0,
+    "max_slew2080_esl10": 52.63,
+    "max_slew1090_esl10": 24.26,
+    "max_slew2080_esl1.06": 51.3,
+    "max_slew1090_esl1.06": 23.6,
+    "max_difdt_75_25": 1066.0,
+    "max_difdt_50_0": 1156.0,
+    "max_irr_A": 60.7,
+    "pass_diode56": 56,
+    "pass_difdt1040": 50,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 85.6
+   }
+  }
+ },
+ "cm8_split27_1": {
+  "s4screen": {
+   "cfg": "cm8_split27_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 383.0,
+    "max_off_V": -1.283,
+    "max_vgs_abs": 15.05,
+    "max_q_gate_inc_nC": 195.1,
+    "max_slew2080_esl10": 48.7,
+    "max_slew1090_esl10": 24.33,
+    "max_slew2080_esl1.06": 47.22,
+    "max_slew1090_esl1.06": 24.33,
+    "max_difdt_75_25": 873.0,
+    "max_difdt_50_0": 936.0,
+    "max_irr_A": 57.8,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 101.5
+   }
+  },
+  "full": {
+   "cfg": "cm8_split27_1",
+   "grid": "full",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 357.2,
+    "max_off_V": -1.274,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 203.2,
+    "max_slew2080_esl10": 22.03,
+    "max_slew1090_esl10": 17.56,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 107.5,
+    "margin_340_ns": 232.5,
+    "margin_408_ns": 300.8
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 451.2,
+    "max_off_V": -1.274,
+    "max_vgs_abs": 14.97,
+    "max_q_gate_inc_nC": 202.1,
+    "max_slew2080_esl10": 34.18,
+    "max_slew1090_esl10": 34.15,
+    "max_slew2080_esl1.06": 33.57,
+    "max_slew1090_esl1.06": 33.79
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 398.7,
+    "max_off_V": -1.195,
+    "max_vgs_abs": 29.44,
+    "max_q_gate_inc_nC": 195.4,
+    "max_slew2080_esl10": 61.69,
+    "max_slew1090_esl10": 24.33,
+    "max_slew2080_esl1.06": 61.85,
+    "max_slew1090_esl1.06": 24.33,
+    "max_difdt_75_25": 898.0,
+    "max_difdt_50_0": 958.0,
+    "max_irr_A": 58.3,
+    "pass_diode56": 320,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 102.3
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 377.4,
+    "max_off_V": -1.004,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 198.9,
+    "max_slew2080_esl10": 37.64,
+    "max_slew1090_esl10": 16.88,
+    "max_slew2080_esl1.06": 36.12,
+    "max_slew1090_esl1.06": 16.81,
+    "max_partner_i_A": 42.5
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 0.87,
+    "max_e_off_edge_uJ": 0.77,
+    "max_e_in_uJ": 4.76,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.56,
+    "max_e_off_edge_uJ": 2.08,
+    "max_e_in_uJ": 14.14,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 7.24,
+    "max_e_off_edge_uJ": 5.64,
+    "max_e_in_uJ": 32.61,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 874.62,
+    "max_e_off_edge_uJ": 9.47,
+    "max_e_in_uJ": 883.48,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 49.23,
+    "max_e_tot_uJ": 50.94,
+    "min_vgs_inc_1us_V": 13.52,
+    "min_vgs_inc_2us_V": 14.64,
+    "min_vgs_inc_3us_V": 14.79,
+    "max_q_gate_inc_nC": 240.0,
+    "max_e_ron_cycle_uJ": 3.1,
+    "P_ron_W_at_35_60_80kHz": [
+     0.108,
+     0.186,
+     0.248
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 113.48,
+    "max_e_tot_uJ": 118.46,
+    "min_vgs_inc_1us_V": 13.54,
+    "min_vgs_inc_2us_V": 14.35,
+    "min_vgs_inc_3us_V": 14.64,
+    "max_q_gate_inc_nC": 240.2,
+    "max_e_ron_cycle_uJ": 2.54,
+    "P_ron_W_at_35_60_80kHz": [
+     0.089,
+     0.152,
+     0.203
+    ]
+   }
+  }
+ },
+ "cm8_split33_1": {
+  "s4screen": {
+   "cfg": "cm8_split33_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 377.6,
+    "max_off_V": -1.14,
+    "max_vgs_abs": 15.05,
+    "max_q_gate_inc_nC": 179.5,
+    "max_slew2080_esl10": 44.31,
+    "max_slew1090_esl10": 24.16,
+    "max_slew2080_esl1.06": 42.45,
+    "max_slew1090_esl1.06": 23.93,
+    "max_difdt_75_25": 729.0,
+    "max_difdt_50_0": 792.0,
+    "max_irr_A": 54.4,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 120.5
+   }
+  }
+ },
+ "cm8_split39_1": {
+  "s4screen": {
+   "cfg": "cm8_split39_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 374.2,
+    "max_off_V": -0.89,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 165.3,
+    "max_slew2080_esl10": 39.5,
+    "max_slew1090_esl10": 23.31,
+    "max_slew2080_esl1.06": 37.36,
+    "max_slew1090_esl1.06": 22.9,
+    "max_difdt_75_25": 637.0,
+    "max_difdt_50_0": 710.0,
+    "max_irr_A": 51.5,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.5
+   }
+  },
+  "s4b": {
+   "cfg": "cm8_split39_1",
+   "grid": "s4b",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 371.8,
+    "max_off_V": -1.943,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 164.4,
+    "max_slew2080_esl10": 55.58,
+    "max_slew1090_esl10": 23.31,
+    "max_slew2080_esl1.06": 54.0,
+    "max_slew1090_esl1.06": 22.9,
+    "max_difdt_75_25": 648.0,
+    "max_difdt_50_0": 716.0,
+    "max_irr_A": 51.9,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 138.2
+   }
+  },
+  "full": {
+   "cfg": "cm8_split39_1",
+   "grid": "full",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 357.0,
+    "max_off_V": -1.439,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 176.3,
+    "max_slew2080_esl10": 22.03,
+    "max_slew1090_esl10": 17.56,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 107.6,
+    "margin_340_ns": 232.4,
+    "margin_408_ns": 300.7
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 450.0,
+    "max_off_V": -1.638,
+    "max_vgs_abs": 15.88,
+    "max_q_gate_inc_nC": 169.9,
+    "max_slew2080_esl10": 34.07,
+    "max_slew1090_esl10": 34.1,
+    "max_slew2080_esl1.06": 33.46,
+    "max_slew1090_esl1.06": 33.76
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 374.2,
+    "max_off_V": -0.829,
+    "max_vgs_abs": 17.99,
+    "max_q_gate_inc_nC": 165.4,
+    "max_slew2080_esl10": 55.58,
+    "max_slew1090_esl10": 23.31,
+    "max_slew2080_esl1.06": 54.54,
+    "max_slew1090_esl1.06": 22.95,
+    "max_difdt_75_25": 648.0,
+    "max_difdt_50_0": 716.0,
+    "max_irr_A": 53.5,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 140.5
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 375.0,
+    "max_off_V": -0.896,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 171.8,
+    "max_slew2080_esl10": 30.51,
+    "max_slew1090_esl10": 15.13,
+    "max_slew2080_esl1.06": 29.94,
+    "max_slew1090_esl1.06": 15.02,
+    "max_partner_i_A": 37.2
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 1.12,
+    "max_e_off_edge_uJ": 0.77,
+    "max_e_in_uJ": 4.99,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.74,
+    "max_e_off_edge_uJ": 2.08,
+    "max_e_in_uJ": 14.52,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 7.65,
+    "max_e_off_edge_uJ": 5.65,
+    "max_e_in_uJ": 33.29,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 920.38,
+    "max_e_off_edge_uJ": 9.99,
+    "max_e_in_uJ": 928.94,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 49.62,
+    "max_e_tot_uJ": 51.35,
+    "min_vgs_inc_1us_V": 11.83,
+    "min_vgs_inc_2us_V": 14.36,
+    "min_vgs_inc_3us_V": 14.77,
+    "max_q_gate_inc_nC": 239.4,
+    "max_e_ron_cycle_uJ": 3.08,
+    "P_ron_W_at_35_60_80kHz": [
+     0.108,
+     0.185,
+     0.246
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 114.19,
+    "max_e_tot_uJ": 119.11,
+    "min_vgs_inc_1us_V": 11.95,
+    "min_vgs_inc_2us_V": 14.33,
+    "min_vgs_inc_3us_V": 14.59,
+    "max_q_gate_inc_nC": 239.5,
+    "max_e_ron_cycle_uJ": 2.52,
+    "P_ron_W_at_35_60_80kHz": [
+     0.088,
+     0.151,
+     0.202
+    ]
+   }
+  }
+ },
+ "cm8_split47_1": {
+  "s4screen": {
+   "cfg": "cm8_split47_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 371.9,
+    "max_off_V": -0.618,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 149.3,
+    "max_slew2080_esl10": 34.23,
+    "max_slew1090_esl10": 22.31,
+    "max_slew2080_esl1.06": 33.12,
+    "max_slew1090_esl1.06": 21.79,
+    "max_difdt_75_25": 552.0,
+    "max_difdt_50_0": 632.0,
+    "max_irr_A": 48.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 164.5
+   }
+  },
+  "s4b": {
+   "cfg": "cm8_split47_1",
+   "grid": "s4b",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 365.5,
+    "max_off_V": -1.794,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 149.0,
+    "max_slew2080_esl10": 51.23,
+    "max_slew1090_esl10": 22.31,
+    "max_slew2080_esl1.06": 49.67,
+    "max_slew1090_esl1.06": 21.79,
+    "max_difdt_75_25": 560.0,
+    "max_difdt_50_0": 636.0,
+    "max_irr_A": 48.8,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 163.7
+   }
+  }
+ },
+ "cm8_split56_1": {
+  "s4screen": {
+   "cfg": "cm8_split56_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 369.5,
+    "max_off_V": -0.427,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 133.8,
+    "max_slew2080_esl10": 31.33,
+    "max_slew1090_esl10": 19.53,
+    "max_slew2080_esl1.06": 30.61,
+    "max_slew1090_esl1.06": 19.13,
+    "max_difdt_75_25": 485.0,
+    "max_difdt_50_0": 566.0,
+    "max_irr_A": 45.5,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 193.3
+   }
+  }
+ },
+ "cm8_split68_1": {
+  "s4screen": {
+   "cfg": "cm8_split68_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 375.7,
+    "max_off_V": -0.257,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 116.5,
+    "max_slew2080_esl10": 28.38,
+    "max_slew1090_esl10": 18.06,
+    "max_slew2080_esl1.06": 27.39,
+    "max_slew1090_esl1.06": 17.68,
+    "max_difdt_75_25": 421.0,
+    "max_difdt_50_0": 499.0,
+    "max_irr_A": 42.2,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 232.0
+   }
+  }
+ },
+ "cm8_sym10": {
+  "s4screen": {
+   "cfg": "cm8_sym10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "sym",
+    "ron": 10,
+    "roff": 10,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 45,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 45,
+    "max_vds": 422.4,
+    "max_off_V": 2.377,
+    "max_vgs_abs": 15.24,
+    "max_q_gate_inc_nC": 238.6,
+    "max_slew2080_esl10": 68.87,
+    "max_slew1090_esl10": 41.11,
+    "max_slew2080_esl1.06": 59.75,
+    "max_slew1090_esl1.06": 43.25,
+    "max_difdt_75_25": 2092.0,
+    "max_difdt_50_0": 2500.0,
+    "max_irr_A": 71.9,
+    "pass_diode56": 43,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 49.6
+   }
+  }
+ },
+ "cm8_sym12": {
+  "s4screen": {
+   "cfg": "cm8_sym12",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "sym",
+    "ron": 12,
+    "roff": 12,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 45,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 45,
+    "max_vds": 413.5,
+    "max_off_V": 2.273,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 234.6,
+    "max_slew2080_esl10": 58.86,
+    "max_slew1090_esl10": 38.31,
+    "max_slew2080_esl1.06": 55.79,
+    "max_slew1090_esl1.06": 37.4,
+    "max_difdt_75_25": 1845.0,
+    "max_difdt_50_0": 2174.0,
+    "max_irr_A": 65.9,
+    "pass_diode56": 49,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 55.6
+   }
+  }
+ },
+ "cm8_sym15": {
+  "s4screen": {
+   "cfg": "cm8_sym15",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "sym",
+    "ron": 15,
+    "roff": 15,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 43,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 43,
+    "pass_hot": 0,
+    "max_vds": 414.3,
+    "max_off_V": 2.764,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 228.0,
+    "max_slew2080_esl10": 56.26,
+    "max_slew1090_esl10": 32.29,
+    "max_slew2080_esl1.06": 54.77,
+    "max_slew1090_esl1.06": 30.83,
+    "max_difdt_75_25": 1546.0,
+    "max_difdt_50_0": 1786.0,
+    "max_irr_A": 62.2,
+    "pass_diode56": 54,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 65.0
+   }
+  }
+ },
+ "cm8_sym18": {
+  "s4screen": {
+   "cfg": "cm8_sym18",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "sym",
+    "ron": 18,
+    "roff": 18,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 408.3,
+    "max_off_V": 3.691,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 220.1,
+    "max_slew2080_esl10": 54.81,
+    "max_slew1090_esl10": 28.69,
+    "max_slew2080_esl1.06": 53.63,
+    "max_slew1090_esl1.06": 27.42,
+    "max_difdt_75_25": 1348.0,
+    "max_difdt_50_0": 1520.0,
+    "max_irr_A": 61.1,
+    "pass_diode56": 56,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 74.6
+   }
+  }
+ },
+ "cm8_sym22": {
+  "s4screen": {
+   "cfg": "cm8_sym22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "CM8W_L1",
+    "topo": "sym",
+    "ron": 22,
+    "roff": 22,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 395.6,
+    "max_off_V": 4.743,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 209.3,
+    "max_slew2080_esl10": 52.74,
+    "max_slew1090_esl10": 25.97,
+    "max_slew2080_esl1.06": 51.32,
+    "max_slew1090_esl1.06": 25.12,
+    "max_difdt_75_25": 1131.0,
+    "max_difdt_50_0": 1218.0,
+    "max_irr_A": 60.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 30,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 87.6
+   }
+  }
+ },
+ "cm8rgc_rext10": {
+  "s4screen": {
+   "cfg": "cm8rgc_rext10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R029CFD7_L1",
+    "topo": "split",
+    "ron": 7.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "note": "device-study proxy convention"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 461.0,
+    "max_off_V": -0.866,
+    "max_vgs_abs": 15.23,
+    "max_q_gate_inc_nC": 238.6,
+    "max_slew2080_esl10": 91.29,
+    "max_slew1090_esl10": 15.52,
+    "max_slew2080_esl1.06": 78.37,
+    "max_slew1090_esl1.06": 47.08,
+    "max_difdt_75_25": 2571.0,
+    "max_difdt_50_0": 3021.0,
+    "max_irr_A": 80.2,
+    "pass_diode56": 41,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 49.2
+   }
+  }
+ },
+ "cm8rgc_rext12": {
+  "s4screen": {
+   "cfg": "cm8rgc_rext12",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R029CFD7_L1",
+    "topo": "split",
+    "ron": 9.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "note": "device-study proxy convention"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 440.3,
+    "max_off_V": -0.986,
+    "max_vgs_abs": 15.06,
+    "max_q_gate_inc_nC": 235.1,
+    "max_slew2080_esl10": 64.85,
+    "max_slew1090_esl10": 47.58,
+    "max_slew2080_esl1.06": 57.86,
+    "max_slew1090_esl1.06": 42.18,
+    "max_difdt_75_25": 2222.0,
+    "max_difdt_50_0": 2584.0,
+    "max_irr_A": 69.9,
+    "pass_diode56": 49,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 55.0
+   }
+  }
+ },
+ "cm8rgc_rext15": {
+  "s4screen": {
+   "cfg": "cm8rgc_rext15",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R029CFD7_L1",
+    "topo": "split",
+    "ron": 12.2,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "note": "device-study proxy convention"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 426.3,
+    "max_off_V": -1.178,
+    "max_vgs_abs": 15.05,
+    "max_q_gate_inc_nC": 228.9,
+    "max_slew2080_esl10": 57.27,
+    "max_slew1090_esl10": 34.87,
+    "max_slew2080_esl1.06": 55.37,
+    "max_slew1090_esl1.06": 32.54,
+    "max_difdt_75_25": 1792.0,
+    "max_difdt_50_0": 2041.0,
+    "max_irr_A": 67.5,
+    "pass_diode56": 53,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 64.2
+   }
+  }
+ },
+ "cm8rgc_rext8p2": {
+  "s4screen": {
+   "cfg": "cm8rgc_rext8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R029CFD7_L1",
+    "topo": "split",
+    "ron": 5.4,
+    "roff": 1.34482758621,
+    "cgs": 1e-09,
+    "note": "device-study proxy convention"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 493.4,
+    "max_off_V": -0.4,
+    "max_vgs_abs": 15.4,
+    "max_q_gate_inc_nC": 241.1,
+    "max_slew2080_esl10": 107.78,
+    "max_slew1090_esl10": 16.88,
+    "max_slew2080_esl1.06": 108.12,
+    "max_slew1090_esl1.06": 15.75,
+    "max_difdt_75_25": 2882.0,
+    "max_difdt_50_0": 3546.0,
+    "max_irr_A": 98.1,
+    "pass_diode56": 34,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    },
+    "max_turn_on_delay_gate4_ns": 44.3
+   }
+  }
+ },
+ "open12": {
+  "s4screen": {
+   "cfg": "open12",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "open",
+    "ron": 12,
+    "roff": 12,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 38,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 38,
+    "pass_hot": 0,
+    "max_vds": 452.4,
+    "max_off_V": 2.922,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 329.1,
+    "max_slew2080_esl10": 83.48,
+    "max_slew1090_esl10": 26.98,
+    "max_slew2080_esl1.06": 81.67,
+    "max_slew1090_esl1.06": 25.59,
+    "max_difdt_75_25": 1565.0,
+    "max_difdt_50_0": 1822.0,
+    "max_irr_A": 77.6,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 91.1
+   }
+  }
+ },
+ "open22": {
+  "s4screen": {
+   "cfg": "open22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "open",
+    "ron": 22,
+    "roff": 22,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 440.4,
+    "max_off_V": 5.82,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 264.3,
+    "max_slew2080_esl10": 33.27,
+    "max_slew1090_esl10": 20.23,
+    "max_slew2080_esl1.06": 33.23,
+    "max_slew1090_esl1.06": 20.47,
+    "max_difdt_75_25": 926.0,
+    "max_difdt_50_0": 1005.0,
+    "max_irr_A": 74.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 142.1
+   }
+  }
+ },
+ "rext10": {
+  "s4screen": {
+   "cfg": "rext10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 10,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 469.8,
+    "max_off_V": -1.427,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 339.4,
+    "max_slew2080_esl10": 82.96,
+    "max_slew1090_esl10": 29.47,
+    "max_slew2080_esl1.06": 80.97,
+    "max_slew1090_esl1.06": 27.27,
+    "max_difdt_75_25": 1789.0,
+    "max_difdt_50_0": 2110.0,
+    "max_irr_A": 83.2,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 80.3
+   }
+  }
+ },
+ "rext12": {
+  "s4screen": {
+   "cfg": "rext12",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 12,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 453.7,
+    "max_off_V": -1.41,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 327.2,
+    "max_slew2080_esl10": 83.05,
+    "max_slew1090_esl10": 24.8,
+    "max_slew2080_esl1.06": 81.9,
+    "max_slew1090_esl1.06": 23.79,
+    "max_difdt_75_25": 1543.0,
+    "max_difdt_50_0": 1767.0,
+    "max_irr_A": 79.6,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 90.1
+   }
+  }
+ },
+ "rext15": {
+  "s4screen": {
+   "cfg": "rext15",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 431.3,
+    "max_off_V": -1.327,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 307.6,
+    "max_slew2080_esl10": 81.8,
+    "max_slew1090_esl10": 23.01,
+    "max_slew2080_esl1.06": 79.82,
+    "max_slew1090_esl1.06": 24.11,
+    "max_difdt_75_25": 1292.0,
+    "max_difdt_50_0": 1431.0,
+    "max_irr_A": 77.2,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.8
+   }
+  }
+ },
+ "rext18": {
+  "s4screen": {
+   "cfg": "rext18",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 18,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 414.3,
+    "max_off_V": -1.337,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 288.4,
+    "max_slew2080_esl10": 76.66,
+    "max_slew1090_esl10": 25.59,
+    "max_slew2080_esl1.06": 73.92,
+    "max_slew1090_esl1.06": 26.95,
+    "max_difdt_75_25": 1068.0,
+    "max_difdt_50_0": 1156.0,
+    "max_irr_A": 73.8,
+    "pass_diode56": 28,
+    "pass_difdt1040": 53,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 119.7
+   }
+  }
+ },
+ "rext22": {
+  "s4screen": {
+   "cfg": "rext22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.34482758621,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 403.1,
+    "max_off_V": -1.309,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 264.4,
+    "max_slew2080_esl10": 70.24,
+    "max_slew1090_esl10": 26.61,
+    "max_slew2080_esl1.06": 67.78,
+    "max_slew1090_esl1.06": 26.76,
+    "max_difdt_75_25": 875.0,
+    "max_difdt_50_0": 970.0,
+    "max_irr_A": 70.0,
+    "pass_diode56": 29,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.5
+   }
+  }
+ },
+ "short24_24": {
+  "s4screen": {
+   "cfg": "short24_24",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "short",
+    "ron": 24,
+    "roff": 24,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 38,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 38,
+    "pass_hot": 0,
+    "max_vds": 452.4,
+    "max_off_V": 2.922,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 329.1,
+    "max_slew2080_esl10": 83.48,
+    "max_slew1090_esl10": 26.98,
+    "max_slew2080_esl1.06": 81.67,
+    "max_slew1090_esl1.06": 25.59,
+    "max_difdt_75_25": 1565.0,
+    "max_difdt_50_0": 1822.0,
+    "max_irr_A": 77.5,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 91.1
+   }
+  }
+ },
+ "short44_44": {
+  "s4screen": {
+   "cfg": "short44_44",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "short",
+    "ron": 44,
+    "roff": 44,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 440.4,
+    "max_off_V": 5.82,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 264.3,
+    "max_slew2080_esl10": 33.27,
+    "max_slew1090_esl10": 20.23,
+    "max_slew2080_esl1.06": 33.23,
+    "max_slew1090_esl1.06": 20.47,
+    "max_difdt_75_25": 926.0,
+    "max_difdt_50_0": 1005.0,
+    "max_irr_A": 74.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 142.1
+   }
+  }
+ },
+ "split100_1": {
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": -0.95,
+    "max_e_off_edge_uJ": 0.82,
+    "max_e_in_uJ": 4.59,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 0.51,
+    "max_e_off_edge_uJ": 2.41,
+    "max_e_in_uJ": 12.8,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 5.4,
+    "max_e_off_edge_uJ": 8.76,
+    "max_e_in_uJ": 28.58,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1266.13,
+    "max_e_off_edge_uJ": 14.0,
+    "max_e_in_uJ": 1355.73,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 44.12,
+    "max_e_tot_uJ": 46.0,
+    "min_vgs_inc_1us_V": 2.25,
+    "min_vgs_inc_2us_V": 7.05,
+    "min_vgs_inc_3us_V": 9.92,
+    "max_q_gate_inc_nC": 308.5,
+    "max_e_ron_cycle_uJ": 2.42,
+    "P_ron_W_at_35_60_80kHz": [
+     0.085,
+     0.145,
+     0.194
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 100.87,
+    "max_e_tot_uJ": 108.16,
+    "min_vgs_inc_1us_V": 3.05,
+    "min_vgs_inc_2us_V": 7.59,
+    "min_vgs_inc_3us_V": 10.22,
+    "max_q_gate_inc_nC": 314.1,
+    "max_e_ron_cycle_uJ": 2.0,
+    "P_ron_W_at_35_60_80kHz": [
+     0.07,
+     0.12,
+     0.16
+    ]
+   }
+  }
+ },
+ "split100_1_tt125": {
+  "s4b": {
+   "cfg": "split100_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 100,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 343.2,
+    "max_off_V": -0.719,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 98.2,
+    "max_slew2080_esl10": 51.13,
+    "max_slew1090_esl10": 20.81,
+    "max_slew2080_esl1.06": 50.55,
+    "max_slew1090_esl1.06": 20.5,
+    "max_difdt_75_25": 274.0,
+    "max_difdt_50_0": 335.0,
+    "max_irr_A": 53.1,
+    "pass_diode56": 19,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 534.2
+   }
+  },
+  "full": {
+   "cfg": "split100_1_tt125",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 100,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 355.6,
+    "max_off_V": -1.754,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 102.8,
+    "max_slew2080_esl10": 20.73,
+    "max_slew1090_esl10": 14.55,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 186.0,
+    "margin_340_ns": 154.0,
+    "margin_408_ns": 222.3
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 410.7,
+    "max_off_V": -2.862,
+    "max_vgs_abs": 14.96,
+    "max_q_gate_inc_nC": 57.6,
+    "max_slew2080_esl10": 29.22,
+    "max_slew1090_esl10": 23.45,
+    "max_slew2080_esl1.06": 28.58,
+    "max_slew1090_esl1.06": 23.19
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 349.0,
+    "max_off_V": -0.382,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 99.1,
+    "max_slew2080_esl10": 51.13,
+    "max_slew1090_esl10": 20.81,
+    "max_slew2080_esl1.06": 50.55,
+    "max_slew1090_esl1.06": 20.5,
+    "max_difdt_75_25": 274.0,
+    "max_difdt_50_0": 335.0,
+    "max_irr_A": 53.1,
+    "pass_diode56": 146,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 534.4
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 356.7,
+    "max_off_V": -0.889,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 98.7,
+    "max_slew2080_esl10": 24.75,
+    "max_slew1090_esl10": 11.13,
+    "max_slew2080_esl1.06": 24.15,
+    "max_slew1090_esl1.06": 11.28,
+    "max_partner_i_A": 31.6
+   }
+  }
+ },
+ "split120_1_tt125": {
+  "s4b": {
+   "cfg": "split120_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 120,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 282.2,
+    "max_off_V": -1.428,
+    "max_vgs_abs": 19.62,
+    "max_q_gate_inc_nC": 214.2,
+    "max_slew2080_esl10": null,
+    "max_slew1090_esl10": null,
+    "max_slew2080_esl1.06": null,
+    "max_slew1090_esl1.06": null,
+    "max_difdt_75_25": 234.0,
+    "max_difdt_50_0": 295.0,
+    "max_irr_A": 9.4,
+    "pass_diode56": 0,
+    "pass_difdt1040": 24,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 635.5
+   }
+  }
+ },
+ "split15_1": {
+  "s4screen": {
+   "cfg": "split15_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 431.3,
+    "max_off_V": -1.411,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 307.5,
+    "max_slew2080_esl10": 81.7,
+    "max_slew1090_esl10": 22.99,
+    "max_slew2080_esl1.06": 79.8,
+    "max_slew1090_esl1.06": 24.2,
+    "max_difdt_75_25": 1292.0,
+    "max_difdt_50_0": 1431.0,
+    "max_irr_A": 77.3,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.8
+   }
+  }
+ },
+ "split15_1_cgd10": {
+  "s4screen": {
+   "cfg": "split15_1_cgd10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 1e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 424.5,
+    "max_off_V": -1.411,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 310.3,
+    "max_slew2080_esl10": 79.84,
+    "max_slew1090_esl10": 23.98,
+    "max_slew2080_esl1.06": 77.18,
+    "max_slew1090_esl1.06": 26.08,
+    "max_difdt_75_25": 1263.0,
+    "max_difdt_50_0": 1379.0,
+    "max_irr_A": 76.3,
+    "pass_diode56": 28,
+    "pass_difdt1040": 1,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.9
+   }
+  }
+ },
+ "split15_1_cgd22": {
+  "s4screen": {
+   "cfg": "split15_1_cgd22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 2.1999999999999998e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 417.4,
+    "max_off_V": -1.412,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 313.5,
+    "max_slew2080_esl10": 77.41,
+    "max_slew1090_esl10": 25.42,
+    "max_slew2080_esl1.06": 74.74,
+    "max_slew1090_esl1.06": 26.64,
+    "max_difdt_75_25": 1226.0,
+    "max_difdt_50_0": 1323.0,
+    "max_irr_A": 75.5,
+    "pass_diode56": 28,
+    "pass_difdt1040": 9,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 105.0
+   }
+  }
+ },
+ "split15_1_cgd47": {
+  "s4screen": {
+   "cfg": "split15_1_cgd47",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 4.7e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 405.5,
+    "max_off_V": -1.387,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 319.7,
+    "max_slew2080_esl10": 72.77,
+    "max_slew1090_esl10": 26.92,
+    "max_slew2080_esl1.06": 70.23,
+    "max_slew1090_esl1.06": 27.09,
+    "max_difdt_75_25": 1149.0,
+    "max_difdt_50_0": 1211.0,
+    "max_irr_A": 73.8,
+    "pass_diode56": 28,
+    "pass_difdt1040": 30,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 105.2
+   }
+  }
+ },
+ "split15_4p7": {
+  "s4screen": {
+   "cfg": "split15_4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 4.7,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 431.2,
+    "max_off_V": -0.304,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 308.6,
+    "max_slew2080_esl10": 81.84,
+    "max_slew1090_esl10": 23.03,
+    "max_slew2080_esl1.06": 79.77,
+    "max_slew1090_esl1.06": 23.33,
+    "max_difdt_75_25": 1294.0,
+    "max_difdt_50_0": 1435.0,
+    "max_irr_A": 77.0,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.8
+   }
+  }
+ },
+ "split15_8p2": {
+  "s4screen": {
+   "cfg": "split15_8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 15,
+    "roff": 8.2,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 431.2,
+    "max_off_V": 0.287,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 309.2,
+    "max_slew2080_esl10": 81.42,
+    "max_slew1090_esl10": 23.11,
+    "max_slew2080_esl1.06": 79.69,
+    "max_slew1090_esl1.06": 22.99,
+    "max_difdt_75_25": 1294.0,
+    "max_difdt_50_0": 1435.0,
+    "max_irr_A": 77.0,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 104.8
+   }
+  }
+ },
+ "split22_1": {
+  "s4screen": {
+   "cfg": "split22_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 403.2,
+    "max_off_V": -1.388,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 264.3,
+    "max_slew2080_esl10": 70.33,
+    "max_slew1090_esl10": 26.63,
+    "max_slew2080_esl1.06": 67.91,
+    "max_slew1090_esl1.06": 26.74,
+    "max_difdt_75_25": 876.0,
+    "max_difdt_50_0": 969.0,
+    "max_irr_A": 70.0,
+    "pass_diode56": 29,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.5
+   }
+  }
+ },
+ "split22_1_cgd10": {
+  "s4screen": {
+   "cfg": "split22_1_cgd10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 1e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 399.9,
+    "max_off_V": -1.388,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 266.3,
+    "max_slew2080_esl10": 68.47,
+    "max_slew1090_esl10": 26.58,
+    "max_slew2080_esl1.06": 65.96,
+    "max_slew1090_esl1.06": 26.4,
+    "max_difdt_75_25": 853.0,
+    "max_difdt_50_0": 948.0,
+    "max_irr_A": 69.3,
+    "pass_diode56": 35,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.6
+   }
+  }
+ },
+ "split22_1_cgd22": {
+  "s4screen": {
+   "cfg": "split22_1_cgd22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 2.1999999999999998e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 395.3,
+    "max_off_V": -1.341,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 268.7,
+    "max_slew2080_esl10": 66.13,
+    "max_slew1090_esl10": 26.29,
+    "max_slew2080_esl1.06": 63.86,
+    "max_slew1090_esl1.06": 25.9,
+    "max_difdt_75_25": 829.0,
+    "max_difdt_50_0": 923.0,
+    "max_irr_A": 68.5,
+    "pass_diode56": 35,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.8
+   }
+  }
+ },
+ "split22_1_cgd47": {
+  "s4screen": {
+   "cfg": "split22_1_cgd47",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 4.7e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 385.0,
+    "max_off_V": -1.195,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 273.8,
+    "max_slew2080_esl10": 62.35,
+    "max_slew1090_esl10": 25.47,
+    "max_slew2080_esl1.06": 60.27,
+    "max_slew1090_esl1.06": 24.85,
+    "max_difdt_75_25": 784.0,
+    "max_difdt_50_0": 878.0,
+    "max_irr_A": 67.4,
+    "pass_diode56": 42,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 140.0
+   }
+  }
+ },
+ "split22_1_cgs2p2": {
+  "s4screen": {
+   "cfg": "split22_1_cgs2p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 2.2000000000000003e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 393.3,
+    "max_off_V": -0.793,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 275.1,
+    "max_slew2080_esl10": 64.72,
+    "max_slew1090_esl10": 25.3,
+    "max_slew2080_esl1.06": 62.66,
+    "max_slew1090_esl1.06": 24.83,
+    "max_difdt_75_25": 687.0,
+    "max_difdt_50_0": 756.0,
+    "max_irr_A": 66.3,
+    "pass_diode56": 38,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 152.4
+   }
+  }
+ },
+ "split22_1_cgs4p7": {
+  "s4screen": {
+   "cfg": "split22_1_cgs4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 4.700000000000001e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 376.6,
+    "max_off_V": -0.007,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 291.5,
+    "max_slew2080_esl10": 54.39,
+    "max_slew1090_esl10": 21.76,
+    "max_slew2080_esl1.06": 52.6,
+    "max_slew1090_esl1.06": 21.44,
+    "max_difdt_75_25": 506.0,
+    "max_difdt_50_0": 596.0,
+    "max_irr_A": 60.1,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 178.8
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 1.05,
+    "max_e_off_edge_uJ": 0.83,
+    "max_e_in_uJ": 3.32,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.34,
+    "max_e_off_edge_uJ": 2.4,
+    "max_e_in_uJ": 11.28,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 8.55,
+    "max_e_off_edge_uJ": 8.86,
+    "max_e_in_uJ": 26.29,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1155.22,
+    "max_e_off_edge_uJ": 9.6,
+    "max_e_in_uJ": 1155.99,
+    "n": 8
+   }
+  }
+ },
+ "split22_1_cgs4p7_tt125": {
+  "s4b": {
+   "cfg": "split22_1_cgs4p7_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 1.0,
+    "cgs": 4.700000000000001e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 429.3,
+    "max_off_V": -0.138,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 290.2,
+    "max_slew2080_esl10": 82.5,
+    "max_slew1090_esl10": 30.83,
+    "max_slew2080_esl1.06": 80.29,
+    "max_slew1090_esl1.06": 30.55,
+    "max_difdt_75_25": 510.0,
+    "max_difdt_50_0": 597.0,
+    "max_irr_A": 77.4,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 178.0
+   }
+  }
+ },
+ "split22_4p7": {
+  "s4screen": {
+   "cfg": "split22_4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 4.7,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 402.8,
+    "max_off_V": -0.287,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 265.4,
+    "max_slew2080_esl10": 70.56,
+    "max_slew1090_esl10": 26.6,
+    "max_slew2080_esl1.06": 67.97,
+    "max_slew1090_esl1.06": 26.73,
+    "max_difdt_75_25": 875.0,
+    "max_difdt_50_0": 969.0,
+    "max_irr_A": 70.0,
+    "pass_diode56": 29,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.5
+   }
+  }
+ },
+ "split22_8p2": {
+  "s4screen": {
+   "cfg": "split22_8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 22,
+    "roff": 8.2,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 402.5,
+    "max_off_V": 0.366,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 266.0,
+    "max_slew2080_esl10": 70.55,
+    "max_slew1090_esl10": 26.57,
+    "max_slew2080_esl1.06": 68.15,
+    "max_slew1090_esl1.06": 26.68,
+    "max_difdt_75_25": 880.0,
+    "max_difdt_50_0": 968.0,
+    "max_irr_A": 70.0,
+    "pass_diode56": 28,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 139.5
+   }
+  }
+ },
+ "split27_1": {
+  "s4screen": {
+   "cfg": "split27_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 394.5,
+    "max_off_V": -1.345,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 238.3,
+    "max_slew2080_esl10": 63.9,
+    "max_slew1090_esl10": 25.56,
+    "max_slew2080_esl1.06": 61.87,
+    "max_slew1090_esl1.06": 25.06,
+    "max_difdt_75_25": 721.0,
+    "max_difdt_50_0": 825.0,
+    "max_irr_A": 66.1,
+    "pass_diode56": 41,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 164.4
+   }
+  }
+ },
+ "split27_4p7": {
+  "s4screen": {
+   "cfg": "split27_4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 4.7,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 394.1,
+    "max_off_V": -0.223,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 239.4,
+    "max_slew2080_esl10": 63.92,
+    "max_slew1090_esl10": 25.58,
+    "max_slew2080_esl1.06": 61.86,
+    "max_slew1090_esl1.06": 25.12,
+    "max_difdt_75_25": 720.0,
+    "max_difdt_50_0": 825.0,
+    "max_irr_A": 66.1,
+    "pass_diode56": 40,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 164.3
+   }
+  }
+ },
+ "split27_8p2": {
+  "s4screen": {
+   "cfg": "split27_8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 27,
+    "roff": 8.2,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 393.9,
+    "max_off_V": 0.422,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 240.0,
+    "max_slew2080_esl10": 64.14,
+    "max_slew1090_esl10": 25.63,
+    "max_slew2080_esl1.06": 61.85,
+    "max_slew1090_esl1.06": 25.13,
+    "max_difdt_75_25": 724.0,
+    "max_difdt_50_0": 824.0,
+    "max_irr_A": 66.0,
+    "pass_diode56": 40,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 164.3
+   }
+  }
+ },
+ "split33_1": {
+  "s4screen": {
+   "cfg": "split33_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 384.5,
+    "max_off_V": -1.225,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 212.6,
+    "max_slew2080_esl10": 57.71,
+    "max_slew1090_esl10": 23.73,
+    "max_slew2080_esl1.06": 55.92,
+    "max_slew1090_esl1.06": 22.61,
+    "max_difdt_75_25": 615.0,
+    "max_difdt_50_0": 715.0,
+    "max_irr_A": 62.4,
+    "pass_diode56": 50,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 194.5
+   }
+  }
+ },
+ "split33_1_cgs2p2": {
+  "s4screen": {
+   "cfg": "split33_1_cgs2p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 2.2000000000000003e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 373.2,
+    "max_off_V": -0.647,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 222.0,
+    "max_slew2080_esl10": 51.45,
+    "max_slew1090_esl10": 21.64,
+    "max_slew2080_esl1.06": 49.54,
+    "max_slew1090_esl1.06": 21.39,
+    "max_difdt_75_25": 496.0,
+    "max_difdt_50_0": 594.0,
+    "max_irr_A": 58.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 212.9
+   }
+  },
+  "full": {
+   "cfg": "split33_1_cgs2p2",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 2.2000000000000003e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 354.5,
+    "max_off_V": -1.538,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 236.3,
+    "max_slew2080_esl10": 20.67,
+    "max_slew1090_esl10": 14.39,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 186.7,
+    "margin_340_ns": 153.3,
+    "margin_408_ns": 221.6
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 427.7,
+    "max_off_V": -1.995,
+    "max_vgs_abs": 14.97,
+    "max_q_gate_inc_nC": 220.3,
+    "max_slew2080_esl10": 22.61,
+    "max_slew1090_esl10": 20.89,
+    "max_slew2080_esl1.06": 22.33,
+    "max_slew1090_esl1.06": 20.83
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 373.5,
+    "max_off_V": -0.632,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 222.0,
+    "max_slew2080_esl10": 55.83,
+    "max_slew1090_esl10": 21.68,
+    "max_slew2080_esl1.06": 55.22,
+    "max_slew1090_esl1.06": 21.45,
+    "max_difdt_75_25": 503.0,
+    "max_difdt_50_0": 597.0,
+    "max_irr_A": 59.6,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 213.4
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 356.4,
+    "max_off_V": -0.57,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 226.3,
+    "max_slew2080_esl10": 42.75,
+    "max_slew1090_esl10": 16.18,
+    "max_slew2080_esl1.06": 42.03,
+    "max_slew1090_esl1.06": 15.88,
+    "max_partner_i_A": 46.5
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 1.41,
+    "max_e_off_edge_uJ": 0.82,
+    "max_e_in_uJ": 3.66,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.71,
+    "max_e_off_edge_uJ": 2.4,
+    "max_e_in_uJ": 11.94,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 8.81,
+    "max_e_off_edge_uJ": 8.73,
+    "max_e_in_uJ": 27.12,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1169.1,
+    "max_e_off_edge_uJ": 10.13,
+    "max_e_in_uJ": 1171.49,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 39.36,
+    "max_e_tot_uJ": 42.06,
+    "min_vgs_inc_1us_V": 9.61,
+    "min_vgs_inc_2us_V": 13.37,
+    "min_vgs_inc_3us_V": 14.45,
+    "max_q_gate_inc_nC": 391.3,
+    "max_e_ron_cycle_uJ": 3.35,
+    "P_ron_W_at_35_60_80kHz": [
+     0.117,
+     0.201,
+     0.268
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 95.19,
+    "max_e_tot_uJ": 102.53,
+    "min_vgs_inc_1us_V": 9.84,
+    "min_vgs_inc_2us_V": 13.42,
+    "min_vgs_inc_3us_V": 14.43,
+    "max_q_gate_inc_nC": 391.4,
+    "max_e_ron_cycle_uJ": 3.07,
+    "P_ron_W_at_35_60_80kHz": [
+     0.107,
+     0.184,
+     0.246
+    ]
+   }
+  }
+ },
+ "split33_1_cgs2p2_tt125": {
+  "s4screen": {
+   "cfg": "split33_1_cgs2p2_tt125",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 2.2000000000000003e-09,
+    "tt": "125e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 414.6,
+    "max_off_V": -0.057,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 218.9,
+    "max_slew2080_esl10": 79.34,
+    "max_slew1090_esl10": 30.58,
+    "max_slew2080_esl1.06": 77.25,
+    "max_slew1090_esl1.06": 30.3,
+    "max_difdt_75_25": 496.0,
+    "max_difdt_50_0": 593.0,
+    "max_irr_A": 74.9,
+    "pass_diode56": 28,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 212.9
+   }
+  }
+ },
+ "split33_1_cgs2p2_tt260": {
+  "s4screen": {
+   "cfg": "split33_1_cgs2p2_tt260",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 2.2000000000000003e-09,
+    "tt": "260e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 43,
+   "pass_hot": 43,
+   "S4": {
+    "n": 56,
+    "pass": 43,
+    "pass_hot": 43,
+    "max_vds": 532.9,
+    "max_off_V": 0.984,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 203.0,
+    "max_slew2080_esl10": 110.79,
+    "max_slew1090_esl10": 44.56,
+    "max_slew2080_esl1.06": 109.7,
+    "max_slew1090_esl1.06": 43.95,
+    "max_difdt_75_25": 496.0,
+    "max_difdt_50_0": 593.0,
+    "max_irr_A": 99.3,
+    "pass_diode56": 28,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 212.9
+   }
+  }
+ },
+ "split33_1_cgs4p7": {
+  "s4screen": {
+   "cfg": "split33_1_cgs4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 4.700000000000001e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 359.3,
+    "max_off_V": 0.049,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 232.1,
+    "max_slew2080_esl10": 34.68,
+    "max_slew1090_esl10": 20.07,
+    "max_slew2080_esl1.06": 33.27,
+    "max_slew1090_esl1.06": 19.73,
+    "max_difdt_75_25": 390.0,
+    "max_difdt_50_0": 472.0,
+    "max_irr_A": 52.5,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 250.7
+   }
+  }
+ },
+ "split33_1_cgs4p7_tt125": {
+  "s4b": {
+   "cfg": "split33_1_cgs4p7_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 1.0,
+    "cgs": 4.700000000000001e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 384.6,
+    "max_off_V": -0.028,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 231.6,
+    "max_slew2080_esl10": 65.53,
+    "max_slew1090_esl10": 28.72,
+    "max_slew2080_esl1.06": 63.79,
+    "max_slew1090_esl1.06": 28.28,
+    "max_difdt_75_25": 392.0,
+    "max_difdt_50_0": 475.0,
+    "max_irr_A": 67.8,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 249.8
+   }
+  }
+ },
+ "split33_4p7": {
+  "s4screen": {
+   "cfg": "split33_4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 4.7,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 384.1,
+    "max_off_V": -0.171,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 213.7,
+    "max_slew2080_esl10": 57.75,
+    "max_slew1090_esl10": 23.78,
+    "max_slew2080_esl1.06": 55.99,
+    "max_slew1090_esl1.06": 22.64,
+    "max_difdt_75_25": 614.0,
+    "max_difdt_50_0": 716.0,
+    "max_irr_A": 62.4,
+    "pass_diode56": 50,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 194.4
+   }
+  }
+ },
+ "split33_8p2": {
+  "s4screen": {
+   "cfg": "split33_8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 33,
+    "roff": 8.2,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 383.8,
+    "max_off_V": 0.456,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 214.3,
+    "max_slew2080_esl10": 57.82,
+    "max_slew1090_esl10": 23.79,
+    "max_slew2080_esl1.06": 56.01,
+    "max_slew1090_esl1.06": 22.67,
+    "max_difdt_75_25": 615.0,
+    "max_difdt_50_0": 715.0,
+    "max_irr_A": 62.4,
+    "pass_diode56": 48,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 194.5
+   }
+  }
+ },
+ "split39_1": {
+  "s4screen": {
+   "cfg": "split39_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 375.8,
+    "max_off_V": -1.125,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 191.3,
+    "max_slew2080_esl10": 52.24,
+    "max_slew1090_esl10": 21.87,
+    "max_slew2080_esl1.06": 50.34,
+    "max_slew1090_esl1.06": 21.6,
+    "max_difdt_75_25": 542.0,
+    "max_difdt_50_0": 635.0,
+    "max_irr_A": 59.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.9
+   }
+  },
+  "s4b": {
+   "cfg": "split39_1",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 375.8,
+    "max_off_V": -1.449,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 189.4,
+    "max_slew2080_esl10": 55.79,
+    "max_slew1090_esl10": 21.87,
+    "max_slew2080_esl1.06": 55.04,
+    "max_slew1090_esl1.06": 21.61,
+    "max_difdt_75_25": 553.0,
+    "max_difdt_50_0": 649.0,
+    "max_irr_A": 60.0,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.0
+   }
+  },
+  "full": {
+   "cfg": "split39_1",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 356.1,
+    "max_off_V": -1.572,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 208.0,
+    "max_slew2080_esl10": 20.73,
+    "max_slew1090_esl10": 14.55,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 185.5,
+    "margin_340_ns": 154.5,
+    "margin_408_ns": 222.8
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 408.5,
+    "max_off_V": -2.133,
+    "max_vgs_abs": 14.97,
+    "max_q_gate_inc_nC": 185.8,
+    "max_slew2080_esl10": 29.31,
+    "max_slew1090_esl10": 23.57,
+    "max_slew2080_esl1.06": 28.69,
+    "max_slew1090_esl1.06": 23.29
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 376.3,
+    "max_off_V": -1.103,
+    "max_vgs_abs": 15.66,
+    "max_q_gate_inc_nC": 191.3,
+    "max_slew2080_esl10": 55.89,
+    "max_slew1090_esl10": 21.94,
+    "max_slew2080_esl1.06": 55.51,
+    "max_slew1090_esl1.06": 21.7,
+    "max_difdt_75_25": 556.0,
+    "max_difdt_50_0": 655.0,
+    "max_irr_A": 60.3,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 225.1
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 360.4,
+    "max_off_V": -0.855,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 198.6,
+    "max_slew2080_esl10": 43.45,
+    "max_slew1090_esl10": 16.5,
+    "max_slew2080_esl1.06": 42.87,
+    "max_slew1090_esl1.06": 16.17,
+    "max_partner_i_A": 47.4
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 1.63,
+    "max_e_off_edge_uJ": 0.81,
+    "max_e_in_uJ": 3.89,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.67,
+    "max_e_off_edge_uJ": 2.4,
+    "max_e_in_uJ": 12.31,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 8.96,
+    "max_e_off_edge_uJ": 8.7,
+    "max_e_in_uJ": 27.55,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1175.54,
+    "max_e_off_edge_uJ": 10.33,
+    "max_e_in_uJ": 1175.98,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 39.61,
+    "max_e_tot_uJ": 42.33,
+    "min_vgs_inc_1us_V": 8.7,
+    "min_vgs_inc_2us_V": 12.85,
+    "min_vgs_inc_3us_V": 14.22,
+    "max_q_gate_inc_nC": 370.5,
+    "max_e_ron_cycle_uJ": 3.47,
+    "P_ron_W_at_35_60_80kHz": [
+     0.121,
+     0.208,
+     0.278
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 95.67,
+    "max_e_tot_uJ": 103.01,
+    "min_vgs_inc_1us_V": 9.07,
+    "min_vgs_inc_2us_V": 12.98,
+    "min_vgs_inc_3us_V": 14.23,
+    "max_q_gate_inc_nC": 370.8,
+    "max_e_ron_cycle_uJ": 3.01,
+    "P_ron_W_at_35_60_80kHz": [
+     0.105,
+     0.181,
+     0.241
+    ]
+   }
+  }
+ },
+ "split39_1_cgs2p2_tt125": {
+  "s4b": {
+   "cfg": "split39_1_cgs2p2_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 2.2e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 398.1,
+    "max_off_V": -0.886,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 196.7,
+    "max_slew2080_esl10": 72.22,
+    "max_slew1090_esl10": 29.95,
+    "max_slew2080_esl1.06": 70.41,
+    "max_slew1090_esl1.06": 29.63,
+    "max_difdt_75_25": 449.0,
+    "max_difdt_50_0": 538.0,
+    "max_irr_A": 71.7,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 245.4
+   }
+  }
+ },
+ "split39_1_cgs4p7_tt125": {
+  "s4b": {
+   "cfg": "split39_1_cgs4p7_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 4.7e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 374.4,
+    "max_off_V": 0.04,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 207.4,
+    "max_slew2080_esl10": 60.97,
+    "max_slew1090_esl10": 25.52,
+    "max_slew2080_esl1.06": 60.73,
+    "max_slew1090_esl1.06": 24.59,
+    "max_difdt_75_25": 351.0,
+    "max_difdt_50_0": 429.0,
+    "max_irr_A": 63.8,
+    "pass_diode56": 17,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 289.4
+   }
+  }
+ },
+ "split39_1_tt125": {
+  "s4screen": {
+   "cfg": "split39_1_tt125",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 415.0,
+    "max_off_V": -0.754,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 178.5,
+    "max_slew2080_esl10": 80.05,
+    "max_slew1090_esl10": 30.93,
+    "max_slew2080_esl1.06": 78.04,
+    "max_slew1090_esl1.06": 30.55,
+    "max_difdt_75_25": 542.0,
+    "max_difdt_50_0": 635.0,
+    "max_irr_A": 75.7,
+    "pass_diode56": 28,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.9
+   }
+  },
+  "s4b": {
+   "cfg": "split39_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 420.0,
+    "max_off_V": -1.451,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 168.9,
+    "max_slew2080_esl10": 80.05,
+    "max_slew1090_esl10": 30.93,
+    "max_slew2080_esl1.06": 78.04,
+    "max_slew1090_esl1.06": 30.55,
+    "max_difdt_75_25": 554.0,
+    "max_difdt_50_0": 649.0,
+    "max_irr_A": 76.6,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.0
+   }
+  }
+ },
+ "split39_1_tt260": {
+  "s4screen": {
+   "cfg": "split39_1_tt260",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "260e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 56,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 532.9,
+    "max_off_V": -0.104,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 115.7,
+    "max_slew2080_esl10": 111.67,
+    "max_slew1090_esl10": 45.08,
+    "max_slew2080_esl1.06": 110.24,
+    "max_slew1090_esl1.06": 44.45,
+    "max_difdt_75_25": 542.0,
+    "max_difdt_50_0": 635.0,
+    "max_irr_A": 100.2,
+    "pass_diode56": 28,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.9
+   }
+  }
+ },
+ "split39_1_tt50": {
+  "s4screen": {
+   "cfg": "split39_1_tt50",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "50e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 375.8,
+    "max_off_V": -1.125,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 191.3,
+    "max_slew2080_esl10": 52.15,
+    "max_slew1090_esl10": 21.87,
+    "max_slew2080_esl1.06": 50.42,
+    "max_slew1090_esl1.06": 21.61,
+    "max_difdt_75_25": 542.0,
+    "max_difdt_50_0": 635.0,
+    "max_irr_A": 59.2,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.9
+   }
+  }
+ },
+ "split39_4p7": {
+  "s4screen": {
+   "cfg": "split39_4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 4.7,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 375.4,
+    "max_off_V": -0.139,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 192.5,
+    "max_slew2080_esl10": 52.29,
+    "max_slew1090_esl10": 21.88,
+    "max_slew2080_esl1.06": 50.49,
+    "max_slew1090_esl1.06": 21.61,
+    "max_difdt_75_25": 544.0,
+    "max_difdt_50_0": 636.0,
+    "max_irr_A": 59.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.9
+   }
+  }
+ },
+ "split39_8p2": {
+  "s4screen": {
+   "cfg": "split39_8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 39,
+    "roff": 8.2,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 375.0,
+    "max_off_V": 0.462,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 193.3,
+    "max_slew2080_esl10": 52.38,
+    "max_slew1090_esl10": 21.88,
+    "max_slew2080_esl1.06": 50.51,
+    "max_slew1090_esl1.06": 21.6,
+    "max_difdt_75_25": 544.0,
+    "max_difdt_50_0": 637.0,
+    "max_irr_A": 59.3,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 224.9
+   }
+  }
+ },
+ "split47_1": {
+  "s4screen": {
+   "cfg": "split47_1",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 367.4,
+    "max_off_V": -1.023,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 169.2,
+    "max_slew2080_esl10": 44.42,
+    "max_slew1090_esl10": 21.1,
+    "max_slew2080_esl1.06": 41.6,
+    "max_slew1090_esl1.06": 20.86,
+    "max_difdt_75_25": 470.0,
+    "max_difdt_50_0": 557.0,
+    "max_irr_A": 55.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 265.5
+   }
+  },
+  "s4b": {
+   "cfg": "split47_1",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 366.3,
+    "max_off_V": -1.444,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 167.9,
+    "max_slew2080_esl10": 52.98,
+    "max_slew1090_esl10": 21.1,
+    "max_slew2080_esl1.06": 52.35,
+    "max_slew1090_esl1.06": 20.86,
+    "max_difdt_75_25": 474.0,
+    "max_difdt_50_0": 562.0,
+    "max_irr_A": 56.3,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 264.6
+   }
+  },
+  "full": {
+   "cfg": "split47_1",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 355.9,
+    "max_off_V": -1.617,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 185.0,
+    "max_slew2080_esl10": 20.73,
+    "max_slew1090_esl10": 14.55,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 185.7,
+    "margin_340_ns": 154.3,
+    "margin_408_ns": 222.6
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 409.2,
+    "max_off_V": -2.308,
+    "max_vgs_abs": 14.97,
+    "max_q_gate_inc_nC": 158.4,
+    "max_slew2080_esl10": 29.33,
+    "max_slew1090_esl10": 23.51,
+    "max_slew2080_esl1.06": 28.71,
+    "max_slew1090_esl1.06": 23.27
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 367.5,
+    "max_off_V": -1.008,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 169.2,
+    "max_slew2080_esl10": 53.25,
+    "max_slew1090_esl10": 21.18,
+    "max_slew2080_esl1.06": 52.54,
+    "max_slew1090_esl1.06": 20.94,
+    "max_difdt_75_25": 478.0,
+    "max_difdt_50_0": 565.0,
+    "max_irr_A": 56.7,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 265.6
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 357.9,
+    "max_off_V": -0.822,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 176.0,
+    "max_slew2080_esl10": 39.99,
+    "max_slew1090_esl10": 15.13,
+    "max_slew2080_esl1.06": 39.4,
+    "max_slew1090_esl1.06": 14.48,
+    "max_partner_i_A": 44.3
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 1.84,
+    "max_e_off_edge_uJ": 0.81,
+    "max_e_in_uJ": 4.27,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 2.47,
+    "max_e_off_edge_uJ": 2.4,
+    "max_e_in_uJ": 12.69,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 9.16,
+    "max_e_off_edge_uJ": 8.72,
+    "max_e_in_uJ": 28.12,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1202.07,
+    "max_e_off_edge_uJ": 10.88,
+    "max_e_in_uJ": 1212.32,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 40.17,
+    "max_e_tot_uJ": 42.61,
+    "min_vgs_inc_1us_V": 7.44,
+    "min_vgs_inc_2us_V": 11.96,
+    "min_vgs_inc_3us_V": 13.74,
+    "max_q_gate_inc_nC": 365.8,
+    "max_e_ron_cycle_uJ": 3.32,
+    "P_ron_W_at_35_60_80kHz": [
+     0.116,
+     0.199,
+     0.266
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 96.37,
+    "max_e_tot_uJ": 103.7,
+    "min_vgs_inc_1us_V": 7.89,
+    "min_vgs_inc_2us_V": 12.16,
+    "min_vgs_inc_3us_V": 13.78,
+    "max_q_gate_inc_nC": 367.4,
+    "max_e_ron_cycle_uJ": 2.86,
+    "P_ron_W_at_35_60_80kHz": [
+     0.1,
+     0.172,
+     0.229
+    ]
+   }
+  }
+ },
+ "split47_1_cgs2p2_tt125": {
+  "s4b": {
+   "cfg": "split47_1_cgs2p2_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 2.2e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 382.2,
+    "max_off_V": -0.749,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 173.7,
+    "max_slew2080_esl10": 63.69,
+    "max_slew1090_esl10": 28.52,
+    "max_slew2080_esl1.06": 62.46,
+    "max_slew1090_esl1.06": 28.03,
+    "max_difdt_75_25": 394.0,
+    "max_difdt_50_0": 478.0,
+    "max_irr_A": 67.1,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 290.0
+   }
+  }
+ },
+ "split47_1_cgs4p7_tt125": {
+  "s4b": {
+   "cfg": "split47_1_cgs4p7_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 4.7e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 363.6,
+    "max_off_V": 0.194,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 181.5,
+    "max_slew2080_esl10": 58.26,
+    "max_slew1090_esl10": 23.18,
+    "max_slew2080_esl1.06": 57.88,
+    "max_slew1090_esl1.06": 22.98,
+    "max_difdt_75_25": 310.0,
+    "max_difdt_50_0": 381.0,
+    "max_irr_A": 59.4,
+    "pass_diode56": 28,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 342.4
+   }
+  }
+ },
+ "split47_1_tt125": {
+  "s4screen": {
+   "cfg": "split47_1_tt125",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 56,
+   "complete": 55,
+   "pass": 55,
+   "pass_hot": 55,
+   "S4": {
+    "n": 55,
+    "pass": 55,
+    "pass_hot": 55,
+    "max_vds": 395.8,
+    "max_off_V": -0.619,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 160.9,
+    "max_slew2080_esl10": 71.99,
+    "max_slew1090_esl10": 30.14,
+    "max_slew2080_esl1.06": 70.24,
+    "max_slew1090_esl1.06": 29.79,
+    "max_difdt_75_25": 470.0,
+    "max_difdt_50_0": 557.0,
+    "max_irr_A": 71.2,
+    "pass_diode56": 27,
+    "pass_difdt1040": 55,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 265.5
+   }
+  },
+  "s4b": {
+   "cfg": "split47_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 396.4,
+    "max_off_V": -1.446,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 153.1,
+    "max_slew2080_esl10": 71.99,
+    "max_slew1090_esl10": 30.14,
+    "max_slew2080_esl1.06": 70.24,
+    "max_slew1090_esl1.06": 29.79,
+    "max_difdt_75_25": 474.0,
+    "max_difdt_50_0": 562.0,
+    "max_irr_A": 72.0,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 264.6
+   }
+  }
+ },
+ "split47_1_tt260": {
+  "s4screen": {
+   "cfg": "split47_1_tt260",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "260e-9"
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 505.5,
+    "max_off_V": 0.038,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 105.7,
+    "max_slew2080_esl10": 106.21,
+    "max_slew1090_esl10": 43.13,
+    "max_slew2080_esl1.06": 105.04,
+    "max_slew1090_esl1.06": 42.42,
+    "max_difdt_75_25": 470.0,
+    "max_difdt_50_0": 557.0,
+    "max_irr_A": 94.9,
+    "pass_diode56": 28,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 265.5
+   }
+  }
+ },
+ "split47_4p7": {
+  "s4screen": {
+   "cfg": "split47_4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 4.7,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 366.9,
+    "max_off_V": -0.118,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 170.2,
+    "max_slew2080_esl10": 44.62,
+    "max_slew1090_esl10": 21.13,
+    "max_slew2080_esl1.06": 41.73,
+    "max_slew1090_esl1.06": 20.88,
+    "max_difdt_75_25": 468.0,
+    "max_difdt_50_0": 557.0,
+    "max_irr_A": 55.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 265.4
+   }
+  }
+ },
+ "split47_8p2": {
+  "s4screen": {
+   "cfg": "split47_8p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 47,
+    "roff": 8.2,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 366.6,
+    "max_off_V": 0.439,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 170.8,
+    "max_slew2080_esl10": 44.59,
+    "max_slew1090_esl10": 21.14,
+    "max_slew2080_esl1.06": 41.69,
+    "max_slew1090_esl1.06": 20.89,
+    "max_difdt_75_25": 469.0,
+    "max_difdt_50_0": 557.0,
+    "max_irr_A": 55.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 265.4
+   }
+  }
+ },
+ "split56_1_cgs2p2_tt125": {
+  "s4b": {
+   "cfg": "split56_1_cgs2p2_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 2.2e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 371.3,
+    "max_off_V": -0.563,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 152.9,
+    "max_slew2080_esl10": 60.84,
+    "max_slew1090_esl10": 24.63,
+    "max_slew2080_esl1.06": 60.38,
+    "max_slew1090_esl1.06": 24.23,
+    "max_difdt_75_25": 349.0,
+    "max_difdt_50_0": 427.0,
+    "max_irr_A": 62.9,
+    "pass_diode56": 28,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 340.2
+   }
+  }
+ },
+ "split56_1_cgs4p7": {
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": -0.5,
+    "max_e_off_edge_uJ": 0.83,
+    "max_e_in_uJ": 4.54,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 0.4,
+    "max_e_off_edge_uJ": 2.42,
+    "max_e_in_uJ": 12.72,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 7.91,
+    "max_e_off_edge_uJ": 9.01,
+    "max_e_in_uJ": 28.49,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1308.17,
+    "max_e_off_edge_uJ": 12.83,
+    "max_e_in_uJ": 1351.77,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 41.07,
+    "max_e_tot_uJ": 42.95,
+    "min_vgs_inc_1us_V": 5.73,
+    "min_vgs_inc_2us_V": 10.26,
+    "min_vgs_inc_3us_V": 12.54,
+    "max_q_gate_inc_nC": 407.0,
+    "max_e_ron_cycle_uJ": 2.81,
+    "P_ron_W_at_35_60_80kHz": [
+     0.098,
+     0.169,
+     0.225
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 97.55,
+    "max_e_tot_uJ": 104.89,
+    "min_vgs_inc_1us_V": 6.06,
+    "min_vgs_inc_2us_V": 10.44,
+    "min_vgs_inc_3us_V": 12.61,
+    "max_q_gate_inc_nC": 408.8,
+    "max_e_ron_cycle_uJ": 2.62,
+    "P_ron_W_at_35_60_80kHz": [
+     0.092,
+     0.157,
+     0.21
+    ]
+   }
+  }
+ },
+ "split56_1_cgs4p7_tt125": {
+  "s4b": {
+   "cfg": "split56_1_cgs4p7_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 4.7e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 354.3,
+    "max_off_V": 0.377,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 159.3,
+    "max_slew2080_esl10": 54.75,
+    "max_slew1090_esl10": 22.29,
+    "max_slew2080_esl1.06": 54.19,
+    "max_slew1090_esl1.06": 22.12,
+    "max_difdt_75_25": 277.0,
+    "max_difdt_50_0": 342.0,
+    "max_irr_A": 55.5,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 402.0
+   }
+  },
+  "full": {
+   "cfg": "split56_1_cgs4p7_tt125",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 4.7e-09,
+    "tt": "125e-9"
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 353.7,
+    "max_off_V": -1.686,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 176.7,
+    "max_slew2080_esl10": 20.62,
+    "max_slew1090_esl10": 14.31,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 190.1,
+    "margin_340_ns": 149.9,
+    "margin_408_ns": 218.2
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 435.0,
+    "max_off_V": -2.438,
+    "max_vgs_abs": 14.96,
+    "max_q_gate_inc_nC": 159.2,
+    "max_slew2080_esl10": 20.55,
+    "max_slew1090_esl10": 19.02,
+    "max_slew2080_esl1.06": 20.3,
+    "max_slew1090_esl1.06": 18.8
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 358.3,
+    "max_off_V": 0.76,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 160.3,
+    "max_slew2080_esl10": 54.75,
+    "max_slew1090_esl10": 22.29,
+    "max_slew2080_esl1.06": 54.19,
+    "max_slew1090_esl1.06": 22.12,
+    "max_difdt_75_25": 278.0,
+    "max_difdt_50_0": 343.0,
+    "max_irr_A": 55.5,
+    "pass_diode56": 336,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 402.1
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 360.6,
+    "max_off_V": -0.172,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 162.2,
+    "max_slew2080_esl10": 26.49,
+    "max_slew1090_esl10": 11.42,
+    "max_slew2080_esl1.06": 26.0,
+    "max_slew1090_esl1.06": 11.48,
+    "max_partner_i_A": 33.1
+   }
+  }
+ },
+ "split56_1_tt125": {
+  "s4b": {
+   "cfg": "split56_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 56,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 383.8,
+    "max_off_V": -1.321,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 138.8,
+    "max_slew2080_esl10": 63.94,
+    "max_slew1090_esl10": 28.93,
+    "max_slew2080_esl1.06": 63.31,
+    "max_slew1090_esl1.06": 28.53,
+    "max_difdt_75_25": 417.0,
+    "max_difdt_50_0": 502.0,
+    "max_irr_A": 67.8,
+    "pass_diode56": 14,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 310.3
+   }
+  }
+ },
+ "split68_1_cgs2p2_tt125": {
+  "s4b": {
+   "cfg": "split68_1_cgs2p2_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 2.2e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 359.9,
+    "max_off_V": -0.3,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 132.4,
+    "max_slew2080_esl10": 57.43,
+    "max_slew1090_esl10": 23.04,
+    "max_slew2080_esl1.06": 56.87,
+    "max_slew1090_esl1.06": 22.88,
+    "max_difdt_75_25": 306.0,
+    "max_difdt_50_0": 376.0,
+    "max_irr_A": 58.3,
+    "pass_diode56": 34,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 407.4
+   }
+  }
+ },
+ "split68_1_cgs4p7": {
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": -1.13,
+    "max_e_off_edge_uJ": 0.83,
+    "max_e_in_uJ": 4.55,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 0.22,
+    "max_e_off_edge_uJ": 2.42,
+    "max_e_in_uJ": 12.72,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 5.64,
+    "max_e_off_edge_uJ": 9.02,
+    "max_e_in_uJ": 28.5,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1347.27,
+    "max_e_off_edge_uJ": 14.04,
+    "max_e_in_uJ": 1399.57,
+    "n": 8
+   }
+  },
+  "slowgate": {
+   "complete": "16/16",
+   "S1_20A": {
+    "max_e_in_uJ": 42.03,
+    "max_e_tot_uJ": 43.91,
+    "min_vgs_inc_1us_V": 4.37,
+    "min_vgs_inc_2us_V": 9.04,
+    "min_vgs_inc_3us_V": 11.56,
+    "max_q_gate_inc_nC": 389.5,
+    "max_e_ron_cycle_uJ": 2.55,
+    "P_ron_W_at_35_60_80kHz": [
+     0.089,
+     0.153,
+     0.204
+    ]
+   },
+   "S1_37A": {
+    "max_e_in_uJ": 98.69,
+    "max_e_tot_uJ": 105.97,
+    "min_vgs_inc_1us_V": 4.76,
+    "min_vgs_inc_2us_V": 9.26,
+    "min_vgs_inc_3us_V": 11.66,
+    "max_q_gate_inc_nC": 391.8,
+    "max_e_ron_cycle_uJ": 2.37,
+    "P_ron_W_at_35_60_80kHz": [
+     0.083,
+     0.142,
+     0.19
+    ]
+   }
+  }
+ },
+ "split68_1_cgs4p7_tt125": {
+  "s4b": {
+   "cfg": "split68_1_cgs4p7_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 4.7e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 341.7,
+    "max_off_V": 0.237,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 136.9,
+    "max_slew2080_esl10": 49.7,
+    "max_slew1090_esl10": 20.68,
+    "max_slew2080_esl1.06": 49.15,
+    "max_slew1090_esl1.06": 20.24,
+    "max_difdt_75_25": 244.0,
+    "max_difdt_50_0": 302.0,
+    "max_irr_A": 50.8,
+    "pass_diode56": 42,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 481.4
+   }
+  },
+  "full": {
+   "cfg": "split68_1_cgs4p7_tt125",
+   "grid": "full",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 4.7e-09,
+    "tt": "125e-9"
+   },
+   "runs": 640,
+   "complete": 640,
+   "pass": 640,
+   "pass_hot": 640,
+   "S1": {
+    "n": 80,
+    "pass": 80,
+    "pass_hot": 80,
+    "max_vds": 353.6,
+    "max_off_V": -1.718,
+    "max_vgs_abs": 14.98,
+    "max_q_gate_inc_nC": 153.1,
+    "max_slew2080_esl10": 20.62,
+    "max_slew1090_esl10": 14.31,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 190.2,
+    "margin_340_ns": 149.8,
+    "margin_408_ns": 218.1
+   },
+   "S2": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 435.0,
+    "max_off_V": -2.567,
+    "max_vgs_abs": 14.96,
+    "max_q_gate_inc_nC": 133.7,
+    "max_slew2080_esl10": 20.53,
+    "max_slew1090_esl10": 19.0,
+    "max_slew2080_esl1.06": 20.26,
+    "max_slew1090_esl1.06": 18.82
+   },
+   "S4": {
+    "n": 336,
+    "pass": 336,
+    "pass_hot": 336,
+    "max_vds": 347.2,
+    "max_off_V": 0.497,
+    "max_vgs_abs": 15.02,
+    "max_q_gate_inc_nC": 138.0,
+    "max_slew2080_esl10": 49.7,
+    "max_slew1090_esl10": 20.68,
+    "max_slew2080_esl1.06": 49.15,
+    "max_slew1090_esl1.06": 20.24,
+    "max_difdt_75_25": 244.0,
+    "max_difdt_50_0": 302.0,
+    "max_irr_A": 50.8,
+    "pass_diode56": 319,
+    "pass_difdt1040": 336,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 481.4
+   },
+   "S5": {
+    "n": 168,
+    "pass": 168,
+    "pass_hot": 168,
+    "max_vds": 360.3,
+    "max_off_V": -0.219,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 139.1,
+    "max_slew2080_esl10": 22.1,
+    "max_slew1090_esl10": 10.89,
+    "max_slew2080_esl1.06": 20.63,
+    "max_slew1090_esl1.06": 11.01,
+    "max_partner_i_A": 30.4
+   }
+  }
+ },
+ "split68_1_tt125": {
+  "s4b": {
+   "cfg": "split68_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 68,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 371.5,
+    "max_off_V": -1.018,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 122.8,
+    "max_slew2080_esl10": 60.8,
+    "max_slew1090_esl10": 24.95,
+    "max_slew2080_esl1.06": 60.44,
+    "max_slew1090_esl1.06": 24.58,
+    "max_difdt_75_25": 363.0,
+    "max_difdt_50_0": 437.0,
+    "max_irr_A": 63.0,
+    "pass_diode56": 28,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 371.5
+   }
+  }
+ },
+ "split82_1_tt125": {
+  "s4b": {
+   "cfg": "split82_1_tt125",
+   "grid": "s4b",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 82,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "tt": "125e-9"
+   },
+   "runs": 42,
+   "complete": 42,
+   "pass": 42,
+   "pass_hot": 42,
+   "S4": {
+    "n": 42,
+    "pass": 42,
+    "pass_hot": 42,
+    "max_vds": 360.3,
+    "max_off_V": -0.706,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 108.8,
+    "max_slew2080_esl10": 57.24,
+    "max_slew1090_esl10": 23.36,
+    "max_slew2080_esl1.06": 56.63,
+    "max_slew1090_esl1.06": 23.19,
+    "max_difdt_75_25": 317.0,
+    "max_difdt_50_0": 385.0,
+    "max_irr_A": 58.4,
+    "pass_diode56": 36,
+    "pass_difdt1040": 42,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 442.8
+   }
+  }
+ },
+ "split8p2_1_cgd10": {
+  "s4screen": {
+   "cfg": "split8p2_1_cgd10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 1e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 465.2,
+    "max_off_V": -1.224,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 353.9,
+    "max_slew2080_esl10": 84.82,
+    "max_slew1090_esl10": 34.43,
+    "max_slew2080_esl1.06": 81.78,
+    "max_slew1090_esl1.06": 31.72,
+    "max_difdt_75_25": 1996.0,
+    "max_difdt_50_0": 2370.0,
+    "max_irr_A": 85.8,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.7
+   }
+  }
+ },
+ "split8p2_1_cgd22": {
+  "s4screen": {
+   "cfg": "split8p2_1_cgd22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 2.1999999999999998e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 460.6,
+    "max_off_V": -1.223,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 357.9,
+    "max_slew2080_esl10": 83.99,
+    "max_slew1090_esl10": 30.43,
+    "max_slew2080_esl1.06": 81.79,
+    "max_slew1090_esl1.06": 28.63,
+    "max_difdt_75_25": 1961.0,
+    "max_difdt_50_0": 2299.0,
+    "max_irr_A": 82.0,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.8
+   }
+  }
+ },
+ "split8p2_1_cgd47": {
+  "s4screen": {
+   "cfg": "split8p2_1_cgd47",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 1e-09,
+    "cgd": 4.7e-11
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 449.0,
+    "max_off_V": -1.195,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 365.8,
+    "max_slew2080_esl10": 82.61,
+    "max_slew1090_esl10": 26.18,
+    "max_slew2080_esl1.06": 80.59,
+    "max_slew1090_esl1.06": 25.21,
+    "max_difdt_75_25": 1883.0,
+    "max_difdt_50_0": 2160.0,
+    "max_irr_A": 80.6,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 71.9
+   }
+  }
+ },
+ "split8p2_1_cgs2p2": {
+  "s4screen": {
+   "cfg": "split8p2_1_cgs2p2",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 2.2000000000000003e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 463.5,
+    "max_off_V": -1.2,
+    "max_vgs_abs": 15.04,
+    "max_q_gate_inc_nC": 371.7,
+    "max_slew2080_esl10": 85.98,
+    "max_slew1090_esl10": 29.11,
+    "max_slew2080_esl1.06": 83.86,
+    "max_slew1090_esl1.06": 27.86,
+    "max_difdt_75_25": 1730.0,
+    "max_difdt_50_0": 1931.0,
+    "max_irr_A": 79.6,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 77.8
+   }
+  }
+ },
+ "split8p2_1_cgs4p7": {
+  "s4screen": {
+   "cfg": "split8p2_1_cgs4p7",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "split",
+    "ron": 8.2,
+    "roff": 1.0,
+    "cgs": 4.700000000000001e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 56,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 56,
+    "max_vds": 446.5,
+    "max_off_V": -0.197,
+    "max_vgs_abs": 15.03,
+    "max_q_gate_inc_nC": 405.3,
+    "max_slew2080_esl10": 83.47,
+    "max_slew1090_esl10": 24.13,
+    "max_slew2080_esl1.06": 81.86,
+    "max_slew1090_esl1.06": 24.27,
+    "max_difdt_75_25": 1383.0,
+    "max_difdt_50_0": 1417.0,
+    "max_irr_A": 77.8,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 90.0
+   }
+  }
+ },
+ "sym10": {
+  "s4screen": {
+   "cfg": "sym10",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "sym",
+    "ron": 10,
+    "roff": 10,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 56,
+   "pass_hot": 47,
+   "S4": {
+    "n": 56,
+    "pass": 56,
+    "pass_hot": 47,
+    "max_vds": 460.6,
+    "max_off_V": 2.035,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 343.0,
+    "max_slew2080_esl10": 84.12,
+    "max_slew1090_esl10": 31.5,
+    "max_slew2080_esl1.06": 82.35,
+    "max_slew1090_esl1.06": 29.57,
+    "max_difdt_75_25": 1799.0,
+    "max_difdt_50_0": 2137.0,
+    "max_irr_A": 79.1,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 81.1
+   }
+  }
+ },
+ "sym12": {
+  "s4screen": {
+   "cfg": "sym12",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "sym",
+    "ron": 12,
+    "roff": 12,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 38,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 38,
+    "pass_hot": 0,
+    "max_vds": 452.4,
+    "max_off_V": 2.922,
+    "max_vgs_abs": 15.01,
+    "max_q_gate_inc_nC": 329.1,
+    "max_slew2080_esl10": 83.48,
+    "max_slew1090_esl10": 26.98,
+    "max_slew2080_esl1.06": 81.67,
+    "max_slew1090_esl1.06": 25.59,
+    "max_difdt_75_25": 1565.0,
+    "max_difdt_50_0": 1822.0,
+    "max_irr_A": 77.5,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 91.1
+   }
+  }
+ },
+ "sym15": {
+  "s4screen": {
+   "cfg": "sym15",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "sym",
+    "ron": 15,
+    "roff": 15,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 434.1,
+    "max_off_V": 4.139,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 308.5,
+    "max_slew2080_esl10": 81.92,
+    "max_slew1090_esl10": 24.62,
+    "max_slew2080_esl1.06": 80.03,
+    "max_slew1090_esl1.06": 24.13,
+    "max_difdt_75_25": 1316.0,
+    "max_difdt_50_0": 1495.0,
+    "max_irr_A": 76.6,
+    "pass_diode56": 28,
+    "pass_difdt1040": 0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 106.2
+   }
+  },
+  "loss": {
+   "complete": "40/40",
+   "S1_10A": {
+    "max_e_extra_uJ": 259.45,
+    "max_e_off_edge_uJ": 68.17,
+    "max_e_in_uJ": 196.05,
+    "n": 8
+   },
+   "S1_20A": {
+    "max_e_extra_uJ": 256.6,
+    "max_e_off_edge_uJ": 113.79,
+    "max_e_in_uJ": 152.38,
+    "n": 8
+   },
+   "S1_37A": {
+    "max_e_extra_uJ": 321.84,
+    "max_e_off_edge_uJ": 238.43,
+    "max_e_in_uJ": 110.88,
+    "n": 8
+   },
+   "S4_-20A": {
+    "max_e_extra_uJ": 1153.0,
+    "max_e_off_edge_uJ": 106.63,
+    "max_e_in_uJ": 1072.07,
+    "n": 8
+   }
+  }
+ },
+ "sym18": {
+  "s4screen": {
+   "cfg": "sym18",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "sym",
+    "ron": 18,
+    "roff": 18,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 425.3,
+    "max_off_V": 5.177,
+    "max_vgs_abs": 15.0,
+    "max_q_gate_inc_nC": 288.4,
+    "max_slew2080_esl10": 78.29,
+    "max_slew1090_esl10": 25.12,
+    "max_slew2080_esl1.06": 75.74,
+    "max_slew1090_esl1.06": 25.31,
+    "max_difdt_75_25": 1107.0,
+    "max_difdt_50_0": 1232.0,
+    "max_irr_A": 74.4,
+    "pass_diode56": 29,
+    "pass_difdt1040": 39,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 121.5
+   }
+  }
+ },
+ "sym22": {
+  "s4screen": {
+   "cfg": "sym22",
+   "grid": "s4screen",
+   "spec": {
+    "model": "IPW65R018CFD7_L1",
+    "topo": "sym",
+    "ron": 22,
+    "roff": 22,
+    "cgs": 1e-09
+   },
+   "runs": 56,
+   "complete": 56,
+   "pass": 0,
+   "pass_hot": 0,
+   "S4": {
+    "n": 56,
+    "pass": 0,
+    "pass_hot": 0,
+    "max_vds": 440.4,
+    "max_off_V": 5.82,
+    "max_vgs_abs": 14.99,
+    "max_q_gate_inc_nC": 264.3,
+    "max_slew2080_esl10": 33.27,
+    "max_slew1090_esl10": 20.23,
+    "max_slew2080_esl1.06": 33.23,
+    "max_slew1090_esl1.06": 20.47,
+    "max_difdt_75_25": 926.0,
+    "max_difdt_50_0": 1005.0,
+    "max_irr_A": 74.6,
+    "pass_diode56": 56,
+    "pass_difdt1040": 56,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    },
+    "max_turn_on_delay_gate4_ns": 142.1
+   }
+  }
+ }
+}

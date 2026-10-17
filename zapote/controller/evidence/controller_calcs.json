@@ -1,0 +1,438 @@
+{
+  "adc_pattern": {
+    "checks": {
+      "pattern_len_le_24": true,
+      "total_le_datasheet_100k": true,
+      "total_le_idf_83333": true,
+      "vbus_gap_le_150us": true,
+      "vbus_ge_20k": true
+    },
+    "pattern": [
+      "VBUS",
+      "CT_MON",
+      "VBUS",
+      "CT_MON",
+      "VBUS",
+      "HS",
+      "COIL",
+      "M12"
+    ],
+    "rates_sps": {
+      "COIL": 10000.0,
+      "CT_MON": 20000.0,
+      "HS": 10000.0,
+      "M12": 10000.0,
+      "VBUS": 30000.0
+    },
+    "source": [
+      "ESP32-S3",
+      "ESP-IDF",
+      "D-11"
+    ],
+    "total_sps": 80000.0,
+    "vbus_max_gap_us": 50.0
+  },
+  "ct_mon": {
+    "atten": "ATTEN3 (0-2900 mV)",
+    "checks": {
+      "load_ge_1Mohm": true,
+      "trip_range_in_atten3": true
+    },
+    "gain_error": 0.0001999600079984003,
+    "load_ohm": 10000000.0,
+    "range_V": {
+      "22 A RMS tank": [
+        1.1833095244168785,
+        2.1166904755831215
+      ],
+      "55 A pk trip": [
+        0.825,
+        2.4749999999999996
+      ]
+    },
+    "settled": "CT_SENSE_MON via R47 1k, ~2 kOhm source",
+    "source": [
+      "ESP32-S3"
+    ]
+  },
+  "d11_receiver": {
+    "adc_V_at_bus": {
+      "0 V": 0.2477700693756194,
+      "170 V": 0.9561781292975521,
+      "198 V": 1.0728571038729293,
+      "230 V": 1.206204503387646
+    },
+    "atten": "ATTEN2 (0-1600 mV)",
+    "bias_V": 0.2477700693756194,
+    "bias_d11_V": 0.25,
+    "bias_shift_mV": -2.229930624380594,
+    "bus_V_at_1210mV": 230.9108230984431,
+    "checks": {
+      "198V_below_overrange": true,
+      "full_scale_in_atten2": true,
+      "zero_above_invalid_100mV": true
+    },
+    "source": [
+      "D-11",
+      "ESP32-S3"
+    ]
+  },
+  "en_uvlo": {
+    "checks": {
+      "starts_below_irm_min": true,
+      "stops_above_8V": true
+    },
+    "source": [
+      "TPS62933",
+      "IRM-20-15"
+    ],
+    "start_max_V": 12.072219717839554,
+    "start_typ_V": 10.9426801980198,
+    "stop_min_V": 9.802991089108911
+  },
+  "encoder_supply": {
+    "checks": {
+      "ldo_headroom": true,
+      "ldo_tj_le_125C_at_60C_ambient": true,
+      "resistors_le_half_rating": true
+    },
+    "ldo_rise_C": 39.388,
+    "rows": {
+      "vin_max": {
+        "ldo_W": 0.143125,
+        "ldo_in_V": 8.375,
+        "per_resistor_W": 0.12249999999999997
+      },
+      "vin_min": {
+        "ldo_W": 0.11687500000000003,
+        "ldo_in_V": 7.625000000000001,
+        "per_resistor_W": 0.12249999999999997
+      }
+    },
+    "source": "TI TLV760 datasheet (IGND, dropout 1.2 V, RthJA 275.2 C/W); 1206 = 0.25 W"
+  },
+  "failed_checks": [],
+  "fan_buck": {
+    "checks": {
+      "duty_ok_without_foldback": true,
+      "vout_in_fan_range": true
+    },
+    "duty_max_with_foldback": 0.98,
+    "duty_max_without_foldback_typ": 0.923,
+    "duty_required": 0.8460881927710844,
+    "fan_range_V": [
+      7.0,
+      13.2
+    ],
+    "source": [
+      "TPS62933",
+      "IRM-20-15",
+      "Delta PFB0612EHE-F00"
+    ],
+    "vin_min_V": 14.525,
+    "vout_band_V": [
+      11.78454,
+      12.21654
+    ]
+  },
+  "harness_sensitivity": {
+    "checks": {
+      "default_and_r27_route_inside_contract": true
+    },
+    "default_m": 1.0,
+    "native21_v3v3_min_V_by_length": {
+      "0.074 m": 3.240759853616425,
+      "0.5 m": 3.2389846941129368,
+      "1.0 m": 3.2369011735689366,
+      "2.0 m": 3.232734132480937,
+      "4.0 m": 3.224400050304937,
+      "8.0 m": 3.2077318859529367
+    }
+  },
+  "landings": {
+    "conflicts_orientation_blind": [
+      "J3 pan RTD (rear)"
+    ],
+    "note": "informational (enclosure-owned geometry): the circle bound assumes the worst orientation; an XH body along the rear edge (5.75 mm deep) clears J3's keepout",
+    "rows": {
+      "J1 coil NTC (top)": {
+        "conflict": false,
+        "distance_mm": 15.13,
+        "landing": [
+          -60.0,
+          88.0
+        ],
+        "nearest_hole": [
+          -75.0,
+          86.0
+        ],
+        "needed_mm": 7.7,
+        "on_board": [
+          -60.0,
+          88.0
+        ]
+      },
+      "J10 fan (rear, R25)": {
+        "conflict": false,
+        "distance_mm": 13.45,
+        "landing": [
+          -155.0,
+          91.3
+        ],
+        "nearest_hole": [
+          -164.0,
+          80.0
+        ],
+        "needed_mm": 8.95,
+        "on_board": [
+          -155.0,
+          90.0
+        ]
+      },
+      "J2 heatsink NTC (top)": {
+        "conflict": false,
+        "distance_mm": 15.23,
+        "landing": [
+          20.0,
+          88.0
+        ],
+        "nearest_hole": [
+          26.0,
+          74.0
+        ],
+        "needed_mm": 7.7,
+        "on_board": [
+          20.0,
+          88.0
+        ]
+      },
+      "J3 pan RTD (rear)": {
+        "conflict": true,
+        "distance_mm": 10.05,
+        "landing": [
+          -165.0,
+          92.0
+        ],
+        "nearest_hole": [
+          -164.0,
+          80.0
+        ],
+        "needed_mm": 10.2,
+        "on_board": [
+          -165.0,
+          90.0
+        ]
+      },
+      "J4 SELV (right)": {
+        "conflict": false,
+        "distance_mm": 24.33,
+        "landing": [
+          42.2,
+          42.0
+        ],
+        "nearest_hole": [
+          34.0,
+          18.0
+        ],
+        "needed_mm": 17.82,
+        "on_board": [
+          38.0,
+          42.0
+        ]
+      },
+      "J5 encoder (right, R25)": {
+        "conflict": false,
+        "distance_mm": 15.62,
+        "landing": [
+          42.2,
+          64.0
+        ],
+        "nearest_hole": [
+          26.0,
+          74.0
+        ],
+        "needed_mm": 8.85,
+        "on_board": [
+          38.0,
+          64.0
+        ]
+      },
+      "J6 OLED (top)": {
+        "conflict": false,
+        "distance_mm": 43.08,
+        "landing": [
+          -35.0,
+          70.0
+        ],
+        "nearest_hole": [
+          -75.0,
+          86.0
+        ],
+        "needed_mm": 15.2,
+        "on_board": [
+          -35.0,
+          70.0
+        ]
+      },
+      "J7 buttons A (top)": {
+        "conflict": false,
+        "distance_mm": 33.97,
+        "landing": [
+          -90.0,
+          41.0
+        ],
+        "nearest_hole": [
+          -65.0,
+          18.0
+        ],
+        "needed_mm": 8.95,
+        "on_board": [
+          -90.0,
+          41.0
+        ]
+      },
+      "J8 button B (top)": {
+        "conflict": false,
+        "distance_mm": 37.01,
+        "landing": [
+          5.0,
+          41.0
+        ],
+        "nearest_hole": [
+          34.0,
+          18.0
+        ],
+        "needed_mm": 7.7,
+        "on_board": [
+          5.0,
+          41.0
+        ]
+      },
+      "J9 M12 probe (right, R25)": {
+        "conflict": false,
+        "distance_mm": 16.97,
+        "landing": [
+          39.2,
+          86.0
+        ],
+        "nearest_hole": [
+          26.0,
+          74.0
+        ],
+        "needed_mm": 8.95,
+        "on_board": [
+          38.0,
+          86.0
+        ]
+      }
+    },
+    "source": "CONTROLLER-SPEC R27 harness table and hole list; JLC body lengths"
+  },
+  "rail_3v3": {
+    "checks": {
+      "ov_trip_max_le_contract_max": true,
+      "reg_band_inside_contract": true,
+      "slow_excursion_margins_ge_30mV": true,
+      "uv_release_cleared": true,
+      "uv_trip_min_ge_contract_min": true
+    },
+    "feedback": {
+      "r_bot": 7060.0,
+      "r_top": 22100.0,
+      "tcr_drift": 0.0015,
+      "tol": 0.001
+    },
+    "high_transient_margin_V": 0.03909451188393165,
+    "inductor_ripple_A_pp": 0.7303899091415533,
+    "low_transient_margin_V": 0.04684934181844058,
+    "ripple_assumption": "L -20 %, f 450 kHz, Cout_eff = 3x22uF x0.8 x0.5 (DC bias) -- allocation",
+    "sense_filter": "1 kOhm / 1 uF, tau 1 ms",
+    "source": [
+      "TPS62933",
+      "TPS3703A4330"
+    ],
+    "uv_release_margin_V": 0.02132793381844067,
+    "uv_release_max_V": 3.217212407999999,
+    "vout_band_0_85C_V": [
+      3.2423828813236035,
+      3.3665539486109046
+    ],
+    "vout_nominal_V": 3.304249291784703,
+    "vout_ripple_V_pp": 0.00768507901032779,
+    "window_ov_trip_V": [
+      3.407976,
+      3.4560239999999998
+    ],
+    "window_uv_trip_V": [
+      3.1458239999999997,
+      3.1901759999999992
+    ]
+  },
+  "rms_channel": {
+    "adc_V_at_22A_rms": 1.32,
+    "adc_V_at_55A_peak_trip": 2.3334523779156067,
+    "adc_lsb_V": 0.000822021484375,
+    "bandwidth_1pct_Hz": 65000.0,
+    "checks": {
+      "bandwidth_covers_tank_band": true,
+      "clamp_keeps_adc_within_vdd_plus_0p6": true,
+      "coupling_error_lt_0p1pct": true,
+      "leakage_error_lt_0p5pct": true,
+      "settles_within_half_line_cycle": true,
+      "trip_level_inside_adc_range": true
+    },
+    "clamp_node_max_over_vdd_V": 0.5,
+    "codes_at_22A": 1605.7974457974458,
+    "coupling_error_at_31kHz": 2.0591761121457886e-05,
+    "fault_clamp_current_A": 0.011007999999999999,
+    "gain": 4.0,
+    "gain_tolerance": 0.0015,
+    "leakage_error_at_22A": 0.0015151515151515152,
+    "post_filter_Hz": 994.718394324346,
+    "reference": "MCP3202 VREF = v3v3 (3.242-3.367 V); CH1 reads the LM4040A25 (0.1 %) so firmware divides it out",
+    "ripple_attenuation_2f": 0.01604178058560903,
+    "settling_0p1pct_fall_ms_assumed": 3.4099999999999997,
+    "source": "AD8436 Rev. B; MCP3202 DS21034F; BAT54S DS11005; CT transfer 15 mV/A",
+    "tank_band_Hz": [
+      31000.0,
+      55000.0
+    ]
+  },
+  "runaway": {
+    "checks": {
+      "above_cooking_max": true,
+      "below_350C": true
+    },
+    "divider": "20.0k / 10.0k 0.1 % 25 ppm from MAX31865 BIAS",
+    "firmware_runaway_C": 300.0,
+    "k_nominal": 0.3333333333333333,
+    "lead_allocation_ohm": "0-1 per conductor (RTD contract)",
+    "max_cooking_C": 250.0,
+    "source": [
+      "MAX31865",
+      "TLV3201",
+      "Pt100"
+    ],
+    "trip_resistance_nominal_ohm": 214.99999999999994,
+    "trip_temp_band_C": [
+      296.6425302943203,
+      319.0529645941341
+    ],
+    "trip_temp_nominal_C": 308.28925854023976
+  },
+  "schema": "temper.controller.calcs.v1",
+  "sources": {
+    "AWG22": "52.96 mOhm/m copper at 20 C; x1.197 at 70 C (alpha 0.00393/K)",
+    "D-11": "power-stage out-D11/README.md section 2: VADC = Vbias + 0.5 (VBUS_P - VBUS_N); divider 4 x 470k / 15.8k; over-range 1210 mV; invalid < 100 mV; 150 us stale",
+    "Delta PFB0612EHE-F00": "DigiKey 603-1923-ND listing: 12 V rated, 7-13.2 V range, 0.63 A, 3-wire tach",
+    "ESP-IDF": "esp-idf v5.2.3 components/soc/esp32s3/include/soc/soc_caps.h: SOC_ADC_SAMPLE_FREQ_THRES_HIGH 83333, SOC_ADC_PATT_LEN_MAX 24",
+    "ESP32-S3": "Espressif ESP32-S3 datasheet v2.2 Tables 5-5/5-6: SAR ADC 100 kSPS max; ATTEN2 0-1600 mV +/-10 mV, ATTEN3 0-2900 mV +/-50 mV (25 C, DC, 100 nF, Wi-Fi off)",
+    "IRM-20-15": "Mean Well IRM-20-SPEC 2025-11-21: 15 V, 1.4 A, 21 W, tolerance +/-2.5 % (set-up + line + load), ripple 200 mVp-p",
+    "MAX31865": "ADI MAX31865 datasheet: VBIAS 1.95-2.06 V; BIAS IOUT 0.2-5.75 mA; 30 mV/mA load reg",
+    "Micro-Fit": "Molex 43030 terminal, 10 mOhm max contact resistance (distributor listing, RS 2333021; Molex PS to confirm)",
+    "Pt100": "IEC 60751 Callendar-Van Dusen, A = 3.9083e-3, B = -5.775e-7 (T >= 0 C)",
+    "TLV3201": "TI SBOS561C: VIO 5 mV max at 25 C, 4 mV max -40..125 C row; 1.2 mV input hysteresis",
+    "TPS3703A4330": "TI SBVS344D (TPS3703A4330DSERQ1, fitted; same as SBVS249B commercial): thresholds 3.3 V +/-4 %, accuracy +/-0.7 %, VHYS 0.3-0.8 %, tD 7-13 ms (CT open), UVLO 1.2-1.7 V",
+    "TPS62933": "TI SLUSEA4D 8.5: VFB 788-812 mV (TJ 0-85 C), 784-816 mV (-40-150 C); VEN_RISE 1.21 typ/1.28 max, VEN_FALL 1.10 min/1.17 typ; Ip 0.7 uA; Ih 1.4 uA; f 450-550 kHz (RT open); tOFF_MIN 140 ns typ; 98 % max duty with foldback"
+  }
+}

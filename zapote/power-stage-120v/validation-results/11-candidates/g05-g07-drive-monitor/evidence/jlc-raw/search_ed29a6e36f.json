@@ -1,0 +1,571 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 3,
+   "list": [
+    {
+     "componentId": 3563489,
+     "componentLibraryType": "expand",
+     "stockCount": 657,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u9ad8\u901f\u30015A \u53cc\u901a\u9053\u3001\u5e26\u4f7f\u80fd\u5f15\u811a\u7684\u4f4e\u7aef\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_novosense-nsd1025-dspr_C3029745.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7324
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.579
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5024
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4257
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3801
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3556
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.484
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3426
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7055
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3661
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4101
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5578
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 335,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "NOVOSENSE-NSD1025DSPR/C3029745",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 2.0,
+     "preMinPurchaseNum": 16,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.7324,
+     "componentCode": "C3029745",
+     "componentBrandEn": "NOVOSENSE",
+     "componentModelEn": "NSD1025-DSPR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584835614441418752",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2205311716_NOVOSENSE-NSD1025-DSPR_C3029745.pdf",
+     "dataManualFileAccessId": "8590234570869141504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "NOVOSENSE NSD1025-DSPR",
+     "minImage": "",
+     "minImageAccessId": "8584835615367548928",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8",
+     "describe": "-40\u2103~+125\u2103 1.7V~2.6V 1V~1.6V 2 21ns 21ns 4.5V~20V 8ns 950uA 9ns IGBT\u3001MOSFET Low Side Under Voltage Protection SOP-8 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "21ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Low Side"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "5A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "1V~1.6V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "950uA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "9ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.7V~2.6V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.5V~20V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "21ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "7A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSD1025</span>-DSPR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6319471,
+     "componentLibraryType": "expand",
+     "stockCount": 3066,
+     "componentTypeEn": "Gate Drivers",
+     "erpComponentName": "\u9ad8\u901f\u30015A \u53cc\u901a\u9053\u3001\u5e26\u4f7f\u80fd\u5f15\u811a\u7684\u4f4e\u7aef\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gate-drivers_novosense-nsd1025e-dhmsr_C5439828.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9118
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7209
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6247
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5301
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.473
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4437
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4274
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6018
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8783
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4557
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5107
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6945
+      }
+     ],
+     "firstSortAccessId": "ed01977635a7431782c6574574e570d3",
+     "secondSortAccessId": "034a9e679d364d77a078fc9ad4e4118b",
+     "canPresaleNumber": 3060,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "NOVOSENSE-NSD1025EDHMSR/C5439828",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.5,
+     "preMinPurchaseNum": 13,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.9118,
+     "componentCode": "C5439828",
+     "componentBrandEn": "NOVOSENSE",
+     "componentModelEn": "NSD1025E-DHMSR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585216142420160512",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304120930_NOVOSENSE-NSD1025E-DHMSR_C5439828.pdf",
+     "dataManualFileAccessId": "8590906447729541120",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "NOVOSENSE NSD1025E-DHMSR",
+     "minImage": "",
+     "minImageAccessId": "8585216143384850432",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "MSOP-8",
+     "describe": "-40\u2103~+125\u2103 1.4V 1.7V 2 4.5V~24V 50ns 50ns 5A 7A 8ns 950uA 9ns IGBT\u3001MOSFET Low Side Under Voltage Protection MSOP-8 Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "50ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Low Side"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "5A"
+      },
+      {
+       "attribute_name_en": "Number of Drivers",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "IGBT\u3001MOSFET"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "1.7V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "950uA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "9ns"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.4V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "4.5V~24V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Enable shutdown"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "50ns"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "7A"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Gate Drivers",
+     "secondSortName": "Motor Driver ICs",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSD1025</span>E-DHMSR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 53004881,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011NSD1025-Q1HMSR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-NSD1025Q1HMSR/C9900215221",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900215221",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "NSD1025-Q1HMSR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT NSD1025-Q1HMSR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "MSOP-8-EP",
+     "describe": "MSOP-8-EP SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>NSD1025</span>-Q1HMSR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "NSD1025"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:55Z"
+}

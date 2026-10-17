@@ -1,0 +1,612 @@
+{
+ "board": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/5a71b9c0-fe6f-4b0a-a3af-0c109a4e3165/scratchpad/s11/section.kicad_pcb",
+ "sink_face": "board y = 0, x in [-8, 109], z -10.5..57 (R25 pose)",
+ "parts": {
+  "Q3": {
+   "value": "IPW65R018CFD7",
+   "fpid": "TO-247-3_Vertical",
+   "pos_mm": [
+    44.6,
+    4.215
+   ],
+   "rot_deg": 0.0,
+   "layer": "F.Cu",
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_a-gate_l",
+     "xy_mm": [
+      44.6,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "2",
+     "net": "sw_a",
+     "xy_mm": [
+      50.05,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "3",
+     "net": "leg_ret",
+     "xy_mm": [
+      55.5,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    }
+   ],
+   "fab_bbox_mm": [
+    42.05,
+    1.835,
+    58.05,
+    6.965
+   ]
+  },
+  "Q6": {
+   "value": "IPW65R018CFD7",
+   "fpid": "TO-247-3_Vertical",
+   "pos_mm": [
+    22.5,
+    4.215
+   ],
+   "rot_deg": 0.0,
+   "layer": "F.Cu",
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_b-gate_l",
+     "xy_mm": [
+      22.5,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "2",
+     "net": "sw_b",
+     "xy_mm": [
+      27.95,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "3",
+     "net": "leg_ret",
+     "xy_mm": [
+      33.4,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    }
+   ],
+   "fab_bbox_mm": [
+    19.95,
+    1.835,
+    35.949999999999996,
+    6.965
+   ]
+  },
+  "Q2": {
+   "value": "IPW65R018CFD7",
+   "fpid": "TO-247-3_Vertical",
+   "pos_mm": [
+    62.599999999999994,
+    4.215
+   ],
+   "rot_deg": 0.0,
+   "layer": "F.Cu",
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_a-gate_h",
+     "xy_mm": [
+      62.599999999999994,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "2",
+     "net": "bus_p",
+     "xy_mm": [
+      68.05,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "3",
+     "net": "sw_a",
+     "xy_mm": [
+      73.5,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    }
+   ],
+   "fab_bbox_mm": [
+    60.05,
+    1.835,
+    76.05,
+    6.965
+   ]
+  },
+  "Q5": {
+   "value": "IPW65R018CFD7",
+   "fpid": "TO-247-3_Vertical",
+   "pos_mm": [
+    4.5,
+    4.215
+   ],
+   "rot_deg": 0.0,
+   "layer": "F.Cu",
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_b-gate_h",
+     "xy_mm": [
+      4.5,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "2",
+     "net": "bus_p",
+     "xy_mm": [
+      9.95,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    },
+    {
+     "num": "3",
+     "net": "sw_b",
+     "xy_mm": [
+      15.399999999999999,
+      4.215
+     ],
+     "size_mm": [
+      2.5,
+      4.5
+     ],
+     "drill_mm": 1.5,
+     "pad_edge_to_y0_mm": 1.9649999999999999
+    }
+   ],
+   "fab_bbox_mm": [
+    1.95,
+    1.835,
+    17.95,
+    6.965
+   ]
+  },
+  "BR1": {
+   "value": "GBJ2510-F",
+   "fpid": "Diode_Bridge_GBJ2510",
+   "pos_mm": [
+    81.7,
+    4.6
+   ],
+   "rot_deg": 0.0,
+   "layer": "F.Cu",
+   "pads": [
+    {
+     "num": "1",
+     "net": "rect_p",
+     "xy_mm": [
+      81.7,
+      4.6
+     ],
+     "size_mm": [
+      4.0,
+      4.0
+     ],
+     "drill_mm": 1.5999999999999999,
+     "pad_edge_to_y0_mm": 2.5999999999999996
+    },
+    {
+     "num": "2",
+     "net": "l_filt",
+     "xy_mm": [
+      91.7,
+      4.6
+     ],
+     "size_mm": [
+      4.0,
+      4.0
+     ],
+     "drill_mm": 1.5999999999999999,
+     "pad_edge_to_y0_mm": 2.5999999999999996
+    },
+    {
+     "num": "3",
+     "net": "n_filt",
+     "xy_mm": [
+      99.19999999999999,
+      4.6
+     ],
+     "size_mm": [
+      4.0,
+      4.0
+     ],
+     "drill_mm": 1.5999999999999999,
+     "pad_edge_to_y0_mm": 2.5999999999999996
+    },
+    {
+     "num": "4",
+     "net": "rect_n",
+     "xy_mm": [
+      106.69999999999999,
+      4.6
+     ],
+     "size_mm": [
+      4.0,
+      4.0
+     ],
+     "drill_mm": 1.5999999999999999,
+     "pad_edge_to_y0_mm": 2.5999999999999996
+    }
+   ],
+   "fab_bbox_mm": [
+    79.6,
+    2.3,
+    109.19999999999999,
+    6.8999999999999995
+   ]
+  }
+ },
+ "edge_copper": {
+  "F.Cu": {
+   "leg_ret": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     31.804795,
+     0.6
+    ]
+   },
+   "sw_a": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     72.637332,
+     0.6
+    ]
+   },
+   "n_filt": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     97.03733199999999,
+     0.6
+    ]
+   },
+   "leg_b-gate_l": {
+    "min_dist_to_y0_mm": 3.81,
+    "at": [
+     22.5,
+     4.21
+    ]
+   },
+   "leg_a-gate_l": {
+    "min_dist_to_y0_mm": 3.81,
+    "at": [
+     44.6,
+     4.21
+    ]
+   },
+   "leg_a-gate_h": {
+    "min_dist_to_y0_mm": 3.81,
+    "at": [
+     62.599999999999994,
+     4.21
+    ]
+   },
+   "leg_b-gate_h": {
+    "min_dist_to_y0_mm": 3.81,
+    "at": [
+     4.5,
+     4.21
+    ]
+   },
+   "bus_p": {
+    "min_dist_to_y0_mm": 3.815,
+    "at": [
+     9.95,
+     4.215
+    ]
+   },
+   "sw_b": {
+    "min_dist_to_y0_mm": 3.815,
+    "at": [
+     27.95,
+     4.215
+    ]
+   },
+   "ocp_kelvin_p": {
+    "min_dist_to_y0_mm": 7.85,
+    "at": [
+     36.0,
+     8.0
+    ]
+   }
+  },
+  "In1.Cu": {
+   "leg_ret": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     31.790217,
+     0.6
+    ]
+   },
+   "rect_p": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     79.83733199999999,
+     0.6
+    ]
+   },
+   "ocp_kelvin_p": {
+    "min_dist_to_y0_mm": 7.85,
+    "at": [
+     36.0,
+     8.0
+    ]
+   },
+   "hv_ret": {
+    "min_dist_to_y0_mm": 8.658,
+    "at": [
+     76.3926,
+     8.657689999999999
+    ]
+   }
+  },
+  "B.Cu": {
+   "sw_a": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     59.340216999999996,
+     0.6
+    ]
+   },
+   "l_filt": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     87.03733199999999,
+     0.6
+    ]
+   },
+   "sw_b": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     26.844217999999998,
+     0.6
+    ]
+   }
+  },
+  "In2.Cu": {
+   "bus_p": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     66.94421799999999,
+     0.6
+    ]
+   },
+   "rect_n": {
+    "min_dist_to_y0_mm": 0.6,
+    "at": [
+     104.524,
+     0.6
+    ]
+   },
+   "leg_ret": {
+    "min_dist_to_y0_mm": 9.55,
+    "at": [
+     19.8,
+     9.7
+    ]
+   }
+  },
+  "pad": {
+   "leg_ret": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     55.5,
+     4.215,
+     "Q3"
+    ]
+   },
+   "sw_a": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     50.05,
+     4.215,
+     "Q3"
+    ]
+   },
+   "bus_p": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     68.05,
+     4.215,
+     "Q2"
+    ]
+   },
+   "sw_b": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     27.95,
+     4.215,
+     "Q6"
+    ]
+   },
+   "leg_b-gate_l": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     22.5,
+     4.215,
+     "Q6"
+    ]
+   },
+   "leg_a-gate_l": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     44.6,
+     4.215,
+     "Q3"
+    ]
+   },
+   "leg_a-gate_h": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     62.599999999999994,
+     4.215,
+     "Q2"
+    ]
+   },
+   "leg_b-gate_h": {
+    "min_dist_to_y0_mm": 1.965,
+    "at": [
+     4.5,
+     4.215,
+     "Q5"
+    ]
+   },
+   "rect_p": {
+    "min_dist_to_y0_mm": 2.6,
+    "at": [
+     81.7,
+     4.6,
+     "BR1"
+    ]
+   },
+   "l_filt": {
+    "min_dist_to_y0_mm": 2.6,
+    "at": [
+     91.7,
+     4.6,
+     "BR1"
+    ]
+   },
+   "n_filt": {
+    "min_dist_to_y0_mm": 2.6,
+    "at": [
+     99.19999999999999,
+     4.6,
+     "BR1"
+    ]
+   },
+   "rect_n": {
+    "min_dist_to_y0_mm": 2.6,
+    "at": [
+     106.69999999999999,
+     4.6,
+     "BR1"
+    ]
+   },
+   "ocp_kelvin_p": {
+    "min_dist_to_y0_mm": 8.47,
+    "at": [
+     37.23,
+     9.17,
+     "R5"
+    ]
+   }
+  },
+  "via": {
+   "leg_ret": {
+    "min_dist_to_y0_mm": 3.575,
+    "at": [
+     40.9,
+     4.0
+    ]
+   },
+   "ocp_kelvin_p": {
+    "min_dist_to_y0_mm": 7.575,
+    "at": [
+     36.0,
+     8.0
+    ]
+   },
+   "sw_a": {
+    "min_dist_to_y0_mm": 9.4,
+    "at": [
+     59.9,
+     9.7
+    ]
+   },
+   "sw_b": {
+    "min_dist_to_y0_mm": 9.6,
+    "at": [
+     1.7999999999999998,
+     9.9
+    ]
+   }
+  }
+ },
+ "edge_bbox_mm": [
+  -0.049999999999999996,
+  -0.049999999999999996,
+  290.05,
+  190.04999999999998
+ ]
+}

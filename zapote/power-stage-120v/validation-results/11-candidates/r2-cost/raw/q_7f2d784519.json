@@ -1,0 +1,1755 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 10,
+   "list": [
+    {
+     "componentId": 6822835,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KP150A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_solid-state-system-30kp150a_C5887978.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.9508
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 16.9508
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 16.9508
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 6.7637
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 6.537
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 6.4261
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 6.1903
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 6.2971
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 16.3288
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.3288
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 16.3288
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 6.5155
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Solid_StateSystem-30KP150A/C5887978",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.9508,
+     "componentCode": "C5887978",
+     "componentBrandEn": "Solid State System",
+     "componentModelEn": "30KP150A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312031907_Solid-State-System-30KP150A_C5887978.pdf",
+     "dataManualFileAccessId": "8602639783688478720",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Solid State System 30KP150A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-55\u2103~+175\u2103 1 10uA 124A 150V 167V 243V 30kW@10/1000us TVS Unidirectional Plugin ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KP150A</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2075773,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "\u5355\u5411 Vrwm:150V 30kW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://lcsc.comhttps://lcsc.com/product-detail/TVS_MCC-Micro-Commercial-Components-30KP150A-TP_C1984230.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.6791
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.9011
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.4265
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.0286
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.0286
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.0286
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 3.8807
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 3.8807
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.7213
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.4707
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 3.8807
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.2641
+      }
+     ],
+     "firstSortAccessId": "52a9361a70a645d6aff4131f13f8be30",
+     "secondSortAccessId": "1e9a34d855fa42e2a1a0379efebc51c4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "2075773-30KP150ATP/C1984230",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 5.6791,
+     "componentCode": "C1984230",
+     "componentBrandEn": "MCC(Micro Commercial Components)",
+     "componentModelEn": "30KP150A-TP",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2201301000_MCC-Micro-Commercial-Components-30KP150A-TP_C1984230.pdf",
+     "dataManualFileAccessId": "8589790029275815936",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MCC 30KP150A-TP",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "R-6",
+     "describe": "-55\u2103~+175\u2103 10uA 129.8A@10/1000us 150V 183.5V 233.4V 30kW@10/1000us TVS R-6 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "233.4V"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "183.5V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "129.8A@10/1000us"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KP150A</span>-TP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4272570,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "TVS 150V\u622a\u6b62 124A\u5cf0\u503c\u8109\u51b2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-mplad30kp150a_C3704759.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 36.3024
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 36.3024
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 36.3024
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 14.0493
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 13.5551
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 13.3105
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 12.822
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 13.5337
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 34.9702
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 34.9702
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 13.0577
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 34.9702
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MicrochipTech-MPLAD30KP150A/C3704759",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 36.3024,
+     "componentCode": "C3704759",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MPLAD30KP150A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2309071118_Microchip-Tech-MPLAD30KP150A_C3704759.pdf",
+     "dataManualFileAccessId": "8590425788928860160",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MPLAD30KP150A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "-55\u2103~+150\u2103 10uA 124A 150V 167V 243V 30kW IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4 TVS Unidirectional PLAD ESD and Surge Protection (TVS/ESD)",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MPLAD<span class='lucene_highlight_class'>30KP150A</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4276258,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "TVS 150V\u622a\u6b62 124A\u5cf0\u503c\u8109\u51b2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-maplad30kp150a_C3708444.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 53.5092
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 53.5092
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 53.5092
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 20.7086
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 19.9796
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 19.6207
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 18.9007
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 19.9487
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 51.5456
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 51.5456
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 19.2464
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 51.5456
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MicrochipTech-MAPLAD30KP150A/C3708444",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 53.5092,
+     "componentCode": "C3708444",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MAPLAD30KP150A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2309071120_Microchip-Tech-MAPLAD30KP150A_C3708444.pdf",
+     "dataManualFileAccessId": "8590892315043184640",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MAPLAD30KP150A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "124A 150V 167V 243V 30kW TVS PLAD ESD and Surge Protection (TVS/ESD)",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MAPLAD<span class='lucene_highlight_class'>30KP150A</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2722816,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "MPLAD30KP150AE3",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-mplad30kp150ae3_C2630912.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 41.316
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 41.316
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 41.316
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 15.9902
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 15.4275
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 15.1502
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 14.5943
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 15.4034
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 39.7998
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 39.7998
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 14.8613
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 39.7998
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "MicrochipTech-MPLAD30KP150AE3/C2630912",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 41.316,
+     "componentCode": "C2630912",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MPLAD30KP150AE3",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Microchip-Tech-MPLAD30KP150AE3_C2630912.pdf",
+     "dataManualFileAccessId": "8590002280406540288",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MPLAD30KP150AE3",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "-55\u2103~+150\u2103 124A 150V 167V 243V 30kW TVS Unidirectional PLAD ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MPLAD<span class='lucene_highlight_class'>30KP150A</span>E3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2541388,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "MPLAD30KP150A/TR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-mplad30kp150a-tr_C2449534.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 41.5215
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 41.5215
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 41.5215
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 16.0685
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 15.5041
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 15.2252
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 14.6665
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 15.4788
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 39.9978
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 39.9978
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 14.9352
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 39.9978
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "MicrochipTech-MPLAD30KP150ATR/C2449534",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 41.5215,
+     "componentCode": "C2449534",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MPLAD30KP150A/TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Microchip-Tech-MPLAD30KP150A-TR_C2449534.pdf",
+     "dataManualFileAccessId": "8589811759709392896",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MPLAD30KP150A/TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "-55\u2103~+150\u2103 10uA 124A 150V 167V 243V 30kW IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4 TVS Unidirectional PLAD ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MPLAD<span class='lucene_highlight_class'>30KP150A</span>/TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2722746,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "MAPLAD30KP150AE3",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 56.7288
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 56.7288
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 56.7288
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 21.953
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 21.1816
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 20.8016
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 20.0382
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 21.1474
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 54.647
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 54.647
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 20.4043
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 54.647
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MicrochipTech-MAPLAD30KP150AE3/C2630842",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 56.7288,
+     "componentCode": "C2630842",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MAPLAD30KP150AE3",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8590911613187289088",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MAPLAD30KP150AE3",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "124A 150V 167V 243V 30kW TVS PLAD ESD and Surge Protection (TVS/ESD)",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MAPLAD<span class='lucene_highlight_class'>30KP150A</span>E3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2723650,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "MXPLAD30KP150AE3",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-mxplad30kp150ae3_C2631746.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 107.8567
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 107.8567
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 107.8567
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 41.7401
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 40.2722
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 39.548
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 38.0967
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 40.2083
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 103.8987
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 103.8987
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 38.7943
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 103.8987
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MicrochipTech-MXPLAD30KP150AE3/C2631746",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 107.8567,
+     "componentCode": "C2631746",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MXPLAD30KP150AE3",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Microchip-Tech-MXPLAD30KP150AE3_C2631746.pdf",
+     "dataManualFileAccessId": "8590910931457159168",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MXPLAD30KP150AE3",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "10uA 124A 150V 167V 243V 30kW IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4 TVS Unidirectional PLAD ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MXPLAD<span class='lucene_highlight_class'>30KP150A</span>E3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2724997,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "MXLPLAD30KP150AE3",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-mxlplad30kp150ae3_C2633093.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 77.0524
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 77.0524
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 77.0524
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 29.8193
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 28.7705
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 28.2535
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 27.2167
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 28.725
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 74.2248
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 74.2248
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 27.7147
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 74.2248
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MicrochipTech-MXLPLAD30KP150AE3/C2633093",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 77.0524,
+     "componentCode": "C2633093",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MXLPLAD30KP150AE3",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Microchip-Tech-MXLPLAD30KP150AE3_C2633093.pdf",
+     "dataManualFileAccessId": "8590446068631699456",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MXLPLAD30KP150AE3",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "-55\u2103~+150\u2103 124A 150V 167V 243V 30kW TVS Unidirectional PLAD ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MXLPLAD<span class='lucene_highlight_class'>30KP150A</span>E3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2541415,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "MPLAD30KP150AE3/TR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_microchip-tech-mplad30kp150ae3-tr_C2449561.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 41.5215
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 41.5215
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 41.5215
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 16.0685
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 15.5041
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 15.2252
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 14.6665
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 15.4788
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 39.9978
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 39.9978
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 14.9352
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 39.9978
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "MicrochipTech-MPLAD30KP150AE3TR/C2449561",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 41.5215,
+     "componentCode": "C2449561",
+     "componentBrandEn": "Microchip Tech",
+     "componentModelEn": "MPLAD30KP150AE3/TR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Microchip-Tech-MPLAD30KP150AE3-TR_C2449561.pdf",
+     "dataManualFileAccessId": "8589812065704435712",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MICROCHIP MPLAD30KP150AE3/TR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PLAD",
+     "describe": "-55\u2103~+150\u2103 10uA 124A 150V 167V 243V 30kW IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4 TVS Unidirectional PLAD ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-5\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "243V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "124A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "167V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MPLAD<span class='lucene_highlight_class'>30KP150A</span>E3/TR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "30KP150A"
+ },
+ "message": null,
+ "_kw": "30KP150A",
+ "_fetched_utc": "2026-10-13T20:34:44Z"
+}

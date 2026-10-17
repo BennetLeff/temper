@@ -11,6 +11,10 @@ typedef struct {
     bool (*sample)(void *, uint32_t *now_us, bridge_feedback_t *, bool *new_line_cycle,
                    float *line_v, float *inlet_a, float *pan_budget_w);
     void *context;
+    /* Optional live bridge frequency (native-21 per-pan loop). Called once per tick before
+     * fullbridge_apply with the adapter's requested power (the loop's power target); a value
+     * outside config's [frequency_min_hz, frequency_hz] trips. */
+    uint32_t (*frequency)(void *, float requested_w);
     burst_config_t burst; /* burst_enabled defaults false. */
     bool (*sample_bus)(void *, uint64_t *now_us, hal_bus_crossing_t *);
     /* Atomic all-four-output gate at a qualified bus crossing. Keep PERMIT
@@ -21,6 +25,7 @@ typedef struct {
 void power_service_bootstrap(void);
 bool power_service_bind(const power_binding_t *binding);
 void power_service_tick(void);
+/* True iff hz lies inside the bound bridge's frequency window (a query; it sets nothing). */
 bool power_service_frequency(uint32_t hz);
 bool power_service_pan_pulse(uint32_t duration_us);
 void power_set_level(uint8_t percent);

@@ -1,0 +1,47 @@
+{
+ "courtyards": "validation-plan/enclosure-fit/native21-courtyards.json",
+ "scf31x_body_mm": [
+  45.0,
+  42.0
+ ],
+ "l1_courtyard_TDK": [
+  213.955,
+  28.455,
+  260.045,
+  58.545
+ ],
+ "l1_slot_free_box": [
+  212.995,
+  25.995,
+  260.955,
+  58.805
+ ],
+ "l1_slot": {
+  "w_mm": 47.96,
+  "h_mm": 32.81,
+  "fits_45x42": false,
+  "fits_42x45": false
+ },
+ "l1_slot_bounded_by": [
+  "C1",
+  "C2",
+  "C5",
+  "PS2"
+ ],
+ "ps1_courtyard_s35": [
+  206.505,
+  112.105,
+  259.495,
+  139.895
+ ],
+ "ps1_freed": {
+  "w_mm": 52.99,
+  "h_mm": 27.79,
+  "fits_45x42": false,
+  "fits_42x45": false
+ },
+ "parts_now_overlapping_ps1_box": [
+  "H2"
+ ],
+ "verdict": "SCF31X does not fit the L1 slot without moving a bounding part"
+}

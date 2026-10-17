@@ -1,0 +1,413 @@
+{
+ "board": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s29/s29b/section.kicad_pcb",
+ "checks": {
+  "U10": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    24.392,
+    128.795
+   ],
+   "ic_return_pad": [
+    22.117,
+    129.745
+   ],
+   "limit_supply_mm": 2.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "TLV3201 layout: 0.1 uF as close as possible to VCC",
+   "nearest_cap": {
+    "ref": "C44",
+    "supply_pad_to_pad_mm": 1.7,
+    "return_pad_to_pad_mm": 2.74,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 3.76,
+      "at": [
+       20.828,
+       128.287
+      ]
+     },
+     "selv_gnd": {
+      "mm": 3.56,
+      "at": [
+       25.22,
+       129.745
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U11": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    19.602,
+    128.795
+   ],
+   "ic_return_pad": [
+    17.328,
+    129.745
+   ],
+   "limit_supply_mm": 2.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "TLV3201",
+   "nearest_cap": {
+    "ref": "C45",
+    "supply_pad_to_pad_mm": 1.7,
+    "return_pad_to_pad_mm": 2.74,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 1.71,
+      "at": [
+       20.828,
+       128.287
+      ]
+     },
+     "selv_gnd": {
+      "mm": 1.13,
+      "at": [
+       17.253,
+       127.9
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U12": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    29.183,
+    128.795
+   ],
+   "ic_return_pad": [
+    26.907,
+    129.745
+   ],
+   "limit_supply_mm": 2.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "TLV3201 (CT zero-cross)",
+   "nearest_cap": {
+    "ref": "C46",
+    "supply_pad_to_pad_mm": 1.7,
+    "return_pad_to_pad_mm": 2.74,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 1.3,
+      "at": [
+       30.389,
+       127.589
+      ]
+     },
+     "selv_gnd": {
+      "mm": 1.0,
+      "at": [
+       27.633,
+       126.1
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U13": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    33.972,
+    129.745
+   ],
+   "ic_return_pad": [
+    31.698,
+    129.745
+   ],
+   "limit_supply_mm": 3.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "SN74LVC1G332 (fault OR): mid-column supply pin",
+   "nearest_cap": {
+    "ref": "C47",
+    "supply_pad_to_pad_mm": 2.65,
+    "return_pad_to_pad_mm": 2.74,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 2.93,
+      "at": [
+       35.235,
+       129.745
+      ]
+     },
+     "selv_gnd": {
+      "mm": 3.58,
+      "at": [
+       30.01,
+       129.745
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U24": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    10.023,
+    128.795
+   ],
+   "ic_return_pad": [
+    7.747,
+    130.695
+   ],
+   "limit_supply_mm": 2.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "SN74LVC1G17 s.8.3: 0.1 uF 'as close to the power pin as possible'",
+   "nearest_cap": {
+    "ref": "C89",
+    "supply_pad_to_pad_mm": 1.7,
+    "return_pad_to_pad_mm": 3.67,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 1.71,
+      "at": [
+       11.248,
+       128.287
+      ]
+     },
+     "selv_gnd": {
+      "mm": 0.57,
+      "at": [
+       8.073,
+       127.5
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U25": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    5.232,
+    129.745
+   ],
+   "ic_return_pad": [
+    2.957,
+    129.745
+   ],
+   "limit_supply_mm": 3.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "SN74LVC1G332 (bias OR): mid-column supply pin",
+   "nearest_cap": {
+    "ref": "C88",
+    "supply_pad_to_pad_mm": 2.65,
+    "return_pad_to_pad_mm": 2.74,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 2.93,
+      "at": [
+       6.495,
+       129.745
+      ]
+     },
+     "selv_gnd": {
+      "mm": 1.2,
+      "at": [
+       2.831,
+       127.951
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U40": {
+   "supply_net": "v3v3",
+   "return_net": "selv_gnd",
+   "ic_supply_pad": [
+    14.812,
+    128.795
+   ],
+   "ic_return_pad": [
+    12.537,
+    130.695
+   ],
+   "limit_supply_mm": 2.0,
+   "limit_return_mm": 4.0,
+   "datasheet": "SN74LVC1G17 s.8.3 (bias fault buffer)",
+   "nearest_cap": {
+    "ref": "C144",
+    "supply_pad_to_pad_mm": 1.7,
+    "return_pad_to_pad_mm": 3.67,
+    "same_net_via_to_cap_pad_mm": {
+     "v3v3": {
+      "mm": 1.71,
+      "at": [
+       16.038,
+       128.287
+      ]
+     },
+     "selv_gnd": {
+      "mm": 0.57,
+      "at": [
+       13.663,
+       127.5
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U15": {
+   "supply_net": "hot5",
+   "return_net": "ocp_kelvin_p",
+   "ic_supply_pad": [
+    104.233,
+    52.195
+   ],
+   "ic_return_pad": [
+    101.957,
+    54.095
+   ],
+   "limit_supply_mm": 4.5,
+   "limit_return_mm": 6.0,
+   "datasheet": "SN74LVC1G17 s.8.3 (hot5 / ocp_kelvin_p, HOT domain; dense block, 4.4 mm is the closest legal spot)",
+   "nearest_cap": {
+    "ref": "C49",
+    "supply_pad_to_pad_mm": 4.38,
+    "return_pad_to_pad_mm": 2.12,
+    "same_net_via_to_cap_pad_mm": {
+     "hot5": {
+      "mm": 1.16,
+      "at": [
+       98.957,
+       53.869
+      ]
+     },
+     "ocp_kelvin_p": {
+      "mm": 6.18,
+      "at": [
+       105.56,
+       57.735
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U29": {
+   "supply_net": "v15_ls",
+   "return_net": "n_ls",
+   "ic_supply_pad": [
+    102.27,
+    78.955
+   ],
+   "ic_return_pad": [
+    107.22,
+    78.955
+   ],
+   "limit_supply_mm": 2.5,
+   "limit_return_mm": null,
+   "datasheet": "LM339B s.8.4.1: bypass between supply and ground (v15_ls / n_ls)",
+   "nearest_cap": {
+    "ref": "C70",
+    "supply_pad_to_pad_mm": 2.2,
+    "return_pad_to_pad_mm": 7.31,
+    "same_net_via_to_cap_pad_mm": {
+     "v15_ls": {
+      "mm": 4.28,
+      "at": [
+       104.27,
+       78.145
+      ]
+     },
+     "n_ls": {
+      "mm": 0.63,
+      "at": [
+       99.87,
+       76.825
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U30": {
+   "supply_net": "p_ha",
+   "return_net": "n_ha",
+   "ic_supply_pad": [
+    47.67,
+    77.255
+   ],
+   "ic_return_pad": [
+    52.62,
+    77.255
+   ],
+   "limit_supply_mm": 2.5,
+   "limit_return_mm": null,
+   "datasheet": "LM339B (p_ha / n_ha)",
+   "nearest_cap": {
+    "ref": "C80",
+    "supply_pad_to_pad_mm": 2.2,
+    "return_pad_to_pad_mm": 7.32,
+    "same_net_via_to_cap_pad_mm": {
+     "p_ha": {
+      "mm": 2.64,
+      "at": [
+       48.07,
+       76.825
+      ]
+     },
+     "n_ha": {
+      "mm": 5.32,
+      "at": [
+       50.735,
+       76.474
+      ]
+     }
+    }
+   },
+   "pass": true
+  },
+  "U31": {
+   "supply_net": "p_hb",
+   "return_net": "n_hb",
+   "ic_supply_pad": [
+    2.07,
+    72.255
+   ],
+   "ic_return_pad": [
+    7.02,
+    72.255
+   ],
+   "limit_supply_mm": 4.5,
+   "limit_return_mm": null,
+   "datasheet": "LM339B (p_hb / n_hb); board edge leaves no room beside pin 3",
+   "nearest_cap": {
+    "ref": "C87",
+    "supply_pad_to_pad_mm": 4.23,
+    "return_pad_to_pad_mm": 7.61,
+    "same_net_via_to_cap_pad_mm": {
+     "p_hb": {
+      "mm": 0.84,
+      "at": [
+       2.4,
+       68.8
+      ]
+     },
+     "n_hb": {
+      "mm": 1.54,
+      "at": [
+       3.4,
+       65.7
+      ]
+     }
+    }
+   },
+   "pass": true
+  }
+ },
+ "all_pass": true
+}

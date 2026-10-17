@@ -1,0 +1,231 @@
+{
+ "board_sha256": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466",
+ "rating": {
+  "VR_V": 2000.0,
+  "VRMS_V": 500.0,
+  "dVdt_V_per_us": 3800.0,
+  "Top_max_C": 125.0,
+  "VC_at_110C_V": 1375.0,
+  "VC_at_125C_V": 1000.0,
+  "proof_1p6VR_2s_V": 3200.0,
+  "source": "TDK B3264*B June 2026: p.11 (VR, VRMS), p.12 (VC derating, 1.6 VR test, Top,max), p.13 (dV/dt 22.5 mm)"
+ },
+ "z0_max_ohm": 12.75,
+ "F3_basis": {
+  "F3_J_V": 1683.0,
+  "at_top_A": 118.74,
+  "V_per_A": 14.174
+ },
+ "rows": [
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "ocp_top_A": 114.575,
+   "F3_V": 1624.0,
+   "F3_over_VR": 0.812,
+   "Z0max_x_top_V": 1460.8,
+   "Z0max_margin_vs_1600_V": 139.2,
+   "Z0max_margin_vs_2000_V": 539.2
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "ocp_top_A": 114.967,
+   "F3_V": 1629.5,
+   "F3_over_VR": 0.8148,
+   "Z0max_x_top_V": 1465.8,
+   "Z0max_margin_vs_1600_V": 134.2,
+   "Z0max_margin_vs_2000_V": 534.2
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "ocp_top_A": 117.313,
+   "F3_V": 1662.8,
+   "F3_over_VR": 0.8314,
+   "Z0max_x_top_V": 1495.7,
+   "Z0max_margin_vs_1600_V": 104.3,
+   "Z0max_margin_vs_2000_V": 504.3
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "ocp_top_A": 118.052,
+   "F3_V": 1673.2,
+   "F3_over_VR": 0.8366,
+   "Z0max_x_top_V": 1505.1,
+   "Z0max_margin_vs_1600_V": 94.9,
+   "Z0max_margin_vs_2000_V": 494.9
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "ocp_top_A": 115.105,
+   "F3_V": 1631.5,
+   "F3_over_VR": 0.8157,
+   "Z0max_x_top_V": 1467.6,
+   "Z0max_margin_vs_1600_V": 132.4,
+   "Z0max_margin_vs_2000_V": 532.4
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "ocp_top_A": 115.564,
+   "F3_V": 1638.0,
+   "F3_over_VR": 0.819,
+   "Z0max_x_top_V": 1473.4,
+   "Z0max_margin_vs_1600_V": 126.6,
+   "Z0max_margin_vs_2000_V": 526.6
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "ocp_top_A": 124.215,
+   "F3_V": 1760.6,
+   "F3_over_VR": 0.8803,
+   "Z0max_x_top_V": 1583.7,
+   "Z0max_margin_vs_1600_V": 16.3,
+   "Z0max_margin_vs_2000_V": 416.3
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "ocp_top_A": 124.607,
+   "F3_V": 1766.2,
+   "F3_over_VR": 0.8831,
+   "Z0max_x_top_V": 1588.7,
+   "Z0max_margin_vs_1600_V": 11.3,
+   "Z0max_margin_vs_2000_V": 411.3
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "ocp_top_A": 115.961,
+   "F3_V": 1643.6,
+   "F3_over_VR": 0.8218,
+   "Z0max_x_top_V": 1478.5,
+   "Z0max_margin_vs_1600_V": 121.5,
+   "Z0max_margin_vs_2000_V": 521.5
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "ocp_top_A": 116.355,
+   "F3_V": 1649.2,
+   "F3_over_VR": 0.8246,
+   "Z0max_x_top_V": 1483.5,
+   "Z0max_margin_vs_1600_V": 116.5,
+   "Z0max_margin_vs_2000_V": 516.5
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "ocp_top_A": 118.714,
+   "F3_V": 1682.6,
+   "F3_over_VR": 0.8413,
+   "Z0max_x_top_V": 1513.6,
+   "Z0max_margin_vs_1600_V": 86.4,
+   "Z0max_margin_vs_2000_V": 486.4
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "ocp_top_A": 119.458,
+   "F3_V": 1693.2,
+   "F3_over_VR": 0.8466,
+   "Z0max_x_top_V": 1523.1,
+   "Z0max_margin_vs_1600_V": 76.9,
+   "Z0max_margin_vs_2000_V": 476.9
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "ocp_top_A": 116.494,
+   "F3_V": 1651.2,
+   "F3_over_VR": 0.8256,
+   "Z0max_x_top_V": 1485.3,
+   "Z0max_margin_vs_1600_V": 114.7,
+   "Z0max_margin_vs_2000_V": 514.7
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "ocp_top_A": 116.956,
+   "F3_V": 1657.7,
+   "F3_over_VR": 0.8289,
+   "Z0max_x_top_V": 1491.2,
+   "Z0max_margin_vs_1600_V": 108.8,
+   "Z0max_margin_vs_2000_V": 508.8
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "ocp_top_A": 125.654,
+   "F3_V": 1781.0,
+   "F3_over_VR": 0.8905,
+   "Z0max_x_top_V": 1602.1,
+   "Z0max_margin_vs_1600_V": -2.1,
+   "Z0max_margin_vs_2000_V": 397.9
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "ocp_top_A": 126.048,
+   "F3_V": 1786.6,
+   "F3_over_VR": 0.8933,
+   "Z0max_x_top_V": 1607.1,
+   "Z0max_margin_vs_1600_V": -7.1,
+   "Z0max_margin_vs_2000_V": 392.9
+  }
+ ],
+ "worst_R0_R1": {
+  "network": "c28_h10@55",
+  "reading": "R1",
+  "hot5": "phys",
+  "ocp_top_A": 119.458,
+  "F3_V": 1693.2,
+  "F3_over_VR": 0.8466,
+  "Z0max_x_top_V": 1523.1,
+  "Z0max_margin_vs_1600_V": 76.9,
+  "Z0max_margin_vs_2000_V": 476.9
+ },
+ "worst_any_reading": {
+  "network": "c28_h10@55",
+  "reading": "R4",
+  "hot5": "phys",
+  "ocp_top_A": 126.048,
+  "F3_V": 1786.6,
+  "F3_over_VR": 0.8933,
+  "Z0max_x_top_V": 1607.1,
+  "Z0max_margin_vs_1600_V": -7.1,
+  "Z0max_margin_vs_2000_V": 392.9
+ },
+ "F3_ratio_at_committed_1683_V": 0.8415,
+ "dVdt": {
+  "V_per_us": 345.4,
+  "limit": 3800.0,
+  "ratio": 0.0909
+ },
+ "pass": {
+  "F3 <= 0.85 VR (R0/R1)": true,
+  "F3 <= VR (any reading)": true,
+  "Z0max x top <= VR (any reading)": true,
+  "dV/dt": true
+ }
+}

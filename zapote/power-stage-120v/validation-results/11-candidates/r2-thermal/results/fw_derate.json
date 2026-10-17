@@ -1,0 +1,164 @@
+[
+ {
+  "ceiling_A": 22,
+  "f_kHz": 40,
+  "Tj_FET_C": 113.8,
+  "Tj_margin_to_125": 11.2,
+  "bank_ratio": 0.803,
+  "R5_4_pad_C": 103.2,
+  "R5_4_margin_to_MOT130": 26.8
+ },
+ {
+  "ceiling_A": 22,
+  "f_kHz": 45,
+  "Tj_FET_C": 119.0,
+  "Tj_margin_to_125": 6.0,
+  "bank_ratio": 0.78,
+  "R5_4_pad_C": 103.2,
+  "R5_4_margin_to_MOT130": 26.8
+ },
+ {
+  "ceiling_A": 22,
+  "f_kHz": 50,
+  "Tj_FET_C": 124.1,
+  "Tj_margin_to_125": 0.9,
+  "bank_ratio": 0.747,
+  "R5_4_pad_C": 103.2,
+  "R5_4_margin_to_MOT130": 26.8
+ },
+ {
+  "ceiling_A": 24,
+  "f_kHz": 40,
+  "Tj_FET_C": 118.2,
+  "Tj_margin_to_125": 6.8,
+  "bank_ratio": 0.876,
+  "R5_4_pad_C": 111.3,
+  "R5_4_margin_to_MOT130": 18.7
+ },
+ {
+  "ceiling_A": 24,
+  "f_kHz": 45,
+  "Tj_FET_C": 123.5,
+  "Tj_margin_to_125": 1.5,
+  "bank_ratio": 0.85,
+  "R5_4_pad_C": 111.3,
+  "R5_4_margin_to_MOT130": 18.7
+ },
+ {
+  "ceiling_A": 24,
+  "f_kHz": 50,
+  "Tj_FET_C": 128.8,
+  "Tj_margin_to_125": -3.8,
+  "bank_ratio": 0.814,
+  "R5_4_pad_C": 111.3,
+  "R5_4_margin_to_MOT130": 18.7
+ },
+ {
+  "ceiling_A": 25,
+  "f_kHz": 40,
+  "Tj_FET_C": 120.7,
+  "Tj_margin_to_125": 4.3,
+  "bank_ratio": 0.913,
+  "R5_4_pad_C": 115.5,
+  "R5_4_margin_to_MOT130": 14.5
+ },
+ {
+  "ceiling_A": 25,
+  "f_kHz": 45,
+  "Tj_FET_C": 126.0,
+  "Tj_margin_to_125": -1.0,
+  "bank_ratio": 0.886,
+  "R5_4_pad_C": 115.5,
+  "R5_4_margin_to_MOT130": 14.5
+ },
+ {
+  "ceiling_A": 25,
+  "f_kHz": 50,
+  "Tj_FET_C": 131.3,
+  "Tj_margin_to_125": -6.3,
+  "bank_ratio": 0.848,
+  "R5_4_pad_C": 115.5,
+  "R5_4_margin_to_MOT130": 14.5
+ },
+ {
+  "ceiling_A": 26,
+  "f_kHz": 40,
+  "Tj_FET_C": 123.3,
+  "Tj_margin_to_125": 1.7,
+  "bank_ratio": 0.949,
+  "R5_4_pad_C": 120.0,
+  "R5_4_margin_to_MOT130": 10.0
+ },
+ {
+  "ceiling_A": 26,
+  "f_kHz": 45,
+  "Tj_FET_C": 128.7,
+  "Tj_margin_to_125": -3.7,
+  "bank_ratio": 0.921,
+  "R5_4_pad_C": 120.0,
+  "R5_4_margin_to_MOT130": 10.0
+ },
+ {
+  "ceiling_A": 26,
+  "f_kHz": 50,
+  "Tj_FET_C": 134.0,
+  "Tj_margin_to_125": -9.0,
+  "bank_ratio": 0.882,
+  "R5_4_pad_C": 120.0,
+  "R5_4_margin_to_MOT130": 10.0
+ },
+ {
+  "ceiling_A": 27,
+  "f_kHz": 40,
+  "Tj_FET_C": 126.0,
+  "Tj_margin_to_125": -1.0,
+  "bank_ratio": 0.986,
+  "R5_4_pad_C": 124.7,
+  "R5_4_margin_to_MOT130": 5.3
+ },
+ {
+  "ceiling_A": 27,
+  "f_kHz": 45,
+  "Tj_FET_C": 131.5,
+  "Tj_margin_to_125": -6.5,
+  "bank_ratio": 0.957,
+  "R5_4_pad_C": 124.7,
+  "R5_4_margin_to_MOT130": 5.3
+ },
+ {
+  "ceiling_A": 27,
+  "f_kHz": 50,
+  "Tj_FET_C": 137.0,
+  "Tj_margin_to_125": -12.0,
+  "bank_ratio": 0.916,
+  "R5_4_pad_C": 124.7,
+  "R5_4_margin_to_MOT130": 5.3
+ },
+ {
+  "ceiling_A": 28,
+  "f_kHz": 40,
+  "Tj_FET_C": 129.0,
+  "Tj_margin_to_125": -4.0,
+  "bank_ratio": 1.022,
+  "R5_4_pad_C": 129.5,
+  "R5_4_margin_to_MOT130": 0.5
+ },
+ {
+  "ceiling_A": 28,
+  "f_kHz": 45,
+  "Tj_FET_C": 134.5,
+  "Tj_margin_to_125": -9.5,
+  "bank_ratio": 0.992,
+  "R5_4_pad_C": 129.5,
+  "R5_4_margin_to_MOT130": 0.5
+ },
+ {
+  "ceiling_A": 28,
+  "f_kHz": 50,
+  "Tj_FET_C": 140.1,
+  "Tj_margin_to_125": -15.1,
+  "bank_ratio": 0.95,
+  "R5_4_pad_C": 129.5,
+  "R5_4_margin_to_MOT130": 0.5
+ }
+]

@@ -7,7 +7,7 @@ KTD1: the manifest (``firmware/transition_table.yaml``) IS the model. This
 module parses it into a finite transition graph over the states and events
 declared in ``firmware/main/state_machine.h`` and computes reachability from
 ``STATE_INIT`` by fixed-point closure. Because the graph is finite (9 states
-x 23 declared events, plus 2 synthetic wildcard events -- see below), the
+x 26 declared events, plus 2 synthetic wildcard events -- see below), the
 closure is exhaustive by construction.
 
 KTD2 -- the runaway interlock as an explicit wildcard edge set
@@ -180,7 +180,7 @@ class TransitionModel:
         )
 
     def cell_coverage(self) -> Dict[Tuple[str, str], str]:
-        """Every (state, event) cell in the full 9x25 space, mapped to
+        """Every (state, event) cell in the full 9x28 space, mapped to
         'declared' (a manifest row backs it), 'implicit' (KTD2 wildcard
         interlock edge), or 'TRANSITION_INVALID' (A3: no row -> invalid by
         construction)."""
@@ -349,7 +349,8 @@ def derived_sensor_fault_events(model: "TransitionModel", faulted_states: Frozen
     code. On the current manifest this yields exactly: EVENT_SELFTEST_FAIL,
     EVENT_PREHEAT_TIMEOUT, EVENT_OVER_TEMP, EVENT_OVER_CURRENT,
     EVENT_FAN_FAILURE, EVENT_PROBE_OPEN, EVENT_PROBE_SHORT,
-    EVENT_THERMAL_RUNAWAY, EVENT_COOLDOWN_OVERHEAT -- and excludes
+    EVENT_THERMAL_RUNAWAY, EVENT_COOLDOWN_OVERHEAT, EVENT_BIAS_GOOD_STUCK,
+    EVENT_BIAS_GOOD_LOST -- and excludes
     EVENT_FAULT_RESET_PERSISTS, whose self-loop row carries FAULT_NONE (see
     the module docstring's self-loop scoping note).
     """

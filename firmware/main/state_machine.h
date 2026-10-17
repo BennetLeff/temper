@@ -109,7 +109,10 @@ static const fault_name_entry_t fault_name_table[] = {
     X(EVENT_COOLED_DOWN,            "COOLED_DOWN") \
     X(EVENT_COOLDOWN_OVERHEAT,      "COOLDOWN_OVERHEAT") \
     X(EVENT_FAULT_RESET_CLEARED,    "FAULT_RESET_CLEARED") \
-    X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS")
+    X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS") \
+    X(EVENT_BIAS_GOOD_STUCK,        "BIAS_GOOD_STUCK") \
+    X(EVENT_BIAS_GOOD_LOW_AT_START, "BIAS_GOOD_LOW_AT_START") \
+    X(EVENT_BIAS_GOOD_LOST,         "BIAS_GOOD_LOST")
 
 #define EXPAND_EVENT_ENUM(sym, str)  sym,
 typedef enum {
@@ -139,12 +142,16 @@ static const event_name_entry_t event_name_table[] = {
 /**
  * @brief Button identifiers
  */
+/* UI board naming (zapote/ui-board DECISIONS U6): BUTTON_START = select/start (GP0),
+ * BUTTON_STOP = stop (GP1), BUTTON_BACK = back (GP2). BUTTON_BACK is the button that was called RESET
+ * before the UI board existed; it still performs the fault reset in the FAULT states (behaviour
+ * unchanged), and is the enclosure's "back" button. */
 typedef enum {
     BUTTON_START,
     BUTTON_STOP,
     BUTTON_TEMP_UP,
     BUTTON_TEMP_DOWN,
-    BUTTON_RESET
+    BUTTON_BACK
 } button_id_t;
 
 /**

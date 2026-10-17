@@ -1,0 +1,63 @@
+Test project <host-build>
+      Start  1: ntc_guard_tests
+ 1/29 Test  #1: ntc_guard_tests ..................   Passed    0.00 sec
+      Start  2: coil_guard_tests
+ 2/29 Test  #2: coil_guard_tests .................   Passed    0.00 sec
+      Start  3: all_tests
+ 3/29 Test  #3: all_tests ........................   Passed    0.00 sec
+      Start  4: state_machine_tests
+ 4/29 Test  #4: state_machine_tests ..............   Passed    0.00 sec
+      Start  5: max31865_tests
+ 5/29 Test  #5: max31865_tests ...................   Passed    0.00 sec
+      Start  6: pid_tests
+ 6/29 Test  #6: pid_tests ........................   Passed    0.00 sec
+      Start  7: cascade_pid_tests
+ 7/29 Test  #7: cascade_pid_tests ................   Passed    0.00 sec
+      Start  8: cascade_pid_integration_tests
+ 8/29 Test  #8: cascade_pid_integration_tests ....   Passed    0.00 sec
+      Start  9: thermal_mass_tests
+ 9/29 Test  #9: thermal_mass_tests ...............   Passed    0.00 sec
+      Start 10: low_temp_tests
+10/29 Test #10: low_temp_tests ...................   Passed    0.00 sec
+      Start 11: safety_tests
+11/29 Test #11: safety_tests .....................   Passed    0.00 sec
+      Start 12: pan_detection_tests
+12/29 Test #12: pan_detection_tests ..............   Passed    0.00 sec
+      Start 13: pll_tests
+13/29 Test #13: pll_tests ........................   Passed    0.00 sec
+      Start 14: integration_tests
+14/29 Test #14: integration_tests ................   Passed    0.00 sec
+      Start 15: profiles_tests
+15/29 Test #15: profiles_tests ...................   Passed    0.00 sec
+      Start 16: sil_fault_tests
+16/29 Test #16: sil_fault_tests ..................   Passed    0.01 sec
+      Start 17: power_adapter_tests
+17/29 Test #17: power_adapter_tests ..............   Passed    0.00 sec
+      Start 18: power_no_burst_tests
+18/29 Test #18: power_no_burst_tests .............   Passed    0.00 sec
+      Start 19: pwm_esp32_tests
+19/29 Test #19: pwm_esp32_tests ..................   Passed    0.00 sec
+      Start 20: input_limits_tests
+20/29 Test #20: input_limits_tests ...............   Passed    0.00 sec
+      Start 21: burst_scheduler_tests
+21/29 Test #21: burst_scheduler_tests ............   Passed    0.00 sec
+      Start 22: line_zc_tests
+22/29 Test #22: line_zc_tests ....................   Passed    0.00 sec
+      Start 23: prototype_pwm_tests
+23/29 Test #23: prototype_pwm_tests ..............   Passed    0.00 sec
+      Start 24: n21_binding_tests
+24/29 Test #24: n21_binding_tests ................   Passed    0.01 sec
+      Start 25: tank_freq_tests
+25/29 Test #25: tank_freq_tests ..................   Passed    0.02 sec
+      Start 26: blower_aux_tests
+26/29 Test #26: blower_aux_tests .................   Passed    0.00 sec
+      Start 27: controller_pins_tests
+27/29 Test #27: controller_pins_tests ............   Passed    0.00 sec
+      Start 28: thermal_mgmt_tests
+28/29 Test #28: thermal_mgmt_tests ...............   Passed    0.00 sec
+      Start 29: platform_logic_tests
+29/29 Test #29: platform_logic_tests .............   Passed    0.00 sec
+
+100% tests passed out of 29
+
+Total Test time (real) =   0.11 sec

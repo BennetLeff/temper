@@ -1,5 +1,6 @@
-from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k62, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k12, Bias4k99, Bias18k2, Bias30k1, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, BiasPushPull, BiasTransformer, BiasRectifier, BiasFilter, HotLdo, DisOr, LineOpto
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, Iso7710, C10u1210
+from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias750R, Bias2k94, Bias90k9, Bias104k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, C10u1210, R100k0603
+from "parts.ato" import Iso6721Fb, SchottkyPairSeries, SchmittNand132, SchmittBuf17, R220R0603, R49k9Dt
 
 module BiasReservoir:
     signal src
@@ -58,7 +59,7 @@ module RegulatedSplit:
     signal n
     signal src
     signal fb
-    signal nr
+    signal ldo_nr
     # 17.0 V = 1.4 + 6.4 + 6.4 + 1.6 + 0.8 + 0.4, relative to N.
     ldo = new SpanRegulator
     ldo.p4 ~ n
@@ -74,10 +75,10 @@ module RegulatedSplit:
     ldo.p1 ~ p
     ldo.p3 ~ p
     ldo.p20 ~ p
-    ldo.p14 ~ nr
+    ldo.p14 ~ ldo_nr
     cnr = new Bias1u
     cnr.value = 1uF
-    cnr.p1 ~ nr
+    cnr.p1 ~ ldo_nr
     cnr.p2 ~ n
     cin = new Bias10u
     cin.value = 10uF
@@ -99,8 +100,8 @@ module RegulatedSplit:
     shunt.K ~ src
     shunt.A ~ n
     shunt.REF ~ fb
-    rtop = new Bias6k12
-    rtop.value = 6.12kohm
+    rtop = new Bias6k2
+    rtop.value = 6.2kohm
     rtop.p1 ~ src
     rtop.p2 ~ fb
     rbot = new R10kThin
@@ -109,18 +110,20 @@ module RegulatedSplit:
     rbot.p2 ~ n
 
 module RailMonitor:
+    """Window monitor of one bias rail. Stage 30 (DECISIONS 33, candidate 24): the notice stage and the per-rail
+    reinforced crossing are gone. The LM339B wired-AND 'good' node is pulled to the local 5 V by rpull and is the
+    module's output (high = every window in range); the crossing is done by the caller (HighBias link, Heartbeat).
+    Stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B reference, halfref 4.42 k / 10 k, and the taps
+    re-centred so every window clears the rails' worst-case tolerance (11-candidates/s16-monitor-2026-10-15,
+    11-candidates/c45-s16-monitor)."""
     signal src
     signal p
     signal n
-    signal selv_v
-    signal selv_gnd
-    signal bad
     signal ref
     signal halfref
     signal good
-    signal base
-    signal isoin
     signal v5
+    signal ldo_en
     signal uv
     signal ov
     signal spanuv
@@ -133,44 +136,44 @@ module RailMonitor:
     rref.value = 2.2kohm
     rref.p1 ~ p
     rref.p2 ~ ref
-    rhalf_top = new R10kThin
-    rhalf_top.value = 10kohm
+    rhalf_top = new Bias4k42
+    rhalf_top.value = 4.42kohm
     rhalf_top.p1 ~ ref
     rhalf_top.p2 ~ halfref
     rhalf_bot = new R10kThin
     rhalf_bot.value = 10kohm
     rhalf_bot.p1 ~ halfref
     rhalf_bot.p2 ~ n
-    ruv_top = new Bias4k42
-    ruv_top.value = 4.42kohm
+    ruv_top = new Bias750R
+    ruv_top.value = 750ohm
     ruv_top.p1 ~ src
     ruv_top.p2 ~ uv
     ruv_bot = new R10kThin
     ruv_bot.value = 10kohm
     ruv_bot.p1 ~ uv
     ruv_bot.p2 ~ n
-    rov_top = new Bias7k62
-    rov_top.value = 7.62kohm
+    rov_top = new Bias2k94
+    rov_top.value = 2.94kohm
     rov_top.p1 ~ src
     rov_top.p2 ~ ov
     rov_bot = new R10kThin
     rov_bot.value = 10kohm
     rov_bot.p1 ~ ov
     rov_bot.p2 ~ n
-    rspanuv_top = new Bias120k
-    rspanuv_top.value = 120kohm
+    rspanuv_top = new Bias90k9
+    rspanuv_top.value = 90.9kohm
     rspanuv_top.p1 ~ p
     rspanuv_top.p2 ~ spanuv
-    rspanuv_bot = new R10kThin
-    rspanuv_bot.value = 10kohm
+    rspanuv_bot = new BiasFb11k
+    rspanuv_bot.value = 11kohm
     rspanuv_bot.p1 ~ spanuv
     rspanuv_bot.p2 ~ n
-    rspanov_top = new Bias133k
-    rspanov_top.value = 133kohm
+    rspanov_top = new Bias104k
+    rspanov_top.value = 104kohm
     rspanov_top.p1 ~ p
     rspanov_top.p2 ~ spanov
-    rspanov_bot = new R10kThin
-    rspanov_bot.value = 10kohm
+    rspanov_bot = new BiasFb11k
+    rspanov_bot.value = 11kohm
     rspanov_bot.p1 ~ spanov
     rspanov_bot.p2 ~ n
     monitor = new BiasComparator
@@ -188,30 +191,21 @@ module RailMonitor:
     monitor.p12 ~ n
     monitor.p13 ~ good
     monitor.p14 ~ good
-    rnotice = new R1k0603
-    rnotice.value = 1kohm
-    rnotice.p1 ~ ref
-    rnotice.p2 ~ good
-    dnotice = new BiasSilicon
-    dnotice.A ~ good
-    dnotice.K ~ base
-    qnotice = new BiasNpn
-    qnotice.B ~ base
-    qnotice.E ~ n
-    qnotice.C ~ isoin
-    rbase = new R10k0603
-    rbase.value = 10kohm
-    rbase.p1 ~ base
-    rbase.p2 ~ n
-    # HOT -> SELV crossing: reinforced ISO7710 (CMTI ~100 kV/us class), not a
-    # phototransistor opto, because the HS domains ride the switch node
-    # (10 V/ns ZVS, up to ~95 V/ns hard edges). Rails good: NPN on, IN low,
-    # OUT (bad) low. Any rail bad, or side 1 unpowered: OUT defaults HIGH (bad).
     ldo5 = new HotLdo
     ldo5.IN ~ p
-    ldo5.EN ~ p
+    ldo5.EN ~ ldo_en
     ldo5.GND ~ n
     ldo5.OUT ~ v5
+    # Stage 48 (OPEN-ITEMS S19): EN was tied to IN (the rail span, <= 17.43 V) against SBVS186H 7.4 p.13. 100 k / 27 k:
+    # EN 3.41-3.85 V over the span 16.575-17.43 V (4.11 V at the 18.643 V span-OV corner), inside 0.9 .. 6.5 V
+    rldo_en_top = new R100k0603
+    rldo_en_top.value = 100kohm
+    rldo_en_top.p1 ~ p
+    rldo_en_top.p2 ~ ldo_en
+    rldo_en_bot = new Bias27k
+    rldo_en_bot.value = 27kohm
+    rldo_en_bot.p1 ~ ldo_en
+    rldo_en_bot.p2 ~ n
     cldo_in = new C100n0603
     cldo_in.value = 100nF
     cldo_in.p1 ~ p
@@ -223,24 +217,7 @@ module RailMonitor:
     rpull = new R10k0603
     rpull.value = 10kohm
     rpull.p1 ~ v5
-    rpull.p2 ~ isoin
-    iso = new Iso7710
-    iso.VCC1 ~ v5
-    iso.GND1 ~ n
-    iso.GND1B ~ n
-    iso.IN ~ isoin
-    iso.VCC2 ~ selv_v
-    iso.GND2 ~ selv_gnd
-    iso.GND2B ~ selv_gnd
-    iso.OUT ~ bad
-    civcc1 = new C100n0603
-    civcc1.value = 100nF
-    civcc1.p1 ~ v5
-    civcc1.p2 ~ n
-    civcc2 = new C100n0603
-    civcc2.value = 100nF
-    civcc2.p1 ~ selv_v
-    civcc2.p2 ~ selv_gnd
+    rpull.p2 ~ good
 
     cuv = new C1nC0G0603
     cuv.value = 1nF
@@ -263,45 +240,121 @@ module RailMonitor:
     cmonitor.p1 ~ p
     cmonitor.p2 ~ n
 
+module HsSplit:
+    """High-side split behind the stage-14 isolated module: the module regulates P-N to 17.0 V, the
+    TLVH431 shunt fixes the midpoint (src) at ~2 V above N. Same shunt/rtop/rbot as RegulatedSplit;
+    one 10 uF + 100 nF at the module pins (the second 10 uF is dropped for the module's 16 ms
+    soft-start time-out, ALT-BIAS 3.4)."""
+    signal p
+    signal n
+    signal src
+    signal fb
+    cout1 = new Bias10u
+    cout1.value = 10uF
+    cout1.p1 ~ p
+    cout1.p2 ~ n
+    chf = new C100n0603
+    chf.value = 100nF
+    chf.p1 ~ p
+    chf.p2 ~ n
+    shunt = new NegativeShunt
+    shunt.K ~ src
+    shunt.A ~ n
+    shunt.REF ~ fb
+    rtop = new Bias6k2
+    rtop.value = 6.2kohm
+    rtop.p1 ~ src
+    rtop.p2 ~ fb
+    rbot = new R10kThin
+    rbot.value = 10kohm
+    rbot.p1 ~ fb
+    rbot.p2 ~ n
+
 module HighBias:
+    """Stage 14: one RECOM R24C2T25/R-R per high side, primary on V24_RAW / N_LS (the domain the
+    SN6507 used), secondary 17.0 V P-N into the unchanged split, reservoir and monitor."""
     signal raw24
-    signal sw1
-    signal sw2
+    signal nls
+    signal en
     signal src
     signal p
     signal n
-    signal selv_v
-    signal selv_gnd
-    signal bad
-    signal sa
-    signal sb
-    signal rect
-    signal raw
-    transformer = new BiasTransformer
-    transformer.p1 ~ sw1
-    transformer.p2 ~ raw24
-    transformer.p3 ~ raw24
-    transformer.p4 ~ sw2
-    transformer.p5 ~ sa
-    transformer.p6 ~ n
-    transformer.p7 ~ n
-    transformer.p8 ~ sb
-    da = new BiasRectifier
-    da.A ~ sa
-    da.K ~ rect
-    db = new BiasRectifier
-    db.A ~ sb
-    db.K ~ rect
-    filter = new BiasFilter
-    filter.value = 100uH
-    filter.p1 ~ rect
-    filter.p2 ~ raw
-    craw = new Bias10u
-    craw.value = 10uF
-    craw.p1 ~ raw
-    craw.p2 ~ n
-    split = new RegulatedSplit
-    split.raw ~ raw
+    signal fbm
+    iso = new IsoBiasModule
+    iso.p1 ~ nls
+    iso.p2 ~ nls
+    iso.p5 ~ nls
+    iso.p8 ~ nls
+    iso.p9 ~ nls
+    iso.p10 ~ nls
+    iso.p11 ~ nls
+    iso.p12 ~ nls
+    iso.p13 ~ nls
+    iso.p14 ~ nls
+    iso.p15 ~ nls
+    iso.p16 ~ nls
+    iso.p17 ~ nls
+    iso.p18 ~ nls
+    iso.p4 ~ en
+    iso.p6 ~ raw24
+    iso.p7 ~ raw24
+    iso.p19 ~ n
+    iso.p20 ~ n
+    iso.p21 ~ n
+    iso.p22 ~ n
+    iso.p23 ~ n
+    iso.p24 ~ n
+    iso.p25 ~ n
+    iso.p26 ~ n
+    iso.p27 ~ n
+    iso.p30 ~ n
+    iso.p31 ~ n
+    iso.p36 ~ n
+    iso.p28 ~ p
+    iso.p29 ~ p
+    iso.p33 ~ fbm
+    iso.p34 ~ fbm
+    iso.p35 ~ n
+    # PG (3) and COM (32) are left open (single-output configuration; PG unused).
+    # Own enable divider per module: CTRL = 24 V x 27/127 = 5.10 V (4.97-5.23 V; abs max 5.5 V).
+    ren_top = new R100k0603
+    ren_top.value = 100kohm
+    ren_top.p1 ~ raw24
+    ren_top.p2 ~ en
+    ren_bot = new Bias27k
+    ren_bot.value = 27kohm
+    ren_bot.p1 ~ en
+    ren_bot.p2 ~ nls
+    cin1 = new Bias10u
+    cin1.value = 10uF
+    cin1.p1 ~ raw24
+    cin1.p2 ~ nls
+    cin2 = new Bias10u
+    cin2.value = 10uF
+    cin2.p1 ~ raw24
+    cin2.p2 ~ nls
+    cinhf = new C100n0603
+    cinhf.value = 100nF
+    cinhf.p1 ~ raw24
+    cinhf.p2 ~ nls
+    cavin = new C330pC0G0603
+    cavin.value = 330pF
+    cavin.p1 ~ raw24
+    cavin.p2 ~ nls
+    # 2.5 V x (1 + 63.4/11) = 16.91 V (RECOM p.4 table: 17 V -> 63k4 / 11k)
+    rfbt = new BiasFb63k4
+    rfbt.value = 63.4kohm
+    rfbt.p1 ~ p
+    rfbt.p2 ~ fbm
+    rfbb = new BiasFb11k
+    rfbb.value = 11kohm
+    rfbb.p1 ~ fbm
+    rfbb.p2 ~ n
+    cfb = new C330pC0G0603
+    cfb.value = 330pF
+    cfb.p1 ~ fbm
+    cfb.p2 ~ n
+    split = new HsSplit
     split.p ~ p
     split.n ~ n
     split.src ~ src
@@ -309,9 +362,31 @@ module HighBias:
     monitor.src ~ src
     monitor.p ~ p
     monitor.n ~ n
-    monitor.selv_v ~ selv_v
-    monitor.selv_gnd ~ selv_gnd
-    monitor.bad ~ bad
+
+module HighBiasLink from HighBias:
+    """HS-A (stage 30) and HS-B (stage 40, candidate 30a): functional HS -> LS crossing (ISO6721FB, default LOW = not
+    good) into the heartbeat's LS vote. Side 2 is the LS monitor's 5 V (U37) on N_LS; the unused reverse channel's input
+    is tied to GND2 and its output left open (FMEA condition 1)."""
+    signal ls_v5
+    signal good_ls
+    signal outa_nc
+    link = new Iso6721Fb
+    link.VCC1 ~ monitor.v5
+    link.GND1 ~ n
+    link.INB ~ monitor.good
+    link.OUTA ~ outa_nc
+    link.GND2 ~ nls
+    link.INA ~ nls
+    link.OUTB ~ good_ls
+    link.VCC2 ~ ls_v5
+    clink1 = new C100n0603
+    clink1.value = 100nF
+    clink1.p1 ~ monitor.v5
+    clink1.p2 ~ n
+    clink2 = new C100n0603
+    clink2.value = 100nF
+    clink2.p1 ~ ls_v5
+    clink2.p2 ~ nls
 
 module LineZeroCross:
     signal line
@@ -323,7 +398,7 @@ module LineZeroCross:
     signal led1
     signal led2
     signal r2mid
-    signal raw
+    signal line_zc_raw
     r1 = new Line16k5
     r1.value = 16.5kohm
     r1.p1 ~ line
@@ -336,7 +411,7 @@ module LineZeroCross:
     opto.AC1 ~ led1
     opto.AC2 ~ led2
     opto.E ~ selv_gnd
-    opto.C ~ raw
+    opto.C ~ line_zc_raw
     r3 = new Line16k5
     r3.value = 16.5kohm
     r3.p1 ~ led2
@@ -348,9 +423,9 @@ module LineZeroCross:
     pullup = new Line33k
     pullup.value = 33kohm
     pullup.p1 ~ selv_v
-    pullup.p2 ~ raw
+    pullup.p2 ~ line_zc_raw
     buffer = new Hot5SchmittBuffer
-    buffer.A ~ raw
+    buffer.A ~ line_zc_raw
     buffer.Y ~ out
     buffer.VCC ~ selv_v
     buffer.GND ~ selv_gnd
@@ -358,3 +433,128 @@ module LineZeroCross:
     cbuffer.value = 100nF
     cbuffer.p1 ~ selv_v
     cbuffer.p2 ~ selv_gnd
+
+
+module Heartbeat:
+    """Stage 30 (DECISIONS 33; FMEA 11-candidates/c24-monitor-fmea section 6a, design J of m1_pump_spice.py); stage 40
+    (candidate 30a): HS-B's verdict joins the LS vote as M1b drew it, so the group crosses HOT -> SELV once (U32).
+    The LS, HS-A and HS-B verdicts meet on the LS 'good' node (LS wired-AND, plus one BAT54S half per HS link output,
+    anode on the node: D18 for HS-A, D20 for HS-B). While all are good, a Schmitt-NAND RC oscillator (0.42-2.09 us)
+    runs and U32 (CA-IS3720HW) carries the square wave to SELV. There the Schmitt NAND U46 (A = PERMIT through rgate
+    100 k since stage 50, so the heartbeat runs only while the controller permits; the pump is AC-coupled so its inversion
+    is irrelevant) drives a diode charge pump into C_hold || R_bleed; the hold node feeds U40 (G17) -> BIAS_GOOD.
+    Stage 50 (11-candidates/c50-permit-gate, OPEN-ITEMS B13 H2 option P): BIAS_GOOD is low whenever PERMIT is low, so the
+    controller proves the chain low at every idle tick and high after every PERMIT rise (<= 11.76 us to the hold
+    threshold); DIS = NAND(PERMIT, bias_ok AND PERMIT) = NOT(PERMIT AND bias_ok) is unchanged, and PERMIT gains a second
+    stop path through the heartbeat (<= 90.3 us, 122.9 us with one pump cap shorted). Any static state anywhere (a rail bad, oscillator,
+    isolator, NAND, pump or LS 5 V dead or stuck) stops the wave and the hold node bleeds below VT- in <= 90 us (123 us
+    with one pump cap shorted): announced, not dormant. A link isolator stuck HIGH is dormant, as in M1b."""
+    signal ls_v5
+    signal nls
+    signal good
+    signal ha
+    signal gate
+    signal v3v3
+    signal selv_gnd
+    signal hb_hold
+    signal hb_tx
+    signal hb_rc
+    signal hb_rx
+    signal hb_bufo
+    signal hb_s
+    signal hb_m
+    signal hb_x
+    signal vote_nc
+    signal hb
+    signal vote_b_nc
+    signal permit
+    # HS-A's link output pulls the LS 'good' node low through one half of a BAT54S (the other half's cathode is open).
+    vote = new SchottkyPairSeries
+    vote.A1 ~ good
+    vote.MID ~ ha
+    vote.K2 ~ vote_nc
+    # Stage 40: HS-B's link output does the same through the K1/A2 -> K2 half of a second BAT54S (anode MID on the node;
+    # the other half's anode A1 is open). A BAT54A would hold both halves but adds a BOM line.
+    vote_b = new SchottkyPairSeries
+    vote_b.A1 ~ vote_b_nc
+    vote_b.MID ~ good
+    vote_b.K2 ~ hb
+    osc = new SchmittNand132
+    osc.VCC ~ ls_v5
+    osc.GND ~ nls
+    osc.A ~ good
+    osc.B ~ hb_rc
+    osc.Y ~ hb_tx
+    rosc = new Bias4k99
+    rosc.value = 4.99kohm
+    rosc.p1 ~ hb_tx
+    rosc.p2 ~ hb_rc
+    cosc = new C330pC0G0603
+    cosc.value = 330pF
+    cosc.p1 ~ hb_rc
+    cosc.p2 ~ nls
+    cosc_vcc = new C100n0603
+    cosc_vcc.value = 100nF
+    cosc_vcc.p1 ~ ls_v5
+    cosc_vcc.p2 ~ nls
+    iso = new IsoReinfH
+    iso.VCC1 ~ ls_v5
+    iso.GND1 ~ nls
+    iso.GND1B ~ nls
+    iso.IN ~ hb_tx
+    iso.VCC2 ~ v3v3
+    iso.GND2 ~ selv_gnd
+    iso.GND2B ~ selv_gnd
+    iso.OUT ~ hb_rx
+    civcc1 = new C100n0603
+    civcc1.value = 100nF
+    civcc1.p1 ~ ls_v5
+    civcc1.p2 ~ nls
+    civcc2 = new C100n0603
+    civcc2.value = 100nF
+    civcc2.p1 ~ v3v3
+    civcc2.p2 ~ selv_gnd
+    # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad). Stage 40: A (gate, net HSB_GOOD) no longer
+    # carries HS-B's verdict. Stage 50: rgate (R135) runs from PERMIT, not v3v3, so the NAND passes the wave only while
+    # PERMIT is high. 100 k, not 10 k: with the controller's U37 Hi-Z and a v3v3-level source on hsb_good (double fault)
+    # PERMIT sits at 0.27 V on its 8.33 k pull-downs, below U22 / U23 VIL (1.58 V with 10 k). The net keeps its name
+    # HSB_GOOD (a rename would change the spine's hsb_good track keys). rgate sits outside the locked SELV spine. Open, A
+    # floats: it can only stop or upset the pump (announced or nuisance), never hold the wave up.
+    buf = new SchmittNand132
+    buf.VCC ~ v3v3
+    buf.GND ~ selv_gnd
+    buf.B ~ hb_rx
+    buf.A ~ gate
+    buf.Y ~ hb_bufo
+    rgate = new R100k0603
+    rgate.value = 100kohm
+    rgate.p1 ~ permit
+    rgate.p2 ~ gate
+    cbuf = new C100n0603
+    cbuf.value = 100nF
+    cbuf.p1 ~ v3v3
+    cbuf.p2 ~ selv_gnd
+    rs = new R220R0603
+    rs.value = 220ohm
+    rs.p1 ~ hb_bufo
+    rs.p2 ~ hb_s
+    cp1 = new C1nC0G0603
+    cp1.value = 1nF
+    cp1.p1 ~ hb_s
+    cp1.p2 ~ hb_m
+    cp2 = new C1nC0G0603
+    cp2.value = 1nF
+    cp2.p1 ~ hb_m
+    cp2.p2 ~ hb_x
+    pump = new SchottkyPairSeries
+    pump.A1 ~ selv_gnd
+    pump.MID ~ hb_x
+    pump.K2 ~ hb_hold
+    chold = new C1nC0G0603
+    chold.value = 1nF
+    chold.p1 ~ hb_hold
+    chold.p2 ~ selv_gnd
+    rbleed = new R49k9Dt
+    rbleed.value = 49.9kohm
+    rbleed.p1 ~ hb_hold
+    rbleed.p2 ~ selv_gnd

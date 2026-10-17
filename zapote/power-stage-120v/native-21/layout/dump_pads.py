@@ -22,4 +22,6 @@ for f in b.GetFootprints():
                     "tht": p.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH),
                     "npth": p.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH,
                     "fc": [round(mm(fc.x), 3), round(mm(fc.y), 3)]})
+# pcbnew's footprint order varies between loads; sort so pads.json is byte-stable for an unchanged board
+out.sort(key=lambda d: (d["ref"], d["pad"], d["x"], d["y"]))
 json.dump(out, open(sys.argv[2], "w"))

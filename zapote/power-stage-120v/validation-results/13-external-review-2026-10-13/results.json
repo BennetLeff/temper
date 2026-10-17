@@ -1,0 +1,177 @@
+{
+ "claim10_bleed": {
+  "R_bleed_only_ohm": 440000.0,
+  "R_divider_ohm": 1895800.0,
+  "R_parallel_ohm": 357116,
+  "R3/R4 alone (reviewer basis), nominal": {
+   "tau_s": 8.1,
+   "t_198V_to_60V_s": 9.67,
+   "t_280V_to_60V_s": 12.47,
+   "t_198V_to_34V_s": 14.26
+  },
+  "R3/R4 || divider (as built), nominal": {
+   "tau_s": 6.57,
+   "t_198V_to_60V_s": 7.85,
+   "t_280V_to_60V_s": 10.12,
+   "t_198V_to_34V_s": 11.58
+  },
+  "option N1: 2 x 100 k || divider, nominal": {
+   "tau_s": 3.33,
+   "t_198V_to_60V_s": 3.97,
+   "t_280V_to_60V_s": 5.13,
+   "t_198V_to_34V_s": 5.87
+  },
+  "R3/R4 alone (reviewer basis), +10% C": {
+   "tau_s": 8.91,
+   "t_198V_to_60V_s": 10.63,
+   "t_280V_to_60V_s": 13.72,
+   "t_198V_to_34V_s": 15.69
+  },
+  "R3/R4 || divider (as built), +10% C": {
+   "tau_s": 7.23,
+   "t_198V_to_60V_s": 8.63,
+   "t_280V_to_60V_s": 11.13,
+   "t_198V_to_34V_s": 12.74
+  },
+  "option N1: 2 x 100 k || divider, +10% C": {
+   "tau_s": 3.66,
+   "t_198V_to_60V_s": 4.37,
+   "t_280V_to_60V_s": 5.64,
+   "t_198V_to_34V_s": 6.45
+  },
+  "R3/R4 220k power at 198 V each (W)": 0.0445,
+  "R3/R4 100k power at 198 V each (W)": 0.098
+ },
+ "claim9_inrush": {
+  "C_bus_max_F": 2.0240000000000003e-05,
+  "cases": {
+   "132 V rms, 2 uH lossless (repo ALT-C5C6 bound)": {
+    "I_peak_A": 587.5,
+    "I2t_A2s": 3.449,
+    "pulse_us": 20.0,
+    "Vbus_end_V": 369.4
+   },
+   "132 V rms, 10 uH lossless": {
+    "I_peak_A": 262.7,
+    "I2t_A2s": 1.543,
+    "pulse_us": 44.7,
+    "Vbus_end_V": 369.4
+   },
+   "132 V rms, 2 uH + 60 mOhm (cord 1.8 m 14 AWG round trip ~30 mOhm + bridge/ESR/traces ~30 mOhm, ESTIMATE)": {
+    "I_peak_A": 510.0,
+    "I2t_A2s": 2.603,
+    "pulse_us": 20.1,
+    "Vbus_end_V": 321.3
+   },
+   "132 V rms, 100 uH DM inlet module (DECISIONS item 20 requirement) + 60 mOhm": {
+    "I_peak_A": 81.4,
+    "I2t_A2s": 0.468,
+    "pulse_us": 141.3,
+    "Vbus_end_V": 361.7
+   },
+   "140 V rms, 2 uH lossless (repo ALT-C5C6 bound)": {
+    "I_peak_A": 623.5,
+    "I2t_A2s": 3.885,
+    "pulse_us": 20.0,
+    "Vbus_end_V": 392.0
+   },
+   "140 V rms, 10 uH lossless": {
+    "I_peak_A": 278.8,
+    "I2t_A2s": 1.737,
+    "pulse_us": 44.7,
+    "Vbus_end_V": 392.0
+   },
+   "140 V rms, 2 uH + 60 mOhm (cord 1.8 m 14 AWG round trip ~30 mOhm + bridge/ESR/traces ~30 mOhm, ESTIMATE)": {
+    "I_peak_A": 541.3,
+    "I2t_A2s": 2.932,
+    "pulse_us": 20.1,
+    "Vbus_end_V": 341.0
+   },
+   "140 V rms, 100 uH DM inlet module (DECISIONS item 20 requirement) + 60 mOhm": {
+    "I_peak_A": 86.3,
+    "I2t_A2s": 0.527,
+    "pulse_us": 141.3,
+    "Vbus_end_V": 383.8
+   }
+  },
+  "limits": {
+   "KLDR025 melting I2t (A2s), repo F1-RECOMMENDATION": 226.0,
+   "GBJ2510 I2t (A2s), Diodes DS21221": 510.0,
+   "GBJ2510 IFSM 8.3 ms half-sine (A)": 350.0,
+   "B32676G1905K000 pulse: 85 V/us x 9 uF per part (A), TDK B3267* p.10 / ALT-C5C6": 765.0
+  },
+  "worst_I2t_fraction_of_F1_melt": 0.0172,
+  "worst_I2t_fraction_of_BR1": 0.0076
+ },
+ "claim2_pf": {
+  "160 W @120 V, L 20 uH": {
+   "P_W": 160.1,
+   "I_rms_A": 1.562,
+   "PF": 0.8541,
+   "I3_over_I1": 0.1544,
+   "I5_over_I1": 0.1188,
+   "I7_over_I1": 0.079
+  },
+  "600 W @120 V, L 20 uH": {
+   "P_W": 591.3,
+   "I_rms_A": 4.995,
+   "PF": 0.9865,
+   "I3_over_I1": 0.0164,
+   "I5_over_I1": 0.0156,
+   "I7_over_I1": 0.0149
+  },
+  "1330 W @120 V, L 20 uH": {
+   "P_W": 1310.2,
+   "I_rms_A": 10.949,
+   "PF": 0.9972,
+   "I3_over_I1": 0.0062,
+   "I5_over_I1": 0.0047,
+   "I7_over_I1": 0.0042
+  },
+  "1800 W @120 V, L 20 uH": {
+   "P_W": 1773.2,
+   "I_rms_A": 14.799,
+   "PF": 0.9985,
+   "I3_over_I1": 0.0055,
+   "I5_over_I1": 0.0037,
+   "I7_over_I1": 0.003
+  },
+  "1330 W @120 V, L 100 uH (inlet module)": {
+   "P_W": 1310.8,
+   "I_rms_A": 10.952,
+   "PF": 0.9974,
+   "I3_over_I1": 0.0063,
+   "I5_over_I1": 0.0048,
+   "I7_over_I1": 0.0043
+  },
+  "note": "Constant-conductance load is an idealisation; crest-clipping FM (round 6) and burst mode draw differently, and the repo's own round-6 FM study reports PF down to 0.95. Bench is the evidence.",
+  "reviewer_arithmetic_1800W_PF0.95_120V_A": 15.79,
+  "repo_inlet_regulation_A": 13.5,
+  "repo_power_stage_hold_A": 11.1
+ },
+ "claim3_br1_W": {
+  "11.1 A rms sine": 20.99,
+  "13.5 A rms sine": 25.52,
+  "15.0 A rms sine": 28.36
+ },
+ "claim4_11_j1": {
+  "inlet regulated (adapter inlet_target_a)": {
+   "I_A": 13.5,
+   "vs_cULus_B_15A": 0.9,
+   "vs_CSA_10A": 1.35,
+   "vs_IEC_24A": 0.562
+  },
+  "inlet trip": {
+   "I_A": 15.0,
+   "vs_cULus_B_15A": 1.0,
+   "vs_CSA_10A": 1.5,
+   "vs_IEC_24A": 0.625
+  },
+  "recorded 28 A-tank input envelope (F1-J3-PARTS)": {
+   "I_A": 16.5,
+   "vs_cULus_B_15A": 1.1,
+   "vs_CSA_10A": 1.65,
+   "vs_IEC_24A": 0.688
+  }
+ }
+}

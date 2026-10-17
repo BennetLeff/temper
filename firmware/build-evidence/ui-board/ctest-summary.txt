@@ -1,0 +1,31 @@
+ 1/29 Test  #1: ntc_guard_tests ..................   Passed    0.00 sec
+ 2/29 Test  #2: coil_guard_tests .................   Passed    0.00 sec
+ 3/29 Test  #3: all_tests ........................   Passed    0.01 sec
+ 4/29 Test  #4: state_machine_tests ..............   Passed    0.00 sec
+ 5/29 Test  #5: max31865_tests ...................   Passed    0.00 sec
+ 6/29 Test  #6: pid_tests ........................   Passed    0.00 sec
+ 7/29 Test  #7: cascade_pid_tests ................   Passed    0.01 sec
+ 8/29 Test  #8: cascade_pid_integration_tests ....   Passed    0.00 sec
+ 9/29 Test  #9: thermal_mass_tests ...............   Passed    0.01 sec
+10/29 Test #10: low_temp_tests ...................   Passed    0.00 sec
+11/29 Test #11: safety_tests .....................   Passed    0.00 sec
+12/29 Test #12: pan_detection_tests ..............   Passed    0.01 sec
+13/29 Test #13: pll_tests ........................   Passed    0.00 sec
+14/29 Test #14: integration_tests ................   Passed    0.01 sec
+15/29 Test #15: profiles_tests ...................   Passed    0.00 sec
+16/29 Test #16: sil_fault_tests ..................   Passed    0.01 sec
+17/29 Test #17: power_adapter_tests ..............   Passed    0.01 sec
+18/29 Test #18: power_no_burst_tests .............   Passed    0.00 sec
+19/29 Test #19: pwm_esp32_tests ..................   Passed    0.00 sec
+20/29 Test #20: input_limits_tests ...............   Passed    0.00 sec
+21/29 Test #21: burst_scheduler_tests ............   Passed    0.01 sec
+22/29 Test #22: line_zc_tests ....................   Passed    0.01 sec
+23/29 Test #23: prototype_pwm_tests ..............   Passed    0.01 sec
+24/29 Test #24: n21_binding_tests ................   Passed    0.02 sec
+25/29 Test #25: tank_freq_tests ..................   Passed    0.02 sec
+26/29 Test #26: blower_aux_tests .................   Passed    0.01 sec
+27/29 Test #27: controller_pins_tests ............   Passed    0.01 sec
+28/29 Test #28: thermal_mgmt_tests ...............   Passed    0.01 sec
+29/29 Test #29: platform_logic_tests .............   Passed    0.01 sec
+100% tests passed out of 29
+Total Test time (real) =   0.19 sec

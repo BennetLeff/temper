@@ -1,0 +1,82 @@
+{
+ "boards": [
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/c45/section.kicad_pcb",
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s46/c46/section.kicad_pcb"
+ ],
+ "footprint_refs_equal": true,
+ "footprints_differing_in_geometry": [],
+ "tracks_vias": {
+  "a": 5115,
+  "b": 5115,
+  "equal": true
+ },
+ "zones": {
+  "a": 87,
+  "b": 87,
+  "outlines_equal": true
+ },
+ "edge_cuts_equal": true,
+ "field_changes": {
+  "U17": {
+   "MPN": [
+    "TL431BIDBZR",
+    "TL431BQDBZR"
+   ],
+   "Value": [
+    "TL431BIDBZR",
+    "TL431BQDBZR"
+   ]
+  },
+  "U19": {
+   "MPN": [
+    "TL431BIDBZR",
+    "TL431BQDBZR"
+   ],
+   "Value": [
+    "TL431BIDBZR",
+    "TL431BQDBZR"
+   ]
+  },
+  "U21": {
+   "MPN": [
+    "TL431BIDBZR",
+    "TL431BQDBZR"
+   ],
+   "Value": [
+    "TL431BIDBZR",
+    "TL431BQDBZR"
+   ]
+  },
+  "U29": {
+   "MPN": [
+    "LM339BIDR",
+    "LM2901BIDR"
+   ],
+   "Value": [
+    "LM339BIDR",
+    "LM2901BIDR"
+   ]
+  },
+  "U30": {
+   "MPN": [
+    "LM339BIDR",
+    "LM2901BIDR"
+   ],
+   "Value": [
+    "LM339BIDR",
+    "LM2901BIDR"
+   ]
+  },
+  "U31": {
+   "MPN": [
+    "LM339BIDR",
+    "LM2901BIDR"
+   ],
+   "Value": [
+    "LM339BIDR",
+    "LM2901BIDR"
+   ]
+  }
+ },
+ "geometry_identical": true
+}

@@ -32,8 +32,14 @@ P, PI, PO, IN, OUT, OC = "passive", "power_in", "power_out", "input", "output", 
 # pin -> (function, type); sources in native-21/ECO.md "Manufacturer pin/ratings sources"
 TABLES = {
     "TPS70950DBVR": {"1": ("IN", PI), "2": ("GND", PI), "3": ("EN", IN), "4": ("NC", P), "5": ("OUT", PO)},
+    # stage 48: the Q1 grade, the same DBV pinout (TI SLVSCE6D Table 4-1 p.3)
+    "TPS70950QDBVRQ1": {"1": ("IN", PI), "2": ("GND", PI), "3": ("EN", IN), "4": ("NC", P), "5": ("OUT", PO)},
     "TLVH431BQDBZR": {"1": ("REF", P), "2": ("K", P), "3": ("A", P)},
     "TL431AIDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
+    # stage 45 (S16 option 1c-4420): the B grade on the same DBZ pads; SLVS543S Table 5-1 p.4 DBZ 1 = K, 2 = REF, 3 = A
+    "TL431BIDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
+    # stage 46 (S17 hot copper): the Q temperature grade on the same DBZ pads (SLVS543S p.4, one DBZ table for all grades)
+    "TL431BQDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
     "MMBT3904-7-F": {"1": ("B", P), "2": ("E", P), "3": ("C", P)},
     "SN74LVC1G32DBVR": {"1": ("A", IN), "2": ("B", IN), "3": ("GND", PI), "4": ("Y", OUT), "5": ("VCC", PI)},
     "IRM-20-24": {"1": ("ACL", P), "2": ("ACN", P), "3": ("VN", P), "4": ("VP", PO)},
@@ -46,19 +52,25 @@ TABLES = {
                   "6": ("IN2-", IN), "7": ("IN2+", IN), "8": ("IN3-", IN), "9": ("IN3+", IN), "10": ("IN4-", IN),
                   "11": ("IN4+", IN), "12": ("GND", PI), "13": ("OUT4", OC), "14": ("OUT3", OC)},
 }
+# stage 47 (S17 hot copper; c47-ref25-grade): REF25 on the LM4050AEM3-2.5, SNOS455H Figure 4-1 / Table 4-1 p.3 DBZ:
+# 1 cathode, 2 anode, 3 no internal connection (float or tie to pin 2) - the reviewed LM4040A25I U5 annotation
+TABLES["LM4050AEM3-2.5/NOPB"] = {"1": ("K", P), "2": ("A", P), "3": ("NC", P)}
+# stage 46 (S17 hot copper): LM2901B SOIC-14 (D) uses the LM339B's pin table (SLCS006Z Table 5-1 p.4 covers both)
+TABLES["LM2901BIDR"] = TABLES["LM339BIDR"]
+QUAD_COMPARATORS = ("LM339BIDR", "LM2901BIDR")
 
 
-# Rails whose physical source is typed passive above (TPS7A4700 / transformer / IRM return /
+# Rails whose physical source is typed passive above (TPS7A4700 / bias module / IRM return /
 # shunt Kelvin pad). Each assertion names the source pins; the builder rejects it if the
 # netlist disagrees. ERC supply assertions only: they do not qualify the supplies.
 SUPPLIES = [
-    ("p_ha", [("U27", "1"), ("U27", "3"), ("U27", "20")], "Leg-A span regulator U27 (TPS7A4700) OUT pins."),
-    ("p_hb", [("U28", "1"), ("U28", "3"), ("U28", "20")], "Leg-B span regulator U28 (TPS7A4700) OUT pins."),
+    ("p_ha", [("U41", "28"), ("U41", "29")], "Leg-A isolated bias module U41 (R24C2T25/R) VOUT+ pins (stage 14)."),
+    ("p_hb", [("U42", "28"), ("U42", "29")], "Leg-B isolated bias module U42 (R24C2T25/R) VOUT+ pins (stage 14)."),
     ("v15_ls", [("U26", "1"), ("U26", "3"), ("U26", "20")], "Low-side span regulator U26 (TPS7A4700) OUT pins."),
-    ("n_ha", [("T2", "6"), ("T2", "7"), ("U18", "3")],
-     "Leg-A span bottom: T2 secondary return, held -2 V from SW_A by TLVH431 U18 (anode)."),
-    ("n_hb", [("T3", "6"), ("T3", "7"), ("U20", "3")],
-     "Leg-B span bottom: T3 secondary return, held -2 V from SW_B by TLVH431 U20 (anode)."),
+    ("n_ha", [("U41", "19"), ("U41", "20"), ("U18", "3")],
+     "Leg-A span bottom: U41 VOUT-, held -2 V from SW_A by TLVH431 U18 (anode)."),
+    ("n_hb", [("U42", "19"), ("U42", "20"), ("U20", "3")],
+     "Leg-B span bottom: U42 VOUT-, held -2 V from SW_B by TLVH431 U20 (anode)."),
     ("n_ls", [("PS2", "3"), ("U16", "3")], "Low-side bias return: IRM-20-24 PS2 VN, TLVH431 U16 anode."),
     ("ocp_kelvin_p", [("R5", "2")], "Protection reference: shunt R5 Kelvin pad on the HV_RET side."),
 ]
@@ -82,7 +94,7 @@ def main() -> None:
             ann, basis = reviewed[(m, frozenset(ps))], "native19-reviewed"
         elif m in TABLES and set(TABLES[m]) == ps:
             table = TABLES[m]
-            if m == "LM339BIDR":
+            if m in QUAD_COMPARATORS:
                 vcc, gnd = pin_net[(ref, "3")], pin_net[(ref, "12")]
                 if vcc == gnd or any(pin_net[(ref, o)] in (vcc, gnd) for o in ("1", "2", "13", "14")):
                     raise ValueError(f"{ref}: LM339B pin table does not fit its nets")

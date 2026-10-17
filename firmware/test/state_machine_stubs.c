@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "../main/state_machine.h"
 #include "../main/state_handlers.h"
 #include "../config.h"
@@ -35,7 +36,29 @@ static struct {
     float heatsink_temperature;
     float dc_bus_current;
     float rtd_resistance;
+    bool power_bus_fault;        /* BUS_FAULT / PERMIT drop (native-21) */
+    bool power_tank_trip;        /* n21 CT peak / RMS trip latched */
+    /* BIAS_GOOD read-back (power board J4.1, B13 H2, option P: BIAS_GOOD = bias_ok AND PERMIT).
+     * The platform owns the level decoding and the debounce (platform_logic.c platform_bias_*,
+     * test_platform_logic.c) and the binding the start sequence (n21_binding.c,
+     * test_n21_binding.c); the state machine sees only their verdicts, modelled here:
+     *   PERMIT (modelled) = power requested AND the start not refused AND no bus fault;
+     *   a power request rising from zero is a gate rise: refused if the bias is not ok (check 2);
+     *   power_bias_step(): stuck = bias_stuck (check 1), lost = PERMIT AND NOT bias_ok (check 3).
+     * Defaults = a healthy board (or no J4.1 input fitted). */
+    bool bias_good;              /* bias_ok: the LS / HS-A / HS-B monitors good, heartbeat running */
+    bool bias_stuck;             /* check 1 verdict (U40 stuck high etc.) */
+    bool bias_refused;           /* check 2: the current request was refused (power 0 clears) */
+    uint32_t bias_step_calls;    /* power_bias_step() calls: once per state_machine_update() */
+    uint32_t bias_gate_rises;    /* modelled start sequences (requests rising from zero) */
     float pan_impedance;
+    float rim_temperature;      /* R36 rim NTC */
+    bool rim_valid;
+    bool rim_cold_or_open;      /* rim node above the ADC range (cold) or open */
+    bool rim_sensor_fault, coil_sensor_fault; /* last thermal_set_sensor_faults() */
+    uint8_t thermal_cap_pct;    /* L3 coil derate + blower stall cap */
+    bool blower_start_permitted; /* stage 16 (C33): false = PS3 absent */
+    float coil_temperature;     /* L3 coil NTC (Semitec 104GT-2) */
     
     /* Pan detection */
     pan_status_t pan_status;
@@ -45,7 +68,7 @@ static struct {
     bool button_stop_pressed;
     bool button_temp_up_pressed;
     bool button_temp_down_pressed;
-    bool button_reset_pressed;
+    bool button_back_pressed;
     bool button_start_enabled;
     
     /* System states */
@@ -88,12 +111,18 @@ static struct {
     .dc_bus_current = 0.0f,
     .rtd_resistance = 100.0f,  /* PT100 at ~25°C */
     .pan_impedance = 5.0f,
+    .rim_temperature = 25.0f,
+    .rim_valid = true,
+    .thermal_cap_pct = 100,
+    .blower_start_permitted = true,
+    .bias_good = true,
+    .coil_temperature = 25.0f,
     .pan_status = PAN_ABSENT,
     .button_start_pressed = false,
     .button_stop_pressed = false,
     .button_temp_up_pressed = false,
     .button_temp_down_pressed = false,
-    .button_reset_pressed = false,
+    .button_back_pressed = false,
     .button_start_enabled = true,
     .fan_running = true,
     .power_level = 0,
@@ -139,6 +168,47 @@ void mock_sm_reset(void) {
     mock_sm_state.test_rtd_pass = true;
     mock_sm_state.test_display_pass = true;
     mock_sm_state.test_eeprom_pass = true;
+    mock_sm_state.rim_temperature = 25.0f;
+    mock_sm_state.rim_valid = true;
+    mock_sm_state.thermal_cap_pct = 100;
+    mock_sm_state.blower_start_permitted = true;
+    mock_sm_state.bias_good = true;
+    mock_sm_state.coil_temperature = 25.0f;
+}
+
+void mock_sm_set_bias_good(bool high) { mock_sm_state.bias_good = high; }
+void mock_sm_set_bias_stuck(bool stuck) { mock_sm_state.bias_stuck = stuck; }
+void mock_sm_set_bias_start_refused(bool refused) { mock_sm_state.bias_refused = refused; }
+bool mock_sm_get_bias_start_refused(void) { return mock_sm_state.bias_refused; }
+uint32_t mock_sm_get_bias_step_count(void) { return mock_sm_state.bias_step_calls; }
+uint32_t mock_sm_get_bias_gate_rises(void) { return mock_sm_state.bias_gate_rises; }
+
+void mock_sm_set_blower_start_permitted(bool permitted) {
+    mock_sm_state.blower_start_permitted = permitted;
+}
+
+void mock_sm_set_rim_temperature(float temp_c, bool valid) {
+    mock_sm_state.rim_temperature = temp_c;
+    mock_sm_state.rim_valid = valid;
+    mock_sm_state.rim_cold_or_open = false;
+}
+
+/* Rim node above the ADC's range: cold (< ~70 C) or open - indistinguishable, reading invalid. */
+void mock_sm_set_rim_cold_or_open(void) {
+    mock_sm_state.rim_temperature = NAN;
+    mock_sm_state.rim_valid = false;
+    mock_sm_state.rim_cold_or_open = true;
+}
+
+bool mock_sm_get_rim_sensor_fault(void) { return mock_sm_state.rim_sensor_fault; }
+bool mock_sm_get_coil_sensor_fault(void) { return mock_sm_state.coil_sensor_fault; }
+
+void mock_sm_set_thermal_cap(uint8_t pct) {
+    mock_sm_state.thermal_cap_pct = pct;
+}
+
+void mock_sm_set_coil_temperature(float temp_c) {
+    mock_sm_state.coil_temperature = temp_c;
 }
 
 void mock_sm_advance_time(uint32_t ms) {
@@ -165,6 +235,14 @@ void mock_sm_set_rtd_resistance(float ohms) {
     mock_sm_state.rtd_resistance = ohms;
 }
 
+void mock_sm_set_power_bus_fault(bool tripped) {
+    mock_sm_state.power_bus_fault = tripped;
+}
+
+void mock_sm_set_power_tank_trip(bool tripped) {
+    mock_sm_state.power_tank_trip = tripped;
+}
+
 void mock_sm_set_pan_status(pan_status_t status) {
     mock_sm_state.pan_status = status;
 }
@@ -183,7 +261,7 @@ void mock_sm_press_button(button_id_t button) {
         case BUTTON_STOP: mock_sm_state.button_stop_pressed = true; break;
         case BUTTON_TEMP_UP: mock_sm_state.button_temp_up_pressed = true; break;
         case BUTTON_TEMP_DOWN: mock_sm_state.button_temp_down_pressed = true; break;
-        case BUTTON_RESET: mock_sm_state.button_reset_pressed = true; break;
+        case BUTTON_BACK: mock_sm_state.button_back_pressed = true; break;
     }
 }
 
@@ -193,7 +271,7 @@ void mock_sm_release_button(button_id_t button) {
         case BUTTON_STOP: mock_sm_state.button_stop_pressed = false; break;
         case BUTTON_TEMP_UP: mock_sm_state.button_temp_up_pressed = false; break;
         case BUTTON_TEMP_DOWN: mock_sm_state.button_temp_down_pressed = false; break;
-        case BUTTON_RESET: mock_sm_state.button_reset_pressed = false; break;
+        case BUTTON_BACK: mock_sm_state.button_back_pressed = false; break;
     }
 }
 
@@ -202,7 +280,7 @@ void mock_sm_release_all_buttons(void) {
     mock_sm_state.button_stop_pressed = false;
     mock_sm_state.button_temp_up_pressed = false;
     mock_sm_state.button_temp_down_pressed = false;
-    mock_sm_state.button_reset_pressed = false;
+    mock_sm_state.button_back_pressed = false;
 }
 
 void mock_sm_set_selftest_results(bool adc, bool pwm, bool fan, bool comp, bool rtd, bool disp, bool eeprom) {
@@ -309,7 +387,7 @@ bool button_is_pressed(button_id_t button) {
         case BUTTON_STOP: return mock_sm_state.button_stop_pressed;
         case BUTTON_TEMP_UP: return mock_sm_state.button_temp_up_pressed;
         case BUTTON_TEMP_DOWN: return mock_sm_state.button_temp_down_pressed;
-        case BUTTON_RESET: return mock_sm_state.button_reset_pressed;
+        case BUTTON_BACK: return mock_sm_state.button_back_pressed;
         default: return false;
     }
 }
@@ -333,6 +411,13 @@ void pwm_disable_all(void) {
 /* Power */
 void power_set_level(uint8_t level) {
     mock_sm_state.power_set_level_calls++;
+    if (level == 0) {
+        mock_sm_state.bias_refused = false;  /* request withdrawn (binding set_request(false)) */
+    } else if (mock_sm_state.power_level == 0) {
+        /* Gate rise: the binding's start sequence (B13 H2 check 2). */
+        mock_sm_state.bias_gate_rises++;
+        if (!mock_sm_state.bias_good) mock_sm_state.bias_refused = true;
+    }
     mock_sm_state.power_level = level;
 }
 
@@ -364,6 +449,57 @@ float read_heatsink_temperature(void) {
 
 float read_dc_bus_current(void) {
     return mock_sm_state.dc_bus_current;
+}
+
+/* Native-21 over-current sources (state_machine.c check_safety_interlocks). */
+bool power_bus_fault_tripped(void) {
+    return mock_sm_state.power_bus_fault;
+}
+
+/* The modelled PERMIT read-back (see the struct). */
+bool mock_sm_get_permit(void) {
+    return mock_sm_state.power_level > 0 && !mock_sm_state.bias_refused && !mock_sm_state.power_bus_fault;
+}
+
+void power_bias_step(bool *stuck, bool *lost) {
+    mock_sm_state.bias_step_calls++;
+    *stuck = mock_sm_state.bias_stuck;
+    *lost = mock_sm_get_permit() && !mock_sm_state.bias_good;
+}
+
+bool power_bias_start_refused(void) {
+    return mock_sm_state.bias_refused;
+}
+
+bool power_tank_overcurrent_tripped(void) {
+    return mock_sm_state.power_tank_trip;
+}
+
+bool read_rim_temperature(float *temp_c) {
+    *temp_c = mock_sm_state.rim_temperature;
+    return mock_sm_state.rim_valid;
+}
+
+bool read_rim_temperature_status(float *temp_c, bool *cold_or_open) {
+    if (cold_or_open) *cold_or_open = mock_sm_state.rim_cold_or_open;
+    return read_rim_temperature(temp_c);
+}
+
+void thermal_set_sensor_faults(bool rim_fault, bool coil_fault) {
+    mock_sm_state.rim_sensor_fault = rim_fault;
+    mock_sm_state.coil_sensor_fault = coil_fault;
+}
+
+float read_coil_temperature(void) {
+    return mock_sm_state.coil_temperature;
+}
+
+uint8_t thermal_power_cap_pct(void) {
+    return mock_sm_state.thermal_cap_pct;
+}
+
+bool thermal_blower_start_permitted(void) {
+    return mock_sm_state.blower_start_permitted;
 }
 
 float read_rtd_resistance(void) {

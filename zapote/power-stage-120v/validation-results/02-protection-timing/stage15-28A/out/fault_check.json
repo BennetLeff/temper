@@ -1,0 +1,199 @@
+{
+ "status": "ASSUMED / bounded calc; datasheet curve reads are by eye",
+ "tj_hot_basisA_28A_C": 140.1,
+ "z0_max_ohm": 12.75,
+ "f_res_min_hz": 25092,
+ "t_d_us": 2.267,
+ "shunt": [
+  {
+   "divider": "today 12.4k/11.7k",
+   "bus": "198 V (140 V line crest)",
+   "band_A": [
+    47.27,
+    97.77
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 42.0,
+   "didt_bound_A_per_us": 33.1,
+   "I_off_max_A": 139.7,
+   "ID_pulse_margin_x": 3.54,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 3.9,
+   "Tj_after_C": 144.0,
+   "E_off_est_mJ": 1.22,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1247,
+   "bank_Vpk_with_growth_V": 1782,
+   "bank_no_growth_ok": true
+  },
+  {
+   "divider": "today 12.4k/11.7k",
+   "bus": "280 V (OVP screen, D-31)",
+   "band_A": [
+    47.27,
+    97.77
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 59.3,
+   "didt_bound_A_per_us": 38.1,
+   "I_off_max_A": 157.1,
+   "ID_pulse_margin_x": 3.15,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 4.9,
+   "Tj_after_C": 145.0,
+   "E_off_est_mJ": 1.37,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1247,
+   "bank_Vpk_with_growth_V": 2003,
+   "bank_no_growth_ok": true
+  },
+  {
+   "divider": "11.3k/10.5k (E96 pair)",
+   "bus": "198 V (140 V line crest)",
+   "band_A": [
+    65.5,
+    117.84
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 42.0,
+   "didt_bound_A_per_us": 37.4,
+   "I_off_max_A": 159.8,
+   "ID_pulse_margin_x": 3.1,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 5.1,
+   "Tj_after_C": 145.2,
+   "E_off_est_mJ": 1.4,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1502,
+   "bank_Vpk_with_growth_V": 2038,
+   "bank_no_growth_ok": true
+  },
+  {
+   "divider": "11.3k/10.5k (E96 pair)",
+   "bus": "280 V (OVP screen, D-31)",
+   "band_A": [
+    65.5,
+    117.84
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 59.3,
+   "didt_bound_A_per_us": 42.4,
+   "I_off_max_A": 177.2,
+   "ID_pulse_margin_x": 2.79,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 6.2,
+   "Tj_after_C": 146.3,
+   "E_off_est_mJ": 1.55,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1502,
+   "bank_Vpk_with_growth_V": 2259,
+   "bank_no_growth_ok": true
+  },
+  {
+   "divider": "R34 12.6k (E192), R35 kept",
+   "bus": "198 V (140 V line crest)",
+   "band_A": [
+    66.3,
+    118.74
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 42.0,
+   "didt_bound_A_per_us": 37.5,
+   "I_off_max_A": 160.7,
+   "ID_pulse_margin_x": 3.08,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 5.1,
+   "Tj_after_C": 145.2,
+   "E_off_est_mJ": 1.41,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1514,
+   "bank_Vpk_with_growth_V": 2049,
+   "bank_no_growth_ok": true
+  },
+  {
+   "divider": "R34 12.6k (E192), R35 kept",
+   "bus": "280 V (OVP screen, D-31)",
+   "band_A": [
+    66.3,
+    118.74
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 59.3,
+   "didt_bound_A_per_us": 42.6,
+   "I_off_max_A": 178.1,
+   "ID_pulse_margin_x": 2.78,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 6.3,
+   "Tj_after_C": 146.4,
+   "E_off_est_mJ": 1.56,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1514,
+   "bank_Vpk_with_growth_V": 2271,
+   "bank_no_growth_ok": true
+  },
+  {
+   "divider": "R34 12.7k (E96), R35 kept",
+   "bus": "198 V (140 V line crest)",
+   "band_A": [
+    75.7,
+    129.09
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 42.0,
+   "didt_bound_A_per_us": 39.7,
+   "I_off_max_A": 171.1,
+   "ID_pulse_margin_x": 2.89,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 5.8,
+   "Tj_after_C": 145.9,
+   "E_off_est_mJ": 1.5,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1646,
+   "bank_Vpk_with_growth_V": 2181,
+   "bank_no_growth_ok": false
+  },
+  {
+   "divider": "R34 12.7k (E96), R35 kept",
+   "bus": "280 V (OVP screen, D-31)",
+   "band_A": [
+    75.7,
+    129.09
+   ],
+   "t_d_us": 2.267,
+   "dA_halfcycle_A": 59.3,
+   "didt_bound_A_per_us": 44.8,
+   "I_off_max_A": 188.4,
+   "ID_pulse_margin_x": 2.63,
+   "within_D31_survival_range": true,
+   "dTj_100us_K": 7.0,
+   "Tj_after_C": 147.1,
+   "E_off_est_mJ": 1.65,
+   "E_1us_SOA_derated_mJ": 5.66,
+   "bank_Vpk_no_growth_V": 1646,
+   "bank_Vpk_with_growth_V": 2403,
+   "bank_no_growth_ok": false
+  }
+ ],
+ "ct": {
+  "CT_band_A": [
+   64.55,
+   76.09
+  ],
+  "bank_Vpk_at_CT_hi_V": 970,
+  "flux_Vus_59A_35k": 16.1,
+  "flux_Vus_CT_hi_35k": 20.8,
+  "flux_Vus_160A_33k": 46.3,
+  "flux_limit_Vus": 638.0,
+  "ct_sense_mon_V_at_CT_hi": 2.791,
+  "v3v3_min_V": 3.135,
+  "T1_rms_ratio_28A": 0.318
+ },
+ "sense": {
+  "ct_mon_ADC_V_at_62A": 2.58,
+  "ct_mon_ADC_max_V": 2.85,
+  "ct_mon_ADC_range_A": 80.0,
+  "rms_chain_V_at_crest_1.05x28A": 2.495,
+  "rms_chain_fullscale_V_min": 3.135,
+  "ct_mon_adc_accuracy_A": 3.33
+ }
+}

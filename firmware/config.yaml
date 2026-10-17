@@ -208,6 +208,18 @@ misc:
     doc: "Non-blocking message display time"
     legacy_define_only: true
 
+  - c_symbol: BLOWER_TACH_PULSES_PER_REV
+    value: 2
+    c_type: uint8_t
+    units: "pulses/rev"
+    doc: >-
+      J10 blower FG pulses per revolution (DECISIONS C28: Delta BFB1012VH-F00,
+      FG open collector into GPIO3 / PCNT). UNVERIFIED: the Delta sample spec
+      does not state it; 2 is the common DC-blower value. Measure on the bench
+      (FG frequency vs a strobe / optical rpm at a fixed V_BLOWER) and set it
+      here; the stall threshold (thermal_mgmt.h BLOWER_STALL_RPM) is in rpm.
+    legacy_define_only: true
+
 runaway:
   - c_symbol: RUNAWAY_MAX_ABSOLUTE_TEMP_C
     field: max_absolute_temp_c
@@ -242,6 +254,9 @@ runaway:
 #     IEC 60335-1 clause. Both were labelled UNCITED in the audit; the
 #     data-driven decisions that resolve them landed on main as #1233
 #     (thermal 100->80C) and #1234 (OCP 35->40A peak), applied here.
+#   - 2026-10-12: OVER_TEMP_THRESHOLD 80 -> 95 C, superseding #1233 for the
+#     integrated controller (IPW65R018CFD7 power stage, L3 trip ladder):
+#     docs/evidence/2026-10-12-thermal-trip-ladder-l3.md.
 #   - IGBT_SHORT_CURRENT_THRESHOLD and FAULT_STATE_MAX_TEMP_C were hardcoded
 #     literals with the same lack of citation; they are single-sourced here so
 #     the whole interlock family has one home instead of four.
@@ -257,16 +272,21 @@ runaway:
 # design, and inventing one would imply a sensing channel that is not fielded.
 interlocks:
   - c_symbol: OVER_TEMP_THRESHOLD
-    value: 80.0
+    value: 95.0
     c_type: float
     units: "°C"
     doc: >-
-      Heatsink over-temperature interlock (firmware trip). Per thermal
-      threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch
-      (85°C). 100°C was dead code — hardware always fired first. Decision
-      ladder: 75°C warn/derate → 80°C firmware shutdown → 85°C hardware
-      latch → 125°C fault-state backstop (docs/evidence/2026-08-15-thermal-
-      threshold-decision.md; committed aaa0af2dd).
+      Heatsink over-temperature interlock (firmware hard trip), L3 trip ladder
+      (zapote/controller DECISIONS C32, coordinator decision 2026-10-12;
+      docs/evidence/2026-10-12-thermal-trip-ladder-l3.md): fan-law sink
+      setpoint 88.6°C < firmware trip 95°C < hardware comparator trip 101.4°C
+      nominal (64-corner band 98.3-104.6°C, release 85.6°C). 98.3°C is above
+      95°C + 2 K (Vishay NTCALUG01A104GA tolerance at 95°C). IPW65R018CFD7 at
+      28 A: Tj ~= T_sink + 27.8 K = 123°C at 95°C (125°C design target).
+      SUPERSEDES the IGBT-era 80°C (#1233, docs/evidence/2026-08-15-thermal-
+      threshold-decision.md: IKW40N120H3 and an 85°C hardware latch), which
+      sat below the 88.6°C normal full-power sink temperature and would trip
+      in normal operation. Order checked by firmware/test/test_thermal_mgmt.c.
     legacy_define_only: true
 
   - c_symbol: OVER_CURRENT_THRESHOLD
@@ -308,5 +328,105 @@ interlocks:
       triggers trigger_hardware_shutdown(). UNCITED: hardcoded literal, no
       citation. Above the IKW40N120H3 Tc(max recommended) = 100°C; a
       last-resort backup that only matters if the normal interlock paths are
-      already broken.
+      already broken. L3 (2026-10-12): still above the whole trip ladder (95°C
+      firmware, 104.6°C hardware high corner) and below the IPW65R018CFD7's
+      150°C Tj max with the tank off.
+    legacy_define_only: true
+
+  # BIAS_GOOD read-back (power board J4.1, OPEN-ITEMS B13 H2) under option P (power-stage
+  # validation-results/11-candidates/c50-permit-gate): U46.A is driven from PERMIT through R135
+  # 100 k, so BIAS_GOOD = bias_ok AND PERMIT. Timing at J4.1 / GPIO35 (c50 section 2, class C):
+  # >= VIH <= 0.53 ms after PERMIT rises, <= VIL <= 0.36 ms after it falls. The checks:
+  # platform_bias_* (components/platform/platform_logic.c) and the binding's start sequence
+  # (components/power/n21_binding.c).
+  - c_symbol: BIAS_GOOD_PERMIT_FALL_MS
+    value: 2
+    c_type: uint32_t
+    units: "ms"
+    doc: >-
+      Check 1 (low with PERMIT low): a control-loop sample is judged only once
+      the PERMIT read-back (PERMIT_RB, GPIO36) has been low for at least this
+      long; BIAS_GOOD must then read low. 2 ms is 5.6 x the 0.36 ms worst-case
+      fall of GPIO35 after PERMIT falls (c50 README section 2: hold-node bleed
+      <= 90 us plus the J4.1 220 k / 10 k / 1 MOhm / 1 nF RC to VIL), so a
+      healthy board never fails it. The low time is counted from the
+      binding's last RUN_EN change when that falls between two samples
+      (platform_permit_step), so a refused start's 2 ms RUN_EN pulse cannot
+      hide inside a tick.
+    legacy_define_only: true
+
+  - c_symbol: BIAS_GOOD_PERMIT_RISE_MS
+    value: 2
+    c_type: uint32_t
+    units: "ms"
+    doc: >-
+      Check 2 (high after PERMIT, n21_binding.c start sequence): RUN_EN is
+      raised with the PWM pads forced low, and BIAS_GOOD must read high this
+      long afterwards before the pads are released (controller DECISIONS
+      C39); otherwise RUN_EN drops again and the start is refused with "NO
+      POWER BIAS" (not a fault). 2 ms is 3.8 x the 0.53 ms worst-case rise of
+      GPIO35 after PERMIT (pump restart <= 11.8 us, R135 100 k x 15 pF
+      <= 1.8 us, then the J4.1 RC, tau 177-198 us, to VIH), and it also covers
+      the drivers' enable (<= 13.6 us plus the unpublished 2EDR8259X
+      DIS-to-output delay) before the first turn-off command reaches the
+      capacitive-mode detector. Check 3 also blanks this long after each
+      PERMIT rise. n21_config_default() start_check_us equals it
+      (test_n21_binding.c pins the two together).
+    legacy_define_only: true
+
+  - c_symbol: BIAS_GOOD_IDLE_TRIP_SAMPLES
+    value: 3
+    c_type: uint32_t
+    units: "samples"
+    doc: >-
+      Check 1 debounce, with BIAS_GOOD_IDLE_WINDOW_SAMPLES: FAULT_BIAS_GOOD_STUCK
+      latches once at least this many of the last BIAS_GOOD_IDLE_WINDOW_SAMPLES
+      judged control-loop samples (10 ms apart) read BIAS_GOOD high (or
+      unreadable) with PERMIT low. Like check 3 it has no safety-time role:
+      it proves the U40 / heartbeat chain can still go low (a dormant fault
+      would mask the bias monitors), and it only has to be certain. A static
+      fault (U40 stuck high, Y-VCC, hsb_good shorted to v3v3) trips on the
+      third judged sample, 20 ms after the first. One or two samples caught in
+      a transient cannot trip it.
+    legacy_define_only: true
+
+  - c_symbol: BIAS_GOOD_IDLE_WINDOW_SAMPLES
+    value: 8
+    c_type: uint32_t
+    units: "samples"
+    doc: >-
+      Check 1 window (80 ms at the 10 ms tick). It is a window rather than a
+      run of consecutive samples because one of the faults it must catch is
+      intermittent: an hsb_good short to the line_zc_raw via (c50 README
+      section 3) toggles U46.A at the line frequency while PERMIT is low, so
+      GPIO35 reads high about half the time. Sampled at 100 Hz, a 60 Hz square
+      wave of 50 % duty never gives three consecutive high samples (the phase
+      advances 0.6 cycle per sample), but three of eight trips within the
+      first eight judged samples at 59.5-60.5 Hz, any phase, for duties of
+      42-60 % (test_platform_logic.c). A transient would have to recur three times
+      within 80 ms, each time across a sample instant, to trip it.
+    legacy_define_only: true
+
+  - c_symbol: BIAS_GOOD_DROP_DEBOUNCE_MS
+    value: 20
+    c_type: uint32_t
+    units: "ms"
+    doc: >-
+      Check 3 (high throughout): while the PERMIT read-back has been high for
+      at least BIAS_GOOD_PERMIT_RISE_MS, a BIAS_GOOD low that persists over
+      consecutive control-loop samples (10 ms apart) spanning this long
+      latches FAULT_BIAS_GOOD_LOST (platform_bias_lost_step,
+      components/platform/platform_logic.c). It is keyed to PERMIT_RB, not to
+      the state: under option P BIAS_GOOD is low whenever PERMIT is low, and
+      the low run restarts at every PERMIT rise. It has no safety-time role:
+      the power board already holds both drivers' DIS high within the
+      heartbeat hold-node bleed time, <= 90 us (123 us with one pump cap
+      shorted; f6_bias.ato Heartbeat), whatever firmware does, so the
+      firmware latch only has to be certain. 20 ms = three samples: one or two
+      samples caught in a harness transient (bridge edges are ~us at
+      >= 30 kHz; a line-synchronous disturbance repeats every 8.3 ms and is
+      not continuous over three 10 ms samples) cannot latch it, while a real
+      bias loss is static (any rail bad, oscillator, isolator, pump or LS 5 V
+      fault stops the wave until the fault clears) and is latched within
+      30 ms.
     legacy_define_only: true

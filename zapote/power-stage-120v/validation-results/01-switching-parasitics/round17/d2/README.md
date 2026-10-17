@@ -501,7 +501,104 @@ Versus `legB-h0-corr-n19`: entries within 0.5 nH.
 re-extraction of both legs (RELAYOUT-REQUIREMENTS, after the layout).
 
 
-## Native-21 leg B (`legB21-h0-best`, `compose_leg_best.py --leg B21`)
+## Native-21 leg A, first matrix and decision cases (provisional, 2026-10-08)
+
+The first native-21 extraction landed on the remote box: leg A's coarse reference
+(`results/matrices/legA21-h1-e1p0-m10-n21.matrix.txt`, h 1 mm, 1.0 mm edges, 10 mm crop,
+3.37 M tets, 12 ranks; diagonals agree with the port energies to ≤ 2.3e-7). Against
+native-19 at the same reference (nH):
+
+| entry | native-19 | native-21 | change |
+| --- | ---: | ---: | ---: |
+| L11 (C38 loop) | 31.49 | 42.18 | +34 % |
+| L22 (C39 loop) | 30.18 | 44.14 | +46 % |
+| M12 (shared path) | 19.03 | 32.06 | +68 % |
+| L33 (gate high) | 28.02 | 56.78 | ×2.0 (new closure) |
+| L44 (gate low) | 37.93 | 72.63 | ×1.9 (new closure) |
+| M13 / M14 | 3.74 / 5.60 | 4.25 / 7.55 | +14 / +35 % |
+
+**Why the power loop grew:** the enclosure re-layout put F6's gate network (PMEG + 1 Ω
+at y 17.9, Cgs at y 21.8) directly under each gate pin and moved the HF film row
+(C38–C41) 6 mm down to make room. C38/C39 sit 24 mm from the TO-247 row (native-19:
+17.8 mm), and C39 is 20 mm right of Q2 (was 14 mm). That lengthens the commutation path
+both capacitors share, so most of the rise is in M12. The parallel commutation loop
+(C38 ∥ C39, (L11·L22 − M12²)/(L11 + L22 − 2·M12)) goes from 24.9 to 37.6 nH at the
+reference. FLOORPLAN.md's "proven commutation loops, rail model ≤ 0.5 nH per branch"
+does not hold for native-21. The gate loops are not like-for-like: native-21's gate ports
+close through the driver's bias capacitor (`closures-legA-n21.json`), so they include the
+bias-reservoir path that native-19's closure left out.
+
+**Provisional decision matrix** `legA21-h0-prov-n21.matrix.txt` (`compose_legA21_prov.py`)
+= native-21 coarse + native-19 leg A's (best − coarse) correction, the transfer that held
+for leg B (`legB-corr-vs-prov.json`: no verdict flips). It is SPD, with a minimum
+eigenvalue of 8.16 nH. The parallel loop is 32.0 nH (native-19 best: 19.4 nH, +65 %).
+
+**Without F6** (unipolar baseline deck, `results/legA21-prov-n21/`; the same 96 cases as
+`native19-carryover`, compare in `compare-vs-n19.json`):
+- S1 and S2 pass 36/36 and 24/24, including the 1.9 V hot screen, with ZVS 12/12 at 443 ns.
+- S2 die VDS rises by +40 … +80 V, to ≤ 414 V.
+- S4 (already failing every case) loses 0.45–1.08 V of off-gate, but its die VDS reaches
+  **550 V** (native-19 511 V), above 520 V in 19/36 cases.
+
+**With F6 at the −1.6 V rail bound** (the design basis, DECISIONS.md; PMEG6030EP model;
+`f6_legs.py --matrix-a legA21-h0-prov-n21.matrix.txt --vneg -1.6 --diode pmeg --temps
+27,100,150`, results `results/f6-vneg-m1p6-legA21-prov{,-startup}/`): **252/252 pass**,
+the 1.9 V hot screen included, at 27/100/150 °C.
+
+| case | native-19 (`f6-vneg-m1p6*`): max off-gate / die VDS | native-21 provisional: max off-gate / die VDS |
+| --- | --- | --- |
+| S1 | −0.67 V / 355 V | −0.90 V / 351 V |
+| S2 (585 V limit) | 0.14 V / 389 V | −0.43 V / 446 V |
+| S4 | 1.74 V / 486 V | 0.83 V / 470 V |
+| S5 burst start | 0.16 V / 389 V | 0.47 V / 440 V |
+
+Decision (recorded in DECISIONS.md): **no placement change for the power loop.** With F6
+built in, every decision and startup case passes with margin. The worst margins are S4 at
+470 V against 520 V and S5 at 440 V. Pulling the film row back up would mean moving F6's
+network off the gate pins, which is what makes F6 work. Status: provisional until
+native-21's own corrections (`a21corr`) and fine extraction (`campA21`) land. Leg B's
+native-21 coarse matrix is running.
+
+### Leg B (same day)
+
+Leg B's native-21 coarse reference (`results/matrices/legB21-h1-e1p0-m10-n21.matrix.txt`)
+goes the other way: pulling C41 in from the board edge shortens its commutation loop.
+L11 33.0 → 30.2, L22 36.3 → 29.6, M12 23.8 → 19.2 nH, so the parallel loop goes from 29.1 to
+24.5 nH at the reference. The gate loops grow (P3 29.8 → 56.4, P4 32.6 → 48.6 nH) with the
+bias-capacitor closure; M34 changes sign but stays small (−0.24 → +0.09 nH). The provisional matrix
+`legB21-h0-prov-n21.matrix.txt` (`compose_legB21_prov.py`, leg B's own native-19 best − coarse)
+has a parallel loop of 18.1 nH (native-19 best: 22.7 nH) and a minimum eigenvalue of 7.72 nH.
+
+F6 at the −1.6 V bound (`results/f6-vneg-m1p6-legB21-prov{,-startup}/`): **252/252 pass** at
+27/100/150 °C.
+
+| case | native-19 (`f6-vneg-m1p6`, leg B): off-gate / die VDS | native-21 provisional |
+| --- | --- | --- |
+| S1 | −0.67 V / 353 V | −0.68 V / 359 V |
+| S2 (585 V limit) | −0.43 V / 360 V | 0.07 V / 414 V |
+| S4 | 1.65 V / 492 V | 1.25 V / 492 V |
+| S5 burst start | — | 0.19 V / 404 V |
+
+Both legs of native-21 pass every F6 decision and startup case on the provisional matrices.
+
+**Stage 9 bound (2026-10-08).** Stage 9 necks each driver output to 0.3 mm for ≈ 7.5 mm under its new VDD–VSS cap stack; the rest of the gate-loop copper is as extracted. `compose_stage9_bound.py` writes `leg{A,B}21-h0-s9b2-n21.matrix.txt`: the provisional matrices with +2 nH on both gate-port diagonals, about twice a thin-strip estimate of the neck. F6 at −1.6 V (PMEG, 27/100/150 °C; `results/f6-vneg-m1p6-leg{A,B}21-s9b2{,-startup}/`) passes **252/252 on both legs**.
+- Worst off-gate: 0.694 V (leg A, S4) and 1.145 V (leg B, S4), against 1.9 V.
+- Worst die VDS: 467.6 V (A) and 490.2 V (B), against 520 V.
+
+## Native-21 final matrices (round 18): own corrections and fine extraction
+
+These replace the provisional matrices above. Each leg uses its own native-21 coarse closure
+set, its own fine h1 run and its own crop, extracted with scaling off
+(`../../round18-speedup/`). The geometry is the 2026-10-08 export, from **before stage 9 and
+s51/s52**; the stage-9 +2 nH gate bound above covers the stage-9 necks. **Verdicts are unchanged
+from the provisional matrices.** F6-bound worst cases, provisional → final:
+
+| Leg | S4 off-gate | S4 die VDS | S2 die VDS | S5 off-gate |
+| --- | --- | --- | --- | --- |
+| A | 0.83 → 0.89 V | 470 → 471 V | 446 → 451 V | 0.47 → 0.49 V |
+| B | 1.25 → 1.15 V | 492 → 489 V | 414 → 412 V | 0.19 → 0.37 V |
+
+### Leg B (`legB21-h0-best`, `compose_leg_best.py --leg B21`)
 
 Native-21 re-extraction (round 18, scaling off; matrices in
 `../../round18-speedup/matrices/`): cubic coarse(0.5,1,2,3) + (fine h1 at
@@ -522,7 +619,7 @@ inductance only in L_P3/L_P4, so the rail path is counted once.
 the larger gate loop helps S4's off-gate (−0.5 V of margin gained) and costs
 S2 about 50 V of die VDS, within limits.
 
-## Native-21 leg A (`legA21-h0-best`, `compose_leg_best.py --leg A21`)
+### Leg A (`legA21-h0-best`, `compose_leg_best.py --leg A21`)
 
 Same recipe as leg B, except that the fine h1 run uses **0.45 mm edges**: the 0.35 mm mesh
 (11.3 M tets, 68.9 GB estimated) exceeds the box's 56 GB guard (round 18 README §5,

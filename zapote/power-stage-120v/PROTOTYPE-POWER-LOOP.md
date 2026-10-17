@@ -45,7 +45,8 @@ parts. Actual tank waveform, loss and temperature still need measurement.
 
 ## Entries, coil leads and protective earth
 
-J1 is the two-position Phoenix **1711725**, 5.08 mm pitch, for L/N.
+J1 is the two-position Phoenix **1714971** (MKDS 5/2-9,5), 9.52 mm pitch, for L/N: UL/cUL and CSA
+use group B 30 A / 300 V (stage 27; the former 1711725 was 15 A cULus / 10 A CSA).
 Cord PE bonds directly to a chassis/heatsink stud; a separate branch
 goes to J6, Phoenix **1704004**. J6 and PCB copper are never the primary
 protective-earth path. Keep J6 pads and its hardware at least 8 mm from HOT

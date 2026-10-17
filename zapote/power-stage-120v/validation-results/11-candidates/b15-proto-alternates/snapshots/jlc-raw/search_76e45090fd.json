@@ -1,0 +1,362 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 1626047,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common mode filters_kemet_sc-20-201_C1535245.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.2272
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.2272
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 7.2272
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.7979
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.6984
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.6511
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.5538
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.6953
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 6.962
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.962
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.5994
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.962
+      }
+     ],
+     "firstSortAccessId": "c3edb15d5c884a76a1ea4a0ab1f65307",
+     "secondSortAccessId": "302e1284e991457489aa3228a1980c6e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SC_20201/C1535245",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.2272,
+     "componentCode": "C1535245",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SC-20-201",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2105222037_KEMET-SC-20-201_C1535245.pdf",
+     "dataManualFileAccessId": "8589034280529891328",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SC-20-201",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 10m\u03a9 2 20A 250V 250V 2mH@10kHz \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>20A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "20A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "10m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 10m\u03a9 2 <span class='lucene_highlight_class'>20A</span> 250V 250V <span class='lucene_highlight_class'>2mH</span>@10kHz \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1626078,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common mode filters_kemet_scf31b-200-2r0a020jh_C1535276.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.5128
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.5128
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 8.5128
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.2939
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 3.1797
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.121
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.0064
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.173
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 8.2004
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.2004
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 3.063
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.2004
+      }
+     ],
+     "firstSortAccessId": "c3edb15d5c884a76a1ea4a0ab1f65307",
+     "secondSortAccessId": "302e1284e991457489aa3228a1980c6e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SCF31B_2002R0A020JH/C1535276",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 20,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 8.5128,
+     "componentCode": "C1535276",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SCF31B-200-2R0A020JH",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2201180930_KEMET-SCF31B-200-2R0A020JH_C1535276.pdf",
+     "dataManualFileAccessId": "8589034282031046656",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SCF31B-200-2R0A020JH",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-25\u2103~+120\u2103 2 20A 2mH@100kHz 5.2m\u03a9 500V 500V - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>20A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "20A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "5.2m\u03a9"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2mH@100kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2mH@100kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 2 <span class='lucene_highlight_class'>20A</span> <span class='lucene_highlight_class'>2mH</span>@100kHz 5.2m\u03a9 500V 500V - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "Common Mode Filters 2mH 20A"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:00:47Z"
+}

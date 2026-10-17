@@ -1,0 +1,19 @@
+{
+  "schema": "temper.controller.native21-snapshot.v1",
+  "branch": "codex/power-stage-integration",
+  "commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
+  "files": {
+    "default.net": {
+      "source": "zapote/power-stage-120v/frozen/default.net",
+      "sha256": "4a848153742a60167ef230090a2cd056f6f71993b2dd95f8ecdd268dd89d67d3"
+    },
+    "default.csv": {
+      "source": "zapote/power-stage-120v/frozen/default.csv",
+      "sha256": "fb8ebfc0604db5388ea3ee44e724517b85ccfcfd78404c3ffb72ddbc89663ea8"
+    },
+    "resolved-components.json": {
+      "source": "zapote/power-stage-120v/frozen/resolved-components.json",
+      "sha256": "de83f85ea286ea50155f3e55812ce9a9c903d70fb0d5d71954d4c02e3b0dd5ae"
+    }
+  }
+}

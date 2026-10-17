@@ -1,0 +1,213 @@
+{
+ "_about": "Per-part inputs for scripts/bank_air_cand.py. Dimensions are datasheet maxima where given (w = thickness, stacked along y; h = height; l = length along x, the flow direction). I35 / I40 = the vendor's permissible RMS current at 35 / 40 kHz on its own dT basis dT_v (T_A <= 85 C). Sources per row; c34 ratios from PS c34-bank-margin/results/bank_margin.json (J worst share 0.2165, I_part 6.062 A at 28 A).",
+ "candidates": [
+  {
+   "id": "c34",
+   "mpn": "B32643B8104J000",
+   "vendor": "TDK",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 14.5,
+   "h": 29.5,
+   "l": 26.5,
+   "pitch": 15.0,
+   "dT_v": 15.0,
+   "I35": 7.2947,
+   "I40": 7.4288,
+   "rule": {
+    "type": "tdk",
+    "end": 125.0,
+    "span": 40.0
+   },
+   "top_max": 125.0,
+   "control_bank_air": 0.967,
+   "src": "TDK B3264*B June 2026 p.11 (dims, 8.3 A dT<=15 K), p.24 curve via c34 ratio 0.831/0.816; F_T fit bank28-air"
+  },
+  {
+   "id": "fitted",
+   "mpn": "B32654A1104J000",
+   "vendor": "TDK",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 14.0,
+   "h": 24.5,
+   "l": 31.5,
+   "pitch": 14.5,
+   "dT_v": 20.0,
+   "I35": 5.8009,
+   "I40": 5.9314,
+   "rule": {
+    "type": "tdk",
+    "end": 110.0,
+    "span": 25.0
+   },
+   "top_max": 110.0,
+   "control_bank_air": 1.308,
+   "src": "TDK B3265x June 2026 p.23, p.57 via c34 ratio 1.045/1.022"
+  },
+  {
+   "id": "knscha",
+   "mpn": "MMK104J3DF1KN208G2",
+   "vendor": "KNSCHA (MMKP82)",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 11.5,
+   "h": 20.0,
+   "l": 32.0,
+   "pitch": 15.0,
+   "dT_v": 10.0,
+   "I35": 6.2,
+   "I40": 6.16,
+   "rule": {
+    "type": "knscha"
+   },
+   "top_max": 105.0,
+   "src": "KNSCHA spec KNS20200505002 (LCSC C528962): 31.5x19.5x11 +-0.5 mm, P27.5, 40/105/56; family chart (C565696 sheet 2026.9.16 p.7 Irms / p.6 Vrms, 2000 VDC '104 P=27.5', dT = 10 C internal, ambient <= 85 C) via results/knscha_curves.json"
+  },
+  {
+   "id": "r75",
+   "mpn": "R75UR31004030J",
+   "vendor": "KEMET (R75)",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 11.0,
+   "h": 20.1,
+   "l": 32.0,
+   "pitch": 15.0,
+   "dT_v": 20.0,
+   "I35": 5.839,
+   "I40": 6.229,
+   "rule": {
+    "type": "kemet",
+    "dTlim_vs_Th": [
+     [
+      85,
+      20
+     ],
+     [
+      105,
+      0
+     ]
+    ]
+   },
+   "top_max": 105.0,
+   "src": "KEMET F3106_R75 2026-10-06 p.24 row R75UR3100(1)30 (11x20x32, ESR 11.1 mOhm, 7.56 A at 100 kHz/85 C, Rth 31 K/W, dV/dt 2000 V/us), p.11 chart via results/r75_curves.json, p.7 dT_lim vs Th; DigiKey height 20.1 mm"
+  },
+  {
+   "id": "r76",
+   "mpn": "R76UR3100SE30J",
+   "vendor": "KEMET (R76)",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 14.0,
+   "h": 28.0,
+   "l": 32.0,
+   "pitch": 15.0,
+   "dT_v": 20.0,
+   "I35": 6.497,
+   "I40": 6.691,
+   "rule": {
+    "type": "kemet",
+    "dTlim_vs_Th": [
+     [
+      60,
+      40
+     ],
+     [
+      110,
+      0
+     ]
+    ]
+   },
+   "top_max": 110.0,
+   "src": "KEMET F3034_R76 3/21/2025 p.22, p.8 chart, p.6 dT_lim vs Th, via c34 ratio 0.933/0.906 (reference: no stock found)"
+  },
+  {
+   "id": "wima",
+   "mpn": "MKP1U031006D00JSSD",
+   "vendor": "WIMA (MKP 10)",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 13.0,
+   "h": 24.0,
+   "l": 31.5,
+   "pitch": 15.0,
+   "dT_v": 15.0,
+   "I35": 4.0,
+   "I40": 4.0,
+   "rule": {
+    "type": "knscha"
+   },
+   "top_max": 100.0,
+   "src": "WIMA MKP 10 (03.26) p.62 2000 VDC chart: 0.1 uF/22.5 plateau ~4 A (0.1 uF/27.5 not plotted; ESTIMATE, by eye), '15 C internal temperature rise (general guide)', 55/100/56"
+  },
+  {
+   "id": "b32643h",
+   "mpn": "B32643H8104J000",
+   "vendor": "TDK (B3264*H)",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 14.5,
+   "h": 29.5,
+   "l": 26.5,
+   "pitch": 15.0,
+   "dT_v": 15.0,
+   "I35": 6.186,
+   "I40": 6.186,
+   "rule": {
+    "type": "tdk",
+    "end": 125.0,
+    "span": 40.0
+   },
+   "top_max": 125.0,
+   "src": "ESTIMATE: c34 README 'B32643H peaks at 100 kHz, so 5 x 100 nF reaches 0.98 at 35 kHz'; same body as B32643B (DigiKey); the H sheet could not be read by this lane's tools"
+  },
+  {
+   "id": "knscha6",
+   "mpn": "MMK104J3DF1KN208G2",
+   "vendor": "KNSCHA (MMKP82)",
+   "n": 6,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 11.5,
+   "h": 20.0,
+   "l": 32.0,
+   "pitch": 13.08,
+   "dT_v": 10.0,
+   "I35": 6.2,
+   "I40": 6.16,
+   "rule": {
+    "type": "knscha"
+   },
+   "top_max": 105.0,
+   "src": "KNSCHA spec KNS20200505002 (LCSC C528962): 31.5x19.5x11 +-0.5 mm, P27.5, 40/105/56; family chart (C565696 sheet 2026.9.16 p.7 Irms / p.6 Vrms, 2000 VDC '104 P=27.5', dT = 10 C internal, ambient <= 85 C) via results/knscha_curves.json; 6 parts at 0.60 uF: rows at 13.08 mm pitch across the s49 pin span y 48.0-113.4 (ALTERNATIVE: changes C, f_res and yield)"
+  },
+  {
+   "id": "knscha_nom",
+   "mpn": "MMK104J3DF1KN208G2",
+   "vendor": "KNSCHA (MMKP82)",
+   "n": 5,
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 11.0,
+   "h": 19.5,
+   "l": 31.5,
+   "pitch": 15.0,
+   "dT_v": 10.0,
+   "I35": 6.2,
+   "I40": 6.16,
+   "rule": {
+    "type": "knscha"
+   },
+   "top_max": 105.0,
+   "src": "as knscha, nominal dims 11 x 19.5 x 31.5 (sensitivity)"
+  }
+ ]
+}

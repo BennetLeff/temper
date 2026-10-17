@@ -9,6 +9,7 @@
 #include "state_machine.h"
 #include "state_handlers.h"
 #include "config.h"
+#include "../components/control/thermal_mgmt.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -17,6 +18,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "controller_board.h"
 static const char *TAG = "state_machine";
 #endif
 
@@ -48,6 +50,7 @@ sm_context_t *sm_get_context(void) {
 
 /* Forward declaration - not in state_handlers.h */
 static void check_runaway_boundary(void);
+static bool check_bias_good(void);
 
 /* External function stubs - implement in peripherals module */
 extern uint32_t get_time_ms(void);
@@ -72,7 +75,25 @@ extern void fan_set_speed(fan_speed_t speed);
 extern void fan_set_auto_mode(bool enabled);
 extern float read_pan_temperature(void);
 extern float read_heatsink_temperature(void);
-extern float read_dc_bus_current(void);
+/* Coil NTC, deg C; NaN when the reading is invalid (open, short, stale, not yet settled). */
+extern float read_coil_temperature(void);
+/* Over-current sources on native-21 (design lead decision 2026-10-12; DC bus current is not
+ * measured on this hardware, so the legacy 40 / 50 A read_dc_bus_current() checks are retired):
+ *  - power_bus_fault_tripped(): BUS_FAULT read-back high (shunt OCP, bus OVP, tank-CT comparators,
+ *    HOT5) or PERMIT dropped while the binding runs the bridge -> FAULT_IGBT_SHORT;
+ *  - power_tank_overcurrent_tripped(): the n21 binding latched its CT peak / RMS trip (or lost the
+ *    current-sense channel) -> FAULT_OVER_CURRENT.
+ * Both return true whenever the status cannot be read (fail closed). */
+extern bool power_bus_fault_tripped(void);
+extern bool power_tank_overcurrent_tripped(void);
+/* Power board BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2, DECISIONS 67), option P
+ * (c50-permit-gate: BIAS_GOOD = bias_ok AND PERMIT). One call per control tick; the platform reads
+ * PERMIT_RB and J4.1 and debounces both checks (platform_logic.c platform_bias_*). *stuck, check 1
+ * (latched by the platform): BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms ->
+ * FAULT_BIAS_GOOD_STUCK. *lost, check 3: BIAS_GOOD low for >= BIAS_GOOD_DROP_DEBOUNCE_MS while
+ * PERMIT_RB has been high >= 2 ms -> FAULT_BIAS_GOOD_LOST. Unreadable fails both. With no J4.1
+ * input on the controller both stay false. Check 2 is the binding's start sequence. */
+extern void power_bias_step(bool *stuck, bool *lost);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
@@ -99,18 +120,19 @@ extern void watchdog_feed(void);
 extern void watchdog_hardware_feed(void);
 extern void trigger_hardware_shutdown(void);
 
-/* Route software-detected safety faults into the same active-high hardware
- * runaway-cut input used by the UCC21550 fault latch. This keeps RTD/ADC/fan
- * faults fail-safe even when the firmware state transition is delayed.
+/* Route software-detected safety faults into the hardware permission path.
+ * On the integrated controller (layout L2) that is RUN_EN (GPIO14), ANDed with
+ * the interlock latch by U37 (DECISIONS C23): driving it low drops PERMIT at
+ * native-21 whatever the PWM pads do, and the kill is latched until MCU reset.
+ * The legacy board's RUNAWAY_CUT output does not exist here (its GPIO15 is
+ * PWM_HB); the hardware runaway producer is the RTD comparator (C6).
  *
- * TODO(temper-xxx): Single-point failure risk — gpio_set_level() writes to
- * the GPIO but does not verify pin state. If the output driver is damaged,
- * the fault cut may not be asserted. Consider adding a GPIO read-back
- * verification loop with a watchdog-bounded timeout before falling through
- * to trigger_hardware_shutdown(). */
+ * The final PERMIT is read back on GPIO36 by the n21 binding, so a damaged
+ * RUN_EN driver shows up as PERMIT staying high while the binding expects it
+ * low. trigger_hardware_shutdown() still forces the pads low independently. */
 static void assert_hardware_fault_cut(void) {
 #ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
+    (void)ctrl_board_run_en_kill();
 #endif
     trigger_hardware_shutdown();
 }
@@ -175,6 +197,9 @@ void state_machine_init(void) {
     /* Reset profile */
     profile_init_status(&sm_ctx.profile);
 
+    /* L3 rim / coil sensor plausibility */
+    state_handlers_thermal_plaus_reset();
+
     /* Reset message display state */
     sm_ctx.message_pending = false;
     sm_ctx.message_next_state = STATE_INIT;
@@ -223,7 +248,10 @@ void state_machine_update(void) {
      * This fires even during message display to ensure safety-critical
      * events preempt all normal operation. */
     check_runaway_boundary();
-    
+
+    /* BIAS_GOOD checks 1 and 3 (B13 H2): every tick, every state, keyed to PERMIT_RB. */
+    if (check_bias_good()) return;
+
     /* Handle non-blocking message display */
     if (sm_ctx.message_pending) {
         if ((now - sm_ctx.message_start_time) >= MESSAGE_DISPLAY_TIME_MS) {
@@ -387,21 +415,25 @@ void transition_to(system_state_t new_state) {
 }
 
 bool check_safety_interlocks(void) {
-    /* Over-temperature check — threshold from config.yaml (interlocks:) */
-    if (read_heatsink_temperature() > OVER_TEMP_THRESHOLD) {
+    /* Over-temperature, L3 trip ladder (DECISIONS C32): heatsink above OVER_TEMP_THRESHOLD
+     * (config.yaml, 95 C) or coil at or above COIL_FW_TRIP_C (165 C), both below the hardware
+     * comparators. Written as !(t <= limit) so an invalid (NaN) reading trips: it must never pass
+     * as "cool". */
+    float hs_c = read_heatsink_temperature();
+    float coil_c = read_coil_temperature();
+    if (!(hs_c <= OVER_TEMP_THRESHOLD) || !(coil_c < COIL_FW_TRIP_C)) {
         enter_hardware_latched_fault(FAULT_OVER_TEMP);
         return true;
     }
 
-    /* Over-current check — IGBT short (> IGBT_SHORT_CURRENT_THRESHOLD) takes
-     * priority over over-current (> OVER_CURRENT_THRESHOLD). Both thresholds
-     * come from config.yaml (interlocks:); see
-     * docs/evidence/2026-08-15-firmware-interlock-citations.md. */
-    if (read_dc_bus_current() > IGBT_SHORT_CURRENT_THRESHOLD) {
+    /* Over-current: the hardware bus fault / PERMIT drop (FAULT_IGBT_SHORT) takes priority over
+     * the n21 binding's tank-current trip (FAULT_OVER_CURRENT). The trip levels are the hardware
+     * comparators' and the binding's (n21_config_t tank_peak_trip_a / tank_rms_trip_a). */
+    if (power_bus_fault_tripped()) {
         enter_hardware_latched_fault(FAULT_IGBT_SHORT);
         return true;
     }
-    if (read_dc_bus_current() > OVER_CURRENT_THRESHOLD) {
+    if (power_tank_overcurrent_tripped()) {
         enter_hardware_latched_fault(FAULT_OVER_CURRENT);
         return true;
     }
@@ -449,6 +481,25 @@ bool check_safety_interlocks(void) {
     return false;
 }
 
+/* B13 H2 checks 1 and 3 (option P, c50-permit-gate). Both debouncers advance on every tick, in
+ * every state, so a fault can never be judged on a stale run. In FAULT / RUNAWAY_FAULT nothing is
+ * entered: the power is already off, the platform keeps check 1 latched, and a fault that clears
+ * to INIT meets it again on the next tick. A pending message (show_message_then_transition) is
+ * cancelled so it cannot later move the machine out of FAULT. Check 1 and check 3 cannot both
+ * hold (PERMIT_RB low vs high). A bias collapse that also trips BUS_FAULT (HOT5 UV, an open TCO
+ * loop) drops PERMIT at once, so check 3 is never judged and the bus fault keeps its code. */
+static bool check_bias_good(void) {
+    bool stuck = false, lost = false;
+    power_bias_step(&stuck, &lost);
+    if (sm_ctx.current_state == STATE_FAULT || sm_ctx.current_state == STATE_RUNAWAY_FAULT) {
+        return false;
+    }
+    if (!stuck && !lost) return false;
+    sm_ctx.message_pending = false;
+    enter_hardware_latched_fault(stuck ? FAULT_BIAS_GOOD_STUCK : FAULT_BIAS_GOOD_LOST);
+    return true;
+}
+
 static void check_runaway_boundary(void) {
     /* If already latched, nothing to check */
     if (sm_ctx.runaway_latched) return;
@@ -487,9 +538,9 @@ static void check_runaway_boundary(void) {
     return;
 
 trigger_runaway:
-    /* Hardware-level cut: assert GPIO to OR gate */
+    /* Hardware-level cut: RUN_EN low, latched (PERMIT = latch AND RUN_EN, C23) */
 #ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
+    (void)ctrl_board_run_en_kill();
 #endif
     /* Software-level cut: disable PWM and power */
     trigger_hardware_shutdown();
@@ -518,7 +569,9 @@ bool fault_cleared(void) {
     
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
-            return (read_heatsink_temperature() < 70.0f);
+            /* Both below the hardware release bands (sink 83.0-88.2 C, coil 147.4-157.7 C). */
+            return (read_heatsink_temperature() < 70.0f) &&
+                   (read_coil_temperature() < COIL_FW_RECOVER_C);
 
         case FAULT_FAN_FAILURE:
             return is_fan_running();
@@ -536,6 +589,16 @@ bool fault_cleared(void) {
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+        case FAULT_BIAS_GOOD_STUCK:
+            /* U40 / the heartbeat chain cannot go low (check 1): the platform's verdict is
+             * latched until the next power-on. Power cycle. */
+            return false;
+
+        case FAULT_BIAS_GOOD_LOST:
+            /* A monitored HOT rail or the heartbeat chain failed mid-run: power cycle, as for
+             * FAULT_IGBT_SHORT. */
+            return false;
 
         case FAULT_NONE:
             return true;   /* No active fault */

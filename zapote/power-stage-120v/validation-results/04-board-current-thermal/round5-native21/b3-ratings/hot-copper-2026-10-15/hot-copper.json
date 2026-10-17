@@ -1,0 +1,600 @@
+{
+ "basis": {
+  "c18_h10": {
+   "bay_c": 61.0,
+   "i_line_a": 13.5,
+   "i_t_a": 18.9,
+   "h": 10,
+   "role": "release",
+   "copper": {
+    "model": "hot-iterated",
+    "alpha_per_k": 0.00393,
+    "max_heated_copper_c": 119.6,
+    "loss_multiplier": 1.3138,
+    "max_dT_k": 0.0
+   },
+   "worst_gated_hot": {
+    "margin_k": -17.9,
+    "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+   },
+   "worst_gated_no_monitor": {
+    "margin_k": -2.9,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "worst_gated_cold": {
+    "margin_k": 3.6,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "top_rows": [
+    {
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+     "cold_k": null,
+     "hot_k": -17.9,
+     "delta_k": null
+    },
+    {
+     "row": "U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+     "cold_k": null,
+     "hot_k": -16.5,
+     "delta_k": null
+    },
+    {
+     "row": "U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+     "cold_k": null,
+     "hot_k": -11.6,
+     "delta_k": null
+    },
+    {
+     "row": "U17: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
+     "cold_k": null,
+     "hot_k": -7.7,
+     "delta_k": null
+    },
+    {
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": 3.6,
+     "hot_k": -2.9,
+     "delta_k": -6.5
+    },
+    {
+     "row": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": 4.9,
+     "hot_k": -0.6,
+     "delta_k": -5.5
+    },
+    {
+     "row": "U21: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
+     "cold_k": null,
+     "hot_k": -0.5,
+     "delta_k": null
+    },
+    {
+     "row": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": 5.5,
+     "hot_k": 0.7,
+     "delta_k": -4.8
+    }
+   ]
+  },
+  "c22_h10": {
+   "bay_c": 55.0,
+   "i_line_a": 13.5,
+   "i_t_a": 23.1,
+   "h": 10,
+   "role": "ratchet",
+   "copper": {
+    "model": "hot-iterated",
+    "alpha_per_k": 0.00393,
+    "max_heated_copper_c": 134.6,
+    "loss_multiplier": 1.346,
+    "max_dT_k": 0.0
+   },
+   "worst_gated_hot": {
+    "margin_k": -15.0,
+    "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+   },
+   "worst_gated_no_monitor": {
+    "margin_k": -13.6,
+    "row": "laminate: 1 mm-block copper peak"
+   },
+   "worst_gated_cold": {
+    "margin_k": -2.1,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "top_rows": [
+    {
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+     "cold_k": null,
+     "hot_k": -15.0,
+     "delta_k": null
+    },
+    {
+     "row": "laminate: 1 mm-block copper peak",
+     "cold_k": -1.2,
+     "hot_k": -13.6,
+     "delta_k": -12.4
+    },
+    {
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": -2.1,
+     "hot_k": -13.1,
+     "delta_k": -11.0
+    },
+    {
+     "row": "U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+     "cold_k": null,
+     "hot_k": -12.9,
+     "delta_k": null
+    },
+    {
+     "row": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": 0.4,
+     "hot_k": -12.0,
+     "delta_k": -12.4
+    },
+    {
+     "row": "laminate: FET-row copper",
+     "cold_k": 0.9,
+     "hot_k": -11.3,
+     "delta_k": -12.2
+    },
+    {
+     "row": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": -0.1,
+     "hot_k": -9.1,
+     "delta_k": -9.0
+    },
+    {
+     "row": "U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+     "cold_k": null,
+     "hot_k": -6.5,
+     "delta_k": null
+    }
+   ]
+  },
+  "c28_h10": {
+   "bay_c": 55.0,
+   "i_line_a": 13.5,
+   "i_t_a": 29.4,
+   "h": 10,
+   "role": "ratchet",
+   "copper": {
+    "model": "hot-iterated",
+    "alpha_per_k": 0.00393,
+    "max_heated_copper_c": 176.0,
+    "loss_multiplier": 1.4593,
+    "max_dT_k": 0.0
+   },
+   "worst_gated_hot": {
+    "margin_k": -52.4,
+    "row": "R12: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "worst_gated_no_monitor": {
+    "margin_k": -52.4,
+    "row": "R12: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "worst_gated_cold": {
+    "margin_k": -25.2,
+    "row": "R12: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "top_rows": [
+    {
+     "row": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": -25.2,
+     "hot_k": -52.4,
+     "delta_k": -27.2
+    },
+    {
+     "row": "laminate: 1 mm-block copper peak",
+     "cold_k": -22.5,
+     "hot_k": -51.6,
+     "delta_k": -29.1
+    },
+    {
+     "row": "laminate: FET-row copper",
+     "cold_k": -24.1,
+     "hot_k": -48.8,
+     "delta_k": -24.7
+    },
+    {
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": -21.7,
+     "hot_k": -46.0,
+     "delta_k": -24.3
+    },
+    {
+     "row": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "cold_k": -17.2,
+     "hot_k": -43.9,
+     "delta_k": -26.7
+    },
+    {
+     "row": "R5: terminal derating at 0.864 W (20 % margin)",
+     "cold_k": -6.5,
+     "hot_k": -36.7,
+     "delta_k": -30.2
+    },
+    {
+     "row": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "cold_k": -9.2,
+     "hot_k": -36.1,
+     "delta_k": -26.9
+    },
+    {
+     "row": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "cold_k": -17.0,
+     "hot_k": -35.9,
+     "delta_k": -18.9
+    }
+   ]
+  }
+ },
+ "metrics": {
+  "cold_20c": {
+   "b3_laminate_margin_K": -24.1,
+   "b3_rated_part_margin_K": -25.2,
+   "b3_advisory_margin_K": -7.3,
+   "worst_gated": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "ratchet_cases": [
+    "c22_h10",
+    "c28_h10"
+   ],
+   "b3_release_margin_K": 3.6,
+   "release_worst_gated": "c18_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "release_failing_rows": []
+  },
+  "hot": {
+   "b3_laminate_margin_K": -51.6,
+   "b3_rated_part_margin_K": -52.4,
+   "b3_advisory_margin_K": -17.5,
+   "worst_gated": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "ratchet_cases": [
+    "c22_h10",
+    "c28_h10"
+   ],
+   "b3_release_margin_K": -17.9,
+   "release_worst_gated": "c18_h10: U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+   "release_failing_rows": [
+    "c18_h10: U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6) -17.9 K",
+    "c18_h10: U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6) -16.5 K",
+    "c18_h10: U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6) -11.6 K",
+    "c18_h10: U17: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI) -7.7 K",
+    "c18_h10: R10: 2512 terminal derating at 0.217 W (20 % margin) -2.9 K",
+    "c18_h10: R20: 2512 terminal derating at 0.217 W (20 % margin) -0.6 K",
+    "c18_h10: U21: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI) -0.5 K"
+   ]
+  }
+ },
+ "copper": {
+  "c18_h10_p0p25": {
+   "air_c": 61.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.034556566254779986,
+   "max_heated_copper_c": 119.57689171402748,
+   "loss_w_20c": 6.337234087373835,
+   "loss_w_hot": 8.32579254490118,
+   "loss_multiplier": 1.3137896486243588,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.29493,
+    "sw_a_low-p00625-pl18": 1.31663,
+    "sw_b_high-p00625-pl18": 1.32192,
+    "sw_b_low-p00625-pl18": 1.31178,
+    "res_a-p0125-pl18": 1.26144,
+    "coil_feed-p0125-pl18": 1.27851,
+    "leg_a_18p7-p00625-pl18": 1.36852,
+    "leg_b_18p7-p00625-pl18": 1.37759,
+    "hv_mixed_a-p00625-pl18": 1.34147,
+    "hv_mixed_b-p00625-pl18": 1.35091,
+    "bus_mixed_q2-p0125-pl18": 1.32298,
+    "bus_mixed_q5-p0125-pl18": 1.32854,
+    "ac_n_main-p0125-pl18": 1.28936,
+    "ac_l_main-p0125-pl18": 1.2135
+   }
+  },
+  "c18_h10_p0p5": {
+   "air_c": 61.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.03456445124963791,
+   "max_heated_copper_c": 118.47633356756768,
+   "loss_w_20c": 6.337234087373835,
+   "loss_w_hot": 8.321214042830611,
+   "loss_multiplier": 1.313067172224175,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.29453,
+    "sw_a_low-p00625-pl18": 1.31605,
+    "sw_b_high-p00625-pl18": 1.32104,
+    "sw_b_low-p00625-pl18": 1.31107,
+    "res_a-p0125-pl18": 1.26124,
+    "coil_feed-p0125-pl18": 1.27753,
+    "leg_a_18p7-p00625-pl18": 1.36739,
+    "leg_b_18p7-p00625-pl18": 1.37554,
+    "hv_mixed_a-p00625-pl18": 1.33959,
+    "hv_mixed_b-p00625-pl18": 1.34873,
+    "bus_mixed_q2-p0125-pl18": 1.32249,
+    "bus_mixed_q5-p0125-pl18": 1.32761,
+    "ac_n_main-p0125-pl18": 1.28952,
+    "ac_l_main-p0125-pl18": 1.21344
+   }
+  },
+  "c22_h10_p0p25": {
+   "air_c": 55.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.060050805372593385,
+   "max_heated_copper_c": 134.59622571940884,
+   "loss_w_20c": 9.211628234757555,
+   "loss_w_hot": 12.399100742530583,
+   "loss_multiplier": 1.3460270460922397,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.32723,
+    "sw_a_low-p00625-pl18": 1.35439,
+    "sw_b_high-p00625-pl18": 1.35741,
+    "sw_b_low-p00625-pl18": 1.34331,
+    "res_a-p0125-pl18": 1.28316,
+    "coil_feed-p0125-pl18": 1.30412,
+    "leg_a_18p7-p00625-pl18": 1.42064,
+    "leg_b_18p7-p00625-pl18": 1.43082,
+    "hv_mixed_a-p00625-pl18": 1.38024,
+    "hv_mixed_b-p00625-pl18": 1.3938,
+    "bus_mixed_q2-p0125-pl18": 1.35549,
+    "bus_mixed_q5-p0125-pl18": 1.35668,
+    "ac_n_main-p0125-pl18": 1.26618,
+    "ac_l_main-p0125-pl18": 1.18954
+   }
+  },
+  "c22_h10_p0p5": {
+   "air_c": 55.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.059654813303551886,
+   "max_heated_copper_c": 132.9403434339061,
+   "loss_w_20c": 9.211628234757555,
+   "loss_w_hot": 12.38543925961219,
+   "loss_multiplier": 1.3445439768052219,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.32627,
+    "sw_a_low-p00625-pl18": 1.35305,
+    "sw_b_high-p00625-pl18": 1.35566,
+    "sw_b_low-p00625-pl18": 1.34188,
+    "res_a-p0125-pl18": 1.28278,
+    "coil_feed-p0125-pl18": 1.30342,
+    "leg_a_18p7-p00625-pl18": 1.41817,
+    "leg_b_18p7-p00625-pl18": 1.42719,
+    "hv_mixed_a-p00625-pl18": 1.37689,
+    "hv_mixed_b-p00625-pl18": 1.39018,
+    "bus_mixed_q2-p0125-pl18": 1.35433,
+    "bus_mixed_q5-p0125-pl18": 1.35499,
+    "ac_n_main-p0125-pl18": 1.26635,
+    "ac_l_main-p0125-pl18": 1.1895
+   }
+  },
+  "c28_h10_p0p25": {
+   "air_c": 55.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.12360265804145044,
+   "max_heated_copper_c": 176.0147174327422,
+   "loss_w_20c": 14.601071504395735,
+   "loss_w_hot": 21.308030622234387,
+   "loss_multiplier": 1.4593470496887495,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.44511,
+    "sw_a_low-p00625-pl18": 1.47633,
+    "sw_b_high-p00625-pl18": 1.47629,
+    "sw_b_low-p00625-pl18": 1.45164,
+    "res_a-p0125-pl18": 1.37845,
+    "coil_feed-p0125-pl18": 1.41094,
+    "leg_a_18p7-p00625-pl18": 1.569,
+    "leg_b_18p7-p00625-pl18": 1.57991,
+    "hv_mixed_a-p00625-pl18": 1.50399,
+    "hv_mixed_b-p00625-pl18": 1.52537,
+    "bus_mixed_q2-p0125-pl18": 1.45062,
+    "bus_mixed_q5-p0125-pl18": 1.44546,
+    "ac_n_main-p0125-pl18": 1.27032,
+    "ac_l_main-p0125-pl18": 1.19049
+   }
+  },
+  "c28_h10_p0p5": {
+   "air_c": 55.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.12206692985588141,
+   "max_heated_copper_c": 172.99086045400503,
+   "loss_w_20c": 14.601071504395733,
+   "loss_w_hot": 21.25775597230622,
+   "loss_multiplier": 1.4559038332156962,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.44269,
+    "sw_a_low-p00625-pl18": 1.47304,
+    "sw_b_high-p00625-pl18": 1.47233,
+    "sw_b_low-p00625-pl18": 1.44834,
+    "res_a-p0125-pl18": 1.37763,
+    "coil_feed-p0125-pl18": 1.41083,
+    "leg_a_18p7-p00625-pl18": 1.56313,
+    "leg_b_18p7-p00625-pl18": 1.5727,
+    "hv_mixed_a-p00625-pl18": 1.49707,
+    "hv_mixed_b-p00625-pl18": 1.51814,
+    "bus_mixed_q2-p0125-pl18": 1.4477,
+    "bus_mixed_q5-p0125-pl18": 1.4418,
+    "ac_n_main-p0125-pl18": 1.2705,
+    "ac_l_main-p0125-pl18": 1.19049
+   }
+  }
+ },
+ "bay61_direct": {
+  "points": {
+   "8": {
+    "case": "c8_h10",
+    "all": {
+     "margin_k": -13.3,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": 9.8,
+     "row": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "no_monitor": {
+     "margin_k": 9.8,
+     "row": "U26: TJ max (TI SBVS204G p.4)"
+    }
+   },
+   "12": {
+    "case": "c12_h10",
+    "all": {
+     "margin_k": -14.7,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": 8.3,
+     "row": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "no_monitor": {
+     "margin_k": 8.3,
+     "row": "U26: TJ max (TI SBVS204G p.4)"
+    }
+   },
+   "16": {
+    "case": "c16_h10",
+    "all": {
+     "margin_k": -16.7,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": 3.3,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "no_monitor": {
+     "margin_k": 3.3,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    }
+   },
+   "17": {
+    "case": "c17_h10",
+    "all": {
+     "margin_k": -17.3,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": 0.3,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "no_monitor": {
+     "margin_k": 0.3,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    }
+   },
+   "17.25": {
+    "case": "c17.25_h10",
+    "all": {
+     "margin_k": -17.4,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": -0.4,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "no_monitor": {
+     "margin_k": -0.4,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    }
+   },
+   "17.5": {
+    "case": "c17.5_h10",
+    "all": {
+     "margin_k": -17.6,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": -1.2,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "no_monitor": {
+     "margin_k": -1.2,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    }
+   },
+   "17.75": {
+    "case": "c17.75_h10",
+    "all": {
+     "margin_k": -17.8,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": -2.1,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "no_monitor": {
+     "margin_k": -2.1,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    }
+   },
+   "18": {
+    "case": "c18_h10",
+    "all": {
+     "margin_k": -17.9,
+     "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+    },
+    "grade125": {
+     "margin_k": -2.9,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "no_monitor": {
+     "margin_k": -2.9,
+     "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    }
+   }
+  },
+  "ceiling": {
+   "all": {
+    "ceiling_a": null,
+    "next_solved_failing_a": 8.0,
+    "resolved_to_0p25": false,
+    "monotone": true
+   },
+   "grade125": {
+    "ceiling_a": 17.0,
+    "next_solved_failing_a": 17.25,
+    "resolved_to_0p25": true,
+    "monotone": true
+   },
+   "no_monitor": {
+    "ceiling_a": 17.0,
+    "next_solved_failing_a": 17.25,
+    "resolved_to_0p25": true,
+    "monotone": true
+   }
+  }
+ },
+ "bay55_direct": {
+  "c19_h10": {
+   "all": {
+    "margin_k": -12.6,
+    "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+   },
+   "grade125": {
+    "margin_k": -1.1,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "no_monitor": {
+    "margin_k": -1.1,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   }
+  },
+  "c20_h10": {
+   "all": {
+    "margin_k": -13.3,
+    "row": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)"
+   },
+   "grade125": {
+    "margin_k": -4.8,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   },
+   "no_monitor": {
+    "margin_k": -4.8,
+    "row": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+   }
+  }
+ }
+}

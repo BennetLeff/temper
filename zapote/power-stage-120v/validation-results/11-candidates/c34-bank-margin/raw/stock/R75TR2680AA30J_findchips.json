@@ -1,0 +1,42 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R75TR2680AA30J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R75TR2680AA30J",
+ "stock": {
+  "Avnet Americas": 0
+ },
+ "price_breaks": [
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R75TR2680AA30J",
+   "stock": 0,
+   "min_qty": 2448,
+   "lead_time": "29 weeks",
+   "currency": "USD",
+   "price_breaks": [
+    [
+     2448,
+     0.7768
+    ],
+    [
+     4896,
+     0.7729
+    ],
+    [
+     9792,
+     0.7689
+    ],
+    [
+     19584,
+     0.765
+    ],
+    [
+     39168,
+     0.7611
+    ]
+   ],
+   "price_at_500": "n/a (MOQ 2448)"
+  }
+ ]
+}

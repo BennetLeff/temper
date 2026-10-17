@@ -1,0 +1,11 @@
+U10: v3v3/selv_gnd nearest cap C44 supply 1.70 return 2.74 mm, plane vias {v3v3: 3.76, selv_gnd: 3.56} (limits 2.0/4.0) PASS
+U11: v3v3/selv_gnd nearest cap C45 supply 1.70 return 2.74 mm, plane vias {v3v3: 1.71, selv_gnd: 1.13} (limits 2.0/4.0) PASS
+U12: v3v3/selv_gnd nearest cap C46 supply 1.70 return 2.74 mm, plane vias {v3v3: 1.3, selv_gnd: 1.0} (limits 2.0/4.0) PASS
+U13: v3v3/selv_gnd nearest cap C47 supply 2.65 return 2.74 mm, plane vias {v3v3: 2.93, selv_gnd: 3.58} (limits 3.0/4.0) PASS
+U24: v3v3/selv_gnd nearest cap C89 supply 1.70 return 3.67 mm, plane vias {v3v3: 1.71, selv_gnd: 0.57} (limits 2.0/4.0) PASS
+U25: v3v3/selv_gnd nearest cap C88 supply 2.65 return 2.74 mm, plane vias {v3v3: 2.93, selv_gnd: 1.2} (limits 3.0/4.0) PASS
+U40: v3v3/selv_gnd nearest cap C144 supply 1.70 return 3.67 mm, plane vias {v3v3: 1.71, selv_gnd: 0.57} (limits 2.0/4.0) PASS
+U15: hot5/ocp_kelvin_p nearest cap C49 supply 4.38 return 2.12 mm, plane vias {hot5: 1.16, ocp_kelvin_p: 6.18} (limits 4.5/6.0) PASS
+U29: v15_ls/n_ls nearest cap C70 supply 2.20 return 7.31 mm, plane vias {v15_ls: 3.82, n_ls: 0.63} (limits 2.5/None) PASS
+U30: p_ha/n_ha nearest cap C80 supply 2.20 return 7.32 mm, plane vias {p_ha: 2.64, n_ha: 5.32} (limits 2.5/None) PASS
+U31: p_hb/n_hb nearest cap C87 supply 4.23 return 7.61 mm, plane vias {p_hb: 0.84, n_hb: 1.54} (limits 4.5/None) PASS

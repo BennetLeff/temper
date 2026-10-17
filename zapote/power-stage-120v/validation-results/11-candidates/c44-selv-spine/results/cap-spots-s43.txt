@@ -1,0 +1,33 @@
+## cap_spots.py s43 33.2,120.2 --radius 3
+targets [(33.2, 120.2)]: 88 poses with plane vias
+  centre (32.2, 121.8) angle 0: worst 1.62 mm; v3v3 via (31.13, 121.0) 0.85 mm, selv_gnd via (32.08, 122.8) 1.34 mm
+  centre (31.9, 121.8) angle 180: worst 1.68 mm; v3v3 via (32.38, 121.0) 0.85 mm, selv_gnd via (30.52, 121.2) 0.85 mm
+  centre (31.5, 121.8) angle 180: worst 1.85 mm; v3v3 via (32.88, 121.2) 0.85 mm, selv_gnd via (30.12, 122.4) 0.85 mm
+## cap_spots.py s43 34.843,131.565 --radius 3.5
+targets [(34.843, 131.565)]: 0 poses with plane vias
+## cap_spots.py s43 35.0,132.523 --radius 4 --ignore-via 34.843,131.565
+targets [(35.0, 132.523)]: 90 poses with plane vias
+  centre (33.4, 135.92) angle 90: worst 3.07 mm; v3v3 via (32.9, 137.39) 0.86 mm, selv_gnd via (32.8, 134.54) 0.85 mm
+  centre (32.7, 135.22) angle 0: worst 3.1 mm; v3v3 via (32.23, 136.02) 0.86 mm, selv_gnd via (34.08, 134.62) 0.85 mm
+  centre (36.8, 135.92) angle 90: worst 3.18 mm; v3v3 via (37.3, 137.39) 0.86 mm, selv_gnd via (37.4, 134.54) 0.85 mm
+## cap_spots.py s43 74.0,123.4 --radius 3.5
+targets [(74.0, 123.4)]: 10 poses with plane vias
+  centre (76.1, 120.8) angle 0: worst 2.92 mm; v3v3 via (74.62, 122.1) 1.48 mm, selv_gnd via (77.17, 121.6) 0.85 mm
+## cap_spots.py s43 70.0,127.8 --radius 3.5
+targets [(70.0, 127.8)]: 0 poses with plane vias
+## cap_spots.py s43 76.825,125.875 --radius 3.5
+targets [(76.825, 125.875)]: 143 poses with plane vias
+  centre (75.62, 127.88) angle 180: worst 2.05 mm; v3v3 via (77.0, 128.48) 0.85 mm, selv_gnd via (75.14, 128.68) 0.85 mm
+  centre (75.23, 127.88) angle 180: worst 2.17 mm; v3v3 via (76.81, 127.58) 0.86 mm, selv_gnd via (73.75, 127.38) 0.86 mm
+  centre (74.92, 127.88) angle 0: worst 2.3 mm; v3v3 via (73.84, 127.08) 0.86 mm, selv_gnd via (75.2, 128.58) 0.86 mm
+## cap_spots.py s43 36.5,178.6 --radius 3.5
+targets [(36.5, 178.6)]: 2 poses with plane vias
+  centre (34.1, 176.1) angle 0: worst 2.98 mm; v3v3 via (33.62, 175.3) 0.85 mm, selv_gnd via (34.58, 175.3) 0.85 mm
+## cap_spots.py s43 33.2,70.4 --radius 3.5
+targets [(33.2, 70.4)]: 23 poses with plane vias
+  centre (31.2, 72.8) angle 90: worst 2.58 mm; v3v3 via (30.4, 73.28) 0.85 mm, selv_gnd via (30.6, 71.42) 0.85 mm
+  centre (31.3, 73.1) angle 90: worst 2.7 mm; v3v3 via (30.5, 73.58) 0.85 mm, selv_gnd via (31.9, 71.72) 0.85 mm
+  centre (30.9, 72.8) angle 90: worst 2.82 mm; v3v3 via (30.1, 73.28) 0.85 mm, selv_gnd via (30.3, 71.42) 0.85 mm
+## xfer_spots.py (both planes under the pads) at the two vias with no pose
+targets [(34.843, 131.565)]: 0 legal poses
+targets [(74.0, 123.4)]: 0 legal poses

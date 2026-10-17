@@ -1,0 +1,67 @@
+{
+ "items": [
+  {
+   "file": "mpm-20/MPM-20-SPEC.PDF",
+   "url": "https://www.meanwell.com/Upload/PDF/MPM-20/MPM-20-SPEC.PDF",
+   "fetched": "2026-10-15",
+   "revision": "MPM-20-SPEC 2024-10-30 (footer 'File Name:MPM-20-SPEC 2024-10-30'), 4 pp.; byte-identical to the ledger's sha256 prefix 24d3a6bb642d74ea",
+   "sha256": "24d3a6bb642d74ea2f652714e239876ac5cc0dbc1ef5c4bf223f8dbe42f2dc12",
+   "bytes": 104032,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  },
+  {
+   "file": "mw-pcb-manual/PCB_EN.pdf",
+   "url": "https://www.meanwell.com/Upload/PDF/PCB_EN.pdf",
+   "fetched": "2026-10-15",
+   "revision": "MEAN WELL Installation Manual, Open Frame (PCB) Type, families incl. IRM, MPM; PDF ModDate 2026-01-12, 5 pp. (linked from https://www.meanwell.com/manual.html)",
+   "sha256": "261817784dbc60e6e5decd86ce4bd6f6a3e2fcb1a73245308322c8bc48e26711",
+   "bytes": 911077,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  },
+  {
+   "file": "irm-20/IRM-20-SPEC.PDF",
+   "url": "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
+   "fetched": "2026-10-15",
+   "revision": "IRM-20-SPEC 2025-11-21, 3 pp.",
+   "sha256": "aa1afdbcdf0bf6db796710e26bd5e258f4857ffb1c14bd1ac3d94af86f3b8789",
+   "bytes": 127910,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  },
+  {
+   "file": "irm-30/IRM-30-SPEC.PDF",
+   "url": "https://www.meanwell.com/Upload/PDF/IRM-30/IRM-30-SPEC.PDF",
+   "fetched": "2026-10-15",
+   "revision": "IRM-30-SPEC 2026-04-03, 4 pp.",
+   "sha256": "0cdbb934f37d350e245a0be2d8e160b9308ac607c47a6dda1289ab91ca7128e6",
+   "bytes": 740669,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  },
+  {
+   "file": "mpm-30/MPM-30-SPEC.PDF",
+   "url": "https://www.meanwell.com/Upload/PDF/MPM-30/MPM-30-SPEC.PDF",
+   "fetched": "2026-10-15",
+   "revision": "MPM-30-SPEC 2024-10-30, 4 pp.",
+   "sha256": "1b586ba6153eb2c5ef2623204f41c187beafaba2b387672927845d5643fa9cfe",
+   "bytes": 122084,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  },
+  {
+   "file": "rac20-k/RAC20-K.pdf",
+   "url": "https://recom-power.com/pdf/Powerline_AC-DC/RAC20-K.pdf",
+   "fetched": "2026-10-15",
+   "revision": "RECOM RAC20-K Rev.: 14-2025, 10 pp.",
+   "sha256": "32d5efd6e92e70e4b84b0b7be8da77ee440e9617ea81cf075f9faed62386675b",
+   "bytes": 1055869,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  },
+  {
+   "file": "lhe20/LHE20-20B24WG.pdf",
+   "url": "https://www.mornsun-power.com/public/uploads/pdf/LHE20-20B24WG.pdf",
+   "fetched": "2026-10-15",
+   "revision": "MORNSUN LHE20-20B24WG datasheet (current file on mornsun-power.com)",
+   "sha256": "d5742aac589d36b1f53dd82f8f3dad903e8a1259454d9b37b8d6d0e38d0f2656",
+   "bytes": 2061595,
+   "handling": "untrusted data; read with pdftotext / pdftoppm only"
+  }
+ ]
+}

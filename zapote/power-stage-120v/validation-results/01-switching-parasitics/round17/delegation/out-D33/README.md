@@ -19,6 +19,7 @@ limits and complete evidence hashes.
 | −2.4 V selected waveforms × 128 corners | 3,200 / 3,200 | −1.678614 V |
 | Repeated 740 nC pulses, 33/80 kHz | 256 / 256 | −1.888341 V |
 | Repeated pulses + 30 mA HOT load, 18 V span | 128 / 128 | −1.915819 V |
+| Same, 19 V span (2026-10-15, S16: covers the TL431B span-OV corner 18.60 V; shunt 21.6–64.5 mA < 70) | 128 / 128 | −1.915900 V |
 
 The branch is rebased onto `fada4c13c`, which contains the owner's split-F6
 qualification decision and isolated LINE_ZC requirement. D-32, D-34 and D-35
@@ -173,6 +174,7 @@ cd zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/de
 /Users/bennet/Miniforge3/bin/python3 rail_qualification.py --edges --waveforms edge-current-2.4V --output rail-deep-bias --workers 8
 /Users/bennet/Miniforge3/bin/python3 rail_qualification.py --periodic --workers 4
 /Users/bennet/Miniforge3/bin/python3 rail_qualification.py --hot-load --span 18 --output rail-hot-18V --workers 4
+/Users/bennet/Miniforge3/bin/python3 rail_qualification.py --hot-load --span 19 --output rail-hot-19V --workers 4
 /Users/bennet/Miniforge3/bin/python3 refine_rail.py
 /Users/bennet/Miniforge3/bin/python3 transformer_check.py
 ```

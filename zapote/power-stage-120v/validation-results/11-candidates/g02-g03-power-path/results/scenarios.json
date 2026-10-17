@@ -1,0 +1,750 @@
+{
+ "notes": [
+  [
+   "S1a",
+   "DRC violations on new n_ha items: [('In1.Cu', 'n_ha', 'hv_ret', 0.0, 3.2), ('In1.Cu', 'n_ha', 'v15_ls', 3.0, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_p', 1.25, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_n', 0.45, 3.2), ('In1.Cu', 'n_ha', 'v24_raw', 0.7, 3.2), ('In2.Cu', 'n_ha', 'bus_p', 0.0, 3.2), ('In1.Cu', 'n_ha', 'hv_ret', 0.0, 3.2), ('In1.Cu', 'n_ha', 'v15_ls', 1.1, 3.2), ('In1.Cu', 'n_ha', 'n_ls', 2.7, 3.2), ('In1.Cu', 'n_ha', 'leg_ret', 1.9, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_p', 0.0, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_n', 0.55, 3.2), ('In1.Cu', 'n_ha', 'v24_raw', 2.6, 3.2), ('In2.Cu', 'n_ha', 'bus_p', 0.0, 3.2), ('B.Cu', 'n_ha', 'v15_ls', 3.105, 3.2), ('B.Cu', 'n_ha', 'v15_ls', 3.105, 3.2), ('B.Cu', 'n_ha', 'v15_ls', 3.105, 3.2)]"
+  ],
+  [
+   "S1b",
+   "non-zone DRC violations of the new leg_a-out_l route: [('In2.Cu', 'leg_a-out_l', 'v15_ls', 0.0, 0.2), ('In2.Cu', 'leg_a-out_l', 'n_ha', 2.85, 3.2), ('In2.Cu', 'leg_a-out_l', 'n_ha', 1.75, 3.2), ('F.Cu', 'leg_a-out_l', 'leg_a-driver_dis', 7.953, 8.0), ('F.Cu', 'leg_a-out_l', 'leg_a.driver-dt', 7.68, 8.0), ('F.Cu', 'leg_a-out_l', 'leg_a.driver-nc_7', 7.6, 8.0), ('F.Cu', 'leg_a-out_l', 'v3v3', 7.681, 8.0), ('F.Cu', 'leg_a-out_l', 'leg_a-driver_dis', 7.678, 8.0), ('F.Cu', 'leg_a-out_l', 'leg_a.driver-dt', 7.405, 8.0), ('F.Cu', 'leg_a-out_l', 'leg_a.driver-nc_7', 7.325, 8.0), ('F.Cu', 'leg_a-out_l', 'v3v3', 7.407, 8.0)]; plane-void conflicts (resolved by re-pour): 7"
+  ],
+  [
+   "S1a",
+   "DRC violations on new n_ha items: [('In1.Cu', 'n_ha', 'hv_ret', 0.0, 3.2), ('In1.Cu', 'n_ha', 'v15_ls', 3.0, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_p', 1.25, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_n', 0.45, 3.2), ('In1.Cu', 'n_ha', 'v24_raw', 0.7, 3.2), ('In2.Cu', 'n_ha', 'bus_p', 0.0, 3.2), ('In1.Cu', 'n_ha', 'hv_ret', 0.0, 3.2), ('In1.Cu', 'n_ha', 'v15_ls', 1.1, 3.2), ('In1.Cu', 'n_ha', 'n_ls', 2.7, 3.2), ('In1.Cu', 'n_ha', 'leg_ret', 1.9, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_p', 0.0, 3.2), ('In1.Cu', 'n_ha', 'ocp_kelvin_n', 0.55, 3.2), ('In1.Cu', 'n_ha', 'v24_raw', 2.6, 3.2), ('In2.Cu', 'n_ha', 'bus_p', 0.0, 3.2), ('B.Cu', 'n_ha', 'v15_ls', 3.105, 3.2), ('B.Cu', 'n_ha', 'v15_ls', 3.105, 3.2), ('B.Cu', 'n_ha', 'v15_ls', 3.105, 3.2)]"
+  ],
+  [
+   "S1b_ub",
+   "leg_a-out_l In1 run and test-point via removed outright (upper bound, no re-route)"
+  ]
+ ],
+ "I_DC_A": 15.0,
+ "target_I2t": 3420.0,
+ "scenarios": {
+  "BASE": {
+   "necks": [
+    {
+     "segment": "J1 line -> F1 pad 1",
+     "net": "ac_l_in",
+     "neck_mm": 6.03,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 9412,
+     "I2t_par": 12395,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "F1 pad 2 -> L1 winding 1",
+     "net": "l_f",
+     "neck_mm": 4.194,
+     "at": [
+      234.71,
+      25.44
+     ],
+     "layer": "F.Cu",
+     "I2t_cons": 4554,
+     "I2t_par": 5996,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC1",
+     "net": "l_filt",
+     "neck_mm": 2.598,
+     "at": [
+      97.5,
+      11.1
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 1747,
+     "I2t_par": 2300,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC2",
+     "net": "n_filt",
+     "neck_mm": 4.597,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 5470,
+     "I2t_par": 7204,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J1 neutral -> L1",
+     "net": "ac_n_in",
+     "neck_mm": 4.001,
+     "at": [
+      287.39,
+      8.8
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 4144,
+     "I2t_par": 5458,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1 + -> J7 (strap)",
+     "net": "rect_p",
+     "neck_mm": 6.699,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 11617,
+     "I2t_par": 11617,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1 - -> J9 (strap)",
+     "net": "rect_n",
+     "neck_mm": 7.102,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 13056,
+     "I2t_par": 13056,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J8 -> Q2 drain (leg A)",
+     "net": "bus_p",
+     "neck_mm": 1.848,
+     "at": [
+      77.86,
+      26.43
+     ],
+     "layer": "In2.Cu",
+     "I2t_cons": 884,
+     "I2t_par": 884,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "J8 -> Q5 drain (leg B)",
+     "net": "bus_p",
+     "neck_mm": 1.848,
+     "at": [
+      77.86,
+      26.43
+     ],
+     "layer": "In2.Cu",
+     "I2t_cons": 884,
+     "I2t_par": 884,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "Q3 source -> shunt R5 (leg A)",
+     "net": "leg_ret",
+     "neck_mm": 2.834,
+     "at": [
+      50.05,
+      11.07
+     ],
+     "layer": "In1.Cu",
+     "I2t_cons": 2080,
+     "I2t_par": 2080,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "Q6 source -> shunt R5 (leg B)",
+     "net": "leg_ret",
+     "neck_mm": 6.438,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 10728,
+     "I2t_par": 14128,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "shunt R5 -> J10",
+     "net": "hv_ret",
+     "neck_mm": 1.172,
+     "at": [
+      82.0,
+      38.2
+     ],
+     "layer": "In1.Cu",
+     "I2t_cons": 355,
+     "I2t_par": 355,
+     "class": "real conductor neck"
+    }
+   ],
+   "min_I2t_all": 355,
+   "ratio_all": 0.208,
+   "min_I2t_G02_G03_nets": 355,
+   "ratio_G02_G03": 0.208,
+   "dc": {
+    "BR1+ -> J7": {
+     "R_mOhm": 1.376,
+     "loss_W_at_15A": 0.31
+    },
+    "J8 -> Q2||Q5": {
+     "R_mOhm": 3.602,
+     "loss_W_at_15A": 0.811
+    },
+    "R5.4 -> J10": {
+     "R_mOhm": 6.431,
+     "loss_W_at_15A": 1.447
+    },
+    "J9 -> BR1-": {
+     "R_mOhm": 0.596,
+     "loss_W_at_15A": 0.134
+    },
+    "TOTAL": {
+     "R_mOhm": 12.005,
+     "loss_W_at_15A": 2.701
+    }
+   },
+   "plane_L": {
+    "x=100 plane cut": {
+     "squares": Infinity,
+     "L_nH": null
+    },
+    "x=150 plane cut": {
+     "squares": Infinity,
+     "L_nH": null
+    },
+    "x=197 cut (y27-50)": {
+     "squares": Infinity,
+     "L_nH": null
+    },
+    "C5 pin zone (205,66-86)": {
+     "squares": Infinity,
+     "L_nH": null
+    },
+    "C6 pin zone (248,74-94)": {
+     "squares": Infinity,
+     "L_nH": null
+    }
+   }
+  },
+  "S1": {
+   "necks": [
+    {
+     "segment": "J1 line -> F1 pad 1",
+     "net": "ac_l_in",
+     "neck_mm": 6.03,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 9412,
+     "I2t_par": 12395,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "F1 pad 2 -> L1 winding 1",
+     "net": "l_f",
+     "neck_mm": 4.194,
+     "at": [
+      234.71,
+      25.44
+     ],
+     "layer": "F.Cu",
+     "I2t_cons": 4554,
+     "I2t_par": 5996,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC1",
+     "net": "l_filt",
+     "neck_mm": 2.598,
+     "at": [
+      97.5,
+      11.1
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 1747,
+     "I2t_par": 2300,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC2",
+     "net": "n_filt",
+     "neck_mm": 4.597,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 5470,
+     "I2t_par": 7204,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J1 neutral -> L1",
+     "net": "ac_n_in",
+     "neck_mm": 4.001,
+     "at": [
+      287.39,
+      8.8
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 4144,
+     "I2t_par": 5458,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1 + -> J7 (strap)",
+     "net": "rect_p",
+     "neck_mm": 6.699,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 11617,
+     "I2t_par": 11617,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1 - -> J9 (strap)",
+     "net": "rect_n",
+     "neck_mm": 7.102,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 13056,
+     "I2t_par": 13056,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J8 -> Q2 drain (leg A)",
+     "net": "bus_p",
+     "neck_mm": 2.561,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 1698,
+     "I2t_par": 1698,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J8 -> Q5 drain (leg B)",
+     "net": "bus_p",
+     "neck_mm": 2.561,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 1698,
+     "I2t_par": 1698,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "Q3 source -> shunt R5 (leg A)",
+     "net": "leg_ret",
+     "neck_mm": 2.834,
+     "at": [
+      50.05,
+      11.07
+     ],
+     "layer": "In1.Cu",
+     "I2t_cons": 2080,
+     "I2t_par": 2080,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "Q6 source -> shunt R5 (leg B)",
+     "net": "leg_ret",
+     "neck_mm": 6.438,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 10728,
+     "I2t_par": 14128,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "shunt R5 -> J10",
+     "net": "hv_ret",
+     "neck_mm": 3.015,
+     "at": [
+      36.91,
+      15.3
+     ],
+     "layer": "F.Cu/In1.Cu",
+     "I2t_cons": 1012,
+     "I2t_par": 1012,
+     "class": "terminal-limited"
+    }
+   ],
+   "min_I2t_all": 1012,
+   "ratio_all": 0.592,
+   "min_I2t_G02_G03_nets": 1012,
+   "ratio_G02_G03": 0.592,
+   "dc": {
+    "BR1+ -> J7": {
+     "R_mOhm": 1.376,
+     "loss_W_at_15A": 0.31
+    },
+    "J8 -> Q2||Q5": {
+     "R_mOhm": 2.63,
+     "loss_W_at_15A": 0.592
+    },
+    "R5.4 -> J10": {
+     "R_mOhm": 4.193,
+     "loss_W_at_15A": 0.943
+    },
+    "J9 -> BR1-": {
+     "R_mOhm": 0.596,
+     "loss_W_at_15A": 0.134
+    },
+    "TOTAL": {
+     "R_mOhm": 8.795,
+     "loss_W_at_15A": 1.979
+    }
+   },
+   "plane_L": {
+    "x=100 plane cut": {
+     "squares": 7.108232006026114,
+     "L_nH": 5.011114424612196
+    },
+    "x=150 plane cut": {
+     "squares": 10.44927413500326,
+     "L_nH": 7.3664602253064935
+    },
+    "x=197 cut (y27-50)": {
+     "squares": 12.801663391905866,
+     "L_nH": 9.024832057792247
+    },
+    "C5 pin zone (205,66-86)": {
+     "squares": 16.15964539371598,
+     "L_nH": 11.3921200180886
+    },
+    "C6 pin zone (248,74-94)": {
+     "squares": Infinity,
+     "L_nH": null
+    }
+   }
+  },
+  "S1_ub": {
+   "necks": [
+    {
+     "segment": "J1 line -> F1 pad 1",
+     "net": "ac_l_in",
+     "neck_mm": 6.03,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 9412,
+     "I2t_par": 12395,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "F1 pad 2 -> L1 winding 1",
+     "net": "l_f",
+     "neck_mm": 4.194,
+     "at": [
+      234.71,
+      25.44
+     ],
+     "layer": "F.Cu",
+     "I2t_cons": 4554,
+     "I2t_par": 5996,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC1",
+     "net": "l_filt",
+     "neck_mm": 2.598,
+     "at": [
+      97.5,
+      11.1
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 1747,
+     "I2t_par": 2300,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC2",
+     "net": "n_filt",
+     "neck_mm": 4.597,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 5470,
+     "I2t_par": 7204,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J1 neutral -> L1",
+     "net": "ac_n_in",
+     "neck_mm": 4.001,
+     "at": [
+      287.39,
+      8.8
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 4144,
+     "I2t_par": 5458,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1 + -> J7 (strap)",
+     "net": "rect_p",
+     "neck_mm": 6.699,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 11617,
+     "I2t_par": 11617,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1 - -> J9 (strap)",
+     "net": "rect_n",
+     "neck_mm": 7.102,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 13056,
+     "I2t_par": 13056,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J8 -> Q2 drain (leg A)",
+     "net": "bus_p",
+     "neck_mm": 2.561,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 1698,
+     "I2t_par": 1698,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J8 -> Q5 drain (leg B)",
+     "net": "bus_p",
+     "neck_mm": 2.561,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 1698,
+     "I2t_par": 1698,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "Q3 source -> shunt R5 (leg A)",
+     "net": "leg_ret",
+     "neck_mm": 2.834,
+     "at": [
+      50.05,
+      11.07
+     ],
+     "layer": "In1.Cu",
+     "I2t_cons": 2080,
+     "I2t_par": 2080,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "Q6 source -> shunt R5 (leg B)",
+     "net": "leg_ret",
+     "neck_mm": 6.438,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 10728,
+     "I2t_par": 14128,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "shunt R5 -> J10",
+     "net": "hv_ret",
+     "neck_mm": 3.015,
+     "at": [
+      36.91,
+      15.3
+     ],
+     "layer": "F.Cu/In1.Cu",
+     "I2t_cons": 1012,
+     "I2t_par": 1012,
+     "class": "terminal-limited"
+    }
+   ],
+   "min_I2t_all": 1012,
+   "ratio_all": 0.592,
+   "min_I2t_G02_G03_nets": 1012,
+   "ratio_G02_G03": 0.592,
+   "dc": {
+    "BR1+ -> J7": {
+     "R_mOhm": 1.376,
+     "loss_W_at_15A": 0.31
+    },
+    "J8 -> Q2||Q5": {
+     "R_mOhm": 2.601,
+     "loss_W_at_15A": 0.585
+    },
+    "R5.4 -> J10": {
+     "R_mOhm": 4.193,
+     "loss_W_at_15A": 0.943
+    },
+    "J9 -> BR1-": {
+     "R_mOhm": 0.596,
+     "loss_W_at_15A": 0.134
+    },
+    "TOTAL": {
+     "R_mOhm": 8.766,
+     "loss_W_at_15A": 1.972
+    }
+   },
+   "plane_L": {
+    "x=100 plane cut": {
+     "squares": 6.647511037601946,
+     "L_nH": 4.686318400982918
+    },
+    "x=150 plane cut": {
+     "squares": 9.98855315723953,
+     "L_nH": 7.041664195093073
+    },
+    "x=197 cut (y27-50)": {
+     "squares": 12.34094241414181,
+     "L_nH": 8.700036027578598
+    },
+    "C5 pin zone (205,66-86)": {
+     "squares": 15.698924415950968,
+     "L_nH": 11.067323987874275
+    },
+    "C6 pin zone (248,74-94)": {
+     "squares": Infinity,
+     "L_nH": null
+    }
+   }
+  },
+  "P2": {
+   "necks": [
+    {
+     "segment": "J1 line -> F1 pad 1",
+     "net": "ac_l_in",
+     "neck_mm": 6.03,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 9412,
+     "I2t_par": 12395,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "F1 pad 2 -> L1 winding 1",
+     "net": "l_f",
+     "neck_mm": 4.194,
+     "at": [
+      234.71,
+      25.44
+     ],
+     "layer": "F.Cu",
+     "I2t_cons": 4554,
+     "I2t_par": 5996,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC1",
+     "net": "l_filt",
+     "neck_mm": 2.598,
+     "at": [
+      97.5,
+      11.1
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 1747,
+     "I2t_par": 2300,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "L1 -> BR1 AC2",
+     "net": "n_filt",
+     "neck_mm": 4.597,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 5470,
+     "I2t_par": 7204,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "J1 neutral -> L1",
+     "net": "ac_n_in",
+     "neck_mm": 4.001,
+     "at": [
+      287.39,
+      8.8
+     ],
+     "layer": "B.Cu",
+     "I2t_cons": 4144,
+     "I2t_par": 5458,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1+ -> Q2 drain (leg A)",
+     "net": "bus_p",
+     "neck_mm": 2.568,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 1707,
+     "I2t_par": 1707,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "BR1+ -> Q5 drain (leg B)",
+     "net": "bus_p",
+     "neck_mm": 2.561,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 1698,
+     "I2t_par": 1698,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "Q3 source -> shunt R5 (leg A)",
+     "net": "leg_ret",
+     "neck_mm": 2.834,
+     "at": [
+      50.05,
+      11.07
+     ],
+     "layer": "In1.Cu",
+     "I2t_cons": 2080,
+     "I2t_par": 2080,
+     "class": "real conductor neck"
+    },
+    {
+     "segment": "Q6 source -> shunt R5 (leg B)",
+     "net": "leg_ret",
+     "neck_mm": 6.438,
+     "at": null,
+     "layer": "terminal",
+     "I2t_cons": 10728,
+     "I2t_par": 14128,
+     "class": "terminal-limited"
+    },
+    {
+     "segment": "shunt R5 -> BR1 -",
+     "net": "hv_ret",
+     "neck_mm": 3.015,
+     "at": [
+      36.91,
+      15.3
+     ],
+     "layer": "F.Cu/In1.Cu",
+     "I2t_cons": 1012,
+     "I2t_par": 1012,
+     "class": "terminal-limited"
+    }
+   ],
+   "min_I2t_all": 1012,
+   "ratio_all": 0.592,
+   "min_I2t_G02_G03_nets": 1012,
+   "ratio_G02_G03": 0.592,
+   "dc": {
+    "BR1+ -> Q2||Q5": {
+     "R_mOhm": 1.089,
+     "loss_W_at_15A": 0.245
+    },
+    "R5.4 -> BR1-": {
+     "R_mOhm": 2.162,
+     "loss_W_at_15A": 0.487
+    },
+    "TOTAL": {
+     "R_mOhm": 3.251,
+     "loss_W_at_15A": 0.731
+    }
+   },
+   "plane_L": {
+    "x=100 plane cut": {
+     "squares": 2.33534755650544,
+     "L_nH": 1.646357887160424
+    },
+    "x=150 plane cut": {
+     "squares": 4.376136341459872,
+     "L_nH": 3.085059678154608
+    },
+    "x=197 cut (y27-50)": {
+     "squares": 6.728463767410993,
+     "L_nH": 4.743387921464796
+    },
+    "C5 pin zone (205,66-86)": {
+     "squares": 10.08645149619117,
+     "L_nH": 7.1106799191226555
+    },
+    "C6 pin zone (248,74-94)": {
+     "squares": Infinity,
+     "L_nH": null
+    }
+   }
+  }
+ }
+}

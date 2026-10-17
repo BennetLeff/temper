@@ -1,0 +1,113 @@
+{
+ "control": "A25I mapping reproduces ocp_band17.json 69.89-116.44 A",
+ "kelvin_shift_A": -2.123,
+ "floor_A": 64.17,
+ "rows": [
+  {
+   "mpn": "LM4040A25IDBZR",
+   "lcsc": "C9421",
+   "jlc_stock": 4775,
+   "stock_ok_500": true,
+   "tolerance_V": 0.019,
+   "network_temps_C": [
+    -10.0,
+    85.0
+   ],
+   "note": "SLOS456Q 6.8 p.9: +-19 mV, -40..85 C (as built)",
+   "ocp_band_before_kelvin_A": [
+    69.89,
+    116.44
+   ],
+   "ocp_low_after_kelvin_A": 67.77,
+   "ocp_floor_margin_A": 3.6,
+   "ovp_band_V": [
+    272.09,
+    288.02
+   ],
+   "ovp_upper_rise_V": 0.0
+  },
+  {
+   "mpn": "LM4040C25QDBZR",
+   "lcsc": "C2872469",
+   "jlc_stock": 133,
+   "stock_ok_500": false,
+   "tolerance_V": 0.038,
+   "network_temps_C": [
+    -10.0,
+    85.0
+   ],
+   "note": "SLOS456Q 6.10 p.11: +-38 mV over -40..125 C; network at the committed -10/85 C",
+   "ocp_band_before_kelvin_A": [
+    69.29,
+    117.25
+   ],
+   "ocp_low_after_kelvin_A": 67.17,
+   "ocp_floor_margin_A": 3.0,
+   "ovp_band_V": [
+    270.0,
+    290.18
+   ],
+   "ovp_upper_rise_V": 2.16
+  },
+  {
+   "mpn": "LM4040C25QDBZR",
+   "lcsc": "C2872469",
+   "jlc_stock": 133,
+   "stock_ok_500": false,
+   "tolerance_V": 0.038,
+   "network_temps_C": [
+    -10.0,
+    105.0
+   ],
+   "note": "same, network corner at 105 C (U5 pad 104.5 C at c28 @ 55)",
+   "ocp_band_before_kelvin_A": [
+    66.75,
+    120.08
+   ],
+   "ocp_low_after_kelvin_A": 64.63,
+   "ocp_floor_margin_A": 0.46,
+   "ovp_band_V": [
+    269.31,
+    290.92
+   ],
+   "ovp_upper_rise_V": 2.9
+  },
+  {
+   "mpn": "LM4040D25QDBZR",
+   "lcsc": "C2156615",
+   "jlc_stock": 0,
+   "stock_ok_500": false,
+   "tolerance_V": 0.063,
+   "network_temps_C": [
+    -10.0,
+    85.0
+   ],
+   "note": "SLOS456Q 6.10 p.11: +-63 mV over -40..125 C",
+   "ocp_band_before_kelvin_A": [
+    68.51,
+    118.32
+   ],
+   "ocp_low_after_kelvin_A": 66.39,
+   "ocp_floor_margin_A": 2.22,
+   "ovp_band_V": [
+    267.25,
+    293.04
+   ],
+   "ovp_upper_rise_V": 5.02
+  }
+ ],
+ "other_ti_125C_shunts_jlc": {
+  "LM4040CEM3-2.5/NOPB": [
+   "C701885",
+   104
+  ],
+  "LM4040QCEM3-2.5/NOPB": [
+   "C1880333",
+   95
+  ],
+  "LM4050QAEM3-2.5/NOPB": [
+   "C2157745",
+   43
+  ]
+ }
+}

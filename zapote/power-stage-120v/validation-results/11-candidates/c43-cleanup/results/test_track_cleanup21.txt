@@ -1,0 +1,46 @@
+ok   free fold-back: connectivity of na unchanged 
+ok   free fold-back: a second run applies nothing 
+ok   free fold-back removed 
+ok   the dead tip at (20, 10) is gone 
+ok   pad endpoints kept 
+ok   fold-back at a via: connectivity of na unchanged 
+ok   fold-back at a via: a second run applies nothing 
+ok   via fold-back removed 
+ok   a track still reaches the via 
+ok   acute corner: connectivity of na unchanged 
+ok   acute corner: a second run applies nothing 
+ok   acute corner opened 
+ok   opened into 135 deg bends 
+ok   right angle: connectivity of na unchanged 
+ok   right angle: a second run applies nothing 
+ok   right angle mitred 
+ok   two 135 deg bends 
+ok   chamfer leg suits the 0.25 mm track (0.75 mm from the old corner) 
+ok   any-angle: connectivity of na unchanged 
+ok   any-angle: a second run applies nothing 
+ok   any-angle snapped to octilinear 
+ok   one 135 deg bend 
+ok   dogleg blocked: connectivity of na unchanged 
+ok   dogleg blocked: connectivity of nb unchanged 
+ok   dogleg blocked: a second run applies nothing 
+ok   blocked dogleg left as it was 
+ok   skipped for clearance 
+ok   overlap-joined tip: connectivity of na unchanged 
+ok   overlap-joined tip: a second run applies nothing 
+ok   corner with an overlap-joined track kept 
+ok   skipped for connectivity 
+ok   the other track's own free corner (30, 10) is still mitred 
+ok   res_a locked: connectivity of res_a unchanged 
+ok   res_a locked: a second run applies nothing 
+ok   res_a right angle left alone 
+ok   mitre beside a pad: connectivity of na unchanged 
+ok   mitre beside a pad: connectivity of nb unchanged 
+ok   mitre beside a pad: a second run applies nothing 
+ok   smaller mitre chosen (leg 0.30 mm) 
+ok   mitre keeps clearance to the pad (0.229 mm) 
+ok   barrier dogleg: connectivity of v3v3 unchanged 
+ok   barrier dogleg: connectivity of sw_a unchanged 
+ok   barrier dogleg: a second run applies nothing 
+ok   dogleg taken away from the HOT pad (8.417 -> 8.473 mm) 
+ok   the bend lies on the far side ((15.0, 50.0)) 
+PASS

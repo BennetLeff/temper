@@ -1,0 +1,20 @@
+# python3 res_a_creepage18.py --control <runs-native21>/s17/s17b/copper-dump.json  (board 96501e7d...)
+RES_A (res_a) to SELV/PE, floor 12.6 mm on outer layers
+  F.Cu (outer, gated): min 20.393 mm over 58 net pairs
+  In1.Cu (inner, solid insulation (reported)): min 9.694 mm over 35 net pairs
+    res_a - v3v3: 9.694 mm (pad [161.8, 112.7] / pour [159.89, 122.21])
+  In2.Cu (inner, solid insulation (reported)): min 9.694 mm over 35 net pairs
+    res_a - selv_gnd: 9.694 mm (pad [161.8, 112.7] / pour [159.89, 122.21])
+  B.Cu (outer, gated): min 8.145 mm over 35 net pairs
+    res_a - line_zc_raw: 8.145 mm (pour [150.14, 114.0] / track [150.14, 122.14])  < FLOOR
+    res_a - v15_selv: 9.400 mm (pour [150.14, 114.0] / track [150.14, 123.4])  < FLOOR
+    res_a - pe: 19.204 mm (pour [150.7, 114.0] / pad [150.7, 133.2])
+other tank nets (crbleed_1 12.6 mm guard, others 8.0 mm), outer-layer minimum per net:
+    crbleed_1: 70.150 mm to selv_gnd on F.Cu [167.03, 41.8]
+    crbleed_2: 63.787 mm to selv_gnd on F.Cu [177.03, 41.8]
+    crbleed_3: 58.437 mm to selv_gnd on F.Cu [186.95, 41.86]
+    coil_feed: 20.450 mm to ct_s1 on F.Cu [126.62, 101.0]
+    sw_a: 8.340 mm to bias_bad on B.Cu [55.5, 118.73]
+    sw_b: 8.145 mm to line_zc_raw on B.Cu [192.14, 113.0]
+CONTROL PASS: stage-17b gaps reproduced {('B.Cu', 'res_a', 'line_zc_raw'): 8.145, ('B.Cu', 'res_a', 'v15_selv'): 9.4}
+exit 0

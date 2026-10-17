@@ -36,11 +36,11 @@ Each row links to its evidence. Start from **native-20** (values current as of
 
 | # | Constraint | Why |
 | --- | --- | --- |
-| L11 | Outline ≤ 290 × 140 mm at R4 x −149…141, y 96…236; board bottom Z 26 ± 1 | Only band that fits between the front module, the sensor corridor and the coil legs; native-20's 240 × 160 fits nowhere |
+| L11 | Outline 290 × 140 mm at R4 x −149…141, y 96…236, plus a 91 × 50 SELV tongue at world x 50…141, y 46…96 (decision 2026-10-08, M10); board bottom Z 26 ± 1 | Only band that fits between the front module, the sensor corridor and the coil legs; native-20's 240 × 160 fits nowhere |
 | L12 | No part > 50 mm above the board bottom | Coil support plate at Z 85 |
 | L13 | BR1 + four TO-247 in one rear-edge row within x 35…141 (≈ 106 mm), order right→left Q2, Q3, Q6, Q5, BR1; tabs flush/proud | Sink right of the sensor corridor; D-18 airflow order |
 | L14 | Keep-out for the sink 114 × 50 × 73 (x 35…149, y 236…284, Z 10…83) and for the ducts (inlet x 149…183; exhaust x 35…95 to the rear wall) | 0.24 °C/W at 20 CFM / 0.21 at 30 CFM (model) |
-| L15 | Mains entry, coil terminals and J4 on/near the rear edge outside the sink span; enclosure connectors on the rear wall | Owner: connectors at the rear |
+| L15 | Mains entry and coil terminals on/near the rear edge outside the sink span (J4 sits on the tongue's front edge: decision 2026-10-08, M10); enclosure connectors on the rear wall | Owner: connectors at the rear |
 | L16 | Fan ≈ 30 CFM at ≈ 140 Pa (60 × 38 high-pressure or blower, from a published curve); MOSFET interface ≤ 0.7 °C/W | D-18 hard limit with margin |
 | L17 | Re-run `validation-plan/enclosure-fit/fit_gate.py --mode plan` on native-21's STEP | Release gate |
 

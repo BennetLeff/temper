@@ -1,0 +1,65 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R76TR2820SE30J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R76TR2820SE30J",
+ "stock": {
+  "Avnet Americas": 0,
+  "Newark": 0
+ },
+ "price_breaks": [
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R76TR28205030K (fuzzy: pack 50, K tol)",
+   "stock": 0,
+   "min_qty": 1008,
+   "lead_time": "31 weeks",
+   "currency": "USD",
+   "price_breaks": [
+    [
+     1008,
+     0.9266
+    ],
+    [
+     2016,
+     0.922
+    ],
+    [
+     4032,
+     0.9173
+    ],
+    [
+     8064,
+     0.9126
+    ],
+    [
+     16128,
+     0.9079
+    ]
+   ]
+  },
+  {
+   "distributor": "Newark",
+   "disti_pn": "92AC5980",
+   "matched_mpn": "R76TR28205030K",
+   "stock": 0,
+   "min_qty": 336,
+   "currency": "CAD",
+   "price_breaks": [
+    [
+     336,
+     1.04
+    ],
+    [
+     672,
+     1.02
+    ],
+    [
+     1008,
+     0.998
+    ]
+   ],
+   "price_at_500": "CAD 1.04 (336-671 break)"
+  }
+ ]
+}

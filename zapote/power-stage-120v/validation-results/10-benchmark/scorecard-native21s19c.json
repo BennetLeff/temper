@@ -1,0 +1,104 @@
+{
+ "tag": "native21s19c",
+ "build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s19c/s19c",
+ "board_sha256": "3d3a2c69c07a210262f0dc66789a2631e29370f6816c45869a7dea1813460d92",
+ "gates": {
+  "drc_errors_0": true,
+  "drc_unconnected_0": true,
+  "drc_parity_0": true,
+  "barrier_8mm": true,
+  "res_a_outer_12p6mm": true,
+  "jlc_dfm": true,
+  "return_path19": true,
+  "bypass": true,
+  "pi_distances": true,
+  "res_a_creepage18": true,
+  "d5": true,
+  "enclosure_fit": true,
+  "audit_rs": true
+ },
+ "performance": {
+  "d5_hot_selv_mm": 8.047,
+  "d5_hot_pe_mm": 8.507,
+  "res_a_outer_min_mm": 13.375,
+  "return_path_open_changes": 39,
+  "return_path_worst_asserted_mm": 2.72,
+  "kelvin_band_low_A": 67.72,
+  "b3_c28_h25_peak_C": 136.0,
+  "b3_nominal_h10_peak_C": 163.2,
+  "emi_min_margin_dB": 10.5,
+  "leakage_touch_mA": 0.974,
+  "fuse_copper_fusing_ratio": 0.208,
+  "cmti_gate_ratio_min": 1.316,
+  "bank_ratio_tdk_28A_40k": 1.105,
+  "ocp_pickup_stack_pan60_A": 8.71,
+  "bank_ratio_tdk_28A_35k": 1.13,
+  "track_acute_corners": 198,
+  "track_fold_backs": 35,
+  "track_right_angle_corners": 110,
+  "track_any_angle_mm": 699.3
+ },
+ "cost": {
+  "bom_lines": 92,
+  "placements": 357,
+  "jlc_extended_lines": 60,
+  "jlc_basic_lines": 21,
+  "hand_or_consign_lines": 23,
+  "tht_lines": 18,
+  "parts_usd_at_5": 329.69,
+  "parts_usd_at_500": 223.41,
+  "unpriced_lines": [],
+  "zero_stock_lines": 10,
+  "single_source_lines": 17,
+  "vias": 751,
+  "board_bbox_mm2": 55100.0,
+  "consign_lines": 10
+ },
+ "sources": {
+  "d5": "native-21/verification/d5-audit.json",
+  "kelvin": "02-protection-timing/kelvin/budget-native21s19c.json",
+  "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
+  "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
+  "fuse_copper": "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)",
+  "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
+  "bank": "added 2026-10-13 with stage 20: bank_options.json baseline K (19c fits B32654A1104K000); same script and source as every later card",
+  "ocp_pickup": "added with stage 21b: coil-pickup/s21b/run_ocp.py on the 19c copper (stage 20 shares it), result-s19c.json",
+  "bank_35k": "11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison K_at_35k"
+ },
+ "backfilled": {
+  "consign_lines": "2026-10-13, from the tag's fab/bom-jlcpcb.csv (r2-dfm P4)"
+ },
+ "restated": {
+  "date": "2026-10-14",
+  "parts_usd_at_500_as_scored": 231.94,
+  "reason": "KLDR025.TXP at $18.516 (DK 500 break), not $29.412 (the 10-piece break): DECISIONS 32 price correction, sourcing/STOCK-2026-10-13_pricefix-kldr.csv. Recomputed with scorecard.cost() on this tag's fab BOM and today's stock glob; the same call without the fix file reproduces the as-scored value."
+ },
+ "restated_2": {
+  "date": "2026-10-14",
+  "parts_usd_at_5_before": 329.58,
+  "parts_usd_at_500_before": 221.04,
+  "reason": "UMK325AB7106KM-T at the JLC ladder ($0.2545 / $0.2186, C386167), not the class-default estimate ($0.25 / $0.12): sourcing/STOCK-2026-10-13_pricefix-umk325.csv (DECISIONS 34). Recomputed with scorecard.cost() on this tag's fab BOM; the same call without the fix file reproduces the before values."
+ },
+ "restated_bank35k": {
+  "date": "2026-10-14",
+  "added_metric": "bank_ratio_tdk_28A_35k",
+  "value": 1.13,
+  "reason": "DECISIONS 37: the bank metric at the 35 kHz window floor (worst legal frequency), K share, from c34-bank-margin/scripts/bank_margin.py. Added to this card without re-scoring; for s32 a full re-score with the updated scorecard.py differs from this card only in this metric."
+ },
+ "restated_track_geometry": {
+  "date": "2026-10-15",
+  "added_metrics": [
+   "track_acute_corners",
+   "track_fold_backs",
+   "track_right_angle_corners",
+   "track_any_angle_mm"
+  ],
+  "values": {
+   "right_angle_corners": 110,
+   "acute_corners": 198,
+   "fold_backs": 35,
+   "any_angle_mm": 699.3
+  },
+  "reason": "DECISIONS 43: gates/track_geometry.py on native-21/verification/native21s19c-all-copper.json.gz, added without re-scoring"
+ }
+}

@@ -1,0 +1,106 @@
+{
+ "board_sha256": "387d2dde82a90ffbba6c344e5ccc412c932f44643fce3ab63a842f069d65e200",
+ "layers": [
+  "F.Cu",
+  "In1.Cu",
+  "In2.Cu",
+  "In3.Cu",
+  "In4.Cu",
+  "B.Cu"
+ ],
+ "stack": "/Users/bennet/Desktop/temper/worktrees/ps-layers/zapote/power-stage-120v/native-21/stackup-6L.json",
+ "box": [
+  0.0,
+  47.0,
+  26.0,
+  60.0
+ ],
+ "probes": {
+  "LOW": "mon_good_ha",
+  "SELV": "hsb_good",
+  "SW_B": "bias_hb-fbm"
+ },
+ "rows": {
+  "LOW": {
+   "F.Cu": {
+    "free_frac": 0.323,
+    "crossing_y47_to_y60": true
+   },
+   "In1.Cu": {
+    "free_frac": 0.2811,
+    "crossing_y47_to_y60": false
+   },
+   "In2.Cu": {
+    "free_frac": 0.2169,
+    "crossing_y47_to_y60": false
+   },
+   "In3.Cu": {
+    "free_frac": 0.777,
+    "crossing_y47_to_y60": true
+   },
+   "In4.Cu": {
+    "free_frac": 0.3009,
+    "crossing_y47_to_y60": false
+   },
+   "B.Cu": {
+    "free_frac": 0.0921,
+    "crossing_y47_to_y60": true
+   },
+   "via_legal_cells": 59
+  },
+  "SELV": {
+   "F.Cu": {
+    "free_frac": 0.0,
+    "crossing_y47_to_y60": false
+   },
+   "In1.Cu": {
+    "free_frac": 0.0018,
+    "crossing_y47_to_y60": false
+   },
+   "In2.Cu": {
+    "free_frac": 0.0,
+    "crossing_y47_to_y60": false
+   },
+   "In3.Cu": {
+    "free_frac": 0.1108,
+    "crossing_y47_to_y60": false
+   },
+   "In4.Cu": {
+    "free_frac": 0.0351,
+    "crossing_y47_to_y60": false
+   },
+   "B.Cu": {
+    "free_frac": 0.0,
+    "crossing_y47_to_y60": false
+   },
+   "via_legal_cells": 0
+  },
+  "SW_B": {
+   "F.Cu": {
+    "free_frac": 0.029,
+    "crossing_y47_to_y60": false
+   },
+   "In1.Cu": {
+    "free_frac": 0.1224,
+    "crossing_y47_to_y60": false
+   },
+   "In2.Cu": {
+    "free_frac": 0.1405,
+    "crossing_y47_to_y60": true
+   },
+   "In3.Cu": {
+    "free_frac": 0.3397,
+    "crossing_y47_to_y60": true
+   },
+   "In4.Cu": {
+    "free_frac": 0.1646,
+    "crossing_y47_to_y60": true
+   },
+   "B.Cu": {
+    "free_frac": 0.133,
+    "crossing_y47_to_y60": false
+   },
+   "via_legal_cells": 1
+  }
+ }
+}

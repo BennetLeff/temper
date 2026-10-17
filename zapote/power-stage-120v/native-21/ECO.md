@@ -70,9 +70,14 @@ Do not return any bias recharge or shunt current through the Kelvin island.
 
 Three HOT-powered monitor circuits cover LS, HS-A and HS-B. Each uses an
 LM339B, TL431 reference, and an **ISO7710 reinforced digital isolator** (side 1 from a local TPS70950 5 V on the monitored domain) for the healthy indication. The VO617A phototransistor optocoupler of the first draft was replaced (2026-10-06 review): the HS domains ride the switch node (≈10 V/ns ZVS, up to ≈95 V/ns hard edges), and ISO7710 is specified at 85 kV/µs minimum, 100 typical, CMTI (SLLSER9E p.11). The negative
-window is nominally **−2.198 to −1.799 V**; the total-span window is nominally
-**16.218 to 17.839 V**. The combination supervises the positive rail too
-(approximately +14.02 to +16.04 V at nominal thresholds). It does not claim a
+window is nominally **−2.239 to −1.860 V**; the total-span window is nominally
+**16.028 to 18.089 V**. The combination supervises the positive rail too
+(approximately +13.79 to +16.23 V at nominal thresholds). Stage 45 (OPEN-ITEMS S16,
+DECISIONS 59, option 1c-4420: TL431B, halfref 4.42 k / 10 k, re-centred taps; was
+−2.198 to −1.799 V and 16.218 to 17.839 V; nominal at Vref 2.495 V); worst-case bands in
+`validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md`. Stage 46 (S17 hot copper): the
+same values on the 125 °C grades, TL431BQDBZR and LM2901BIDR (same pinouts); bands at −10..125 °C in
+`validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md`. It does not claim a
 precise +15 V window independent of negative-rail voltage. Divider/reference
 and comparator errors must be included when measuring enable thresholds.
 
@@ -104,10 +109,11 @@ separately. Do not silently reuse a native-20 timing certificate.
 
 | Crossing | Part | Insulation | Clearance / creepage | CMTI |
 | --- | --- | --- | --- | --- |
-| Gate drivers (existing) | UCC21550BDWKR | reinforced | per FOOTPRINTS.md F8 | per UCC21550 datasheet |
+| Gate drivers (stage 29) | 2EDR8259XXUMA1 | reinforced (IEC 60747-17) | FOOTPRINTS.md F8 pads (DWK outline) | Infineon datasheet Rev 1.7 Table 24 |
 | Bus sense (existing) | AMC1311BDWVR | reinforced | existing D5 evidence | — |
-| OCP fault (existing) | ISO7710DWR (U9) | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8); TI HV land pattern 8.1 mm across the barrier | 85 kV/µs min (p.11) |
-| **Rail monitors LS/HS-A/HS-B (new)** | **ISO7710DWR (U32–U34)** | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8) with the same `SOIC16W_DW0016B_HV` 8.1 mm pattern | 85 kV/µs min, plus 10 µs SELV filter |
+| OCP fault (stage 31) | CA-IS3720HW (U9), default HIGH | reinforced (VDE 0884-17 40057278; UL 1577 E511334) | 8 mm CLR/CPG (SOIC16-WB, Chipanalog v1.05 s.7.6) on TI's HV land pattern, 8.1 mm across the barrier | 100 kV/µs min (s.7.8), plus R134 / C167 |
+| Bias-monitor heartbeat (stages 30–31) | CA-IS3720HW (U32) | as U9 | as U9 | 100 kV/µs min, plus the pump hold node |
+| HS-B rail verdict (stages 30–31) | CA-IS3720LW (U44), default LOW | as U9 | as U9 | 100 kV/µs min; an upset moves at most one pump edge |
 | Line zero cross (new) | VOL628A-3X001T | VDE option | LSOP4 ≥ 8 mm (Vishay rev 1.9) | slow signal, Schmitt-buffered |
 | Tank CT / SELV supply (existing) | CST3015, IRM-20-15 | per existing D5 evidence | — | — |
 
@@ -184,8 +190,9 @@ ambient; validate all part temperatures in the enclosure.
 - [WE74404064101, rev002.003](https://www.we-online.com/components/products/datasheet/74404064101.pdf): 100 µH ±20%, DCR/current ratings and land pattern.
 - [Mean Well IRM-20](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF): IRM-20-24 output/ripple/derating and **ACL1, ACN2, VN3, VP4**. These AC pins differ from the removed IRM-05.
 - [Panasonic 6SVPC220M](https://industrial.panasonic.com/ww/products/pt/os-con/models/6SVPC220M): 220 µF, 6.3 V, 27 mΩ ESR, 300 µA leakage, 105°C.
-- [TI LM339B](https://www.ti.com/lit/ds/symlink/lm339b.pdf), [TL431 SLVS543S](https://www.ti.com/lit/ds/symlink/tl431.pdf): comparator pin table and TL431 DBZ **K1/REF2/A3**, which differs from TLVH431.
+- [TI LM339B / LM2901B](https://www.ti.com/lit/ds/symlink/lm339b.pdf), [TL431 SLVS543S](https://www.ti.com/lit/ds/symlink/tl431.pdf): comparator pin table and TL431 DBZ **K1/REF2/A3**, which differs from TLVH431.
 - [TI TPS709](https://www.ti.com/lit/ds/symlink/tps709.pdf): DBV IN1/GND2/EN3/NC4/OUT5, voltage and quiescent current.
+- [TI LM4050-N SNOS455H](https://www.ti.com/lit/ds/symlink/lm4050-n.pdf): U5 (REF25) from stage 47, LM4050AEM3-2.5/NOPB, DBZ **K1/A2/NC3** (pin 3 floats or ties to pin 2, p.3), TA = TJ −40..125 °C (5.3 p.5), ±15 mV over that range (5.6 p.7); was LM4040A25IDBZR (SLOS456Q, −40..85 °C). Bands: `validation-results/11-candidates/c47-ref25-grade`.
 - [TI SN74LVC1G32](https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf), [SN74LVC1G332](https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf), [SN74LVC1G17](https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf): exact DBV pin tables and supply requirements.
 - [Vishay VOL628A, rev1.9](https://www.vishay.com/docs/82401/vol628a.pdf): AC input1/2, emitter3/collector4, CTR bin/option1 certification and LSOP4 isolation dimensions. [VO617A](https://www.vishay.com/docs/83430/vo617a.pdf): A1/K2/E3/C4 and selected isolation option.
 - [Nexperia PMEG6030EP](https://assets.nexperia.com/documents/data-sheet/PMEG6030EP.pdf) and [PMEG10030ELP](https://assets.nexperia.com/documents/data-sheet/PMEG10030ELP.pdf): SOD128 K1/A2 and voltage/current ratings.

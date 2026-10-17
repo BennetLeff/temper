@@ -1,0 +1,17 @@
+libmain.a(main.c.obj)  1545 bytes
+libmain.a(max31865.c.obj)  798 bytes
+libmain.a(platform_esp32.c.obj)  2604 bytes
+libmain.a(platform_logic.c.obj)  2033 bytes
+libmain.a(rtd_service.c.obj)  908 bytes
+libmain.a(state_handlers.c.obj)  2745 bytes
+libmain.a(state_machine.c.obj)  2152 bytes
+libmain.a(thermal_io.c.obj)  2026 bytes
+libmain.a(ui_esp32.c.obj)  3919 bytes
+libpower.a(n21_hw_esp32.c.obj)  5268 bytes
+libtemper_hal.a(controller_board_esp32.c.obj)  1890 bytes
+libtemper_hal.a(hal_adc_esp32.c.obj)  2140 bytes
+libtemper_hal.a(hal_gpio_esp32.c.obj)  1550 bytes
+libtemper_hal.a(hal_init.c.obj)  834 bytes
+libtemper_hal.a(hal_pwm_esp32.c.obj)  2640 bytes
+libtemper_hal.a(hal_spi_esp32.c.obj)  1693 bytes
+libtemper_hal.a(hal_timer_esp32.c.obj)  1567 bytes

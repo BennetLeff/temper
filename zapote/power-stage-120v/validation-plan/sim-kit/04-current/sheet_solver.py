@@ -41,6 +41,7 @@ inside a drill attaches to the barrel node.
 from __future__ import annotations
 
 import math
+import os
 import sys
 
 import numpy as np
@@ -56,9 +57,33 @@ RHO_CU = 1.68e-8          # ohm*m at 20 C
 ALPHA_CU = 0.00393         # per K
 # Copper-centre heights (mm from the top surface) for stackup.json
 # JLC041622-7628: 70 um / 0.4355 / 61 um / 0.5 / 61 um / 0.4355 / 70 um.
+# The default for callers that pass no layer_z_mm (older boards' scripts). Stage 33: a board's own stack is read with
+# stackup_layers(path) and passed as Net(layer_z_mm=...); stackup_layers(native-20/stackup.json) equals this table.
 LAYER_Z_MM = {"F.Cu": 0.035, "In1.Cu": 0.07 + 0.4355 + 0.0305,
               "In2.Cu": 0.07 + 0.4355 + 0.061 + 0.5 + 0.0305,
               "B.Cu": 0.07 + 0.4355 + 0.061 + 0.5 + 0.061 + 0.4355 + 0.035}
+
+
+def stackup_layers(path) -> dict:
+    """Copper layers of a temper stackup.json (schema v1 / v2: KiCad stackup order, masks included).
+
+    Returns {"names": (F.Cu, ..., B.Cu), "z_mm": {name: copper-centre depth below the top copper surface, mm},
+    "t_um": {name: copper thickness, um (an int when whole)}}. z is summed in stack order (everything above plus
+    half the copper), the same arithmetic as LAYER_Z_MM, so a four-layer JLC041622-7628 file reproduces it bit for bit.
+    Any layer count; an unknown layer name in add_layer / add_via then raises KeyError instead of being dropped."""
+    import json
+    from pathlib import Path
+    st = json.loads(Path(path).read_text())
+    solid = [e for e in st["layers"] if e["type"] not in ("Top Solder Mask", "Bottom Solder Mask")]
+    z, t_um, above = {}, {}, None
+    for e in solid:
+        t = e["thickness_mm"]
+        if e["type"] == "copper":
+            z[e["name"]] = t / 2 if above is None else above + t / 2
+            um = round(t * 1000, 6)
+            t_um[e["name"]] = int(um) if um == int(um) else um
+        above = t if above is None else above + t
+    return {"names": tuple(z), "z_mm": z, "t_um": t_um}
 
 
 class Net:
@@ -93,11 +118,17 @@ class Net:
         self.layers[name] = {"geom0": geom, "t": thickness_um * 1e-6}
         self._built = None
 
-    def add_via(self, xy, drill_mm: float, plating_um: float, layers, length_mm: float = 1.6,
+    def add_via(self, xy, drill_mm: float, plating_um: float, layers, length_mm: float | None = None,
                 filled: bool = False) -> None:
         """A plated barrel joining `layers`. `length_mm` is the barrel length
         between the outermost listed layers; each hop gets its share in
         proportion to the layer spacing.
+
+        length_mm=None (every board caller): 1.6 mm, the board's nominal
+        thickness, as before stage 33; with SHEET_BARREL=stackup, the copper-
+        centre distance between the outermost listed layers from layer_z_mm
+        (1.563 mm F.Cu to B.Cu on JLC041622-7628, 1.588 mm on JLC061622-1080A).
+        That is the depth basis DECISIONS 38 sets for the six-layer study.
 
         filled=False (a via): the hole is empty, so the barrel is a thin tube.
         It is split into VIA_SECTORS azimuthal columns, each touching only the
@@ -111,6 +142,13 @@ class Net:
         The vertical resistance is still the plating alone (the lead and
         solder are ignored, which is conservative)."""
         layers = tuple(sorted(layers, key=lambda n: self.layer_z[n]))
+        if length_mm is None:
+            if os.environ.get("SHEET_BARREL", "") == "stackup":
+                length_mm = self.layer_z[layers[-1]] - self.layer_z[layers[0]]
+            elif os.environ.get("SHEET_BARREL", "") in ("", "fixed"):
+                length_mm = 1.6
+            else:
+                raise ValueError(f"SHEET_BARREL={os.environ['SHEET_BARREL']!r}: use 'stackup' or 'fixed'")
         r_in = drill_mm / 2 * 1e-3
         area = math.pi * ((r_in + plating_um * 1e-6) ** 2 - r_in ** 2)
         span = self.layer_z[layers[-1]] - self.layer_z[layers[0]]

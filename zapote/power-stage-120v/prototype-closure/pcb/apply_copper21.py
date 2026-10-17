@@ -28,12 +28,19 @@ import math
 import shutil
 from pathlib import Path
 
+import sys
+
 import pcbnew
 
 HERE = Path(__file__).resolve().parent
 UNIT = HERE.parents[1]
 N21 = UNIT / "native-21"
-LAYERS = {"F.Cu": pcbnew.F_Cu, "In1.Cu": pcbnew.In1_Cu, "In2.Cu": pcbnew.In2_Cu, "B.Cu": pcbnew.B_Cu}
+sys.path.insert(0, str(N21 / "layout"))
+import layers21  # noqa: E402  (native-21/stackup.json)
+
+# copper layer name -> KiCad id, from the stackup (pcbnew's own constant for that name must agree)
+LAYERS = {n: layers21.KICAD_ID[n] for n in layers21.CU}
+assert all(getattr(pcbnew, n.replace(".", "_")) == i for n, i in LAYERS.items()), LAYERS
 
 
 def pt(x, y):
@@ -126,7 +133,7 @@ def main():
         name = f"PE_{e['ref']}_{e['pad']}"
         area = pcbnew.ZONE(board)
         area.SetIsRuleArea(True)
-        area.SetLayer({"F.Cu": pcbnew.F_Cu, "B.Cu": pcbnew.B_Cu}[e.get("layer", "F.Cu")])
+        area.SetLayer({n: LAYERS[n] for n in layers21.OUTER}[e.get("layer", "F.Cu")])
         area.SetZoneName(name)
         for kind in ("Tracks", "Vias", "Pads", "Footprints", "ZoneFills"):
             getattr(area, "SetDoNotAllow" + kind)(False)

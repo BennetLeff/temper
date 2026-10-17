@@ -1,0 +1,229 @@
+{
+ "question": "Is R5 (WSK25121L000FEA) within its datasheet derating at 0.86 W with its pad at ~149 C, and does its TCR keep the OCP band above the 64.17 A floor?",
+ "git_head": "3b515aadeb2d1b8c57b0e6c7e5ae2c085c3c44c5",
+ "datasheet": {
+  "doc": "Vishay WSK2512, Document Number 30108, Revision 11-Dec-2023",
+  "p_rated_w": 1.0,
+  "p_rated_at_c": 70.0,
+  "derate_zero_c": 170.0,
+  "t_max_c": 170.0,
+  "t_min_c": -65.0,
+  "tcr_ppm": 250.0,
+  "derate_basis": "ambient temperature (graph x-axis); no terminal/solder-point rule is given"
+ },
+ "pass_criterion": {
+  "a_power": "P_diss <= 0.80 x derated(T_pad_max) (>= 20% margin); derated(T) = 1.0 W x (170 - T)/100, clipped to 0..1 W",
+  "b_temperature": "T_pad_max <= 170.0 - 10.0 C",
+  "c_trip_floor": "low edge of OCP band after Kelvin shift (all-at-max-transfer bound) and R5 TCR >= 64.17 A, ambient corners -10/+85 C with the B3 rise replacing the committed +50 K"
+ },
+ "heat": {
+  "file": "validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json",
+  "sha256": "027d9c23d7332b31a05b12870fcf06f5e60bb96f25ca0881a076b3ac1e68851f",
+  "r5_row": {
+   "watts_nominal": 0.8643599999999999,
+   "watts_worst": 0.8643599999999999,
+   "board_fraction": 1.0,
+   "note": "WSK2512R0010FEA, task 03 round 3"
+  },
+  "i_rms_trip_a": 29.400000000000002,
+  "p_at_trip_w": 0.86436,
+  "p_at_28A_w": 0.784,
+  "p_at_trip_with_1pct_tol_and_tcr_limit_w": 0.9001
+ },
+ "thermal": {
+  "command": "/Users/bennet/Desktop/temper/worktrees/an-r5-derate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/thermal.py --geometry ... --pitch-mm 0.25 --h 25 --a6-mode nominal",
+  "geometry": "native-21/verification/native21s16-all-copper.json.gz",
+  "geometry_sha256": "730568e69b9b283526a44f011827efd1004f2905d8cbf9bbb23d65609383031b",
+  "board_sha256": "e9481ed6d183594a466d657bff09de525ad84457cbd13080a55b1b589b314bcd",
+  "committed_tool": "round5-native21/b3/thermal.py (2.5-D FV, k_Cu 390, k_FR4 0.3, h 25 W/m2K each face, 50 C ambient)",
+  "pitch_mm": 0.25,
+  "balance_w": -4.272436626706622e-09,
+  "board_peak": {
+   "temperature_c": 149.1572602111822,
+   "rise_k": 99.1572602111822,
+   "x_mm": 39.875,
+   "y_mm": 16.375,
+   "layer": "F.Cu"
+  },
+  "r5": {
+   "watts_to_board": 0.8643599999999999,
+   "pad_layer": "F.Cu",
+   "pad_cell_count": 261,
+   "conditional_pad_cell_max_c": 149.1572602111822,
+   "conditional_pad_cell_mean_c": 122.74147698317309
+  },
+  "committed_reference_c": {
+   "c0_refill|c28|p0.25|h25": 149.2,
+   "c2h_link_e1_notie|c28|p0.25|h25": 149.1
+  },
+  "control_tolerance_k": 0.5
+ },
+ "derating": {
+  "p_diss_w": 0.8643599999999999,
+  "rows": {
+   "pad_cell_max": {
+    "temp_c": 149.16,
+    "derated_w": 0.2084,
+    "utilisation": 4.147,
+    "margin_pct": -314.7,
+    "meets_20pct_margin": false
+   },
+   "pad_cell_mean": {
+    "temp_c": 122.74,
+    "derated_w": 0.4726,
+    "utilisation": 1.829,
+    "margin_pct": -82.9,
+    "meets_20pct_margin": false
+   },
+   "ambient_inlet_50C": {
+    "temp_c": 50.0,
+    "derated_w": 1.0,
+    "utilisation": 0.864,
+    "margin_pct": 13.6,
+    "meets_20pct_margin": false
+   }
+  },
+  "max_ref_temp_for_p_diss_c": 83.56,
+  "max_ref_temp_for_28A_0p784W_c": 91.6,
+  "max_ref_temp_for_p_diss_with_20pct_margin_c": 61.96,
+  "decisions_D18_local_ambient_gate_c": 100.0,
+  "derated_w_at_100c": 0.7,
+  "t_pad_headroom_to_170c_k": 20.84
+ },
+ "tcr": {
+  "tcr_ppm_per_c_max": 250.0,
+  "reference_temp_c": 25,
+  "reference_temp_note": "datasheet does not state the TCR reference temperature in the pages read; thresholds.py convention (25 C) used",
+  "r5_temp_c_at_pad_max": 149.16,
+  "drift_pct_limit_at_pad_max": 3.104,
+  "drift_pct_limit_committed_135c": 2.75,
+  "kelvin": {
+   "e_census": 2.1359,
+   "e_bound": 2.1978,
+   "a_per_mv": -1.037,
+   "source": "02-protection-timing/kelvin/budget-native21s16.json, plane-native21s16.json"
+  },
+  "nominal_trip": {
+   "nominal_trip_a_25c": 92.593,
+   "r5_at_pad_max_temperature": {
+    "+250ppm": {
+     "r5_mohm": 1.031,
+     "trip_a": 89.805,
+     "trip_change_pct": -3.01
+    },
+    "-250ppm": {
+     "r5_mohm": 0.969,
+     "trip_a": 95.559,
+     "trip_change_pct": 3.203
+    }
+   }
+  },
+  "bands": {
+   "committed_convention_-10_85C_rise50K": {
+    "ambient_corners_c": [
+     -10.0,
+     85.0
+    ],
+    "r5_rise_k": 50.0,
+    "r5_temp_range_c": [
+     40.0,
+     135.0
+    ],
+    "band_before_kelvin_a": [
+     68.58,
+     118.74
+    ],
+    "band_after_kelvin_census_a": [
+     66.37,
+     118.74
+    ],
+    "band_after_kelvin_bound_a": [
+     66.3,
+     118.74
+    ]
+   },
+   "same_ambient_corners_rise_from_B3": {
+    "ambient_corners_c": [
+     -10.0,
+     85.0
+    ],
+    "r5_rise_k": 99.157,
+    "r5_temp_range_c": [
+     89.1572602111822,
+     184.1572602111822
+    ],
+    "band_before_kelvin_a": [
+     67.77,
+     120.26
+    ],
+    "band_after_kelvin_census_a": [
+     65.56,
+     120.26
+    ],
+    "band_after_kelvin_bound_a": [
+     65.49,
+     120.26
+    ]
+   },
+   "design_inlet_50C_rise_from_B3": {
+    "ambient_corners_c": [
+     50.0
+    ],
+    "r5_rise_k": 99.157,
+    "r5_temp_range_c": [
+     149.1572602111822,
+     149.1572602111822
+    ],
+    "band_before_kelvin_a": [
+     72.56,
+     114.47
+    ],
+    "band_after_kelvin_census_a": [
+     70.35,
+     114.47
+    ],
+    "band_after_kelvin_bound_a": [
+     70.28,
+     114.47
+    ]
+   },
+   "design_inlet_50C_committed_rise50K": {
+    "ambient_corners_c": [
+     50.0
+    ],
+    "r5_rise_k": 50.0,
+    "r5_temp_range_c": [
+     100.0,
+     100.0
+    ],
+    "band_before_kelvin_a": [
+     73.44,
+     113.04
+    ],
+    "band_after_kelvin_census_a": [
+     71.22,
+     113.04
+    ],
+    "band_after_kelvin_bound_a": [
+     71.16,
+     113.04
+    ]
+   }
+  },
+  "floor_a": 64.17,
+  "low_edge_change_vs_committed_before_kelvin_a": -0.81,
+  "r5_temp_at_85c_ambient_c": 184.2,
+  "r5_temp_at_85c_exceeds_170c": true
+ },
+ "criteria": {
+  "a_power_margin_at_pad_max": false,
+  "b_temperature": true,
+  "c_trip_floor": true
+ },
+ "verdict": "FAIL",
+ "controls": {
+  "C1_heat_row_eq_29p4sq_mohm": true,
+  "C2_pad_cell_within_0p5K_of_committed": true,
+  "C3_committed_band_reproduced": true
+ }
+}

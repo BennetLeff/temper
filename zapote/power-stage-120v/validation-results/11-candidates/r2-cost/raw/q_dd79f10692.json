@@ -1,0 +1,448 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 556539,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "IGBT Transistors / Modules",
+     "erpComponentName": "IHW30N65R5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/igbt-transistors-modules_infineon-technologies-ihw30n65r5_C536126.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7448
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.231
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 2.9244
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 509,
+       "productPrice": 2.6145
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 989,
+       "productPrice": 2.4726
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 2.4074
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.1125
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.6074
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 2.8171
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 989,
+       "productPrice": 2.3819
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 2.319
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 509,
+       "productPrice": 2.5186
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "3bed62ec31f249ab98c873293c220156",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "InfineonTechnologies-IHW30N65R5/C536126",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 11.77842,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.7448,
+     "componentCode": "C536126",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "IHW30N65R5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583302201410801664",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2005291909_Infineon-Technologies-IHW30N65R5_C536126.pdf",
+     "dataManualFileAccessId": "8588896100732309504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon IHW30N65R5",
+     "minImage": "",
+     "minImageAccessId": "8583302202329219072",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-3",
+     "describe": "-40\u2103~+175\u2103 1.7V@30A,15V 153nC@15V 15pF 176W 220ns 240uJ 29ns 3.2V@0.3mA 3.69nF 30A 34pF 42A 650V 850uJ 95ns TO-247-3 IGBT Transistors / Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Gate-Emitter Threshold Voltage (Vge(th)@Ic)",
+       "attribute_value_name": "3.2V@0.3mA"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Cies)",
+       "attribute_value_name": "3.69nF"
+      },
+      {
+       "attribute_name_en": "Td(off)",
+       "attribute_value_name": "220ns"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "153nC@15V"
+      },
+      {
+       "attribute_name_en": "Switching Energy(Eoff)",
+       "attribute_value_name": "240uJ"
+      },
+      {
+       "attribute_name_en": "Pulsed Current- Forward(Ifm)",
+       "attribute_value_name": "42A"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Cres)",
+       "attribute_value_name": "15pF"
+      },
+      {
+       "attribute_name_en": "Turn-On Energy (Eon)",
+       "attribute_value_name": "850uJ"
+      },
+      {
+       "attribute_name_en": "Collector-Emitter Breakdown Voltage (Vces)",
+       "attribute_value_name": "650V"
+      },
+      {
+       "attribute_name_en": "Reverse Recovery Time(trr)",
+       "attribute_value_name": "95ns"
+      },
+      {
+       "attribute_name_en": "Current - Collector(Ic)",
+       "attribute_value_name": "30A"
+      },
+      {
+       "attribute_name_en": "Vce Saturation(VCE(sat))",
+       "attribute_value_name": "1.7V@30A,15V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "176W"
+      },
+      {
+       "attribute_name_en": "Output Capacitance(Coes)",
+       "attribute_value_name": "34pF"
+      },
+      {
+       "attribute_name_en": "Td(on)",
+       "attribute_value_name": "29ns"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "IGBT Transistors / Modules",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>IHW30N65R5</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3753622,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "IGBT Transistors / Modules",
+     "erpComponentName": "IHW30N65R5XKSA1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/igbt-transistors-modules_infineon-technologies-ihw30n65r5xksa1_C3191679.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.9323
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.9323
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.9323
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.5218
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4696
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4418
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3889
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4659
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.788
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.788
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4156
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.788
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "3bed62ec31f249ab98c873293c220156",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "3753622-IHW30N65R5XKSA1/C3191679",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.9323,
+     "componentCode": "C3191679",
+     "componentBrandEn": "Infineon Technologies",
+     "componentModelEn": "IHW30N65R5XKSA1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Infineon IHW30N65R5XKSA1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-3",
+     "describe": "-40\u2103~+175\u2103@(Tj) 1.7V@15V,30A 153nC 176W 220ns 240uJ 29ns 60A 650V 850uJ 95ns TO-247-3 IGBT Transistors / Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Gate-Emitter Threshold Voltage (Vge(th)@Ic)",
+       "attribute_value_name": "1.7V@15V,30A"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+175\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Reverse Recovery Time(trr)",
+       "attribute_value_name": "95ns"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Cies)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Td(off)",
+       "attribute_value_name": "220ns"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "153nC"
+      },
+      {
+       "attribute_name_en": "Switching Energy(Eoff)",
+       "attribute_value_name": "240uJ"
+      },
+      {
+       "attribute_name_en": "Current - Collector(Ic)",
+       "attribute_value_name": "60A"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "176W"
+      },
+      {
+       "attribute_name_en": "Td(on)",
+       "attribute_value_name": "29ns"
+      },
+      {
+       "attribute_name_en": "Turn-On Energy (Eon)",
+       "attribute_value_name": "850uJ"
+      },
+      {
+       "attribute_name_en": "IGBT Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Collector-Emitter Breakdown Voltage (Vces)",
+       "attribute_value_name": "650V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "IGBT Transistors / Modules",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>IHW30N65R5</span>XKSA1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "IHW30N65R5"
+ },
+ "message": null,
+ "_kw": "IHW30N65R5",
+ "_fetched_utc": "2026-10-13T20:34:42Z"
+}

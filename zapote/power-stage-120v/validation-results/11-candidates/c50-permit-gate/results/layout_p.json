@@ -1,0 +1,362 @@
+{
+ "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+ "lock_baseline_sha256": "596ba3bf17e47b2328e148e0ff53eb3b614439bf2c51f01b4cf34dda69e65591",
+ "spine_region": [
+  30.0,
+  130.0,
+  110.0,
+  180.0
+ ],
+ "contract_nets": [
+  "pwm_ha",
+  "pwm_la",
+  "pwm_hb",
+  "pwm_lb",
+  "permit",
+  "vbus_p",
+  "vbus_n",
+  "bus_fault_iso",
+  "bias_good",
+  "sw_a"
+ ],
+ "pads": {
+  "U46.1": {
+   "net": "hsb_good",
+   "layer": "F.Cu",
+   "centre": [
+    95.6375,
+    132.95
+   ],
+   "in_spine_region": true
+  },
+  "U46.2": {
+   "net": "hb_rx",
+   "layer": "F.Cu",
+   "centre": [
+    95.6375,
+    132.0
+   ],
+   "in_spine_region": true
+  },
+  "U46.5": {
+   "net": "v3v3",
+   "layer": "F.Cu",
+   "centre": [
+    93.3625,
+    132.95
+   ],
+   "in_spine_region": true
+  },
+  "R135.1": {
+   "net": "v3v3",
+   "layer": "F.Cu",
+   "centre": [
+    32.525,
+    108.3
+   ],
+   "in_spine_region": false
+  },
+  "R135.2": {
+   "net": "hsb_good",
+   "layer": "F.Cu",
+   "centre": [
+    30.875,
+    108.3
+   ],
+   "in_spine_region": false
+  },
+  "R14.1": {
+   "net": "permit",
+   "layer": "F.Cu",
+   "centre": [
+    32.349999,
+    68.165
+   ],
+   "in_spine_region": false
+  },
+  "R6.1": {
+   "net": "permit",
+   "layer": "F.Cu",
+   "centre": [
+    79.35,
+    68.165
+   ],
+   "in_spine_region": false
+  },
+  "J4.9": {
+   "net": "permit",
+   "layer": "B.Cu",
+   "centre": [
+    34.5,
+    183.08
+   ],
+   "in_spine_region": false
+  },
+  "J4.1": {
+   "net": "bias_good_j4",
+   "layer": "B.Cu",
+   "centre": [
+    34.5,
+    180.08
+   ],
+   "in_spine_region": false
+  }
+ },
+ "TP17": [
+  {
+   "ref": "TP17.1",
+   "net": "permit",
+   "centre": [
+    33.15,
+    113.265
+   ]
+  }
+ ],
+ "U46.1_to_nearest_permit_mm": [
+  19.106,
+  "track",
+  "F.Cu",
+  [
+   77.8,
+   124.2
+  ],
+  [
+   79.4,
+   122.6
+  ]
+ ],
+ "R135.1_to_nearest_permit_mm": [
+  1.3,
+  "track",
+  "F.Cu",
+  [
+   33.95,
+   70.165
+  ],
+  [
+   33.95,
+   109.965
+  ]
+ ],
+ "v3v3_via_at_R135.1_shared_with": [
+  [
+   "B.Cu",
+   [
+    32.5,
+    109.675
+   ],
+   [
+    32.5,
+    120.675
+   ]
+  ],
+  [
+   "F.Cu",
+   [
+    32.15,
+    109.675
+   ],
+   [
+    32.5,
+    109.675
+   ]
+  ]
+ ],
+ "R135.1_pad_as_permit_nearest_other_copper": [
+  [
+   0.6,
+   "via",
+   "v3v3"
+  ],
+  [
+   0.6,
+   "via",
+   "v3v3"
+  ],
+  [
+   0.6,
+   "via",
+   "v3v3"
+  ]
+ ],
+ "proposed_change": {
+  "netlist": "R135 pin 1: v3v3 -> permit (R135 keeps 10 k and its footprint; pin 2 stays on hsb_good = U46.1)",
+  "delete": [
+   {
+    "kind": "track",
+    "net": "v3v3",
+    "at": [
+     [
+      32.525,
+      108.3
+     ],
+     [
+      32.5,
+      109.675
+     ]
+    ]
+   }
+  ],
+  "add_track": {
+   "net": "permit",
+   "layer": "F.Cu",
+   "width_mm": 0.25,
+   "from": [
+    32.525,
+    108.3
+   ],
+   "to": [
+    33.95,
+    108.3
+   ],
+   "length_mm": 1.425,
+   "joins_permit_segment": [
+    [
+     33.95,
+     70.165
+    ],
+    [
+     33.95,
+     109.965
+    ]
+   ]
+  },
+  "stub_clearance_violations_lt_0.2mm": [],
+  "stub_nearest_other_copper": [
+   [
+    0.95,
+    "via",
+    "v3v3",
+    null,
+    [
+     32.5,
+     109.675
+    ]
+   ],
+   [
+    0.95,
+    "via",
+    "v3v3",
+    null,
+    [
+     32.5,
+     109.675
+    ]
+   ],
+   [
+    0.95,
+    "via",
+    "v3v3",
+    null,
+    [
+     32.5,
+     109.675
+    ]
+   ],
+   [
+    0.95,
+    "via",
+    "v3v3",
+    null,
+    [
+     32.5,
+     109.675
+    ]
+   ],
+   [
+    1.0,
+    "track",
+    "pwm_lb",
+    null,
+    [
+     35.225,
+     62.2
+    ]
+   ],
+   [
+    1.1,
+    "track",
+    "v3v3",
+    null,
+    [
+     32.15,
+     109.675
+    ]
+   ]
+  ],
+  "F.Cu_zone_fills_within_0.2mm_of_stub": [],
+  "touches_spine_region": false,
+  "permit_tracks_in_region_changed": false
+ },
+ "hsb_good_length_mm": 81.5,
+ "hsb_good_neighbours_lt_0.5mm": {
+  "v3v3": {
+   "mm": 0.2,
+   "where": [
+    31.85,
+    109.975
+   ],
+   "layer": "F.Cu",
+   "kind": "pad"
+  },
+  "line_zc_raw": {
+   "mm": 0.275,
+   "where": [
+    69.4,
+    134.975
+   ],
+   "layer": "B.Cu",
+   "kind": "via"
+  },
+  "selv_gnd": {
+   "mm": 0.286,
+   "where": [
+    43.475,
+    128.78
+   ],
+   "layer": "B.Cu",
+   "kind": "via"
+  },
+  "u_bias_flt-nc": {
+   "mm": 0.3,
+   "where": [
+    75.7375,
+    133.899999
+   ],
+   "layer": "F.Cu",
+   "kind": "pad"
+  },
+  "hb_rx": {
+   "mm": 0.35,
+   "where": [
+    95.6375,
+    132.0
+   ],
+   "layer": "F.Cu",
+   "kind": "pad"
+  },
+  "hb_hold": {
+   "mm": 0.425,
+   "where": [
+    79.175,
+    135.6
+   ],
+   "layer": "F.Cu",
+   "kind": "pad"
+  },
+  "permit": {
+   "mm": 0.475,
+   "where": [
+    33.2,
+    120.2
+   ],
+   "layer": "F.Cu",
+   "kind": "via"
+  }
+ },
+ "hsb_good_zone_neighbours_lt_0.5mm": {
+  "selv_gnd In2.Cu": 0.2,
+  "v3v3 In1.Cu": 0.2
+ },
+ "hsb_good_in_spine_region": true
+}

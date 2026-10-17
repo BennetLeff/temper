@@ -1,0 +1,236 @@
+{
+ "about": "Datasheet pin numbering for LCSC parts whose EasyEDA footprint fit and the JLC rotation DB disagree. An entry lets audit.py trust the EasyEDA pad-number fit over the DB rule, but only when (1) the EasyEDA symbol's pin names equal the datasheet's pin functions by number, (2) the KiCad footprint's pad numbers are the datasheet pin numbers, and (3) the fit is unique. Each entry cites the datasheet page it was read from; the PDF is not committed (hash given).",
+ "parts": {
+  "C41283": {
+   "part": "TL431BIDBZR",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "CATHODE",
+    "2": "REF",
+    "3": "ANODE"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL431, TL431A, TL431B DBZ (SOT-23-3) package, top view: 1 CATHODE, 2 REF, 3 ANODE (the TL432 DBZ differs: 1 REF, 2 CATHODE). https://www.ti.com/lit/ds/symlink/tl431.pdf sha256 ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U17 / U19 / U21 pads 1 and 2 on <rail>.monitor-ref (cathode tied to ref, the 2.5 V shunt connection), pad 3 on the island ground n_ls / n_ha / n_hb (anode): KiCad pad n = datasheet pin n"
+  },
+  "C545172": {
+   "part": "TLVH431BQDBZR",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "REF",
+    "2": "CATHODE",
+    "3": "ANODE"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVS555N (Nov 2004, rev. Jun 2024), p.3 Fig. 4-4 'TLVH431 DBZ Package 3-Pin SOT-23 Top View' and p.4 Pin Functions table: 1 REF, 2 CATHODE, 3 ANODE (the TLVH432 DBZ differs: 1 CATHODE, 2 REF; this part is TLVH431). https://www.ti.com/lit/ds/symlink/tlvh431.pdf sha256 e30d628cb6475d48e9ae87336ee0f0065eb5faea33f0465188dc4c43b56e6217, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U16 / U18 / U20 pad 3 (ANODE) on the island ground n_ls / n_ha / n_hb; pad 1 (REF) on <leg>.split-fb, the midpoint of a 6.2k (R77 / R95 / R110, to pad 2) + 10k (R78 / R96 / R111, to ground) divider; pad 2 (CATHODE) on the leg return / switch node (leg_ret / sw_a / sw_b) at the top of that divider: KiCad pad n = datasheet pin n (a TLVH432 swap would put REF on the leg return net)"
+  },
+  "C96028": {
+   "part": "TPS70950DBVR",
+   "package": "DBV (SOT-23-5), plain TPS709 pinout",
+   "datasheet_pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "OUT"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SBVS186H (Mar 2012, rev. Jul 2021), p.3 Fig. 5-1 'TPS709: DBV Package, 5-Pin SOT-23, Top View' and Table 5-1: 1 IN, 2 GND, 3 EN, 4 NC, 5 OUT (TPS709A is 1 OUT, 2 GND, 3 IN, 4 NC, 5 EN and TPS709B is 1 GND, 2 IN, 3 OUT, 4 NC, 5 EN; TPS70950DBVR carries no A/B letter, listed in the orderable addendum). https://www.ti.com/lit/ds/symlink/tps709.pdf sha256 8c14e3efae738a27b857b789aa87369de9037a8ef3616a9f71a423587cdc6949, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U3 / U37 / U38 / U39 pad 1 (IN) and pad 3 (EN) on one net (v15_ls, v15_ls, p_ha, p_hb: EN tied to IN, enabled); pad 2 (GND) on the return (ocp_kelvin_p, n_ls, n_ha, n_hb); pad 4 (NC) on a dedicated single-pad *-nc net; pad 5 (OUT) on the 5 V net (hot5, ls_v5, bias_ha.monitor-v5, bias_hb.monitor-v5): KiCad pad n = datasheet pin n"
+  },
+  "C9421": {
+   "part": "LM4040A25IDBZR",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "CATHODE",
+    "2": "ANODE",
+    "3": "NC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLOS456Q (Jan 2005, rev. Apr 2026), p.4 Fig. 5-1 'DBZ Package 3-Pin SOT-23 Top View' and Table 5-1: 1 CATHODE, 2 ANODE, 3 '*' (must float or connect to anode); '*' entered as NC to match the EasyEDA symbol. https://www.ti.com/lit/ds/symlink/lm4040.pdf sha256 f43b6b6d3ecd51c8c90b70a7c4630c7e3140822b0073953ed2459df81b251c1c, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U5 pad 1 (CATHODE) on ref25, the 2.5 V reference node (bias R31 / R32 / R34 / R36); pad 2 (ANODE) on the return ocp_kelvin_p; pad 3 ('*') on a dedicated single-pad u_ref-nc net, i.e. floating, which the datasheet allows: KiCad pad n = datasheet pin n"
+  },
+  "C105188": {
+   "part": "TLV3201AIDBVR",
+   "package": "DBV (SOT-23-5)",
+   "datasheet_pins": {
+    "1": "OUT",
+    "2": "GND",
+    "3": "IN+",
+    "4": "IN-",
+    "5": "VCC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SBOS561C (Mar 2012, rev. May 2024), p.3 Fig. 5-1 'TLV3201 DCK and DBV Packages 5-Pin SC70-5 and SOT-23 Top View' and Pin Functions: TLV3201: 1 OUT, 2 GND, 3 IN+, 4 IN-, 5 VCC (datasheet writes IN- with an en dash). https://www.ti.com/lit/ds/symlink/tlv3201.pdf sha256 1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U6 / U7 pad 5 (VCC) on hot5, pad 2 (GND) on ocp_kelvin_p; U10 / U11 / U12 pad 5 on v3v3, pad 2 on selv_gnd; pad 1 (OUT) on the *_ok_hot / ct_oc_pos / ct_oc_neg / ct_zc output nets; U10 sense on IN+ (ct_sense_mon) vs ct_ref_hi on IN-, U11 ct_ref_lo on IN+ vs sense on IN- (window comparator polarity); KiCad pad n = datasheet pin n"
+  },
+  "C7836": {
+   "part": "SN74LVC1G17DBVR",
+   "package": "DBV (SOT-23-5)",
+   "datasheet_pins": {
+    "1": "N.C",
+    "2": "A",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SCES351Y (Jul 2001, rev. Oct 2025), p.3 section 4 'Pin Configuration and Functions' DBV Package top view and Pin Functions table: 1 NC (N.C.), 2 A, 3 GND, 4 Y, 5 VCC; datasheet spelling 'N.C.' / 'NC' entered as the EasyEDA spelling 'N.C'. https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf sha256 c76fa723fac4502423967a1aa087dd669106b52b8de620c024b26e56f5d59309, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U15 / U24 / U40 pad 1 (N.C.) on a dedicated single-pad *-nc net; pad 3 (GND) on ocp_kelvin_p / selv_gnd / selv_gnd; pad 5 (VCC) on hot5 / v3v3 / v3v3; pad 2 (A) on the input signal (hot5_uv_raw, line_zc_raw, hb_hold) and pad 4 (Y) on the output (hot5_ok_hot, line_zc, bias_good): KiCad pad n = datasheet pin n"
+  },
+  "C43368": {
+   "part": "SN74LVC1G332DBVR",
+   "package": "DBV (SOT-23-6)",
+   "datasheet_pins": {
+    "1": "A",
+    "2": "GND",
+    "3": "B",
+    "4": "Y",
+    "5": "VCC",
+    "6": "C"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SCES489E (Sep 2003, rev. Dec 2013), p.1 'DBV PACKAGE (TOP VIEW)': 1 A, 2 GND, 3 B, 4 Y, 5 VCC, 6 C (no separate pin table in this datasheet; the pinout is the figure on p.1). https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf sha256 5ecad3180cb93664b358a9cb6a724e012fc9b124e6ae0d1004c9ae6600549f21, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U13 pad 5 (VCC) on v3v3, pad 2 (GND) on selv_gnd; inputs A / B / C = pads 1 / 3 / 6 on bus_fault_flt, ct_oc_pos, ct_oc_neg; pad 4 (Y) on bus_fault (3-input OR of the fault flags, function table p.2): KiCad pad n = datasheet pin n"
+  },
+  "C7826": {
+   "part": "SN74LVC1G00DBVR",
+   "package": "DBV (SOT-23-5)",
+   "datasheet_pins": {
+    "1": "A",
+    "2": "B",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SCES212AC (Apr 1999, rev. Aug 2026), p.3 section 4 'Pin Configuration and Functions' DBV Package top view and Pin Functions table: 1 A, 2 B, 3 GND, 4 Y, 5 VCC. https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf sha256 1264f79853e6119b66d60fe54f1f6e87995c12c00138bd820981fe68febb1063, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U22 / U23 pad 5 (VCC) on v3v3, pad 3 (GND) on selv_gnd, pad 4 (Y) on leg_a-driver_dis / leg_b-driver_dis, pad 1 (A) on leg_a-permit_gate / leg_b-permit_gate, pad 2 (B) on bias_good: KiCad pad n = datasheet pin n"
+  },
+  "C403723": {
+   "part": "SN74LVC1G132DBVR",
+   "package": "DBV (SOT-23-5)",
+   "datasheet_pins": {
+    "1": "A",
+    "2": "B",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SCES546E (Feb 2004, rev. Aug 2026), p.3 Fig. 4-1 'DBV Package 5-Pin SOT-23 Top View' and Pin Functions table: 1 A, 2 B, 3 GND, 4 Y, 5 VCC. https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf sha256 fae33d78fe46834ab99230aaa1106f58321f23cf06c65be9cf08ea9c0dbcb623, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U45 pad 5 (VCC) on ls_v5, pad 3 (GND) on n_ls, pad 4 (Y) on hb_tx, inputs pad 1 / 2 on monitor_ls-good / hb_rc; U46 pad 5 on v3v3, pad 3 on selv_gnd, pad 4 (Y) on hb_bufo, inputs on hsb_good / hb_rx: KiCad pad n = datasheet pin n"
+  },
+  "C190245": {
+   "part": "TL431BQDBZR",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "CATHODE",
+    "2": "REF",
+    "3": "ANODE"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL431, TL431A, TL431B DBZ (SOT-23-3) package, top view: 1 CATHODE, 2 REF, 3 ANODE - one DBZ figure for every temperature grade (the Q grade is TL431BQDBZR in the orderable addendum, -40 to 125 C; the TL432 DBZ differs: 1 REF, 2 CATHODE). https://www.ti.com/lit/ds/symlink/tl431.pdf sha256 ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 46): U17 / U19 / U21 pads 1 and 2 on <rail>.monitor-ref (cathode tied to ref, the 2.5 V shunt connection), pad 3 on the island ground n_ls / n_ha / n_hb (anode): KiCad pad n = datasheet pin n; same nets and pads as C41283 (TL431BIDBZR) at stage 45"
+  },
+  "C22427890": {
+   "part": "LM2901BIDR",
+   "package": "D (SOIC-14)",
+   "datasheet_pins": {
+    "1": "OUT1",
+    "2": "OUT2",
+    "3": "VCC",
+    "4": "IN2-",
+    "5": "IN2+",
+    "6": "IN1-",
+    "7": "IN1+",
+    "8": "IN3-",
+    "9": "IN3+",
+    "10": "IN4-",
+    "11": "IN4+",
+    "12": "GND",
+    "13": "OUT4",
+    "14": "OUT3"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLCS006Z (Oct 1979, rev. May 2025), p.4 Figure 5-1 'D, DB, N, NS, PW Packages 14-Pin SOIC ... Top View' and Table 5-1 Pin Functions (one table for LM339B and LM2901B): 1 OUT1, 2 OUT2, 3 VCC, 4 IN2-, 5 IN2+, 6 IN1-, 7 IN1+, 8 IN3-, 9 IN3+, 10 IN4-, 11 IN4+, 12 GND, 13 OUT4, 14 OUT3 (footnote 1: channels 1 and 2 may be named transposed; the pinout is identical). Orderable LM2901BIDR, SOIC (D) 14, -40 to 125 C. https://www.ti.com/lit/ds/symlink/lm339b.pdf sha256 406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a, read 2026-10-15. The EasyEDA symbol carries no pin names, so this entry cannot settle a fit on its own; the line is settled by the EasyEDA fit and the DB rule '^SOIC-' agreeing (270), as for C22416291 LM339BIDR",
+   "kicad_check": "native-21 frozen netlist (stage 46): U29 / U30 / U31 pad 3 (VCC) on the span top (v15_ls / p_ha / p_hb), pad 12 (GND) on the island ground n_ls / n_ha / n_hb, pads 1 / 2 / 13 / 14 (outputs) on <rail>.monitor-good, pads 5 / 6 / 8 / 11 on <rail>.monitor-halfref, pads 4 / 7 / 9 / 10 on ov / uv / spanuv / spanov: KiCad pad n = datasheet pin n (pin_functions21.py checks the supply / output pins against these nets)"
+  },
+  "C2156518": {
+   "part": "LM4050AEM3-2.5/NOPB",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "CATHODE",
+    "2": "ANODE",
+    "3": "NC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SNOS455H (May 2000, rev. Mar 2025), p.3 section 4 Figure 4-1 'DBZ Package 3-Pin SOT-23 Top View' and Table 4-1 Pin Functions: 1 Cathode, 2 Anode, 3 NC 'No internal connection' (figure note: '*This pin must be left floating or connected to pin 2'; Table 4-1 note 1: tie it to the anode in high-EMI applications) - the LM4040A25IDBZR (C9421) DBZ pinout. Orderable LM4050AEM3-2.5/NOPB, SOT-23 (DBZ) 3, -40 to 125 C, marking RCA (Package Option Addendum p.25). https://www.ti.com/lit/ds/symlink/lm4050-n.pdf sha256 950d04912ac6cdab64523f3fb8633382a528afdd18239d864ffeaf556ded5aa1, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 47): U5 pad 1 (CATHODE) on ref25 (bias R31, loads R32 / R34 / R36), pad 2 (ANODE) on ocp_kelvin_p, pad 3 (NC) alone on u_ref-nc (floating, which p.3 allows; audit.rs checks it): KiCad pad n = datasheet pin n; same pads and nets as C9421 (LM4040A25IDBZR) at stage 46. EasyEDA symbol C2156518: 1 C, 2 A, 3 NC",
+   "ee_name_alias": {
+    "C": "CATHODE",
+    "A": "ANODE"
+   }
+  },
+  "C485909": {
+   "part": "TPS70950QDBVRQ1",
+   "package": "DBV (SOT-23-5), TPS709-Q1 pinout (the plain TPS709 pinout)",
+   "datasheet_pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "OUT"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVSCE6D (Dec 2013, rev. Aug 2025), p.3 Figure 4-1 'DBV Package, SOT-23-5 (Top View)' and Table 4-1 Pin Functions (DBV column): IN 1, GND 2, EN 3, NC 4, OUT 5 - the same DBV pinout as TPS70950DBVR (C96028, SBVS186H p.3). https://www.ti.com/lit/ds/symlink/tps709-q1.pdf sha256 bd01fad0eb2defdd3cbe3d07d0d1d8579c8f110dd5420e41df19dc350474eb5f, read 2026-10-16",
+   "kicad_check": "native-21 frozen netlist (stage 48): U3 / U37 / U38 / U39 pad 1 (IN) on v15_ls, v15_ls, p_ha, p_hb; pad 3 (EN) on its own divider tap (hot5_en, monitor_ls-ldo_en, bias_ha.monitor-ldo_en, bias_hb.monitor-ldo_en; audit.rs stage48); pad 2 (GND) on the return (ocp_kelvin_p, n_ls, n_ha, n_hb); pad 4 (NC) on a single-pad *-nc net; pad 5 (OUT) on the 5 V net (hot5, ls_v5, bias_ha.monitor-v5, bias_hb.monitor-v5): KiCad pad n = datasheet pin n. EasyEDA symbol C485909: 1 IN, 2 GND, 3 EN, 4 NC, 5 OUT"
+  },
+  "C3781430": {
+   "part": "B32643B8104J000",
+   "package": "TDK B3264*B radial, 2 parallel wire leads, lead spacing 22.5 mm (temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial)",
+   "non_polar_tht": {
+    "lead_spacing_mm": 22.5,
+    "tolerance_mm": 0.4
+   },
+   "datasheet_pins": {
+    "1": "TERMINAL",
+    "2": "TERMINAL"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency' (6/26), p.2: dimensional drawing KMK0834-G-E, two parallel wire leads, lead spacing e 22.5 +-0.4 mm and d1 0.8 +-0.05 mm for B32643B; 'Polypropylene (PP) dielectric ... wound capacitor', marking without a polarity mark (p.2 'Marking'); p.11 row B32643B8104+***, 100 nF, 14.5 x 29.5 x 26.5 mm. MMKP_B32641B_B32643B.pdf sha256 ab9fdca0b9676c8528b8bb5469d8ec4a60f0983520a65fa8f0517e4b4a58ab77, read 2026-10-16 (runs-native21/bank28/dl/b3264)",
+   "kicad_check": "native-21 frozen netlist (stage 49): C21 / C22 / C23 / C151 / C152 pad 1 on res_a, pad 2 on sw_b; the footprint's two 1.2 mm drills sit 22.5 mm apart on X. A film capacitor has no polarity, so either lead in either hole is the same circuit; a 90 / 270 rotation cannot be inserted. JLC has no EasyEDA footprint offline for C3781430 (0 in stock, an owner pre-order line)."
+  },
+  "C528962": {
+   "part": "MMK104J3DF1KN208G2",
+   "package": "KNSCHA MMKP82 radial, 2 CP wire leads, P 27.5 mm (temper:Bank_Film_DualPitch_P22.5_P27.5_Radial: pad 1 and the pad-2 hole at 27.5 mm; the 22.5 mm pad-2 hole is the TDK alternate's and stays empty)",
+   "non_polar_tht": {
+    "lead_spacing_mm": 27.5,
+    "tolerance_mm": 0.5
+   },
+   "datasheet_pins": {
+    "1": "TERMINAL",
+    "2": "TERMINAL"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part number MMK104J3DF1KN208G2 (LCSC C528962), p.2 product structure (wound PP film core, sprayed metal ends, epoxy, CP wire leads, PBT case) and p.3 outline / dimension table: W 31.5, H 19.5, T 11, P 27.5 (each +-0.5), d 0.8 +-0.05, L 20 +-2 mm; marking '104J2000V' with no polarity mark. LCSC PDF 2005081108_KNSCHA-MMK104J3DF1KN208G2_C528962.pdf sha256 4621763054ad5e929df48528d35f6c3178f2fe0ed148c2020e3cc51edf3b87c8, read 2026-10-16 (11-candidates/c51-bank-source, dl/ not committed)",
+   "kicad_check": "native-21 frozen netlist (stage 51): C21 / C22 / C23 / C151 / C152 pad 1 on res_a, both pad-2 holes on sw_b; the 27.5 mm hole sits 27.5 mm from pad 1 on X. A film capacitor has no polarity, so either lead in either hole of the pair is the same circuit; a 90 / 270 rotation cannot be inserted. No EasyEDA footprint for C528962 in sources/easyeda-footprints.json (not fetched)."
+  },
+  "C7170908": {
+   "part": "DE1E3RA222MJ4BH01F",
+   "package": "Murata Type RA disc, 2 crimped leads, F 10.0 mm (temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly: pads 1 / 2 at 10.0 mm)",
+   "non_polar_tht": {
+    "lead_spacing_mm": 10.0,
+    "tolerance_mm": 0.8
+   },
+   "datasheet_pins": {
+    "1": "TERMINAL",
+    "2": "TERMINAL"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "Murata reference specification Type RA (Jun. 2023, EGD08G), LCSC copy sha256 c959488a2523ac21a1890fd684377a6e93cb7a5928811e63756dd034662089e7, read 2026-10-16 (11-candidates/b15-proto-alternates, sources/ not committed; PDF pages, the printed n/17 footer is one less): p.9 lead style J4 'Vertical crimp short type' drawing and part list, F +-0.8, d +-0.05, 3.5 +1.0/-0.5 mm below the crimp; part list row DE1E3RA222MJ4BH01F D 9.0 / T 4.0 / F 10.0 / d 0.6 mm; ceramic disc capacitor, no polarity (p.7 marking shows none)",
+   "kicad_check": "native-21 frozen netlist (stage 52): C3 pad 1 l_filt / pad 2 pe, C4 pad 1 n_filt / pad 2 pe; pads 10.0 mm apart on X. A ceramic disc capacitor has no polarity, so rotations k and k + 180 place the same part; 90 / 270 cannot be inserted. No EasyEDA footprint for C7170908 in sources/easyeda-footprints.json (not fetched)."
+  }
+ }
+}

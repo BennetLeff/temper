@@ -86,7 +86,7 @@ class TestExpansion:
         emitted = [line for line in body.splitlines()
                    if line.strip().startswith("{ STATE_")]
         assert len(expanded) == len(emitted)
-        assert len(expanded) == 42  # current manifest: 32 concrete + 2*5 wildcard
+        assert len(expanded) == 55  # current manifest: 45 concrete + 2*5 wildcard
 
     def test_every_row_mutates_to_valid_alternate(self, expanded, gen):
         """Wrong-target alternate is always a real state different from target."""
@@ -166,16 +166,20 @@ class TestLiveReasonClassifier:
 class TestClassification:
     def test_known_kill_mutation_is_killed(self, gen, expanded, scratch_build):
         """U1 scenario 1: (STATE_PREHEAT, NEAR_TARGET) wrong_target ->
-        STATE_FAULT must be classified killed."""
+        STATE_FAULT must be classified killed. The row is looked up by
+        (from, event), not by a fixed index, so rows added ahead of it (e.g.
+        the B13 H2 BIAS_GOOD rows) do not move the test."""
+        idx = next(i for i, r in enumerate(expanded)
+                   if r[0] == "STATE_PREHEAT" and r[1] == "NEAR_TARGET")
         report = mtt.run_sweep(
             gen=gen, scratch_dir=scratch_build,
-            report_path=scratch_build / "report.json", build=True, rows=[5],
+            report_path=scratch_build / "report.json", build=True, rows=[idx],
         )
         assert report["baseline_pass"] is True
         assert report["live"] == 0
         assert report["errors"] == 0
         row5 = report["rows"][0]
-        assert row5["row_index"] == 5
+        assert row5["row_index"] == idx
         assert row5["event"] == "NEAR_TARGET"
         ops = {m["op"]: m["outcome"] for m in row5["mutations"]}
         assert ops["wrong_target"] == mtt.OUTCOME_KILLED

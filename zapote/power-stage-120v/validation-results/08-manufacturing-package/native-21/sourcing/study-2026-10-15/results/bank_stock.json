@@ -1,0 +1,282 @@
+[
+ {
+  "bank": "5 x B32654A2104J (2000 V, 0.50 uF)",
+  "ratio_worst": 0.771,
+  "C_nom_uF": 0.5,
+  "fit": {
+   "body_row_mm": 112.0,
+   "pin_span_mm": 90.0,
+   "free_pin_span_mm": 58.1,
+   "height_mm": 36.5,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 90.0 mm, 58.1 mm free (y 53.4-111.5): 31.9 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32654A2104J000",
+    "per_board": 5,
+    "need_500": 2500,
+    "need_5": 25,
+    "jlc_stock": null,
+    "auth_best": [
+     "Newark",
+     0
+    ],
+    "octopart_read": true,
+    "unauth_max": 25820
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "7 x B32654A2683J (2000 V, 0.476 uF)",
+  "ratio_worst": 0.727,
+  "C_nom_uF": 0.476,
+  "fit": {
+   "body_row_mm": 136.0,
+   "pin_span_mm": 117.0,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 30.0,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 117.0 mm, 58.3 mm free (y 53.2-111.5): 58.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32654A2683J000",
+    "per_board": 7,
+    "need_500": 3500,
+    "need_5": 35,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": false,
+    "unauth_max": 0
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "10 x B32654A2473J (2000 V, 0.47 uF)",
+  "ratio_worst": 0.637,
+  "C_nom_uF": 0.47,
+  "fit": {
+   "body_row_mm": 184.5,
+   "pin_span_mm": 166.5,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 27.5,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 166.5 mm, 58.3 mm free (y 53.2-111.5): 108.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32654A2473J000",
+    "per_board": 10,
+    "need_500": 5000,
+    "need_5": 50,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": false,
+    "unauth_max": 0
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "5 x B32643B8104J (2000 V, 22.5 mm, 0.50 uF)",
+  "ratio_worst": 0.831,
+  "C_nom_uF": 0.5,
+  "fit": {
+   "body_row_mm": 74.5,
+   "pin_span_mm": 60.0,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 29.5,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 60.0 mm, 58.3 mm free (y 53.2-111.5): 1.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+    "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32643B8104J000",
+    "per_board": 5,
+    "need_500": 2500,
+    "need_5": 25,
+    "jlc_stock": 0,
+    "auth_best": null,
+    "octopart_read": true,
+    "unauth_max": 27690
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "6 x B32643B8823J (2000 V, 22.5 mm, 0.492 uF)",
+  "ratio_worst": 0.764,
+  "C_nom_uF": 0.492,
+  "fit": {
+   "body_row_mm": 74.5,
+   "pin_span_mm": 62.5,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 22.0,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 62.5 mm, 58.3 mm free (y 53.2-111.5): 4.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+    "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32643B8823J000",
+    "per_board": 6,
+    "need_500": 3000,
+    "need_5": 30,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": true,
+    "unauth_max": 0
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "7 x B32643B8683J (2000 V, 22.5 mm, 0.476 uF)",
+  "ratio_worst": 0.724,
+  "C_nom_uF": 0.476,
+  "fit": {
+   "body_row_mm": 80.0,
+   "pin_span_mm": 69.0,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 20.5,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 69.0 mm, 58.3 mm free (y 53.2-111.5): 10.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+    "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32643B8683J000",
+    "per_board": 7,
+    "need_500": 3500,
+    "need_5": 35,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": true,
+    "unauth_max": 0
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "4 x B32643B8124J + 1 x B32643B8683J (0.548 uF)",
+  "ratio_worst": 0.814,
+  "C_nom_uF": 0.548,
+  "fit": {
+   "body_row_mm": 71.0,
+   "pin_span_mm": 58.2,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 29.5,
+   "fits_today_copper": false,
+   "changes": [
+    "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "B32643B8124J000",
+    "per_board": 4,
+    "need_500": 2000,
+    "need_5": 20,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": true,
+    "unauth_max": 0
+   },
+   {
+    "mpn": "B32643B8683J000",
+    "per_board": 1,
+    "need_500": 500,
+    "need_5": 5,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": true,
+    "unauth_max": 0
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "10 x R76UR2470SE30J (KEMET 2000 V, 0.47 uF)",
+  "ratio_worst": 0.691,
+  "C_nom_uF": 0.47,
+  "fit": {
+   "body_row_mm": 114.5,
+   "pin_span_mm": 103.5,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 20.0,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 103.5 mm, 58.3 mm free (y 53.2-111.5): 45.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "R76UR2470SE30J",
+    "per_board": 10,
+    "need_500": 5000,
+    "need_5": 50,
+    "jlc_stock": null,
+    "auth_best": null,
+    "octopart_read": false,
+    "unauth_max": 0
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ },
+ {
+  "bank": "8 x R76TR2680SE30J (KEMET 1600 V, 0.544 uF)",
+  "ratio_worst": 0.806,
+  "C_nom_uF": 0.544,
+  "fit": {
+   "body_row_mm": 75.5,
+   "pin_span_mm": 66.5,
+   "free_pin_span_mm": 58.3,
+   "height_mm": 17.0,
+   "fits_today_copper": false,
+   "changes": [
+    "pin rows need 66.5 mm, 58.3 mm free (y 53.2-111.5): 8.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+   ]
+  },
+  "parts": [
+   {
+    "mpn": "R76TR2680SE30J",
+    "per_board": 8,
+    "need_500": 4000,
+    "need_5": 40,
+    "jlc_stock": null,
+    "auth_best": [
+     "Newark",
+     0
+    ],
+    "octopart_read": true,
+    "unauth_max": 14480
+   }
+  ],
+  "in_stock_for_5": false,
+  "in_stock_for_500": false
+ }
+]

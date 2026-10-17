@@ -1,0 +1,10 @@
+block 12.9 x 14.2 mm
+45 legal spots (no courtyard, >= 8 mm SELV/PE/H1, >= 3.2 mm HOT and other MAINS groups)
+dist_to_filt  dist_SELV/PE/H1  dist_HOT  dist_other_MAINS  orient  cx  cy  filt_cu_under_mm2
+   (2.7, 8.7, 3.5, 9.0, 'stack-x (clips along y)', 267.0, 123.0, 0)
+   (2.8, 9.3, 3.4, 8.8, 'stack-y (clips along x)', 266.5, 123.5, 0)
+   (2.8, 8.6, 8.9, 14.3, 'stack-y (clips along x)', 266.5, 129.0, 0)
+   (2.9, 8.5, 4.0, 9.5, 'stack-x (clips along y)', 267.0, 123.5, 0)
+   (3.2, 8.3, 3.5, 9.0, 'stack-x (clips along y)', 267.5, 123.0, 0)
+   (3.3, 8.1, 4.0, 9.5, 'stack-x (clips along y)', 267.5, 123.5, 0)
+   (3.8, 8.4, 3.4, 8.8, 'stack-y (clips along x)', 267.5, 123.5, 0)

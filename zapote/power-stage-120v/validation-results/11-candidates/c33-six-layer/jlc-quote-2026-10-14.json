@@ -1,0 +1,32 @@
+{
+ "source": "https://cart.jlcpcb.com/quote (instant quote, no gerber upload, not signed in), read 2026-10-14",
+ "common": {"material": "FR-4 TG135", "size_mm": [290, 190], "thickness_mm": 1.6, "finish": "ENIG 1u\"", "outer_oz": 2, "inner_oz": 2,
+            "colour": "green/white", "mark": "Remove Mark", "min_via": "0.3/(0.4-0.45)", "build": "slowest standard option"},
+ "notes": [
+  "4-layer with 2 oz copper disables 'Tented'; the free default is 'Plugged' (solder-mask plug).",
+  "4-layer Epoxy Filled & Capped forces Horizontal Electroless Copper Plating (its own line).",
+  "JLC tooltip: vias above 0.5 mm diameter are left unfilled under epoxy fill.",
+  "Selecting 6 layers moves the quote to 'Advanced PCB' and resets finish to OSP and outer copper to 1 oz; both were set back to ENIG / 2 oz before reading.",
+  "6-layer: Tented and Plugged are unavailable; Epoxy Filled & Capped is the default at $0.",
+  "Orders over $300 auto-select 'Confirm Production file' ($1.05).",
+  "Inner Copper Weight line reads the same $2083.80 at 500 for 4 and 6 layers, as quoted."
+ ],
+ "quotes": [
+  {"layers": 4, "via": "Plugged", "qty": 5, "test": "flying probe", "total": 186.99,
+   "lines": {"engineering": 25.00, "via_covering": 0, "finish": 23.00, "outer_cu": 51.40, "inner_cu": 53.59, "board": 34.00}},
+  {"layers": 4, "via": "Epoxy Filled & Capped", "qty": 5, "test": "flying probe", "total": 214.36,
+   "lines": {"engineering": 25.00, "via_covering": 23.38, "finish": 23.00, "outer_cu": 51.40, "inner_cu": 53.59, "board": 34.00, "via_plating": 3.99}},
+  {"layers": 6, "via": "Epoxy Filled & Capped (included)", "qty": 5, "test": "flying probe", "total": 196.59, "build": "8-9 days",
+   "lines": {"engineering": 33.00, "via_covering": 0, "finish": 23.00, "outer_cu": 51.40, "inner_cu": 53.59, "board": 35.60}},
+  {"layers": 4, "via": "Epoxy Filled & Capped", "qty": 500, "test": "flying probe", "total": 8395.03, "build": "5-6 days",
+   "lines": {"engineering": 25.00, "via_covering": 700.11, "finish": 654.60, "testing": 227.90, "film": 19.90, "outer_cu": 1856.00, "inner_cu": 2083.80, "board": 2755.00, "via_plating": 71.67, "confirm_file": 1.05}},
+  {"layers": 4, "via": "Plugged", "qty": 500, "test": "flying probe", "total": 7623.25, "build": "5-6 days",
+   "lines": {"engineering": 25.00, "via_covering": 0, "finish": 654.60, "testing": 227.90, "film": 19.90, "outer_cu": 1856.00, "inner_cu": 2083.80, "board": 2755.00, "confirm_file": 1.05}},
+  {"layers": 4, "via": "Plugged", "qty": 500, "test": "E-test fixture", "total": 7494.65, "build": "5-6 days",
+   "lines": {"testing": 99.30}},
+  {"layers": 6, "via": "Epoxy Filled & Capped (included)", "qty": 500, "test": "E-test fixture", "total": 8008.85, "build": "10-11 days",
+   "lines": {"engineering": 33.00, "via_covering": 0, "finish": 654.60, "testing": 165.50, "film": 24.90, "outer_cu": 1856.00, "inner_cu": 2083.80, "board": 3190.00, "confirm_file": 1.05}},
+  {"layers": 6, "via": "Epoxy Filled & Capped (included)", "qty": 500, "test": "flying probe", "total": 8087.75, "build": "10-11 days",
+   "lines": {"testing": 244.40}}
+ ]
+}

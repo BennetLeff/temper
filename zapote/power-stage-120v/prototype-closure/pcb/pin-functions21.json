@@ -1,16 +1,16 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 213,
-  "passive-two-terminal": 108,
-  "eco-pin-table": 21,
-  "passive-untyped": 5
+  "passive-two-terminal": 252,
+  "native19-reviewed": 83,
+  "passive-untyped": 23,
+  "eco-pin-table": 14
  },
  "components": {
   "J1": {
-   "mpn": "1711725",
+   "mpn": "1714971",
    "source_instance": "j_mains",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -23,9 +23,9 @@
    }
   },
   "F1": {
-   "mpn": "0326020.MXP",
+   "mpn": "KLDR025.TXP",
    "source_instance": "f1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -53,9 +53,9 @@
    }
   },
   "C1": {
-   "mpn": "R463N410000N1M",
+   "mpn": "R463N410050N1K",
    "source_instance": "cx1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -68,9 +68,9 @@
    }
   },
   "C2": {
-   "mpn": "R463N410000N1M",
+   "mpn": "R463N410050N1K",
    "source_instance": "cx2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -83,9 +83,9 @@
    }
   },
   "R1": {
-   "mpn": "RC1206FR-07120KL",
+   "mpn": "1206W4F1003T5E",
    "source_instance": "rb1a",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -98,9 +98,9 @@
    }
   },
   "R2": {
-   "mpn": "RC1206FR-07120KL",
+   "mpn": "1206W4F1003T5E",
    "source_instance": "rb1b",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -143,7 +143,7 @@
    }
   },
   "R51": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_a.bias_h.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -158,7 +158,7 @@
    }
   },
   "R52": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_a.bias_l.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -172,38 +172,8 @@
     }
    }
   },
-  "R10": {
-   "mpn": "RC1206FR-073R9L",
-   "source_instance": "leg_a.r_gh",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R12": {
-   "mpn": "RC1206FR-073R9L",
-   "source_instance": "leg_a.r_gl",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
   "R53": {
-   "mpn": "RC1206FR-071RL",
+   "mpn": "1206W4F100KT5E",
    "source_instance": "leg_a.roff_h",
    "basis": "passive-two-terminal",
    "pins": {
@@ -218,7 +188,7 @@
    }
   },
   "R54": {
-   "mpn": "RC1206FR-071RL",
+   "mpn": "1206W4F100KT5E",
    "source_instance": "leg_a.roff_l",
    "basis": "passive-two-terminal",
    "pins": {
@@ -233,7 +203,7 @@
    }
   },
   "R55": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_b.bias_h.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -248,7 +218,7 @@
    }
   },
   "R56": {
-   "mpn": "RC1206FR-070R68L",
+   "mpn": "RL1206FR-070R68L",
    "source_instance": "leg_b.bias_l.rdamp",
    "basis": "passive-two-terminal",
    "pins": {
@@ -262,38 +232,8 @@
     }
    }
   },
-  "R18": {
-   "mpn": "RC1206FR-073R9L",
-   "source_instance": "leg_b.r_gh",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R20": {
-   "mpn": "RC1206FR-073R9L",
-   "source_instance": "leg_b.r_gl",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
   "R57": {
-   "mpn": "RC1206FR-071RL",
+   "mpn": "1206W4F100KT5E",
    "source_instance": "leg_b.roff_h",
    "basis": "passive-two-terminal",
    "pins": {
@@ -308,7 +248,7 @@
    }
   },
   "R58": {
-   "mpn": "RC1206FR-071RL",
+   "mpn": "1206W4F100KT5E",
    "source_instance": "leg_b.roff_l",
    "basis": "passive-two-terminal",
    "pins": {
@@ -443,9 +383,9 @@
    }
   },
   "R39": {
-   "mpn": "RC1206FR-071R5L",
+   "mpn": "RC1206FR-073RL",
    "source_instance": "r_ct_burden",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -458,9 +398,9 @@
    }
   },
   "R42": {
-   "mpn": "RC1206FR-071KL",
+   "mpn": "1206W4F1001T5E",
    "source_instance": "r_ct_series",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -475,36 +415,6 @@
   "R59": {
    "mpn": "RC1206FR-072K2L",
    "source_instance": "monitor_ls.rref",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R61": {
-   "mpn": "RC1206FR-07680RL",
-   "source_instance": "bias_rsn1",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R62": {
-   "mpn": "RC1206FR-07680RL",
-   "source_instance": "bias_rsn2",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -536,6 +446,21 @@
    "mpn": "RC1206FR-072K2L",
    "source_instance": "bias_hb.monitor.rref",
    "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R146": {
+   "mpn": "RC1206FR-07220KL",
+   "source_instance": "r_bias_good_j4",
+   "basis": "native19-reviewed",
    "pins": {
     "1": {
      "function": "p1",
@@ -608,32 +533,32 @@
    }
   },
   "L1": {
-   "mpn": "B82726S2203A020",
+   "mpn": "B82726S2243A020",
    "source_instance": "l1",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "a_in",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "b_in",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "b_out",
+     "function": "p3",
      "type": "passive"
     },
     "4": {
-     "function": "a_out",
+     "function": "p4",
      "type": "passive"
     }
    }
   },
   "C3": {
-   "mpn": "DE1E3RA222MA4BP01F",
+   "mpn": "DE1E3RA222MJ4BH01F",
    "source_instance": "cy1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -646,9 +571,9 @@
    }
   },
   "C4": {
-   "mpn": "DE1E3RA222MA4BP01F",
+   "mpn": "DE1E3RA222MJ4BH01F",
    "source_instance": "cy2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -684,9 +609,9 @@
    }
   },
   "C5": {
-   "mpn": "B32656G0275J000",
+   "mpn": "B32676G1905K000",
    "source_instance": "c_bus1",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
      "function": "p1",
@@ -707,9 +632,9 @@
    }
   },
   "C6": {
-   "mpn": "B32656G0275J000",
+   "mpn": "B32676G1905K000",
    "source_instance": "c_bus2",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
      "function": "p1",
@@ -730,158 +655,9 @@
    }
   },
   "R5": {
-   "mpn": "WSK25121L000FEA",
+   "mpn": "CSS2H-2512R-1L00F",
    "source_instance": "r_shunt",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "I1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "S1",
-     "type": "passive"
-    },
-    "3": {
-     "function": "S2",
-     "type": "passive"
-    },
-    "4": {
-     "function": "I2",
-     "type": "passive"
-    }
-   }
-  },
-  "U1": {
-   "mpn": "UCC21550BDWKR",
-   "source_instance": "leg_a.driver",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "INA",
-     "type": "input"
-    },
-    "2": {
-     "function": "INB",
-     "type": "input"
-    },
-    "3": {
-     "function": "VCCI_1",
-     "type": "power_in"
-    },
-    "4": {
-     "function": "GNDI",
-     "type": "power_in"
-    },
-    "5": {
-     "function": "DIS",
-     "type": "input"
-    },
-    "6": {
-     "function": "DT",
-     "type": "passive"
-    },
-    "7": {
-     "function": "NC_7",
-     "type": "passive"
-    },
-    "8": {
-     "function": "VCCI_2",
-     "type": "power_in"
-    },
-    "9": {
-     "function": "VSSB",
-     "type": "power_in"
-    },
-    "10": {
-     "function": "OUTB",
-     "type": "output"
-    },
-    "11": {
-     "function": "VDDB",
-     "type": "power_in"
-    },
-    "14": {
-     "function": "VSSA",
-     "type": "power_in"
-    },
-    "15": {
-     "function": "OUTA",
-     "type": "output"
-    },
-    "16": {
-     "function": "VDDA",
-     "type": "power_in"
-    }
-   }
-  },
-  "U2": {
-   "mpn": "UCC21550BDWKR",
-   "source_instance": "leg_b.driver",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "INA",
-     "type": "input"
-    },
-    "2": {
-     "function": "INB",
-     "type": "input"
-    },
-    "3": {
-     "function": "VCCI_1",
-     "type": "power_in"
-    },
-    "4": {
-     "function": "GNDI",
-     "type": "power_in"
-    },
-    "5": {
-     "function": "DIS",
-     "type": "input"
-    },
-    "6": {
-     "function": "DT",
-     "type": "passive"
-    },
-    "7": {
-     "function": "NC_7",
-     "type": "passive"
-    },
-    "8": {
-     "function": "VCCI_2",
-     "type": "power_in"
-    },
-    "9": {
-     "function": "VSSB",
-     "type": "power_in"
-    },
-    "10": {
-     "function": "OUTB",
-     "type": "output"
-    },
-    "11": {
-     "function": "VDDB",
-     "type": "power_in"
-    },
-    "14": {
-     "function": "VSSA",
-     "type": "power_in"
-    },
-    "15": {
-     "function": "OUTA",
-     "type": "output"
-    },
-    "16": {
-     "function": "VDDA",
-     "type": "power_in"
-    }
-   }
-  },
-  "C7": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "leg_a.c_vcci",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
      "function": "p1",
@@ -890,13 +666,147 @@
     "2": {
      "function": "p2",
      "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
     }
    }
   },
-  "C8": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "leg_a.c_ls",
-   "basis": "native19-reviewed",
+  "U1": {
+   "mpn": "2EDR8259XXUMA1",
+   "source_instance": "leg_a.driver",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    },
+    "5": {
+     "function": "p5",
+     "type": "passive"
+    },
+    "6": {
+     "function": "p6",
+     "type": "passive"
+    },
+    "7": {
+     "function": "p7",
+     "type": "passive"
+    },
+    "8": {
+     "function": "p8",
+     "type": "passive"
+    },
+    "9": {
+     "function": "p9",
+     "type": "passive"
+    },
+    "10": {
+     "function": "p10",
+     "type": "passive"
+    },
+    "11": {
+     "function": "p11",
+     "type": "passive"
+    },
+    "14": {
+     "function": "p14",
+     "type": "passive"
+    },
+    "15": {
+     "function": "p15",
+     "type": "passive"
+    },
+    "16": {
+     "function": "p16",
+     "type": "passive"
+    }
+   }
+  },
+  "U2": {
+   "mpn": "2EDR8259XXUMA1",
+   "source_instance": "leg_b.driver",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    },
+    "5": {
+     "function": "p5",
+     "type": "passive"
+    },
+    "6": {
+     "function": "p6",
+     "type": "passive"
+    },
+    "7": {
+     "function": "p7",
+     "type": "passive"
+    },
+    "8": {
+     "function": "p8",
+     "type": "passive"
+    },
+    "9": {
+     "function": "p9",
+     "type": "passive"
+    },
+    "10": {
+     "function": "p10",
+     "type": "passive"
+    },
+    "11": {
+     "function": "p11",
+     "type": "passive"
+    },
+    "14": {
+     "function": "p14",
+     "type": "passive"
+    },
+    "15": {
+     "function": "p15",
+     "type": "passive"
+    },
+    "16": {
+     "function": "p16",
+     "type": "passive"
+    }
+   }
+  },
+  "C7": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "leg_a.c_vcci",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -969,9 +879,9 @@
    }
   },
   "C54": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "leg_a.c_dis_or",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -984,9 +894,9 @@
    }
   },
   "C55": {
-   "mpn": "C0603C102J5GACTU",
+   "mpn": "GRM1885C1H472JA01D",
    "source_instance": "leg_a.cgs_h",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -999,9 +909,9 @@
    }
   },
   "C56": {
-   "mpn": "C0603C102J5GACTU",
+   "mpn": "GRM1885C1H472JA01D",
    "source_instance": "leg_a.cgs_l",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1014,24 +924,9 @@
    }
   },
   "C14": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "leg_b.c_vcci",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C15": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "leg_b.c_ls",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1104,9 +999,9 @@
    }
   },
   "C61": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "leg_b.c_dis_or",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1119,9 +1014,9 @@
    }
   },
   "C62": {
-   "mpn": "C0603C102J5GACTU",
+   "mpn": "GRM1885C1H472JA01D",
    "source_instance": "leg_b.cgs_h",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1134,9 +1029,9 @@
    }
   },
   "C63": {
-   "mpn": "C0603C102J5GACTU",
+   "mpn": "GRM1885C1H472JA01D",
    "source_instance": "leg_b.cgs_l",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1149,9 +1044,9 @@
    }
   },
   "C25": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_ldo_in",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1179,9 +1074,9 @@
    }
   },
   "C28": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_vs1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1194,9 +1089,9 @@
    }
   },
   "C29": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_vs2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1209,9 +1104,9 @@
    }
   },
   "C30": {
-   "mpn": "C0603C101J5GACTU",
+   "mpn": "CL10C101JB8NNNC",
    "source_instance": "c_ocp_node",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1239,9 +1134,9 @@
    }
   },
   "C32": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_ocp_vcc",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1269,9 +1164,9 @@
    }
   },
   "C34": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_ovp_vcc",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1284,9 +1179,9 @@
    }
   },
   "C35": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_nand_vcc",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1299,9 +1194,9 @@
    }
   },
   "C36": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_iso1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1314,9 +1209,9 @@
    }
   },
   "C37": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_iso2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1329,9 +1224,9 @@
    }
   },
   "C44": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_ct_pos",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1344,9 +1239,9 @@
    }
   },
   "C45": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_ct_neg",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1359,9 +1254,24 @@
    }
   },
   "C46": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_ct_zc",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C167": {
+   "mpn": "CL10C101JB8NNNC",
+   "source_instance": "c_bf",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1374,9 +1284,234 @@
    }
   },
   "C47": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_fault_or",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C153": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_1",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C154": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_2",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C155": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_3",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C156": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_4",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C168": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_5",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C169": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_6",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C170": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_7",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C171": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_8",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C172": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_9",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C173": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_10",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C174": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_11",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C175": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_12",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C176": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_13",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C177": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_14",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C178": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_15",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1389,9 +1524,9 @@
    }
   },
   "C48": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_hot5_uv",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1404,9 +1539,9 @@
    }
   },
   "C49": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_hot5_schmitt",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1434,9 +1569,9 @@
    }
   },
   "C65": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_ls.chf",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1449,39 +1584,9 @@
    }
   },
   "C131": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "monitor_ls.cldo_in",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C133": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "monitor_ls.civcc1",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C134": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "monitor_ls.civcc2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1554,54 +1659,9 @@
    }
   },
   "C70": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "monitor_ls.cmonitor",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C71": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "bias_chf",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C72": {
-   "mpn": "C0603C101J5GACTU",
-   "source_instance": "bias_csn1",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C73": {
-   "mpn": "C0603C101J5GACTU",
-   "source_instance": "bias_csn2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1614,8 +1674,38 @@
    }
   },
   "C74": {
-   "mpn": "GRM188R71E105KA12D",
-   "source_instance": "bias_ha.split.cnr",
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "bias_ha.cinhf",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C105": {
+   "mpn": "CL10C331JB8NNNC",
+   "source_instance": "bias_ha.cavin",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C71": {
+   "mpn": "CL10C331JB8NNNC",
+   "source_instance": "bias_ha.cfb",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -1629,9 +1719,9 @@
    }
   },
   "C75": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_ha.split.chf",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1644,39 +1734,9 @@
    }
   },
   "C135": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_ha.monitor.cldo_in",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C137": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "bias_ha.monitor.civcc1",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C138": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "bias_ha.monitor.civcc2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1749,9 +1809,39 @@
    }
   },
   "C80": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_ha.monitor.cmonitor",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C157": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "bias_ha.clink1",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C158": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "bias_ha.clink2",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1764,8 +1854,38 @@
    }
   },
   "C81": {
-   "mpn": "GRM188R71E105KA12D",
-   "source_instance": "bias_hb.split.cnr",
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "bias_hb.cinhf",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C109": {
+   "mpn": "CL10C331JB8NNNC",
+   "source_instance": "bias_hb.cavin",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C72": {
+   "mpn": "CL10C331JB8NNNC",
+   "source_instance": "bias_hb.cfb",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -1779,9 +1899,9 @@
    }
   },
   "C82": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_hb.split.chf",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1794,39 +1914,9 @@
    }
   },
   "C139": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_hb.monitor.cldo_in",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C141": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "bias_hb.monitor.civcc1",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C142": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "bias_hb.monitor.civcc2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1899,8 +1989,128 @@
    }
   },
   "C87": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "bias_hb.monitor.cmonitor",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C159": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "bias_hb.clink1",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C160": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "bias_hb.clink2",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C162": {
+   "mpn": "CL10C331JB8NNNC",
+   "source_instance": "hb.cosc",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C161": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "hb.cosc_vcc",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C133": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "hb.civcc1",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C134": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "hb.civcc2",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C163": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "hb.cbuf",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C164": {
+   "mpn": "C0603C102J5GACTU",
+   "source_instance": "hb.cp1",
    "basis": "native19-reviewed",
    "pins": {
     "1": {
@@ -1913,9 +2123,24 @@
     }
    }
   },
-  "C143": {
+  "C165": {
    "mpn": "C0603C102J5GACTU",
-   "source_instance": "c_bias_flt",
+   "source_instance": "hb.cp2",
+   "basis": "native19-reviewed",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C166": {
+   "mpn": "C0603C102J5GACTU",
+   "source_instance": "hb.chold",
    "basis": "native19-reviewed",
    "pins": {
     "1": {
@@ -1929,24 +2154,9 @@
    }
   },
   "C144": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_bias_flt_vcc",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C88": {
-   "mpn": "C0603C104K5RACTU",
-   "source_instance": "bias_c_or",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1959,9 +2169,9 @@
    }
   },
   "C89": {
-   "mpn": "C0603C104K5RACTU",
+   "mpn": "CC0603KRX7R9BB104",
    "source_instance": "line_zc.cbuffer",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -1973,238 +2183,10 @@
     }
    }
   },
-  "Q1": {
-   "mpn": "AO3400A",
-   "source_instance": "leg_a.permit_fet",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "G",
-     "type": "passive"
-    },
-    "2": {
-     "function": "S",
-     "type": "passive"
-    },
-    "3": {
-     "function": "D",
-     "type": "passive"
-    }
-   }
-  },
-  "Q4": {
-   "mpn": "AO3400A",
-   "source_instance": "leg_b.permit_fet",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "G",
-     "type": "passive"
-    },
-    "2": {
-     "function": "S",
-     "type": "passive"
-    },
-    "3": {
-     "function": "D",
-     "type": "passive"
-    }
-   }
-  },
-  "U5": {
-   "mpn": "LM4040A25IDBZR",
-   "source_instance": "u_ref",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "A",
-     "type": "passive"
-    },
-    "3": {
-     "function": "NC",
-     "type": "passive"
-    }
-   }
-  },
-  "U16": {
-   "mpn": "TLVH431BQDBZR",
-   "source_instance": "bias_ls.shunt",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "2": {
-     "function": "K",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "U17": {
-   "mpn": "TL431AIDBZR",
-   "source_instance": "monitor_ls.reference",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "Q7": {
-   "mpn": "MMBT3904-7-F",
-   "source_instance": "monitor_ls.qnotice",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "B",
-     "type": "passive"
-    },
-    "2": {
-     "function": "E",
-     "type": "passive"
-    },
-    "3": {
-     "function": "C",
-     "type": "passive"
-    }
-   }
-  },
-  "U18": {
-   "mpn": "TLVH431BQDBZR",
-   "source_instance": "bias_ha.split.shunt",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "2": {
-     "function": "K",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "U19": {
-   "mpn": "TL431AIDBZR",
-   "source_instance": "bias_ha.monitor.reference",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "Q8": {
-   "mpn": "MMBT3904-7-F",
-   "source_instance": "bias_ha.monitor.qnotice",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "B",
-     "type": "passive"
-    },
-    "2": {
-     "function": "E",
-     "type": "passive"
-    },
-    "3": {
-     "function": "C",
-     "type": "passive"
-    }
-   }
-  },
-  "U20": {
-   "mpn": "TLVH431BQDBZR",
-   "source_instance": "bias_hb.split.shunt",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "2": {
-     "function": "K",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "U21": {
-   "mpn": "TL431AIDBZR",
-   "source_instance": "bias_hb.monitor.reference",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "K",
-     "type": "passive"
-    },
-    "2": {
-     "function": "REF",
-     "type": "passive"
-    },
-    "3": {
-     "function": "A",
-     "type": "passive"
-    }
-   }
-  },
-  "Q9": {
-   "mpn": "MMBT3904-7-F",
-   "source_instance": "bias_hb.monitor.qnotice",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "B",
-     "type": "passive"
-    },
-    "2": {
-     "function": "E",
-     "type": "passive"
-    },
-    "3": {
-     "function": "C",
-     "type": "passive"
-    }
-   }
-  },
   "R6": {
-   "mpn": "RC0603FR-07100RL",
+   "mpn": "0603WAF1000T5E",
    "source_instance": "leg_a.r_permit",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2217,23 +2199,8 @@
    }
   },
   "R7": {
-   "mpn": "RC0603FR-07100KL",
+   "mpn": "0603WAF1003T5E",
    "source_instance": "leg_a.r_permit_pd",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R8": {
-   "mpn": "RC0603FR-07330RL",
-   "source_instance": "leg_a.r_dis_pu",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -2262,7 +2229,7 @@
    }
   },
   "R71": {
-   "mpn": "RT0603BRD074K99L",
+   "mpn": "0603WAF4991T5E",
    "source_instance": "leg_a.bias_h.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2277,7 +2244,7 @@
    }
   },
   "R72": {
-   "mpn": "RT0603BRD074K99L",
+   "mpn": "0603WAF4991T5E",
    "source_instance": "leg_a.bias_l.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2292,9 +2259,9 @@
    }
   },
   "R73": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "leg_a.r_driver_dis",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2307,9 +2274,9 @@
    }
   },
   "R11": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "leg_a.r_gh_pd",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2322,9 +2289,9 @@
    }
   },
   "R13": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "leg_a.r_gl_pd",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2337,9 +2304,9 @@
    }
   },
   "R14": {
-   "mpn": "RC0603FR-07100RL",
+   "mpn": "0603WAF1000T5E",
    "source_instance": "leg_b.r_permit",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2352,23 +2319,8 @@
    }
   },
   "R15": {
-   "mpn": "RC0603FR-07100KL",
+   "mpn": "0603WAF1003T5E",
    "source_instance": "leg_b.r_permit_pd",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R16": {
-   "mpn": "RC0603FR-07330RL",
-   "source_instance": "leg_b.r_dis_pu",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -2397,7 +2349,7 @@
    }
   },
   "R74": {
-   "mpn": "RT0603BRD074K99L",
+   "mpn": "0603WAF4991T5E",
    "source_instance": "leg_b.bias_h.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2412,7 +2364,7 @@
    }
   },
   "R75": {
-   "mpn": "RT0603BRD074K99L",
+   "mpn": "0603WAF4991T5E",
    "source_instance": "leg_b.bias_l.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2427,9 +2379,9 @@
    }
   },
   "R76": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "leg_b.r_driver_dis",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2442,9 +2394,9 @@
    }
   },
   "R19": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "leg_b.r_gh_pd",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2457,9 +2409,39 @@
    }
   },
   "R21": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "leg_b.r_gl_pd",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R136": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "r_ldo_en_top",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R137": {
+   "mpn": "0603WAF2702T5E",
+   "source_instance": "r_ldo_en_bot",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2487,9 +2469,9 @@
    }
   },
   "R31": {
-   "mpn": "RC0603FR-075K6L",
+   "mpn": "0603WAF5601T5E",
    "source_instance": "r_ref_bias",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2517,9 +2499,9 @@
    }
   },
   "R33": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD077K5L",
    "source_instance": "r_ocp_sense",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2532,7 +2514,7 @@
    }
   },
   "R34": {
-   "mpn": "RT0603BRD0710K6L",
+   "mpn": "RT0603BRD0716KL",
    "source_instance": "r_th_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2547,9 +2529,9 @@
    }
   },
   "R35": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "r_th_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2592,9 +2574,9 @@
    }
   },
   "R38": {
-   "mpn": "RC0603JR-070RL",
+   "mpn": "0603WAF0000T5E",
    "source_instance": "r_fe",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2637,9 +2619,9 @@
    }
   },
   "R43": {
-   "mpn": "RT0603BRD073K32L",
+   "mpn": "RT0603BRD072K21L",
    "source_instance": "r_ct_hi_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2682,9 +2664,24 @@
    }
   },
   "R46": {
-   "mpn": "RT0603BRD073K32L",
+   "mpn": "RT0603BRD072K21L",
    "source_instance": "r_ct_lo_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R134": {
+   "mpn": "0603WAF1001T5E",
+   "source_instance": "r_bf",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2697,9 +2694,39 @@
    }
   },
   "R47": {
-   "mpn": "RC0603FR-071KL",
+   "mpn": "0603WAF1001T5E",
    "source_instance": "r_ct_mon",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R144": {
+   "mpn": "RT0603BRD0763K4L",
+   "source_instance": "r_ref_wd_top",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R145": {
+   "mpn": "TNPW060311K7BEEA",
+   "source_instance": "r_ref_wd_bot",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2757,7 +2784,7 @@
    }
   },
   "R77": {
-   "mpn": "RT0603BRD076K12L",
+   "mpn": "RT0603BRD076K2L",
    "source_instance": "bias_ls.rtop",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2787,9 +2814,9 @@
    }
   },
   "R79": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD074K42L",
    "source_instance": "monitor_ls.rhalf_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2817,7 +2844,7 @@
    }
   },
   "R81": {
-   "mpn": "RT0603BRD074K42L",
+   "mpn": "RT0603BRD07750RL",
    "source_instance": "monitor_ls.ruv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2847,7 +2874,7 @@
    }
   },
   "R83": {
-   "mpn": "RT0603BRD077K62L",
+   "mpn": "RT0603BRD072K94L",
    "source_instance": "monitor_ls.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2877,7 +2904,7 @@
    }
   },
   "R85": {
-   "mpn": "RT0603BRD07120KL",
+   "mpn": "RT0603BRD0790K9L",
    "source_instance": "monitor_ls.rspanuv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2892,9 +2919,9 @@
    }
   },
   "R86": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "monitor_ls.rspanuv_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2907,7 +2934,7 @@
    }
   },
   "R87": {
-   "mpn": "RT0603BRD07133KL",
+   "mpn": "RT0603BRD07104KL",
    "source_instance": "monitor_ls.rspanov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2922,9 +2949,9 @@
    }
   },
   "R88": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "monitor_ls.rspanov_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2936,10 +2963,10 @@
     }
    }
   },
-  "R89": {
-   "mpn": "RC0603FR-071KL",
-   "source_instance": "monitor_ls.rnotice",
-   "basis": "native19-reviewed",
+  "R138": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "monitor_ls.rldo_en_top",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2951,10 +2978,10 @@
     }
    }
   },
-  "R90": {
-   "mpn": "RC0603FR-0710KL",
-   "source_instance": "monitor_ls.rbase",
-   "basis": "native19-reviewed",
+  "R139": {
+   "mpn": "0603WAF2702T5E",
+   "source_instance": "monitor_ls.rldo_en_bot",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2967,9 +2994,39 @@
    }
   },
   "R91": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "monitor_ls.rpull",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R62": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "bias_ha.ren_top",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R127": {
+   "mpn": "0603WAF2702T5E",
+   "source_instance": "bias_ha.ren_bot",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2982,8 +3039,8 @@
    }
   },
   "R92": {
-   "mpn": "RT0603BRD0718K2L",
-   "source_instance": "bias_rclk",
+   "mpn": "RT0603BRD0763K4L",
+   "source_instance": "bias_ha.rfbt",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -2997,23 +3054,8 @@
    }
   },
   "R93": {
-   "mpn": "RT0603BRD0730K1L",
-   "source_instance": "bias_rlim",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "R94": {
-   "mpn": "RT0603BRD074K99L",
-   "source_instance": "bias_rsr",
+   "mpn": "RT0603BRD0711KL",
+   "source_instance": "bias_ha.rfbb",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3027,7 +3069,7 @@
    }
   },
   "R95": {
-   "mpn": "RT0603BRD076K12L",
+   "mpn": "RT0603BRD076K2L",
    "source_instance": "bias_ha.split.rtop",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3057,9 +3099,9 @@
    }
   },
   "R97": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD074K42L",
    "source_instance": "bias_ha.monitor.rhalf_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3087,7 +3129,7 @@
    }
   },
   "R99": {
-   "mpn": "RT0603BRD074K42L",
+   "mpn": "RT0603BRD07750RL",
    "source_instance": "bias_ha.monitor.ruv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3117,7 +3159,7 @@
    }
   },
   "R101": {
-   "mpn": "RT0603BRD077K62L",
+   "mpn": "RT0603BRD072K94L",
    "source_instance": "bias_ha.monitor.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3147,7 +3189,7 @@
    }
   },
   "R103": {
-   "mpn": "RT0603BRD07120KL",
+   "mpn": "RT0603BRD0790K9L",
    "source_instance": "bias_ha.monitor.rspanuv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3162,9 +3204,9 @@
    }
   },
   "R104": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_ha.monitor.rspanuv_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3177,7 +3219,7 @@
    }
   },
   "R105": {
-   "mpn": "RT0603BRD07133KL",
+   "mpn": "RT0603BRD07104KL",
    "source_instance": "bias_ha.monitor.rspanov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3192,9 +3234,9 @@
    }
   },
   "R106": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_ha.monitor.rspanov_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3206,10 +3248,10 @@
     }
    }
   },
-  "R107": {
-   "mpn": "RC0603FR-071KL",
-   "source_instance": "bias_ha.monitor.rnotice",
-   "basis": "native19-reviewed",
+  "R140": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "bias_ha.monitor.rldo_en_top",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3221,10 +3263,10 @@
     }
    }
   },
-  "R108": {
-   "mpn": "RC0603FR-0710KL",
-   "source_instance": "bias_ha.monitor.rbase",
-   "basis": "native19-reviewed",
+  "R141": {
+   "mpn": "0603WAF2702T5E",
+   "source_instance": "bias_ha.monitor.rldo_en_bot",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3237,9 +3279,69 @@
    }
   },
   "R109": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "bias_ha.monitor.rpull",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R128": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "bias_hb.ren_top",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R129": {
+   "mpn": "0603WAF2702T5E",
+   "source_instance": "bias_hb.ren_bot",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R94": {
+   "mpn": "RT0603BRD0763K4L",
+   "source_instance": "bias_hb.rfbt",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R61": {
+   "mpn": "RT0603BRD0711KL",
+   "source_instance": "bias_hb.rfbb",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3252,7 +3354,7 @@
    }
   },
   "R110": {
-   "mpn": "RT0603BRD076K12L",
+   "mpn": "RT0603BRD076K2L",
    "source_instance": "bias_hb.split.rtop",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3282,9 +3384,9 @@
    }
   },
   "R112": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD074K42L",
    "source_instance": "bias_hb.monitor.rhalf_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3312,7 +3414,7 @@
    }
   },
   "R114": {
-   "mpn": "RT0603BRD074K42L",
+   "mpn": "RT0603BRD07750RL",
    "source_instance": "bias_hb.monitor.ruv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3342,7 +3444,7 @@
    }
   },
   "R116": {
-   "mpn": "RT0603BRD077K62L",
+   "mpn": "RT0603BRD072K94L",
    "source_instance": "bias_hb.monitor.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3372,7 +3474,7 @@
    }
   },
   "R118": {
-   "mpn": "RT0603BRD07120KL",
+   "mpn": "RT0603BRD0790K9L",
    "source_instance": "bias_hb.monitor.rspanuv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3387,9 +3489,9 @@
    }
   },
   "R119": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_hb.monitor.rspanuv_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3402,7 +3504,7 @@
    }
   },
   "R120": {
-   "mpn": "RT0603BRD07133KL",
+   "mpn": "RT0603BRD07104KL",
    "source_instance": "bias_hb.monitor.rspanov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3417,9 +3519,9 @@
    }
   },
   "R121": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_hb.monitor.rspanov_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3431,10 +3533,10 @@
     }
    }
   },
-  "R122": {
-   "mpn": "RC0603FR-071KL",
-   "source_instance": "bias_hb.monitor.rnotice",
-   "basis": "native19-reviewed",
+  "R142": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "bias_hb.monitor.rldo_en_top",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3446,10 +3548,10 @@
     }
    }
   },
-  "R123": {
-   "mpn": "RC0603FR-0710KL",
-   "source_instance": "bias_hb.monitor.rbase",
-   "basis": "native19-reviewed",
+  "R143": {
+   "mpn": "0603WAF2702T5E",
+   "source_instance": "bias_hb.monitor.rldo_en_bot",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3462,9 +3564,9 @@
    }
   },
   "R124": {
-   "mpn": "RC0603FR-0710KL",
+   "mpn": "0603WAF1002T5E",
    "source_instance": "bias_hb.monitor.rpull",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3476,9 +3578,54 @@
     }
    }
   },
-  "R126": {
-   "mpn": "RC0603FR-0710KL",
-   "source_instance": "r_bias_flt",
+  "R131": {
+   "mpn": "0603WAF4991T5E",
+   "source_instance": "hb.rosc",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R135": {
+   "mpn": "0603WAF1003T5E",
+   "source_instance": "hb.rgate",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R132": {
+   "mpn": "0603WAF2200T5E",
+   "source_instance": "hb.rs",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R133": {
+   "mpn": "RT0603BRD0749K9L",
+   "source_instance": "hb.rbleed",
    "basis": "native19-reviewed",
    "pins": {
     "1": {
@@ -3492,7 +3639,7 @@
    }
   },
   "R125": {
-   "mpn": "RC0603FR-0733KL",
+   "mpn": "0603WAF3302T5E",
    "source_instance": "line_zc.pullup",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3506,10 +3653,190 @@
     }
    }
   },
+  "C8": {
+   "mpn": "CC0805KRX7R9BB104",
+   "source_instance": "leg_a.c_ls",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C146": {
+   "mpn": "CL21B105KBFNNNE",
+   "source_instance": "leg_a.c_ls_1u",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C10": {
+   "mpn": "CC0805KRX7R9BB104",
+   "source_instance": "leg_a.c_hs",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C145": {
+   "mpn": "CL21B105KBFNNNE",
+   "source_instance": "leg_a.c_hs_1u",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C11": {
+   "mpn": "GRM21BZ71E106KE15L",
+   "source_instance": "leg_a.c_hs_bulk",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C15": {
+   "mpn": "CC0805KRX7R9BB104",
+   "source_instance": "leg_b.c_ls",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C148": {
+   "mpn": "CL21B105KBFNNNE",
+   "source_instance": "leg_b.c_ls_1u",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C17": {
+   "mpn": "CC0805KRX7R9BB104",
+   "source_instance": "leg_b.c_hs",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C147": {
+   "mpn": "CL21B105KBFNNNE",
+   "source_instance": "leg_b.c_hs_1u",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C18": {
+   "mpn": "GRM21BZ71E106KE15L",
+   "source_instance": "leg_b.c_hs_bulk",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C149": {
+   "mpn": "CL21B105KBFNNNE",
+   "source_instance": "c_vs1_1u",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C150": {
+   "mpn": "CL21B105KBFNNNE",
+   "source_instance": "c_vs2_1u",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
   "C9": {
-   "mpn": "GRM32ER71H106KA12L",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.c_ls_bulk",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3522,7 +3849,7 @@
    }
   },
   "C90": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_h.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3537,7 +3864,7 @@
    }
   },
   "C91": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_h.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3552,7 +3879,7 @@
    }
   },
   "C92": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_l.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3567,7 +3894,7 @@
    }
   },
   "C93": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_a.bias_l.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3582,9 +3909,9 @@
    }
   },
   "C16": {
-   "mpn": "GRM32ER71H106KA12L",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.c_ls_bulk",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3597,7 +3924,7 @@
    }
   },
   "C94": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_h.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3612,7 +3939,7 @@
    }
   },
   "C95": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_h.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3627,7 +3954,7 @@
    }
   },
   "C96": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_l.clocal1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3642,7 +3969,7 @@
    }
   },
   "C97": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "leg_b.bias_l.clocal2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3657,9 +3984,9 @@
    }
   },
   "C24": {
-   "mpn": "GRM32ER71H106KA12L",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "c_v15",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3672,9 +3999,9 @@
    }
   },
   "C26": {
-   "mpn": "GRM32ER71H106KA12L",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "c_ldo_out",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3687,7 +4014,7 @@
    }
   },
   "C98": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ls.cin",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3702,7 +4029,7 @@
    }
   },
   "C99": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ls.cout1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3717,7 +4044,7 @@
    }
   },
   "C100": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ls.cout2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3732,23 +4059,8 @@
    }
   },
   "C132": {
-   "mpn": "GRM32ER71H106KA12L",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "monitor_ls.cldo_out",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "C101": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_cin",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3762,8 +4074,8 @@
    }
   },
   "C102": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_ha.craw",
+   "mpn": "CL32B106KBJNNNE",
+   "source_instance": "bias_ha.cin1",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3777,8 +4089,8 @@
    }
   },
   "C103": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_ha.split.cin",
+   "mpn": "CL32B106KBJNNNE",
+   "source_instance": "bias_ha.cin2",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3792,7 +4104,7 @@
    }
   },
   "C104": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_ha.split.cout1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3806,9 +4118,9 @@
     }
    }
   },
-  "C105": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_ha.split.cout2",
+  "C136": {
+   "mpn": "CL32B106KBJNNNE",
+   "source_instance": "bias_ha.monitor.cldo_out",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3821,24 +4133,9 @@
     }
    }
   },
-  "C136": {
-   "mpn": "GRM32ER71H106KA12L",
-   "source_instance": "bias_ha.monitor.cldo_out",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
   "C106": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_hb.craw",
+   "mpn": "CL32B106KBJNNNE",
+   "source_instance": "bias_hb.cin1",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3852,8 +4149,8 @@
    }
   },
   "C107": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_hb.split.cin",
+   "mpn": "CL32B106KBJNNNE",
+   "source_instance": "bias_hb.cin2",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3867,7 +4164,7 @@
    }
   },
   "C108": {
-   "mpn": "UMK325AB7106KM-T",
+   "mpn": "CL32B106KBJNNNE",
    "source_instance": "bias_hb.split.cout1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3881,9 +4178,9 @@
     }
    }
   },
-  "C109": {
-   "mpn": "UMK325AB7106KM-T",
-   "source_instance": "bias_hb.split.cout2",
+  "C140": {
+   "mpn": "CL32B106KBJNNNE",
+   "source_instance": "bias_hb.monitor.cldo_out",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3896,23 +4193,8 @@
     }
    }
   },
-  "C140": {
-   "mpn": "GRM32ER71H106KA12L",
-   "source_instance": "bias_hb.monitor.cldo_out",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
   "C110": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_h.chf1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3927,7 +4209,7 @@
    }
   },
   "C111": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_h.chf2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3942,7 +4224,7 @@
    }
   },
   "C112": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_h.chf3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3957,7 +4239,7 @@
    }
   },
   "C113": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_h.chf4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3972,7 +4254,7 @@
    }
   },
   "C114": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_l.chf1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3987,7 +4269,7 @@
    }
   },
   "C115": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_l.chf2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4002,7 +4284,7 @@
    }
   },
   "C116": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_l.chf3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4017,7 +4299,7 @@
    }
   },
   "C117": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_a.bias_l.chf4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4032,7 +4314,7 @@
    }
   },
   "C118": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_h.chf1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4047,7 +4329,7 @@
    }
   },
   "C119": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_h.chf2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4062,7 +4344,7 @@
    }
   },
   "C120": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_h.chf3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4077,7 +4359,7 @@
    }
   },
   "C121": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_h.chf4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4092,7 +4374,7 @@
    }
   },
   "C122": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_l.chf1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4107,7 +4389,7 @@
    }
   },
   "C123": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_l.chf2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4122,7 +4404,7 @@
    }
   },
   "C124": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_l.chf3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4137,7 +4419,7 @@
    }
   },
   "C125": {
-   "mpn": "GRM155R71E104KE14D",
+   "mpn": "CL05B104KB54PNC",
    "source_instance": "leg_b.bias_l.chf4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4152,7 +4434,7 @@
    }
   },
   "C126": {
-   "mpn": "6SVPC220M",
+   "mpn": "6SVPC220MV",
    "source_instance": "leg_a.bias_h.cbulk",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4167,7 +4449,7 @@
    }
   },
   "C127": {
-   "mpn": "6SVPC220M",
+   "mpn": "6SVPC220MV",
    "source_instance": "leg_a.bias_l.cbulk",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4182,7 +4464,7 @@
    }
   },
   "C128": {
-   "mpn": "6SVPC220M",
+   "mpn": "6SVPC220MV",
    "source_instance": "leg_b.bias_h.cbulk",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4197,7 +4479,7 @@
    }
   },
   "C129": {
-   "mpn": "6SVPC220M",
+   "mpn": "6SVPC220MV",
    "source_instance": "leg_b.bias_l.cbulk",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4212,61 +4494,61 @@
    }
   },
   "U22": {
-   "mpn": "SN74LVC1G32DBVR",
+   "mpn": "SN74LVC1G00DBVR",
    "source_instance": "leg_a.dis_or",
-   "basis": "eco-pin-table",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "A",
-     "type": "input"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "B",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "GND",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "Y",
-     "type": "output"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "VCC",
-     "type": "power_in"
+     "function": "p5",
+     "type": "passive"
     }
    }
   },
   "U23": {
-   "mpn": "SN74LVC1G32DBVR",
+   "mpn": "SN74LVC1G00DBVR",
    "source_instance": "leg_b.dis_or",
-   "basis": "eco-pin-table",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "A",
-     "type": "input"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "B",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "GND",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "Y",
-     "type": "output"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "VCC",
-     "type": "power_in"
+     "function": "p5",
+     "type": "passive"
     }
    }
   },
   "U3": {
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "source_instance": "u_ldo",
    "basis": "eco-pin-table",
    "pins": {
@@ -4455,7 +4737,7 @@
    }
   },
   "U37": {
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "source_instance": "monitor_ls.ldo5",
    "basis": "eco-pin-table",
    "pins": {
@@ -4482,7 +4764,7 @@
    }
   },
   "U38": {
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "source_instance": "bias_ha.monitor.ldo5",
    "basis": "eco-pin-table",
    "pins": {
@@ -4509,7 +4791,7 @@
    }
   },
   "U39": {
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "source_instance": "bias_hb.monitor.ldo5",
    "basis": "eco-pin-table",
    "pins": {
@@ -4532,6 +4814,60 @@
     "5": {
      "function": "OUT",
      "type": "power_out"
+    }
+   }
+  },
+  "U45": {
+   "mpn": "SN74LVC1G132DBVR",
+   "source_instance": "hb.osc",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    },
+    "5": {
+     "function": "p5",
+     "type": "passive"
+    }
+   }
+  },
+  "U46": {
+   "mpn": "SN74LVC1G132DBVR",
+   "source_instance": "hb.buf",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    },
+    "5": {
+     "function": "p5",
+     "type": "passive"
     }
    }
   },
@@ -4589,6 +4925,66 @@
     }
    }
   },
+  "R10": {
+   "mpn": "25121WF680JT4E",
+   "source_instance": "leg_a.r_gh",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R12": {
+   "mpn": "25121WF680JT4E",
+   "source_instance": "leg_a.r_gl",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R18": {
+   "mpn": "25121WF680JT4E",
+   "source_instance": "leg_b.r_gh",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R20": {
+   "mpn": "25121WF680JT4E",
+   "source_instance": "leg_b.r_gl",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
   "D6": {
    "mpn": "PMEG6030EP,115",
    "source_instance": "leg_a.doff_h",
@@ -4637,66 +5033,6 @@
   "D9": {
    "mpn": "PMEG6030EP,115",
    "source_instance": "leg_b.doff_l",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "D10": {
-   "mpn": "PMEG10030ELPX",
-   "source_instance": "bias_ha.da",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "D11": {
-   "mpn": "PMEG10030ELPX",
-   "source_instance": "bias_ha.db",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "D12": {
-   "mpn": "PMEG10030ELPX",
-   "source_instance": "bias_hb.da",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "D13": {
-   "mpn": "PMEG10030ELPX",
-   "source_instance": "bias_hb.db",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -4786,9 +5122,9 @@
    }
   },
   "C12": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_a.c_snub_h",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4801,9 +5137,9 @@
    }
   },
   "C13": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_a.c_snub_l",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4816,9 +5152,9 @@
    }
   },
   "C19": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_b.c_snub_h",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4831,9 +5167,9 @@
    }
   },
   "C20": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_b.c_snub_l",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4875,9 +5211,54 @@
     }
    }
   },
-  "C130": {
-   "mpn": "GRM31CR71H475KA12L",
-   "source_instance": "bias_css",
+  "T1": {
+   "mpn": "CST3015-200ED",
+   "source_instance": "t_ct",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    }
+   }
+  },
+  "J2": {
+   "mpn": "7466004R",
+   "source_instance": "j_coil",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    }
+   }
+  },
+  "J5": {
+   "mpn": "7466004R",
+   "source_instance": "j_coil_return",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    }
+   }
+  },
+  "C21": {
+   "mpn": "B32643H8104J000",
+   "source_instance": "c_res1",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -4890,114 +5271,10 @@
     }
    }
   },
-  "T1": {
-   "mpn": "CST3015-100ED",
-   "source_instance": "t_ct",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "P1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "P2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "S1",
-     "type": "passive"
-    },
-    "4": {
-     "function": "S2",
-     "type": "passive"
-    }
-   }
-  },
-  "J2": {
-   "mpn": "74650074",
-   "source_instance": "j_coil",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J5": {
-   "mpn": "74650074",
-   "source_instance": "j_coil_return",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J7": {
-   "mpn": "74650074",
-   "source_instance": "link_pos.terminal_rect",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J8": {
-   "mpn": "74650074",
-   "source_instance": "link_pos.terminal_bus",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J9": {
-   "mpn": "74650074",
-   "source_instance": "link_neg.terminal_rect",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "J10": {
-   "mpn": "74650074",
-   "source_instance": "link_neg.terminal_bus",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    }
-   }
-  },
-  "C21": {
-   "mpn": "942C12P22K-F",
-   "source_instance": "c_res1",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
   "C22": {
-   "mpn": "942C12P22K-F",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5010,9 +5287,9 @@
    }
   },
   "C23": {
-   "mpn": "942C12P1K-F",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res3",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5024,56 +5301,40 @@
     }
    }
   },
-  "PS1": {
-   "mpn": "IRM-20-15",
-   "source_instance": "ps_selv",
-   "basis": "native19-reviewed",
+  "C151": {
+   "mpn": "B32643H8104J000",
+   "source_instance": "c_res4",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
-     "function": "ACL",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "ACN",
+     "function": "p2",
      "type": "passive"
-    },
-    "3": {
-     "function": "VN",
-     "type": "power_out"
-    },
-    "4": {
-     "function": "VP",
-     "type": "power_out"
     }
    }
   },
-  "PS2": {
-   "mpn": "IRM-20-24",
-   "source_instance": "ps_gate",
-   "basis": "eco-pin-table",
+  "C152": {
+   "mpn": "B32643H8104J000",
+   "source_instance": "c_res5",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
-     "function": "ACL",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "ACN",
+     "function": "p2",
      "type": "passive"
-    },
-    "3": {
-     "function": "VN",
-     "type": "passive"
-    },
-    "4": {
-     "function": "VP",
-     "type": "power_out"
     }
    }
   },
   "J3": {
-   "mpn": "B2P-VH(LF)(SN)",
+   "mpn": "B2P3-VH(LF)(SN)",
    "source_instance": "j_tco",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5081,6 +5342,74 @@
     },
     "2": {
      "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "J11": {
+   "mpn": "B2P3-VH(LF)(SN)",
+   "source_instance": "j_blw_ac",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "F2": {
+   "mpn": "3403.0279.23",
+   "source_instance": "f_blw",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R130": {
+   "mpn": "AC05000001507JAC00",
+   "source_instance": "r_blw",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "PS2": {
+   "mpn": "MPM-20-24",
+   "source_instance": "ps_gate",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
      "type": "passive"
     }
    }
@@ -5121,6 +5450,196 @@
     "8": {
      "function": "VDD2",
      "type": "power_in"
+    }
+   }
+  },
+  "U5": {
+   "mpn": "LM4050AEM3-2.5/NOPB",
+   "source_instance": "u_ref",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "A",
+     "type": "passive"
+    },
+    "3": {
+     "function": "NC",
+     "type": "passive"
+    }
+   }
+  },
+  "U16": {
+   "mpn": "TLVH431BQDBZR",
+   "source_instance": "bias_ls.shunt",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "2": {
+     "function": "K",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U17": {
+   "mpn": "TL431BQDBZR",
+   "source_instance": "monitor_ls.reference",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U18": {
+   "mpn": "TLVH431BQDBZR",
+   "source_instance": "bias_ha.split.shunt",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "2": {
+     "function": "K",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U19": {
+   "mpn": "TL431BQDBZR",
+   "source_instance": "bias_ha.monitor.reference",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U20": {
+   "mpn": "TLVH431BQDBZR",
+   "source_instance": "bias_hb.split.shunt",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "2": {
+     "function": "K",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "U21": {
+   "mpn": "TL431BQDBZR",
+   "source_instance": "bias_hb.monitor.reference",
+   "basis": "eco-pin-table",
+   "pins": {
+    "1": {
+     "function": "K",
+     "type": "passive"
+    },
+    "2": {
+     "function": "REF",
+     "type": "passive"
+    },
+    "3": {
+     "function": "A",
+     "type": "passive"
+    }
+   }
+  },
+  "D18": {
+   "mpn": "BAT54S-7-F",
+   "source_instance": "hb.vote",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    }
+   }
+  },
+  "D20": {
+   "mpn": "BAT54S-7-F",
+   "source_instance": "hb.vote_b",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    }
+   }
+  },
+  "D19": {
+   "mpn": "BAT54S-7-F",
+   "source_instance": "hb.pump",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
     }
    }
   },
@@ -5217,318 +5736,145 @@
     }
    }
   },
-  "U25": {
-   "mpn": "SN74LVC1G332DBVR",
-   "source_instance": "bias_or",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "A",
-     "type": "input"
-    },
-    "2": {
-     "function": "GND",
-     "type": "power_in"
-    },
-    "3": {
-     "function": "B",
-     "type": "input"
-    },
-    "4": {
-     "function": "Y",
-     "type": "output"
-    },
-    "5": {
-     "function": "VCC",
-     "type": "power_in"
-    },
-    "6": {
-     "function": "C",
-     "type": "input"
-    }
-   }
-  },
   "U9": {
-   "mpn": "ISO7710DWR",
+   "mpn": "CA-IS3720HW",
    "source_instance": "u_iso",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "GND1",
-     "type": "power_in"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "NC2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "VCC1",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "IN",
-     "type": "input"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "NC5",
+     "function": "p5",
      "type": "passive"
     },
     "6": {
-     "function": "NC6",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "GND1B",
-     "type": "power_in"
+     "function": "p7",
+     "type": "passive"
     },
     "8": {
-     "function": "NC8",
+     "function": "p8",
      "type": "passive"
     },
     "9": {
-     "function": "GND2",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "NC10",
+     "function": "p10",
      "type": "passive"
     },
     "11": {
-     "function": "NC11",
+     "function": "p11",
      "type": "passive"
     },
     "12": {
-     "function": "NC12",
+     "function": "p12",
      "type": "passive"
     },
     "13": {
-     "function": "OUT",
-     "type": "output"
+     "function": "p13",
+     "type": "passive"
     },
     "14": {
-     "function": "VCC2",
-     "type": "power_in"
+     "function": "p14",
+     "type": "passive"
     },
     "15": {
-     "function": "NC15",
+     "function": "p15",
      "type": "passive"
     },
     "16": {
-     "function": "GND2B",
-     "type": "power_in"
+     "function": "p16",
+     "type": "passive"
     }
    }
   },
   "U32": {
-   "mpn": "ISO7710DWR",
-   "source_instance": "monitor_ls.iso",
-   "basis": "native19-reviewed",
+   "mpn": "CA-IS3720HW",
+   "source_instance": "hb.iso",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "GND1",
-     "type": "power_in"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "NC2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "VCC1",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "IN",
-     "type": "input"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "NC5",
+     "function": "p5",
      "type": "passive"
     },
     "6": {
-     "function": "NC6",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "GND1B",
-     "type": "power_in"
+     "function": "p7",
+     "type": "passive"
     },
     "8": {
-     "function": "NC8",
+     "function": "p8",
      "type": "passive"
     },
     "9": {
-     "function": "GND2",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "NC10",
+     "function": "p10",
      "type": "passive"
     },
     "11": {
-     "function": "NC11",
+     "function": "p11",
      "type": "passive"
     },
     "12": {
-     "function": "NC12",
+     "function": "p12",
      "type": "passive"
     },
     "13": {
-     "function": "OUT",
-     "type": "output"
+     "function": "p13",
+     "type": "passive"
     },
     "14": {
-     "function": "VCC2",
-     "type": "power_in"
+     "function": "p14",
+     "type": "passive"
     },
     "15": {
-     "function": "NC15",
+     "function": "p15",
      "type": "passive"
     },
     "16": {
-     "function": "GND2B",
-     "type": "power_in"
-    }
-   }
-  },
-  "U33": {
-   "mpn": "ISO7710DWR",
-   "source_instance": "bias_ha.monitor.iso",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "GND1",
-     "type": "power_in"
-    },
-    "2": {
-     "function": "NC2",
+     "function": "p16",
      "type": "passive"
-    },
-    "3": {
-     "function": "VCC1",
-     "type": "power_in"
-    },
-    "4": {
-     "function": "IN",
-     "type": "input"
-    },
-    "5": {
-     "function": "NC5",
-     "type": "passive"
-    },
-    "6": {
-     "function": "NC6",
-     "type": "passive"
-    },
-    "7": {
-     "function": "GND1B",
-     "type": "power_in"
-    },
-    "8": {
-     "function": "NC8",
-     "type": "passive"
-    },
-    "9": {
-     "function": "GND2",
-     "type": "power_in"
-    },
-    "10": {
-     "function": "NC10",
-     "type": "passive"
-    },
-    "11": {
-     "function": "NC11",
-     "type": "passive"
-    },
-    "12": {
-     "function": "NC12",
-     "type": "passive"
-    },
-    "13": {
-     "function": "OUT",
-     "type": "output"
-    },
-    "14": {
-     "function": "VCC2",
-     "type": "power_in"
-    },
-    "15": {
-     "function": "NC15",
-     "type": "passive"
-    },
-    "16": {
-     "function": "GND2B",
-     "type": "power_in"
-    }
-   }
-  },
-  "U34": {
-   "mpn": "ISO7710DWR",
-   "source_instance": "bias_hb.monitor.iso",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "GND1",
-     "type": "power_in"
-    },
-    "2": {
-     "function": "NC2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "VCC1",
-     "type": "power_in"
-    },
-    "4": {
-     "function": "IN",
-     "type": "input"
-    },
-    "5": {
-     "function": "NC5",
-     "type": "passive"
-    },
-    "6": {
-     "function": "NC6",
-     "type": "passive"
-    },
-    "7": {
-     "function": "GND1B",
-     "type": "power_in"
-    },
-    "8": {
-     "function": "NC8",
-     "type": "passive"
-    },
-    "9": {
-     "function": "GND2",
-     "type": "power_in"
-    },
-    "10": {
-     "function": "NC10",
-     "type": "passive"
-    },
-    "11": {
-     "function": "NC11",
-     "type": "passive"
-    },
-    "12": {
-     "function": "NC12",
-     "type": "passive"
-    },
-    "13": {
-     "function": "OUT",
-     "type": "output"
-    },
-    "14": {
-     "function": "VCC2",
-     "type": "power_in"
-    },
-    "15": {
-     "function": "NC15",
-     "type": "passive"
-    },
-    "16": {
-     "function": "GND2B",
-     "type": "power_in"
     }
    }
   },
@@ -5604,9 +5950,24 @@
    }
   },
   "D3": {
-   "mpn": "MRT130KP295CV",
+   "mpn": "30KPA150CA",
    "source_instance": "tvs_bus",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "D17": {
+   "mpn": "30KPA150CA",
+   "source_instance": "tvs_bus_b",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5814,190 +6175,8 @@
     }
    }
   },
-  "U27": {
-   "mpn": "TPS7A4700RGWR",
-   "source_instance": "bias_ha.split.ldo",
-   "basis": "passive-untyped",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "p3",
-     "type": "passive"
-    },
-    "4": {
-     "function": "p4",
-     "type": "passive"
-    },
-    "5": {
-     "function": "p5",
-     "type": "passive"
-    },
-    "6": {
-     "function": "p6",
-     "type": "passive"
-    },
-    "7": {
-     "function": "p7",
-     "type": "passive"
-    },
-    "8": {
-     "function": "p8",
-     "type": "passive"
-    },
-    "9": {
-     "function": "p9",
-     "type": "passive"
-    },
-    "10": {
-     "function": "p10",
-     "type": "passive"
-    },
-    "11": {
-     "function": "p11",
-     "type": "passive"
-    },
-    "12": {
-     "function": "p12",
-     "type": "passive"
-    },
-    "13": {
-     "function": "p13",
-     "type": "passive"
-    },
-    "14": {
-     "function": "p14",
-     "type": "passive"
-    },
-    "15": {
-     "function": "p15",
-     "type": "passive"
-    },
-    "16": {
-     "function": "p16",
-     "type": "passive"
-    },
-    "17": {
-     "function": "p17",
-     "type": "passive"
-    },
-    "18": {
-     "function": "p18",
-     "type": "passive"
-    },
-    "19": {
-     "function": "p19",
-     "type": "passive"
-    },
-    "20": {
-     "function": "p20",
-     "type": "passive"
-    },
-    "21": {
-     "function": "p21",
-     "type": "passive"
-    }
-   }
-  },
-  "U28": {
-   "mpn": "TPS7A4700RGWR",
-   "source_instance": "bias_hb.split.ldo",
-   "basis": "passive-untyped",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "p3",
-     "type": "passive"
-    },
-    "4": {
-     "function": "p4",
-     "type": "passive"
-    },
-    "5": {
-     "function": "p5",
-     "type": "passive"
-    },
-    "6": {
-     "function": "p6",
-     "type": "passive"
-    },
-    "7": {
-     "function": "p7",
-     "type": "passive"
-    },
-    "8": {
-     "function": "p8",
-     "type": "passive"
-    },
-    "9": {
-     "function": "p9",
-     "type": "passive"
-    },
-    "10": {
-     "function": "p10",
-     "type": "passive"
-    },
-    "11": {
-     "function": "p11",
-     "type": "passive"
-    },
-    "12": {
-     "function": "p12",
-     "type": "passive"
-    },
-    "13": {
-     "function": "p13",
-     "type": "passive"
-    },
-    "14": {
-     "function": "p14",
-     "type": "passive"
-    },
-    "15": {
-     "function": "p15",
-     "type": "passive"
-    },
-    "16": {
-     "function": "p16",
-     "type": "passive"
-    },
-    "17": {
-     "function": "p17",
-     "type": "passive"
-    },
-    "18": {
-     "function": "p18",
-     "type": "passive"
-    },
-    "19": {
-     "function": "p19",
-     "type": "passive"
-    },
-    "20": {
-     "function": "p20",
-     "type": "passive"
-    },
-    "21": {
-     "function": "p21",
-     "type": "passive"
-    }
-   }
-  },
   "U29": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "monitor_ls.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6060,7 +6239,7 @@
    }
   },
   "U30": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "bias_ha.monitor.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6123,7 +6302,7 @@
    }
   },
   "U31": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "bias_hb.monitor.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6185,10 +6364,10 @@
     }
    }
   },
-  "D14": {
-   "mpn": "1N4148W-7-F",
-   "source_instance": "monitor_ls.dnotice",
-   "basis": "passive-two-terminal",
+  "U41": {
+   "mpn": "R24C2T25/R-R",
+   "source_instance": "bias_ha.iso",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
      "function": "p1",
@@ -6197,93 +6376,299 @@
     "2": {
      "function": "p2",
      "type": "passive"
-    }
-   }
-  },
-  "D15": {
-   "mpn": "1N4148W-7-F",
-   "source_instance": "bias_ha.monitor.dnotice",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "D16": {
-   "mpn": "1N4148W-7-F",
-   "source_instance": "bias_hb.monitor.dnotice",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "U35": {
-   "mpn": "SN6507DGQR",
-   "source_instance": "bias_driver",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "SW1",
-     "type": "open_collector"
-    },
-    "2": {
-     "function": "GND1",
-     "type": "power_in"
     },
     "3": {
-     "function": "VCC",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "EN",
-     "type": "input"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "DC",
+     "function": "p5",
      "type": "passive"
     },
     "6": {
-     "function": "SR",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "CLK",
+     "function": "p7",
      "type": "passive"
     },
     "8": {
-     "function": "SS",
+     "function": "p8",
      "type": "passive"
     },
     "9": {
-     "function": "GND2",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "SW2",
-     "type": "open_collector"
+     "function": "p10",
+     "type": "passive"
     },
     "11": {
-     "function": "EP",
+     "function": "p11",
+     "type": "passive"
+    },
+    "12": {
+     "function": "p12",
+     "type": "passive"
+    },
+    "13": {
+     "function": "p13",
+     "type": "passive"
+    },
+    "14": {
+     "function": "p14",
+     "type": "passive"
+    },
+    "15": {
+     "function": "p15",
+     "type": "passive"
+    },
+    "16": {
+     "function": "p16",
+     "type": "passive"
+    },
+    "17": {
+     "function": "p17",
+     "type": "passive"
+    },
+    "18": {
+     "function": "p18",
+     "type": "passive"
+    },
+    "19": {
+     "function": "p19",
+     "type": "passive"
+    },
+    "20": {
+     "function": "p20",
+     "type": "passive"
+    },
+    "21": {
+     "function": "p21",
+     "type": "passive"
+    },
+    "22": {
+     "function": "p22",
+     "type": "passive"
+    },
+    "23": {
+     "function": "p23",
+     "type": "passive"
+    },
+    "24": {
+     "function": "p24",
+     "type": "passive"
+    },
+    "25": {
+     "function": "p25",
+     "type": "passive"
+    },
+    "26": {
+     "function": "p26",
+     "type": "passive"
+    },
+    "27": {
+     "function": "p27",
+     "type": "passive"
+    },
+    "28": {
+     "function": "p28",
+     "type": "passive"
+    },
+    "29": {
+     "function": "p29",
+     "type": "passive"
+    },
+    "30": {
+     "function": "p30",
+     "type": "passive"
+    },
+    "31": {
+     "function": "p31",
+     "type": "passive"
+    },
+    "32": {
+     "function": "p32",
+     "type": "passive"
+    },
+    "33": {
+     "function": "p33",
+     "type": "passive"
+    },
+    "34": {
+     "function": "p34",
+     "type": "passive"
+    },
+    "35": {
+     "function": "p35",
+     "type": "passive"
+    },
+    "36": {
+     "function": "p36",
      "type": "passive"
     }
    }
   },
-  "T2": {
-   "mpn": "750320775",
-   "source_instance": "bias_ha.transformer",
+  "U42": {
+   "mpn": "R24C2T25/R-R",
+   "source_instance": "bias_hb.iso",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    },
+    "5": {
+     "function": "p5",
+     "type": "passive"
+    },
+    "6": {
+     "function": "p6",
+     "type": "passive"
+    },
+    "7": {
+     "function": "p7",
+     "type": "passive"
+    },
+    "8": {
+     "function": "p8",
+     "type": "passive"
+    },
+    "9": {
+     "function": "p9",
+     "type": "passive"
+    },
+    "10": {
+     "function": "p10",
+     "type": "passive"
+    },
+    "11": {
+     "function": "p11",
+     "type": "passive"
+    },
+    "12": {
+     "function": "p12",
+     "type": "passive"
+    },
+    "13": {
+     "function": "p13",
+     "type": "passive"
+    },
+    "14": {
+     "function": "p14",
+     "type": "passive"
+    },
+    "15": {
+     "function": "p15",
+     "type": "passive"
+    },
+    "16": {
+     "function": "p16",
+     "type": "passive"
+    },
+    "17": {
+     "function": "p17",
+     "type": "passive"
+    },
+    "18": {
+     "function": "p18",
+     "type": "passive"
+    },
+    "19": {
+     "function": "p19",
+     "type": "passive"
+    },
+    "20": {
+     "function": "p20",
+     "type": "passive"
+    },
+    "21": {
+     "function": "p21",
+     "type": "passive"
+    },
+    "22": {
+     "function": "p22",
+     "type": "passive"
+    },
+    "23": {
+     "function": "p23",
+     "type": "passive"
+    },
+    "24": {
+     "function": "p24",
+     "type": "passive"
+    },
+    "25": {
+     "function": "p25",
+     "type": "passive"
+    },
+    "26": {
+     "function": "p26",
+     "type": "passive"
+    },
+    "27": {
+     "function": "p27",
+     "type": "passive"
+    },
+    "28": {
+     "function": "p28",
+     "type": "passive"
+    },
+    "29": {
+     "function": "p29",
+     "type": "passive"
+    },
+    "30": {
+     "function": "p30",
+     "type": "passive"
+    },
+    "31": {
+     "function": "p31",
+     "type": "passive"
+    },
+    "32": {
+     "function": "p32",
+     "type": "passive"
+    },
+    "33": {
+     "function": "p33",
+     "type": "passive"
+    },
+    "34": {
+     "function": "p34",
+     "type": "passive"
+    },
+    "35": {
+     "function": "p35",
+     "type": "passive"
+    },
+    "36": {
+     "function": "p36",
+     "type": "passive"
+    }
+   }
+  },
+  "U43": {
+   "mpn": "ISO6721FBDR",
+   "source_instance": "bias_ha.link",
    "basis": "passive-untyped",
    "pins": {
     "1": {
@@ -6320,9 +6705,9 @@
     }
    }
   },
-  "T3": {
-   "mpn": "750320775",
-   "source_instance": "bias_hb.transformer",
+  "U44": {
+   "mpn": "ISO6721FBDR",
+   "source_instance": "bias_hb.link",
    "basis": "passive-untyped",
    "pins": {
     "1": {
@@ -6355,60 +6740,30 @@
     },
     "8": {
      "function": "p8",
-     "type": "passive"
-    }
-   }
-  },
-  "L2": {
-   "mpn": "74404064101",
-   "source_instance": "bias_ha.filter",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    }
-   }
-  },
-  "L3": {
-   "mpn": "74404064101",
-   "source_instance": "bias_hb.filter",
-   "basis": "passive-two-terminal",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
      "type": "passive"
     }
    }
   },
   "U36": {
-   "mpn": "VOL628A-3X001T",
+   "mpn": "VOL628A-2X001T",
    "source_instance": "line_zc.opto",
-   "basis": "eco-pin-table",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "AC1",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "AC2",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "E",
+     "function": "p3",
      "type": "passive"
     },
     "4": {
-     "function": "C",
-     "type": "open_collector"
+     "function": "p4",
+     "type": "passive"
     }
    }
   }
@@ -6418,43 +6773,33 @@
    "net": "p_ha",
    "requires": [
     [
-     "U27",
-     "1",
+     "U41",
+     "28",
      "p_ha"
     ],
     [
-     "U27",
-     "3",
-     "p_ha"
-    ],
-    [
-     "U27",
-     "20",
+     "U41",
+     "29",
      "p_ha"
     ]
    ],
-   "reason": "Leg-A span regulator U27 (TPS7A4700) OUT pins."
+   "reason": "Leg-A isolated bias module U41 (R24C2T25/R) VOUT+ pins (stage 14)."
   },
   {
    "net": "p_hb",
    "requires": [
     [
-     "U28",
-     "1",
+     "U42",
+     "28",
      "p_hb"
     ],
     [
-     "U28",
-     "3",
-     "p_hb"
-    ],
-    [
-     "U28",
-     "20",
+     "U42",
+     "29",
      "p_hb"
     ]
    ],
-   "reason": "Leg-B span regulator U28 (TPS7A4700) OUT pins."
+   "reason": "Leg-B isolated bias module U42 (R24C2T25/R) VOUT+ pins (stage 14)."
   },
   {
    "net": "v15_ls",
@@ -6481,13 +6826,13 @@
    "net": "n_ha",
    "requires": [
     [
-     "T2",
-     "6",
+     "U41",
+     "19",
      "n_ha"
     ],
     [
-     "T2",
-     "7",
+     "U41",
+     "20",
      "n_ha"
     ],
     [
@@ -6496,19 +6841,19 @@
      "n_ha"
     ]
    ],
-   "reason": "Leg-A span bottom: T2 secondary return, held -2 V from SW_A by TLVH431 U18 (anode)."
+   "reason": "Leg-A span bottom: U41 VOUT-, held -2 V from SW_A by TLVH431 U18 (anode)."
   },
   {
    "net": "n_hb",
    "requires": [
     [
-     "T3",
-     "6",
+     "U42",
+     "19",
      "n_hb"
     ],
     [
-     "T3",
-     "7",
+     "U42",
+     "20",
      "n_hb"
     ],
     [
@@ -6517,7 +6862,7 @@
      "n_hb"
     ]
    ],
-   "reason": "Leg-B span bottom: T3 secondary return, held -2 V from SW_B by TLVH431 U20 (anode)."
+   "reason": "Leg-B span bottom: U42 VOUT-, held -2 V from SW_B by TLVH431 U20 (anode)."
   },
   {
    "net": "n_ls",

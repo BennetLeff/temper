@@ -3,8 +3,12 @@
 
     KICAD_PY prototype-closure/pcb/build_native21.py [--placement native-21/placement.json]
 
-Native-20's board supplies only the stackup, design settings and layer setup:
-every footprint, track, via, zone and outline item is removed. Each native-21
+Native-20's board supplies only the design settings and the non-copper layer setup:
+every footprint, track, via, zone and outline item is removed. The copper layers and
+the (stackup ...) come from native-21/stackup.json, the single layer-stack source
+(stage 33; native-21/layout/layers21.py reads the same file for the layout, gates and
+models): write_stack() rewrites the saved board's copper (layers) entries, the
+(setup (stackup ...)) block and (general (thickness ...)) from it. Each native-21
 component is added from its footprint library (vendored into
 native-21/candidate-libs for reproducibility), with reference, MPN, value,
 SourceInstance and pad nets from native-21/frozen/default.net, at the authored
@@ -20,6 +24,7 @@ import hashlib
 import json
 import re
 import shutil
+import sys
 import uuid
 from pathlib import Path
 
@@ -29,10 +34,14 @@ HERE = Path(__file__).resolve().parent
 UNIT = HERE.parents[1]
 N20, OUT = UNIT / "native-20", UNIT / "native-21"
 STOCK = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
-LOCAL = {"temper": UNIT / "libraries/temper.pretty", "lib": UNIT / "libraries/lib.pretty"}
+LOCAL = {"temper": UNIT / "libraries/temper.pretty", "lib": UNIT / "libraries/lib.pretty",
+         # stage 19 (review K6): the IRM-20 pin-1 tick moved from y -3.65 (past the board edge on PS1 / PS2) to -2.65
+         "Converter_ACDC": OUT / "footprint-overrides/Converter_ACDC.pretty"}
 # KiCad frame, mm. Main 290 x 140 plus the 91 x 50 tongue under the power core (D-36, FLOORPLAN.md).
 OUTLINE = [(0, 0), (290, 0), (290, 140), (91, 140), (91, 190), (0, 190)]
 N20_BOARD_SHA = "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae"
+sys.path.insert(0, str(OUT / "layout"))
+import layers21  # noqa: E402  (native-21/stackup.json)
 
 
 def mm(v):
@@ -47,6 +56,58 @@ def parse_netlist(text):
     for m in re.finditer(r'\(net \(code "\d+"\) \(name "([^"]+)"\)(.*?)\)\s*(?=\(net |\)\s*\)\s*$)', text, re.S):
         nets[m.group(1)] = re.findall(r'\(node \(ref "([^"]+)"\) \(pin "([^"]+)"\)', m.group(2))
     return comps, nets
+
+
+def _num(v):
+    """A stackup number as KiCad writes it (shortest round-trip decimal: 0.4355, 0.5, 4.29)."""
+    return repr(float(v))
+
+
+def stackup_sexpr(st):
+    """The (stackup ...) block, KiCad 10's text layout, from a stackup.json."""
+    out = ["\t\t(stackup"]
+    for e in st["layers"]:
+        extra = set(e) - {"name", "type", "thickness_mm", "material", "epsilon_r", "loss_tangent", "kicad_id", "z_mm"}
+        if extra:
+            raise ValueError(f"stackup.json {e['name']}: fields the builder does not write: {sorted(extra)}")
+        out.append(f'\t\t\t(layer "{e["name"]}"')
+        out.append(f'\t\t\t\t(type "{e["type"]}")')
+        out.append(f'\t\t\t\t(thickness {_num(e["thickness_mm"])})')
+        if "material" in e:
+            out.append(f'\t\t\t\t(material "{e["material"]}")')
+        for k in ("epsilon_r", "loss_tangent"):
+            if k in e:
+                out.append(f"\t\t\t\t({k} {_num(e[k])})")
+        out.append("\t\t\t)")
+    ks = st.get("kicad_stackup", {"copper_finish": "None", "dielectric_constraints": "no"})   # KiCad's defaults
+    out.append(f'\t\t\t(copper_finish "{ks["copper_finish"]}")')
+    out.append(f'\t\t\t(dielectric_constraints {ks["dielectric_constraints"]})')
+    out.append("\t\t)")
+    return "\n".join(out) + "\n"
+
+
+def write_stack(path):
+    """Rewrite the saved board's copper (layers) entries, (stackup ...) and (general (thickness ...)) from
+    native-21/stackup.json (layers21), then reload it and check KiCad reads that stack back."""
+    text = path.read_text()
+    m = re.search(r"\n\t\(layers\n((?:\t\t\(\d+ \"[^\"]+\" \w+(?: \"[^\"]*\")?\)\n)+)\t\)\n", text)
+    if not m:
+        raise SystemExit("build_native21: no (layers ...) block in the saved board")
+    rows = m.group(1).splitlines()
+    others = [r for r in rows if not re.match(r'\t\t\(\d+ "[^"]+\.Cu" ', r)]
+    copper = [f'\t\t({layers21.KICAD_ID[n]} "{n}" signal)' for n in layers21.CU]
+    text = text[:m.start(1)] + "\n".join(copper + others) + "\n" + text[m.end(1):]
+    text, n_st = re.subn(r"\t\t\(stackup\n.*?\n\t\t\)\n", lambda _: stackup_sexpr(layers21.STACKUP), text, count=1,
+                         flags=re.S)
+    text, n_th = re.subn(r"(\n\t\(general\n\t\t\(thickness )[0-9.]+\)",
+                         lambda g: g.group(1) + _num(layers21.STACKUP["board_thickness_mm"]) + ")", text, count=1)
+    if n_st != 1 or n_th != 1:
+        raise SystemExit("build_native21: no (stackup ...) or (general (thickness ...)) in the saved board")
+    path.write_text(text)
+    back = pcbnew.LoadBoard(str(path))
+    got = tuple(back.GetLayerName(lid) for lid in back.GetEnabledLayers().CuStack())
+    if got != layers21.CU or back.GetCopperLayerCount() != len(layers21.CU):
+        raise SystemExit(f"build_native21: KiCad reads copper {got}, stackup.json has {layers21.CU}")
 
 
 def footprint_dir(lib, name):
@@ -143,12 +204,22 @@ def main():
             n = pin_net.get((ref, pad.GetNumber()))
             if n:
                 pad.SetNet(board.FindNet(n))
-    for f in ("section.kicad_pro", "fp-lib-table", "stackup.json"):
+    # stage 33: native-21/stackup.json is native-21's own (tracked) source, no longer copied from native-20
+    for f in ("section.kicad_pro", "fp-lib-table"):
         if (N20 / f).exists():
             shutil.copy2(N20 / f, OUT / f)
+    # JLC multilayer limits (tools/jlc_dfm_check.py): via drill >= 0.15 mm and our 0.15 mm via ring
+    # floor, so KiCad's own DRC enforces the via rules too (PTH rings are checked by the gate)
+    pro = json.loads((OUT / "section.kicad_pro").read_text())
+    rules = pro["board"]["design_settings"]["rules"]
+    rules.update(min_through_hole_diameter=0.15, min_via_annular_width=0.15)
+    (OUT / "section.kicad_pro").write_text(json.dumps(pro, indent=2) + "\n")
     if not (OUT / "models3d").exists() and (N20 / "models3d").exists():
         shutil.copytree(N20 / "models3d", OUT / "models3d")
+    if board.GetCopperLayerCount() != len(layers21.CU):
+        board.SetCopperLayerCount(len(layers21.CU))
     pcbnew.SaveBoard(str(OUT / "section.kicad_pcb"), board)
+    write_stack(OUT / "section.kicad_pcb")
     print(json.dumps({"footprints": len(comps), "nets": len(nets), "outline": OUTLINE}))
 
 

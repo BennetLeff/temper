@@ -1,0 +1,566 @@
+#!/usr/bin/env python3
+"""Body-level source model for the 2.5-D B3 board solve (stage 19b study; no board edits).
+
+Why this module exists (external review, "Recorded board model does not converge"): ../b3/thermal.py deposits each
+part's loss into the pad cells whose *centres* fall inside its pads. The deposited area changes with the mesh, the
+copper mask is binary (sub-cell traces drop out), and there is no body, junction or air path, so peaks move with the
+mesh (stage 19b c28 h25: 136.0 / 182.3 / 142.8 C at 1 / 0.5 / 0.25 mm).
+
+This module keeps the same 7-sheet finite-volume board and adds, per heat-generating part:
+
+  * a **package thermal network**: one junction/body node per part, joined to the part's pads through the datasheet
+    junction-to-board (or junction-to-exposed-pad) resistance, and to ambient through junction-to-case(top) plus a
+    convective film h on the exposed body area (optionally an underside air-gap conduction path, sensitivity only);
+  * **area-weighted pad coupling**: the heat of each pad is a flux distribution over the pad's *exact* geometric
+    overlap with the mesh cells (shapely intersection areas), proportional to (T_junction - mean pad temperature),
+    so the source does not depend on which cell centres a pad happens to hit;
+  * optional **copper fill-fraction rasterisation** (cell conductivity = area-weighted Cu / FR-4 mix, from a
+    0.0625 mm supersampled mask), so sub-cell traces and thin pad necks keep their conductance on coarse meshes.
+
+Modes (legacy reproduction stays available):  copper in {"binary", "fraction"}  x  source in {"point", "network"}.
+("binary", "point") is exactly ../b3/thermal.py (control 1 asserts the committed 136.0 C).
+
+Units: SI internally for conductances, mm on the geometry side. Temperatures are rises over ambient (50 C added by
+callers). Matrix is symmetric positive definite; solved by Jacobi-preconditioned CG, rtol 1e-10.
+"""
+from __future__ import annotations
+
+import gzip
+import hashlib
+import json
+import math
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+import shapely
+from scipy.sparse import coo_matrix, csr_matrix
+from scipy.sparse.linalg import LinearOperator, cg
+from scipy.special import i0 as bessel_i0, i1 as bessel_i1, k1 as bessel_k1
+from shapely.geometry import Polygon
+
+HERE = Path(__file__).resolve().parent
+ROUND5 = HERE.parent
+sys.path.insert(0, str(ROUND5 / "b3"))
+import thermal as T  # noqa: E402  (the committed legacy model; imported, never modified)
+
+K_CU, K_FR4, TAMB_C = T.K_CU, T.K_FR4, T.TAMB_C
+CU_INDEX = T.CU_INDEX
+THK_MM = T.THICK_MM
+BASE = 0.0625                      # supersampling pitch for copper fill fractions [mm]
+K_AIR = 0.026                      # W/m/K, dry air near 60 C (Incropera table A.4)
+
+# --------------------------------------------------------------------------------------------------------------
+# Package network specifications. Every number carries its source. "derived" = computed here from handbook
+# material properties because no datasheet value exists for the class; those are flagged in the README.
+# --------------------------------------------------------------------------------------------------------------
+RECOM_THERMAL_PINS = {"1", "2", "5", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18",      # PGND
+                      "19", "20", "21", "22", "23", "24", "25", "26", "27", "30", "31", "36"}            # VOUT-
+SPECS = {
+    "recom": dict(  # U41, U42  RECOM R24C2T25/R  (36-SSOP power module)
+        label="RECOM R24C2T25/R", r_pad=25.9, r_top=16.6, body_mm=(12.83, 7.5), standoff_mm=0.2,
+        pad_filter=lambda n: n in RECOM_THERMAL_PINS, tj_limit=150.0,
+        cite="RECOM R24C2T25/R Rev.1-2024: p.8 'junction to board 25.9 K/W', 'junction to case 16.6 K/W'; p.13 'package "
+             "dissipates heat through the GNDP and VOUT- pins' and pin table (PGND 1,2,5,8-18; VOUT- 19-27,30,31,36); "
+             "p.12 body 12.83 x 7.5 x 3.55 mm, standoff 0.20 +/-0.10; p.1 Tj max 150 C"),
+    "rgw": dict(    # U26  TI TPS7A4700 RGW (VQFN-20, exposed pad = pad 21)
+        label="TI TPS7A4700 RGW", r_pad=1.7, r_top=27.0, body_mm=(5.0, 5.0), standoff_mm=0.05,
+        pad_filter=lambda n: n == "21", tj_limit=125.0,
+        cite="TI SBVS204G p.5 Table 5.4: RthJC(bot) 1.7 K/W (junction to exposed pad), RthJC(top) 27 K/W, RthJB 11.9, "
+             "PsiJB 11.9; p.21 sec 9.3 'junction temperature must be limited to a maximum of 125 C'; p.4 TJ -40..125"),
+    "dwk14": dict(  # U1, U2  TI UCC21550 DWK (SOIC-14)
+        label="TI UCC21550 DWK", r_pad=32.8, r_top=34.1, body_mm=(7.5, 10.3), standoff_mm=0.1,
+        pad_filter=None, tj_limit=150.0,
+        cite="TI UCC21550 p.5: DWK RthJB 32.8, RthJC(top) 34.1 K/W; p.1 junction range -40..150 C"),
+    "dbv5": dict(   # U3, U37, U38, U39  TI TPS70950 DBV (SOT-23-5)
+        label="TI TPS70950 DBV", r_pad=39.5, r_top=78.5, body_mm=(1.6, 2.9), standoff_mm=0.05,
+        pad_filter=None, tj_limit=125.0,
+        cite="TI TPS709 p.4: DBV RthJB 39.5, RthJC(top) 78.5 K/W; p.4 TJ -40..125 C"),
+    "chip1206": dict(  # thick-film chip resistors, 1206 (3.2 x 1.6 x 0.6 mm alumina)
+        label="1206 chip resistor", r_pad=33.0, r_top=0.0, body_mm=(3.2, 1.6), standoff_mm=0.05,
+        pad_filter=None, tj_limit=155.0,
+        cite="DERIVED: element-to-termination conduction through the 96 % alumina substrate, k = 24 W/mK (CoorsTek "
+             "96 % alumina, handbook), path (L/2)/(2 k W t) = 1.6 mm / (2 x 24 x 1.6 mm x 0.635 mm) = 33 K/W. "
+             "Rating 0.25 W at 70 C derated to 0 at 155 C is the vendor-typical 1206 curve (Yageo RC_L / UniRoyal "
+             "datasheets were not retrievable from this host: NOT re-verified here)"),
+    "css2h": dict(  # R5  Bourns CSS2H-2512R-1L00F
+        label="Bourns CSS2H-2512R-1L00F", r_pad=20.0, r_top=0.0, body_mm=(6.35, 3.05), standoff_mm=0.05,
+        pad_filter=None, tj_limit=170.0,
+        cite="DERIVED from the vendor terminal derating curve recorded in ../stage17-r5/screen.py (5 W at 70 C terminal "
+             "falling linearly to 0 W at 170 C terminal, Bourns CSS2H PDF p.3, bourns.com 403 from this host so "
+             "NOT re-fetched): element 170 C at 0 W-headroom => (170-70)/5 W = 20 K/W element-to-terminal"),
+    "film_radial": dict(  # C21-23, C151, C152 TDK B32654A1104K000; C38-41 B32652A0104K000
+        label="TDK MKP radial film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
+        pad_filter=None, tj_limit=105.0, body_air=False,
+        cite="ASSUMED class value: two 0.8 mm leads (cap doc components/B32652A0104K000), 3 mm free length, copper-clad "
+             "steel k = 60 W/mK  => 2 x 99 K/W in parallel = 50 K/W. TDK datasheet was not retrievable (403): the 105 C "
+             "upper category temperature and the 85 C ripple curve are the values recorded in round6-full-power/README.md"),
+    "film_4pin": dict(  # C5, C6 TDK B32676 (4-pin)
+        label="TDK MKP 4-pin film capacitor", r_pad=25.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
+        pad_filter=None, tj_limit=105.0, body_air=False,
+        cite="ASSUMED class value, as film_radial with four leads (25 K/W); TDK datasheet not retrievable (403)"),
+    "meanwell": dict(  # PS1, PS2  Mean Well IRM-20
+        label="Mean Well IRM-20", r_pad=15.0, r_top=0.0, body_mm=None, standoff_mm=1.0,
+        pad_filter=None, tj_limit=85.0, body_air=False,
+        cite="ASSUMED pin conduction class value (potted converter, four 1.0 mm pins, 3 mm) ; limit = IRM-20 spec p.? "
+             "'working temp -30 ~ +85 C (refer to derating curve)' is an AMBIENT rating, not a pin or case rating"),
+    "choke": dict(  # L1 TDK B82726S2203A020
+        label="TDK B82726S2203A020 choke", r_pad=5.0, r_top=0.0, body_mm=None, standoff_mm=2.0,
+        pad_filter=None, tj_limit=125.0, body_air=True,
+        cite="ASSUMED: winding to pin through the wire (k_Cu, 4 mm, 4 x 1.2 mm^2 section) ~ 5 K/W lumped; TDK datasheet "
+             "not retrievable (403): no rating retrieved, 125 C is the typical class-II ferrite/choke limit (UNVERIFIED)"),
+}
+
+
+def spec_for(ref: str, mpn: str, fp: str) -> str:
+    if mpn.startswith("R24C2T25"):
+        return "recom"
+    if mpn.startswith("TPS7A47"):
+        return "rgw"
+    if mpn.startswith("UCC21550"):
+        return "dwk14"
+    if mpn.startswith("TPS709"):
+        return "dbv5"
+    if mpn.startswith("CSS2H"):
+        return "css2h"
+    if "R_1206" in fp:
+        return "chip1206"
+    if mpn.startswith("B32654") or mpn.startswith("B32652"):
+        return "film_radial"
+    if mpn.startswith("B32676") or mpn.startswith("B32656"):
+        return "film_4pin"
+    if mpn.startswith("IRM-20"):
+        return "meanwell"
+    if mpn.startswith("B82726"):
+        return "choke"
+    raise KeyError(f"no package spec for {ref} {mpn} {fp}")
+
+
+# --------------------------------------------------------------------------------------------------------------
+# geometry: supersampled copper masks and exact pad overlaps
+# --------------------------------------------------------------------------------------------------------------
+class Board:
+    def __init__(self, geometry: Path, cache_dir: Path):
+        self.path = Path(geometry)
+        self.data = json.loads(gzip.open(self.path, "rt").read())
+        o = self.data["outline"]
+        self.outline = Polygon(o["shell"], o["holes"])
+        self.xmin, self.ymin, self.xmax, self.ymax = self.outline.bounds
+        self.nbx = math.ceil((self.xmax - self.xmin) / BASE)
+        self.nby = math.ceil((self.ymax - self.ymin) / BASE)
+        self.cache = Path(cache_dir)
+        self._fine = None
+        self.barrels = None
+        self.pad_polys = None
+
+    # ---- fine masks (uint8) cached on disk
+    def fine(self):
+        if self._fine is not None:
+            return self._fine
+        key = hashlib.sha256((self.data["board_sha256"] + f"{BASE}").encode()).hexdigest()[:16]
+        f = self.cache / f"fine_{key}.npz"
+        if f.exists():
+            z = np.load(f)
+            self._fine = {k: z[k] for k in z.files}
+            return self._fine
+        t0 = time.time()
+        x = self.xmin + (np.arange(self.nbx) + 0.5) * BASE
+        y = self.ymin + (np.arange(self.nby) + 0.5) * BASE
+        board = np.zeros((self.nbx, self.nby), bool)
+        T.raster_polygon(self.outline, x, y, board)
+        cu = {n: np.zeros_like(board) for n in CU_INDEX}
+        from shapely.geometry import LineString, Point
+        for it in self.data["primitives"]:
+            layer = it["layer"]
+            if layer not in cu:
+                continue
+            k = it["kind"]
+            if k in ("zone", "pad"):
+                shape = Polygon(it["shell"], it["holes"])
+            elif k == "track":
+                shape = LineString((it["start"], it["end"])).buffer(it["width_mm"] / 2, 8)
+            elif k == "via":
+                shape = Point(it["centre"]).buffer(it["diameter_mm"] / 2, 16)
+            else:
+                continue
+            T.raster_polygon(shape, x, y, cu[layer])
+        out = {"board": board.astype(np.uint8)}
+        for n, m in cu.items():
+            out["cu_" + n] = (m & board).astype(np.uint8)
+        self.cache.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(f, **out)
+        print(f"  fine masks built in {time.time() - t0:.0f} s -> {f.name}", flush=True)
+        self._fine = out
+        return out
+
+    def window_arrays(self, pitch, i0, i1, j0, j1):
+        """Board mask and per-layer copper area fraction for cells [i0,i1) x [j0,j1) of the pitch-mm grid."""
+        f = round(pitch / BASE)
+        assert abs(f * BASE - pitch) < 1e-9, pitch
+        fine = self.fine()
+
+        def blk(a):
+            nxw, nyw = i1 - i0, j1 - j0
+            sub = np.zeros((nxw * f, nyw * f), np.float32)
+            a0, a1 = i0 * f, min(i1 * f, a.shape[0])
+            b0, b1 = j0 * f, min(j1 * f, a.shape[1])
+            if a1 > a0 and b1 > b0:
+                sub[:a1 - a0, :b1 - b0] = a[a0:a1, b0:b1]
+            return sub.reshape(nxw, f, nyw, f).mean((1, 3))
+        bfrac = blk(fine["board"])
+        board = bfrac >= 0.5
+        cfrac = {}
+        for n in CU_INDEX:
+            c = blk(fine["cu_" + n]) / np.maximum(bfrac, 1e-9)
+            cfrac[n] = np.where(board, np.clip(c, 0.0, 1.0), 0.0)
+        return board, cfrac
+
+    def grid_n(self, pitch):
+        return math.ceil((self.xmax - self.xmin) / pitch), math.ceil((self.ymax - self.ymin) / pitch)
+
+    def get_barrels(self):
+        if self.barrels is None:
+            b = {}
+            for item in self.data["primitives"]:
+                if item["kind"] not in ("pad", "via") or item["layer"] not in CU_INDEX:
+                    continue
+                drill = item.get("drill_mm", 0)
+                if isinstance(drill, list):
+                    drill = drill[0] if drill[0] == drill[1] else 0
+                if drill and drill > 0:
+                    xy = item["centre"]
+                    key = (item["kind"], round(xy[0], 6), round(xy[1], 6), round(drill, 6))
+                    b.setdefault(key, {"xy_mm": xy, "drill_mm": drill, "layers": set()})["layers"].add(item["layer"])
+            self.barrels = list(b.values())
+        return self.barrels
+
+    def pads_of(self, ref):
+        """{pad_number: [(layer, shapely polygon)]} for one reference designator."""
+        if self.pad_polys is None:
+            from collections import defaultdict
+            d = defaultdict(lambda: defaultdict(list))
+            for it in self.data["primitives"]:
+                if it["kind"] == "pad" and it["layer"] in CU_INDEX:
+                    r, _, n = it["ref"].partition(".")
+                    d[r][n].append((it["layer"], Polygon(it["shell"], it["holes"])))
+            self.pad_polys = d
+        return self.pad_polys[ref]
+
+
+def pad_overlap(poly, xmin, ymin, pitch, i0, j0, nx, ny):
+    """Exact overlap areas [mm^2] of a polygon with cells of a (nx, ny) window whose first cell is (i0, j0)
+    of the global pitch grid. Returns (local_i, local_j, area) for cells with area > 0."""
+    bx0, by0, bx1, by1 = poly.bounds
+    ia = max(int(math.floor((bx0 - xmin) / pitch)) - i0, 0)
+    ib = min(int(math.floor((bx1 - xmin) / pitch)) - i0, nx - 1)
+    ja = max(int(math.floor((by0 - ymin) / pitch)) - j0, 0)
+    jb = min(int(math.floor((by1 - ymin) / pitch)) - j0, ny - 1)
+    if ib < ia or jb < ja:
+        return np.zeros(0, int), np.zeros(0, int), np.zeros(0)
+    ii, jj = np.meshgrid(np.arange(ia, ib + 1), np.arange(ja, jb + 1), indexing="ij")
+    ii, jj = ii.ravel(), jj.ravel()
+    x0 = xmin + (ii + i0) * pitch
+    y0 = ymin + (jj + j0) * pitch
+    boxes = shapely.box(x0, y0, x0 + pitch, y0 + pitch)
+    shapely.prepare(poly)
+    area = shapely.area(shapely.intersection(boxes, poly))
+    keep = area > 1e-12
+    return ii[keep], jj[keep], area[keep]
+
+
+# --------------------------------------------------------------------------------------------------------------
+# linear system
+# --------------------------------------------------------------------------------------------------------------
+def assemble(board, k, thk_m, h, pitch_m, links):
+    """Conductance matrix of the 7-sheet stack as COO pieces + diagonal (same stencil as thermal.solve_stack)."""
+    nz, nx, ny = k.shape
+    area = pitch_m * pitch_m
+    nxy = nx * ny
+    ids = np.arange(nz * nxy).reshape(nz, nx, ny)
+    diag = np.zeros(nz * nxy)
+    rows, cols, vals = [], [], []
+    for z in range(nz):
+        sheet = k[z] * thk_m[z]
+        for axis in (0, 1):
+            if axis == 0:
+                a, b = ids[z, :-1, :], ids[z, 1:, :]
+                ka, kb = sheet[:-1, :], sheet[1:, :]
+                valid = board[:-1, :] & board[1:, :]
+            else:
+                a, b = ids[z, :, :-1], ids[z, :, 1:]
+                ka, kb = sheet[:, :-1], sheet[:, 1:]
+                valid = board[:, :-1] & board[:, 1:]
+            g = 2 * ka * kb / (ka + kb)
+            T.add_edge(rows, cols, vals, diag, a[valid], b[valid], g[valid])
+    for z in range(nz - 1):
+        g = area / (thk_m[z] / (2 * k[z]) + thk_m[z + 1] / (2 * k[z + 1]))
+        T.add_edge(rows, cols, vals, diag, ids[z][board], ids[z + 1][board], g[board])
+    for z, i, j, z2, g in links:
+        if board[i, j]:
+            T.add_edge(rows, cols, vals, diag, [ids[z, i, j]], [ids[z2, i, j]], [g])
+    conv = h * area
+    for z in (0, nz - 1):
+        np.add.at(diag, ids[z][board], conv)
+    return rows, cols, vals, diag, ids, conv
+
+
+def barrel_links(barrels, xmin, ymin, pitch, i0, j0, nx, ny, board):
+    """thermal.barrel_edges for a window (cell indices local to the window)."""
+    zpos = np.cumsum(THK_MM) - THK_MM / 2
+    links = []
+    for b in barrels:
+        ix = int((b["xy_mm"][0] - xmin) // pitch) - i0
+        iy = int((b["xy_mm"][1] - ymin) // pitch) - j0
+        if not (0 <= ix < nx and 0 <= iy < ny and board[ix, iy]):
+            continue
+        zs = sorted(CU_INDEX[layer] for layer in b["layers"] if layer in CU_INDEX)
+        for za, zb in zip(zs, zs[1:]):
+            area = math.pi * b["drill_mm"] * 0.018 * 1e-6
+            links.append((za, ix, iy, zb, K_CU * area / ((zpos[zb] - zpos[za]) * 1e-3)))
+    return links
+
+
+class NetPart:
+    """One package network: junction node + pad groups (+ optional gap group) + air conductance."""
+
+    def __init__(self, ref, watts, spec_key):
+        self.ref, self.watts, self.spec_key = ref, watts, spec_key
+        self.groups = []         # (flat_ids, weights(sum 1), g_W_per_K, tag)
+        self.g_air = 0.0
+        self.r_top = 0.0
+        self.metrics_pads = []   # (z, i, j, area) of the reported pad copper (heated pads on the heated layer)
+        self.meta = {}
+
+
+def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitch, i0, j0, h, fps, sens, inside):
+    """Create NetPart objects for every heat-generating part passing `inside(x_mm, y_mm)`.
+
+    sens: dict(h_body_factor, all_pins, gap, r_scale)
+    """
+    data = json.loads(Path(heat_json).read_text())
+    nxy = nx * ny
+    parts, omitted = [], []
+    for p in data["parts"]:
+        ref = p["ref"]
+        fr, src = p.get("board_fraction"), p.get(f"watts_{mode}")
+        if fr is None or src is None or fr == 0:
+            omitted.append(ref)
+            continue
+        watts = src * fr
+        if watts == 0 or not inside(p["x_mm"], p["y_mm"]):
+            continue
+        fp = fps[ref]
+        key = spec_for(ref, fp["mpn"] or "", fp["fp"])
+        sp = SPECS[key]
+        r_scale = sens.get("r_scale", 1.0)
+        pads = board_obj.pads_of(ref)
+        # which pad numbers carry the heat
+        nums = set(p.get("pad_numbers") or [])
+        if not nums:
+            nums = set(pads)
+            if sp["pad_filter"] is not None and not sens.get("all_pins", False):
+                nums = {n for n in nums if sp["pad_filter"](n)}
+        # pad entries (pin, layer) -> overlap cells
+        ents = []
+        for n in sorted(nums):
+            for layer, poly in pads[n]:
+                z = CU_INDEX[layer]
+                ii, jj, a = pad_overlap(poly, xmin, ymin, pitch, i0, j0, nx, ny)
+                if a.size:
+                    ents.append((n, layer, z, ii, jj, a))
+        if not ents:
+            raise ValueError(f"{ref}: no pad overlap on this mesh")
+        tot = sum(e[5].sum() for e in ents)
+        np_ = NetPart(ref, watts, key)
+        r_pad = sp["r_pad"] * r_scale
+        gtot = 1.0 / r_pad
+        for n, layer, z, ii, jj, a in ents:
+            share = a.sum() / tot                    # heat/conductance split by pad copper area
+            ids = z * nxy + ii * ny + jj
+            np_.groups.append((ids, a / a.sum(), gtot * share, f"pad{n}.{layer}"))
+        np_.r_top = sp["r_top"]
+        # body -> air on the exposed top of the body
+        body = None                                   # body extents in the footprint's local frame (F.Fab box)
+        if fp.get("fab"):
+            fb = fp["fab"]
+            body = (fb[2] - fb[0], fb[3] - fb[1])
+        elif sp["body_mm"]:
+            body = sp["body_mm"]
+        use_air = sp.get("body_air", True) and (p.get("sink_fraction", 0.0) == 0.0 or sens.get("air_all", False))
+        if body is not None and use_air:
+            a_top = body[0] * body[1] * 1e-6
+            hb = h * sens.get("h_body_factor", 1.0)
+            r_tot = sp["r_top"] + 1.0 / (hb * a_top)
+            np_.g_air = 1.0 / r_tot
+            np_.meta["body_area_mm2"] = body[0] * body[1]
+        if sens.get("gap") and body is not None:
+            cx, cy = fp["at"][0], fp["at"][1]
+            rot = math.radians(fp["at"][2]) if len(fp["at"]) > 2 else 0.0
+            bw, bh = body
+            if abs(math.sin(rot)) > 0.5:
+                bw, bh = bh, bw
+            poly = shapely.box(cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2)
+            ii, jj, a = pad_overlap(poly, xmin, ymin, pitch, i0, j0, nx, ny)
+            gap = max(sp["standoff_mm"], 0.02) * 1e-3
+            if a.size:
+                np_.groups.append((0 * nxy + ii * ny + jj, a / a.sum(), K_AIR * a.sum() * 1e-6 / gap, "gap"))
+        # reported pad copper: heated pads on the F.Cu layer (legacy reporting convention)
+        lay = "F.Cu" if any(e[1] == "F.Cu" for e in ents) else ents[0][1]
+        np_.metrics_pads = [(CU_INDEX[lay], e[3], e[4], e[5]) for e in ents if e[1] == lay]
+        np_.meta.update(label=sp["label"], r_pad=r_pad, r_top=sp["r_top"], pads=len(nums), spec=key,
+                        pad_area_mm2=float(tot), tj_limit=sp["tj_limit"], x=p["x_mm"], y=p["y_mm"],
+                        watts=watts, sink_fraction=p.get("sink_fraction", 0.0))
+        parts.append(np_)
+    return parts, omitted
+
+
+def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=None, rtol=1e-10, label=""):
+    """Solve for rises. `heat` (nz,nx,ny) W injected into cells (point-source part heat is already in it).
+    dirichlet: None or (T_bc array (nz,nx,ny)) - the outer ring of cells (all sheets) is held at T_bc.
+    Returns rise (nz,nx,ny), rise_J (len(parts)), receipt."""
+    nz, nx, ny = k.shape
+    nxy = nx * ny
+    rows, cols, vals, diag, ids, conv = assemble(board, k, thk_m, h, pitch_m, links)
+    N = nz * nxy
+    nJ = len(parts)
+    diagJ = np.zeros(nJ)
+    rhs = np.zeros(N + nJ)
+    rhs[:N] = heat.ravel()
+    inactive = ~np.broadcast_to(board, (nz, nx, ny))
+    r2, c2, v2 = [], [], []
+    for s, p in enumerate(parts):
+        J = N + s
+        rhs[J] = p.watts
+        diagJ[s] += p.g_air
+        for gids, w, g, _ in p.groups:
+            onb = board.ravel()[gids % nxy]          # cells off the board outline carry no heat path: drop and renormalise
+            if not onb.all():
+                gids, w = gids[onb], w[onb] / w[onb].sum()
+            # flux into cells = g (T_J - w.T) w   =>   M_cc' += g w w',  M_cJ = M_Jc = -g w,  M_JJ += g
+            r2.append(np.repeat(gids, len(gids)))
+            c2.append(np.tile(gids, len(gids)))
+            v2.append((g * np.outer(w, w)).ravel())
+            r2.extend((gids, np.full(len(gids), J)))
+            c2.extend((np.full(len(gids), J), gids))
+            v2.extend((-g * w, -g * w))
+            diagJ[s] += g
+    diag_full = np.concatenate([diag, diagJ])
+    # outer-product blocks add to the cell diagonal: pull them out of the COO so Jacobi sees the true diagonal
+    diag_extra = np.zeros(N + nJ)
+    for r_, c_, v_ in zip(r2, c2, v2):
+        m = r_ == c_
+        if m.any():
+            np.add.at(diag_extra, r_[m], v_[m])
+    diag_full = diag_full + diag_extra
+    diag_full[:N][ids[inactive]] = 1.0
+    keep_r = [r_[r_ != c_] for r_, c_ in zip(r2, c2)]
+    keep_c = [c_[r_ != c_] for r_, c_ in zip(r2, c2)]
+    keep_v = [v_[r_ != c_] for r_, c_, v_ in zip(r2, c2, v2)]
+    rr = np.concatenate(rows + keep_r + [np.arange(N + nJ)]) if (rows or keep_r) else np.arange(N + nJ)
+    cc = np.concatenate(cols + keep_c + [np.arange(N + nJ)]) if (cols or keep_c) else np.arange(N + nJ)
+    vv = np.concatenate(vals + keep_v + [diag_full]) if (vals or keep_v) else diag_full
+    M = coo_matrix((vv, (rr, cc)), shape=(N + nJ, N + nJ)).tocsr()
+    rhs[:N][ids[inactive]] = 0.0
+    bc_flux = 0.0
+    if dirichlet is None:
+        iters = [0]
+        pre = LinearOperator(M.shape, matvec=lambda v: v / diag_full)
+        x, info = cg(M, rhs, rtol=rtol, atol=1e-14, M=pre, maxiter=40000,
+                     callback=lambda _: iters.__setitem__(0, iters[0] + 1))
+        if info != 0:
+            raise RuntimeError(f"CG failed info={info} it={iters[0]} {label}")
+        resid = float(np.linalg.norm(M @ x - rhs) / max(np.linalg.norm(rhs), 1e-30))
+        TB = None
+    else:
+        ring = np.zeros((nx, ny), bool)
+        ring[0, :] = ring[-1, :] = ring[:, 0] = ring[:, -1] = True
+        Bmask = np.zeros(N + nJ, bool)
+        Bmask[:N] = np.broadcast_to(ring, (nz, nx, ny)).ravel()
+        Bidx = np.flatnonzero(Bmask)
+        Uidx = np.flatnonzero(~Bmask)
+        TBv = dirichlet.ravel()[Bidx]
+        MUU = M[Uidx][:, Uidx]
+        MUB = M[Uidx][:, Bidx]
+        rhsU = rhs[Uidx] - MUB @ TBv
+        dU = diag_full[Uidx]
+        iters = [0]
+        pre = LinearOperator(MUU.shape, matvec=lambda v: v / dU)
+        xU, info = cg(MUU, rhsU, rtol=rtol, atol=1e-14, M=pre, maxiter=40000,
+                      callback=lambda _: iters.__setitem__(0, iters[0] + 1))
+        if info != 0:
+            raise RuntimeError(f"CG failed info={info} it={iters[0]} {label}")
+        x = np.zeros(N + nJ)
+        x[Uidx] = xU
+        x[Bidx] = TBv
+        resid = float(np.linalg.norm(MUU @ xU - rhsU) / max(np.linalg.norm(rhsU), 1e-30))
+        # conductive flux from interior into the ring (independent edge sum)
+        S = -MUB.tocsr()
+        bc_flux = float((S.sum(axis=1).A1 * xU).sum() - (S.sum(axis=0).A1 * TBv).sum())
+        # interior rows in the ring-adjacent layer carry the ring's convection too: those nodes are fixed, not counted
+    rise = x[:N].reshape(nz, nx, ny)
+    riseJ = x[N:]
+    if dirichlet is None:
+        conv_w = float(conv * (rise[0][board].sum() + rise[-1][board].sum()))
+    else:
+        inner = board.copy()
+        inner[0, :] = inner[-1, :] = inner[:, 0] = inner[:, -1] = False
+        conv_w = float(conv * (rise[0][inner].sum() + rise[-1][inner].sum()))
+    air_w = float(sum(p.g_air * riseJ[s] for s, p in enumerate(parts)))
+    if dirichlet is None:
+        src = float(heat[:, board].sum() + sum(p.watts for p in parts))
+    else:
+        inner = board.copy()
+        inner[0, :] = inner[-1, :] = inner[:, 0] = inner[:, -1] = False
+        src = float(heat[:, inner].sum() + sum(p.watts for p in parts))
+    rec = {"source_w": src, "convection_w": conv_w, "body_air_w": air_w, "boundary_flux_w": bc_flux,
+           "balance_w": src - conv_w - air_w - bc_flux, "balance_rel": (src - conv_w - air_w - bc_flux) / max(abs(src), 1e-30),
+           "cg_iterations": iters[0], "relative_residual": resid}
+    return rise, riseJ, rec
+
+
+# --------------------------------------------------------------------------------------------------------------
+# analytic control: uniformly heated disc on an infinite fin plate (both faces convect)
+# --------------------------------------------------------------------------------------------------------------
+def analytic_disc(pitch_mm=0.25, a_mm=3.0, half_mm=45.0, h=250.0, t_um=70.0, watts=1.0, r_pad=10.0):
+    """Network source on one sheet: a disc pad of radius a, flux uniform over the disc.
+
+    Exact (modified Bessel): rise(r<a) = q/(2h) [1 - m a K1(m a) I0(m r)], m^2 = 2h/(k t), q = P/(pi a^2).
+    Disc-mean rise = q/(2h) [1 - 2 K1(ma) I1(ma)].  T_J = disc mean + P r_pad.
+    """
+    k, t = K_CU, t_um * 1e-6
+    m = math.sqrt(2 * h / (k * t))
+    a = a_mm * 1e-3
+    q = watts / (math.pi * a * a)
+    mean_exact = q / (2 * h) * (1 - 2 * bessel_k1(m * a) * bessel_i1(m * a))
+    centre_exact = q / (2 * h) * (1 - m * a * bessel_k1(m * a))
+    nxy = round(2 * half_mm / pitch_mm)
+    board = np.ones((nxy, nxy), bool)
+    kk = np.full((1, nxy, nxy), k)
+    xmin = ymin = 0.0
+    poly = Point_buffer(half_mm, half_mm, a_mm)
+    ii, jj, area = pad_overlap(poly, xmin, ymin, pitch_mm, 0, 0, nxy, nxy)
+    part = NetPart("DISC", watts, "analytic")
+    part.groups.append((ii * nxy + jj, area / area.sum(), 1.0 / r_pad, "disc"))
+    rise, riseJ, rec = solve_system(board, kk, np.array([t]), np.zeros((1, nxy, nxy)), h, pitch_mm * 1e-3, [], [part])
+    w = area / area.sum()
+    mean_num = float((rise[0][ii, jj] * w).sum())
+    centre_num = float(rise[0][int(half_mm / pitch_mm) - 1:int(half_mm / pitch_mm) + 1,
+                               int(half_mm / pitch_mm) - 1:int(half_mm / pitch_mm) + 1].mean())
+    tj_exact = mean_exact + watts * r_pad
+    return {"pitch_mm": pitch_mm, "disc_radius_mm": a_mm, "h_w_m2k": h, "fin_length_mm": 1e3 / m,
+            "mean_exact_k": mean_exact, "mean_numeric_k": mean_num, "mean_rel_err": abs(mean_num - mean_exact) / mean_exact,
+            "junction_exact_k": tj_exact, "junction_numeric_k": float(riseJ[0]),
+            "junction_rel_err": abs(float(riseJ[0]) - tj_exact) / tj_exact,
+            "centre_exact_k": centre_exact, "centre_numeric_k": centre_num,
+            "centre_rel_err": abs(centre_num - centre_exact) / centre_exact, **rec}
+
+
+def Point_buffer(cx, cy, r):
+    from shapely.geometry import Point
+    return Point(cx, cy).buffer(r, 256)
+
+
+if __name__ == "__main__":
+    import pprint
+    pprint.pprint(analytic_disc())

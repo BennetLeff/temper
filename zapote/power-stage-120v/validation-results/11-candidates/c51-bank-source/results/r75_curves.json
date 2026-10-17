@@ -1,0 +1,28 @@
+{
+ "pdf": "dl/KEM_F3106_R75/KEM_F3106_R75.pdf",
+ "chart_0.1uF_p27.5_A": {
+  "20k": 5.358,
+  "30k": 6.031,
+  "35k": 6.296,
+  "40k": 6.716,
+  "50k": 7.087,
+  "70k": 7.641,
+  "100k": 8.151
+ },
+ "table_100k_A": {
+  "R75UR3100(1)30 11x20x32": 7.56,
+  "R75UR3100(1)L3 24x15x32": 8.13
+ },
+ "scale_to_4030J": 0.9275,
+ "R75UR31004030J_I_allow_A": {
+  "20k": 4.97,
+  "30k": 5.594,
+  "35k": 5.839,
+  "40k": 6.229,
+  "50k": 6.573,
+  "70k": 7.087,
+  "100k": 7.56
+ },
+ "basis": "Th <= 85 C; table note (*) 'Irms value that leads to a dT of ~20 C in the hot spot' (p.24); dT_lim vs Th p.7: 20 K to Th 85 C, linear to 0 K at Th 105 C; Th = the higher of the air around the part and the hottest contact point (tracks) (p.7)",
+ "control_failed": []
+}

@@ -5,6 +5,7 @@
 	(layer "F.Cu")
 	(descr "Coilcraft CST3015-100ED. Recommended land pattern: Document 1608-2 revised 09/08/25. Primary lands 4.8x9.0, inner horizontal gap6.36; secondary3.0x4.6, inner horizontal gap10.76. Primary-bottom to secondary-top gap18.5, row centres25.3. Pad1 upper-right;2 upper-left;3 lower-left;4 lower-right. Body envelope23x30; maximum height15.2. Corrected from legacy swapped width/height and misinterpreted vertical dimension. See zapote/current-sense/evidence/footprint-review.")
 	(tags "current transformer CST3015 coilcraft SMD isolated")
+	(attr smd)
 	(property "Reference" "REF**"
 		(at 0 -17.8 0)
 		(layer "F.SilkS")

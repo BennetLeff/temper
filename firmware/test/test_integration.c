@@ -23,6 +23,7 @@ extern void mock_sm_set_time(uint32_t ms);
 extern void mock_sm_set_pan_temperature(float temp_c);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
 extern void mock_sm_set_dc_bus_current(float amps);
+extern void mock_sm_set_power_tank_trip(bool tripped);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);  /* 0=ABSENT, 1=PRESENT */
 extern void mock_sm_set_pan_impedance(float impedance);
@@ -479,8 +480,8 @@ void test_fault_ocp_during_heating(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject over-current condition (>40A) */
-    mock_sm_set_dc_bus_current(45.0f);
+    /* Inject over-current: the n21 binding's CT peak / RMS trip (native-21) */
+    mock_sm_set_power_tank_trip(true);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -542,7 +543,7 @@ void test_fault_thermal_igbt(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject IGBT over-temperature (heatsink >80C) */
+    /* Inject power-stage over-temperature (heatsink > 95 C, L3 ladder) */
     mock_sm_set_heatsink_temperature(110.0f);
     mock_sm_advance_time(100);
     state_machine_update();
@@ -726,7 +727,7 @@ void test_fault_recovery_after_condition_cleared(void) {
     mock_sm_set_heatsink_temperature(65.0f);
     
     /* Press reset button */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -763,7 +764,7 @@ void test_fault_reset_rejected_while_active(void) {
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     
     /* Try reset while condition still active */
-    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_press_button(BUTTON_BACK);
     mock_sm_advance_time(100);
     state_machine_update();
     

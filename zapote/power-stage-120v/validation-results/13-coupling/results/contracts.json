@@ -1,0 +1,2173 @@
+{
+ "bom_only_lane": {
+  "G01": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 12,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.185,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.185,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.185,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.185,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.185,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.185,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.0461,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "share": 0.0461,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "share": 0.5714,
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0048,
+     "stage43": 8.047
+    },
+    {
+     "metric": "emi_min_margin_dB",
+     "share": 0.3846,
+     "stage43": 12.4
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.4706,
+     "stage43": 0.993
+    },
+    {
+     "metric": "leakage_touch_mA",
+     "share": 0.5,
+     "stage43": 0.241
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.1,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.1,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.1,
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.0066,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.3333,
+     "stage43": null
+    }
+   ]
+  },
+  "G02": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 6,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.0631,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.0631,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.0631,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.0631,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.0631,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.0631,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.0066,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "share": 0.0066,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0048,
+     "stage43": 8.047
+    },
+    {
+     "metric": "emi_min_margin_dB",
+     "share": 0.1538,
+     "stage43": 12.4
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.0294,
+     "stage43": 0.993
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.0066,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.0417,
+     "stage43": null
+    }
+   ]
+  },
+  "G03": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 12,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.0972,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.0972,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.0972,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.0972,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.0972,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.0972,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.0118,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "share": 0.0118,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0087,
+     "stage43": 8.047
+    },
+    {
+     "metric": "emi_min_margin_dB",
+     "share": 0.3077,
+     "stage43": 12.4
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.2765,
+     "stage43": 0.993
+    },
+    {
+     "metric": "jet_strip_height",
+     "share": 0.1667,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.0118,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.0917,
+     "stage43": null
+    }
+   ]
+  },
+  "G04": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 11,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.0902,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.0902,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.0902,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.0902,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.0902,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.0902,
+     "stage43": 1.2
+    },
+    {
+     "metric": "bank_ratio_tdk_28A_35k",
+     "share": 1.0,
+     "stage43": 1.045
+    },
+    {
+     "metric": "bank_ratio_tdk_28A_40k",
+     "share": 1.0,
+     "stage43": 1.022
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.0026,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "share": 0.0026,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0038,
+     "stage43": 8.047
+    },
+    {
+     "metric": "emi_min_margin_dB",
+     "share": 0.1538,
+     "stage43": 12.4
+    },
+    {
+     "metric": "ocp_pickup_stack_pan60_A",
+     "share": 0.1538,
+     "stage43": 4.17
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.2,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.2,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.2,
+     "stage43": 13.375
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.1417,
+     "stage43": null
+    }
+   ]
+  },
+  "G05": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 92,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.1323,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.1323,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.1323,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.1323,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.1323,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.1323,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.2594,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "share": 0.0539,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "cmti_gate_ratio_min",
+     "share": 1.0,
+     "stage43": 1.579
+    },
+    {
+     "metric": "cmti_table_all_rows",
+     "share": 0.1667,
+     "stage43": null
+    },
+    {
+     "metric": "d5",
+     "share": 0.2594,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.3272,
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.0118,
+     "stage43": 0.993
+    },
+    {
+     "metric": "jet_strip_height",
+     "share": 0.8333,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "pi_distances",
+     "share": 0.1065,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.04,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.04,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.04,
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.1825,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path_open_changes",
+     "share": 0.1714,
+     "stage43": 15
+    },
+    {
+     "metric": "return_path_worst_asserted_mm",
+     "share": 0.1846,
+     "stage43": 2.72
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.05,
+     "stage43": null
+    }
+   ]
+  },
+  "G06": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 42,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.2694,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.2694,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.2694,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.2694,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.2694,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.2694,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.0634,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "share": 0.0446,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "cmti_table_all_rows",
+     "share": 0.25,
+     "stage43": null
+    },
+    {
+     "metric": "d5",
+     "share": 0.0634,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "share": 0.0714,
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0407,
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.0412,
+     "stage43": 0.993
+    },
+    {
+     "metric": "leakage_touch_mA",
+     "share": 0.25,
+     "stage43": 0.241
+    },
+    {
+     "metric": "pi_distances",
+     "share": 0.7731,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.014,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.0917,
+     "stage43": null
+    }
+   ]
+  },
+  "G07": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 92,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.0419,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.0419,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.0419,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.0419,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.0419,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.0419,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.2265,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "share": 0.5422,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "cmti_table_all_rows",
+     "share": 0.25,
+     "stage43": null
+    },
+    {
+     "metric": "d5",
+     "share": 0.2265,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.2888,
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.0118,
+     "stage43": 0.993
+    },
+    {
+     "metric": "pi_distances",
+     "share": 0.1065,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.04,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.04,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.04,
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.1956,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path_open_changes",
+     "share": 0.2071,
+     "stage43": 15
+    },
+    {
+     "metric": "return_path_worst_asserted_mm",
+     "share": 0.0308,
+     "stage43": 2.72
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.05,
+     "stage43": null
+    }
+   ]
+  },
+  "G08": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 42,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.0766,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.0766,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.0766,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.0766,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.0766,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.0766,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.2191,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "share": 0.1081,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "cmti_table_all_rows",
+     "share": 0.1667,
+     "stage43": null
+    },
+    {
+     "metric": "d5",
+     "share": 0.2191,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.2385,
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.1,
+     "stage43": 0.993
+    },
+    {
+     "metric": "kelvin_band_low_A",
+     "share": 1.0,
+     "stage43": 67.77
+    },
+    {
+     "metric": "ocp_pickup_stack_pan60_A",
+     "share": 0.8462,
+     "stage43": 4.17
+    },
+    {
+     "metric": "pi_distances",
+     "share": 0.0139,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.04,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.04,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.04,
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.1934,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path_open_changes",
+     "share": 0.2786,
+     "stage43": 15
+    },
+    {
+     "metric": "return_path_worst_asserted_mm",
+     "share": 0.1846,
+     "stage43": 2.72
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.0583,
+     "stage43": null
+    }
+   ]
+  },
+  "G09": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 32,
+   "retriggers": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "share": 0.0443,
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "share": 0.0443,
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "share": 0.0443,
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "share": 0.0443,
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "share": 0.0443,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "share": 0.0443,
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "share": 0.1,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "share": 0.2419,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "cmti_table_all_rows",
+     "share": 0.1667,
+     "stage43": null
+    },
+    {
+     "metric": "d5",
+     "share": 0.1,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "share": 0.0714,
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0365,
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.0294,
+     "stage43": 0.993
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.44,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.44,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.44,
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.1421,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path_open_changes",
+     "share": 0.1714,
+     "stage43": 15
+    },
+    {
+     "metric": "return_path_worst_asserted_mm",
+     "share": 0.0692,
+     "stage43": 2.72
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.1,
+     "stage43": null
+    }
+   ]
+  },
+  "G10": {
+   "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
+   "parts": 10,
+   "retriggers": [
+    {
+     "metric": "barrier_8mm",
+     "share": 0.0645,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "share": 0.0093,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "share": 0.0645,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "share": 0.2857,
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "share": 0.0462,
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "share": 0.0294,
+     "stage43": 0.993
+    },
+    {
+     "metric": "leakage_touch_mA",
+     "share": 0.25,
+     "stage43": 0.241
+    },
+    {
+     "metric": "res_a_creepage18",
+     "share": 0.14,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "share": 0.14,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "share": 0.14,
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "share": 0.2474,
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path_open_changes",
+     "share": 0.1714,
+     "stage43": 15
+    },
+    {
+     "metric": "return_path_worst_asserted_mm",
+     "share": 0.5308,
+     "stage43": 2.72
+    },
+    {
+     "metric": "task04_dc_cases",
+     "share": 0.0417,
+     "stage43": null
+    }
+   ]
+  }
+ },
+ "contracts": [
+  {
+   "barrier_closest": [
+    "bus_p / selv_gnd 8.162 mm (In2.Cu)",
+    "hv_ret / v3v3 8.2 mm (In1.Cu)",
+    "l_filt / v3v3 8.218 mm (In1.Cu)",
+    "n_filt / v3v3 8.218 mm (In1.Cu)",
+    "l_filt / selv_gnd 8.218 mm (In2.Cu)",
+    "n_filt / selv_gnd 8.218 mm (In2.Cu)"
+   ],
+   "barrier_min_mm": 8.162,
+   "barrier_pairs_within_9mm": 17,
+   "between": [
+    "WS1 mains / EMI",
+    "WS4 drive / bias / monitor / protect (LS, HS-A, HS-B islands)"
+   ],
+   "contested_corridor_tiles": [
+    [
+     60.0,
+     130.0
+    ],
+    [
+     50.0,
+     130.0
+    ],
+    [
+     40.0,
+     130.0
+    ],
+    [
+     70.0,
+     130.0
+    ],
+    [
+     90.0,
+     130.0
+    ],
+    [
+     30.0,
+     130.0
+    ],
+    [
+     80.0,
+     130.0
+    ],
+    [
+     30.0,
+     140.0
+    ],
+    [
+     70.0,
+     140.0
+    ],
+    [
+     40.0,
+     140.0
+    ],
+    [
+     50.0,
+     140.0
+    ],
+    [
+     100.0,
+     130.0
+    ]
+   ],
+   "edges_at_or_above_0p2": [
+    "G01-G06"
+   ],
+   "interface_nets": [
+    {
+     "class": "power",
+     "net": "bus_p",
+     "pins_WS1": [
+      "BR1.1"
+     ],
+     "pins_WS4": [
+      "R26.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "hv_ret",
+     "pins_WS1": [
+      "BR1.4"
+     ],
+     "pins_WS4": [
+      "R5.4"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "l_filt",
+     "pins_WS1": [
+      "BR1.2",
+      "C2.1",
+      "C3.1",
+      "L1.4"
+     ],
+     "pins_WS4": [
+      "J3.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "n_filt",
+     "pins_WS1": [
+      "BR1.3",
+      "C2.2",
+      "C4.1",
+      "L1.3"
+     ],
+     "pins_WS4": [
+      "PS2.2"
+     ]
+    }
+   ],
+   "max_edge": 0.2119,
+   "must_not_move": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "stage43": 0.993
+    },
+    {
+     "metric": "leakage_touch_mA",
+     "stage43": 0.241
+    },
+    {
+     "metric": "res_a_creepage18",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "stage43": null
+    }
+   ],
+   "n_interface_nets": 4,
+   "routed_copper_in_other_territory_mm2": {
+    "WS1->WS4": 19.2655,
+    "WS4->WS1": 38.1313
+   }
+  },
+  {
+   "barrier_closest": [
+    "bus_p / selv_gnd 8.162 mm (In2.Cu)",
+    "hv_ret / v3v3 8.2 mm (In1.Cu)",
+    "l_filt / v3v3 8.218 mm (In1.Cu)",
+    "n_filt / v3v3 8.218 mm (In1.Cu)",
+    "l_filt / selv_gnd 8.218 mm (In2.Cu)",
+    "n_filt / selv_gnd 8.218 mm (In2.Cu)"
+   ],
+   "barrier_min_mm": 8.162,
+   "barrier_pairs_within_9mm": 16,
+   "between": [
+    "WS1 mains / EMI",
+    "WS5 SELV side (CT / ZC detect, J4)"
+   ],
+   "contested_corridor_tiles": [
+    [
+     60.0,
+     130.0
+    ],
+    [
+     50.0,
+     130.0
+    ],
+    [
+     40.0,
+     130.0
+    ],
+    [
+     70.0,
+     130.0
+    ],
+    [
+     90.0,
+     130.0
+    ],
+    [
+     30.0,
+     130.0
+    ],
+    [
+     80.0,
+     130.0
+    ],
+    [
+     30.0,
+     140.0
+    ],
+    [
+     70.0,
+     140.0
+    ],
+    [
+     40.0,
+     140.0
+    ],
+    [
+     50.0,
+     140.0
+    ],
+    [
+     100.0,
+     130.0
+    ]
+   ],
+   "edges_at_or_above_0p2": [
+    "G01-G10"
+   ],
+   "interface_nets": [
+    {
+     "class": "power",
+     "net": "l_filt",
+     "pins_WS1": [
+      "BR1.2",
+      "C2.1",
+      "C3.1",
+      "L1.4"
+     ],
+     "pins_WS5": [
+      "F2.1",
+      "R67.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "n_filt",
+     "pins_WS1": [
+      "BR1.3",
+      "C2.2",
+      "C4.1",
+      "L1.3"
+     ],
+     "pins_WS5": [
+      "J11.2",
+      "R70.2"
+     ]
+    },
+    {
+     "class": "rail",
+     "net": "pe",
+     "pins_WS1": [
+      "C3.2",
+      "C4.2",
+      "J6.1",
+      "J6.2"
+     ],
+     "pins_WS5": [
+      "R38.1"
+     ]
+    }
+   ],
+   "max_edge": 0.2423,
+   "must_not_move": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "stage43": 0.993
+    },
+    {
+     "metric": "leakage_touch_mA",
+     "stage43": 0.241
+    },
+    {
+     "metric": "res_a_creepage18",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "stage43": null
+    }
+   ],
+   "n_interface_nets": 3,
+   "routed_copper_in_other_territory_mm2": {
+    "WS1->WS5": 28.4688,
+    "WS5->WS1": 35.5564
+   }
+  },
+  {
+   "barrier_closest": [
+    "bus_p / selv_gnd 8.162 mm (In2.Cu)",
+    "hv_ret / v3v3 8.2 mm (In1.Cu)",
+    "sw_a / bias_good 8.34 mm (B.Cu)",
+    "bus_p / v3v3 8.352 mm (In1.Cu)",
+    "sw_b / v3v3 8.889 mm (In1.Cu)",
+    "sw_b / selv_gnd 8.889 mm (In2.Cu)"
+   ],
+   "barrier_min_mm": 8.162,
+   "barrier_pairs_within_9mm": 10,
+   "between": [
+    "WS2 power path",
+    "WS4 drive / bias / monitor / protect (LS, HS-A, HS-B islands)"
+   ],
+   "contested_corridor_tiles": [],
+   "edges_at_or_above_0p2": [
+    "G03-G05"
+   ],
+   "interface_nets": [
+    {
+     "class": "power",
+     "net": "bus_p",
+     "pins_WS2": [
+      "C12.1",
+      "C19.1",
+      "C38.1",
+      "C39.1",
+      "C40.1",
+      "C41.1",
+      "C5.1",
+      "C5.2",
+      "C6.1",
+      "C6.2",
+      "D3.1",
+      "Q2.2",
+      "Q5.2",
+      "R3.1"
+     ],
+     "pins_WS4": [
+      "R26.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "hv_ret",
+     "pins_WS2": [
+      "C38.2",
+      "C39.2",
+      "C40.2",
+      "C41.2",
+      "C5.3",
+      "C5.4",
+      "C6.3",
+      "C6.4",
+      "D17.2",
+      "R4.2"
+     ],
+     "pins_WS4": [
+      "R5.4"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "leg_a-gate_h",
+     "pins_WS2": [
+      "Q2.1"
+     ],
+     "pins_WS4": [
+      "C55.1",
+      "D6.2",
+      "R10.2",
+      "R11.1"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "leg_a-gate_l",
+     "pins_WS2": [
+      "Q3.1"
+     ],
+     "pins_WS4": [
+      "C56.1",
+      "D7.2",
+      "R12.2",
+      "R13.1"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "leg_b-gate_h",
+     "pins_WS2": [
+      "Q5.1"
+     ],
+     "pins_WS4": [
+      "C62.1",
+      "D8.2",
+      "R18.2",
+      "R19.1"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "leg_b-gate_l",
+     "pins_WS2": [
+      "Q6.1"
+     ],
+     "pins_WS4": [
+      "C63.1",
+      "D9.2",
+      "R20.2",
+      "R21.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "leg_ret",
+     "pins_WS2": [
+      "C13.2",
+      "C20.2",
+      "Q3.3",
+      "Q6.3"
+     ],
+     "pins_WS4": [
+      "C114.1",
+      "C115.1",
+      "C116.1",
+      "C117.1",
+      "C122.1",
+      "C123.1",
+      "C124.1",
+      "C125.1",
+      "C52.1",
+      "C53.1",
+      "C56.2",
+      "C59.1",
+      "C60.1",
+      "C63.2",
+      "C92.1",
+      "C93.1",
+      "C96.1",
+      "C97.1",
+      "R13.2",
+      "R21.2",
+      "R5.1",
+      "R52.1",
+      "R56.1",
+      "R72.2",
+      "R75.2",
+      "R77.1",
+      "R81.1",
+      "R83.1",
+      "U16.2"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "sw_a",
+     "pins_WS2": [
+      "C12.2",
+      "C13.1",
+      "Q2.3",
+      "Q3.2"
+     ],
+     "pins_WS4": [
+      "C110.1",
+      "C111.1",
+      "C112.1",
+      "C113.1",
+      "C50.1",
+      "C51.1",
+      "C55.2",
+      "C90.1",
+      "C91.1",
+      "R101.1",
+      "R11.2",
+      "R51.1",
+      "R71.2",
+      "R95.1",
+      "R99.1",
+      "U18.2"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "sw_b",
+     "pins_WS2": [
+      "C19.2",
+      "C20.1",
+      "Q5.3",
+      "Q6.2"
+     ],
+     "pins_WS4": [
+      "C118.1",
+      "C119.1",
+      "C120.1",
+      "C121.1",
+      "C57.1",
+      "C58.1",
+      "C62.2",
+      "C94.1",
+      "C95.1",
+      "R110.1",
+      "R114.1",
+      "R116.1",
+      "R19.2",
+      "R55.1",
+      "R74.2",
+      "U20.2"
+     ]
+    }
+   ],
+   "max_edge": 0.4513,
+   "must_not_move": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "stage43": 0.993
+    },
+    {
+     "metric": "jet_strip_height",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path19",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "task04_dc_cases",
+     "stage43": null
+    }
+   ],
+   "n_interface_nets": 9,
+   "routed_copper_in_other_territory_mm2": {
+    "WS2->WS4": 73.4313,
+    "WS4->WS2": 178.2533
+   }
+  },
+  {
+   "barrier_closest": [
+    "sw_b / line_zc_raw 8.145 mm (B.Cu)",
+    "sw_b / v3v3 8.889 mm (In1.Cu)",
+    "sw_b / selv_gnd 8.889 mm (In2.Cu)",
+    "sw_b / selv_gnd 8.928 mm (F.Cu)"
+   ],
+   "barrier_min_mm": 8.145,
+   "barrier_pairs_within_9mm": 4,
+   "between": [
+    "WS3 resonant tank",
+    "WS5 SELV side (CT / ZC detect, J4)"
+   ],
+   "contested_corridor_tiles": [],
+   "edges_at_or_above_0p2": [
+    "G04-G09"
+   ],
+   "interface_nets": [
+    {
+     "class": "power",
+     "net": "coil_feed",
+     "pins_WS3": [
+      "J2.1"
+     ],
+     "pins_WS5": [
+      "T1.2"
+     ]
+    }
+   ],
+   "max_edge": 0.2133,
+   "must_not_move": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "stage43": 8.047
+    },
+    {
+     "metric": "res_a_creepage18",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "stage43": 13.375
+    },
+    {
+     "metric": "task04_dc_cases",
+     "stage43": null
+    }
+   ],
+   "n_interface_nets": 1,
+   "routed_copper_in_other_territory_mm2": {
+    "WS3->WS5": 0.0,
+    "WS5->WS3": 24.9375
+   }
+  },
+  {
+   "barrier_closest": [
+    "n_hb / selv_gnd 8.061 mm (In1.Cu)",
+    "p_ha / selv_gnd 8.08 mm (In2.Cu)",
+    "n_ha / selv_gnd 8.099 mm (In1.Cu)",
+    "bus_fault_hot / bus_fault_iso 8.1 mm (F.Cu)",
+    "hb.iso-nc8 / selv_gnd 8.1 mm (F.Cu)",
+    "hot5 / v3v3 8.1 mm (F.Cu)"
+   ],
+   "barrier_min_mm": 8.061,
+   "barrier_pairs_within_9mm": 127,
+   "between": [
+    "WS4 drive / bias / monitor / protect (LS, HS-A, HS-B islands)",
+    "WS5 SELV side (CT / ZC detect, J4)"
+   ],
+   "contested_corridor_tiles": [
+    [
+     60.0,
+     130.0
+    ],
+    [
+     50.0,
+     130.0
+    ],
+    [
+     40.0,
+     130.0
+    ],
+    [
+     70.0,
+     130.0
+    ],
+    [
+     90.0,
+     130.0
+    ],
+    [
+     30.0,
+     130.0
+    ],
+    [
+     80.0,
+     130.0
+    ],
+    [
+     30.0,
+     140.0
+    ],
+    [
+     70.0,
+     140.0
+    ],
+    [
+     50.0,
+     170.0
+    ],
+    [
+     40.0,
+     140.0
+    ],
+    [
+     40.0,
+     160.0
+    ],
+    [
+     50.0,
+     140.0
+    ],
+    [
+     40.0,
+     170.0
+    ],
+    [
+     100.0,
+     130.0
+    ]
+   ],
+   "edges_at_or_above_0p2": [
+    "G05-G10",
+    "G05-G09",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10"
+   ],
+   "interface_nets": [
+    {
+     "class": "signal",
+     "net": "bus_fault_iso",
+     "pins_WS4": [
+      "U9.13"
+     ],
+     "pins_WS5": [
+      "R134.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "l_filt",
+     "pins_WS4": [
+      "J3.1"
+     ],
+     "pins_WS5": [
+      "F2.1",
+      "R67.1"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "n_filt",
+     "pins_WS4": [
+      "PS2.2"
+     ],
+     "pins_WS5": [
+      "J11.2",
+      "R70.2"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "permit",
+     "pins_WS4": [
+      "R14.1",
+      "R6.1"
+     ],
+     "pins_WS5": [
+      "J4.9"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "pwm_ha",
+     "pins_WS4": [
+      "U1.1"
+     ],
+     "pins_WS5": [
+      "J4.5"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "pwm_hb",
+     "pins_WS4": [
+      "U2.1"
+     ],
+     "pins_WS5": [
+      "J4.7"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "pwm_la",
+     "pins_WS4": [
+      "U1.2"
+     ],
+     "pins_WS5": [
+      "J4.6"
+     ]
+    },
+    {
+     "class": "signal",
+     "net": "pwm_lb",
+     "pins_WS4": [
+      "U2.2"
+     ],
+     "pins_WS5": [
+      "J4.8"
+     ]
+    },
+    {
+     "class": "rail",
+     "net": "selv_gnd",
+     "pins_WS4": [
+      "C134.2",
+      "C14.2",
+      "C144.2",
+      "C150.2",
+      "C163.2",
+      "C166.2",
+      "C29.2",
+      "C37.2",
+      "C54.2",
+      "C61.2",
+      "C7.2",
+      "D19.1",
+      "R133.2",
+      "R15.2",
+      "R17.2",
+      "R7.2",
+      "R9.2",
+      "U1.4",
+      "U2.4",
+      "U22.3",
+      "U23.3",
+      "U32.16",
+      "U32.9",
+      "U4.5",
+      "U40.3",
+      "U46.3",
+      "U9.16",
+      "U9.9"
+     ],
+     "pins_WS5": [
+      "C153.2",
+      "C154.2",
+      "C155.2",
+      "C156.2",
+      "C167.2",
+      "C168.2",
+      "C43.2",
+      "C44.2",
+      "C45.2",
+      "C46.2",
+      "C47.2",
+      "C89.2",
+      "D5.2",
+      "J4.15",
+      "J4.2",
+      "J4.4",
+      "R38.2",
+      "R41.2",
+      "R44.2",
+      "R46.2",
+      "U10.2",
+      "U11.2",
+      "U12.2",
+      "U13.2",
+      "U24.3",
+      "U36.3"
+     ]
+    },
+    {
+     "class": "power",
+     "net": "sw_a",
+     "pins_WS4": [
+      "C110.1",
+      "C111.1",
+      "C112.1",
+      "C113.1",
+      "C50.1",
+      "C51.1",
+      "C55.2",
+      "C90.1",
+      "C91.1",
+      "R101.1",
+      "R11.2",
+      "R51.1",
+      "R71.2",
+      "R95.1",
+      "R99.1",
+      "U18.2"
+     ],
+     "pins_WS5": [
+      "T1.1"
+     ]
+    },
+    {
+     "class": "rail",
+     "net": "v3v3",
+     "pins_WS4": [
+      "C134.1",
+      "C14.1",
+      "C144.1",
+      "C150.1",
+      "C163.1",
+      "C29.1",
+      "C37.1",
+      "C54.1",
+      "C61.1",
+      "C7.1",
+      "R135.1",
+      "R73.1",
+      "R76.1",
+      "U1.3",
+      "U1.8",
+      "U2.3",
+      "U2.8",
+      "U22.5",
+      "U23.5",
+      "U32.14",
+      "U4.8",
+      "U40.5",
+      "U46.5",
+      "U9.14"
+     ],
+     "pins_WS5": [
+      "C153.1",
+      "C154.1",
+      "C155.1",
+      "C156.1",
+      "C168.1",
+      "C44.1",
+      "C45.1",
+      "C46.1",
+      "C47.1",
+      "C89.1",
+      "D4.1",
+      "J4.3",
+      "R125.1",
+      "R40.1",
+      "R43.1",
+      "R45.1",
+      "U10.5",
+      "U11.5",
+      "U12.5",
+      "U13.5",
+      "U24.5"
+     ]
+    },
+    {
+     "class": "sense",
+     "net": "vbus_n",
+     "pins_WS4": [
+      "U4.6"
+     ],
+     "pins_WS5": [
+      "J4.12"
+     ]
+    },
+    {
+     "class": "sense",
+     "net": "vbus_p",
+     "pins_WS4": [
+      "U4.7"
+     ],
+     "pins_WS5": [
+      "J4.11"
+     ]
+    }
+   ],
+   "max_edge": 0.4312,
+   "must_not_move": [
+    {
+     "metric": "b3_c28_h25_peak_C",
+     "stage43": 147.2
+    },
+    {
+     "metric": "b3_laminate_margin_K",
+     "stage43": -30.2
+    },
+    {
+     "metric": "b3_nominal_h10_peak_C",
+     "stage43": 165.0
+    },
+    {
+     "metric": "b3_rated_part_margin_K",
+     "stage43": -32.3
+    },
+    {
+     "metric": "b3_ratings",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "b3_release_margin_K",
+     "stage43": 1.2
+    },
+    {
+     "metric": "barrier_8mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "bypass",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "cmti_table_all_rows",
+     "stage43": null
+    },
+    {
+     "metric": "d5",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "d5_hot_pe_mm",
+     "stage43": 8.507
+    },
+    {
+     "metric": "d5_hot_selv_mm",
+     "stage43": 8.047
+    },
+    {
+     "metric": "fuse_copper_fusing_ratio",
+     "stage43": 0.993
+    },
+    {
+     "metric": "leakage_touch_mA",
+     "stage43": 0.241
+    },
+    {
+     "metric": "res_a_creepage18",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_12p6mm",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "res_a_outer_min_mm",
+     "stage43": 13.375
+    },
+    {
+     "metric": "return_path19",
+     "stage43": "PASS"
+    },
+    {
+     "metric": "return_path_open_changes",
+     "stage43": 15
+    },
+    {
+     "metric": "return_path_worst_asserted_mm",
+     "stage43": 2.72
+    },
+    {
+     "metric": "task04_dc_cases",
+     "stage43": null
+    }
+   ],
+   "n_interface_nets": 13,
+   "routed_copper_in_other_territory_mm2": {
+    "WS4->WS5": 136.4937,
+    "WS5->WS4": 132.3565
+   }
+  }
+ ],
+ "controls": [
+  {
+   "control": "every group in exactly one workstream",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "WS1-WS4: interface nets have pins on both sides",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "WS1-WS5: interface nets have pins on both sides",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "WS2-WS4: interface nets have pins on both sides",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "WS3-WS5: interface nets have pins on both sides",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "WS4-WS5: interface nets have pins on both sides",
+   "detail": "",
+   "pass": true
+  }
+ ],
+ "method": "Interface contracts for a proposed set of parallel workstreams (from combined.json's clustering).\n\n    python3 -I validation-results/13-coupling/scripts/contracts.py      (after combine.py)\n\nWorkstreams (WS) are unions of today's groups. For every pair of workstreams joined by any group pair with combined\ncoupling >= 0.2 (the threshold table's 2/3-recall point), and for every workstream's outside boundary, the contract is\ncomputed from the stage-43 data, not written by hand:\n  nets      - every net with pins in both workstreams, with the pins (ref.pin) on each side and the net class;\n  geometry  - routed copper of one workstream lying in the other's territory (mm2, physical.json), contested 10 mm\n              corridor tiles both use, HOT / SELV net pairs within 9 mm that span the two (barrier floor);\n  metrics   - the non-global gates / metrics both workstreams re-trigger (verification.json), with the stage-43 value\n              from the scorecard where it has one: these must not move when either side changes.\nBOM-only lane: per group, the pins and footprints that a part swap must keep, and the metrics it re-triggers.",
+ "threshold": 0.2,
+ "workstreams": {
+  "WS1 mains / EMI": [
+   "G01"
+  ],
+  "WS2 power path": [
+   "G02",
+   "G03"
+  ],
+  "WS3 resonant tank": [
+   "G04"
+  ],
+  "WS4 drive / bias / monitor / protect (LS, HS-A, HS-B islands)": [
+   "G05",
+   "G06",
+   "G07",
+   "G08"
+  ],
+  "WS5 SELV side (CT / ZC detect, J4)": [
+   "G09",
+   "G10"
+  ]
+ }
+}

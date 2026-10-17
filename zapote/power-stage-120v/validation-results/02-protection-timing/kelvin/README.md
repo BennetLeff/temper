@@ -54,3 +54,45 @@ board `76ec8cca…`): `python3 kelvin_plane.py <export> native21` then `python3 
 
 Files: [plane-native21.json](plane-native21.json), [budget-native21.json](budget-native21.json),
 [budget-native21.md](budget-native21.md).
+
+**Stage 6** (R5 current-pad vias, board `387b753a…`, export `native-21/verification/native21s6-all-copper.json.gz`): `python3 kelvin_plane.py <export> native21s6` then `python3 kelvin_budget.py native21s6`. R35.2 sits 164.13 mΩ above R5.2 (stage 5: 164.02; zone refill) and the band is unchanged at **47.51–97.98 A**: the new vias are on LEG_RET / HV_RET and leave the Kelvin net's copper as it was. Files: [plane-native21s6.json](plane-native21s6.json), [budget-native21s6.json](budget-native21s6.json).
+
+**Stage 8** (independent-review fixes, board `d4468ffd…`, export `native-21/verification/native21s8-all-copper.json.gz`): `python3 kelvin_plane.py <export> native21s8` then `python3 kelvin_budget.py native21s8`.
+- R35.2 sits **161.72 mΩ** above R5.2 (stage 6: 164.13); only branch stubs at the moved AMC1311 / ISO7710 supply caps changed on ocp_kelvin_p.
+- The band is **47.52–97.98 A**, which meets the 44 A minimum.
+- `kelvin_plane.py` now skips bring-up test pads (TP*) in the transfer list. Their copper stays in the plane, but a probe returns no current, and each sits on a via drill the sheet solver can't inject into.
+- Files: [plane-native21s8.json](plane-native21s8.json), [budget-native21s8.json](budget-native21s8.json).
+
+**Stage 9** (driver decoupling stacks, board `e9d1cc4f…`, export `native-21/verification/native21s9-all-copper.json.gz`; tag `native21s9`): R35.2 sits **161.89 mΩ** above R5.2, and the band is **47.52–97.98 A**, which meets 44 A. Files: [plane-native21s9.json](plane-native21s9.json), [budget-native21s9.json](budget-native21s9.json).
+
+**Stage 10** (AMC1311 1 µF supply caps, board `ef993141…`, export `native-21/verification/native21s10-all-copper.json.gz`; tag `native21s10`). C149 joins ocp_kelvin_p beside C28 (AMC1311 GND1); it carries no DC. R35.2 is unchanged at **161.89 mΩ**, and the band is **47.52–97.98 A**. Files: [plane-native21s10.json](plane-native21s10.json), [budget-native21s10.json](budget-native21s10.json).
+
+**Stage 11** (C29 placement order, silk; board `e85a4c82…`, export `native-21/verification/native21s11-all-copper.json.gz`; tag `native21s11`): R35.2 sits **161.72 mΩ** above R5.2, and the band is **47.52–97.98 A**. Files: [plane-native21s11.json](plane-native21s11.json), [budget-native21s11.json](budget-native21s11.json).
+
+**Stage 12** (F1 Class CC ECO; board `fc386321…`, export `native-21/verification/native21s12-all-copper.json.gz`; tag `native21s12`): R35.2 sits **161.79 mΩ** above R5.2, and the band is **47.52–97.98 A**. Files: [plane-native21s12.json](plane-native21s12.json), [budget-native21s12.json](budget-native21s12.json).
+
+**Stage 13** (BOM simplification and TDK resonant bank; board `d7baa28a…`, export `native-21/verification/native21s13-all-copper.json.gz`; tag `native21s13`):
+- **Kelvin plane:** unchanged. R35.2 still sits **161.79 mΩ** above R5.2.
+- **Divider:** R34/R35 are now **12.4 k / 11.7 k** (`../../08-manufacturing-package/native-21/bom-simplification/`), so the band before the Kelvin shift is 49.53–97.77 A.
+- **Band after the shift:** **47.32–97.77 A**, which still meets the ≥ 44 A minimum.
+- **Files:** [plane-native21s13.json](plane-native21s13.json), [budget-native21s13.json](budget-native21s13.json).
+
+**Stage 13b** (C1/C2 value-only rebuild; board `6556f536…`; tag `native21s13b`): identical results, R35.2 at 161.79 mΩ and a band of 47.32–97.77 A. Tracks, vias and pads are identical to stage 13; KiCad's zone refill differs by ≤ 8 mm² per pour.
+
+**Stage 14** (RECOM bias modules U41/U42, 9 µF C5/C6, D3/D17 clamp pair; re-routed; board `3eb54216…`; tag `native21s14`): R35.2 at 161.03 mΩ (stage 13b: 161.79), Kelvin trip shift −2.20 A (bound −2.26 A), band 47.33–97.77 A, meets the 44 A minimum. The module re-route reached the Kelvin pair's neighbourhood only through the v24_raw In1 feeds (pour waivers, `patches21.add_stage14`).
+
+**Stage 15** (28 A hardware: R34 12.6 k, SW_A / SW_B widening; board `5b9dbd61…`; tag `native21s15`): R35.2 at 161.03 mΩ, Kelvin shift −2.22 A (bound −2.28 A); band before the shift 68.58–118.74 A, **66.37–118.74 A after** (66.30 A at the bound). `kelvin_budget.py` now also checks the stage's own floor: 64.17 A for the 28 A ceiling (59.17 A envelope peak + 3.0 A pickup + 2 A), met.
+
+**Stage 15b** (SW_A link / Q2.3 corner copper only; board `9a9c43c6…`; tag `native21s15b`): identical Kelvin result, R35.2 161.03 mΩ, band 66.37–118.74 A, floor met at the bound.
+
+**Stage 16** (F2 / J11 blower-supply mains tap at the far mains corner; board `e9481ed6…`; tag `native21s16`): identical, R35.2 161.03 mΩ, band 66.37–118.74 A.
+
+**Stage 17** (R5 = Bourns CSS2H-2512R-1L00F on a Kelvin land; both sense fingers leave on the west side, 1.0 mm apart, and the pair rejoins the stage-16 KP_MID / KN_MID on In1; board `e40f1e27…`; tag `native21s17`): R5.2 is now the P finger tip. R35.2 at 157.80 mΩ (was 161.03), Kelvin shift −2.17 A (bound −2.23 A). The band before the shift uses R5's own 75 ppm/°C (`round5-native21/stage17-r5/ocp_band17.py`: 69.89–116.44 A; the stage-16 250 ppm control reproduces 68.58–118.74 A), so **67.72–116.44 A after** (67.66 A at the bound), floor 64.17 A met. `round3/thresholds.py` keeps the WSK tuple as its default (eight committed records import it) and adds `SHUNT_CSS2H`.
+
+**Stage 17b** (declared pour priorities, In1 `n_ls LS block` above `ocp_kelvin_p protection`; board `96501e7d…`; tag `native21s17b`): identical, R35.2 157.80 mΩ, band 67.72–116.44 A (67.66 A at the bound). The pour's top 0.3 mm strip at y 75.3 now always goes to n_ls; stage 17's own build had already filled it that way.
+
+**Stage 18** (SELV LINE_ZC_RAW / V15_SELV B.Cu runs moved under the bank, far from the Kelvin; board `3768a126…`; tag `native21s18`): identical, R35.2 157.80 mΩ, band 67.72–116.44 A (67.66 A at the bound).
+
+**Stage 19** (U26 moved east / down with its caps; the Kelvin return's lower 26 mm, x 100.35 → U9 / U4, moved from B.Cu to In2 directly over the re-routed bus_fault_hot, one via at the corner, same polyline; a dead-end Kelvin via + B.Cu stub keeps the In1 pour's west strip; board `370fcf37…`; tag `native21s19`): re-solved, R35.2 **158.08 mΩ** (was 157.80), shift −2.167 A (bound −2.237 A), band 67.72–116.44 A, floor 64.17 A met at the bound.
+
+**Stage 19b** (four SELV transfer caps C153–C156, far from the Kelvin; board `b19a4553…`; tag `native21s19b`): identical, R35.2 158.08 mΩ, band 67.72–116.44 A.

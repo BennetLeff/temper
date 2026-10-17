@@ -1,0 +1,17 @@
+{
+ "h_top": 30.344487712191714,
+ "h_bottom": 33.365085320207115,
+ "sigma_top": 2.433594789917012,
+ "sigma_bottom": 3.8189487596235474,
+ "corr": -0.9882792335411261,
+ "split_sigma_x": 0.4926507989809335,
+ "chi2": 7.65365459092341,
+ "dof": 10,
+ "significant": 0.0,
+ "note": "diagnostic; if 'significant', judge the step with the gate on c<N>_h<h_bottom>_jet<h_top> in airflow_search 'top' mode (region = whole outline) instead of the uniform ladder",
+ "uniform": {
+  "h": 31.58790819587887,
+  "U95": 2.3683717831512547,
+  "chi2_dof": 0.7182577539672097
+ }
+}

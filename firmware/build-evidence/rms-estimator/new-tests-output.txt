@@ -1,0 +1,17 @@
+== test_rms_estimator
+half-cycle RMS scatter vs slot phase and half length: -0.03 % .. +0.27 %
+slot phase only (5 us steps, 8333.3 us half): span 0.210 %
+rms estimator: 2 tests passed
+== test_rms_shadow
+f 40000.0 Hz: fixed 80 kS/s metric 1.400 err -100.0..+41.5 % | selected 73625 S/s metric 0.0000 err -0.24..+0.13 %
+f 35555.6 Hz: fixed 80 kS/s metric 0.868 err -50.4..+32.5 % | selected 76500 S/s metric 0.0000 err -0.12..+0.24 %
+f 44444.4 Hz: fixed 80 kS/s metric 0.868 err -50.4..+32.5 % | selected 74000 S/s metric 0.0000 err -0.35..+0.38 %
+f 53333.3 Hz: fixed 80 kS/s metric 0.750 err -24.9..+19.8 % | selected 76250 S/s metric 0.0000 err -0.28..+0.43 %
+f 26666.7 Hz: fixed 80 kS/s metric 0.750 err -24.9..+19.8 % | selected 77125 S/s metric 0.0000 err -0.41..+0.29 %
+lock cases: worst error fixed clock 100.0 %, selected clock 0.43 %
+scan 31-55 kHz, 50 Hz bins (481): worst error 0.53 % at 34500 Hz, bins over 2 %: 0, worst metric 0.0000
+rms shadow: 5 tests passed
+== test_input_limits
+input_limits: 8 tests passed
+== test_n21_binding
+n21 binding: 21 tests passed

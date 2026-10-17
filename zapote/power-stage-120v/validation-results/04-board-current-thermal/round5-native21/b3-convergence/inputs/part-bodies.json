@@ -1,0 +1,951 @@
+{
+ "source_board": "section19b.kicad_pcb",
+ "source_board_sha256": "f11c4b15e35898a1969d3623d2a2ac4a30c20bbfb7a39e2d8e9a54c7b5861f72",
+ "parts": {
+  "C152": {
+   "fp": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "mpn": "B32643H8104J000",
+   "at": [
+    163.0,
+    113.2
+   ],
+   "fab": [
+    -2.0,
+    -7.25,
+    24.5,
+    7.25
+   ],
+   "crt": [
+    -2.75,
+    -7.45,
+    30.25,
+    7.45
+   ],
+   "layer": "F.Cu"
+  },
+  "C40": {
+   "fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+   "mpn": "B32652A0104K000",
+   "at": [
+    24.2,
+    28.2
+   ],
+   "fab": [
+    -1.5,
+    -4.5,
+    16.5,
+    4.5
+   ],
+   "crt": [
+    -1.75,
+    -4.75,
+    16.75,
+    4.75
+   ],
+   "layer": "F.Cu"
+  },
+  "R24": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-07470KL",
+   "at": [
+    178.0,
+    41.0
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "R39": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-071R5L",
+   "at": [
+    133.794999,
+    130.175
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "U37": {
+   "fp": "Package_TO_SOT_SMD:SOT-23-5",
+   "mpn": "TPS70950QDBVRQ1",
+   "at": [
+    109.995,
+    87.145
+   ],
+   "fab": [
+    -0.8,
+    -1.45,
+    0.8,
+    1.45
+   ],
+   "crt": [
+    -2.05,
+    -1.7,
+    2.05,
+    1.7
+   ],
+   "layer": "F.Cu"
+  },
+  "R18": {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
+   "at": [
+    4.5,
+    12.4,
+    270.0
+   ],
+   "fab": [
+    -3.15,
+    -1.6,
+    3.15,
+    1.6
+   ],
+   "crt": [
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
+   ],
+   "layer": "F.Cu"
+  },
+  "U42": {
+   "fp": "temper:RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
+   "mpn": "R24C2T25/R-R",
+   "at": [
+    10.2,
+    61.2,
+    -90.0
+   ],
+   "fab": [
+    -3.75,
+    -6.415,
+    3.75,
+    6.415
+   ],
+   "crt": [
+    -6.75,
+    -6.665,
+    6.75,
+    6.665
+   ],
+   "layer": "F.Cu"
+  },
+  "Q5": {
+   "fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+   "mpn": "IPW65R018CFD7",
+   "at": [
+    4.5,
+    4.215
+   ],
+   "fab": [
+    -2.5,
+    -2.33,
+    13.4,
+    2.7
+   ],
+   "crt": [
+    -2.75,
+    -2.58,
+    13.65,
+    2.95
+   ],
+   "layer": "F.Cu"
+  },
+  "C23": {
+   "fp": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "mpn": "B32643H8104J000",
+   "at": [
+    163.0,
+    83.2
+   ],
+   "fab": [
+    -2.0,
+    -7.25,
+    24.5,
+    7.25
+   ],
+   "crt": [
+    -2.75,
+    -7.45,
+    30.25,
+    7.45
+   ],
+   "layer": "F.Cu"
+  },
+  "R69": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-0716K5L",
+   "at": [
+    233.0,
+    95.5
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "R54": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "1206W4F100KT5E",
+   "at": [
+    55.6,
+    17.9
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "Q6": {
+   "fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+   "mpn": "IPW65R018CFD7",
+   "at": [
+    22.5,
+    4.215
+   ],
+   "fab": [
+    -2.5,
+    -2.33,
+    13.4,
+    2.7
+   ],
+   "crt": [
+    -2.75,
+    -2.58,
+    13.65,
+    2.95
+   ],
+   "layer": "F.Cu"
+  },
+  "R58": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "1206W4F100KT5E",
+   "at": [
+    33.5,
+    17.9
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "C6": {
+   "fp": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+   "mpn": "B32676G1905K000",
+   "at": [
+    248.25,
+    73.85
+   ],
+   "fab": [
+    -2.25,
+    -6.35,
+    39.75,
+    26.65
+   ],
+   "crt": [
+    -2.5,
+    -6.6,
+    40.0,
+    26.9
+   ],
+   "layer": "F.Cu"
+  },
+  "R70": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-0716K5L",
+   "at": [
+    241.5,
+    95.5
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "Q2": {
+   "fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+   "mpn": "IPW65R018CFD7",
+   "at": [
+    62.6,
+    4.215
+   ],
+   "fab": [
+    -2.5,
+    -2.33,
+    13.4,
+    2.7
+   ],
+   "crt": [
+    -2.75,
+    -2.58,
+    13.65,
+    2.95
+   ],
+   "layer": "F.Cu"
+  },
+  "L1": {
+   "fp": "temper:B82726S2_ReviewOnly",
+   "mpn": "B82726S2243A020",
+   "at": [
+    232.0,
+    31.0
+   ],
+   "fab": [
+    -17.5,
+    -0.5,
+    27.5,
+    25.5
+   ],
+   "crt": [
+    -18.0,
+    -2.5,
+    28.0,
+    27.5
+   ],
+   "layer": "F.Cu"
+  },
+  "R57": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "1206W4F100KT5E",
+   "at": [
+    15.5,
+    17.9
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "R20": {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
+   "at": [
+    22.5,
+    12.4,
+    270.0
+   ],
+   "fab": [
+    -3.15,
+    -1.6,
+    3.15,
+    1.6
+   ],
+   "crt": [
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
+   ],
+   "layer": "F.Cu"
+  },
+  "C21": {
+   "fp": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "mpn": "B32643H8104J000",
+   "at": [
+    163.0,
+    53.2
+   ],
+   "fab": [
+    -2.0,
+    -7.25,
+    24.5,
+    7.25
+   ],
+   "crt": [
+    -2.75,
+    -7.45,
+    30.25,
+    7.45
+   ],
+   "layer": "F.Cu"
+  },
+  "R5": {
+   "fp": "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin",
+   "mpn": "CSS2H-2512R-1L00F",
+   "at": [
+    38.5,
+    12.6,
+    -90.0
+   ],
+   "fab": [
+    -3.175,
+    -1.525,
+    3.175,
+    1.525
+   ],
+   "crt": [
+    -3.75,
+    -1.95,
+    3.75,
+    3.45
+   ],
+   "layer": "F.Cu"
+  },
+  "R23": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-07470KL",
+   "at": [
+    168.0,
+    41.0
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "C39": {
+   "fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+   "mpn": "B32652A0104K000",
+   "at": [
+    82.8,
+    28.2,
+    180.0
+   ],
+   "fab": [
+    -1.5,
+    -4.5,
+    16.5,
+    4.5
+   ],
+   "crt": [
+    -1.75,
+    -4.75,
+    16.75,
+    4.75
+   ],
+   "layer": "F.Cu"
+  },
+  "U38": {
+   "fp": "Package_TO_SOT_SMD:SOT-23-5",
+   "mpn": "TPS70950QDBVRQ1",
+   "at": [
+    60.995,
+    100.645
+   ],
+   "fab": [
+    -0.8,
+    -1.45,
+    0.8,
+    1.45
+   ],
+   "crt": [
+    -2.05,
+    -1.7,
+    2.05,
+    1.7
+   ],
+   "layer": "F.Cu"
+  },
+  "C151": {
+   "fp": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "mpn": "B32643H8104J000",
+   "at": [
+    163.0,
+    98.2
+   ],
+   "fab": [
+    -2.0,
+    -7.25,
+    24.5,
+    7.25
+   ],
+   "crt": [
+    -2.75,
+    -7.45,
+    30.25,
+    7.45
+   ],
+   "layer": "F.Cu"
+  },
+  "U41": {
+   "fp": "temper:RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
+   "mpn": "R24C2T25/R-R",
+   "at": [
+    56.5,
+    66.2,
+    -90.0
+   ],
+   "fab": [
+    -3.75,
+    -6.415,
+    3.75,
+    6.415
+   ],
+   "crt": [
+    -6.75,
+    -6.665,
+    6.75,
+    6.665
+   ],
+   "layer": "F.Cu"
+  },
+  "U1": {
+   "fp": "lib:SOIC16W_Isolated",
+   "mpn": "UCC21550BDWKR",
+   "at": [
+    80.0,
+    51.0,
+    90.0
+   ],
+   "fab": [
+    -3.75,
+    -5.15,
+    3.75,
+    5.15
+   ],
+   "crt": [
+    -5.95,
+    -5.4,
+    5.95,
+    5.4
+   ],
+   "layer": "F.Cu"
+  },
+  "Q3": {
+   "fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+   "mpn": "IPW65R018CFD7",
+   "at": [
+    44.6,
+    4.215
+   ],
+   "fab": [
+    -2.5,
+    -2.33,
+    13.4,
+    2.7
+   ],
+   "crt": [
+    -2.75,
+    -2.58,
+    13.65,
+    2.95
+   ],
+   "layer": "F.Cu"
+  },
+  "C38": {
+   "fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+   "mpn": "B32652A0104K000",
+   "at": [
+    61.0,
+    28.2,
+    180.0
+   ],
+   "fab": [
+    -1.5,
+    -4.5,
+    16.5,
+    4.5
+   ],
+   "crt": [
+    -1.75,
+    -4.75,
+    16.75,
+    4.75
+   ],
+   "layer": "F.Cu"
+  },
+  "R25": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-07470KL",
+   "at": [
+    188.0,
+    41.0
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "R10": {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
+   "at": [
+    62.6,
+    12.4,
+    270.0
+   ],
+   "fab": [
+    -3.15,
+    -1.6,
+    3.15,
+    1.6
+   ],
+   "crt": [
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
+   ],
+   "layer": "F.Cu"
+  },
+  "R67": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-0716K5L",
+   "at": [
+    241.5,
+    101.5,
+    180.0
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "U39": {
+   "fp": "Package_TO_SOT_SMD:SOT-23-5",
+   "mpn": "TPS70950QDBVRQ1",
+   "at": [
+    15.895,
+    96.895
+   ],
+   "fab": [
+    -0.8,
+    -1.45,
+    0.8,
+    1.45
+   ],
+   "crt": [
+    -2.05,
+    -1.7,
+    2.05,
+    1.7
+   ],
+   "layer": "F.Cu"
+  },
+  "C22": {
+   "fp": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "mpn": "B32643H8104J000",
+   "at": [
+    163.0,
+    68.2
+   ],
+   "fab": [
+    -2.0,
+    -7.25,
+    24.5,
+    7.25
+   ],
+   "crt": [
+    -2.75,
+    -7.45,
+    30.25,
+    7.45
+   ],
+   "layer": "F.Cu"
+  },
+  "R53": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "1206W4F100KT5E",
+   "at": [
+    73.6,
+    17.9
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "C41": {
+   "fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+   "mpn": "B32652A0104K000",
+   "at": [
+    2.4,
+    28.2
+   ],
+   "fab": [
+    -1.5,
+    -4.5,
+    16.5,
+    4.5
+   ],
+   "crt": [
+    -1.75,
+    -4.75,
+    16.75,
+    4.75
+   ],
+   "layer": "F.Cu"
+  },
+  "U3": {
+   "fp": "Package_TO_SOT_SMD:SOT-23-5",
+   "mpn": "TPS70950QDBVRQ1",
+   "at": [
+    118.3,
+    61.75
+   ],
+   "fab": [
+    -0.8,
+    -1.45,
+    0.8,
+    1.45
+   ],
+   "crt": [
+    -2.05,
+    -1.7,
+    2.05,
+    1.7
+   ],
+   "layer": "F.Cu"
+  },
+  "R68": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-0716K5L",
+   "at": [
+    233.0,
+    101.5,
+    180.0
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "R22": {
+   "fp": "Resistor_SMD:R_1206_3216Metric",
+   "mpn": "RC1206FR-07470KL",
+   "at": [
+    158.0,
+    41.0
+   ],
+   "fab": [
+    -1.6,
+    -0.8,
+    1.6,
+    0.8
+   ],
+   "crt": [
+    -2.28,
+    -1.13,
+    2.28,
+    1.13
+   ],
+   "layer": "F.Cu"
+  },
+  "PS2": {
+   "fp": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+   "mpn": "MPM-20-24",
+   "at": [
+    163.7,
+    3.6
+   ],
+   "fab": [
+    -3.4,
+    -3.2,
+    49.0,
+    24.0
+   ],
+   "crt": [
+    -3.65,
+    -3.45,
+    49.25,
+    24.25
+   ],
+   "layer": "F.Cu"
+  },
+  "U2": {
+   "fp": "lib:SOIC16W_Isolated",
+   "mpn": "UCC21550BDWKR",
+   "at": [
+    33.0,
+    51.0,
+    90.0
+   ],
+   "fab": [
+    -3.75,
+    -5.15,
+    3.75,
+    5.15
+   ],
+   "crt": [
+    -5.95,
+    -5.4,
+    5.95,
+    5.4
+   ],
+   "layer": "F.Cu"
+  },
+  "C5": {
+   "fp": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+   "mpn": "B32676G1905K000",
+   "at": [
+    205.25,
+    65.45
+   ],
+   "fab": [
+    -2.25,
+    -6.35,
+    39.75,
+    26.65
+   ],
+   "crt": [
+    -2.5,
+    -6.6,
+    40.0,
+    26.9
+   ],
+   "layer": "F.Cu"
+  },
+  "R12": {
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
+   "at": [
+    44.6,
+    12.4,
+    270.0
+   ],
+   "fab": [
+    -3.15,
+    -1.6,
+    3.15,
+    1.6
+   ],
+   "crt": [
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
+   ],
+   "layer": "F.Cu"
+  },
+  "U26": {
+   "fp": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+   "mpn": "TPS7A4700RGWR",
+   "at": [
+    115.4,
+    81.05
+   ],
+   "fab": [
+    -2.5,
+    -2.5,
+    2.5,
+    2.5
+   ],
+   "crt": [
+    -3.13,
+    -3.13,
+    3.13,
+    3.13
+   ],
+   "layer": "F.Cu"
+  }
+ },
+ "edits": [
+  "stage 38 (candidate 23, 2026-10-15): PS1 removed (deleted part, no heat row); PS2 mpn IRM-20-24 -> MPM-20-24 (same Case 219A footprint, pose and body). The rest is the stage-19b extraction unchanged; a full re-extraction on the s38 board also picks up later MPN changes of other lanes (U1/U2, R10/R12/R18/R20, R39, bank grade) and is left to the B3 owner.",
+  "stage 42 (candidate 39, 2026-10-15): R10/R12/R18/R20 -> UniRoyal 25121WF680JT4E 68 ohm 2512 (KiCad Resistor_SMD:R_2512_6332Metric: F.Fab +/-3.15 x 1.60, F.CrtYd +/-3.83 x 1.93 mm), same axis, centre y 12.6 -> 12.4, rotation 270; their stale stage-19b MPN (RC1206FR-073R9L) is corrected with it. R11/R13/R19/R21 (no heat row) move 0.5 mm west and 0.5 mm north (R11 also turned 180 deg).",
+  "stage 48 (candidate 48, 2026-10-16): U3 / U37 / U38 / U39 mpn TPS70950DBVR -> TPS70950QDBVRQ1 (same DBV body); U3 moved to (118.3, 61.75) at rotation 0 (patches21.S48_MOVES), same SOT-23-5 fab / courtyard box. Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
+  "stage 49 (candidate 34, 2026-10-16): C21 / C22 / C23 / C151 / C152 mpn B32654A1104K000 -> B32643B8104J000 on temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial (TDK B3264*B p.2 / p.11: 14.5 x 29.5 x 26.5 mm body, e 22.5 mm); pin 1 stays at x 163.0, rows y 53.2 / 68.2 / 83.2 / 98.2 / 113.2 (place.py). Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
+  "stage 51 (DECISIONS 73, 2026-10-16): C21 / C22 / C23 / C151 / C152 mpn B32643B8104J000 -> MMK104J3DF1KN208G2 (KNSCHA MMKP82, spec KNS20200505002 p.3: 31.5 x 19.5 x 11 +-0.5 mm, P 27.5) on temper:Bank_Film_DualPitch_P22.5_P27.5_Radial; fab = the fitted KNSCHA body at its maximum (32 x 11.5 mm, x -2.25 .. 29.75 from pin 1), crt = the union courtyard with the TDK alternate; pin 1 stays at x 163.0, same rows. Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
+  "stage 52 (DECISIONS 74, 2026-10-16, prototype lot): C21 / C22 / C23 / C151 / C152 mpn MMK104J3DF1KN208G2 -> B32643H8104J000 (TDK B3264*H June 2026 p.14: 14.5 x 29.5 x 26.5 mm maximum body, the B32643B body; p.3 e 22.5 mm) in the dual-pitch footprint's 22.5 mm hole; fab = that body (x -2.0 .. 24.5 from pin 1), crt = the union courtyard. L1 mpn B82726S2203A020 -> B82726S2243A020 (same sheet and drawing, same body). Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board."
+ ]
+}

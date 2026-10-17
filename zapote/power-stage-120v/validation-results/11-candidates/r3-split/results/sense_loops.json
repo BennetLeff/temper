@@ -1,0 +1,78 @@
+{
+ "band_low_A": 67.72,
+ "floor_A": 64.17,
+ "margin_to_floor_A": 3.55,
+ "supply_return_mA_in_KELVIN_P": 13.648,
+ "contact_R": {
+  "10mohm_1pin": {
+   "dV_mV": 0.136,
+   "dA": 0.136
+  },
+  "10mohm_2pin": {
+   "dV_mV": 0.068,
+   "dA": 0.068
+  },
+  "10mohm_4pin": {
+   "dV_mV": 0.034,
+   "dA": 0.034
+  },
+  "20mohm_1pin": {
+   "dV_mV": 0.273,
+   "dA": 0.273
+  },
+  "20mohm_2pin": {
+   "dV_mV": 0.136,
+   "dA": 0.136
+  },
+  "20mohm_4pin": {
+   "dV_mV": 0.068,
+   "dA": 0.068
+  },
+  "40mohm_1pin": {
+   "dV_mV": 0.546,
+   "dA": 0.546
+  },
+  "40mohm_2pin": {
+   "dV_mV": 0.273,
+   "dA": 0.273
+  },
+  "40mohm_4pin": {
+   "dV_mV": 0.136,
+   "dA": 0.136
+  }
+ },
+ "open_KELVIN_N": {
+  "OCP_NODE_V": 2.5,
+  "OCP_THRESH_V": 1.2037,
+  "comparator_output": "OK (INP > INN)",
+  "fail_direction": "UNSAFE: OCP blind, no flag",
+  "nominal_trip_V_at_93A": 1.2035
+ },
+ "pickup_upper_bound": {
+  "2.54 mm pair x 9 mm, r=30 mm": {
+   "mV": 3.405,
+   "A_equiv": 3.405
+  },
+  "2.54 mm pair x 9 mm, r=60 mm": {
+   "mV": 1.703,
+   "A_equiv": 1.703
+  },
+  "2.54 mm pair x 9 mm, r=100 mm": {
+   "mV": 1.022,
+   "A_equiv": 1.022
+  },
+  "0.8 mm pair x 6 mm + 10 mm breakout, r=30 mm": {
+   "mV": 1.19,
+   "A_equiv": 1.19
+  },
+  "0.8 mm pair x 6 mm + 10 mm breakout, r=60 mm": {
+   "mV": 0.595,
+   "A_equiv": 0.595
+  },
+  "0.8 mm pair x 6 mm + 10 mm breakout, r=100 mm": {
+   "mV": 0.357,
+   "A_equiv": 0.357
+  }
+ },
+ "note": "Upper bound: a single wire carrying the whole 59 A at distance r; the real bus is a plane sandwich (In2 BUS_P over In1 HV_RET) whose external field is lower. The F8 method (study 06 FEM, copper dump) is the right tool and needs the connector placed first."
+}

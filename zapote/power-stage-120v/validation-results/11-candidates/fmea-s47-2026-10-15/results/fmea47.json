@@ -1,0 +1,1435 @@
+{
+ "U5": {
+  "SOD": [
+   {
+    "D": 9,
+    "FIT_used": 0.8,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "id": "U1"
+   },
+   {
+    "D": 5,
+    "FIT_used": 0.8,
+    "O": 3,
+    "RPN": 45,
+    "S": 3,
+    "id": "U2"
+   },
+   {
+    "D": 9,
+    "FIT_used": 0.8,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "id": "U3"
+   },
+   {
+    "D": 5,
+    "FIT_used": 1.6,
+    "O": 3,
+    "RPN": 45,
+    "S": 3,
+    "id": "U4"
+   },
+   {
+    "D": 9,
+    "FIT_used": 0.1667,
+    "O": 2,
+    "RPN": 126,
+    "S": 7,
+    "id": "U5o"
+   },
+   {
+    "D": 9,
+    "FIT_used": 0.1667,
+    "O": 2,
+    "RPN": 126,
+    "S": 7,
+    "id": "U6o"
+   },
+   {
+    "D": 1,
+    "FIT_used": 0.1667,
+    "O": 2,
+    "RPN": 6,
+    "S": 3,
+    "id": "U8s"
+   },
+   {
+    "D": 5,
+    "FIT_used": 0.1667,
+    "O": 2,
+    "RPN": 30,
+    "S": 3,
+    "id": "U10s"
+   }
+  ],
+  "U5_current_min_mA": {
+   "IRMIN": 0.065,
+   "today": 0.1452,
+   "with_watchdog": 0.1059
+  },
+  "dormant_dangerous_FIT": {
+   "alloc A, k_o 0 (D59 base)": 0.0,
+   "alloc B, k_o 0": 0.3334,
+   "alloc B, k_o 0.5": 0.7834,
+   "alloc B, k_o 1": 1.2334,
+   "alloc B, k_o 1, SN 29500 at 89.1 C": 63.3986
+  },
+  "drift_high_REF_at_limit": {
+   "D3 MRT130KP295CV stand-off 295 V (DC-LINK-CLAMP.md)": {
+    "REF_V": 2.5823,
+    "pct_over_VRmax": 2.627
+   },
+   "OVP top rule 288.02 V (c47 basis)": {
+    "REF_V": 2.5212,
+    "pct_over_VRmax": 0.198
+   },
+   "R5 CSS2H pulse row 118.74 A (stage 16)": {
+    "REF_V": 2.5438,
+    "pct_over_VRmax": 1.098
+   }
+  },
+  "nominal": {
+   "OCP_trip_A_at_2V5": 92.593,
+   "OCP_trip_A_per_V_REF": 37.037,
+   "OVP_trip_V_at_2V5": 279.97,
+   "OVP_trip_V_per_V_REF": 111.988
+  },
+  "open": {
+   "today": {
+    "OCP_band_scaled_A": [
+     84.478,
+     156.443
+    ],
+    "OCP_low_after_Kelvin_A": 82.355,
+    "OCP_nominal_A": [
+     112.841,
+     124.132
+    ],
+    "OVP_band_scaled_V": [
+     334.43,
+     382.882
+    ],
+    "OVP_nominal_V": [
+     341.196,
+     375.336
+    ],
+    "REF_V": [
+     3.0467,
+     3.3516
+    ]
+   },
+   "with_watchdog": {
+    "OCP_band_scaled_A": [
+     79.915,
+     148.202
+    ],
+    "OCP_low_after_Kelvin_A": 77.792,
+    "OCP_nominal_A": [
+     106.746,
+     117.593
+    ],
+    "OVP_band_scaled_V": [
+     316.365,
+     362.713
+    ],
+    "OVP_nominal_V": [
+     322.766,
+     355.564
+    ],
+    "REF_V": [
+     2.8821,
+     3.175
+    ]
+   }
+  },
+  "rates_total_FIT": {
+   "FS (SNOAA49A Table 2-1, 4 FIT)": 4.0,
+   "FS per revision history (6 FIT)": 6.0,
+   "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 205.606,
+   "SN 29500 20 FIT @55 C x Arrhenius at c28": 518.932,
+   "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 1.028,
+   "TI estimator LM4050AEM3X at c28 (104.7 C)": 2.595
+  },
+  "rows": [
+   {
+    "FIT_alloc_A": 0.8,
+    "FIT_alloc_B": 0.6,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.6,
+     "FS per revision history (6 FIT)": 0.9,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 30.8409,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 77.8397,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.1542,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.3892
+    },
+    "class": "fail-dangerous (magnitude unknown)",
+    "detection_today": "none",
+    "effect": "OCP and OVP thresholds rise together (both scale with REF); no companion announces; > +0.20 % breaks the 288.02 V OVP rule, > +1.1 % passes the 118.74 A R5 pulse row, > +2.6 % passes the 295 V D3 stand-off",
+    "id": "U1",
+    "k_dangerous_dormant": "k_o",
+    "mode": "VR out of specification, high (half of TI's 40 %)"
+   },
+   {
+    "FIT_alloc_A": 0.8,
+    "FIT_alloc_B": 0.6,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.6,
+     "FS per revision history (6 FIT)": 0.9,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 30.8409,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 77.8397,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.1542,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.3892
+    },
+    "class": "fail-safe",
+    "detection_today": "announced only if large",
+    "effect": "OCP and OVP thresholds fall: more protective; nuisance trip only if large (OVP trips below the ~170 V bus at -39 %, OCP below the 59 A envelope peak at -36 %)",
+    "id": "U2",
+    "k_dangerous_dormant": "0",
+    "mode": "VR out of specification, low"
+   },
+   {
+    "FIT_alloc_A": 0.8,
+    "FIT_alloc_B": 0.6,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.6,
+     "FS per revision history (6 FIT)": 0.9,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 30.8409,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 77.8397,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.1542,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.3892
+    },
+    "class": "half fail-dangerous (k_o)",
+    "detection_today": "none",
+    "effect": "VR moves with U5 current (0.11-0.48 mA window): static error of either sign, magnitude unknown; an AC component on REF25 reaches OCP_THRESH / OVP_THRESH through 6.1 k || 1 nF and 9.3 k || 1 nF (and OCP_NODE through 5 k || 100 pF), so ripple on the threshold side is a nuisance-trip risk, not a mask",
+    "id": "U3",
+    "k_dangerous_dormant": "k_o/2",
+    "mode": "dynamic impedance outside specification (TI 20 %); includes any oscillation"
+   },
+   {
+    "FIT_alloc_A": 1.6,
+    "FIT_alloc_B": 1.2,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 1.2,
+     "FS per revision history (6 FIT)": 1.8,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 61.6818,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 155.6795,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.3084,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.7784
+    },
+    "class": "fail-safe",
+    "detection_today": "announced only if large",
+    "effect": "if IRMIN rises above the 0.11-0.15 mA available, U5 leaves regulation below VR: thresholds fall",
+    "id": "U4",
+    "k_dangerous_dormant": "0",
+    "mode": "minimum regulation current above specification (TI 40 %)"
+   },
+   {
+    "FIT_alloc_A": 0.0,
+    "FIT_alloc_B": 0.1667,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.1667,
+     "FS per revision history (6 FIT)": 0.25,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 8.5669,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 21.6222,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.0428,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.1081
+    },
+    "class": "fail-dangerous",
+    "detection_today": "none (FW VBUS over-range latch at 231 V is a diverse OVP layer, not a detection)",
+    "effect": "REF25 rises to the R31 / load divider: 3.0467-3.3516 V; OVP nominal 341-375 V (band 334-383 V) against the 288.02 V rule; OCP nominal 113-124 A (band top 156 A) against the 117.45 A corner",
+    "id": "U5o",
+    "k_dangerous_dormant": "1",
+    "mode": "cathode pin open (TI: 'device is unpowered')"
+   },
+   {
+    "FIT_alloc_A": 0.0,
+    "FIT_alloc_B": 0.1667,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.1667,
+     "FS per revision history (6 FIT)": 0.25,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 8.5669,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 21.6222,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.0428,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.1081
+    },
+    "class": "fail-dangerous",
+    "detection_today": "none",
+    "effect": "no DC path through U5 with the anode open: REF25 rises exactly as U5o. TI's 'held low' does not apply to this circuit (its pin FMA assumes 2.2 k feed, SNOAA49A p.5); taken as U5o",
+    "id": "U6o",
+    "k_dangerous_dormant": "1",
+    "mode": "anode pin open (TI: 'does not regulate and is held low')"
+   },
+   {
+    "FIT_alloc_A": 0.0,
+    "FIT_alloc_B": 0.1667,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.1667,
+     "FS per revision history (6 FIT)": 0.25,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 8.5669,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 21.6222,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.0428,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.1081
+    },
+    "class": "no effect",
+    "detection_today": "-",
+    "effect": "no effect (pin 3 floats by design, SNOS455H p.15)",
+    "id": "U7o",
+    "k_dangerous_dormant": "0",
+    "mode": "pin 3 (NC) open"
+   },
+   {
+    "FIT_alloc_A": 0.0,
+    "FIT_alloc_B": 0.1667,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.1667,
+     "FS per revision history (6 FIT)": 0.25,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 8.5669,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 21.6222,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.0428,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.1081
+    },
+    "class": "fail-safe",
+    "detection_today": "announced at power-up (BUS_FAULT)",
+    "effect": "REF25 = 0: OVP_THRESH 0 < VSENSE_IN (bus/120) -> OVP trips at once; OCP node / threshold both 0 -> trips at any bus current above 2 x VOS / 1 mOhm",
+    "id": "U8s",
+    "k_dangerous_dormant": "0",
+    "mode": "cathode-anode short (and die short to anode)"
+   },
+   {
+    "FIT_alloc_A": 0.0,
+    "FIT_alloc_B": 0.1667,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.1667,
+     "FS per revision history (6 FIT)": 0.25,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 8.5669,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 21.6222,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.0428,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.1081
+    },
+    "class": "no effect",
+    "detection_today": "-",
+    "effect": "no effect (TI class D)",
+    "id": "U9s",
+    "k_dangerous_dormant": "0",
+    "mode": "anode-NC short"
+   },
+   {
+    "FIT_alloc_A": 0.0,
+    "FIT_alloc_B": 0.1667,
+    "FIT_at_rates_alloc_B": {
+     "FS (SNOAA49A Table 2-1, 4 FIT)": 0.1667,
+     "FS per revision history (6 FIT)": 0.25,
+     "SN 29500 20 FIT @55 C x Arrhenius at c17.5": 8.5669,
+     "SN 29500 20 FIT @55 C x Arrhenius at c28": 21.6222,
+     "TI estimator LM4050AEM3X at c17.5 (89.1 C)": 0.0428,
+     "TI estimator LM4050AEM3X at c28 (104.7 C)": 0.1081
+    },
+    "class": "fail-safe",
+    "detection_today": "announced if REF25 clamps",
+    "effect": "extra current through the pin-2/pin-3 parasitic Schottky; either REF25 unchanged or clamped low",
+    "id": "U10s",
+    "k_dangerous_dormant": "0",
+    "mode": "NC-cathode short (TI: 'Iq can increase', class C)"
+   }
+  ],
+  "stability": {
+   "node": "ref25: R31.2, U5.1, R32.1, R34.1, R36.1 (frozen default.net)",
+   "verdict": "stable: TI states stability with any capacitive load (SNOS455H p.1), internal compensation with no output capacitor (7.3 p.14) and stability with a bypass capacitor (8.1 p.15). The frozen netlist puts no capacitor on REF25 at all (R31, U5.1, R32, R34, R36 only); the three filter caps sit behind >= 10 k (C30 100 pF via R32, C31 1 nF via R34 12.6 k, C33 1 nF via R36 10 k), so the cathode sees at most pad / trace parasitics directly. Load-capacitance range at the node: ~0 pF direct, 2.1 nF total behind 10-12.6 k. Oscillation is not a credible mode; it is carried inside TI's 20 % 'dynamic impedance' mode (U3)."
+  },
+  "watchdog": {
+   "INB_at_REF_open_max_V": 0.495,
+   "OCP_top_at_that_REF_A": 121.824,
+   "OVP_top_at_that_REF_V": 298.156,
+   "U5_open_margin_V": 0.2722,
+   "divider": "54.2 k / 10 k (0.1 %, 25 ppm) REF25 -> U14 INB (pin 4, today on ocp_kelvin_p); U14 OUTB (pin 6, today alone on net 'outb') -> HOT5_UV_RAW (wired with OUTA, R50 pull-up)",
+   "false_trip_margin_V": 0.0104,
+   "trip_REF_V": [
+    2.5266,
+    2.6099
+   ],
+   "undetected_drift_up_to_REF_V": 2.6099
+  }
+ },
+ "controls": {
+  "C0_s16_fmea_b_rerun_byte_identical": "14/14 result files",
+  "J4_pin1_net_nodes": [
+   [
+    "J4",
+    "1"
+   ]
+  ],
+  "frozen_bom": {
+   "C30": "CL10C101JB8NNNC",
+   "C31": "C0603C102J5GACTU",
+   "C33": "C0603C102J5GACTU",
+   "R31": "0603WAF5601T5E",
+   "R32": "RT0603BRD0710KL",
+   "R33": "RT0603BRD0710KL",
+   "R34": "RT0603BRD0712K6L",
+   "R35": "TNPW060311K7BEEA",
+   "R36": "RT0603BRD0710KL",
+   "R37": "RT0603BRD07140KL",
+   "U14": "TPS3700DDCR",
+   "U17": "TL431BQDBZR",
+   "U19": "TL431BQDBZR",
+   "U21": "TL431BQDBZR",
+   "U29": "LM2901BIDR",
+   "U30": "LM2901BIDR",
+   "U31": "LM2901BIDR",
+   "U5": "LM4050AEM3-2.5/NOPB",
+   "U6": "TLV3201AIDBVR",
+   "U7": "TLV3201AIDBVR"
+  },
+  "ref25_node": [
+   [
+    "R31",
+    "2"
+   ],
+   [
+    "U5",
+    "1"
+   ],
+   [
+    "R32",
+    "1"
+   ],
+   [
+    "R34",
+    "1"
+   ],
+   [
+    "R36",
+    "1"
+   ]
+  ]
+ },
+ "failed_controls": [],
+ "hooks": {
+  "chain_RWL": 13.0,
+  "frontend_dormant_FIT_thr_per_rail_allocB": 12.702,
+  "hooks": [
+   {
+    "DC_field": "100 % of U5o/U6o; drift-high only above the trip (magnitude distribution unknown)",
+    "cost": "2 x 0603 0.1 % (10 k on the BOM; 54.2 k new line, or 2 x existing values), INB / OUTB re-tied: copper change",
+    "covers": "U5 cathode / anode open (U5o, U6o): 100 %; U5 drift high beyond 2.5266-2.6099 V; R31 short (U5 overstress -> open)",
+    "id": "H1",
+    "name": "REF25 watchdog on U14's spare INB / OUTB (cheap hardware, continuous)",
+    "side effect": "U14 pins 4-5 (INB-VDD) are adjacent; with VDD = V15_LS a 4-5 short puts ~15 V on INB (7 V abs max, SBVS187G 6.1 p.5): today that short collapses V15_LS (announced), with the hook it may damage U14 (k_u). Removed if U14 VDD moves to HOT5 (5 V on INB, inside the rating; below UVLO OUTA is driven low, SBVS187G note 3 p.6; below V(POR) the CA-IS3720HW defaults high).",
+    "what": "54.2 k / 10 k (0.1 %, 25 ppm) REF25 -> U14 INB (pin 4, today on ocp_kelvin_p); U14 OUTB (pin 6, today alone on net 'outb') -> HOT5_UV_RAW (wired with OUTA, R50 pull-up)"
+   },
+   {
+    "DC_field_chain": "13.846 % always, 36.923 % if sequencing allows",
+    "cost": "1 resistor + 1 trace + controller GPIO; firmware: a POST step and a run-time plausibility check",
+    "covers": "U40 Y open (reads 0): always; U40 Y stuck high / Y-VCC short: only if the MCU samples before the heartbeat starts (power sequencing to confirm at bring-up); makes B8 an automated EOL step",
+    "id": "H2",
+    "name": "BIAS_GOOD readback on J4 pin 1 (spare since stage 38) + firmware POST",
+    "what": "BIAS_GOOD -> 1 k -> J4.1 -> controller GPIO with a 100 k pull-down; POST requires BIAS_GOOD = 0 before the bias rails are up and = 1 after, and BIAS_GOOD = 1 continuously while PERMIT is requested"
+   },
+   {
+    "DC_field": 0.0,
+    "DC_production": 0.906,
+    "cost": "12 test pads (copper) + fixture",
+    "covers": "comparator die / pins / tap caps present at manufacture",
+    "id": "H3",
+    "name": "EOL per-threshold forcing through 12 tap test pads (+ B8 veto test), observed on J4.1"
+   },
+   {
+    "DC_field": 0.0,
+    "DC_production_LS": 0.278,
+    "DC_production_LS_with_H3": 0.937,
+    "cost": "1 test pad",
+    "covers": "every LS span-OV mask incl. dividers",
+    "id": "H4",
+    "name": "EOL LS rail-raise: ground TPS7A4700 3P2V (pin 6) through a fixture pad -> 20.2 V"
+   },
+   {
+    "DC_field": 0.0,
+    "cost": "1-3 test pads + HV DC source in the EOL station",
+    "covers": "U5 assembly opens / wrong part / OCP-OVP network defects at manufacture",
+    "id": "H5",
+    "name": "EOL REF25 pad check (2.4975-2.5025 V at 25 C, SNOS455H 5.6 p.7) + OVP ramp to 288 V on a DC source + OCP injection at the Kelvin pads"
+   },
+   {
+    "DC_field": 0.448,
+    "cost": "isolator swap + 6 switches + 6-9 resistors per board + three islands touched",
+    "covers": "only faults that mask BOTH thresholds of the shifted group: the wired-AND 'good' node passes the test on any one live channel",
+    "id": "H6",
+    "name": "Field halfref-shift self-test (NOT recommended): U32 CA-IS3720HW -> CA-IS3721HW (1 fwd / 1 rev, pinout unchecked) for SELV -> LS, the ISO6721FB spare reverse channels for LS -> HS-A / HS-B, two switched resistors per monitor"
+   }
+  ],
+  "notes": "Front-end coverage shares are of the allocation-B dormant FIT x thresholds of one rail (S47 = V1 rows). H3 / H4 / H5 screen defects present at manufacture; the FIT model holds only random field failures, for which their coverage is 0 (D59's B13 finding stands)."
+ },
+ "monitors": {
+  "D59_reference": {
+   "TI estimator FITs (8 / 8 / 0.1)": {
+    "V1": 16.782,
+    "V2": 15.07,
+    "V2+F2+v5": 14.92
+   },
+   "TPS3703 FMD for the TPS3701": {
+    "V1": 19.289,
+    "V2": 15.925,
+    "V2+F2+v5": 15.775
+   },
+   "allocation B (die FMD on die FIT; package FIT on pins)": {
+    "V1": 22.527,
+    "V2": 18.925,
+    "V2+F2+v5": 18.525
+   },
+   "base": {
+    "V1": 19.289,
+    "V2": 16.825,
+    "V2+F2+v5": 16.675
+   },
+   "k_o = 0.5": {
+    "V1": 31.589,
+    "V2": 28.525,
+    "V2+F2+v5": 28.375
+   },
+   "k_u = 0": {
+    "V1": 11.346,
+    "V2": 8.475,
+    "V2+F2+v5": 8.775
+   },
+   "k_u = 1": {
+    "V1": 27.232,
+    "V2": 25.175,
+    "V2+F2+v5": 24.575
+   },
+   "passives x5": {
+    "V1": 31.189,
+    "V2": 31.725,
+    "V2+F2+v5": 30.975
+   },
+   "worst (k_u 1, k_o 0.5, passives x5, allocation B)": {
+    "V1": 59.782,
+    "V2": 58.925,
+    "V2+F2+v5": 55.425
+   }
+  },
+  "cases": {
+   "SN 29500 reference x Arrhenius 0.7 eV at c17.5_h10 temperatures": {
+    "S47": {
+     "FIT_whole_rail_masks": 1.296,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 39.17,
+     "frontend_per_rail": {
+      "HS-A": 10.519,
+      "HS-B": 13.804,
+      "LS": 14.847
+     },
+     "per_threshold_FIT": {
+      "neg OV": 39.521,
+      "neg UV": 37.571,
+      "span OV": 40.169,
+      "span UV": 39.419
+     },
+     "total_RWL": 52.17
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 152.883,
+     "frontend_per_rail": {
+      "HS-A": 40.699,
+      "HS-B": 53.978,
+      "LS": 58.206
+     },
+     "per_threshold_FIT": {
+      "neg OV": 152.808,
+      "neg UV": 152.058,
+      "span OV": 154.008,
+      "span UV": 152.658
+     },
+     "total_RWL": 165.883
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 152.733,
+     "frontend_per_rail": {
+      "HS-A": 40.649,
+      "HS-B": 53.928,
+      "LS": 58.156
+     },
+     "per_threshold_FIT": {
+      "neg OV": 152.808,
+      "neg UV": 152.058,
+      "span OV": 152.808,
+      "span UV": 153.258
+     },
+     "total_RWL": 165.733
+    }
+   },
+   "SN 29500 reference x Arrhenius 0.7 eV at c28_h10 temperatures": {
+    "S47": {
+     "FIT_whole_rail_masks": 1.395,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 42.084,
+     "frontend_per_rail": {
+      "HS-A": 9.222,
+      "HS-B": 14.93,
+      "LS": 17.932
+     },
+     "per_threshold_FIT": {
+      "neg OV": 42.41,
+      "neg UV": 40.46,
+      "span OV": 43.108,
+      "span UV": 42.358
+     },
+     "total_RWL": 55.084
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 164.757,
+     "frontend_per_rail": {
+      "HS-A": 35.472,
+      "HS-B": 58.543,
+      "LS": 70.742
+     },
+     "per_threshold_FIT": {
+      "neg OV": 164.682,
+      "neg UV": 163.932,
+      "span OV": 165.882,
+      "span UV": 164.532
+     },
+     "total_RWL": 177.757
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 164.607,
+     "frontend_per_rail": {
+      "HS-A": 35.422,
+      "HS-B": 58.493,
+      "LS": 70.692
+     },
+     "per_threshold_FIT": {
+      "neg OV": 164.682,
+      "neg UV": 163.932,
+      "span OV": 164.682,
+      "span UV": 165.132
+     },
+     "total_RWL": 177.607
+    }
+   },
+   "TI estimator FITs at 55 C (D59 row, control)": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.086,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 3.783,
+     "frontend_per_rail": {
+      "HS-A": 1.261,
+      "HS-B": 1.261,
+      "LS": 1.261
+     },
+     "per_threshold_FIT": {
+      "neg OV": 4.436,
+      "neg UV": 2.486,
+      "span OV": 4.479,
+      "span UV": 3.729
+     },
+     "total_RWL": 16.783
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.07,
+     "frontend_per_rail": {
+      "HS-A": 0.69,
+      "HS-B": 0.69,
+      "LS": 0.69
+     },
+     "per_threshold_FIT": {
+      "neg OV": 1.995,
+      "neg UV": 1.245,
+      "span OV": 3.195,
+      "span UV": 1.845
+     },
+     "total_RWL": 15.07
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 1.92,
+     "frontend_per_rail": {
+      "HS-A": 0.64,
+      "HS-B": 0.64,
+      "LS": 0.64
+     },
+     "per_threshold_FIT": {
+      "neg OV": 1.995,
+      "neg UV": 1.245,
+      "span OV": 1.995,
+      "span UV": 2.445
+     },
+     "total_RWL": 14.92
+    }
+   },
+   "TI estimator, own rows, at c17.5_h10 temperatures": {
+    "S47": {
+     "FIT_whole_rail_masks": 1.727,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 51.802,
+     "frontend_per_rail": {
+      "HS-A": 13.884,
+      "HS-B": 18.264,
+      "LS": 19.654
+     },
+     "per_threshold_FIT": {
+      "neg OV": 52.045,
+      "neg UV": 50.095,
+      "span OV": 52.909,
+      "span UV": 52.159
+     },
+     "total_RWL": 64.802
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.78,
+     "frontend_per_rail": {
+      "HS-A": 0.875,
+      "HS-B": 0.942,
+      "LS": 0.963
+     },
+     "per_threshold_FIT": {
+      "neg OV": 2.704,
+      "neg UV": 1.954,
+      "span OV": 3.904,
+      "span UV": 2.554
+     },
+     "total_RWL": 15.78
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.63,
+     "frontend_per_rail": {
+      "HS-A": 0.825,
+      "HS-B": 0.892,
+      "LS": 0.913
+     },
+     "per_threshold_FIT": {
+      "neg OV": 2.704,
+      "neg UV": 1.954,
+      "span OV": 2.704,
+      "span UV": 3.154
+     },
+     "total_RWL": 15.63
+    }
+   },
+   "TI estimator, own rows, at c28_h10 temperatures": {
+    "S47": {
+     "FIT_whole_rail_masks": 1.86,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 55.687,
+     "frontend_per_rail": {
+      "HS-A": 12.154,
+      "HS-B": 19.765,
+      "LS": 23.768
+     },
+     "per_threshold_FIT": {
+      "neg OV": 55.897,
+      "neg UV": 53.947,
+      "span OV": 56.827,
+      "span UV": 56.077
+     },
+     "total_RWL": 68.687
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.838,
+     "frontend_per_rail": {
+      "HS-A": 0.849,
+      "HS-B": 0.964,
+      "LS": 1.025
+     },
+     "per_threshold_FIT": {
+      "neg OV": 2.764,
+      "neg UV": 2.014,
+      "span OV": 3.964,
+      "span UV": 2.614
+     },
+     "total_RWL": 15.838
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.688,
+     "frontend_per_rail": {
+      "HS-A": 0.799,
+      "HS-B": 0.914,
+      "LS": 0.975
+     },
+     "per_threshold_FIT": {
+      "neg OV": 2.764,
+      "neg UV": 2.014,
+      "span OV": 2.764,
+      "span UV": 3.214
+     },
+     "total_RWL": 15.688
+    }
+   },
+   "TPS3703 FMD for the TPS3701": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.171,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 6.288,
+     "frontend_per_rail": {
+      "HS-A": 2.096,
+      "HS-B": 2.096,
+      "LS": 2.096
+     },
+     "per_threshold_FIT": {
+      "neg OV": 6.921,
+      "neg UV": 4.971,
+      "span OV": 7.007,
+      "span UV": 6.257
+     },
+     "total_RWL": 19.288
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.925,
+     "frontend_per_rail": {
+      "HS-A": 0.975,
+      "HS-B": 0.975,
+      "LS": 0.975
+     },
+     "per_threshold_FIT": {
+      "neg OV": 2.85,
+      "neg UV": 2.1,
+      "span OV": 4.05,
+      "span UV": 2.7
+     },
+     "total_RWL": 15.925
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 2.775,
+     "frontend_per_rail": {
+      "HS-A": 0.925,
+      "HS-B": 0.925,
+      "LS": 0.925
+     },
+     "per_threshold_FIT": {
+      "neg OV": 2.85,
+      "neg UV": 2.1,
+      "span OV": 2.85,
+      "span UV": 3.3
+     },
+     "total_RWL": 15.775
+    }
+   },
+   "allocation B (die FMD on die FIT; package FIT on pins)": {
+    "S47": {
+     "FIT_whole_rail_masks": 4.271,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 9.528,
+     "frontend_per_rail": {
+      "HS-A": 3.176,
+      "HS-B": 3.176,
+      "LS": 3.176
+     },
+     "per_threshold_FIT": {
+      "neg OV": 9.821,
+      "neg UV": 7.871,
+      "span OV": 10.582,
+      "span UV": 9.832
+     },
+     "total_RWL": 22.528
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 1.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 5.925,
+     "frontend_per_rail": {
+      "HS-A": 1.975,
+      "HS-B": 1.975,
+      "LS": 1.975
+     },
+     "per_threshold_FIT": {
+      "neg OV": 6.1,
+      "neg UV": 4.85,
+      "span OV": 7.3,
+      "span UV": 5.45
+     },
+     "total_RWL": 18.925
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 1.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 5.526,
+     "frontend_per_rail": {
+      "HS-A": 1.842,
+      "HS-B": 1.842,
+      "LS": 1.842
+     },
+     "per_threshold_FIT": {
+      "neg OV": 5.85,
+      "neg UV": 4.6,
+      "span OV": 5.85,
+      "span UV": 5.8
+     },
+     "total_RWL": 18.526
+    }
+   },
+   "base": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.171,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 6.288,
+     "frontend_per_rail": {
+      "HS-A": 2.096,
+      "HS-B": 2.096,
+      "LS": 2.096
+     },
+     "per_threshold_FIT": {
+      "neg OV": 6.921,
+      "neg UV": 4.971,
+      "span OV": 7.007,
+      "span UV": 6.257
+     },
+     "total_RWL": 19.288
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 3.825,
+     "frontend_per_rail": {
+      "HS-A": 1.275,
+      "HS-B": 1.275,
+      "LS": 1.275
+     },
+     "per_threshold_FIT": {
+      "neg OV": 3.75,
+      "neg UV": 3.0,
+      "span OV": 4.95,
+      "span UV": 3.6
+     },
+     "total_RWL": 16.825
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 13.0,
+     "frontend_RWL": 3.675,
+     "frontend_per_rail": {
+      "HS-A": 1.225,
+      "HS-B": 1.225,
+      "LS": 1.225
+     },
+     "per_threshold_FIT": {
+      "neg OV": 3.75,
+      "neg UV": 3.0,
+      "span OV": 3.75,
+      "span UV": 4.2
+     },
+     "total_RWL": 16.675
+    }
+   },
+   "k_o = 0.5": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.171,
+     "chain_RWL": 23.2,
+     "frontend_RWL": 8.388,
+     "frontend_per_rail": {
+      "HS-A": 2.796,
+      "HS-B": 2.796,
+      "LS": 2.796
+     },
+     "per_threshold_FIT": {
+      "neg OV": 9.021,
+      "neg UV": 7.071,
+      "span OV": 9.107,
+      "span UV": 8.357
+     },
+     "total_RWL": 31.588
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 23.2,
+     "frontend_RWL": 5.325,
+     "frontend_per_rail": {
+      "HS-A": 1.775,
+      "HS-B": 1.775,
+      "LS": 1.775
+     },
+     "per_threshold_FIT": {
+      "neg OV": 5.25,
+      "neg UV": 4.5,
+      "span OV": 6.45,
+      "span UV": 5.1
+     },
+     "total_RWL": 28.525
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 23.2,
+     "frontend_RWL": 5.175,
+     "frontend_per_rail": {
+      "HS-A": 1.725,
+      "HS-B": 1.725,
+      "LS": 1.725
+     },
+     "per_threshold_FIT": {
+      "neg OV": 5.25,
+      "neg UV": 4.5,
+      "span OV": 5.25,
+      "span UV": 5.7
+     },
+     "total_RWL": 28.375
+    }
+   },
+   "k_u = 0": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.171,
+     "chain_RWL": 5.1,
+     "frontend_RWL": 6.246,
+     "frontend_per_rail": {
+      "HS-A": 2.082,
+      "HS-B": 2.082,
+      "LS": 2.082
+     },
+     "per_threshold_FIT": {
+      "neg OV": 6.921,
+      "neg UV": 4.971,
+      "span OV": 6.921,
+      "span UV": 6.171
+     },
+     "total_RWL": 11.346
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 5.1,
+     "frontend_RWL": 3.375,
+     "frontend_per_rail": {
+      "HS-A": 1.125,
+      "HS-B": 1.125,
+      "LS": 1.125
+     },
+     "per_threshold_FIT": {
+      "neg OV": 3.75,
+      "neg UV": 3.0,
+      "span OV": 3.75,
+      "span UV": 3.0
+     },
+     "total_RWL": 8.475
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 5.1,
+     "frontend_RWL": 3.675,
+     "frontend_per_rail": {
+      "HS-A": 1.225,
+      "HS-B": 1.225,
+      "LS": 1.225
+     },
+     "per_threshold_FIT": {
+      "neg OV": 3.75,
+      "neg UV": 3.0,
+      "span OV": 3.75,
+      "span UV": 4.2
+     },
+     "total_RWL": 8.775
+    }
+   },
+   "k_u = 1": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.171,
+     "chain_RWL": 20.9,
+     "frontend_RWL": 6.333,
+     "frontend_per_rail": {
+      "HS-A": 2.111,
+      "HS-B": 2.111,
+      "LS": 2.111
+     },
+     "per_threshold_FIT": {
+      "neg OV": 6.921,
+      "neg UV": 4.971,
+      "span OV": 7.093,
+      "span UV": 6.343
+     },
+     "total_RWL": 27.233
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 20.9,
+     "frontend_RWL": 4.275,
+     "frontend_per_rail": {
+      "HS-A": 1.425,
+      "HS-B": 1.425,
+      "LS": 1.425
+     },
+     "per_threshold_FIT": {
+      "neg OV": 3.75,
+      "neg UV": 3.0,
+      "span OV": 6.15,
+      "span UV": 4.2
+     },
+     "total_RWL": 25.175
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 20.9,
+     "frontend_RWL": 3.675,
+     "frontend_per_rail": {
+      "HS-A": 1.225,
+      "HS-B": 1.225,
+      "LS": 1.225
+     },
+     "per_threshold_FIT": {
+      "neg OV": 3.75,
+      "neg UV": 3.0,
+      "span OV": 3.75,
+      "span UV": 4.2
+     },
+     "total_RWL": 24.575
+    }
+   },
+   "passives x5": {
+    "S47": {
+     "FIT_whole_rail_masks": 0.171,
+     "chain_RWL": 19.8,
+     "frontend_RWL": 11.388,
+     "frontend_per_rail": {
+      "HS-A": 3.796,
+      "HS-B": 3.796,
+      "LS": 3.796
+     },
+     "per_threshold_FIT": {
+      "neg OV": 14.721,
+      "neg UV": 4.971,
+      "span OV": 14.807,
+      "span UV": 11.057
+     },
+     "total_RWL": 31.188
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 19.8,
+     "frontend_RWL": 11.925,
+     "frontend_per_rail": {
+      "HS-A": 3.975,
+      "HS-B": 3.975,
+      "LS": 3.975
+     },
+     "per_threshold_FIT": {
+      "neg OV": 11.55,
+      "neg UV": 7.8,
+      "span OV": 17.55,
+      "span UV": 10.8
+     },
+     "total_RWL": 31.725
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 0.0,
+     "chain_RWL": 19.8,
+     "frontend_RWL": 11.175,
+     "frontend_per_rail": {
+      "HS-A": 3.725,
+      "HS-B": 3.725,
+      "LS": 3.725
+     },
+     "per_threshold_FIT": {
+      "neg OV": 11.55,
+      "neg UV": 7.8,
+      "span OV": 11.55,
+      "span UV": 13.8
+     },
+     "total_RWL": 30.975
+    }
+   },
+   "worst (k_u 1, k_o 0.5, passives x5, allocation B)": {
+    "S47": {
+     "FIT_whole_rail_masks": 5.521,
+     "chain_RWL": 40.3,
+     "frontend_RWL": 19.482,
+     "frontend_per_rail": {
+      "HS-A": 6.494,
+      "HS-B": 6.494,
+      "LS": 6.494
+     },
+     "per_threshold_FIT": {
+      "neg OV": 22.096,
+      "neg UV": 12.346,
+      "span OV": 23.618,
+      "span UV": 19.868
+     },
+     "total_RWL": 59.782
+    },
+    "V2": {
+     "FIT_whole_rail_masks": 1.0,
+     "chain_RWL": 40.3,
+     "frontend_RWL": 18.624,
+     "frontend_per_rail": {
+      "HS-A": 6.208,
+      "HS-B": 6.208,
+      "LS": 6.208
+     },
+     "per_threshold_FIT": {
+      "neg OV": 16.25,
+      "neg UV": 12.0,
+      "span OV": 28.25,
+      "span UV": 18.0
+     },
+     "total_RWL": 58.924
+    },
+    "V2+F2+v5": {
+     "FIT_whole_rail_masks": 1.0,
+     "chain_RWL": 40.3,
+     "frontend_RWL": 15.126,
+     "frontend_per_rail": {
+      "HS-A": 5.042,
+      "HS-B": 5.042,
+      "LS": 5.042
+     },
+     "per_threshold_FIT": {
+      "neg OV": 15.75,
+      "neg UV": 11.5,
+      "span OV": 15.75,
+      "span UV": 17.5
+     },
+     "total_RWL": 55.426
+    }
+   }
+  },
+  "drift_125C": {
+   "control_V1_60K": "reproduces s16 bands.json to 1e-4",
+   "thresholds_100K_rails_60K": {
+    "down: neg UV": {
+     "H_limit": 1.5056,
+     "Q_limit": 1.7543,
+     "announcer": "span OV / neg OV",
+     "drift_at_announcement_pct": [
+      -11.129,
+      -7.2747
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 0.1753,
+     "vs_Q_V": -0.0734,
+     "worst_dormant_threshold_V": 1.6809
+    },
+    "down: span UV": {
+     "H_limit": 12.4,
+     "Q_limit": 15.5,
+     "announcer": "span OV / neg OV",
+     "drift_at_announcement_pct": [
+      -11.129,
+      -7.2747
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 1.9976,
+     "vs_Q_V": -1.1024,
+     "worst_dormant_threshold_V": 14.3976
+    },
+    "up: neg OV": {
+     "H_limit": 5.5,
+     "Q_limit": 2.4,
+     "announcer": "span UV / neg UV",
+     "drift_at_announcement_pct": [
+      7.4868,
+      12.1485
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 3.0319,
+     "vs_Q_V": -0.0681,
+     "worst_dormant_threshold_V": 2.4681
+    },
+    "up: span OV": {
+     "H_limit": 21.0,
+     "Q_limit": 19.0,
+     "announcer": "span UV / neg UV",
+     "drift_at_announcement_pct": [
+      7.4868,
+      12.1485
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 0.9651,
+     "vs_Q_V": -1.0349,
+     "worst_dormant_threshold_V": 20.0349
+    }
+   },
+   "thresholds_and_neg_rail_100K": {
+    "down: neg UV": {
+     "H_limit": 1.5056,
+     "Q_limit": 1.7543,
+     "announcer": "span OV / neg OV",
+     "drift_at_announcement_pct": [
+      -11.129,
+      -7.2747
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 0.1753,
+     "vs_Q_V": -0.0734,
+     "worst_dormant_threshold_V": 1.6809
+    },
+    "down: span UV": {
+     "H_limit": 12.4,
+     "Q_limit": 15.5,
+     "announcer": "span OV / neg OV",
+     "drift_at_announcement_pct": [
+      -11.129,
+      -7.2747
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 1.9976,
+     "vs_Q_V": -1.1024,
+     "worst_dormant_threshold_V": 14.3976
+    },
+    "up: neg OV": {
+     "H_limit": 5.5,
+     "Q_limit": 2.4,
+     "announcer": "span UV / neg UV",
+     "drift_at_announcement_pct": [
+      7.4868,
+      12.1485
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 3.0319,
+     "vs_Q_V": -0.0681,
+     "worst_dormant_threshold_V": 2.4681
+    },
+    "up: span OV": {
+     "H_limit": 21.0,
+     "Q_limit": 19.0,
+     "announcer": "span UV / neg UV",
+     "drift_at_announcement_pct": [
+      7.4868,
+      12.1485
+     ],
+     "outside_Q_while_dormant": true,
+     "silent_mask_vs_H": false,
+     "vs_H_V": 0.9651,
+     "vs_Q_V": -1.0349,
+     "worst_dormant_threshold_V": 20.0349
+    }
+   }
+  },
+  "drift_silent_vs_H": [],
+  "fault_sim": "S47 uses the V1 fault-simulation rows unchanged (same topology, pinout, VIO band): 61 single faults",
+  "mode_assumptions": {
+   "LM2901B": "same die family and data sheet as LM339B (SLCS006Z); SLCA004 FIT / FMD / pin FMA now name the part directly (was a proxy); pinout SLCA004 Fig 1-2 = fault-sim mapping; VIO 5.5 mV / IB 50 nA / VCM (V+)-2 V now over -40..125 C (6.8 p.8); open-collector output, 'one input in range' note unchanged; minimum supply 2 V (6.4 p.6) so the C7 sliver is unchanged; IOH leakage specified only at 25 C, and leakage can only pull 'good' low (announce), never mask. No failure-mode assumption changes.",
+   "TL431BQ": "SLVS543S 6.13 p.14: Vref 2.483-2.507 V, VI(dev) 34 mV max, now over -40..125 C; same DBZ pinout; FIT / FMD source unchanged (SNVA914, the -Q1 die family). The cathode node has no capacitor (fault-sim netlist: rref 2.2 k + halfref divider only), so the stability-boundary question is unchanged. No failure-mode assumption changes."
+  },
+  "part_FIT_at_T": {
+   "c17.5_h10": {
+    "U17": {
+     "FS_FIT_base": 6,
+     "SN29500_FIT": 82.216,
+     "T_C": 92.4,
+     "est_FIT": 100.696
+    },
+    "U19": {
+     "FS_FIT_base": 6,
+     "SN29500_FIT": 42.614,
+     "T_C": 81.9,
+     "est_FIT": 52.192
+    },
+    "U21": {
+     "FS_FIT_base": 6,
+     "SN29500_FIT": 52.942,
+     "T_C": 85.3,
+     "est_FIT": 64.842
+    },
+    "U29": {
+     "FS_FIT_base": 16,
+     "SN29500_FIT": 138.055,
+     "T_C": 102.6,
+     "est_FIT": 184.073
+    },
+    "U30": {
+     "FS_FIT_base": 16,
+     "SN29500_FIT": 96.631,
+     "T_C": 96.5,
+     "est_FIT": 128.841
+    },
+    "U31": {
+     "FS_FIT_base": 16,
+     "SN29500_FIT": 128.072,
+     "T_C": 101.3,
+     "est_FIT": 170.763
+    }
+   },
+   "c28_h10": {
+    "U17": {
+     "FS_FIT_base": 6,
+     "SN29500_FIT": 95.04,
+     "T_C": 94.8,
+     "est_FIT": 116.402
+    },
+    "U19": {
+     "FS_FIT_base": 6,
+     "SN29500_FIT": 39.689,
+     "T_C": 80.8,
+     "est_FIT": 48.61
+    },
+    "U21": {
+     "FS_FIT_base": 6,
+     "SN29500_FIT": 50.325,
+     "T_C": 84.5,
+     "est_FIT": 61.637
+    },
+    "U29": {
+     "FS_FIT_base": 16,
+     "SN29500_FIT": 167.588,
+     "T_C": 106.0,
+     "est_FIT": 223.451
+    },
+    "U30": {
+     "FS_FIT_base": 16,
+     "SN29500_FIT": 84.21,
+     "T_C": 94.2,
+     "est_FIT": 112.279
+    },
+    "U31": {
+     "FS_FIT_base": 16,
+     "SN29500_FIT": 138.851,
+     "T_C": 102.7,
+     "est_FIT": 185.135
+    }
+   }
+  }
+ },
+ "temperatures": {
+  "c17.5_h10": {
+   "U17": 92.4,
+   "U19": 81.9,
+   "U21": 85.3,
+   "U29": 102.6,
+   "U29_selfheat": 3.14,
+   "U30": 96.5,
+   "U30_selfheat": 3.14,
+   "U31": 101.3,
+   "U31_selfheat": 3.14,
+   "U5": 89.1
+  },
+  "c28_h10": {
+   "U17": 94.8,
+   "U19": 80.8,
+   "U21": 84.5,
+   "U29": 106.0,
+   "U29_selfheat": 3.14,
+   "U30": 94.2,
+   "U30_selfheat": 3.14,
+   "U31": 102.7,
+   "U31_selfheat": 3.14,
+   "U5": 104.7
+  }
+ }
+}

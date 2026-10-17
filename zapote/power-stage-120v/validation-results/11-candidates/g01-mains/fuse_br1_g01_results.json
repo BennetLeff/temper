@@ -1,0 +1,143 @@
+{
+ "rows": [
+  {
+   "name": "KLDR025 (as built)",
+   "melt": 226.0,
+   "clear": 1710.0,
+   "src": "KLDR datasheet Rev 092821 p.5 (F1 study)",
+   "carry_A": 16.875,
+   "price500": 29.412,
+   "clips500": 6.498,
+   "note": "Class CC TD, 200 kA",
+   "BR1_half_ok": false,
+   "fusing_ratio_scorecard": 0.20789473684210527,
+   "copper_target_2x": 3420.0,
+   "necks_failing_1x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)",
+    "J8 -> Q2/Q5 drain (BUS_P In2)"
+   ],
+   "necks_failing_2x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)",
+    "J8 -> Q2/Q5 drain (BUS_P In2)",
+    "Q3 source -> R5",
+    "L1 -> BR1 AC1"
+   ],
+   "carries_15A": true,
+   "F1_plus_clips_500": 35.91
+  },
+  {
+   "name": "KLKR025 Class CC fast (clearing interpolated)",
+   "melt": null,
+   "clear": 1244.0,
+   "src": "(est) geometric mean of KLKR020 900 and KLKR030 1720 A2s, Littelfuse KLKR datasheet table as quoted by distributor copies",
+   "carry_A": 16.875,
+   "price500": null,
+   "clips500": 6.498,
+   "note": "price not found",
+   "BR1_half_ok": false,
+   "fusing_ratio_scorecard": 0.2857717041800643,
+   "copper_target_2x": 2488.0,
+   "necks_failing_1x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)",
+    "J8 -> Q2/Q5 drain (BUS_P In2)"
+   ],
+   "necks_failing_2x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)",
+    "J8 -> Q2/Q5 drain (BUS_P In2)",
+    "Q3 source -> R5",
+    "L1 -> BR1 AC1"
+   ],
+   "carries_15A": true
+  },
+  {
+   "name": "KLKR020 Class CC fast",
+   "melt": null,
+   "clear": 900.0,
+   "src": "KLKR datasheet table (distributor copy)",
+   "carry_A": 13.5,
+   "price500": null,
+   "clips500": 6.498,
+   "note": "REJECT: carries 13.5 A < 15 A",
+   "BR1_half_ok": false,
+   "fusing_ratio_scorecard": 0.395,
+   "copper_target_2x": 1800.0,
+   "necks_failing_1x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)",
+    "J8 -> Q2/Q5 drain (BUS_P In2)"
+   ],
+   "necks_failing_2x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)",
+    "J8 -> Q2/Q5 drain (BUS_P In2)",
+    "L1 -> BR1 AC1"
+   ],
+   "carries_15A": false
+  },
+  {
+   "name": "Littelfuse 0505025.MXP 6.3x32 fast (clearing = 1.5 x melt) (est)",
+   "melt": 145.0,
+   "clear": 217.5,
+   "src": "melt 145 A2s: third-party catalogue text (novapart/e-streloy), datasheet 403 - UNVERIFIED; clearing ratio ASSUMED",
+   "carry_A": 17.8125,
+   "price500": 3.0,
+   "clips500": 3.0,
+   "note": "500 V 20 kA (unverified); supplemental fuse, not UL 248-4 branch fuse",
+   "BR1_half_ok": true,
+   "fusing_ratio_scorecard": 1.6344827586206896,
+   "copper_target_2x": 435.0,
+   "necks_failing_1x": [],
+   "necks_failing_2x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)"
+   ],
+   "carries_15A": true,
+   "F1_plus_clips_500": 6.0
+  },
+  {
+   "name": "Littelfuse 0505025.MXP 6.3x32 fast (clearing = 2.0 x melt) (est)",
+   "melt": 145.0,
+   "clear": 290.0,
+   "src": "melt 145 A2s: third-party catalogue text (novapart/e-streloy), datasheet 403 - UNVERIFIED; clearing ratio ASSUMED",
+   "carry_A": 17.8125,
+   "price500": 3.0,
+   "clips500": 3.0,
+   "note": "500 V 20 kA (unverified); supplemental fuse, not UL 248-4 branch fuse",
+   "BR1_half_ok": false,
+   "fusing_ratio_scorecard": 1.2258620689655173,
+   "copper_target_2x": 580.0,
+   "necks_failing_1x": [],
+   "necks_failing_2x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)"
+   ],
+   "carries_15A": true,
+   "F1_plus_clips_500": 6.0
+  },
+  {
+   "name": "Littelfuse 0505025.MXP 6.3x32 fast (clearing = 3.0 x melt) (est)",
+   "melt": 145.0,
+   "clear": 435.0,
+   "src": "melt 145 A2s: third-party catalogue text (novapart/e-streloy), datasheet 403 - UNVERIFIED; clearing ratio ASSUMED",
+   "carry_A": 17.8125,
+   "price500": 3.0,
+   "clips500": 3.0,
+   "note": "500 V 20 kA (unverified); supplemental fuse, not UL 248-4 branch fuse",
+   "BR1_half_ok": false,
+   "fusing_ratio_scorecard": 0.8172413793103448,
+   "copper_target_2x": 870.0,
+   "necks_failing_1x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)"
+   ],
+   "necks_failing_2x": [
+    "shunt R5 -> J10 (HV_RET In1 isthmus)"
+   ],
+   "carries_15A": true,
+   "F1_plus_clips_500": 6.0
+  }
+ ],
+ "necks": {
+  "shunt R5 -> J10 (HV_RET In1 isthmus)": 355.5,
+  "J8 -> Q2/Q5 drain (BUS_P In2)": 884.0,
+  "Q3 source -> R5": 2080.0,
+  "L1 -> BR1 AC1": 1747.0,
+  "F1 -> L1": 4554.0
+ },
+ "BR1_I2t": 510.0
+}

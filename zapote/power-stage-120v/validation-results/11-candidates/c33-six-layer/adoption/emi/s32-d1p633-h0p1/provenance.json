@@ -1,0 +1,27 @@
+{
+ "tag": "s32-stack-h0p1",
+ "copper_dump": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s32/b2/copper-dump.json",
+ "copper_dump_sha256": "3401884643954fbef4f48b672ffdd2a1f4fec37f0985019c54049550b9e9ecdd",
+ "b_depth_mm": 1.633,
+ "fringe_h_mm": 0.1,
+ "fringe_calls": [
+  {
+   "z_requested_mm": 0.0,
+   "z_used_mm": 0.0,
+   "h_mm": 0.1,
+   "z_on_grid_mm": 0.0,
+   "F_per_mm": 1.762016541096765e-14
+  },
+  {
+   "z_requested_mm": -1.6,
+   "z_used_mm": -1.633,
+   "h_mm": 0.1,
+   "z_on_grid_mm": -1.5999999999999979,
+   "F_per_mm": 1.6189592639540134e-14
+  }
+ ],
+ "model": "07-conducted-emi/s19b/emi_s19b.py (unmodified)",
+ "emi_min_margin_dB": 10.5,
+ "emi_min_margin_dB_unrounded": 10.479041606151384,
+ "definition": "scorecard.py: min margin_dB over results.json scenarios.nominal"
+}

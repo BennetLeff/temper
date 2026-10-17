@@ -1,0 +1,1545 @@
+{
+ "schema": "native21.depmap.v1",
+ "about": "Dependency map of chain.sh + scorecard.py (board of record s43, snapshot cb48a12e6): every step, what it reads, what it writes, which scorecard entries it produces, and its wall time on the s43 chain (ps-layers, 2026-10-15 13:15:05-13:44:30, file mtimes). Paths are relative to zapote/power-stage-120v; '@repo/' prefixes a path relative to the repository root. Globs: '*' = one path segment, '**' = any depth. 'path_rules' are matched in order, first match wins; a changed path no rule matches is UNKNOWN and forces the full chain.",
+ "policies": {
+  "rebuild": "the board build: runs when any path classed 'build' changed; otherwise the benchmark build directory is reused (its board_sha256 is the proof)",
+  "on_rebuild": "runs on every rebuilt board (safety gates on the built copper, exports, cheap gates); on a reused board runs only when one of its own inputs changed",
+  "cheap": "under a minute: always runs, so the scoped card recomputes it on every iteration",
+  "keyed": "expensive: runs only when its content key differs from the benchmark manifest's; a reuse names the key",
+  "manual": "not run by chain.sh; the card reads a committed file. Reused from the benchmark when its key is unchanged, else the scoped card reports it STALE"
+ },
+ "steps": {
+  "plan_board_only": {
+   "block": "pre",
+   "wall_s": 11,
+   "workers": 1,
+   "policy": "rebuild",
+   "cmd": "native-21/layout/plan_board_only21.py PASS/copper-dump.json",
+   "card": [],
+   "writes": [
+    "native-21/layout/board_only21.json"
+   ]
+  },
+  "zone_priority": {
+   "block": "pre",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "rebuild",
+   "cmd": "gates/zone_priority_gate.py native-21/layout/copper.json",
+   "card": [],
+   "writes": []
+  },
+  "build": {
+   "block": "build",
+   "wall_s": 208,
+   "workers": 1,
+   "policy": "rebuild",
+   "cmd": "native-21/layout/incr_iter.sh (place, build_native21, rules, schematic, apply copper, board-only parts, reliefs, labels, DRC --refill-zones ~173 s, copper dump, barrier21) + settle loop (trim_tails)",
+   "card": [
+    "gates.drc_errors_0",
+    "gates.drc_unconnected_0",
+    "gates.drc_parity_0",
+    "cost.board_bbox_mm2"
+   ],
+   "writes": [
+    "BUILD/section.kicad_pcb",
+    "BUILD/drc.json",
+    "BUILD/copper-dump.json",
+    "BUILD/barrier.txt",
+    "native-21/section.kicad_*",
+    "native-21/native21.kicad_sym",
+    "native-21/placement.json",
+    "native-21/layout/pads.json",
+    "native-21/reference-labels.json",
+    "native-21/verification/schematic-build.json",
+    "prototype-closure/pcb/pin-functions21.json"
+   ],
+   "reads": {
+    "board": "all"
+   }
+  },
+  "d5": {
+   "block": "post-build",
+   "wall_s": 51,
+   "workers": 1,
+   "policy": "on_rebuild",
+   "cmd": "dump_pads.py + native-21/verification/d5_audit.py",
+   "card": [
+    "gates.d5",
+    "performance.d5_hot_selv_mm",
+    "performance.d5_hot_pe_mm"
+   ],
+   "writes": [
+    "BUILD/pads-board.json",
+    "native-21/verification/d5-audit.json"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "d5",
+     "d5_hot_pe_mm",
+     "d5_hot_selv_mm"
+    ],
+    "bom": "all"
+   }
+  },
+  "probe_erc": {
+   "block": "post-build",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "probe_map21.py; kicad-cli sch erc",
+   "card": [],
+   "writes": [
+    "native-21/BRINGUP-PROBES.md",
+    "BUILD/erc.json"
+   ]
+  },
+  "fit": {
+   "block": "fit",
+   "wall_s": 6,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "STEP export, board_boxes, body_collisions, board_in_enclosure, jet_strip_height",
+   "card": [
+    "gates.enclosure_fit",
+    "gates.jet_strip_height"
+   ],
+   "writes": [
+    "BUILD/board.step",
+    "validation-plan/enclosure-fit/native21-*.json"
+   ],
+   "reads": {
+    "parts": "all"
+   }
+  },
+  "fab": {
+   "block": "fab",
+   "wall_s": 22,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "Gerbers, drill, positions, bom_cpl_jlc, apply_lcsc, CPL rotation audit, bom_cpl_check, assembly PDF, review_fab, zip",
+   "card": [
+    "cost.bom_lines",
+    "cost.placements",
+    "cost.jlc_extended_lines",
+    "cost.jlc_basic_lines",
+    "cost.hand_or_consign_lines",
+    "cost.tht_lines",
+    "cost.consign_lines"
+   ],
+   "writes": [
+    "validation-results/08-manufacturing-package/native-21/fab/**",
+    "validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/{audit.*,cpl-jlcpcb.corrected*,renders/**}",
+    "validation-results/08-manufacturing-package/native-21/review.json"
+   ],
+   "reads": {
+    "parts": "all",
+    "bom": "all",
+    "board": "all"
+   }
+  },
+  "core_exports": {
+   "block": "core",
+   "wall_s": 5,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "tools/copper_dump.py (evidence.json), extract_geometry.py (all-copper export), tools/export_power_copper.py",
+   "card": [],
+   "writes": [
+    "BUILD/evidence.json",
+    "BUILD/native21-all-copper.json.gz",
+    "BUILD/power_copper.json.gz",
+    "native-21/verification/TAG-all-copper.json.gz"
+   ],
+   "note": "regate.sh core always runs the copper dump, DFM, bypass and both exports (seconds); only the Rust barrier is skippable"
+  },
+  "core_barrier": {
+   "block": "core",
+   "wall_s": 155,
+   "workers": 1,
+   "policy": "on_rebuild",
+   "cmd": "barrier_gate21.py with the Rust zapote-power-barrier binary (outside the repo: its SHA-256 is part of the key)",
+   "card": [
+    "gates.barrier_8mm",
+    "gates.res_a_outer_12p6mm"
+   ],
+   "writes": [
+    "BUILD/barrier-gate-rust.json"
+   ],
+   "external": [
+    "$ZAPOTE_POWER_BARRIER_BIN (default /Users/bennet/Desktop/temper/target-shared/debug/zapote-power-barrier)"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "barrier_8mm",
+     "res_a_outer_12p6mm"
+    ]
+   }
+  },
+  "core_dfm": {
+   "block": "core",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "tools/jlc_dfm_check.py",
+   "card": [
+    "gates.jlc_dfm",
+    "cost.vias"
+   ],
+   "writes": [
+    "BUILD/jlc-dfm.json",
+    "validation-results/08-manufacturing-package/native-21/jlc-dfm.json"
+   ],
+   "reads": {
+    "board": "all"
+   }
+  },
+  "core_bypass": {
+   "block": "core",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "gates/bypass_check.py",
+   "card": [
+    "gates.bypass"
+   ],
+   "writes": [
+    "BUILD/bypass-check.json",
+    "native-21/verification/bypass-check-TAG.json"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "bypass"
+    ]
+   }
+  },
+  "copper_key": {
+   "block": "core",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "gates/copper_key.py, gates/scoped/net_keys.py",
+   "card": [],
+   "writes": []
+  },
+  "heat_sources": {
+   "block": "thermal",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "b3/make_heat_sources.py (reads native-21/layout/pads.json, frozen/resolved-components.json, task-03 board heat)",
+   "card": [],
+   "writes": [
+    "validation-results/04-board-current-thermal/round5-native21/b3/inputs/*.json"
+   ]
+  },
+  "task04": {
+   "block": "thermal",
+   "wall_s": 404,
+   "workers": 6,
+   "policy": "keyed",
+   "cmd": "regate.sh task04: kit topology x2, run_cases (39 A4 cases), run_board x2, summarize, compare_native17",
+   "card": [],
+   "gate": "task04_dc_cases (summarize.py exits 1 on any A4 failure; ends the chain)",
+   "writes": [
+    "validation-results/04-board-current-thermal/round5-native21/outputs/**",
+    "validation-results/04-board-current-thermal/round5-native21/inputs/power_copper.json.gz"
+   ],
+   "key": "task04|copper_key|files(task04)",
+   "reads": {
+    "net_fill": [
+     "bus_p",
+     "hv_ret",
+     "leg_ret",
+     "sw_a",
+     "sw_b",
+     "res_a",
+     "coil_feed",
+     "ac_l_in",
+     "ac_n_in",
+     "l_f",
+     "l_filt",
+     "n_filt",
+     "rect_p",
+     "rect_n"
+    ]
+   }
+  },
+  "b3_study": {
+   "block": "thermal",
+   "wall_s": 300,
+   "workers": 1,
+   "policy": "keyed",
+   "cmd": "b3/run_study.py (legacy single-cell B3 runs)",
+   "card": [
+    "performance.b3_c28_h25_peak_C",
+    "performance.b3_nominal_h10_peak_C"
+   ],
+   "writes": [
+    "validation-results/04-board-current-thermal/round5-native21/b3/outputs/**"
+   ],
+   "key": "b3|copper_key|files(b3_study)|key(task04)",
+   "reads": {
+    "board": "all"
+   }
+  },
+  "ceiling_sweep": {
+   "block": "thermal",
+   "wall_s": 65,
+   "workers": 1,
+   "policy": "keyed",
+   "cmd": "b3/ceiling_sweep.py",
+   "card": [],
+   "writes": [
+    "validation-results/04-board-current-thermal/round5-native21/b3/outputs/sweep_*",
+    "validation-results/04-board-current-thermal/round5-native21/b3/outputs/ceiling_sweep.json"
+   ],
+   "key": "same as b3_study (one cache entry, chain.sh B3 key)",
+   "reads": {
+    "board": "all"
+   }
+  },
+  "b3_ratings": {
+   "block": "thermal",
+   "wall_s": 565,
+   "workers": 4,
+   "policy": "keyed",
+   "cmd": "b3-ratings/run_basis.py --workers 4 (six body-level solves) + b3_ratings_gate.py; stage 49: run_basis.py c28_h20_jet100@61 + c28_h15_jet100@55 (jetmix pads, BUILD/b3-bank-air) -> bank28-air/scripts/bank_air_metric.py; stage 51: + the fitted bank's release rows on b3-ratings/runs (c51-bank-source/data/candidates.json for KNSCHA); stage 52: + c51-bank-source/results/b32643h.json for B32643H",
+   "card": [
+    "gates.b3_ratings",
+    "performance.b3_laminate_margin_K",
+    "performance.b3_rated_part_margin_K",
+    "performance.b3_release_margin_K",
+    "performance.bank_air_ratio_28A_35k"
+   ],
+   "writes": [
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/**",
+    "validation-results/11-candidates/bank28-air/results/bank_air_metric.json"
+   ],
+   "key": "ratings|copper_key|files(b3_ratings)|key(task04)",
+   "reads": {
+    "board": "all"
+   },
+   "note": "not cached by chain.sh today: margins.json must carry this build's board_sha256, so it reruns (9.4 min, 4 workers) on every chain, also when copper, model and heat are unchanged"
+  },
+  "kelvin": {
+   "block": "kelvin",
+   "wall_s": 2,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "kelvin_plane.py + kelvin_budget.py",
+   "card": [
+    "performance.kelvin_band_low_A"
+   ],
+   "writes": [
+    "validation-results/02-protection-timing/kelvin/{plane,budget}-TAG.*"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "kelvin_band_low_A"
+    ]
+   }
+  },
+  "res_a": {
+   "block": "copper",
+   "wall_s": 2,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "stage18-res-a-creepage/res_a_creepage18.py",
+   "card": [
+    "gates.res_a_creepage18",
+    "performance.res_a_outer_min_mm"
+   ],
+   "writes": [
+    "BUILD/res-a-creepage.json"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "res_a_creepage18",
+     "res_a_outer_min_mm"
+    ]
+   }
+  },
+  "pi": {
+   "block": "copper",
+   "wall_s": 2,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "stage19-pi-si/pi_distances19.py",
+   "card": [
+    "gates.pi_distances"
+   ],
+   "writes": [
+    "BUILD/pi-distances.json"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "pi_distances"
+    ]
+   }
+  },
+  "return_path": {
+   "block": "copper",
+   "wall_s": 2,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "gates/return_path19.py",
+   "card": [
+    "gates.return_path19",
+    "performance.return_path_open_changes",
+    "performance.return_path_worst_asserted_mm"
+   ],
+   "writes": [
+    "BUILD/return-path.json"
+   ],
+   "reads": {
+    "verification_metrics": [
+     "return_path19",
+     "return_path_open_changes",
+     "return_path_worst_asserted_mm"
+    ]
+   }
+  },
+  "spine_lock": {
+   "block": "copper",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "gates/spine_lock.py (chain failure, not on the card)",
+   "card": [],
+   "writes": [
+    "BUILD/spine-lock.json"
+   ],
+   "reads": {
+    "board": "all"
+   }
+  },
+  "card": {
+   "block": "card",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "gates/scorecard.py: reads the build outputs + desk files; runs the ledger gate and track_geometry",
+   "card": [
+    "performance.emi_min_margin_dB",
+    "performance.leakage_touch_mA",
+    "performance.cmti_gate_ratio_min",
+    "performance.bank_ratio_tdk_28A_40k",
+    "performance.bank_ratio_tdk_28A_35k",
+    "performance.ledger_violations",
+    "performance.ledger_unaudited_safety_power",
+    "performance.track_acute_corners",
+    "performance.track_fold_backs",
+    "performance.track_right_angle_corners",
+    "performance.track_any_angle_mm"
+   ],
+   "writes": []
+  },
+  "necks": {
+   "block": "manual",
+   "wall_s": null,
+   "workers": 1,
+   "policy": "manual",
+   "cmd": "02-protection-timing/shoot-through-f1 sNN_necks.py (per stage, by hand)",
+   "card": [
+    "performance.fuse_copper_fusing_ratio"
+   ],
+   "card_file": "validation-results/02-protection-timing/shoot-through-f1/{tag}_necks.json",
+   "reads": {
+    "net_fill": [
+     "ac_l_in",
+     "ac_n_in",
+     "bus_p",
+     "hv_ret",
+     "l_f",
+     "l_filt",
+     "leg_ret",
+     "n_filt"
+    ]
+   }
+  },
+  "ocp_pickup": {
+   "block": "manual",
+   "wall_s": null,
+   "workers": 1,
+   "policy": "manual",
+   "cmd": "02-protection-timing/coil-pickup/s21b/run_ocp.py (per stage, by hand)",
+   "card": [
+    "performance.ocp_pickup_stack_pan60_A"
+   ],
+   "card_file": "validation-results/02-protection-timing/coil-pickup/s21b/result-{tag}.json",
+   "reads": {
+    "net_fill": [
+     "ocp_kelvin_n",
+     "ocp_kelvin_p",
+     "ocp_node",
+     "ocp_thresh",
+     "ref25"
+    ],
+    "parts_geom": [
+     "C30",
+     "C31",
+     "J2",
+     "J5",
+     "R33",
+     "R35",
+     "R5",
+     "U6"
+    ]
+   }
+  },
+  "audit_rs": {
+   "block": "manual",
+   "wall_s": null,
+   "workers": 1,
+   "policy": "manual",
+   "cmd": "audit.rs over the frozen netlist (passed to the card as --audit PASS)",
+   "card": [
+    "gates.audit_rs"
+   ]
+  },
+  "source_check": {
+   "block": "manual",
+   "wall_s": 1,
+   "workers": 1,
+   "policy": "cheap",
+   "cmd": "native-21/verification/verify_source.py",
+   "card": [],
+   "writes": [
+    "native-21/verification/source-check.json"
+   ]
+  }
+ },
+ "desk_studies": {
+  "about": "Results the card reads but no chain step recomputes. Their read sets (parts) come from 13-coupling verification.json; when a candidate changes the BOM row of a part in a set and the result file is unchanged, the scoped card flags the metric STALE (the lane owes a desk rerun).",
+  "emi_min_margin_dB": {
+   "file": "validation-results/07-conducted-emi/s19b/results.json",
+   "verification_metric": "emi_min_margin_dB"
+  },
+  "leakage_touch_mA": {
+   "file": "validation-results/07-conducted-emi/leakage/result.json",
+   "verification_metric": "leakage_touch_mA"
+  },
+  "cmti_gate_ratio_min": {
+   "file": "validation-results/06-controller-interface/cmti/cmti.csv",
+   "verification_metric": "cmti_gate_ratio_min"
+  },
+  "bank_ratio_tdk_28A_40k": {
+   "file": "validation-results/11-candidates/g04-g09-tank-detect/results/bank_options.json",
+   "verification_metric": "bank_ratio_tdk_28A_40k"
+  }
+ },
+ "step_files": {
+  "about": "content inputs of the keyed steps (hashed into their keys) - the union of model_key.py's list and the reads found in each step's scripts",
+  "task04": [
+   "validation-results/04-board-current-thermal/round5-native21/run_cases.py",
+   "validation-results/04-board-current-thermal/round5-native21/run_board.py",
+   "validation-results/04-board-current-thermal/round5-native21/summarize.py",
+   "validation-results/04-board-current-thermal/round5-native21/compare_native17.py",
+   "validation-results/04-board-current-thermal/round3/scripts/kit_topology_native13.py",
+   "validation-plan/sim-kit/04-current/sheet_solver.py",
+   "tools/export_power_copper.py",
+   "native-21/layout/gates/copper_key.py",
+   "native-21/layout/layers21.py",
+   "native-21/layout/gates/regate.sh",
+   "native-21/stackup.json",
+   "validation-results/04-board-current-thermal/round4/reextract/**"
+  ],
+  "b3_study": [
+   "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py",
+   "validation-plan/sim-kit/04-current/sheet_solver.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3/ceiling_sweep.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3/inputs/*.json",
+   "validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py",
+   "validation-results/03-loss-thermal-budget/round3/outputs/board_heat_sources.json",
+   "native-21/stackup.json",
+   "native-21/layout/layers21.py"
+  ],
+  "b3_ratings": [
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/fet_case.py",
+   "validation-results/04-board-current-thermal/round5-native21/a4_fields.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3-convergence/inputs/*",
+   "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py",
+   "validation-results/04-board-current-thermal/round5-native21/b3/inputs/*.json",
+   "validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py",
+   "validation-results/05-resonant-tank-envelope/round6-full-power/scripts/board_side.py",
+   "@repo/firmware/components/control/thermal_mgmt.h",
+   "native-21/stackup.json",
+   "native-21/layout/layers21.py",
+   "validation-results/11-candidates/bank28-air/scripts/bank_air_metric.py",
+   "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk.json",
+   "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk_b3264.json",
+   "validation-results/11-candidates/c34-bank-margin/results/bank_margin.json",
+   "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json",
+   "validation-results/11-candidates/c51-bank-source/data/candidates.json",
+   "validation-results/11-candidates/c51-bank-source/results/b32643h.json"
+  ],
+  "core_barrier": [
+   "native-21/layout/barrier_gate21.py",
+   "tools/copper_dump.py",
+   "native-21/layout/domains.py",
+   "native-21/layout/geom21.py",
+   "native-21/layout/rules21.py"
+  ]
+ },
+ "normalise": {
+  "about": "chain.sh rewrites these files per TAG before any key is taken; the rewrite is undone before hashing (as model_key.py does for run_study.py)",
+  "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py": [
+   "native21[0-9a-z]+-all-copper\\.json\\.gz",
+   "TAG-all-copper.json.gz"
+  ]
+ },
+ "path_rules": [
+  {
+   "glob": "native-21/layout/gates/scoped/**",
+   "class": "full",
+   "why": "the scoped tooling itself"
+  },
+  {
+   "glob": "native-21/layout/gates/chain.sh",
+   "class": "full"
+  },
+  {
+   "glob": "native-21/layout/gates/regate.sh",
+   "class": "full"
+  },
+  {
+   "glob": "**/test_*.py",
+   "class": "test"
+  },
+  {
+   "glob": "**/tests/**",
+   "class": "test"
+  },
+  {
+   "glob": "**/__pycache__/**",
+   "class": "doc"
+  },
+  {
+   "glob": "**/*.md",
+   "class": "doc"
+  },
+  {
+   "glob": "**/*.png",
+   "class": "doc"
+  },
+  {
+   "glob": "**/*.pdf",
+   "class": "doc"
+  },
+  {
+   "glob": "@repo/firmware/components/control/thermal_mgmt.h",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "@repo/firmware/**",
+   "class": "not_read",
+   "why": "no chain or card step reads firmware except fet_case.py (thermal_mgmt.h, above); depmap_check.py scans the step scripts for 'firmware/'"
+  },
+  {
+   "glob": "native-21/verification/*-all-copper.json.gz",
+   "class": "output",
+   "steps": [
+    "core_exports"
+   ]
+  },
+  {
+   "glob": "native-21/verification/spine-baseline-*.json.gz",
+   "class": "input",
+   "steps": [
+    "spine_lock"
+   ]
+  },
+  {
+   "glob": "native-21/verification/bypass-check-*.json",
+   "class": "output",
+   "steps": [
+    "core_bypass"
+   ]
+  },
+  {
+   "glob": "native-21/verification/d5_audit.py",
+   "class": "input",
+   "steps": [
+    "d5"
+   ]
+  },
+  {
+   "glob": "native-21/verification/d5-audit.json",
+   "class": "output",
+   "steps": [
+    "d5"
+   ]
+  },
+  {
+   "glob": "native-21/verification/schematic-build.json",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "native-21/verification/final-manifest.json",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "native-21/verification/verify_source.py",
+   "class": "input",
+   "steps": [
+    "source_check"
+   ]
+  },
+  {
+   "glob": "native-21/verification/source-check.json",
+   "class": "output",
+   "steps": [
+    "source_check"
+   ]
+  },
+  {
+   "glob": "native-21/verification/mounting-candidates.json",
+   "class": "build"
+  },
+  {
+   "glob": "native-21/verification/datasheet-ledger/ledger-report.json",
+   "class": "output",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/verification/datasheet-ledger/**",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/section.kicad_*",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "native-21/native21.kicad_sym",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "native-21/sym-lib-table",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "native-21/layout/pads.json",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/bypass_check.py",
+   "class": "input",
+   "steps": [
+    "core_bypass"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/copper_key.py",
+   "class": "input",
+   "steps": [
+    "task04",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/model_key.py",
+   "class": "input",
+   "steps": [
+    "task04",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/jet_strip_height.py",
+   "class": "input",
+   "steps": [
+    "fit"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/return_path19.py",
+   "class": "input",
+   "steps": [
+    "return_path"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/spine_lock.py",
+   "class": "input",
+   "steps": [
+    "spine_lock"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/track_geometry.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/scorecard.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/bom_pricing.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/cu_temp_basis.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/cu_temp_registry.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax_registry.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax_expected.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/bom_cpl_check.py",
+   "class": "input",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/{zone_priority_gate,trim_tails,count_errors}.py",
+   "class": "build"
+  },
+  {
+   "glob": "native-21/layout/gates/{passes.sh,fill_hash.py,xfer_spots.py,bypass_spots.py}",
+   "class": "not_read",
+   "why": "routing / layout helpers, not run by chain.sh or scorecard.py"
+  },
+  {
+   "glob": "native-21/layout/gates/**",
+   "class": "unknown"
+  },
+  {
+   "glob": "native-21/layout/selv_spine_lock.json",
+   "class": "input",
+   "steps": [
+    "spine_lock"
+   ]
+  },
+  {
+   "glob": "native-21/layout/barrier_gate21.py",
+   "class": "input",
+   "steps": [
+    "core_barrier"
+   ]
+  },
+  {
+   "glob": "native-21/layout/{route21,maze21,make_todo,unrouted,render,measure_parts,stage14_migrate,track_cleanup21,patches21_v1}.py",
+   "class": "not_read",
+   "why": "routing / cleanup / study tools: their effect reaches the chain only through copper.json"
+  },
+  {
+   "glob": "native-21/layout/copper_iter.sh",
+   "class": "not_read"
+  },
+  {
+   "glob": "native-21/layout/layers21.py",
+   "class": "build",
+   "also_steps": [
+    "task04",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings",
+    "kelvin",
+    "fab"
+   ]
+  },
+  {
+   "glob": "native-21/layout/**",
+   "class": "build"
+  },
+  {
+   "glob": "native-21/stackup.json",
+   "class": "full",
+   "why": "every copper model and the Gerber layer list read it"
+  },
+  {
+   "glob": "native-21/stackup-6L.json",
+   "class": "full",
+   "why": "read when NATIVE21_STACKUP / B3_STACKUP point at it"
+  },
+  {
+   "glob": "native-21/frozen/**",
+   "class": "build",
+   "also_steps": [
+    "audit_rs",
+    "source_check",
+    "heat_sources",
+    "d5"
+   ]
+  },
+  {
+   "glob": "native-21/footprint-overrides/**",
+   "class": "build"
+  },
+  {
+   "glob": "native-21/{placement.json,reference-labels.json,change-inventory.json,bias_sizing.py,part_changes.py}",
+   "class": "build"
+  },
+  {
+   "glob": "native-21/**",
+   "class": "unknown"
+  },
+  {
+   "glob": "frozen/**",
+   "class": "build",
+   "also_steps": [
+    "audit_rs",
+    "source_check"
+   ]
+  },
+  {
+   "glob": "elec/**",
+   "class": "build",
+   "also_steps": [
+    "audit_rs"
+   ]
+  },
+  {
+   "glob": "libraries/**",
+   "class": "build"
+  },
+  {
+   "glob": "models3d/**",
+   "class": "input",
+   "steps": [
+    "fit"
+   ]
+  },
+  {
+   "glob": "audit.rs",
+   "class": "input",
+   "steps": [
+    "audit_rs"
+   ]
+  },
+  {
+   "glob": "audit_f6.rs",
+   "class": "input",
+   "steps": [
+    "audit_rs"
+   ]
+  },
+  {
+   "glob": "prototype-closure/pcb/pin-functions21.json",
+   "class": "output",
+   "steps": [
+    "build"
+   ]
+  },
+  {
+   "glob": "prototype-closure/pcb/**",
+   "class": "build"
+  },
+  {
+   "glob": "tools/copper_dump.py",
+   "class": "input",
+   "steps": [
+    "core_barrier",
+    "core_exports"
+   ]
+  },
+  {
+   "glob": "tools/jlc_dfm_check.py",
+   "class": "input",
+   "steps": [
+    "core_dfm"
+   ]
+  },
+  {
+   "glob": "tools/export_power_copper.py",
+   "class": "input",
+   "steps": [
+    "core_exports",
+    "task04",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "tools/{place_reference_labels,apply_reference_labels,write_rules}.py",
+   "class": "build"
+  },
+  {
+   "glob": "tools/agent_profile.py",
+   "class": "not_read",
+   "why": "session profiler, imported by nothing in the chain"
+  },
+  {
+   "glob": "tools/**",
+   "class": "unknown"
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/outputs/**",
+   "class": "output",
+   "steps": [
+    "task04"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/inputs/**",
+   "class": "output",
+   "steps": [
+    "task04"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/{run_cases,run_board,summarize,compare_native17}.py",
+   "class": "input",
+   "steps": [
+    "task04"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/a4_fields.py",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3/outputs/**",
+   "class": "output",
+   "steps": [
+    "b3_study",
+    "ceiling_sweep"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3/inputs/**",
+   "class": "output",
+   "steps": [
+    "heat_sources"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py",
+   "class": "input",
+   "steps": [
+    "heat_sources",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3/{run_study,thermal}.py",
+   "class": "input",
+   "steps": [
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3/ceiling_sweep.py",
+   "class": "input",
+   "steps": [
+    "b3_study",
+    "ceiling_sweep"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/{margins.json,runs/**}",
+   "class": "output",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/*.py",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/*/**",
+   "class": "not_read",
+   "why": "dated studies under b3-ratings (audit, line-hold, refine): run_basis.py imports none of them"
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/{thermal_body,body_runs}.py",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/inputs/**",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/**",
+   "class": "not_read",
+   "why": "convergence study scripts and results; run_basis.py imports only thermal_body / body_runs"
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/{stage15b,stage17-r5,h10-stall,r5-derating}/**",
+   "class": "not_read"
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round5-native21/**",
+   "class": "unknown"
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round3/scripts/kit_topology_native13.py",
+   "class": "input",
+   "steps": [
+    "task04"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py",
+   "class": "input",
+   "steps": [
+    "core_exports",
+    "task04",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/round4/reextract/**",
+   "class": "input",
+   "steps": [
+    "task04"
+   ]
+  },
+  {
+   "glob": "validation-results/04-board-current-thermal/**",
+   "class": "unknown"
+  },
+  {
+   "glob": "validation-results/03-loss-thermal-budget/round3/outputs/board_heat_sources.json",
+   "class": "input",
+   "steps": [
+    "heat_sources",
+    "b3_study",
+    "ceiling_sweep",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/05-resonant-tank-envelope/round6-full-power/scripts/board_side.py",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-plan/sim-kit/04-current/sheet_solver.py",
+   "class": "input",
+   "steps": [
+    "task04",
+    "kelvin",
+    "b3_study"
+   ]
+  },
+  {
+   "glob": "validation-results/02-protection-timing/kelvin/{budget,plane}-*",
+   "class": "output",
+   "steps": [
+    "kelvin"
+   ]
+  },
+  {
+   "glob": "validation-results/02-protection-timing/kelvin/**",
+   "class": "input",
+   "steps": [
+    "kelvin"
+   ]
+  },
+  {
+   "glob": "validation-results/02-protection-timing/shoot-through-f1/**",
+   "class": "input",
+   "steps": [
+    "necks",
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/02-protection-timing/coil-pickup/**",
+   "class": "input",
+   "steps": [
+    "ocp_pickup",
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/06-controller-interface/cmti/**",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/07-conducted-emi/s19b/**",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/07-conducted-emi/leakage/**",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/fab/**",
+   "class": "output",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/review.json",
+   "class": "output",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/jlc-dfm.json",
+   "class": "output",
+   "steps": [
+    "core_dfm"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/{audit.csv,audit.json,cpl-jlcpcb.corrected.csv,cpl-jlcpcb.corrected-ynegated.csv}",
+   "class": "output",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/{renders,sources}/**",
+   "class": "output",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/**",
+   "class": "input",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/scripts/**",
+   "class": "input",
+   "steps": [
+    "fab"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/sourcing/**",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/**",
+   "class": "input",
+   "steps": [
+    "res_a"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/stage19-pi-si/**",
+   "class": "input",
+   "steps": [
+    "pi"
+   ]
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/native-21/{owner-items,stage30-heartbeat}/**",
+   "class": "not_read"
+  },
+  {
+   "glob": "validation-results/08-manufacturing-package/**",
+   "class": "unknown"
+  },
+  {
+   "glob": "validation-plan/enclosure-fit/native21-{boxes,courtyards,body-collisions,in-r4,jet-strip}.json",
+   "class": "output",
+   "steps": [
+    "fit"
+   ]
+  },
+  {
+   "glob": "validation-plan/enclosure-fit/**",
+   "class": "input",
+   "steps": [
+    "fit"
+   ]
+  },
+  {
+   "glob": "validation-results/10-benchmark/**",
+   "class": "doc",
+   "why": "scorecards are outputs; the benchmark card is the scoped run's reference"
+  },
+  {
+   "glob": "validation-results/11-candidates/g04-g09-tank-detect/results/bank_options.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/bank28-air/results/bank_air_metric.json",
+   "class": "output",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/bank28-air/scripts/bank_air_metric.py",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk{,_b3264}.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/c51-bank-source/data/candidates.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/c51-bank-source/results/b32643h.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/b15-proto-alternates/results/emi-B82726S2243A020_moduleDM100u/results.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/c34-bank-margin/results/bank_margin.json",
+   "class": "input",
+   "steps": [
+    "card",
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/**",
+   "class": "not_read",
+   "why": "candidate records; the two files above are the only ones the card reads"
+  },
+  {
+   "glob": "validation-results/{01-switching-parasitics,12-decisions,13-coupling}/**",
+   "class": "not_read",
+   "why": "desk studies no chain or card step reads"
+  },
+  {
+   "glob": "{README.md,DECISIONS.md,OPEN-ITEMS.md}",
+   "class": "doc"
+  }
+ ],
+ "entry_producers": {
+  "about": "entries computed from more than one step's data: reused only when every producer is reused. 'card' (scorecard.py and the desk files it reads) always reruns.",
+  "cost.parts_usd_at_5": [
+   "fab",
+   "card"
+  ],
+  "cost.parts_usd_at_500": [
+   "fab",
+   "card"
+  ],
+  "cost.unpriced_lines": [
+   "fab",
+   "card"
+  ],
+  "cost.zero_stock_lines": [
+   "fab",
+   "card"
+  ],
+  "cost.single_source_lines": [
+   "fab",
+   "card"
+  ],
+  "cost.lines_short_for_5": [
+   "fab",
+   "card"
+  ],
+  "cost.lines_short_for_500": [
+   "fab",
+   "card"
+  ],
+  "cost.jlc_assemblable_share_5": [
+   "fab",
+   "card"
+  ],
+  "cost.jlc_assemblable_share_500": [
+   "fab",
+   "card"
+  ],
+  "cost.consign_lines_5": [
+   "fab",
+   "card"
+  ],
+  "cost.consign_lines_500": [
+   "fab",
+   "card"
+  ],
+  "cost.build_lead_wk_5": [
+   "fab",
+   "card"
+  ],
+  "cost.build_lead_wk_500": [
+   "fab",
+   "card"
+  ],
+  "cost.short_lead_unknown_5": [
+   "fab",
+   "card"
+  ],
+  "cost.short_lead_unknown_500": [
+   "fab",
+   "card"
+  ],
+  "performance.bank_ratio_tdk_28A_40k": [
+   "card",
+   "fab"
+  ],
+  "performance.bank_ratio_tdk_28A_35k": [
+   "card",
+   "fab"
+  ],
+  "performance.track_acute_corners": [
+   "card",
+   "core_exports"
+  ],
+  "performance.track_fold_backs": [
+   "card",
+   "core_exports"
+  ],
+  "performance.track_right_angle_corners": [
+   "card",
+   "core_exports"
+  ],
+  "performance.track_any_angle_mm": [
+   "card",
+   "core_exports"
+  ],
+  "performance.ledger_violations": [
+   "card",
+   "build"
+  ],
+  "performance.ledger_unaudited_safety_power": [
+   "card",
+   "build"
+  ],
+  "performance.bank_air_ratio_28A_35k": [
+   "b3_ratings",
+   "card"
+  ]
+ },
+ "manual_tag_files": {
+  "necks": "validation-results/02-protection-timing/shoot-through-f1/{tag}_necks.json",
+  "ocp_pickup": "validation-results/02-protection-timing/coil-pickup/s21b/result-{tag}.json"
+ }
+}

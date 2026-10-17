@@ -62,6 +62,12 @@ sm_context_t *sm_get_context(void);
 
 /* ---- State handler functions (16 total) ---- */
 void state_init_entry(void);
+
+/* L3 sensor plausibility (thermal_mgmt.h thermal_plaus_t): reset by state_machine_init(); the
+ * faults it latches otherwise hold until MCU reset. */
+void state_handlers_thermal_plaus_reset(void);
+bool state_handlers_rim_sensor_fault(void);
+bool state_handlers_coil_sensor_fault(void);
 void state_init_update(void);
 void state_idle_entry(void);
 void state_idle_update(void);

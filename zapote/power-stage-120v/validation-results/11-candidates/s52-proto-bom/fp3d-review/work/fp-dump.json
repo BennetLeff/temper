@@ -1,0 +1,1126 @@
+{
+ "C3": {
+  "fpid": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+  "value": "DE1E3RA222MJ4BH01F",
+  "x": 225.0,
+  "y": 102.8,
+  "rot": 180.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C3",
+   "Value": "DE1E3RA222MJ4BH01F",
+   "Datasheet": "",
+   "Description": "",
+   "KiLib_Generator": "capacitor/THT/other",
+   "MPN": "DE1E3RA222MJ4BH01F",
+   "SourceInstance": "cy1"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "l_filt",
+    "x": 225.0,
+    "y": 102.8,
+    "size": [
+     1.5,
+     1.5
+    ],
+    "drill": [
+     0.9,
+     0.9
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "pe",
+    "x": 215.0,
+    "y": 102.8,
+    "size": [
+     1.5,
+     1.5
+    ],
+    "drill": [
+     0.9,
+     0.9
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    213.725,
+    100.025,
+    226.275,
+    105.575,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    214.7,
+    100.25,
+    225.3,
+    105.35,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    218.89881,
+    101.95175,
+    221.101191,
+    103.64825,
+    "PCB_TEXT",
+    null
+   ]
+  ],
+  "silk": [
+   [
+    214.57,
+    100.12,
+    225.43,
+    100.24,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.57,
+    100.12,
+    214.69,
+    101.676,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.57,
+    103.924,
+    214.69,
+    105.48,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    225.31,
+    100.12,
+    225.43,
+    101.676,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    225.31,
+    103.924,
+    225.43,
+    105.48,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.57,
+    105.36,
+    225.43,
+    105.48,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "C23": {
+  "fpid": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+  "value": "B32643H8104J000",
+  "x": 163.0,
+  "y": 83.2,
+  "rot": 0.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C23",
+   "Value": "B32643H8104J000",
+   "Datasheet": "",
+   "Description": "",
+   "MPN": "B32643H8104J000",
+   "SourceInstance": "c_res3"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "res_a",
+    "x": 163.0,
+    "y": 83.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 185.5,
+    "y": 83.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 190.5,
+    "y": 83.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/../models3d/capacitors/TDK_B32643B8104J000.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    160.225,
+    75.725,
+    193.275,
+    90.675,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    160.7,
+    77.4,
+    192.8,
+    89.0,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    160.95,
+    75.9,
+    187.55,
+    90.5,
+    "PCB_SHAPE",
+    0.1
+   ]
+  ],
+  "silk": [
+   [
+    160.57,
+    75.77,
+    192.93,
+    90.63,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "C151": {
+  "fpid": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+  "value": "B32643H8104J000",
+  "x": 163.0,
+  "y": 98.2,
+  "rot": 0.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C151",
+   "Value": "B32643H8104J000",
+   "Datasheet": "",
+   "Description": "",
+   "MPN": "B32643H8104J000",
+   "SourceInstance": "c_res4"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "res_a",
+    "x": 163.0,
+    "y": 98.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 185.5,
+    "y": 98.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 190.5,
+    "y": 98.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/../models3d/capacitors/TDK_B32643B8104J000.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    160.225,
+    90.725,
+    193.275,
+    105.675,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    160.7,
+    92.4,
+    192.8,
+    104.0,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    160.95,
+    90.9,
+    187.55,
+    105.5,
+    "PCB_SHAPE",
+    0.1
+   ]
+  ],
+  "silk": [
+   [
+    160.57,
+    90.77,
+    192.93,
+    105.63,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "C4": {
+  "fpid": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+  "value": "DE1E3RA222MJ4BH01F",
+  "x": 225.0,
+  "y": 109.1,
+  "rot": 180.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C4",
+   "Value": "DE1E3RA222MJ4BH01F",
+   "Datasheet": "",
+   "Description": "",
+   "KiLib_Generator": "capacitor/THT/other",
+   "MPN": "DE1E3RA222MJ4BH01F",
+   "SourceInstance": "cy2"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "n_filt",
+    "x": 225.0,
+    "y": 109.1,
+    "size": [
+     1.5,
+     1.5
+    ],
+    "drill": [
+     0.9,
+     0.9
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "pe",
+    "x": 215.0,
+    "y": 109.1,
+    "size": [
+     1.5,
+     1.5
+    ],
+    "drill": [
+     0.9,
+     0.9
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    213.725,
+    106.325,
+    226.275,
+    111.875,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    214.7,
+    106.55,
+    225.3,
+    111.65,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    218.89881,
+    108.25175,
+    221.101191,
+    109.94825,
+    "PCB_TEXT",
+    null
+   ]
+  ],
+  "silk": [
+   [
+    214.57,
+    106.42,
+    225.43,
+    106.54,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.57,
+    106.42,
+    214.69,
+    107.976,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.57,
+    110.224,
+    214.69,
+    111.78,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    225.31,
+    106.42,
+    225.43,
+    107.976,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    225.31,
+    110.224,
+    225.43,
+    111.78,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.57,
+    111.66,
+    225.43,
+    111.78,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "C21": {
+  "fpid": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+  "value": "B32643H8104J000",
+  "x": 163.0,
+  "y": 53.2,
+  "rot": 0.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C21",
+   "Value": "B32643H8104J000",
+   "Datasheet": "",
+   "Description": "",
+   "MPN": "B32643H8104J000",
+   "SourceInstance": "c_res1"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "res_a",
+    "x": 163.0,
+    "y": 53.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 185.5,
+    "y": 53.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 190.5,
+    "y": 53.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/../models3d/capacitors/TDK_B32643B8104J000.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    160.225,
+    45.725,
+    193.275,
+    60.675,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    160.7,
+    47.4,
+    192.8,
+    59.0,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    160.95,
+    45.9,
+    187.55,
+    60.5,
+    "PCB_SHAPE",
+    0.1
+   ]
+  ],
+  "silk": [
+   [
+    160.57,
+    45.77,
+    192.93,
+    60.63,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "L1": {
+  "fpid": "temper:B82726S2_ReviewOnly",
+  "value": "B82726S2243A020",
+  "x": 232.0,
+  "y": 31.0,
+  "rot": 0.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "L1",
+   "Value": "B82726S2243A020",
+   "Datasheet": "",
+   "Description": "",
+   "KiLib_Generator": "inductor/THT",
+   "MPN": "B82726S2243A020",
+   "SourceInstance": "l1"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "l_f",
+    "x": 232.0,
+    "y": 31.0,
+    "size": [
+     4.0,
+     4.0
+    ],
+    "drill": [
+     2.5,
+     2.5
+    ],
+    "shape": 1
+   },
+   {
+    "num": "2",
+    "net": "ac_n_in",
+    "x": 242.0,
+    "y": 31.0,
+    "size": [
+     4.0,
+     4.0
+    ],
+    "drill": [
+     2.5,
+     2.5
+    ],
+    "shape": 0
+   },
+   {
+    "num": "3",
+    "net": "n_filt",
+    "x": 242.0,
+    "y": 56.0,
+    "size": [
+     4.0,
+     4.0
+    ],
+    "drill": [
+     2.5,
+     2.5
+    ],
+    "shape": 0
+   },
+   {
+    "num": "4",
+    "net": "l_filt",
+    "x": 232.0,
+    "y": 56.0,
+    "size": [
+     4.0,
+     4.0
+    ],
+    "drill": [
+     2.5,
+     2.5
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/models3d/power-parts/B82726S2203A020_provisional.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    213.975,
+    28.475,
+    260.025,
+    28.525,
+    "PCB_SHAPE",
+    0.05
+   ],
+   [
+    213.975,
+    28.475,
+    214.025,
+    58.525,
+    "PCB_SHAPE",
+    0.05
+   ],
+   [
+    259.975,
+    28.475,
+    260.025,
+    58.525,
+    "PCB_SHAPE",
+    0.05
+   ],
+   [
+    213.975,
+    58.475,
+    260.025,
+    58.525,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    214.45,
+    30.45,
+    259.55,
+    30.55,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    214.45,
+    30.45,
+    214.55,
+    56.55,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    259.45,
+    30.45,
+    259.55,
+    56.55,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    214.45,
+    56.45,
+    259.55,
+    56.55,
+    "PCB_SHAPE",
+    0.1
+   ]
+  ],
+  "silk": [
+   [
+    214.44,
+    28.59,
+    259.56,
+    28.71,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.44,
+    28.59,
+    214.56,
+    58.41,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    259.44,
+    28.59,
+    259.56,
+    58.41,
+    "PCB_SHAPE",
+    0.12
+   ],
+   [
+    214.44,
+    58.29,
+    259.56,
+    58.41,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "C22": {
+  "fpid": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+  "value": "B32643H8104J000",
+  "x": 163.0,
+  "y": 68.2,
+  "rot": 0.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C22",
+   "Value": "B32643H8104J000",
+   "Datasheet": "",
+   "Description": "",
+   "MPN": "B32643H8104J000",
+   "SourceInstance": "c_res2"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "res_a",
+    "x": 163.0,
+    "y": 68.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 185.5,
+    "y": 68.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 190.5,
+    "y": 68.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/../models3d/capacitors/TDK_B32643B8104J000.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    160.225,
+    60.725,
+    193.275,
+    75.675,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    160.7,
+    62.4,
+    192.8,
+    74.0,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    160.95,
+    60.9,
+    187.55,
+    75.5,
+    "PCB_SHAPE",
+    0.1
+   ]
+  ],
+  "silk": [
+   [
+    160.57,
+    60.77,
+    192.93,
+    75.63,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ },
+ "C152": {
+  "fpid": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+  "value": "B32643H8104J000",
+  "x": 163.0,
+  "y": 113.2,
+  "rot": 0.0,
+  "side": "F",
+  "attrs": 1,
+  "fields": {
+   "Reference": "C152",
+   "Value": "B32643H8104J000",
+   "Datasheet": "",
+   "Description": "",
+   "MPN": "B32643H8104J000",
+   "SourceInstance": "c_res5"
+  },
+  "pads": [
+   {
+    "num": "1",
+    "net": "res_a",
+    "x": 163.0,
+    "y": 113.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 185.5,
+    "y": 113.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   },
+   {
+    "num": "2",
+    "net": "sw_b",
+    "x": 190.5,
+    "y": 113.2,
+    "size": [
+     2.4,
+     2.4
+    ],
+    "drill": [
+     1.2,
+     1.2
+    ],
+    "shape": 0
+   }
+  ],
+  "models": [
+   {
+    "file": "${KIPRJMOD}/../models3d/capacitors/TDK_B32643B8104J000.step",
+    "offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "show": true
+   }
+  ],
+  "crtyd": [
+   [
+    160.225,
+    105.725,
+    193.275,
+    120.675,
+    "PCB_SHAPE",
+    0.05
+   ]
+  ],
+  "fab": [
+   [
+    160.7,
+    107.4,
+    192.8,
+    119.0,
+    "PCB_SHAPE",
+    0.1
+   ],
+   [
+    160.95,
+    105.9,
+    187.55,
+    120.5,
+    "PCB_SHAPE",
+    0.1
+   ]
+  ],
+  "silk": [
+   [
+    160.57,
+    105.77,
+    192.93,
+    120.63,
+    "PCB_SHAPE",
+    0.12
+   ]
+  ],
+  "b_crtyd": []
+ }
+}

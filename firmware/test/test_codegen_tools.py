@@ -111,7 +111,7 @@ class TestGenFaultList:
     def test_fault_count_in_comment(self):
         """The trailing comment mentions total entry count."""
         content = self.OUTPUT.read_text()
-        assert "14 total entries" in content
+        assert "16 total entries" in content
 
     def test_deterministic(self):
         """Running gen_fault_list.py twice produces identical output."""
@@ -133,11 +133,11 @@ class TestGenTransitionTable:
 
     # Expected values derived from transition_table.yaml and state_machine.h:
     #   9 states (STATE_INIT..STATE_RUNAWAY_FAULT)
-    #  23 events (EVENT_SELFTEST_PASS..EVENT_FAULT_RESET_PERSISTS)
-    #  32 declared transitions in the YAML
+    #  26 events (EVENT_SELFTEST_PASS..EVENT_BIAS_GOOD_LOST)
+    #  45 declared transitions in the YAML
     STATE_COUNT = 9
-    EVENT_COUNT = 23
-    TRANSITION_COUNT = 32
+    EVENT_COUNT = 26
+    TRANSITION_COUNT = 45
 
     def test_runs_without_error(self):
         """gen_transition_table.py exits 0 and produces output file."""
@@ -202,7 +202,8 @@ class TestGenTransitionTable:
             "EVENT_PAN_REPLACED_SAME", "EVENT_PAN_REPLACED_DIFFERENT",
             "EVENT_NO_PAN_TIMEOUT", "EVENT_COOLED_DOWN",
             "EVENT_COOLDOWN_OVERHEAT", "EVENT_FAULT_RESET_CLEARED",
-            "EVENT_FAULT_RESET_PERSISTS",
+            "EVENT_FAULT_RESET_PERSISTS", "EVENT_BIAS_GOOD_STUCK",
+            "EVENT_BIAS_GOOD_LOW_AT_START", "EVENT_BIAS_GOOD_LOST",
         ]
         for event in events:
             assert f"[{event}]" in content, f"Missing event {event}"

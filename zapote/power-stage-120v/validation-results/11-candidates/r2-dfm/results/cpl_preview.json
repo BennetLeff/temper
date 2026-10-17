@@ -1,0 +1,119 @@
+{
+ "needs_preview_lines": 47,
+ "groups_today": 20,
+ "by_class_lines": {
+  "SYM": 9,
+  "POL": 4,
+  "HAND": 5,
+  "SMD": 29
+ },
+ "by_class_groups": {
+  "SYM": 3,
+  "POL": 1,
+  "HAND": 5,
+  "SMD": 11
+ },
+ "preview_designators_needed_after_classing": 12,
+ "sot23_family": {
+  "lines": 28,
+  "lcsc_groups": 10,
+  "db_rot_all": [
+   "270"
+  ],
+  "fit_rot_all": [
+   "180"
+  ],
+  "kicad_rot_all": [
+   "0"
+  ]
+ },
+ "groups": {
+  "SYM|C907949|Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5": [
+   "C3",
+   "C4"
+  ],
+  "POL|C2162098|CP_Elec_6.3x5.9": [
+   "C126",
+   "C127",
+   "C128",
+   "C129"
+  ],
+  "SYM|C5118857|Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR": [
+   "J2",
+   "J5",
+   "J7",
+   "J8",
+   "J9",
+   "J10"
+  ],
+  "HAND|C491447|Molex_Micro-Fit_3.0_43045-1612_2x08_P3.0": [
+   "J4"
+  ],
+  "HAND|C5481600|Phoenix_KDS3_1704004_1Pos_2Pin": [
+   "J6"
+  ],
+  "HAND|C1534260|B82726S2": [
+   "L1"
+  ],
+  "HAND|C6211072|Converter_ACDC_MeanWell_IRM-20-xx_THT": [
+   "PS1"
+  ],
+  "HAND|C194964|Converter_ACDC_MeanWell_IRM-20-xx_THT": [
+   "PS2"
+  ],
+  "SMD|C20917|SOT-23": [
+   "Q1",
+   "Q4"
+  ],
+  "SMD|C20526|SOT-23": [
+   "Q7",
+   "Q8",
+   "Q9"
+  ],
+  "SMD|C4175647|R_Shunt_Bourns_CSS2H-2512_Kelvin": [
+   "R5"
+  ],
+  "SYM|C1527834|TMOV20RP": [
+   "RV1"
+  ],
+  "SMD|C96028|SOT-23-5": [
+   "U3",
+   "U37",
+   "U38",
+   "U39"
+  ],
+  "SMD|C9421|SOT-23": [
+   "U5"
+  ],
+  "SMD|C105188|SOT-23-5": [
+   "U6",
+   "U7",
+   "U10",
+   "U11",
+   "U12"
+  ],
+  "SMD|C43368|SOT-23-6": [
+   "U13",
+   "U25"
+  ],
+  "SMD|C7836|SOT-23-5": [
+   "U15",
+   "U24",
+   "U40"
+  ],
+  "SMD|C545172|SOT-23": [
+   "U16",
+   "U18",
+   "U20"
+  ],
+  "SMD|C23892|SOT-23": [
+   "U17",
+   "U19",
+   "U21"
+  ],
+  "SMD|C10096|SOT-23-5": [
+   "U22",
+   "U23"
+  ]
+ }
+}

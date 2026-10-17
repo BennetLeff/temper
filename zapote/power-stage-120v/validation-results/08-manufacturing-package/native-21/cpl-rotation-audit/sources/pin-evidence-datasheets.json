@@ -1,0 +1,109 @@
+{
+ "about": "Datasheets fetched 2026-10-15 from public TI pages (curl GET, no login). Untrusted data; read with pdftotext only.",
+ "files": [
+  {
+   "part": "TPS709 (TPS70950DBVR)",
+   "revision": "SBVS186H Rev. H Jul 2021",
+   "url": "https://www.ti.com/lit/ds/symlink/tps709.pdf",
+   "path": "dl/tps709/tps709.pdf",
+   "sha256": "8c14e3efae738a27b857b789aa87369de9037a8ef3616a9f71a423587cdc6949",
+   "bytes": 2271988
+  },
+  {
+   "part": "LM4040A25IDBZR",
+   "revision": "SLOS456Q Rev. Q Apr 2026",
+   "url": "https://www.ti.com/lit/ds/symlink/lm4040.pdf",
+   "path": "dl/lm4040/lm4040.pdf",
+   "sha256": "f43b6b6d3ecd51c8c90b70a7c4630c7e3140822b0073953ed2459df81b251c1c",
+   "bytes": 1882717
+  },
+  {
+   "part": "TLV3201AIDBVR",
+   "revision": "SBOS561C Rev. C May 2024",
+   "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+   "path": "dl/tlv3201/tlv3201.pdf",
+   "sha256": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e",
+   "bytes": 1756192
+  },
+  {
+   "part": "SN74LVC1G332DBVR",
+   "revision": "SCES489E Rev. E Dec 2013",
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf",
+   "path": "dl/sn74lvc1g332/sn74lvc1g332.pdf",
+   "sha256": "5ecad3180cb93664b358a9cb6a724e012fc9b124e6ae0d1004c9ae6600549f21",
+   "bytes": 2022586
+  },
+  {
+   "part": "SN74LVC1G17DBVR",
+   "revision": "SCES351Y Rev. Y Oct 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+   "path": "dl/sn74lvc1g17/sn74lvc1g17.pdf",
+   "sha256": "c76fa723fac4502423967a1aa087dd669106b52b8de620c024b26e56f5d59309",
+   "bytes": 3015318
+  },
+  {
+   "part": "TLVH431BQDBZR",
+   "revision": "SLVS555N Rev. N Jun 2024",
+   "url": "https://www.ti.com/lit/ds/symlink/tlvh431.pdf",
+   "path": "dl/tlvh431b/tlvh431b.pdf",
+   "sha256": "e30d628cb6475d48e9ae87336ee0f0065eb5faea33f0465188dc4c43b56e6217",
+   "bytes": 2148710
+  },
+  {
+   "part": "TL431BQDBZR (C190245; same file as C41283 TL431BIDBZR)",
+   "revision": "SLVS543S Rev. S May 2024",
+   "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf",
+   "path": "runs-native21/s46/dl/tl431.pdf (copy of runs-native21/s16-monitor-dl/tl431.pdf)",
+   "sha256": "ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22",
+   "bytes": 3087819
+  },
+  {
+   "part": "LM2901BIDR (C22427890)",
+   "revision": "SLCS006Z Rev. Z May 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/lm339b.pdf",
+   "path": "runs-native21/s46/dl/lm339b.pdf (copy of runs-native21/s16-monitor-dl/lm339b.pdf)",
+   "sha256": "406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a",
+   "bytes": 2545965
+  },
+  {
+   "part": "LM4050AEM3-2.5/NOPB (C2156518)",
+   "revision": "SNOS455H Rev. H Mar 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/lm4050-n.pdf",
+   "path": "runs-native21/s47/dl/ti_lm4050n.pdf (copy of runs-native21/s46/u5-ref-dl/pdf/ti_lm4050n.pdf)",
+   "sha256": "950d04912ac6cdab64523f3fb8633382a528afdd18239d864ffeaf556ded5aa1",
+   "bytes": 1386315
+  },
+  {
+   "part": "TPS709-Q1 (TPS70950QDBVRQ1)",
+   "revision": "SLVSCE6D Rev. D Aug 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/tps709-q1.pdf",
+   "path": "runs-native21/s47/u3-dl/tps709-q1.pdf (fetched 2026-10-16)",
+   "sha256": "bd01fad0eb2defdd3cbe3d07d0d1d8579c8f110dd5420e41df19dc350474eb5f",
+   "bytes": 2030974
+  },
+  {
+   "part": "B32643B8104J000 (TDK B3264*B)",
+   "revision": "TDK B3264*B June 2026 (6/26)",
+   "url": "tdk-electronics.tdk.com (copy fetched by the bank28 analysis lane; URL not recorded there, sha256 below)",
+   "path": "runs-native21/bank28/dl/b3264/MMKP_B32641B_B32643B.pdf (outside git; bank28-air section 8)",
+   "sha256": "ab9fdca0b9676c8528b8bb5469d8ec4a60f0983520a65fa8f0517e4b4a58ab77",
+   "bytes": 1458381
+  },
+  {
+   "part": "MMK104J3DF1KN208G2 (KNSCHA MMKP82)",
+   "revision": "KNSCHA specification for approval KNS20200505002 (2020-05-05)",
+   "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2005081108_KNSCHA-MMK104J3DF1KN208G2_C528962.pdf",
+   "path": "bank-src lane dl/C528962_MMK104J3DF1KN208G2/ (outside git; 11-candidates/c51-bank-source README 'Datasheets')",
+   "sha256": "4621763054ad5e929df48528d35f6c3178f2fe0ed148c2020e3cc51edf3b87c8",
+   "bytes": 455631
+  },
+  {
+   "part": "DE1E3RA222MJ4BH01F (Murata Type RA, H01F)",
+   "revision": "Murata reference specification Type RA, Jun. 2023 (EGD08G, 17 pp.)",
+   "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308111527_Murata-Electronics-DE1E3RA222MJ4BH01F_C7170908.pdf",
+   "path": "b15 proto-alternates lane sources/murata-DE1E3RA222MJ4BH01F/ds.pdf (outside git; 11-candidates/b15-proto-alternates README section 2)",
+   "sha256": "c959488a2523ac21a1890fd684377a6e93cb7a5928811e63756dd034662089e7",
+   "bytes": 558786
+  }
+ ]
+}

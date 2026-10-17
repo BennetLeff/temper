@@ -1,0 +1,186 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 6440053,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "746600430R",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9593
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.9593
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.9593
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1821
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 949,
+       "productPrice": 1.1414
+      },
+      {
+       "startNumber": 950,
+       "endNumber": -1,
+       "productPrice": 1.1218
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1387
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 949,
+       "productPrice": 1.0995
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.8507
+      },
+      {
+       "startNumber": 950,
+       "endNumber": -1,
+       "productPrice": 1.0806
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.8507
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8507
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-746600430R/C5523882",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 950,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.9593,
+     "componentCode": "C5523882",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "746600430R",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/746600430R.pdf",
+     "componentName": "Wurth 746600430R",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "50A Brass Tin - PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>746600430R</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "746600430R"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T05:25:15Z"
+}

@@ -1,0 +1,28 @@
+{
+ "method": "thresholds.py exact_corners, -10/+85 C ambient, R5 +50 K, R34 12.6 k / R35 11.7 k",
+ "control_stage16_wsk_250ppm": {
+  "tuple": [
+   0.001,
+   0.01,
+   0.00025
+  ],
+  "band_before_kelvin_a": [
+   68.58,
+   118.74
+  ],
+  "nominal_trip_a": 92.593
+ },
+ "stage17_css2h_75ppm": {
+  "tuple": [
+   0.001,
+   0.01,
+   7.5e-05
+  ],
+  "band_before_kelvin_a": [
+   69.89,
+   116.44
+  ],
+  "nominal_trip_a": 92.593
+ },
+ "low_edge_change_a": 1.31
+}

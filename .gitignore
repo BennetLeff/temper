@@ -171,3 +171,9 @@ power_pcb_dataset/sources/
 # Rust-only crates build into the shared target dir
 /crates/*/target/
 .scratch/
+
+# ESP-IDF (idf.py) outputs
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/
+firmware/dependencies.lock

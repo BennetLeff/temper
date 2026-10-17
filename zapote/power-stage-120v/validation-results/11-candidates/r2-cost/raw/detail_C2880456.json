@@ -1,0 +1,326 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C2880456",
+  "componentBrandEn": "NOVOSENSE",
+  "componentModelEn": "NSi6602A-DSWR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583493800098467840",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2305170930_NOVOSENSE-NSi6602A-DSWR_C2880456.pdf",
+  "dataManualFileAccessId": "8588918831876489216",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "NOVOSENSE NSi6602A-DSWR",
+  "minImage": "",
+  "minImageAccessId": "8583493800941522944",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583493800941522944",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583493800098467840",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583493803861299200",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583493803030827008",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583493806687989760",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583493805814898688",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583493809547694080",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583493808675819520",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 4
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "NOVOSENSE NSi6602A-DSWR",
+  "componentSpecificationEn": "SOP-16-300mil",
+  "describe": "-40\u2103~+125\u2103@(Ta) 100kV/us 2 25ns 25ns 4A 5700 6A 6ns 750uA 7V~25V 7ns SOP-16-300mil Isolators - Gate Drivers ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Voltage - Supply (Driver)",
+    "component_code": "C2880456",
+    "attribute_value_name": "7V~25V"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C2880456",
+    "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+   },
+   {
+    "attribute_name_en": "Propagation Delay tpHL",
+    "component_code": "C2880456",
+    "attribute_value_name": "25ns"
+   },
+   {
+    "attribute_name_en": "Driven Configuration",
+    "component_code": "C2880456",
+    "attribute_value_name": "Half-Bridge"
+   },
+   {
+    "attribute_name_en": "Load Type",
+    "component_code": "C2880456",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C2880456",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Fall Time",
+    "component_code": "C2880456",
+    "attribute_value_name": "6ns"
+   },
+   {
+    "attribute_name_en": "Quiescent Current(Iq)",
+    "component_code": "C2880456",
+    "attribute_value_name": "750uA"
+   },
+   {
+    "attribute_name_en": "CMTI(kV/us)",
+    "component_code": "C2880456",
+    "attribute_value_name": "100kV/us"
+   },
+   {
+    "attribute_name_en": "Isolation voltage(Vrms)",
+    "component_code": "C2880456",
+    "attribute_value_name": "5700V"
+   },
+   {
+    "attribute_name_en": "Rise Time",
+    "component_code": "C2880456",
+    "attribute_value_name": "7ns"
+   },
+   {
+    "attribute_name_en": "Number of Channels",
+    "component_code": "C2880456",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C2880456",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C2880456",
+    "attribute_value_name": "Dead-time control"
+   },
+   {
+    "attribute_name_en": "Propagation Delay tpLH",
+    "component_code": "C2880456",
+    "attribute_value_name": "25ns"
+   },
+   {
+    "attribute_name_en": "Peak Output Current(sink)",
+    "component_code": "C2880456",
+    "attribute_value_name": "6A"
+   },
+   {
+    "attribute_name_en": "Peak Output Current(source)",
+    "component_code": "C2880456",
+    "attribute_value_name": "4A"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply (Input)",
+    "component_code": "C2880456",
+    "attribute_value_name": "3V~5.5V"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Power Management (PMIC)",
+  "secondSortName": "Isolators - Gate Drivers",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 3090779,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 1392,
+  "overseasStockCount": 1392,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2880456",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 2.2443,
+    "erpComponentPriceKeyId": 169712672919535619,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2880456",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 1.8708,
+    "erpComponentPriceKeyId": 169712672919535622,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2880456",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 1.6359,
+    "erpComponentPriceKeyId": 193442274,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2880456",
+    "startNumber": 100,
+    "endNumber": 499,
+    "productPrice": 1.3962,
+    "erpComponentPriceKeyId": 169712672919535621,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2880456",
+    "startNumber": 500,
+    "endNumber": 999,
+    "productPrice": 1.2885,
+    "erpComponentPriceKeyId": 169712672919535620,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C2880456",
+    "startNumber": 1000,
+    "endNumber": -1,
+    "productPrice": 1.2412,
+    "erpComponentPriceKeyId": 169712672919535624,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 1000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.3375,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_novosense-nsi6602a-dswr_C2880456.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u9ad8\u53ef\u9760\u6027\u9694\u79bb\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Isolators - Gate Drivers",
+  "firstTypeNameEn": "Power Management (PMIC)",
+  "secondTypeNameId": 2107,
+  "firstTypeNameId": 9,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 1367,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 2.2443,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 5,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "-",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244351347441843,
+  "overseasComponentBrandBizKey": "385285330545152001",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 3",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "NOVOSENSE-40\u2103~+125\u2103@(Ta) 100kV/us 2 25ns 25ns 4A 5700 6A 6ns 750uA 7V~25V 7ns SOP-16-300mil Isolators - Gate Drivers ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:06Z"
+}

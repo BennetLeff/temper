@@ -1,0 +1,271 @@
+{
+ "proposals": [
+  {
+   "id": "P-A1",
+   "net": "sw_a",
+   "layer": "F.Cu",
+   "box": [
+    148.6,
+    37.2,
+    152.4,
+    101.5
+   ],
+   "why": "SW_A leg to T1: right edge 148.6 -> 152.4 (the J5 5 mm bite leaves 7.0 mm; the leg is 9.6 mm)",
+   "trims": [],
+   "area_drawn_mm2": 244.3,
+   "area_kept_mm2": 227.5,
+   "clipped_by": [
+    "pad:res_a:R22",
+    "track:res_a:"
+   ]
+  },
+  {
+   "id": "P-A2",
+   "net": "sw_a",
+   "layer": "F.Cu",
+   "box": [
+    100.0,
+    30.4,
+    103.6,
+    37.2
+   ],
+   "why": "SW_A corner x 103.6-110: fill the inside corner (6.4 mm neck)",
+   "trims": [
+    [
+     "n_filt",
+     "F.Cu",
+     [
+      96.0,
+      26.0,
+      103.6,
+      41.0
+     ]
+    ]
+   ],
+   "area_drawn_mm2": 24.5,
+   "area_kept_mm2": 13.5,
+   "clipped_by": [
+    "pad:n_ls:C127",
+    "track:n_ls:",
+    "via:n_ls:"
+   ]
+  },
+  {
+   "id": "P-B1",
+   "net": "sw_b",
+   "layer": "B.Cu",
+   "box": [
+    150.0,
+    46.8,
+    188.0,
+    50.0
+   ],
+   "why": "SW_B band at the bank: restore y 46.8-50 where the res_a strip's 5 mm rule allows (x >~ 171)",
+   "trims": [],
+   "area_drawn_mm2": 121.6,
+   "area_kept_mm2": 67.8,
+   "clipped_by": [
+    "pad:res_a:C21",
+    "pour:res_a:"
+   ]
+  },
+  {
+   "id": "P-B1b",
+   "net": "sw_b",
+   "layer": "B.Cu",
+   "box": [
+    150.0,
+    36.8,
+    188.0,
+    37.2
+   ],
+   "why": "SW_B band x 150-171: raise the top 0.4 mm; trim the l_filt pour's lower edge by 0.4 mm",
+   "trims": [
+    [
+     "l_filt",
+     "B.Cu",
+     [
+      150.0,
+      33.4,
+      188.0,
+      34.2
+     ]
+    ]
+   ],
+   "area_drawn_mm2": 15.2,
+   "area_kept_mm2": 7.4,
+   "clipped_by": [
+    "pour:l_filt:",
+    "track:l_filt:"
+   ]
+  },
+  {
+   "id": "P-B2",
+   "net": "sw_b",
+   "layer": "B.Cu",
+   "box": [
+    110.0,
+    19.7,
+    110.6,
+    37.2
+   ],
+   "why": "SW_B drop x 100.5-110: right edge +0.6 mm; trim l_filt's left edge",
+   "trims": [
+    [
+     "l_filt",
+     "B.Cu",
+     [
+      112.0,
+      9.0,
+      114.0,
+      37.0
+     ]
+    ]
+   ],
+   "area_drawn_mm2": 10.5,
+   "area_kept_mm2": 10.5,
+   "clipped_by": []
+  },
+  {
+   "id": "P-B3",
+   "net": "sw_b",
+   "layer": "B.Cu",
+   "box": [
+    83.7,
+    15.6,
+    100.5,
+    19.4
+   ],
+   "why": "SW_B band x 84-100: raise the top from 19.4 to 15.6; trim l_filt's lower edge to 12.4",
+   "trims": [
+    [
+     "l_filt",
+     "B.Cu",
+     [
+      83.0,
+      12.4,
+      101.0,
+      17.0
+     ]
+    ]
+   ],
+   "area_drawn_mm2": 63.8,
+   "area_kept_mm2": 54.7,
+   "clipped_by": [
+    "pour:l_filt:",
+    "track:l_filt:"
+   ]
+  }
+ ],
+ "widths_after": {
+  "SW_A B.Cu leg-A link, Q3 to Q2": {
+   "min_w_mm": 2.83,
+   "short_cuts": 39,
+   "short_spans_[from,to,wmin]": [
+    [
+     51.5,
+     59.5,
+     2.83
+    ],
+    [
+     61.5,
+     72.0,
+     2.83
+    ]
+   ]
+  },
+  "SW_A F.Cu, Q2 stub to first step": {
+   "min_w_mm": 10.05,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  },
+  "SW_A F.Cu, second step": {
+   "min_w_mm": 11.2,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  },
+  "SW_A F.Cu, corner leg x 103.6-110": {
+   "min_w_mm": 6.7,
+   "short_cuts": 7,
+   "short_spans_[from,to,wmin]": [
+    [
+     33.5,
+     36.5,
+     6.7
+    ]
+   ]
+  },
+  "SW_A F.Cu, run y 37-48": {
+   "min_w_mm": 10.8,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  },
+  "SW_A F.Cu, leg x 139-148.6 to T1": {
+   "min_w_mm": 10.79,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  },
+  "SW_B B.Cu, FET band": {
+   "min_w_mm": 3.1,
+   "short_cuts": 89,
+   "short_spans_[from,to,wmin]": [
+    [
+     21.0,
+     23.0,
+     8.21
+    ],
+    [
+     31.5,
+     49.5,
+     3.1
+    ],
+    [
+     58.0,
+     76.0,
+     6.89
+    ],
+    [
+     79.5,
+     79.5,
+     9.59
+    ],
+    [
+     84.0,
+     86.0,
+     8.37
+    ],
+    [
+     98.5,
+     100.0,
+     8.0
+    ]
+   ]
+  },
+  "SW_B F.Cu parallel option (no copper today)": {
+   "min_w_mm": 0.0,
+   "short_cuts": 139,
+   "short_spans_[from,to,wmin]": [
+    [
+     31.0,
+     100.0,
+     0.0
+    ]
+   ]
+  },
+  "SW_B B.Cu, drop x 100.5-110": {
+   "min_w_mm": 10.09,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  },
+  "SW_B B.Cu, run y 37-50 to the bank": {
+   "min_w_mm": 10.0,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  },
+  "SW_B B.Cu, bank strip (taps at y 53.2 ...)": {
+   "min_w_mm": 12.29,
+   "short_cuts": 0,
+   "short_spans_[from,to,wmin]": []
+  }
+ }
+}

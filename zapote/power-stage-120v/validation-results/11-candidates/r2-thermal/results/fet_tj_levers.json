@@ -1,0 +1,143 @@
+{
+ "control_expect": {
+  "40kHz": 129.0,
+  "45kHz": 134.5,
+  "50kHz": 140.1
+ },
+ "tj_28A": {
+  "S8 0.29 | cons_TIC1000A_proxy (as built in the model) Rcs=0.634": {
+   "40kHz": 129.0,
+   "45kHz": 134.5,
+   "50kHz": 140.1
+  },
+  "S8 0.29 | cons_low_end_of_model_range Rcs=0.399": {
+   "40kHz": 121.1,
+   "45kHz": 126.0,
+   "50kHz": 131.0
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT25um (A=151.2 mm2) Rcs=0.22": {
+   "40kHz": 115.3,
+   "45kHz": 119.8,
+   "50kHz": 124.3
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT50um (A=151.2 mm2) Rcs=0.353": {
+   "40kHz": 119.6,
+   "45kHz": 124.4,
+   "50kHz": 129.2
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT75um (A=151.2 mm2) Rcs=0.485": {
+   "40kHz": 123.9,
+   "45kHz": 129.1,
+   "50kHz": 134.3
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT100um (A=151.2 mm2) Rcs=0.617": {
+   "40kHz": 128.4,
+   "45kHz": 133.9,
+   "50kHz": 139.4
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | cons_TIC1000A_proxy (as built in the model) Rcs=0.634": {
+   "40kHz": 117.1,
+   "45kHz": 121.8,
+   "50kHz": 126.6
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | cons_low_end_of_model_range Rcs=0.399": {
+   "40kHz": 109.6,
+   "45kHz": 113.8,
+   "50kHz": 118.0
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT25um (A=151.2 mm2) Rcs=0.22": {
+   "40kHz": 104.1,
+   "45kHz": 107.9,
+   "50kHz": 111.6
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT50um (A=151.2 mm2) Rcs=0.353": {
+   "40kHz": 108.2,
+   "45kHz": 112.2,
+   "50kHz": 116.3
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT75um (A=151.2 mm2) Rcs=0.485": {
+   "40kHz": 112.3,
+   "45kHz": 116.7,
+   "50kHz": 121.1
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT100um (A=151.2 mm2) Rcs=0.617": {
+   "40kHz": 116.5,
+   "45kHz": 121.2,
+   "50kHz": 126.0
+  }
+ },
+ "imax_for_125C": {
+  "S8 0.29 | cons_TIC1000A_proxy (as built in the model)": {
+   "35kHz": 28.52,
+   "40kHz": 26.64,
+   "45kHz": 24.61,
+   "50kHz": 22.4
+  },
+  "S8 0.29 | cons_low_end_of_model_range": {
+   "35kHz": 31.16,
+   "40kHz": 29.44,
+   "45kHz": 27.61,
+   "50kHz": 25.64
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT25um (A=151.2 mm2)": {
+   "35kHz": 33.4,
+   "40kHz": 31.79,
+   "45kHz": 30.09,
+   "50kHz": 28.29
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT50um (A=151.2 mm2)": {
+   "35kHz": 31.72,
+   "40kHz": 30.02,
+   "45kHz": 28.23,
+   "50kHz": 26.31
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT75um (A=151.2 mm2)": {
+   "35kHz": 30.16,
+   "40kHz": 28.38,
+   "45kHz": 26.48,
+   "50kHz": 24.43
+  },
+  "S8 0.29 | AlN2mm+2xHTCP20S BLT100um (A=151.2 mm2)": {
+   "35kHz": 28.7,
+   "40kHz": 26.83,
+   "45kHz": 24.82,
+   "50kHz": 22.63
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | cons_TIC1000A_proxy (as built in the model)": {
+   "35kHz": 32.58,
+   "40kHz": 30.94,
+   "45kHz": 29.21,
+   "50kHz": 27.37
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | cons_low_end_of_model_range": {
+   "35kHz": 35.69,
+   "40kHz": 34.18,
+   "45kHz": 32.61,
+   "50kHz": 30.97
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT25um (A=151.2 mm2)": {
+   "35kHz": 38.39,
+   "40kHz": 36.99,
+   "45kHz": 35.53,
+   "50kHz": 34.01
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT50um (A=151.2 mm2)": {
+   "35kHz": 36.35,
+   "40kHz": 34.87,
+   "45kHz": 33.33,
+   "50kHz": 31.72
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT75um (A=151.2 mm2)": {
+   "35kHz": 34.5,
+   "40kHz": 32.95,
+   "45kHz": 31.32,
+   "50kHz": 29.6
+  },
+  "K1 0.214+ped (DECISIONS 15 states 118.9/123.8/128.7 at its own flow; this solve is 1.8-2.1 K lower) | AlN2mm+2xHTCP20S BLT100um (A=151.2 mm2)": {
+   "35kHz": 32.79,
+   "40kHz": 31.16,
+   "45kHz": 29.44,
+   "50kHz": 27.62
+  }
+ }
+}

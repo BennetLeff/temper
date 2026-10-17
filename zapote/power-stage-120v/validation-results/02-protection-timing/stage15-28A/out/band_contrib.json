@@ -1,0 +1,55 @@
+{
+ "R34": 12600.0,
+ "R35": 11700.0,
+ "cases": {
+  "all (committed method)": {
+   "band_A": [
+    68.58,
+    118.74
+   ],
+   "width_A": 50.16
+  },
+  "comparator offset+bias x0 (ideal comparator)": {
+   "band_A": [
+    76.38,
+    110.3
+   ],
+   "width_A": 33.92
+  },
+  "comparator offset x0.25 (1 mV-class part)": {
+   "band_A": [
+    74.43,
+    112.41
+   ],
+   "width_A": 37.98
+  },
+  "R32/R33 ideal": {
+   "band_A": [
+    74.73,
+    111.9
+   ],
+   "width_A": 37.17
+  },
+  "R34/R35 ideal": {
+   "band_A": [
+    74.53,
+    112.19
+   ],
+   "width_A": 37.66
+  },
+  "R5 ideal (no tol, no TCR)": {
+   "band_A": [
+    71.17,
+    114.32
+   ],
+   "width_A": 43.15
+  },
+  "R32-R35 0.05 % 10 ppm": {
+   "band_A": [
+    75.36,
+    111.24
+   ],
+   "width_A": 35.88
+  }
+ }
+}

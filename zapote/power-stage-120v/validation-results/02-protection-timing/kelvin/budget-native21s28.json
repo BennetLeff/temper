@@ -1,0 +1,111 @@
+{
+ "rows": [
+  {
+   "pad": "U3.2",
+   "mA": 0.1,
+   "transfer_mohm": 148.7471,
+   "mV_at_R35_2": 0.0149,
+   "what": "TPS70950 ground-pin current, over-bounded at 0.1 mA (datasheet IQ is microamp-class)",
+   "source": "TI tps709.pdf (native-21/ECO.md sources)"
+  },
+  {
+   "pad": "U4.3",
+   "mA": 9.7,
+   "transfer_mohm": 150.004,
+   "mV_at_R35_2": 1.455,
+   "what": "AMC1311B IDD1, 4.5 V < VDD1 < 5.5 V, max",
+   "source": "TI SBAS781 (amc1311.pdf) 6.10 Electrical Characteristics, IDD1"
+  },
+  {
+   "pad": "U9.1",
+   "mA": 2.4,
+   "transfer_mohm": 150.004,
+   "mV_at_R35_2": 0.36,
+   "what": "ISO7710 ICC1, 5 V supply, DC signal, max (input state that draws more)",
+   "source": "TI iso7710.pdf 5.10, ICC1 DC"
+  },
+  {
+   "pad": "U6.2",
+   "mA": 0.065,
+   "transfer_mohm": 148.8595,
+   "mV_at_R35_2": 0.0097,
+   "what": "TLV3201 IQ max, -40..125 C",
+   "source": "TI tlv3201.pdf, IQ"
+  },
+  {
+   "pad": "U7.2",
+   "mA": 0.065,
+   "transfer_mohm": 148.809,
+   "mV_at_R35_2": 0.0097,
+   "what": "TLV3201 IQ max, -40..125 C",
+   "source": "TI tlv3201.pdf, IQ"
+  },
+  {
+   "pad": "U8.2",
+   "mA": 0.01,
+   "transfer_mohm": 150.7152,
+   "mV_at_R35_2": 0.0015,
+   "what": "SN74LVC1G10 ICC max",
+   "source": "TI sn74lvc1g10.pdf, ICC"
+  },
+  {
+   "pad": "U15.3",
+   "mA": 0.01,
+   "transfer_mohm": 148.8595,
+   "mV_at_R35_2": 0.0015,
+   "what": "SN74LVC1G17 ICC max",
+   "source": "TI sn74lvc1g17.pdf, ICC"
+  },
+  {
+   "pad": "U14.2",
+   "mA": 0.5433,
+   "transfer_mohm": 148.7471,
+   "mV_at_R35_2": 0.0808,
+   "what": "TPS3700 IDD max (VDD 18 V) + 10 k pull-up when OUTA asserted low",
+   "source": "TI tps3700.pdf, IDD; r_hot5_uv_pull 10 k 1 %"
+  },
+  {
+   "pad": "U5.2",
+   "mA": 0.496,
+   "transfer_mohm": 150.714,
+   "mV_at_R35_2": 0.0748,
+   "what": "all current through the 5.6 k reference bias (LM4040 + dividers), bounded as returned at the anode",
+   "source": "r_ref_bias 5.6 k 1 %; LM4040 2.5 V"
+  },
+  {
+   "pad": "R49.2",
+   "mA": 0.0461,
+   "transfer_mohm": 149.9437,
+   "mV_at_R35_2": 0.0069,
+   "what": "HOT5 UV divider 105 k + 10 k",
+   "source": "power_stage_120v.ato r_hot5_uv_top/bot"
+  },
+  {
+   "pad": "R30.2",
+   "mA": 0.2131,
+   "transfer_mohm": 150.7526,
+   "mV_at_R35_2": 0.0321,
+   "what": "bus divider at 400 V (above the 280 V maximum)",
+   "source": "power_stage_120v.ato r_div_top x4 / r_div_bot"
+  }
+ ],
+ "total_mA": 13.648,
+ "e_th_mV": 2.0469,
+ "trip_shift_A": -2.123,
+ "bound_all_at_max_transfer": {
+  "e_th_mV": 2.0858,
+  "trip_shift_A": -2.163
+ },
+ "band_before_A": [
+  69.89,
+  116.44
+ ],
+ "band_after_A": [
+  67.77,
+  116.44
+ ],
+ "meets_44A_min": true,
+ "floor_A": 64.17,
+ "meets_floor_at_bound": true,
+ "note": "shift ranges from 0 (no load current) to the census value, so it widens the band downward"
+}

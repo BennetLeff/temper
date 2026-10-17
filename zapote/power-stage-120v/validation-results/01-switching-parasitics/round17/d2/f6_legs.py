@@ -91,7 +91,7 @@ def main():
     ap.add_argument("--deck", choices=["F6", "baseline"], default="F6", help="D-13 deck: F6 remedy or the unipolar baseline")
     ap.add_argument("--cases", choices=["decision", "startup"], default="decision")
     ap.add_argument("--out", default=None)
-    ap.add_argument("--matrix-a", default=None, help="leg A matrix file in d2/ (default: legA-h0-best-n19)")
+    ap.add_argument("--matrix-a", default=None, help="leg A matrix file in d2/ (default: native-19 best)")
     ap.add_argument("--matrix-b", default=None, help="leg B matrix file in d2/ (default: provisional)")
     ap.add_argument("--legs", default="AB")
     ap.add_argument("--vneg", type=float, default=-2.0, help="F6 off-bias level (V); the D-13 deck uses -2")

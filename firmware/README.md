@@ -34,21 +34,197 @@ firmware/
 └── test/                  # Host-based unit and integration tests
 ```
 
-## Hardware GPIO requirements (board rev with BusDischarge, PR #217)
+## Controller pin map (zapote/controller, layout L2 + L3 blower + stage 16 BLW_PG)
 
-`gpio_init()` in `main.c` is still stubbed; when it is implemented these
-board-imposed contracts MUST be honored:
+The firmware targets the integrated SELV controller. Its single pin map is
+`components/hal/include/controller_pins.h` (numbers) plus the table in
+`components/hal/controller_board.c` (function, owner, pulls, boot level).
+`tools/check_controller_pinmap.py` checks both against the controller ato
+(snapshot in `test/fixtures/controller-layout/`, or `--git-ref controller-layout`),
+and `test/test_controller_pins.c` pins the rules below. Every module GPIO is
+used; there is no spare pin (see "BIAS_GOOD read-back" for the one proposed
+re-allocation, GPIO35).
 
-- **IO47 = DISCHARGE_CTRL (active-high, fail-safe-low).** Drives the
-  bus-discharge relay coils via a low-side FET. The pin boots Hi-Z and the
-  gate has a 100k pulldown, so reset/crash/brownout = coils dropped = NC
-  contacts closed = bus discharge engaged. Startup sequence: configure as
-  output-low at boot, drive HIGH only after bus precharge completes and
-  BEFORE enabling PWM; drive LOW (or simply stop kicking the watchdog) on
-  any fault requiring safe discharge. Never configure as input/floating
-  during operation.
-- **IO9 = MAX31865 DRDY** (input, already noted in `main.c`).
-- **IO7 = WDT_KICK** — TPS3823 watchdog; state_machine_update() toggles it.
+- **RUN_EN = GPIO14** (DECISIONS C23). PERMIT = interlock latch AND RUN_EN
+  (U37). 4.7 k pull-down, no internal pull-up; preset low before the pad
+  becomes an output. Firmware can only remove permission with it; the
+  safety cut (`ctrl_board_run_en_kill()`) latches it low until MCU reset.
+  There is no RUNAWAY_CUT output on this board (GPIO15 is PWM_HB).
+- **IL_WDI = GPIO18** (TPS3823 heartbeat). SUP_RUN_OK and RTD_DRDY are
+  TCA9555 P14 and P07, polled over I2C every control tick.
+- **TCA9555 (U8) bits**: P07 RTD_DRDY (low = ready), P10 LATCHED_FAULT_RB,
+  P11 RTD_FAULT_RB, P12 HS_FAULT_RB, P13 COIL_FAULT_RB, P14 SUP_RUN_OK_RB,
+  P15 FAN_OFF (L3, the only output), **P16 BLW_PG** (stage 16, C33: high = PS3
+  present; input only), P06 reserved (second MAX31865 CS). `CTRL_EXP_<NET>` =
+  8 × port + bit.
+- **I2C**: SDA GPIO37, SCL GPIO0 (SPI-boot strap, 4.7 k pull-up; never an
+  internal pull-down).
+- **UI bus (J7, SPI3)**: SCK 40, MOSI 41, MISO 44, CS_OLED# 47, D/C 45,
+  CS_EXP# 48. GPIO44 is U0RXD, so the console is USB-Serial-JTAG
+  (`sdkconfig.defaults`). GPIO45 is the VDD_SPI strap: never an internal
+  pull-up. The sounder is a self-oscillating buzzer on a UI-board expander
+  output; there is no sounder PWM.
+- **Rim NTC = GPIO9 / ADC1_CH8** (R36, C27, C31), ninth slot of the ADC1 pattern;
+  Semitec 104GT-2 on a 1.00 k pull-up (0.489 V, 7.0 mV/K at 250 °C). It feeds
+  the 250 °C pan cap with the pan RTD (`components/control/thermal_mgmt.h`).
+- **Blower (J10, L3, C28)**: 3-wire (V, GND, FG). Speed: GPIO46 LEDC, 20 kHz,
+  into the buck FB; **duty 0 = full speed** (12.2 V), capped at 85 % (≥ 6.07 V
+  at every corner, above the blower's 5.5 V floor). Reset / brown-out leaves
+  GPIO46 an input on its 100 k strap pull-down: 11.0–11.4 V, still near full
+  speed. On/off: expander P15 FAN_OFF (latch written 0 = on before it becomes
+  an output). Tach: FG → GPIO3 PCNT; pulses per revolution is
+  `BLOWER_TACH_PULSES_PER_REV` in `config.yaml` (unverified, default 2). A
+  stopped, locked or unplugged blower or an open FG wire reads 0 rpm and
+  derates tank power after 1 s (`blower_ctrl_step()`).
+- **Blower supply and the inlet limit (stage 16)**: the blower runs from PS3
+  (MPM-65-15ST, power-board tap F2 / J11, also the controller logic since
+  s38; PS1 is deleted), so the inlet estimate's auxiliary allowance is PS2 +
+  PS3 logic (0.26 A) + the PS3 blower term scheduled from the commanded drive
+  (`components/power/blower_aux.h`), each counted by its worst-corner increment
+  to the inlet RMS: 0.31 A off, 0.65 A typical, 0.887 A at full speed or
+  whenever the drive is unknown. A speed-up takes the allowance first
+  and moves the blower 300 ms later; a fault goes to full speed at once. The
+  regulated inlet total stays 13.5 A (COMMISSIONING.md step 8c).
+- **BLW_PG, PS3 present (expander P16, controller C33)**: 20 k / 4.7 k from
+  V15_BLW at J13, ≥ 2.74 V with PS3 on, ≤ 0.30 V without it. Debounced in the
+  expander poll: 3 equal reads at 10 ms before it is "present" or "absent"; a
+  failed or stale expander read is **unknown**, never "present"
+  (`ctrl_blw_pg_update()`, `ctrl_exp_blw_pg()`). Use (`blower_ctrl_supply()`):
+  - FG at 0 Hz while driven (the stall path) is labelled for the UI / log:
+    BLW_PG 0 → **PS3 absent**, BLW_PG 1 → **blower failed**, unknown → the
+    plain stall. All three take the same C28 derate (and stop on a rising sink).
+  - **Start interlock**: PS3 absent before heating starts → no start (IDLE
+    shows "NO BLOWER PWR"; PAN_DET, which every start path enters, applies no
+    power and returns to IDLE). Unknown does not block: the stall path still
+    protects.
+  - **Plausibility**: BLW_PG 0 while the tach shows the blower turning for
+    > 3 s (`BLW_PG_PLAUS_TIME_MS`, provisional) latches a BLW_PG sense fault
+    until reset; BLW_PG is then ignored (stall-only behaviour). No derate on
+    that alone.
+  - The PS3 inlet allowance never drops on BLW_PG 0: PS3's AC side may still
+    draw with a failed output (`blower_aux.h`).
+
+## BIAS_GOOD read-back (power board s48/s50, J4.1; power-stage OPEN-ITEMS B13 H2)
+
+Stage 48 (power-stage DECISIONS 67) routes the power board's BIAS_GOOD (U40, the
+heartbeat hold node: high only while the LS / HS-A / HS-B bias monitors are all
+good and the heartbeat runs) to J4 pin 1 through R146 220 k. The power board
+already holds both drivers' DIS high while it is low. Under option P (power-stage
+candidate c50, stage 50) U46.A is driven from PERMIT through R135 100 k, so
+**BIAS_GOOD = bias_ok AND PERMIT**: it is low whenever PERMIT is low and rises
+≤ 0.53 ms after PERMIT at GPIO35 (falls ≤ 0.36 ms after it). Every check is
+therefore keyed to PERMIT_RB (GPIO36, the final PERMIT after U37), not to the
+state. Coverage of the H2 chain rows: 36.9 % (c50 §3, `fmea-s47-2026-10-15` §4 H2;
+13.8 % as built), proved on every start instead of once per power-on.
+
+| Check | When | Pass | Fail |
+|---|---|---|---|
+| 1. Low with PERMIT low | every control tick, every state (INIT included), once PERMIT_RB has been low ≥ `BIAS_GOOD_PERMIT_FALL_MS` (2 ms) | low | high or unreadable on `BIAS_GOOD_IDLE_TRIP_SAMPLES` (3) of the last `BIAS_GOOD_IDLE_WINDOW_SAMPLES` (8) judged ticks → `FAULT_BIAS_GOOD_STUCK` (`EVENT_BIAS_GOOD_STUCK`; U40 stuck high / Y–VCC, a U46 A–hb_rx short, R135 open floating high) through `enter_hardware_latched_fault()`, cleared only by a power cycle |
+| 2. High after PERMIT | every start (every RUN_EN rise), in the binding: RUN_EN is raised with the pads forced low, BIAS_GOOD is read `BIAS_GOOD_PERMIT_RISE_MS` (2 ms) later, and only then are the pads released | high | low or unreadable → RUN_EN dropped, the request held refused (no retry), "NO POWER BIAS" (`EVENT_BIAS_GOOD_LOW_AT_START`): back to IDLE from PAN_DET, to COOLDOWN from a PREHEAT / HEATING restart; not a fault |
+| 3. High throughout | every control tick while PERMIT_RB is high and has been for ≥ `BIAS_GOOD_PERMIT_RISE_MS` | high | low or unreadable for ≥ `BIAS_GOOD_DROP_DEBOUNCE_MS` (20 ms, three 10 ms samples) → `FAULT_BIAS_GOOD_LOST` (`EVENT_BIAS_GOOD_LOST`) through `enter_hardware_latched_fault()` (RUN_EN kill + shutdown), cleared only by a power cycle |
+
+- **Start order (controller DECISIONS C39, "raise RUN_EN only with the PWM idle
+  (RUN_EN rising re-arms the detector)").** `n21_binding.c` `start_sequence()`
+  forces the pads low, raises RUN_EN, waits `start_check_us` (=
+  `BIAS_GOOD_PERMIT_RISE_MS`; the drivers enable ≤ 13.6 µs after PERMIT plus the
+  unpublished 2EDR8259X DIS-to-output delay, both inside it), checks that PERMIT_RB
+  followed RUN_EN and that the interlock is healthy, reads BIAS_GOOD, and only then
+  releases the pads. Before this the binding raised RUN_EN with the pads already
+  live (the PWM captures are qualified at idle). Bench sessions use the same order
+  without the BIAS_GOOD read.
+- **Once per start, not per detection ping.** PAN_DET holds a 5 % request, so the
+  bridge and PERMIT stay up for the whole detection (the legacy
+  `power_service_pan_pulse` ping is disabled). RUN_EN toggles only when the request
+  goes to zero and back (e.g. the PID at target) or at `pwm_disable_all()`; each
+  re-raise is a fresh start and runs check 2 again. A future ping must pulse the
+  PWM with PERMIT held high, not pulse PERMIT.
+- **PERMIT_RB must follow RUN_EN** (C23: PERMIT = latch Q AND RUN_EN). The binding
+  takes interlock health from the expander's LATCHED_FAULT_RB (P10) and requires
+  PERMIT_RB == RUN_EN; PERMIT_RB high with RUN_EN low is `N21_FAULT_HW` (the gate
+  can no longer remove permission).
+- **Debounce basis** (`config.yaml`). The 2 ms waits are 5.6× / 3.8× the worst
+  fall / rise. Check 1 is 3-of-8 rather than three in a row: an hsb_good–hb_rx
+  short toggles U46.A at line frequency, which 100 Hz sampling never sees three
+  times in a row but which trips 3 of 8 within the first 8 judged ticks for duties
+  of 42–60 % at 59.5–60.5 Hz. No debounce has a safety-time role: the power board
+  cuts the drivers within the hold-node bleed (TP19 ≤ 90 µs after PERMIT falls,
+  123 µs with one pump cap shorted).
+- The decisions and the debounces are `platform_permit_step()`,
+  `platform_bias_idle_step()` and `platform_bias_lost_step()` in
+  `components/platform/platform_logic.c` (host tests in
+  `test/test_platform_logic.c`); `power_bias_step()` in
+  `main/platform/platform_esp32.c` runs checks 1 and 3 at the top of every
+  `state_machine_update()` (host double in `test/state_machine_stubs.c`), and
+  `power_bias_start_refused()` reports check 2 from the binding's telemetry
+  (`test/test_n21_binding.c` pins the order, the wait and the refusal). The
+  PERMIT edge is timestamped by the binding's RUN_EN change when it has one.
+- Bus fault keeps priority: BUS_FAULT drops PERMIT in hardware, so a bias collapse
+  that also raises BUS_FAULT (HOT5 UV, an open TCO loop) latches
+  `FAULT_IGBT_SHORT`.
+- Not implemented: the c50 optional checks (d) (GPIO35 high 50–406 µs after RUN_EN
+  rises = read-back bypassed) and (e) (high ~0.5 ms after a PERMIT fall = slow hold
+  decay, warning only); both need sub-tick sampling.
+- **Not fitted yet.** No controller branch routes J4.1 to the MCU: on every one
+  (up to `controller-c1-crs`, C47) J4.1 is still the controller's **15 V input**
+  `v15_selv`, and all 36 module GPIOs are used. Until `controller_pins.h`
+  defines `CTRL_GPIO_BIAS_GOOD_RB`, `platform_esp32.c` reads NOT_FITTED and
+  checks 1 and 3 pass, and the binding keeps the C39 start order and wait but
+  reads nothing (nothing is claimed). The GPIO35 routing may land together with
+  power-board stage 50; it must not land on a board without it (as built,
+  BIAS_GOOD is high at idle and check 1 would latch). The controller change is an owner
+  item: `zapote/power-stage-120v/validation-results/11-candidates/c23-supply-topology/CONTROLLER-REQUEST.md`
+  addendum 3.
+- **Proposed pin: GPIO35**, freed by moving RAIL_OK_RB (U9 Y1_4, push-pull) to
+  the spare TCA9555 **P02**, as C27 moved SUP_RUN_OK to P14. GPIO35 is
+  input-capable, not a strap (0, 3, 45, 46), has no ADC (so no ADC2 / Wi-Fi
+  conflict) and is free of flash / PSRAM on the WROOM-1-N8 (only the octal-PSRAM
+  R8 parts take 35–37); 35–37 are already plain inputs on this board. RAIL_OK
+  is hardware-latched (RAIL_FAULT), and the binding already reads SUP_RUN_OK
+  from the expander cache with a freshness check, so the move costs no
+  protection. A direct GPIO meets the high-Z requirement; a TCA9555 bit would
+  not (its 100 k pull-up against R146 220 k holds a BIAS_GOOD low near 2.2 V, far above its VIL).
+  Board parts: J4.1 → 10 k series → GPIO35, 1 MΩ 1 % to selv_gnd and 1 nF C0G at
+  the pin. High reads ≥ 0.81 × V3V3 at 1 % corners (VIH 0.75 × VDD); U40 open reads
+  ≤ 50 mV (50 nA leakage × 1 MΩ); τ ≈ 190 µs filters harness transients; the 10 k
+  lets U37 win if a GPIO misconfigured as an output meets a J4.1–J4.9 short.
+  Never an internal pull (45 k would hold 220 k at ≤ 0.6 V).
+- **When the controller lands it:** `CTRL_GPIO_BIAS_GOOD_RB 35` and
+  `CTRL_EXP_RAIL_OK_RB 2` in `controller_pins.h`, the GPIO35 row in
+  `controller_board.c` (input, no internal pull, external pull DOWN), RAIL_OK
+  from the expander cache in `n21_hw_esp32.c` `hw_read_status()`, the fixture
+  refresh, then COMMISSIONING.md H2. The `#ifdef CTRL_GPIO_BIAS_GOOD_RB` blocks in
+  `platform_esp32.c` and `n21_hw_esp32.c` have been built into an ESP-IDF 5.3.6
+  image only with the define forced temporarily (never committed or flashed).
+
+## Thermal trip ladder (L3, DECISIONS C32)
+
+| | Fan law | Firmware derate | Firmware trip | Hardware trip (band) |
+|---|---|---|---|---|
+| Heatsink (Vishay NTCALUG01A104GA) | 88.6 °C | — | 95 °C (`OVER_TEMP_THRESHOLD`) | 101.4 °C (98.3–104.6) |
+| Coil (Semitec 104GT-2, 100 k / 300 °C) | 140 °C | 150–160 °C | 165 °C (`COIL_FW_TRIP_C`) | 175.7 °C (169.7–182.0) |
+
+Source: `docs/evidence/2026-10-12-thermal-trip-ladder-l3.md`, which supersedes
+the IGBT-era 80 °C trip of `2026-08-15-thermal-threshold-decision.md`.
+`test/test_thermal_mgmt.c` fails if any rung is reordered. Every NTC input has
+a 10 k / 100 nF filter (C29): readings are used only after it has settled
+(`ntc_input_settled()`, ≤ 28 ms from power-up), and its ≤ 3.3 ms lag is
+negligible next to the 100 ms thermal ticks. The ESP32-S3 ADC reads only up
+to ~3.1 V, so on a 10 k pull-up a 100 k NTC colder than ~15 °C (or open)
+reads as the range floor: the interlocks treat it as cool, the blower runs
+full speed, and the thermal-sense OPEN_REF comparator latches a real open.
+The rim (1.00 k pull-up) resolves only above ~70 °C; below that, or open, it
+gives no rim cap and the pan RTD still caps at 250 °C.
+
+Because cold and open read alike, a plausibility check (`thermal_plaus_t`,
+run on every heating tick) latches a **rim-sensor fault** when the rim stays
+below range for > 30 s while the pan RTD reads > 150 °C (rim dropped from the
+cap; the pan RTD alone caps), and a **coil-sensor fault** when the coil reads
+< 25 °C after > 5 min at > 50 % power (tank clamped to 17.5 A, blower full
+speed). Both are shown on the display and held until MCU reset; the
+constants are bench-tunable (`components/power/COMMISSIONING.md` step 8b).
+
+`components/hal/include/temper_pins.h` is the legacy `elec/` board map, kept
+unchanged for the tools that read it; controller firmware must not include it.
 
 ## Building
 
@@ -160,6 +336,10 @@ The firmware implements multiple layers of safety:
 6. **RTD Probe Monitoring**: Open circuit (>10kΩ) and short circuit (<10Ω) detection
 7. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
 8. **Pan Detection**: Impedance-based detection with confidence threshold
+9. **Power-board bias read-back (B13 H2)**: BIAS_GOOD on J4.1 low whenever PERMIT is
+   low, high 2 ms after each start's RUN_EN rise (before the pads are released), high
+   while PERMIT stays up; see "BIAS_GOOD read-back" (inert until the controller routes
+   J4.1 to GPIO35)
 
 ## Configuration
 

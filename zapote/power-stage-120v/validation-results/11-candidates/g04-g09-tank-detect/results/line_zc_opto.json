@@ -1,0 +1,72 @@
+{
+ "assumptions": {
+  "VF_LOW_V": 0.9,
+  "IC_HI_mA": 0.0424,
+  "IC_LO_mA": 0.0697,
+  "R_string_ohm": 66000.0,
+  "window_us": [
+   300.0,
+   4000.0
+  ]
+ },
+ "bins": {
+  "-3 (100-200 %)": {
+   "by_g_at_120V_60Hz": {
+    "0.1": {
+     "w120V_us_min": 462.0,
+     "w120V_us_max": 917.0
+    },
+    "0.2": {
+     "w120V_us_min": 245.0,
+     "w120V_us_max": 471.0
+    },
+    "0.3": {
+     "w120V_us_min": 173.0,
+     "w120V_us_max": 323.0
+    },
+    "0.6": {
+     "w120V_us_min": 100.0,
+     "w120V_us_max": 176.0
+    },
+    "1.0": {
+     "w120V_us_min": 71.0,
+     "w120V_us_max": 117.0
+    }
+   },
+   "width_us_min": 58.0,
+   "width_us_max": 1661.0,
+   "n_below_300us": 58,
+   "n_cases": 100,
+   "typ_120V_60Hz_g0.6_midCTR_us": 125.0
+  },
+  "-2 (63-125 %)": {
+   "by_g_at_120V_60Hz": {
+    "0.1": {
+     "w120V_us_min": 724.0,
+     "w120V_us_max": 1449.0
+    },
+    "0.2": {
+     "w120V_us_min": 375.0,
+     "w120V_us_max": 732.0
+    },
+    "0.3": {
+     "w120V_us_min": 259.0,
+     "w120V_us_max": 497.0
+    },
+    "0.6": {
+     "w120V_us_min": 144.0,
+     "w120V_us_max": 262.0
+    },
+    "1.0": {
+     "w120V_us_min": 97.0,
+     "w120V_us_max": 168.0
+    }
+   },
+   "width_us_min": 80.0,
+   "width_us_max": 2647.0,
+   "n_below_300us": 45,
+   "n_cases": 100,
+   "typ_120V_60Hz_g0.6_midCTR_us": 183.0
+  }
+ }
+}

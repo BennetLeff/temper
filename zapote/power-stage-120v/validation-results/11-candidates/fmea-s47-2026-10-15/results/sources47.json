@@ -1,0 +1,359 @@
+{
+ "LM2901B_FIT": {
+  "doc": "slca004",
+  "page": 3,
+  "values": {
+   "SOIC14_total": 16,
+   "die": 2,
+   "package": 14
+  },
+  "verified_in_text": true,
+  "what": "SLCA004 Table 1-1 p.3 (names LM2901B: direct)"
+ },
+ "LM2901B_FMD": {
+  "doc": "slca004",
+  "page": 4,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SLCA004 Table 1-3 p.4"
+ },
+ "LM2901B_IOH": {
+  "doc": "slcs006z",
+  "page": 8,
+  "values": {
+   "IOH_lkg_nA_25C": 100
+  },
+  "verified_in_text": true,
+  "what": "SLCS006Z 6.8 p.8 (no over-temperature row; leakage only pulls 'good' low)"
+ },
+ "LM2901B_ONEINPUT": {
+  "doc": "slcs006z",
+  "page": 8,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SLCS006Z 6.8 note 1 p.8"
+ },
+ "LM2901B_PINS": {
+  "doc": "slca004",
+  "page": 5,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SLCA004 Figure 1-2 p.5 = the LM339B pinout the fault simulation uses"
+ },
+ "LM2901B_SN29500": {
+  "doc": "slca004",
+  "page": 3,
+  "values": {
+   "ref_FIT": 6,
+   "ref_TJ_C": 55
+  },
+  "verified_in_text": true,
+  "what": "SLCA004 Table 1-2 p.3"
+ },
+ "LM2901B_TA": {
+  "doc": "slcs006z",
+  "page": 6,
+  "values": {
+   "TA_max_C": 125
+  },
+  "verified_in_text": true,
+  "what": "SLCS006Z 6.4 p.6"
+ },
+ "LM2901B_VCM": {
+  "doc": "slcs006z",
+  "page": 8,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SLCS006Z 6.8 p.8"
+ },
+ "LM2901B_VIO": {
+  "doc": "slcs006z",
+  "page": 8,
+  "values": {
+   "VIO_mV": 5.5
+  },
+  "verified_in_text": true,
+  "what": "SLCS006Z 6.8 p.8"
+ },
+ "LM2901B_VIVR": {
+  "doc": "slcs006z",
+  "page": 6,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SLCS006Z 6.4 p.6"
+ },
+ "LM4050_BYPASS_OK": {
+  "doc": "snos455h",
+  "page": 15,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOS455H 8.1 p.15"
+ },
+ "LM4050_DVR_DIR": {
+  "doc": "snos455h",
+  "page": 7,
+  "values": {
+   "dVR_dIR_mV": 1.2
+  },
+  "verified_in_text": true,
+  "what": "SNOS455H 5.6 p.7, IRMIN..1 mA"
+ },
+ "LM4050_FIT": {
+  "doc": "snoaa49",
+  "page": 3,
+  "values": {
+   "die": 3,
+   "package": 1,
+   "total": 4
+  },
+  "verified_in_text": true,
+  "what": "LM4050-N-Q1 SOT-23, IEC TR 62380 / ISO 26262-11 (SNOAA49A Table 2-1 p.3)"
+ },
+ "LM4050_FMD": {
+  "doc": "snoaa49",
+  "page": 4,
+  "values": {
+   "dyn_impedance": 0.2,
+   "irmin_high": 0.4,
+   "vr_out_of_spec": 0.4
+  },
+  "verified_in_text": true,
+  "what": "SNOAA49A Table 3-1 p.4 (no open / short die mode)"
+ },
+ "LM4050_IRMIN": {
+  "doc": "snos455h",
+  "page": 7,
+  "values": {
+   "IRMIN_uA": 65
+  },
+  "verified_in_text": true,
+  "what": "SNOS455H 5.6 p.7"
+ },
+ "LM4050_NO_CAP": {
+  "doc": "snos455h",
+  "page": 14,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOS455H 7.3 p.14"
+ },
+ "LM4050_PIN3": {
+  "doc": "snos455h",
+  "page": 15,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOS455H 8.1 p.15"
+ },
+ "LM4050_PIN_ADJ": {
+  "doc": "snoaa49",
+  "page": 6,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOAA49A Table 4-4 p.6: K-A short held low (B); NC-K 'Iq can increase' (C)"
+ },
+ "LM4050_PIN_ASSUME": {
+  "doc": "snoaa49",
+  "page": 5,
+  "values": {},
+  "verified_in_text": true,
+  "what": "pin FMA assumes the cathode fed through 2.2 k (SNOAA49A p.5); here 5.6 k (R31) with 10-150 k loads"
+ },
+ "LM4050_PIN_OPEN": {
+  "doc": "snoaa49",
+  "page": 6,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOAA49A Table 4-3 p.6: cathode open 'device is unpowered'; anode open 'does not regulate and is held low'"
+ },
+ "LM4050_REVHIST": {
+  "doc": "snoaa49",
+  "page": 7,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOAA49A p.7 revision history says 5 -> 6 FIT, but Table 2-1 p.3 prints 4: internal inconsistency; 4 used, 6 as sensitivity"
+ },
+ "LM4050_SN29500": {
+  "doc": "snoaa49",
+  "page": 3,
+  "values": {
+   "ref_FIT": 20,
+   "ref_TJ_C": 55
+  },
+  "verified_in_text": true,
+  "what": "SNOAA49A Table 2-2 p.3"
+ },
+ "LM4050_STABLE_ANY_C": {
+  "doc": "snos455h",
+  "page": 1,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SNOS455H p.1 description: no external stabilising capacitor, 'stability with any capacitive load'"
+ },
+ "LM4050_VR_EXT": {
+  "doc": "snos455h",
+  "page": 7,
+  "values": {
+   "VR_tol_ext_mV": 15
+  },
+  "verified_in_text": true,
+  "what": "SNOS455H 5.6 p.7, extended range"
+ },
+ "LM4050_ZR": {
+  "doc": "snos455h",
+  "page": 7,
+  "values": {
+   "ZR_typ_ohm": 0.3
+  },
+  "verified_in_text": true,
+  "what": "SNOS455H 5.6 p.7 (typical only)"
+ },
+ "TI_ARRHENIUS": {
+  "doc": "ti.com/support-quality/reliability/temperature-change-FIT.html",
+  "values": {
+   "example_reproduced": 69.2
+  },
+  "verified_in_text": true,
+  "what": "TI's temperature-change FIT calculator (Arrhenius, Ea 0.7 eV); its own example reproduced"
+ },
+ "TI_ESTIMATOR": {
+  "LM4050AEM3-2.5/NOPB_row_served": false,
+  "doc": "ti-estimator (fetched 2026-10-15/16)",
+  "values": {
+   "LM2901BIDR": {
+    "Ea_eV": 0.7,
+    "FIT": 8.0,
+    "MTBF_h": 125000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 8.066,
+    "sample_size": 1463,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   },
+   "LM4040A25IDBZR": {
+    "Ea_eV": 0.7,
+    "FIT": 0.1,
+    "MTBF_h": 8710000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 0.116,
+    "sample_size": 101758,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   },
+   "LM4050AEM3X-2.5/NOPB": {
+    "Ea_eV": 0.7,
+    "FIT": 0.1,
+    "MTBF_h": 8710000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 0.116,
+    "sample_size": 101758,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   },
+   "TL431BQDBZR": {
+    "Ea_eV": 0.7,
+    "FIT": 8.0,
+    "MTBF_h": 125000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 8.066,
+    "sample_size": 1463,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   }
+  },
+  "verified_in_text": true,
+  "what": "HTOL, 60 % CL, 0 fails, Ea 0.7 eV, 55 C use. LM4050AEM3-2.5/NOPB has no row; its 3k-reel twin LM4050AEM3X-2.5/NOPB (same die, package, marking) is used."
+ },
+ "TL431BQ_VREF": {
+  "doc": "slvs543s",
+  "page": 14,
+  "values": {
+   "v25": [
+    2.483,
+    2.507
+   ],
+   "videv": 0.034
+  },
+  "verified_in_text": true,
+  "what": "SLVS543S 6.13 p.14"
+ },
+ "TL431_FIT": {
+  "doc": "snva914",
+  "page": 1,
+  "values": {
+   "total": 6
+  },
+  "verified_in_text": true,
+  "what": "SNVA914 p.1"
+ },
+ "TL431_SN29500": {
+  "doc": "snva914",
+  "page": 1,
+  "values": {
+   "ref_FIT": 3,
+   "ref_TJ_C": 45
+  },
+  "verified_in_text": true,
+  "what": "SNVA914 p.1"
+ },
+ "TPS3700Q1_SN29500": {
+  "doc": "slvaem2a",
+  "page": 3,
+  "values": {
+   "ref_FIT": 20,
+   "ref_TJ_C": 55
+  },
+  "verified_in_text": true,
+  "what": "SLVAEM2A Table 2-2 p.3 (TPS3701 proxy)"
+ },
+ "TPS3700_ABSMAX_IN": {
+  "doc": "sbvs187g",
+  "page": 5,
+  "values": {
+   "VIN_abs_max_V": 7.0
+  },
+  "verified_in_text": true,
+  "what": "SBVS187G 6.1 p.5"
+ },
+ "TPS3700_IINB": {
+  "doc": "sbvs187g",
+  "page": 6,
+  "values": {
+   "IINB_nA": 15
+  },
+  "verified_in_text": true,
+  "what": "SBVS187G 6.5 p.6"
+ },
+ "TPS3700_INB_FUNC": {
+  "doc": "sbvs187g",
+  "page": 4,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SBVS187G pin functions p.4: INB exceeds VIT+ -> OUTB low (DDC pin 4 INB, 5 VDD, 6 OUTB)"
+ },
+ "TPS3700_UVLO": {
+  "doc": "sbvs187g",
+  "page": 6,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SBVS187G 6.5 note 3 p.6"
+ },
+ "TPS3700_VITP": {
+  "doc": "sbvs187g",
+  "page": 6,
+  "values": {
+   "VITP_V": [
+    0.396,
+    0.404
+   ]
+  },
+  "verified_in_text": true,
+  "what": "SBVS187G 6.5 p.6, TJ -40..125 C"
+ }
+}

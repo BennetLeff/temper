@@ -1,0 +1,3038 @@
+{
+ "modes": {
+  "uniform": {
+   "c18@55": {
+    "points": {
+     "10": {
+      "all": 4.8,
+      "hdep": 4.8,
+      "laminate": 6.7,
+      "parts": 4.8,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 17.845542276349846,
+       "convection_w": 14.46888345398581,
+       "body_air_w": 2.4618377697692826,
+       "lead_sink_w": 0.9148210522803939
+      }
+     }
+    },
+    "all": {
+     "h_fail": null,
+     "h_pass": 10,
+     "h_zero": 10
+    },
+    "laminate": {
+     "h_fail": null,
+     "h_pass": 10,
+     "h_zero": 10
+    },
+    "parts": {
+     "h_fail": null,
+     "h_pass": 10,
+     "h_zero": 10
+    },
+    "at_h_pass": [
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 127.2,
+      "limit_c": 131.9,
+      "margin_k": 4.8
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 123.3,
+      "limit_c": 130.0,
+      "margin_k": 6.7
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 124.7,
+      "limit_c": 131.9,
+      "margin_k": 7.3
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 123.7,
+      "limit_c": 131.9,
+      "margin_k": 8.3
+     },
+     {
+      "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 123.5,
+      "limit_c": 131.9,
+      "margin_k": 8.4
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 121.3,
+      "limit_c": 130.0,
+      "margin_k": 8.7
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 99.8,
+      "limit_c": 110.0,
+      "margin_k": 10.2
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 70.0,
+      "limit_c": 80.2,
+      "margin_k": 10.2
+     }
+    ]
+   },
+   "c20@55": {
+    "points": {
+     "10": {
+      "all": -2.3,
+      "hdep": -2.3,
+      "laminate": -2.3,
+      "parts": -2.3,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -2.3",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -2.3",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -0.7",
+       "laminate: FET-row copper -0.1"
+      ],
+      "balance": {
+       "source_w": 20.134003204534338,
+       "convection_w": 16.167817253877747,
+       "body_air_w": 2.6513074589494248,
+       "lead_sink_w": 1.3148784913053446
+      }
+     },
+     "11": {
+      "all": 1.0,
+      "hdep": 1.0,
+      "laminate": 1.1,
+      "parts": 1.0,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 20.05417080791249,
+       "convection_w": 16.234846210585772,
+       "body_air_w": 2.6511804853387706,
+       "lead_sink_w": 1.168144110283674
+      }
+     }
+    },
+    "all": {
+     "h_fail": 10,
+     "h_pass": 11,
+     "h_zero": 10.7
+    },
+    "laminate": {
+     "h_fail": 10,
+     "h_pass": 11,
+     "h_zero": 10.7
+    },
+    "parts": {
+     "h_fail": 10,
+     "h_pass": 11,
+     "h_zero": 10.7
+    },
+    "at_h_pass": [
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 131.0,
+      "limit_c": 131.9,
+      "margin_k": 1.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 128.9,
+      "limit_c": 130.0,
+      "margin_k": 1.1
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.3,
+      "limit_c": 131.9,
+      "margin_k": 2.7
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 126.8,
+      "limit_c": 130.0,
+      "margin_k": 3.2
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 127.7,
+      "limit_c": 131.9,
+      "margin_k": 4.3
+     },
+     {
+      "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 125.6,
+      "limit_c": 131.9,
+      "margin_k": 6.4
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 103.1,
+      "limit_c": 110.0,
+      "margin_k": 6.9
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 119.2,
+      "limit_c": 128.2,
+      "margin_k": 9.1
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -2.3
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -2.3
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.7
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "margin_k": -0.1
+     }
+    ]
+   },
+   "c22@55": {
+    "points": {
+     "10": {
+      "all": -12.6,
+      "hdep": -12.6,
+      "laminate": -12.6,
+      "parts": -10.9,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -12.6",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -10.9",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -10.6",
+       "laminate: FET-row copper -10.2",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -5.9",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -3.9",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -3.3",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -2.4",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -0.5"
+      ],
+      "balance": {
+       "source_w": 22.753401406981297,
+       "convection_w": 18.109777839912827,
+       "body_air_w": 2.8688040671249118,
+       "lead_sink_w": 1.7748194989631414
+      }
+     },
+     "11": {
+      "all": -8.7,
+      "hdep": -8.7,
+      "laminate": -8.7,
+      "parts": -7.0,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -8.7",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -7.0",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -6.7",
+       "laminate: FET-row copper -6.3",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -2.3",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -0.2"
+      ],
+      "balance": {
+       "source_w": 22.641755691478224,
+       "convection_w": 18.17436106575092,
+       "body_air_w": 2.862359130198315,
+       "lead_sink_w": 1.6050354932340343
+      }
+     },
+     "12": {
+      "all": -5.3,
+      "hdep": -5.3,
+      "laminate": -5.3,
+      "parts": -3.6,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -5.3",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -3.6",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -3.3",
+       "laminate: FET-row copper -2.9"
+      ],
+      "balance": {
+       "source_w": 22.545863000593016,
+       "convection_w": 18.23502305305119,
+       "body_air_w": 2.8554895558004234,
+       "lead_sink_w": 1.4553503892332527
+      }
+     },
+     "13": {
+      "all": -2.2,
+      "hdep": -2.2,
+      "laminate": -2.2,
+      "parts": -0.6,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -2.2",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -0.6",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -0.3"
+      ],
+      "balance": {
+       "source_w": 22.46242254647977,
+       "convection_w": 18.292044953844464,
+       "body_air_w": 2.848500147191483,
+       "lead_sink_w": 1.3218774410453986
+      }
+     },
+     "14": {
+      "all": 0.5,
+      "hdep": 0.5,
+      "laminate": 0.5,
+      "parts": 2.1,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 22.38901718762776,
+       "convection_w": 18.34570575497396,
+       "body_air_w": 2.8415930086499355,
+       "lead_sink_w": 1.2017184207223959
+      }
+     },
+     "15": {
+      "all": 2.9,
+      "hdep": 2.9,
+      "laminate": 2.9,
+      "parts": 4.5,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 22.323832641794773,
+       "convection_w": 18.396270423836196,
+       "body_air_w": 2.834901164244984,
+       "lead_sink_w": 1.0926610518843027
+      }
+     }
+    },
+    "all": {
+     "h_fail": 13,
+     "h_pass": 14,
+     "h_zero": 13.8
+    },
+    "laminate": {
+     "h_fail": 13,
+     "h_pass": 14,
+     "h_zero": 13.8
+    },
+    "parts": {
+     "h_fail": 13,
+     "h_pass": 14,
+     "h_zero": 13.2
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.5,
+      "limit_c": 130.0,
+      "margin_k": 0.5
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.8,
+      "limit_c": 131.9,
+      "margin_k": 2.1
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.6,
+      "limit_c": 131.9,
+      "margin_k": 2.3
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 127.2,
+      "limit_c": 130.0,
+      "margin_k": 2.8
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 125.8,
+      "limit_c": 131.9,
+      "margin_k": 6.2
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 101.7,
+      "limit_c": 110.0,
+      "margin_k": 8.3
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 119.5,
+      "limit_c": 128.2,
+      "margin_k": 8.7
+     },
+     {
+      "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 122.9,
+      "limit_c": 131.9,
+      "margin_k": 9.1
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -2.2
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.6
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.3
+     }
+    ]
+   },
+   "c24@55": {
+    "points": {
+     "10": {
+      "all": -22.6,
+      "hdep": -22.6,
+      "laminate": -22.0,
+      "parts": -22.6,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -22.6",
+       "laminate: 1 mm-block copper peak -22.0",
+       "laminate: FET-row copper -21.8",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -20.0",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -15.0",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -13.9",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -11.6",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -9.0",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -8.8",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -8.6",
+       "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -4.9",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -3.5",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -2.2",
+       "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -1.7"
+      ],
+      "balance": {
+       "source_w": 25.737707997153343,
+       "convection_w": 20.318956028873718,
+       "body_air_w": 3.11739249796669,
+       "lead_sink_w": 2.301359469192149
+      }
+     },
+     "16": {
+      "all": -2.0,
+      "hdep": -2.0,
+      "laminate": -1.3,
+      "parts": -2.0,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -2.0",
+       "laminate: 1 mm-block copper peak -1.3",
+       "laminate: FET-row copper -1.1"
+      ],
+      "balance": {
+       "source_w": 25.06405814685421,
+       "convection_w": 20.62776150401464,
+       "body_air_w": 3.038463373416945,
+       "lead_sink_w": 1.397833268755926
+      }
+     },
+     "17": {
+      "all": 0.3,
+      "hdep": 0.3,
+      "laminate": 1.1,
+      "parts": 0.3,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 24.991672312940317,
+       "convection_w": 20.671550081301262,
+       "body_air_w": 3.0274221317552836,
+       "lead_sink_w": 1.2927001003374143
+      }
+     }
+    },
+    "all": {
+     "h_fail": 16,
+     "h_pass": 17,
+     "h_zero": 16.9
+    },
+    "laminate": {
+     "h_fail": 16,
+     "h_pass": 17,
+     "h_zero": 16.5
+    },
+    "parts": {
+     "h_fail": 16,
+     "h_pass": 17,
+     "h_zero": 16.9
+    },
+    "at_h_pass": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 131.6,
+      "limit_c": 131.9,
+      "margin_k": 0.3
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 128.9,
+      "limit_c": 130.0,
+      "margin_k": 1.1
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 128.8,
+      "limit_c": 130.0,
+      "margin_k": 1.2
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.3,
+      "limit_c": 131.9,
+      "margin_k": 2.6
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 124.9,
+      "limit_c": 131.9,
+      "margin_k": 7.1
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 121.1,
+      "limit_c": 128.2,
+      "margin_k": 7.1
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 101.6,
+      "limit_c": 110.0,
+      "margin_k": 8.4
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 70.0,
+      "limit_c": 80.2,
+      "margin_k": 10.2
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -2.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -1.3
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "margin_k": -1.1
+     }
+    ]
+   },
+   "c26@55": {
+    "points": {
+     "10": {
+      "all": -36.0,
+      "hdep": -36.0,
+      "laminate": -35.0,
+      "parts": -36.0,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -36.0",
+       "laminate: FET-row copper -35.0",
+       "laminate: 1 mm-block copper peak -34.4",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -30.9",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -27.7",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -23.1",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -21.1",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -20.3",
+       "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -18.2",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -18.2",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -16.6",
+       "R5: terminal derating at 0.745 W (20 % margin) -16.0",
+       "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -12.8",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -12.6",
+       "R53: 1206 terminal derating at 0.063 W (20 % margin) -10.3",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -9.3",
+       "R57: 1206 terminal derating at 0.063 W (20 % margin) -8.5",
+       "R5: element max (Bourns CSS2H p.1) -6.2",
+       "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -5.5",
+       "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -1.1"
+      ],
+      "balance": {
+       "source_w": 29.128285998754194,
+       "convection_w": 22.824783126449532,
+       "body_air_w": 3.4008147336750003,
+       "lead_sink_w": 2.9026881374328446
+      }
+     },
+     "21": {
+      "all": -0.4,
+      "hdep": -0.4,
+      "laminate": 0.8,
+      "parts": -0.4,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -0.4"
+      ],
+      "balance": {
+       "source_w": 27.796191342230294,
+       "convection_w": 23.261349421741873,
+       "body_air_w": 3.200407252426369,
+       "lead_sink_w": 1.3344346688537034
+      }
+     },
+     "22": {
+      "all": 1.4,
+      "hdep": 1.4,
+      "laminate": 2.6,
+      "parts": 1.4,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 27.733041066620288,
+       "convection_w": 23.294334187585395,
+       "body_air_w": 3.188218198620809,
+       "lead_sink_w": 1.2504886767802967
+      }
+     }
+    },
+    "all": {
+     "h_fail": 21,
+     "h_pass": 22,
+     "h_zero": 21.2
+    },
+    "laminate": {
+     "h_fail": 10,
+     "h_pass": 21,
+     "h_zero": 20.5
+    },
+    "parts": {
+     "h_fail": 21,
+     "h_pass": 22,
+     "h_zero": 21.2
+    },
+    "at_h_pass": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 130.5,
+      "limit_c": 131.9,
+      "margin_k": 1.4
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 127.4,
+      "limit_c": 130.0,
+      "margin_k": 2.6
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 127.2,
+      "limit_c": 130.0,
+      "margin_k": 2.8
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 126.0,
+      "limit_c": 131.9,
+      "margin_k": 6.0
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 119.9,
+      "limit_c": 128.2,
+      "margin_k": 8.3
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 70.0,
+      "limit_c": 80.2,
+      "margin_k": 10.2
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 121.2,
+      "limit_c": 131.9,
+      "margin_k": 10.8
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 99.0,
+      "limit_c": 110.0,
+      "margin_k": 11.0
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.4
+     }
+    ]
+   },
+   "c28@55": {
+    "points": {
+     "10": {
+      "all": -51.2,
+      "hdep": -51.2,
+      "laminate": -51.0,
+      "parts": -51.2,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -51.2",
+       "laminate: 1 mm-block copper peak -51.0",
+       "laminate: FET-row copper -48.4",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -43.4",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -42.2",
+       "R5: terminal derating at 0.864 W (20 % margin) -36.1",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -33.9",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -33.6",
+       "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -33.4",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -32.0",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -29.1",
+       "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -25.5",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -25.2",
+       "R5: element max (Bourns CSS2H p.1) -24.6",
+       "R53: 1206 terminal derating at 0.063 W (20 % margin) -24.0",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -23.1",
+       "R57: 1206 terminal derating at 0.063 W (20 % margin) -18.3",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -17.4",
+       "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -16.2",
+       "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -15.1",
+       "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -8.2",
+       "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -6.0"
+      ],
+      "balance": {
+       "source_w": 32.97586806617679,
+       "convection_w": 25.66333448160766,
+       "body_air_w": 3.7236708832771623,
+       "lead_sink_w": 3.588862700357739
+      }
+     },
+     "25": {
+      "all": -2.2,
+      "hdep": -2.2,
+      "laminate": -2.2,
+      "parts": -2.0,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -2.2",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -2.0"
+      ],
+      "balance": {
+       "source_w": 30.87283104461516,
+       "convection_w": 26.078106207471777,
+       "body_air_w": 3.372739630039444,
+       "lead_sink_w": 1.4219852136786975
+      }
+     },
+     "26": {
+      "all": -0.6,
+      "hdep": -0.6,
+      "laminate": -0.6,
+      "parts": -0.4,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -0.6",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -0.4"
+      ],
+      "balance": {
+       "source_w": 30.809367719799376,
+       "convection_w": 26.103826676067523,
+       "body_air_w": 3.359364101952247,
+       "lead_sink_w": 1.3461769486920372
+      }
+     },
+     "27": {
+      "all": 0.9,
+      "hdep": 0.9,
+      "laminate": 0.9,
+      "parts": 1.1,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.749878622638363,
+       "convection_w": 26.128813002671148,
+       "body_air_w": 3.346817420346479,
+       "lead_sink_w": 1.2742482080412585
+      }
+     },
+     "32": {
+      "all": 7.4,
+      "hdep": 7.4,
+      "laminate": 7.4,
+      "parts": 7.7,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.50014486951183,
+       "convection_w": 26.24324802278181,
+       "body_air_w": 3.294811568473381,
+       "lead_sink_w": 0.9620852854010296
+      }
+     },
+     "33": {
+      "all": 8.5,
+      "hdep": 8.5,
+      "laminate": 8.5,
+      "parts": 8.8,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.457901655402914,
+       "convection_w": 26.264170823161987,
+       "body_air_w": 3.286262709125102,
+       "lead_sink_w": 0.9074681300076919
+      }
+     }
+    },
+    "all": {
+     "h_fail": 26,
+     "h_pass": 27,
+     "h_zero": 26.4
+    },
+    "laminate": {
+     "h_fail": 26,
+     "h_pass": 27,
+     "h_zero": 26.4
+    },
+    "parts": {
+     "h_fail": 26,
+     "h_pass": 27,
+     "h_zero": 26.3
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.1,
+      "limit_c": 130.0,
+      "margin_k": 0.9
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 130.8,
+      "limit_c": 131.9,
+      "margin_k": 1.1
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 126.1,
+      "limit_c": 130.0,
+      "margin_k": 3.9
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 123.9,
+      "limit_c": 131.9,
+      "margin_k": 8.0
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 120.2,
+      "limit_c": 128.2,
+      "margin_k": 8.0
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 70.0,
+      "limit_c": 80.2,
+      "margin_k": 10.2
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 97.9,
+      "limit_c": 110.0,
+      "margin_k": 12.1
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 118.7,
+      "limit_c": 131.9,
+      "margin_k": 13.2
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -0.6
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.4
+     }
+    ]
+   },
+   "c18@61": {
+    "points": {
+     "10": {
+      "all": -0.5,
+      "hdep": -0.5,
+      "laminate": 1.7,
+      "parts": -0.5,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -0.5"
+      ],
+      "balance": {
+       "source_w": 17.97567654902531,
+       "convection_w": 14.391803552755922,
+       "body_air_w": 2.4409501138513874,
+       "lead_sink_w": 1.14292288185519
+      }
+     },
+     "11": {
+      "all": 2.3,
+      "hdep": 2.3,
+      "laminate": 4.5,
+      "parts": 2.3,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 17.9197289453445,
+       "convection_w": 14.454363307513487,
+       "body_air_w": 2.4460312787169047,
+       "lead_sink_w": 1.0193343577708682
+      }
+     }
+    },
+    "all": {
+     "h_fail": 10,
+     "h_pass": 11,
+     "h_zero": 10.2
+    },
+    "laminate": {
+     "h_fail": null,
+     "h_pass": 10,
+     "h_zero": 10
+    },
+    "parts": {
+     "h_fail": 10,
+     "h_pass": 11,
+     "h_zero": 10.2
+    },
+    "at_h_pass": [
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.6,
+      "limit_c": 131.9,
+      "margin_k": 2.3
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 76.0,
+      "limit_c": 80.2,
+      "margin_k": 4.2
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 125.5,
+      "limit_c": 130.0,
+      "margin_k": 4.5
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 126.5,
+      "limit_c": 131.9,
+      "margin_k": 5.4
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 125.8,
+      "limit_c": 131.9,
+      "margin_k": 6.1
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 123.3,
+      "limit_c": 130.0,
+      "margin_k": 6.7
+     },
+     {
+      "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 125.3,
+      "limit_c": 131.9,
+      "margin_k": 6.7
+     },
+     {
+      "item": "U26: TJ max (TI SBVS204G p.4)",
+      "est_c": 117.6,
+      "limit_c": 125.0,
+      "margin_k": 7.4
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.5
+     }
+    ]
+   },
+   "c20@61": {
+    "points": {
+     "10": {
+      "all": -7.7,
+      "hdep": -7.7,
+      "laminate": -7.4,
+      "parts": -7.7,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -7.7",
+       "laminate: 1 mm-block copper peak -7.4",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -5.8",
+       "laminate: FET-row copper -4.9",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -3.5",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -1.3",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -1.0"
+      ],
+      "balance": {
+       "source_w": 20.294161505501535,
+       "convection_w": 16.113687061682036,
+       "body_air_w": 2.6329193799406396,
+       "lead_sink_w": 1.5475550634298016
+      }
+     },
+     "12": {
+      "all": -1.6,
+      "hdep": -1.6,
+      "laminate": -1.2,
+      "parts": -1.6,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -1.6",
+       "laminate: 1 mm-block copper peak -1.2"
+      ],
+      "balance": {
+       "source_w": 20.146680171098254,
+       "convection_w": 16.23668167755052,
+       "body_air_w": 2.6318678709226537,
+       "lead_sink_w": 1.2781306205818832
+      }
+     },
+     "13": {
+      "all": 1.0,
+      "hdep": 1.0,
+      "laminate": 1.4,
+      "parts": 1.0,
+      "worst_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 20.087344896591446,
+       "convection_w": 16.291476239398754,
+       "body_air_w": 2.6304495692975087,
+       "lead_sink_w": 1.1654190838717073
+      }
+     }
+    },
+    "all": {
+     "h_fail": 12,
+     "h_pass": 13,
+     "h_zero": 12.6
+    },
+    "laminate": {
+     "h_fail": 12,
+     "h_pass": 13,
+     "h_zero": 12.4
+    },
+    "parts": {
+     "h_fail": 12,
+     "h_pass": 13,
+     "h_zero": 12.6
+    },
+    "at_h_pass": [
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 131.0,
+      "limit_c": 131.9,
+      "margin_k": 1.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 128.6,
+      "limit_c": 130.0,
+      "margin_k": 1.4
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.0,
+      "limit_c": 131.9,
+      "margin_k": 3.0
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 126.3,
+      "limit_c": 130.0,
+      "margin_k": 3.7
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 76.0,
+      "limit_c": 80.2,
+      "margin_k": 4.2
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 127.2,
+      "limit_c": 131.9,
+      "margin_k": 4.7
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 103.5,
+      "limit_c": 110.0,
+      "margin_k": 6.5
+     },
+     {
+      "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 125.1,
+      "limit_c": 131.9,
+      "margin_k": 6.8
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -1.6
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -1.2
+     }
+    ]
+   },
+   "c22@61": {
+    "points": {
+     "10": {
+      "all": -17.8,
+      "hdep": -17.8,
+      "laminate": -17.8,
+      "parts": -16.1,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -17.8",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -16.1",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -16.0",
+       "laminate: FET-row copper -15.2",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -10.6",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -9.0",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -8.7",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -6.9",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -5.9",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -3.5",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -1.3",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -1.0"
+      ],
+      "balance": {
+       "source_w": 22.948005018223952,
+       "convection_w": 18.081945786580043,
+       "body_air_w": 2.853287492699012,
+       "lead_sink_w": 2.0127717379011303
+      }
+     },
+     "16": {
+      "all": -0.3,
+      "hdep": -0.3,
+      "laminate": -0.3,
+      "parts": 1.2,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -0.3"
+      ],
+      "balance": {
+       "source_w": 22.462266091318483,
+       "convection_w": 18.400282280623404,
+       "body_air_w": 2.8133974628155665,
+       "lead_sink_w": 1.248586347230983
+      }
+     },
+     "17": {
+      "all": 1.6,
+      "hdep": 1.6,
+      "laminate": 1.6,
+      "parts": 3.2,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 22.40993606401085,
+       "convection_w": 18.443038625593125,
+       "body_air_w": 2.8075189688852356,
+       "lead_sink_w": 1.159378469963768
+      }
+     }
+    },
+    "all": {
+     "h_fail": 16,
+     "h_pass": 17,
+     "h_zero": 16.1
+    },
+    "laminate": {
+     "h_fail": 16,
+     "h_pass": 17,
+     "h_zero": 16.1
+    },
+    "parts": {
+     "h_fail": 10,
+     "h_pass": 16,
+     "h_zero": 15.4
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 128.4,
+      "limit_c": 130.0,
+      "margin_k": 1.6
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 128.8,
+      "limit_c": 131.9,
+      "margin_k": 3.2
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 128.7,
+      "limit_c": 131.9,
+      "margin_k": 3.3
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 76.0,
+      "limit_c": 80.2,
+      "margin_k": 4.2
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 125.7,
+      "limit_c": 130.0,
+      "margin_k": 4.3
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 124.5,
+      "limit_c": 131.9,
+      "margin_k": 7.4
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 101.6,
+      "limit_c": 110.0,
+      "margin_k": 8.4
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 118.4,
+      "limit_c": 128.2,
+      "margin_k": 9.8
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -0.3
+     }
+    ]
+   },
+   "c24@61": {
+    "points": {
+     "10": {
+      "all": -28.0,
+      "hdep": -28.0,
+      "laminate": -27.2,
+      "parts": -28.0,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -28.0",
+       "laminate: 1 mm-block copper peak -27.2",
+       "laminate: FET-row copper -26.9",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -25.6",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -20.2",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -18.7",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -17.1",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -14.3",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -13.9",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -13.6",
+       "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -10.1",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -9.3",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -7.3",
+       "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -6.9",
+       "R57: 1206 terminal derating at 0.063 W (20 % margin) -4.7",
+       "R53: 1206 terminal derating at 0.063 W (20 % margin) -4.3",
+       "R5: terminal derating at 0.635 W (20 % margin) -3.5",
+       "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -0.9",
+       "U26: TJ max (TI SBVS204G p.4) -0.6"
+      ],
+      "balance": {
+       "source_w": 25.971654082083624,
+       "convection_w": 20.321121100652345,
+       "body_air_w": 3.105160677899932,
+       "lead_sink_w": 2.5453723023249766
+      }
+     },
+     "19": {
+      "all": -1.2,
+      "hdep": -1.2,
+      "laminate": -0.1,
+      "parts": -1.2,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -1.2",
+       "laminate: 1 mm-block copper peak -0.1"
+      ],
+      "balance": {
+       "source_w": 25.102223873021973,
+       "convection_w": 20.733854137755362,
+       "body_air_w": 2.995526484072825,
+       "lead_sink_w": 1.3728432521615994
+      }
+     },
+     "20": {
+      "all": 0.6,
+      "hdep": 0.6,
+      "laminate": 1.7,
+      "parts": 0.6,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 25.047595435785368,
+       "convection_w": 20.76988828808993,
+       "body_air_w": 2.9866285255378853,
+       "lead_sink_w": 1.2910786235393175
+      }
+     },
+     "22": {
+      "all": 3.9,
+      "hdep": 3.9,
+      "laminate": 5.1,
+      "parts": 3.9,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 24.950890610102192,
+       "convection_w": 20.83712115499433,
+       "body_air_w": 2.9707043194345215,
+       "lead_sink_w": 1.1430651345936613
+      }
+     }
+    },
+    "all": {
+     "h_fail": 19,
+     "h_pass": 20,
+     "h_zero": 19.7
+    },
+    "laminate": {
+     "h_fail": 19,
+     "h_pass": 20,
+     "h_zero": 19.1
+    },
+    "parts": {
+     "h_fail": 19,
+     "h_pass": 20,
+     "h_zero": 19.7
+    },
+    "at_h_pass": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 131.3,
+      "limit_c": 131.9,
+      "margin_k": 0.6
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 128.3,
+      "limit_c": 130.0,
+      "margin_k": 1.7
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 128.1,
+      "limit_c": 130.0,
+      "margin_k": 1.9
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.3,
+      "limit_c": 131.9,
+      "margin_k": 2.6
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 76.0,
+      "limit_c": 80.2,
+      "margin_k": 4.2
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 120.9,
+      "limit_c": 128.2,
+      "margin_k": 7.3
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 124.5,
+      "limit_c": 131.9,
+      "margin_k": 7.5
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 102.3,
+      "limit_c": 110.0,
+      "margin_k": 7.7
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -1.2
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -0.1
+     }
+    ]
+   },
+   "c26@61": {
+    "points": {
+     "10": {
+      "all": -41.5,
+      "hdep": -41.5,
+      "laminate": -40.2,
+      "parts": -41.5,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -41.5",
+       "laminate: FET-row copper -40.2",
+       "laminate: 1 mm-block copper peak -39.8",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -36.7",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -33.1",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -28.0",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -26.7",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -25.8",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -23.9",
+       "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -23.5",
+       "R5: terminal derating at 0.745 W (20 % margin) -21.4",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -21.2",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -18.5",
+       "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -18.2",
+       "R53: 1206 terminal derating at 0.063 W (20 % margin) -16.3",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -14.5",
+       "R57: 1206 terminal derating at 0.063 W (20 % margin) -13.3",
+       "R5: element max (Bourns CSS2H p.1) -11.5",
+       "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -10.4",
+       "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -6.4",
+       "U26: TJ max (TI SBVS204G p.4) -3.0",
+       "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -2.1",
+       "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -0.1"
+      ],
+      "balance": {
+       "source_w": 29.407051072733523,
+       "convection_w": 22.861070161053924,
+       "body_air_w": 3.3923314026891296,
+       "lead_sink_w": 3.153649507731731
+      }
+     },
+     "23": {
+      "all": -2.6,
+      "hdep": -2.6,
+      "laminate": -1.4,
+      "parts": -2.6,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -2.6",
+       "laminate: 1 mm-block copper peak -1.4",
+       "laminate: FET-row copper -1.0"
+      ],
+      "balance": {
+       "source_w": 27.953943314954365,
+       "convection_w": 23.334130851316708,
+       "body_air_w": 3.1684381833123925,
+       "lead_sink_w": 1.451374291528669
+      }
+     },
+     "24": {
+      "all": -1.1,
+      "hdep": -1.1,
+      "laminate": 0.1,
+      "parts": -1.1,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -1.1"
+      ],
+      "balance": {
+       "source_w": 27.89959875324532,
+       "convection_w": 23.362968227718724,
+       "body_air_w": 3.1579112075309523,
+       "lead_sink_w": 1.3787193264508122
+      }
+     },
+     "25": {
+      "all": 0.4,
+      "hdep": 0.4,
+      "laminate": 1.6,
+      "parts": 0.4,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 27.8489104154313,
+       "convection_w": 23.39072844145176,
+       "body_air_w": 3.1480983284732735,
+       "lead_sink_w": 1.3100836527020916
+      }
+     },
+     "28": {
+      "all": 4.2,
+      "hdep": 4.4,
+      "laminate": 5.6,
+      "parts": 4.2,
+      "worst_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "failing": [],
+      "balance": {
+       "source_w": 27.715234968993443,
+       "convection_w": 23.468000443447732,
+       "body_air_w": 3.1225254965581755,
+       "lead_sink_w": 1.1247090375245103
+      }
+     }
+    },
+    "all": {
+     "h_fail": 24,
+     "h_pass": 25,
+     "h_zero": 24.7
+    },
+    "laminate": {
+     "h_fail": 23,
+     "h_pass": 24,
+     "h_zero": 23.9
+    },
+    "parts": {
+     "h_fail": 24,
+     "h_pass": 25,
+     "h_zero": 24.7
+    },
+    "at_h_pass": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 131.5,
+      "limit_c": 131.9,
+      "margin_k": 0.4
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 128.4,
+      "limit_c": 130.0,
+      "margin_k": 1.6
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 127.8,
+      "limit_c": 130.0,
+      "margin_k": 2.2
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 76.0,
+      "limit_c": 80.2,
+      "margin_k": 4.2
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 127.3,
+      "limit_c": 131.9,
+      "margin_k": 4.7
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 121.0,
+      "limit_c": 128.2,
+      "margin_k": 7.2
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 101.1,
+      "limit_c": 110.0,
+      "margin_k": 8.9
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 122.0,
+      "limit_c": 131.9,
+      "margin_k": 9.9
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -1.1
+     }
+    ]
+   },
+   "c28@61": {
+    "points": {
+     "10": {
+      "all": -56.8,
+      "hdep": -56.8,
+      "laminate": -56.6,
+      "parts": -56.8,
+      "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -56.8",
+       "laminate: 1 mm-block copper peak -56.6",
+       "laminate: FET-row copper -54.7",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -49.3",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -47.7",
+       "R5: terminal derating at 0.864 W (20 % margin) -41.8",
+       "R54: 1206 terminal derating at 0.063 W (20 % margin) -39.5",
+       "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -38.9",
+       "R20: 2512 terminal derating at 0.217 W (20 % margin) -38.6",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -37.7",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -34.9",
+       "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -31.1",
+       "R53: 1206 terminal derating at 0.063 W (20 % margin) -30.2",
+       "R5: element max (Bourns CSS2H p.1) -30.1",
+       "R18: 2512 terminal derating at 0.217 W (20 % margin) -29.9",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -29.1",
+       "R57: 1206 terminal derating at 0.063 W (20 % margin) -23.3",
+       "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -22.7",
+       "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -21.3",
+       "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -20.5",
+       "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -13.8",
+       "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9) -10.7",
+       "U26: TJ max (TI SBVS204G p.4) -5.7",
+       "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9) -5.1"
+      ],
+      "balance": {
+       "source_w": 33.305639469195626,
+       "convection_w": 25.73838978212498,
+       "body_air_w": 3.719461906714234,
+       "lead_sink_w": 3.84778777935985
+      }
+     },
+     "29": {
+      "all": -2.2,
+      "hdep": -2.2,
+      "laminate": -2.2,
+      "parts": -2.0,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -2.2",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -2.0"
+      ],
+      "balance": {
+       "source_w": 30.968272571772218,
+       "convection_w": 26.21396775330005,
+       "body_air_w": 3.3191837272786944,
+       "lead_sink_w": 1.4351211000660695
+      }
+     },
+     "30": {
+      "all": -0.9,
+      "hdep": -0.9,
+      "laminate": -0.9,
+      "parts": -0.7,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -0.9",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -0.7"
+      ],
+      "balance": {
+       "source_w": 30.918586514604492,
+       "convection_w": 26.235296571933826,
+       "body_air_w": 3.3088901901379772,
+       "lead_sink_w": 1.3743997608193441
+      }
+     },
+     "31": {
+      "all": 0.3,
+      "hdep": 0.3,
+      "laminate": 0.3,
+      "parts": 0.6,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.8716048221927,
+       "convection_w": 26.25598213845394,
+       "body_air_w": 3.299239002604897,
+       "lead_sink_w": 1.3163836888515679
+      }
+     },
+     "33": {
+      "all": 2.6,
+      "hdep": 2.6,
+      "laminate": 2.6,
+      "parts": 2.9,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.784865259422112,
+       "convection_w": 26.29550279232295,
+       "body_air_w": 3.28171055148726,
+       "lead_sink_w": 1.2076519225239373
+      }
+     },
+     "34": {
+      "all": 3.6,
+      "hdep": 3.6,
+      "laminate": 3.6,
+      "parts": 3.9,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.74472375509876,
+       "convection_w": 26.314378913598752,
+       "body_air_w": 3.2737635619234675,
+       "lead_sink_w": 1.1565812864369343
+      }
+     },
+     "37": {
+      "all": 4.2,
+      "hdep": 6.6,
+      "laminate": 6.6,
+      "parts": 4.2,
+      "worst_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.635317469273865,
+       "convection_w": 26.367717837060393,
+       "body_air_w": 3.252823295534733,
+       "lead_sink_w": 1.0147763462363544
+      }
+     },
+     "40": {
+      "all": 4.2,
+      "hdep": 9.1,
+      "laminate": 9.1,
+      "parts": 4.2,
+      "worst_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.539820019045017,
+       "convection_w": 26.416540606021172,
+       "body_air_w": 3.2356849971203836,
+       "lead_sink_w": 0.8875944295101545
+      }
+     }
+    },
+    "all": {
+     "h_fail": 30,
+     "h_pass": 31,
+     "h_zero": 30.7
+    },
+    "laminate": {
+     "h_fail": 30,
+     "h_pass": 31,
+     "h_zero": 30.7
+    },
+    "parts": {
+     "h_fail": 30,
+     "h_pass": 31,
+     "h_zero": 30.5
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.7,
+      "limit_c": 130.0,
+      "margin_k": 0.3
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 131.4,
+      "limit_c": 131.9,
+      "margin_k": 0.6
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 127.1,
+      "limit_c": 130.0,
+      "margin_k": 2.9
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 76.0,
+      "limit_c": 80.2,
+      "margin_k": 4.2
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 124.8,
+      "limit_c": 131.9,
+      "margin_k": 7.1
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 120.9,
+      "limit_c": 128.2,
+      "margin_k": 7.3
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 99.8,
+      "limit_c": 110.0,
+      "margin_k": 10.2
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 119.3,
+      "limit_c": 131.9,
+      "margin_k": 12.6
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -0.9
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "margin_k": -0.7
+     }
+    ]
+   }
+  },
+  "top": {
+   "c28@55": {
+    "points": {
+     "29": {
+      "all": -8.4,
+      "hdep": -8.4,
+      "laminate": -8.4,
+      "parts": -7.3,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -8.4",
+       "laminate: 1 mm-block copper peak -7.7",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -7.3",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -0.8"
+      ],
+      "balance": {
+       "source_w": 31.24603661827772,
+       "convection_w": 24.64745792949382,
+       "body_air_w": 4.753500130741758,
+       "lead_sink_w": 1.8450785594420227
+      }
+     },
+     "36": {
+      "all": -1.5,
+      "hdep": -1.5,
+      "laminate": -1.5,
+      "parts": 0.4,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -1.5",
+       "laminate: 1 mm-block copper peak -1.1"
+      ],
+      "balance": {
+       "source_w": 30.961126829177566,
+       "convection_w": 24.628905296543124,
+       "body_air_w": 4.806016471661987,
+       "lead_sink_w": 1.526205067858888
+      }
+     },
+     "37": {
+      "all": -0.7,
+      "hdep": -0.7,
+      "laminate": -0.7,
+      "parts": 1.4,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -0.7",
+       "laminate: 1 mm-block copper peak -0.3"
+      ],
+      "balance": {
+       "source_w": 30.926605142379586,
+       "convection_w": 24.62811553231225,
+       "body_air_w": 4.811998688843706,
+       "lead_sink_w": 1.486490927005004
+      }
+     },
+     "38": {
+      "all": 0.1,
+      "hdep": 0.1,
+      "laminate": 0.1,
+      "parts": 2.3,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.89335302009993,
+       "convection_w": 24.62764421906691,
+       "body_air_w": 4.817715551471089,
+       "lead_sink_w": 1.4479932546708065
+      }
+     },
+     "42": {
+      "all": 3.1,
+      "hdep": 3.1,
+      "laminate": 3.1,
+      "parts": 5.7,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.771656806098868,
+       "convection_w": 24.62829381486819,
+       "body_air_w": 4.8384311137602545,
+       "lead_sink_w": 1.3049318817509332
+      }
+     }
+    },
+    "all": {
+     "h_fail": 37.0,
+     "h_pass": 38.0,
+     "h_zero": 37.9
+    },
+    "laminate": {
+     "h_fail": 37.0,
+     "h_pass": 38.0,
+     "h_zero": 37.9
+    },
+    "parts": {
+     "h_fail": 29.0,
+     "h_pass": 36.0,
+     "h_zero": 35.6
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 129.9,
+      "limit_c": 130.0,
+      "margin_k": 0.1
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.5,
+      "limit_c": 130.0,
+      "margin_k": 0.5
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 129.7,
+      "limit_c": 131.9,
+      "margin_k": 2.3
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 120.1,
+      "limit_c": 128.2,
+      "margin_k": 8.1
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 122.0,
+      "limit_c": 131.9,
+      "margin_k": 10.0
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 117.5,
+      "limit_c": 131.9,
+      "margin_k": 14.5
+     },
+     {
+      "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 112.6,
+      "limit_c": 128.2,
+      "margin_k": 15.6
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 94.2,
+      "limit_c": 110.0,
+      "margin_k": 15.8
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: FET-row copper",
+      "margin_k": -0.7
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -0.3
+     }
+    ]
+   },
+   "c28@61": {
+    "points": {
+     "34": {
+      "all": -9.4,
+      "hdep": -9.4,
+      "laminate": -9.4,
+      "parts": -7.5,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -9.4",
+       "laminate: 1 mm-block copper peak -8.7",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -7.5",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -1.3"
+      ],
+      "balance": {
+       "source_w": 31.36119626795515,
+       "convection_w": 24.681520958040444,
+       "body_air_w": 4.786723181516282,
+       "lead_sink_w": 1.8929521248439212
+      }
+     },
+     "42": {
+      "all": -3.0,
+      "hdep": -3.0,
+      "laminate": -3.0,
+      "parts": -0.2,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -3.0",
+       "laminate: 1 mm-block copper peak -2.6",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -0.2"
+      ],
+      "balance": {
+       "source_w": 31.098329937582747,
+       "convection_w": 24.671552537020695,
+       "body_air_w": 4.83211354886372,
+       "lead_sink_w": 1.5946638560296953
+      }
+     },
+     "46": {
+      "all": -0.4,
+      "hdep": -0.4,
+      "laminate": -0.4,
+      "parts": 2.8,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -0.4"
+      ],
+      "balance": {
+       "source_w": 30.99192719960861,
+       "convection_w": 24.671954414165107,
+       "body_air_w": 4.850370026305484,
+       "lead_sink_w": 1.469602763665591
+      }
+     },
+     "47": {
+      "all": 0.2,
+      "hdep": 0.2,
+      "laminate": 0.2,
+      "parts": 3.5,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.96737469972254,
+       "convection_w": 24.672384238442895,
+       "body_air_w": 4.8546457981537685,
+       "lead_sink_w": 1.4403446690029935
+      }
+     },
+     "50": {
+      "all": 1.9,
+      "hdep": 1.9,
+      "laminate": 1.9,
+      "parts": 5.5,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.898021069828822,
+       "convection_w": 24.674248944265546,
+       "body_air_w": 4.866940595878377,
+       "lead_sink_w": 1.3568315377675688
+      }
+     }
+    },
+    "all": {
+     "h_fail": 46.0,
+     "h_pass": 47.0,
+     "h_zero": 46.7
+    },
+    "laminate": {
+     "h_fail": 46.0,
+     "h_pass": 47.0,
+     "h_zero": 46.7
+    },
+    "parts": {
+     "h_fail": 42.0,
+     "h_pass": 46.0,
+     "h_zero": 42.2
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 129.8,
+      "limit_c": 130.0,
+      "margin_k": 0.2
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.5,
+      "limit_c": 130.0,
+      "margin_k": 0.5
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 128.5,
+      "limit_c": 131.9,
+      "margin_k": 3.5
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 119.3,
+      "limit_c": 128.2,
+      "margin_k": 8.9
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 121.0,
+      "limit_c": 131.9,
+      "margin_k": 11.0
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 95.0,
+      "limit_c": 110.0,
+      "margin_k": 15.0
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 116.4,
+      "limit_c": 131.9,
+      "margin_k": 15.5
+     },
+     {
+      "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 112.1,
+      "limit_c": 128.2,
+      "margin_k": 16.1
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: FET-row copper",
+      "margin_k": -0.4
+     }
+    ]
+   }
+  },
+  "zone": {
+   "c28@55": {
+    "points": {
+     "30": {
+      "all": -9.8,
+      "hdep": -9.8,
+      "laminate": -9.8,
+      "parts": -6.6,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -9.8",
+       "laminate: 1 mm-block copper peak -9.0",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -6.6",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -0.1"
+      ],
+      "balance": {
+       "source_w": 31.628945974918743,
+       "convection_w": 25.60388823549725,
+       "body_air_w": 4.191305119292194,
+       "lead_sink_w": 1.8337526223234146
+      }
+     },
+     "38": {
+      "all": -2.2,
+      "hdep": -2.2,
+      "laminate": -2.2,
+      "parts": 1.8,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -2.2",
+       "laminate: 1 mm-block copper peak -1.5"
+      ],
+      "balance": {
+       "source_w": 31.372438655146368,
+       "convection_w": 25.72893341907273,
+       "body_air_w": 4.160005539371039,
+       "lead_sink_w": 1.4834997002676946
+      }
+     },
+     "40": {
+      "all": -0.6,
+      "hdep": -0.6,
+      "laminate": -0.6,
+      "parts": 3.6,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -0.6"
+      ],
+      "balance": {
+       "source_w": 31.31873757617874,
+       "convection_w": 25.758231421565707,
+       "body_air_w": 4.151651096904754,
+       "lead_sink_w": 1.4088550583898782
+      }
+     },
+     "41": {
+      "all": 0.1,
+      "hdep": 0.1,
+      "laminate": 0.1,
+      "parts": 4.5,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 31.29315774982625,
+       "convection_w": 25.7725534645175,
+       "body_air_w": 4.14749193297427,
+       "lead_sink_w": 1.3731123524785085
+      }
+     },
+     "44": {
+      "all": 2.3,
+      "hdep": 2.3,
+      "laminate": 2.3,
+      "parts": 6.9,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 31.221012713500045,
+       "convection_w": 25.81419880117896,
+       "body_air_w": 4.135207520560852,
+       "lead_sink_w": 1.2716063930002384
+      }
+     }
+    },
+    "all": {
+     "h_fail": 40.0,
+     "h_pass": 41.0,
+     "h_zero": 40.9
+    },
+    "laminate": {
+     "h_fail": 40.0,
+     "h_pass": 41.0,
+     "h_zero": 40.9
+    },
+    "parts": {
+     "h_fail": 30.0,
+     "h_pass": 38.0,
+     "h_zero": 35.9
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 129.9,
+      "limit_c": 130.0,
+      "margin_k": 0.1
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.2,
+      "limit_c": 130.0,
+      "margin_k": 0.8
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 127.5,
+      "limit_c": 131.9,
+      "margin_k": 4.5
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 118.0,
+      "limit_c": 128.2,
+      "margin_k": 10.2
+     },
+     {
+      "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "est_c": 70.0,
+      "limit_c": 80.2,
+      "margin_k": 10.2
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 120.7,
+      "limit_c": 131.9,
+      "margin_k": 11.2
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 115.3,
+      "limit_c": 131.9,
+      "margin_k": 16.7
+     },
+     {
+      "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 111.2,
+      "limit_c": 128.2,
+      "margin_k": 17.0
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: FET-row copper",
+      "margin_k": -0.6
+     }
+    ]
+   },
+   "c28@61": {
+    "points": {
+     "36": {
+      "all": -10.1,
+      "hdep": -10.1,
+      "laminate": -10.1,
+      "parts": -6.0,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -10.1",
+       "laminate: 1 mm-block copper peak -9.3",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -6.0"
+      ],
+      "balance": {
+       "source_w": 31.762834384090816,
+       "convection_w": 25.75096562343228,
+       "body_air_w": 4.163670081553749,
+       "lead_sink_w": 1.848198682220486
+      }
+     },
+     "45": {
+      "all": -3.2,
+      "hdep": -3.2,
+      "laminate": -3.2,
+      "parts": 1.7,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -3.2",
+       "laminate: 1 mm-block copper peak -1.0"
+      ],
+      "balance": {
+       "source_w": 31.531867778460906,
+       "convection_w": 25.872991096880035,
+       "body_air_w": 4.126968611424228,
+       "lead_sink_w": 1.5319080713259934
+      }
+     },
+     "54": {
+      "all": -0.5,
+      "hdep": -0.5,
+      "laminate": -0.5,
+      "parts": 4.2,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "failing": [
+       "laminate: 1 mm-block copper peak -0.5"
+      ],
+      "balance": {
+       "source_w": 31.354656766131654,
+       "convection_w": 25.978130679169556,
+       "body_air_w": 4.094215670302915,
+       "lead_sink_w": 1.2823104152525553
+      }
+     },
+     "63": {
+      "all": -0.0,
+      "hdep": -0.0,
+      "laminate": -0.0,
+      "parts": 4.2,
+      "worst_item": "laminate: 1 mm-block copper peak",
+      "laminate_item": "laminate: 1 mm-block copper peak",
+      "parts_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+      "failing": [],
+      "balance": {
+       "source_w": 31.21366548784586,
+       "convection_w": 26.06818911789639,
+       "body_air_w": 4.06741423915369,
+       "lead_sink_w": 1.0780621297093917
+      }
+     }
+    },
+    "all": {
+     "h_fail": 63.0,
+     "h_pass": null,
+     "h_zero": null
+    },
+    "laminate": {
+     "h_fail": 63.0,
+     "h_pass": null,
+     "h_zero": null
+    },
+    "parts": {
+     "h_fail": 36.0,
+     "h_pass": 45.0,
+     "h_zero": 42.6
+    }
+   }
+  },
+  "zone2": {
+   "c28@61": {
+    "points": {
+     "40": {
+      "all": -4.6,
+      "hdep": -4.6,
+      "laminate": -4.6,
+      "parts": -1.9,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -4.6",
+       "laminate: 1 mm-block copper peak -4.0",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -1.9"
+      ],
+      "balance": {
+       "source_w": 31.21613750370924,
+       "convection_w": 25.16541348931051,
+       "body_air_w": 4.38664218219207,
+       "lead_sink_w": 1.6640818291998998
+      }
+     },
+     "46": {
+      "all": -0.5,
+      "hdep": -0.5,
+      "laminate": -0.5,
+      "parts": 2.8,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [
+       "laminate: FET-row copper -0.5",
+       "laminate: 1 mm-block copper peak -0.1"
+      ],
+      "balance": {
+       "source_w": 31.05256359008044,
+       "convection_w": 25.216515749975464,
+       "body_air_w": 4.365210013669939,
+       "lead_sink_w": 1.4708378240996192
+      }
+     },
+     "47": {
+      "all": 0.1,
+      "hdep": 0.1,
+      "laminate": 0.1,
+      "parts": 3.5,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 31.02821584050838,
+       "convection_w": 25.224869483758432,
+       "body_air_w": 4.361804794900422,
+       "lead_sink_w": 1.4415415597860988
+      }
+     },
+     "50": {
+      "all": 1.9,
+      "hdep": 1.9,
+      "laminate": 1.9,
+      "parts": 5.4,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "failing": [],
+      "balance": {
+       "source_w": 30.95939938173114,
+       "convection_w": 25.249511626961237,
+       "body_air_w": 4.351965894322254,
+       "lead_sink_w": 1.3579218590117077
+      }
+     }
+    },
+    "all": {
+     "h_fail": 46.0,
+     "h_pass": 47.0,
+     "h_zero": 46.8
+    },
+    "laminate": {
+     "h_fail": 46.0,
+     "h_pass": 47.0,
+     "h_zero": 46.8
+    },
+    "parts": {
+     "h_fail": 40.0,
+     "h_pass": 46.0,
+     "h_zero": 42.2
+    },
+    "at_h_pass": [
+     {
+      "item": "laminate: FET-row copper",
+      "est_c": 129.9,
+      "limit_c": 130.0,
+      "margin_k": 0.1
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "est_c": 129.5,
+      "limit_c": 130.0,
+      "margin_k": 0.5
+     },
+     {
+      "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 128.5,
+      "limit_c": 131.9,
+      "margin_k": 3.5
+     },
+     {
+      "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 119.3,
+      "limit_c": 128.2,
+      "margin_k": 8.9
+     },
+     {
+      "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 121.0,
+      "limit_c": 131.9,
+      "margin_k": 10.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "est_c": 95.0,
+      "limit_c": 110.0,
+      "margin_k": 15.0
+     },
+     {
+      "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+      "est_c": 116.4,
+      "limit_c": 131.9,
+      "margin_k": 15.5
+     },
+     {
+      "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+      "est_c": 112.1,
+      "limit_c": 128.2,
+      "margin_k": 16.1
+     }
+    ],
+    "at_h_fail": [
+     {
+      "item": "laminate: FET-row copper",
+      "margin_k": -0.5
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "margin_k": -0.1
+     }
+    ]
+   }
+  },
+  "jet": {
+   "c28@55": {
+    "points": {
+     "60": {
+      "all": -16.8,
+      "hdep": -16.8,
+      "laminate": -16.8,
+      "parts": -4.4,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "failing": [
+       "laminate: FET-row copper -16.8",
+       "laminate: 1 mm-block copper peak -16.0",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -4.4",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -2.9",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -2.8",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -1.0"
+      ],
+      "balance": {
+       "source_w": 31.97586588051137,
+       "convection_w": 26.453312085208918,
+       "body_air_w": 3.4831732558845614,
+       "lead_sink_w": 2.039380537822015
+      }
+     },
+     "100": {
+      "all": -4.0,
+      "hdep": -4.0,
+      "laminate": -4.0,
+      "parts": 3.2,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "U26: TJ max (TI SBVS204G p.4)",
+      "failing": [
+       "laminate: FET-row copper -4.0",
+       "laminate: 1 mm-block copper peak -3.2"
+      ],
+      "balance": {
+       "source_w": 31.57725930924503,
+       "convection_w": 26.750325444084073,
+       "body_air_w": 3.3947871371925102,
+       "lead_sink_w": 1.4321467295269752
+      }
+     }
+    },
+    "all": {
+     "h_fail": 100.0,
+     "h_pass": null,
+     "h_zero": null
+    },
+    "laminate": {
+     "h_fail": 100.0,
+     "h_pass": null,
+     "h_zero": null
+    },
+    "parts": {
+     "h_fail": 60.0,
+     "h_pass": 100.0,
+     "h_zero": 78.1
+    }
+   },
+   "c28@61": {
+    "points": {
+     "60": {
+      "all": -23.0,
+      "hdep": -23.0,
+      "laminate": -23.0,
+      "parts": -10.3,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+      "failing": [
+       "laminate: FET-row copper -23.0",
+       "laminate: 1 mm-block copper peak -22.2",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -10.3",
+       "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -8.8",
+       "R12: 2512 terminal derating at 0.217 W (20 % margin) -8.7",
+       "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -7.3",
+       "R58: 1206 terminal derating at 0.063 W (20 % margin) -4.8",
+       "U26: TJ max (TI SBVS204G p.4) -3.8",
+       "R10: 2512 terminal derating at 0.217 W (20 % margin) -0.9"
+      ],
+      "balance": {
+       "source_w": 32.311497592003946,
+       "convection_w": 26.51586544939295,
+       "body_air_w": 3.4808258676752293,
+       "lead_sink_w": 2.314806273717666
+      }
+     },
+     "100": {
+      "all": -10.2,
+      "hdep": -10.2,
+      "laminate": -10.2,
+      "parts": -3.0,
+      "worst_item": "laminate: FET-row copper",
+      "laminate_item": "laminate: FET-row copper",
+      "parts_item": "U26: TJ max (TI SBVS204G p.4)",
+      "failing": [
+       "laminate: FET-row copper -10.2",
+       "laminate: 1 mm-block copper peak -9.4",
+       "U26: TJ max (TI SBVS204G p.4) -3.0",
+       "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35) -0.1"
+      ],
+      "balance": {
+       "source_w": 31.914932578521515,
+       "convection_w": 26.80637773235924,
+       "body_air_w": 3.393258290878961,
+       "lead_sink_w": 1.7152965568743264
+      }
+     }
+    },
+    "all": {
+     "h_fail": 100.0,
+     "h_pass": null,
+     "h_zero": null
+    },
+    "laminate": {
+     "h_fail": 100.0,
+     "h_pass": null,
+     "h_zero": null
+    },
+    "parts": {
+     "h_fail": 100.0,
+     "h_pass": null,
+     "h_zero": null
+    }
+   }
+  }
+ },
+ "conversion": {
+  "c18@55": {
+   "h": 10,
+   "L90mm": {
+    "v_laminar_m_s": 0.57,
+    "v_turbulent_m_s": 1.06,
+    "Re_lam": 2842,
+    "Re_turb": 5321
+   },
+   "L190mm": {
+    "v_laminar_m_s": 1.2,
+    "v_turbulent_m_s": 1.28,
+    "Re_lam": 12666,
+    "Re_turb": 13540
+   },
+   "L290mm": {
+    "v_laminar_m_s": 1.83,
+    "v_turbulent_m_s": 1.43,
+    "Re_lam": 29507,
+    "Re_turb": 22970
+   },
+   "q_to_air_w": 16.93
+  },
+  "c20@55": {
+   "h": 11,
+   "L90mm": {
+    "v_laminar_m_s": 0.69,
+    "v_turbulent_m_s": 1.2,
+    "Re_lam": 3439,
+    "Re_turb": 5994
+   },
+   "L190mm": {
+    "v_laminar_m_s": 1.45,
+    "v_turbulent_m_s": 1.45,
+    "Re_lam": 15326,
+    "Re_turb": 15253
+   },
+   "L290mm": {
+    "v_laminar_m_s": 2.22,
+    "v_turbulent_m_s": 1.61,
+    "Re_lam": 35704,
+    "Re_turb": 25877
+   },
+   "q_to_air_w": 18.89
+  },
+  "c22@55": {
+   "h": 14,
+   "L90mm": {
+    "v_laminar_m_s": 1.11,
+    "v_turbulent_m_s": 1.62,
+    "Re_lam": 5570,
+    "Re_turb": 8103
+   },
+   "L190mm": {
+    "v_laminar_m_s": 2.35,
+    "v_turbulent_m_s": 1.95,
+    "Re_lam": 24826,
+    "Re_turb": 20619
+   },
+   "L290mm": {
+    "v_laminar_m_s": 3.59,
+    "v_turbulent_m_s": 2.17,
+    "Re_lam": 57835,
+    "Re_turb": 34980
+   },
+   "q_to_air_w": 21.19
+  },
+  "c24@55": {
+   "h": 17,
+   "L90mm": {
+    "v_laminar_m_s": 1.64,
+    "v_turbulent_m_s": 2.07,
+    "Re_lam": 8213,
+    "Re_turb": 10328
+   },
+   "L190mm": {
+    "v_laminar_m_s": 3.47,
+    "v_turbulent_m_s": 2.49,
+    "Re_lam": 36605,
+    "Re_turb": 26283
+   },
+   "L290mm": {
+    "v_laminar_m_s": 5.29,
+    "v_turbulent_m_s": 2.77,
+    "Re_lam": 85276,
+    "Re_turb": 44589
+   },
+   "q_to_air_w": 23.7
+  },
+  "c26@55": {
+   "h": 22,
+   "L90mm": {
+    "v_laminar_m_s": 2.75,
+    "v_turbulent_m_s": 2.85,
+    "Re_lam": 13755,
+    "Re_turb": 14256
+   },
+   "L190mm": {
+    "v_laminar_m_s": 5.81,
+    "v_turbulent_m_s": 3.44,
+    "Re_lam": 61304,
+    "Re_turb": 36278
+   },
+   "L290mm": {
+    "v_laminar_m_s": 8.86,
+    "v_turbulent_m_s": 3.82,
+    "Re_lam": 142816,
+    "Re_turb": 61545
+   },
+   "q_to_air_w": 26.48
+  },
+  "c28@55": {
+   "h": 27,
+   "L90mm": {
+    "v_laminar_m_s": 4.14,
+    "v_turbulent_m_s": 3.68,
+    "Re_lam": 20718,
+    "Re_turb": 18415
+   },
+   "L190mm": {
+    "v_laminar_m_s": 8.75,
+    "v_turbulent_m_s": 4.44,
+    "Re_lam": 92336,
+    "Re_turb": 46861
+   },
+   "L290mm": {
+    "v_laminar_m_s": 13.35,
+    "v_turbulent_m_s": 4.93,
+    "Re_lam": 215109,
+    "Re_turb": 79500
+   },
+   "q_to_air_w": 29.48
+  },
+  "c18@61": {
+   "h": 11,
+   "L90mm": {
+    "v_laminar_m_s": 0.69,
+    "v_turbulent_m_s": 1.2,
+    "Re_lam": 3439,
+    "Re_turb": 5994
+   },
+   "L190mm": {
+    "v_laminar_m_s": 1.45,
+    "v_turbulent_m_s": 1.45,
+    "Re_lam": 15326,
+    "Re_turb": 15253
+   },
+   "L290mm": {
+    "v_laminar_m_s": 2.22,
+    "v_turbulent_m_s": 1.61,
+    "Re_lam": 35704,
+    "Re_turb": 25877
+   },
+   "q_to_air_w": 16.9
+  },
+  "c20@61": {
+   "h": 13,
+   "L90mm": {
+    "v_laminar_m_s": 0.96,
+    "v_turbulent_m_s": 1.48,
+    "Re_lam": 4803,
+    "Re_turb": 7386
+   },
+   "L190mm": {
+    "v_laminar_m_s": 2.03,
+    "v_turbulent_m_s": 1.78,
+    "Re_lam": 21406,
+    "Re_turb": 18795
+   },
+   "L290mm": {
+    "v_laminar_m_s": 3.1,
+    "v_turbulent_m_s": 1.98,
+    "Re_lam": 49868,
+    "Re_turb": 31886
+   },
+   "q_to_air_w": 18.92
+  },
+  "c22@61": {
+   "h": 17,
+   "L90mm": {
+    "v_laminar_m_s": 1.64,
+    "v_turbulent_m_s": 2.07,
+    "Re_lam": 8213,
+    "Re_turb": 10328
+   },
+   "L190mm": {
+    "v_laminar_m_s": 3.47,
+    "v_turbulent_m_s": 2.49,
+    "Re_lam": 36605,
+    "Re_turb": 26283
+   },
+   "L290mm": {
+    "v_laminar_m_s": 5.29,
+    "v_turbulent_m_s": 2.77,
+    "Re_lam": 85276,
+    "Re_turb": 44589
+   },
+   "q_to_air_w": 21.25
+  },
+  "c24@61": {
+   "h": 20,
+   "L90mm": {
+    "v_laminar_m_s": 2.27,
+    "v_turbulent_m_s": 2.53,
+    "Re_lam": 11368,
+    "Re_turb": 12655
+   },
+   "L190mm": {
+    "v_laminar_m_s": 4.8,
+    "v_turbulent_m_s": 3.05,
+    "Re_lam": 50664,
+    "Re_turb": 32203
+   },
+   "L290mm": {
+    "v_laminar_m_s": 7.33,
+    "v_turbulent_m_s": 3.39,
+    "Re_lam": 118030,
+    "Re_turb": 54633
+   },
+   "q_to_air_w": 23.76
+  },
+  "c26@61": {
+   "h": 25,
+   "L90mm": {
+    "v_laminar_m_s": 3.55,
+    "v_turbulent_m_s": 3.35,
+    "Re_lam": 17762,
+    "Re_turb": 16726
+   },
+   "L190mm": {
+    "v_laminar_m_s": 7.5,
+    "v_turbulent_m_s": 4.03,
+    "Re_lam": 79163,
+    "Re_turb": 42563
+   },
+   "L290mm": {
+    "v_laminar_m_s": 11.45,
+    "v_turbulent_m_s": 4.48,
+    "Re_lam": 184421,
+    "Re_turb": 72209
+   },
+   "q_to_air_w": 26.54
+  },
+  "c28@61": {
+   "h": 31,
+   "L90mm": {
+    "v_laminar_m_s": 5.46,
+    "v_turbulent_m_s": 4.38,
+    "Re_lam": 27311,
+    "Re_turb": 21886
+   },
+   "L190mm": {
+    "v_laminar_m_s": 11.53,
+    "v_turbulent_m_s": 5.28,
+    "Re_lam": 121721,
+    "Re_turb": 55694
+   },
+   "L290mm": {
+    "v_laminar_m_s": 17.6,
+    "v_turbulent_m_s": 5.86,
+    "Re_lam": 283566,
+    "Re_turb": 94486
+   },
+   "q_to_air_w": 29.56
+  }
+ }
+}

@@ -1,0 +1,28 @@
+== switch-node edge (SW_x vs N_LS), adopted network 68 ohm 2512 + Cgs 4.7 nF ==
+  typical Qrr (committed full.md, 640/640): 49.70 V/ns (20-80 % chord)
+  typical Qrr companion s4b (42/42): chord 49.70 V/ns (control vs 49.70), indicative instantaneous 64.7 V/ns
+  control: split47_1 at TT 260 ns, s4screen: 106.21 V/ns (committed s4screen.md: 106.21)
+  maximum Qrr (TT 260 ns) s4screen 56/56: chord 68.16 V/ns, instantaneous 90.60 V/ns, diF/dt 242 A/us, die VDS 380.0 V, worst {'drv': 'strong', 'leg': 'A', 'temp_C': 150, 'vbus': 280, 'dir': 0, 'esl_nH': 10}
+  maximum Qrr (TT 260 ns) s4b      42/42: chord 68.16 V/ns, instantaneous 90.64 V/ns, diF/dt 244 A/us, die VDS 383.9 V, worst {'drv': 'strong', 'leg': 'A', 'temp_C': 150, 'vbus': 280, 'dir': 0, 'esl_nH': 10}
+  maximum Qrr (TT 260 ns) full     640/640: chord 68.16 V/ns, instantaneous 90.64 V/ns, diF/dt 244 A/us, die VDS 435.0 V, worst {'drv': 'strong', 'leg': 'A', 'temp_C': 150, 'vbus': 280, 'dir': 0, 'esl_nH': 10}
+
+== per channel (CMTI min / dv/dt seen; the 1.5x rule column is RESOLUTION-PLAN F6's own scope) ==
+ref       MPN              class     CMTI         typQrr   maxQrr chord   maxQrr inst  rule
+U1, U2    2EDR8259XXUMA1   GATE       150  49.70 (  3.0x)  68.16 ( 2.20x)  90.64 ( 1.65x)  1.5x applies
+U43, U44  ISO6721FBDR      FILTERED   100  49.70 (  2.0x)  68.16 ( 1.47x)  90.64 ( 1.10x)  pass on filter (tau 49.9 us >= 10 us); CMTI >= edge as a rating
+U32       CA-IS3720HW      FILTERED   100   5.22 ( 19.1x)   6.59 (15.17x)   9.90 (10.10x)  pass on filter (tau 49.9 us)
+          CM sensitivity at the 68.2 V/ns max-Qrr chord: single-parameter worst 22.6 V/ns (4.4x, block_coil100_allA); stacked-pessimistic 86.7 V/ns (1.15x, cond_STACKED_ALN); at the 90 V/ns instantaneous peak: single 33.9, stacked 130.5 V/ns
+U9        CA-IS3720HW      OPEN       100   5.22 ( 19.1x)   6.59 (15.17x)   9.90 (10.10x)  no gate command; open on the consumer
+          CM sensitivity at the 68.2 V/ns max-Qrr chord: single-parameter worst 22.6 V/ns (4.4x, block_coil100_allA); stacked-pessimistic 86.7 V/ns (1.15x, cond_STACKED_ALN); at the 90 V/ns instantaneous peak: single 33.9, stacked 130.5 V/ns
+U4        AMC1311BDWVR     OPEN       100   5.22 ( 19.1x)   6.59 (15.17x)   9.90 (10.10x)  no gate command; open on the consumer
+          CM sensitivity at the 68.2 V/ns max-Qrr chord: single-parameter worst 22.6 V/ns (4.4x, block_coil100_allA); stacked-pessimistic 86.7 V/ns (1.15x, cond_STACKED_ALN); at the 90 V/ns instantaneous peak: single 33.9, stacked 130.5 V/ns
+U36 VOL628A (no CMTI published): N_FILT/L_FILT vs PE at 68.2 V/ns: nominal 0.67, single worst 17.9 (block_ly20), stacked 86.7 V/ns
+
+== fix (a) candidates: pin-compatible, guaranteed CMTI, defined fail-safe, stock, barrier derating ==
+  U9/U32 (SOIC-16W CA-IS3720HW (fitted)   JLC C428883 stock  1640 $0.5188@500  CMTI 100  VIORM 20.3%  cmti_150=N open_state=Y stock20=Y stock500=Y viorm50=Y bom_only=Y
+  U9/U32           NSI8220W1-DSWR         JLC C5439825 stock    91 $0.7228@500  CMTI 200  VIORM 13.6%  cmti_150=Y open_state=N stock20=Y stock500=N viorm50=Y bom_only=Y
+  U43/U44 (SOIC-8, ISO6721FBDR (fitted)   JLC C5216431 stock  4900 $0.4112@500  CMTI 100  VIORM 45.2%  cmti_150=N open_state=Y stock20=Y stock500=Y viorm50=Y bom_only=Y
+  U43/U44          NSI8221N0-DSPR         JLC C3029754 stock  1540 $0.5205@500  CMTI 200  VIORM 50.9%  cmti_150=Y open_state=N stock20=Y stock500=Y viorm50=N bom_only=Y
+  U43/U44          NSI8222N0-DSPR         JLC C5439819 stock  1304 $0.5123@500  CMTI 200  VIORM 50.9%  cmti_150=Y open_state=N stock20=Y stock500=Y viorm50=N bom_only=N
+
+wrote /Users/bennet/.claude/jobs/fbfc46b4/tmp/s6-cmti/results/s6_verdict.json

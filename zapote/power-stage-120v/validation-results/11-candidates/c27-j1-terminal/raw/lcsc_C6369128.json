@@ -1,0 +1,230 @@
+{
+ "code": 200,
+ "msg": null,
+ "result": {
+  "parentCatalogList": [
+   {
+    "catalogId": 10,
+    "catalogNameEn": "Connectors, Interconnects"
+   },
+   {
+    "catalogId": 174,
+    "catalogNameEn": "Terminal Blocks"
+   }
+  ],
+  "isCableCategory": true,
+  "productId": 7318823,
+  "productCode": "C6369128",
+  "productModel": "1907131",
+  "productNameEn": null,
+  "productKeyAttributes": null,
+  "parentCatalogId": 365,
+  "parentCatalogName": "Connectors",
+  "catalogId": 819,
+  "catalogName": "Wire to Board",
+  "brandId": 968,
+  "brandNameEn": "Phoenix Contact",
+  "encapStandard": "Through Hole,P=7.62mm",
+  "split": 1,
+  "productUnit": "Piece",
+  "minPacketUnit": "Bag",
+  "minBuyNumber": 1,
+  "maxBuyNumber": -1,
+  "minPacketNumber": 50,
+  "isEnvironment": true,
+  "allHotLevel": null,
+  "isHot": false,
+  "isPreSale": true,
+  "isReel": false,
+  "reelPrice": 0,
+  "stockNumber": 0,
+  "stockSz": 0,
+  "domesticStockVO": {
+   "total": 0,
+   "shipImmediately": 0,
+   "ship3Days": 0
+  },
+  "overseasStockVO": {
+   "total": 0,
+   "shipImmediately": 0,
+   "ship3Days": 0
+  },
+  "productPriceList": [
+   {
+    "ladder": 1,
+    "productPrice": "1.3019",
+    "usdPrice": 1.3019,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.3019,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 200,
+    "productPrice": "0.5192",
+    "usdPrice": 0.5192,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.5192,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 500,
+    "productPrice": "0.5019",
+    "usdPrice": 0.5019,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.5019,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 1000,
+    "productPrice": "0.4940",
+    "usdPrice": 0.494,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.494,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   }
+  ],
+  "productImages": [],
+  "edaSvgInfo": null,
+  "faqs": null,
+  "pdfUrl": "https://datasheet.lcsc.com/datasheet/pdf/d6dbc4e0c5dd556c7156fcbbf213f617.pdf?productCode=C6369128",
+  "authenticationList": [
+   "ROHS3 \u8ba4\u8bc1"
+  ],
+  "isRohsCert": true,
+  "rohsCertType": "ROHS3",
+  "rohsCertList": null,
+  "productDescEn": null,
+  "productIntroEn": "30A 300V Green Through Hole 2 1 7.62mm Through Hole,P=7.62mm Wire to Board RoHS",
+  "paramVOList": [
+   {
+    "paramCode": "param_13335_n",
+    "paramName": "\u989d\u5b9a\u7535\u6d41",
+    "paramNameEn": "Current Rating",
+    "paramValue": "30A",
+    "paramValueEn": "30A",
+    "paramValueEnForSearch": 30.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 29
+   },
+   {
+    "paramCode": "param_13336_n",
+    "paramName": "\u989d\u5b9a\u7535\u538b",
+    "paramNameEn": "Voltage Rating (Max)",
+    "paramValue": "300V",
+    "paramValueEn": "300V",
+    "paramValueEnForSearch": 300.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 32
+   },
+   {
+    "paramCode": "param_13408",
+    "paramName": "\u989c\u8272",
+    "paramNameEn": "Color",
+    "paramValue": "\u7eff\u8272",
+    "paramValueEn": "Green",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 19
+   },
+   {
+    "paramCode": "param_13334",
+    "paramName": "\u5b89\u88c5\u65b9\u5f0f",
+    "paramNameEn": "Mounting Type",
+    "paramValue": "\u76f4\u63d2",
+    "paramValueEn": "Through Hole",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 10
+   },
+   {
+    "paramCode": "param_13676_n",
+    "paramName": "\u6bcf\u6392PIN\u6570",
+    "paramNameEn": "Number of PINs Per Row",
+    "paramValue": "2",
+    "paramValueEn": "2",
+    "paramValueEnForSearch": 2.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 18
+   },
+   {
+    "paramCode": "param_13677_n",
+    "paramName": "\u6392\u6570",
+    "paramNameEn": "Number of Rows",
+    "paramValue": "1",
+    "paramValueEn": "1",
+    "paramValueEnForSearch": 1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 14
+   },
+   {
+    "paramCode": "param_13333_n",
+    "paramName": "\u95f4\u8ddd",
+    "paramNameEn": "Pitch",
+    "paramValue": "7.62mm",
+    "paramValueEn": "7.62mm",
+    "paramValueEnForSearch": 7.62,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 5
+   }
+  ],
+  "wmCatalogId": 819,
+  "wmCatalogNameEn": "Wire to Board",
+  "productArrange": "Bag-packed",
+  "productWeight": 0.001,
+  "foreignWeight": null,
+  "isForeignOnsale": true,
+  "isForeignDisplay": true,
+  "isNotOverstock": false,
+  "productCycle": "normal",
+  "isHasBattery": false,
+  "pdfLinkUrl": null,
+  "isShowForeignPrice": true,
+  "isRealPrice": true,
+  "productLadderPrice": null,
+  "ladderDiscountRate": null,
+  "eccn": "EAR99",
+  "currencyType": "USD",
+  "currencySymbol": "$",
+  "title": "Phoenix Contact 1907131",
+  "weight": 1.0,
+  "hasThirdPartyStock": false,
+  "flashSaleProductPO": null,
+  "htsMap": {
+   "BR": "85369010",
+   "TARIC": "8536901000",
+   "IN": "85369010",
+   "CN": "8536901100",
+   "MX": "8536.90.11",
+   "CA": "8536900090",
+   "US": "8536908585"
+  },
+  "isAsianBrand": null,
+  "isMro": false,
+  "isInfringement": false,
+  "isSample": false,
+  "sampleNumber": null,
+  "alternatePartList": []
+ },
+ "ok": true,
+ "_url": "https://wmsc.lcsc.com/ftps/wm/product/detail?productCode=C6369128",
+ "_fetched_utc": "2026-10-14T02:48:38Z"
+}

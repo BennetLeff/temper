@@ -1,0 +1,1262 @@
+{
+ "verdicts": {
+  "committed_s38": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 12.3744735254499,
+   "sensitivity_min_margin_22A_dB": 9.512040132610714,
+   "sensitivity_min_margin_all_dB": 8.186315016029269,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "s38_control": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 12.3744735254499,
+   "sensitivity_min_margin_22A_dB": 9.512040132610714,
+   "sensitivity_min_margin_all_dB": 8.186315016029269,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "B82726S2243A020": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 6.029257779238563,
+   "sensitivity_min_margin_22A_dB": 3.465946870474312,
+   "sensitivity_min_margin_all_dB": 1.5742621958813316,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  },
+  "B82726S2243A020_fit3M": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 6.029329841187433,
+   "sensitivity_min_margin_22A_dB": 3.46600555714744,
+   "sensitivity_min_margin_all_dB": 1.5743208828441624,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  },
+  "s38_control_moduleDM49p7": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 12.37945595499091,
+   "sensitivity_min_margin_22A_dB": 9.517022477489753,
+   "sensitivity_min_margin_all_dB": 8.19129736081225,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "B82726S2243A020_moduleDM49p7": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 7.0614082741953865,
+   "sensitivity_min_margin_22A_dB": 4.511451861826018,
+   "sensitivity_min_margin_all_dB": 2.619767212878685,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  },
+  "B82726S2243A020_moduleDM82u": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 10.0586885326003,
+   "sensitivity_min_margin_22A_dB": 7.548932701821286,
+   "sensitivity_min_margin_all_dB": 5.657248147317105,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  },
+  "B82726S2243A020_moduleDM100u": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 11.139424258424519,
+   "sensitivity_min_margin_22A_dB": 8.277041401152943,
+   "sensitivity_min_margin_all_dB": 6.95131628444922,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "B82726S2243A020_moduleDM120u": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 11.151593478834556,
+   "sensitivity_min_margin_22A_dB": 8.28921085369285,
+   "sensitivity_min_margin_all_dB": 6.963485737045588,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "s38_control_LDM8u": {
+   "criterion": "PASS if min predicted margin (AV 150k-30M, QP 9k-150k, CW-equivalent at line crest) >= 6 dB in the nominal case and every one-at-a-time sensitivity at 22 A and 28 A (pan and no-pan clamp), 170 and 198 V crest; FAIL if nominal < 0 dB or any 22 A sensitivity < 0 dB; otherwise INCONCLUSIVE.",
+   "excluded_from_sensitivity_set": "alternative designs (D-22 18 uH module, board-only, module Y removed, thin-pad insulator), stacked/beyond-spec corners (coil capacitance one-sided 100:0, stacked, edge x4 + coil asym + thin pad), the nopan_28A fault case, and the REC* recommendation scenarios; all are still reported in results.json",
+   "nominal_min_margin_dB": 6.051944629855811,
+   "sensitivity_min_margin_22A_dB": 3.480189849241242,
+   "sensitivity_min_margin_all_dB": 1.5885051962857517,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  }
+ },
+ "scenarios": {
+  "committed_s38": {
+   "nominal": [
+    12.3744735254499,
+    "198V/pan_22A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    8.186315016029269,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    9.859524179132748,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    10.427431100815923,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    10.278332218681285,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    11.622758707124078,
+    "170V/pan_22A",
+    "hi_150k_30M",
+    3894000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    12.368749891650538,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    3.31967269652624,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -39.26902001861448,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    6.170172892853358,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "s38_control": {
+   "nominal": [
+    12.3744735254499,
+    "198V/pan_22A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    8.186315016029269,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    9.859524179132748,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    10.427431100815923,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    10.278332218681285,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    11.622758707124078,
+    "170V/pan_22A",
+    "hi_150k_30M",
+    3894000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    12.368749891650538,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    3.31967269652624,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -39.26902001861448,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    6.170172892853358,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "B82726S2243A020": {
+   "nominal": [
+    6.029257779238563,
+    "170V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    5.949275118706581,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    1.5742621958813316,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    5.983546758918948,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    5.965306428179929,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    6.032289434620864,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    4.661872845451683,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    2.0489979026362164,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.99120287513608,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9628680464928152,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "B82726S2243A020_fit3M": {
+   "nominal": [
+    6.029329841187433,
+    "170V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    5.949368227627275,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    1.5743208828441624,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    5.983630696884916,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    5.965386742284707,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    6.0324216357590785,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    4.661939426531319,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    2.0584120144932427,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.99113525718758,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9628187650885565,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "s38_control_moduleDM49p7": {
+   "nominal": [
+    12.37945595499091,
+    "198V/pan_22A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    8.19129736081225,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    10.892310853342067,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    10.432417811407426,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    10.285519850371081,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    12.898184364994833,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    12.372514533942898,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    3.324654871841581,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -39.26902001861448,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    6.170172892853358,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "B82726S2243A020_moduleDM49p7": {
+   "nominal": [
+    7.0614082741953865,
+    "170V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    6.920804699346725,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    2.619767212878685,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    7.010018293625521,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    6.989516143945764,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    7.06476111836453,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    5.585846954107424,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    2.0542620229924466,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.99120287513608,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9628680464928152,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "B82726S2243A020_moduleDM82u": {
+   "nominal": [
+    10.0586885326003,
+    "170V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    6.940382156308516,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    5.657248147317105,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    9.178732989274074,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    9.142918884013014,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    10.063248937170584,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    8.332903552752086,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    2.073840286872098,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.99120287513608,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9628680464928152,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "B82726S2243A020_moduleDM100u": {
+   "nominal": [
+    11.139424258424519,
+    "198V/pan_22A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    6.95131628444922,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    6.971210626110448,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    9.189653739618123,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    9.159181569825606,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    11.358985569602723,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    9.545267513607754,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    2.0847748441967866,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.99120287513608,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9628680464928152,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "B82726S2243A020_moduleDM120u": {
+   "nominal": [
+    11.151593478834556,
+    "198V/pan_22A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    6.963485737045588,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    8.224214453036438,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    9.201808871270977,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    9.177261649009466,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    11.70675465360322,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    10.712356552590094,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    2.096944757020836,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.99120287513608,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9628680464928152,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  },
+  "s38_control_LDM8u": {
+   "nominal": [
+    6.051944629855811,
+    "170V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "coil_PE_study16_plus_board_51pF": [
+    5.9844097974407475,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "X_caps_minus20pct": [
+    1.5885051962857517,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "Y_caps_minus20pct": [
+    6.0144820528310845,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_minus30pct_and_module_choke_minus30pct": [
+    6.000253489960073,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "L1_winding_C_x2": [
+    6.054327537987646,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_80uH": [
+    4.681333867262282,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "INFO_pan_earthed_91pF": [
+    3.3235069094340375,
+    "198V/pan_28A",
+    "hi_150k_30M",
+    180000.0,
+    null
+   ],
+   "board_only_no_module": [
+    -54.987602225556,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ],
+   "module_DM_18uH_only (D-22 as specified)": [
+    -1.9535621716255491,
+    "198V/pan_28A",
+    "lo_9k_150k",
+    70000.0,
+    null
+   ]
+  }
+ },
+ "controls": {
+  "committed_s38": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "s38_control": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "B82726S2243A020": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "B82726S2243A020_fit3M": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "s38_control_moduleDM49p7": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "B82726S2243A020_moduleDM49p7": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "B82726S2243A020_moduleDM82u": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "B82726S2243A020_moduleDM100u": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "B82726S2243A020_moduleDM120u": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  },
+  "s38_control_LDM8u": {
+   "D22_margin_repro_max_abs_delta_dB": 0.20676295079064744,
+   "limit_dB": 1.0,
+   "round3_peak_repro_max_abs_delta_dB": 0.24597007742945465,
+   "closed_form_max_abs_delta_dB": 2.277147359563969e-10,
+   "closed_form_limit_dB": 0.5,
+   "transfer_parity_max_rel_err": 1.1658350089626357
+  }
+ },
+ "worst_sensitivities": {
+  "committed_s38": [
+   [
+    8.186315016029269,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    9.859524179132748,
+    "X_caps_minus20pct"
+   ],
+   [
+    10.160174181825731,
+    "tabs_mismatch_reversed"
+   ],
+   [
+    10.278332218681285,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    10.427431100815923,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "s38_control": [
+   [
+    8.186315016029269,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    9.859524179132748,
+    "X_caps_minus20pct"
+   ],
+   [
+    10.160174181825731,
+    "tabs_mismatch_reversed"
+   ],
+   [
+    10.278332218681285,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    10.427431100815923,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "B82726S2243A020": [
+   [
+    1.5742621958813316,
+    "X_caps_minus20pct"
+   ],
+   [
+    4.661872845451683,
+    "module_DM_80uH"
+   ],
+   [
+    5.949275118706581,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    5.965306428179929,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    5.983546758918948,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "B82726S2243A020_fit3M": [
+   [
+    1.5743208828441624,
+    "X_caps_minus20pct"
+   ],
+   [
+    4.661939426531319,
+    "module_DM_80uH"
+   ],
+   [
+    5.949368227627275,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    5.965386742284707,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    5.983630696884916,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "s38_control_moduleDM49p7": [
+   [
+    8.19129736081225,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    10.16515661178768,
+    "tabs_mismatch_reversed"
+   ],
+   [
+    10.285519850371081,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    10.432417811407426,
+    "Y_caps_minus20pct"
+   ],
+   [
+    10.892310853342067,
+    "X_caps_minus20pct"
+   ]
+  ],
+  "B82726S2243A020_moduleDM49p7": [
+   [
+    2.619767212878685,
+    "X_caps_minus20pct"
+   ],
+   [
+    5.585846954107424,
+    "module_DM_80uH"
+   ],
+   [
+    6.920804699346725,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    6.989516143945764,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    7.010018293625521,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "B82726S2243A020_moduleDM82u": [
+   [
+    5.657248147317105,
+    "X_caps_minus20pct"
+   ],
+   [
+    6.940382156308516,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    8.332903552752086,
+    "module_DM_80uH"
+   ],
+   [
+    8.914191004170334,
+    "tabs_mismatch_reversed"
+   ],
+   [
+    9.142918884013014,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ]
+  ],
+  "B82726S2243A020_moduleDM100u": [
+   [
+    6.95131628444922,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    6.971210626110448,
+    "X_caps_minus20pct"
+   ],
+   [
+    8.925124915462156,
+    "tabs_mismatch_reversed"
+   ],
+   [
+    9.159181569825606,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    9.189653739618123,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "B82726S2243A020_moduleDM120u": [
+   [
+    6.963485737045588,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    8.224214453036438,
+    "X_caps_minus20pct"
+   ],
+   [
+    8.937294136169456,
+    "tabs_mismatch_reversed"
+   ],
+   [
+    9.177261649009466,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    9.201808871270977,
+    "Y_caps_minus20pct"
+   ]
+  ],
+  "s38_control_LDM8u": [
+   [
+    1.5885051962857517,
+    "X_caps_minus20pct"
+   ],
+   [
+    4.681333867262282,
+    "module_DM_80uH"
+   ],
+   [
+    5.9844097974407475,
+    "coil_PE_study16_plus_board_51pF"
+   ],
+   [
+    6.000253489960073,
+    "L1_minus30pct_and_module_choke_minus30pct"
+   ],
+   [
+    6.0144820528310845,
+    "Y_caps_minus20pct"
+   ]
+  ]
+ },
+ "aux_bound": {
+  "committed_s38": {
+   "DM_injection": {
+    "margin_per_module_dB": 119.9000682798482,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 116.88976832320839,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 30.307959267772375,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 27.297659311132563,
+    "at_hz": 150000.0
+   }
+  },
+  "s38_control": {
+   "DM_injection": {
+    "margin_per_module_dB": 119.9000682798482,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 116.88976832320839,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 30.307959267772375,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 27.297659311132563,
+    "at_hz": 150000.0
+   }
+  },
+  "B82726S2243A020": {
+   "DM_injection": {
+    "margin_per_module_dB": 123.23514995958203,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 120.22485000294222,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 29.08592206721133,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 26.07562211057152,
+    "at_hz": 150000.0
+   }
+  },
+  "B82726S2243A020_fit3M": {
+   "DM_injection": {
+    "margin_per_module_dB": 120.52737377162275,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 117.51707381498294,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 29.092159136207616,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 26.081859179567804,
+    "at_hz": 150000.0
+   }
+  },
+  "s38_control_moduleDM49p7": {
+   "DM_injection": {
+    "margin_per_module_dB": 119.89258118732205,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 116.88228123068224,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 30.31305994849034,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 27.30275999185053,
+    "at_hz": 150000.0
+   }
+  },
+  "B82726S2243A020_moduleDM49p7": {
+   "DM_injection": {
+    "margin_per_module_dB": 123.2300166387576,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 120.21971668211779,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 29.09142590413753,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 26.081125947497718,
+    "at_hz": 150000.0
+   }
+  },
+  "B82726S2243A020_moduleDM82u": {
+   "DM_injection": {
+    "margin_per_module_dB": 123.22062374257997,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 120.21032378594016,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 29.111875783417265,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 26.101575826777452,
+    "at_hz": 150000.0
+   }
+  },
+  "B82726S2243A020_moduleDM100u": {
+   "DM_injection": {
+    "margin_per_module_dB": 123.21805300761092,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 120.2077530509711,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 29.12328294204237,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 26.112982985402557,
+    "at_hz": 150000.0
+   }
+  },
+  "B82726S2243A020_moduleDM120u": {
+   "DM_injection": {
+    "margin_per_module_dB": 123.21610995522316,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 120.20580999858335,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 29.135966679592826,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 26.125666722953014,
+    "at_hz": 150000.0
+   }
+  },
+  "s38_control_LDM8u": {
+   "DM_injection": {
+    "margin_per_module_dB": 119.99754162848436,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 116.98724167184454,
+    "at_hz": 26269471.164706055
+   },
+   "CM_injection": {
+    "margin_per_module_dB": 30.311602348079006,
+    "n_modules": 2,
+    "margin_modules_incoherent_dB": 27.301302391439194,
+    "at_hz": 150000.0
+   }
+  }
+ }
+}

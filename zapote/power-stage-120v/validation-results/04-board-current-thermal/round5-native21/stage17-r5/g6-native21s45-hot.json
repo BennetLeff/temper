@@ -1,0 +1,173 @@
+{
+ "gate": "G6 (PLAN-17): R5 derating margin >= 20 % at the re-run B3 pad temperature, CSS2H terminal curve",
+ "part": {
+  "mpn": "CSS2H-2512R-1L00F",
+  "maker": "Bourns",
+  "lcsc": "C4175647",
+  "tcr_ppm": 75.0,
+  "tol": 0.01,
+  "height_mm": 0.77,
+  "doc": "Bourns Model CSS2H-2512 Series Current Sense Resistor, bourns.com PDF (created 27-Jan-2026; 5 pp.; scratch, not committed): p.1 Electrical Characteristics (1.0 mOhm / 5 W @70 C terminal, TCR +/-75 ppm/C incl. Cu terminals, AEC-Q200); p.2 Product Dimensions (H 0.77 max for 1L00x) and Recommended Pad Layout (3.40 / 3.40 / 1.80 mm, sense terminals) / Recommended Measurements; p.3 Terminal Temperature Derating Curve. The LCSC-linked PDF (2023) agrees; a CERN-hosted copy shows an older two-curve (5 W @70 / 3 W @130 C) variant"
+ },
+ "solve": {
+  "tool": "round5-native21/b3/thermal.py",
+  "case": "c28 (29.4 A tank RMS, 11.1 A inlet)",
+  "pitch_mm": 0.25,
+  "h_w_m2k": 25,
+  "ambient_c": 50.0,
+  "geometry": "native-21/verification/native21s45-all-copper.json.gz",
+  "geometry_sha256": "92755f7f71ffad6877dede547fcae3f61a174771fd3438fc0f72f8e62346f725",
+  "board_sha256": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199",
+  "power_copper_board_sha256": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199",
+  "heat_file": "validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json",
+  "heat_sha256": "f8a488281f70a570902e8ee7f1a616a4cb37854145c79a80137216868a871869",
+  "a4_npz_sha256": {
+   "ac_l_main-p0125-pl18-heat.npz": "6dd01cfbe2671b8c53134933efcf247f4e2f235d2d21683f6f63679a17cab2d6",
+   "ac_n_main-p0125-pl18-heat.npz": "a923cbe6b7adf33e4bc4ab20243728edc95902783b4f53b444f71a4a2d6a0c73",
+   "bus-dc-q2-p00625-pl18-heat.npz": "67928ff04b42ce8632c0cf4696241533a2e5aaf52d1ff8f70ba81807a5d93932",
+   "bus-dc-q2-p025-pl18-heat.npz": "6646eb60263006d0156cad0ad35be908e88ac9cea8cfe0e159bba885dd8236c4",
+   "bus_dc_q2-p0125-pl18-heat.npz": "2104900a3f95eb9e421ee928ea18ca9fc88b346a144caf668534883d7ddc32fe",
+   "bus_dc_q5-p0125-pl18-heat.npz": "5517537eb6528dc86c29d736e8f61fc406f92e949873ef139c64589d4fe03594",
+   "bus_hf_q2-p0125-pl18-heat.npz": "4c6a96da0f66874e52df6865189b79ff34d367fe85e79a06e92d4db59a79eaba",
+   "bus_hf_q5-p0125-pl18-heat.npz": "a351aceb7db680b1e80ba91e75bf8de0eff9f1e48e615eea18f848e0c0e6137d",
+   "bus_mixed_q2-p0125-pl18-heat.npz": "4b3c2a53dad38eb9bc6afa0bf93690c5fe8d69ac118dc35e0bc017ac1919348c",
+   "bus_mixed_q5-p0125-pl18-heat.npz": "1e8764f70506fa1c2c46974f749d39ba29e41f2d550c85218ba03f12fb0c16b4",
+   "coil_feed-p0125-pl18-heat.npz": "137fef475fa17cef93e7d0466804e22a9a6cf7c0c0bc168a2ac47c6dcf9747da",
+   "hv_dc-p00625-pl18-heat.npz": "bc6899acf74ed2cc42da14c5eecd5087b23da041927fdc14be337f850f14d893",
+   "hv_hf_a-p00625-pl18-heat.npz": "1a977581931ce8cabbbacb5a48998af3d8516856ed90ce2a4d0843497edee4b2",
+   "hv_hf_b-p00625-pl18-heat.npz": "a2542b1d3f456f344c6cce0c4e8896b9eb90d69da7373b097240ea81db5e3282",
+   "hv_mixed_a-p00625-pl18-heat.npz": "aff6fa4895a233a31f6e8c5b1fed65fadd025d56241a8911cc59f6d812941371",
+   "hv_mixed_b-p00625-pl18-heat.npz": "a9d6a8b255b7b5b9e93d267d4460edbc6ba59e45714426f221981be8b6bcc86b",
+   "leg_a_15-p00625-pl18-heat.npz": "a8b906d6fce33d4c361e9e380c3e0f0a02c0f04a82d578deea6e3b2ace8db476",
+   "leg_a_18p7-p00625-pl18-heat.npz": "aecf59476c5f2a01c591bdf993669660544b7888c6b05a2a3ad992050a0b06ca",
+   "leg_a_19-p00625-pl18-heat.npz": "5cf2adf2e1990a645f4e3722c16e4cc4cbbd6ca57d9b83289dd270264774b282",
+   "leg_a_34-p00625-pl18-heat.npz": "b3e8fee835e7d8759691c91411cddb99ffe54283ea5493219fe4457115ab8e93",
+   "leg_b_18p7-p00625-pl18-heat.npz": "4cc7c8df8acc78f26b57e4489f366a58c8f39a55e971cced508591c1851205cf",
+   "leg_b_34-p00625-pl18-heat.npz": "71e8f05e760d75ac6212e1bf1294b3981eccee16a9218143e790508e7af01e23",
+   "res_a-p0125-pl18-heat.npz": "25ea1f539475f05b6ae9969b9cfb653d2fc51fb7fd0b5f8a619065af54fb1249",
+   "sw_a-p00625-pl18-heat.npz": "8646320d0c0af8f104d27168c6ed9a8762402fb753b1f8aa31244a09471569d5",
+   "sw_a_low-p00625-pl18-heat.npz": "91acc96088f3f7d736e47c9fc8ce7d7f6a7098158802a66b23a18c15bed86a56",
+   "sw_b_high-p00625-pl18-heat.npz": "e61d5e54cb979b8ed337a6bdfa00b452bc3b819738d93de375ce3fe86a21ba3d",
+   "sw_b_low-p00625-pl18-heat.npz": "5026dc7349147ba1dd4c8cefc7ce75c6d29943b471e7f585e0252bf1f256c433"
+  },
+  "balance_w": -8.106894711090717e-09,
+  "board_peak": {
+   "temperature_c": 155.8792949347038,
+   "rise_k": 105.87929493470382,
+   "x_mm": 51.125,
+   "y_mm": 5.875,
+   "layer": "B.Cu"
+  },
+  "copper_temp_model": {
+   "model": "hot-iterated",
+   "alpha_per_k": 0.00393,
+   "t_abs0_c": 50.0,
+   "picard_steps": 1,
+   "max_dT_k": 0.0,
+   "loop_gain_rayleigh": 0.1371323930833656,
+   "loss_w_20c": 14.601023486052373,
+   "loss_w_hot": 19.513055140718794,
+   "loss_multiplier": 1.3364169408643607,
+   "max_heated_copper_c": 155.8792949347038,
+   "loss_multiplier_by_case": {
+    "sw_a-p00625-pl18": 1.28075,
+    "sw_a_low-p00625-pl18": 1.35684,
+    "sw_b_high-p00625-pl18": 1.33748,
+    "sw_b_low-p00625-pl18": 1.33398,
+    "res_a-p0125-pl18": 1.22934,
+    "coil_feed-p0125-pl18": 1.24387,
+    "leg_a_18p7-p00625-pl18": 1.46348,
+    "leg_b_18p7-p00625-pl18": 1.45216,
+    "hv_mixed_a-p00625-pl18": 1.37424,
+    "hv_mixed_b-p00625-pl18": 1.39541,
+    "bus_mixed_q2-p0125-pl18": 1.4163,
+    "bus_mixed_q5-p0125-pl18": 1.38008,
+    "ac_n_main-p0125-pl18": 1.18867,
+    "ac_l_main-p0125-pl18": 1.13693
+   }
+  }
+ },
+ "r5": {
+  "watts_to_board": 0.8643599999999999,
+  "pad_numbers_heated": [
+   "1",
+   "4"
+  ],
+  "pad_cell_count": 210,
+  "pad_cell_max_c": 144.34,
+  "pad_cell_mean_c": 139.46,
+  "vs_stage16_wsk_pad_max_c": 149.1572602111822
+ },
+ "p_diss_w": {
+  "at_trip_29p4A": 0.86436,
+  "at_28A": 0.784,
+  "worst_1pct_tol_and_75ppm_at_pad_max": 0.8808,
+  "worst_margin_pct_authoritative": 31.4
+ },
+ "derating": {
+  "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)": {
+   "p_rated_w": 5.0,
+   "derated_w_at_pad_max": 1.2831,
+   "margin_pct_at_pad_max": 32.6,
+   "derated_w_at_pad_mean": 1.5271,
+   "margin_pct_at_pad_mean": 43.4,
+   "t_ref_for_20pct_margin_c": 148.39,
+   "meets_20pct": true
+  },
+  "older_rev_copy (CERN-hosted copy: 3 W @130 C curve, 0 at 170 C; not on the current Bourns/LCSC PDFs)": {
+   "p_rated_w": 3.0,
+   "derated_w_at_pad_max": 1.9246,
+   "margin_pct_at_pad_max": 55.1,
+   "derated_w_at_pad_mean": 2.2906,
+   "margin_pct_at_pad_mean": 62.3,
+   "t_ref_for_20pct_margin_c": 155.59,
+   "meets_20pct": true
+  }
+ },
+ "authoritative_curve": "current_rev (Bourns site Jan-2026 and LCSC 2023 PDF: 5 W @70 C terminal, 0 at 170 C)",
+ "g6_margin_pct": 32.6,
+ "trip_band": {
+  "tcr_ppm": 75.0,
+  "r5_rise_k": 94.34,
+  "before_kelvin_a": [
+   69.66,
+   116.83
+  ],
+  "kelvin": {
+   "e_bound": 2.0869,
+   "a_per_mv": -1.037,
+   "source": "02-protection-timing/kelvin/budget-native21s45.json, plane-native21s45.json"
+  },
+  "low_after_kelvin_bound_a": 67.5,
+  "floor_a": 64.17
+ },
+ "criteria": {
+  "a_margin_ge_20pct_at_pad_max": true,
+  "b_pad_max_le_160c": true,
+  "c_trip_floor": true
+ },
+ "verdict": "PASS",
+ "heat_semantics_sensitivity": {
+  "stage17_board_heat_on_all_four_pads": {
+   "pad_max_c": 146.38,
+   "pad_mean_c": 140.08,
+   "css2h_margin_pct": 26.8
+  }
+ },
+ "open_vendor_items": [
+  "rating basis (terminal temperature: which point of the copper terminal; current datasheet one curve vs older 5 W / 3 W two-curve copy)",
+  "sense-terminal contact: fingers leave the pad lobe; where the part's own sense point sits",
+  "element-to-terminal thermal resistance (no figure in the datasheet)"
+ ],
+ "controls": {
+  "A_arithmetic_current_part_fail": {
+   "part": "WSK25121L000FEA",
+   "pad_max_c": 149.16,
+   "p_diss_w": 0.86436,
+   "derated_w": 0.2084,
+   "margin_pct": -314.7,
+   "verdict": "FAIL"
+  },
+  "B_solver_stage16_reproduced": null
+ }
+}

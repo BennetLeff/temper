@@ -1,0 +1,179 @@
+{
+ "before": {
+  "right_angle_corners": 49,
+  "acute_corners": 22,
+  "fold_backs": 3,
+  "any_angle_mm": 272.6
+ },
+ "after": {
+  "right_angle_corners": 49,
+  "acute_corners": 22,
+  "fold_backs": 3,
+  "any_angle_mm": 272.6
+ },
+ "applied": {},
+ "applied_total": 0,
+ "left": {
+  "acute | clearance: fill v3v3": {
+   "In1.Cu": 1
+  },
+  "acute | fill: growth near barrier": {
+   "In2.Cu": 1
+  },
+  "acute | metric: fold_backs would rise": {
+   "B.Cu": 2
+  },
+  "acute | metric: no improvement": {
+   "F.Cu": 2,
+   "In2.Cu": 1
+  },
+  "acute | metric: right_angle_corners would rise": {
+   "In2.Cu": 1
+  },
+  "acute | net: locked (RES_A / OCP sense)": {
+   "F.Cu": 3,
+   "In1.Cu": 1
+  },
+  "acute | pad: no trunk to merge the shorter arm onto": {
+   "F.Cu": 1
+  },
+  "acute | spine: segment in the lock region": {
+   "F.Cu": 5,
+   "In2.Cu": 1
+  },
+  "any | barrier: closer to the other side": {
+   "B.Cu": 1,
+   "F.Cu": 5
+  },
+  "any | clearance: fill bus_p": {
+   "In2.Cu": 1
+  },
+  "any | clearance: fill hv_ret": {
+   "F.Cu": 1,
+   "In1.Cu": 2
+  },
+  "any | clearance: fill l_f": {
+   "F.Cu": 1
+  },
+  "any | clearance: fill n_hb": {
+   "B.Cu": 1,
+   "F.Cu": 1
+  },
+  "any | clearance: fill n_ls": {
+   "F.Cu": 2
+  },
+  "any | clearance: fill ocp_kelvin_p": {
+   "In1.Cu": 1
+  },
+  "any | clearance: fill selv_gnd": {
+   "In2.Cu": 3
+  },
+  "any | clearance: fill sw_a": {
+   "F.Cu": 2
+  },
+  "any | clearance: fill v3v3": {
+   "In1.Cu": 4
+  },
+  "any | clearance: pad bus_p": {
+   "F.Cu": 2
+  },
+  "any | clearance: pad crbleed_3": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_b-gate_l": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_b-off_h": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_ret": {
+   "F.Cu": 2
+  },
+  "any | clearance: pad ocp_kelvin_p": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad p_ha": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad r2mid": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad sw_a": {
+   "F.Cu": 3
+  },
+  "any | clearance: pad sw_b": {
+   "F.Cu": 2
+  },
+  "any | clearance: pad xbleed_mid": {
+   "F.Cu": 1
+  },
+  "any | clearance: protected n_ha": {
+   "B.Cu": 1
+  },
+  "any | clearance: track leg_ret": {
+   "F.Cu": 1
+  },
+  "any | clearance: track n_ls": {
+   "In1.Cu": 1
+  },
+  "any | metric: acute_corners would rise": {
+   "F.Cu": 1
+  },
+  "any | metric: right_angle_corners would rise": {
+   "B.Cu": 1,
+   "F.Cu": 3,
+   "In1.Cu": 1,
+   "In2.Cu": 3
+  },
+  "any | net: locked (RES_A / OCP sense)": {
+   "F.Cu": 15,
+   "In2.Cu": 2
+  },
+  "any | room: pieces shorter than 0.05 mm (1 mm at a loose end)": {
+   "B.Cu": 20,
+   "F.Cu": 130,
+   "In1.Cu": 11,
+   "In2.Cu": 18
+  },
+  "any | spine: segment in the lock region": {
+   "B.Cu": 8,
+   "F.Cu": 18
+  },
+  "fold | fill: growth near barrier": {
+   "In1.Cu": 1
+  },
+  "fold | shape: fold not handled (widths or polyline)": {
+   "F.Cu": 2
+  },
+  "right | clearance: protected ocp_kelvin_p": {
+   "In1.Cu": 1
+  },
+  "right | net: locked (RES_A / OCP sense)": {
+   "In1.Cu": 7
+  },
+  "right | pad: corner tip on a pad": {
+   "F.Cu": 1
+  },
+  "right | pad: square exit, the inner corner inside the pad's copper": {
+   "F.Cu": 14
+  },
+  "right | room: arms too short for a mitre of radius >= track width": {
+   "B.Cu": 7,
+   "F.Cu": 9,
+   "In2.Cu": 2
+  },
+  "right | spine: segment in the lock region": {
+   "B.Cu": 1
+  },
+  "right | via: corner tip on a via": {
+   "F.Cu": 1
+  },
+  "right | via: square exit, the inner corner inside the via's copper": {
+   "B.Cu": 1,
+   "F.Cu": 4,
+   "In2.Cu": 1
+  }
+ },
+ "export_board_sha256": "26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87",
+ "log": []
+}

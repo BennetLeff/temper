@@ -1,0 +1,1140 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 6,
+   "list": [
+    {
+     "componentId": 91269,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.4V~34V 1A 35V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_texas-instruments-tps7a4701rgwr_C90084.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 13.1833
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.8768
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 11.4022
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 10.4612
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 10.4612
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 10.4612
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.6995
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.441
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 10.9838
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 10.0773
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 10.0773
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 10.0773
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0bc894ef3cfe4df6b5376bcb5a199f74",
+     "canPresaleNumber": -186,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TPS7A4701RGWR/C90084",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 52.21942,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 13.1833,
+     "componentCode": "C90084",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS7A4701RGWR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583006673556410368",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TPS7A4701RGWR_C90084.pdf",
+     "dataManualFileAccessId": "8588881865444888576",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/ds/symlink/tps7a47.pdf",
+     "componentName": "TI TPS7A4701RGWR",
+     "minImage": "",
+     "minImageAccessId": "8583006674407854080",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-20-EP(5x5)",
+     "describe": "-40\u2103~+125\u2103@(Tj) 1 1.4V~34V 1A 307mV@(1A) 35V 4uVrms 78dB@(1kHz) Adjustable Over Current Protection\u3001Thermal shutdown\u3001Enable control\u3001Input under-voltage protection\u3001Noise bypass terminal\u3001Built-in soft-start Positive VQFN-20-EP(5x5) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "78dB@(1kHz)"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "4uVrms"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "35V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Thermal shutdown\u3001Enable control\u3001Input under-voltage protection\u3001Noise bypass terminal\u3001Built-in soft-start"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "307mV@(1A)"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.4V~34V"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS7A4701</span>RGWR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 541587,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.4V~20.5V 1A 35V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/linear voltage regulators (ldo)_texas instruments_tps7a4701qrgwrq1_C523803.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.7123
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.5527
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.8106
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 8.093
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 8.093
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 8.093
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.3192
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.4873
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.2021
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.796
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.796
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.796
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "b3fb69125a3547418c821e2c89e38cda",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TPS7A4701QRGWRQ1/C523803",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 46.8106,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 10.7123,
+     "componentCode": "C523803",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS7A4701QRGWRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583398319800659968",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2005091811_Texas-Instruments-TPS7A4701QRGWRQ1_C523803.pdf",
+     "dataManualFileAccessId": "8588903278038167552",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps7a47-q1",
+     "componentName": "TI TPS7A4701QRGWRQ1",
+     "minImage": "",
+     "minImageAccessId": "8583398320785645568",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-20-EP(5x5)",
+     "describe": "-40\u2103~+145\u2103@(Tj) 1 1.4V~20.5V\u30011.4V~34V 1A 1mA 35V 4.17uVrms 450mV@(1A) 78dB@(1kHz) Fixed\u3001Adjustable Over Current Protection\u3001Over Temperature Protection\u3001Enable Positive VQFN-20-EP(5x5) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "78dB@(1kHz)"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+145\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "1mA"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "4.17uVrms"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "35V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed\u3001Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Thermal shutdown\u3001Enable control\u3001Input under-voltage protection\u3001Noise bypass terminal"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.4V~20.5V\u30011.4V~34V"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "450mV@(1A)"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS7A4701</span>QRGWRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3069746,
+     "componentLibraryType": "expand",
+     "stockCount": 4,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.4V~34V 1A 35V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_texas-instruments-tps7a4701qrgwtq1_C2865069.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 31.124
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 30.0737
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 13,
+       "productPrice": 30.0737
+      },
+      {
+       "startNumber": 14,
+       "endNumber": 15,
+       "productPrice": 30.0737
+      },
+      {
+       "startNumber": 16,
+       "endNumber": 17,
+       "productPrice": 30.0737
+      },
+      {
+       "startNumber": 18,
+       "endNumber": -1,
+       "productPrice": 30.0737
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 13,
+       "productPrice": 28.9701
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 28.9701
+      },
+      {
+       "startNumber": 18,
+       "endNumber": -1,
+       "productPrice": 28.9701
+      },
+      {
+       "startNumber": 14,
+       "endNumber": 15,
+       "productPrice": 28.9701
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 29.9819
+      },
+      {
+       "startNumber": 16,
+       "endNumber": 17,
+       "productPrice": 28.9701
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0bc894ef3cfe4df6b5376bcb5a199f74",
+     "canPresaleNumber": 4,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS7A4701QRGWTQ1/C2865069",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 167.626,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 31.124,
+     "componentCode": "C2865069",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS7A4701QRGWTQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8759639135856267264",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com/cn/lit/gpn/tps7a47-q1",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps7a47-q1",
+     "componentName": "TI TPS7A4701QRGWTQ1",
+     "minImage": "",
+     "minImageAccessId": "8759639136938803200",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-20-EP(5x5)",
+     "describe": "-40\u2103~+145\u2103@(Tj) 1 1.4V~34V 1A 307mV@(1A) 35V 4.2uVrms 580uA 78dB@(1kHz) Adjustable Over Current Protection\u3001Over Temperature Protection\u3001Enable Positive VQFN-20-EP(5x5) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "78dB@(1kHz)"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+145\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "580uA"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "4.2uVrms"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "35V"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Thermal shutdown\u3001Enable control"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "307mV@(1A)"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.4V~34V"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS7A4701</span>QRGWTQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3077347,
+     "componentLibraryType": "expand",
+     "stockCount": 16,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.4V~34V 1A 35V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_texas-instruments-tps7a4701mrgwrep_C2872670.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.9211
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.4728
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.5904
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.85
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.85
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.85
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.1252
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 7.5619
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 7.5619
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.2752
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 10.5203
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 7.5619
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0bc894ef3cfe4df6b5376bcb5a199f74",
+     "canPresaleNumber": -5,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS7A4701MRGWREP/C2872670",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 38.5,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 10.9211,
+     "componentCode": "C2872670",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS7A4701MRGWREP",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583876034693775360",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com/cn/lit/gpn/tps7a4701-ep",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps7a4701-ep",
+     "componentName": "TI TPS7A4701MRGWREP",
+     "minImage": "",
+     "minImageAccessId": "8583876035519647744",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-20-EP(5x5)",
+     "describe": "-55\u2103~+125\u2103 1 1.4V~34V 1A 307mV@(1A) 35V 4uVrms 580uA 78dB@(1kHz) Adjustable Over Current Protection\u3001Enable\u3001Thermal Shutdown Positive VQFN-20-EP(5x5) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "78dB@(1kHz)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "580uA"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "4uVrms"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "35V"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Thermal shutdown\u3001Enable control\u3001Input under-voltage protection\u3001Adjustable soft-start"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "307mV@(1A)"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.4V~34V"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS7A4701</span>MRGWREP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 69316,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "erpComponentName": "1.4V~34V 1A 35V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/linear voltage regulators (ldo)_texas instruments_tps7a4701rgwt_C68214.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.7217
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.1084
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 11.0434
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 10.1138
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 10.1138
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 10.1138
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.2548
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.6641
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 9.7426
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 10.6382
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 9.7426
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 9.7426
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": -32,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TPS7A4701RGWT/C68214",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 54.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.7217,
+     "componentCode": "C68214",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS7A4701RGWT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582978440610267136",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/1804240821_Texas-Instruments-TPS7A4701RGWT_C68214.pdf",
+     "dataManualFileAccessId": "8588858391724351488",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps7a47",
+     "componentName": "TI TPS7A4701RGWT",
+     "minImage": "",
+     "minImageAccessId": "8582978441541267456",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-20-EP(5x5)",
+     "describe": "-40\u2103~+125\u2103 1 1.4V~34V 1A 35V 4.67uVrms 450mV@(1A) 78dB@(1kHz) Adjustable Over Current Protection\u3001Thermal Shutdown\u3001Enable control\u3001Input undervoltage protection Positive VQFN-20-EP(5x5) Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Power Supply Rejection Ratio (PSRR)",
+       "attribute_value_name": "78dB@(1kHz)"
+      },
+      {
+       "attribute_name_en": "standby current",
+       "attribute_value_name": "6.1mA"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Noise",
+       "attribute_value_name": "4.67uVrms"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "35V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "1A"
+      },
+      {
+       "attribute_name_en": "Output Configuration",
+       "attribute_value_name": "Positive"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Over Current Protection\u3001Short Circuit Protection\u3001Thermal shutdown\u3001Enable control\u3001Input under-voltage protection\u3001Noise bypass terminal\u3001Built-in soft-start"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "1.4V~34V"
+      },
+      {
+       "attribute_name_en": "Voltage Dropout",
+       "attribute_value_name": "450mV@(1A)"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS7A4701</span>RGWT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3209580,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "TPS7A4701-20",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0007
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0002
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0002
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0007
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TPS7A470120/C2915646",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.001,
+     "preMinPurchaseNum": 1000,
+     "minPurchaseNum": 1000,
+     "initialPrice": 0.0002,
+     "componentCode": "C2915646",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS7A4701-20",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI TPS7A4701-20",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-20-EP(5x5)",
+     "describe": "VQFN-20-EP(5x5) New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS7A4701</span>-20",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TPS7A4701"
+ },
+ "message": null,
+ "_kw": "TPS7A4701",
+ "_fetched_utc": "2026-10-13T20:40:07Z"
+}

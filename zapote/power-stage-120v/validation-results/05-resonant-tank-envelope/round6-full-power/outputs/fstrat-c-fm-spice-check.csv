@@ -1,0 +1,4 @@
+case,aborted,qs_I_line_A,spice_I_line_A,qs_I_pk_A,spice_I_pk_A,qs_P_W,spice_P_W,qs_PF,spice_PF_ideal_bridge,f_min_kHz,f_max_kHz
+enamelled_steel-nom-120V-constf,False,21.15,21.16,45.02,43.72,868.7,869.3,1.0,0.9915,46.69,46.69
+enamelled_steel-nom-120V-clip45,False,25.14,25.18,45.0,43.23,1186.9,1190.0,0.9576,0.9439,41.71,46.7
+aluminium_clad_multiply-low-108V-clip45,False,26.45,26.58,45.0,43.63,975.0,982.7,0.8741,0.8433,41.65,49.93

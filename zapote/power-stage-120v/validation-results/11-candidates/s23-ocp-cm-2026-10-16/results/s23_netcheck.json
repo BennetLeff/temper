@@ -1,0 +1,358 @@
+{
+ "netlist_sha256": "1f85ad2d4131a02953f22e5043f1a114fa1c37716e81001c6db7aad2a40c3ed4",
+ "bom_sha256": "e092da7688668dd51e7255edde2c55cd5358c2659782a6c1fe3db92cb02fd45b",
+ "pins": {
+  "U6": {
+   "2": "ocp_kelvin_p",
+   "5": "hot5",
+   "3": "ocp_node",
+   "4": "ocp_thresh",
+   "1": "ocp_ok_hot"
+  },
+  "U7": {
+   "2": "ocp_kelvin_p",
+   "5": "hot5",
+   "4": "vsense_in",
+   "3": "ovp_thresh",
+   "1": "ovp_ok_hot"
+  },
+  "U5": {
+   "2": "ocp_kelvin_p",
+   "1": "ref25",
+   "3": "u_ref-nc"
+  },
+  "U8": {
+   "2": "ocp_kelvin_p",
+   "5": "hot5",
+   "1": "ocp_ok_hot",
+   "3": "ovp_ok_hot",
+   "6": "hot5_ok_hot",
+   "4": "bus_fault_hot"
+  }
+ },
+ "nets": {
+  "ocp_node": [
+   [
+    "C30",
+    "1"
+   ],
+   [
+    "R32",
+    "2"
+   ],
+   [
+    "R33",
+    "1"
+   ],
+   [
+    "U6",
+    "3"
+   ]
+  ],
+  "ocp_thresh": [
+   [
+    "C31",
+    "1"
+   ],
+   [
+    "R34",
+    "2"
+   ],
+   [
+    "R35",
+    "1"
+   ],
+   [
+    "U6",
+    "4"
+   ]
+  ],
+  "ovp_thresh": [
+   [
+    "C33",
+    "1"
+   ],
+   [
+    "R36",
+    "2"
+   ],
+   [
+    "R37",
+    "1"
+   ],
+   [
+    "U7",
+    "3"
+   ]
+  ],
+  "vsense_in": [
+   [
+    "C27",
+    "1"
+   ],
+   [
+    "R29",
+    "2"
+   ],
+   [
+    "R30",
+    "1"
+   ],
+   [
+    "U4",
+    "2"
+   ],
+   [
+    "U7",
+    "4"
+   ]
+  ],
+  "ocp_ok_hot": [
+   [
+    "U6",
+    "1"
+   ],
+   [
+    "U8",
+    "1"
+   ]
+  ],
+  "ovp_ok_hot": [
+   [
+    "U7",
+    "1"
+   ],
+   [
+    "U8",
+    "3"
+   ]
+  ],
+  "ref25": [
+   [
+    "R144",
+    "1"
+   ],
+   [
+    "R31",
+    "2"
+   ],
+   [
+    "R32",
+    "1"
+   ],
+   [
+    "R34",
+    "1"
+   ],
+   [
+    "R36",
+    "1"
+   ],
+   [
+    "U5",
+    "1"
+   ]
+  ],
+  "ocp_kelvin_n": [
+   [
+    "R33",
+    "2"
+   ],
+   [
+    "R5",
+    "3"
+   ]
+  ],
+  "hot5": [
+   [
+    "C149",
+    "1"
+   ],
+   [
+    "C26",
+    "1"
+   ],
+   [
+    "C28",
+    "1"
+   ],
+   [
+    "C32",
+    "1"
+   ],
+   [
+    "C34",
+    "1"
+   ],
+   [
+    "C35",
+    "1"
+   ],
+   [
+    "C36",
+    "1"
+   ],
+   [
+    "C48",
+    "1"
+   ],
+   [
+    "C49",
+    "1"
+   ],
+   [
+    "R31",
+    "1"
+   ],
+   [
+    "R48",
+    "1"
+   ],
+   [
+    "R50",
+    "1"
+   ],
+   [
+    "U14",
+    "5"
+   ],
+   [
+    "U15",
+    "5"
+   ],
+   [
+    "U3",
+    "5"
+   ],
+   [
+    "U4",
+    "1"
+   ],
+   [
+    "U6",
+    "5"
+   ],
+   [
+    "U7",
+    "5"
+   ],
+   [
+    "U8",
+    "5"
+   ],
+   [
+    "U9",
+    "3"
+   ]
+  ]
+ },
+ "ocp_kelvin_p_members": 32,
+ "bom": {
+  "U6": [
+   "TLV3201AIDBVR",
+   "Package_TO_SOT_SMD:SOT-23-5"
+  ],
+  "U7": [
+   "TLV3201AIDBVR",
+   "Package_TO_SOT_SMD:SOT-23-5"
+  ],
+  "U10": [
+   "TLV3201AIDBVR",
+   "Package_TO_SOT_SMD:SOT-23-5"
+  ],
+  "U11": [
+   "TLV3201AIDBVR",
+   "Package_TO_SOT_SMD:SOT-23-5"
+  ],
+  "U12": [
+   "TLV3201AIDBVR",
+   "Package_TO_SOT_SMD:SOT-23-5"
+  ],
+  "U8": [
+   "SN74LVC1G10DBVR",
+   "Package_TO_SOT_SMD:SOT-23-6"
+  ],
+  "U5": [
+   "LM4050AEM3-2.5/NOPB",
+   "Package_TO_SOT_SMD:SOT-23"
+  ],
+  "R32": [
+   "RT0603BRD0710KL",
+   "Resistor_SMD:R_0603_1608Metric"
+  ],
+  "R33": [
+   "RT0603BRD0710KL",
+   "Resistor_SMD:R_0603_1608Metric"
+  ],
+  "R34": [
+   "RT0603BRD0712K6L",
+   "Resistor_SMD:R_0603_1608Metric"
+  ],
+  "R35": [
+   "TNPW060311K7BEEA",
+   "Resistor_SMD:R_0603_1608Metric"
+  ],
+  "R36": [
+   "RT0603BRD0710KL",
+   "Resistor_SMD:R_0603_1608Metric"
+  ],
+  "R37": [
+   "RT0603BRD07140KL",
+   "Resistor_SMD:R_0603_1608Metric"
+  ],
+  "C30": [
+   "CL10C101JB8NNNC",
+   "Capacitor_SMD:C_0603_1608Metric"
+  ],
+  "C31": [
+   "C0603C102J5GACTU",
+   "Capacitor_SMD:C_0603_1608Metric"
+  ],
+  "R31": [
+   "0603WAF5601T5E",
+   "Resistor_SMD:R_0603_1608Metric"
+  ]
+ },
+ "push_pull_required": {
+  "ocp_ok_hot": [
+   [
+    "U6",
+    "1"
+   ],
+   [
+    "U8",
+    "1"
+   ]
+  ],
+  "ovp_ok_hot": [
+   [
+    "U7",
+    "1"
+   ],
+   [
+    "U8",
+    "3"
+   ]
+  ]
+ },
+ "s21_est_C": {
+  "U6": {
+   "c17.5_h10": 89.9,
+   "c22_h10": 90.6,
+   "c28_h10": 104.4
+  },
+  "U7": {
+   "c17.5_h10": 90.4,
+   "c22_h10": 91.5,
+   "c28_h10": 104.6
+  }
+ },
+ "s21_rating": "TI SBOS561C (rev. May 2024) p.4 (sha 1777bba814c74772); Specified temperature -40..125 C (EC tables at TA; abs max operating -55..125 C, TJ 150 C); RthJA 237.8 K/W DBV",
+ "timing_constants_fault_check": {
+  "T_FRONT": "555e-9",
+  "T_CHAIN": "573.2e-9",
+  "T_Q_EXTRA": "1.17e-6 - 181.6e-9",
+  "T_GATE": "150e-9"
+ },
+ "timing_readme_line": "| Shunt OCP | All five requested slopes, with \u00b14 mV datasheet and \u00b15 mV runbook stress: 20 cases | The exact resistor network gives an ideal trip of **60.976 A \u2212 2000\u00b7VOS**. At 3 MA/s, the \u00b14 mV corners detect at **54.64/70.64 A**, about **555 ns** after their *own* thresholds. At 100 MA/s the \u22124 mV corner detects at **119.35 A**. | The old 500 ns RC + 55 ns comparator link tracks the 3 MA/s model"
+}

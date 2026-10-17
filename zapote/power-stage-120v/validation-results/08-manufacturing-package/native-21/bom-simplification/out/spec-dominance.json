@@ -1,0 +1,1333 @@
+{
+ "pairs": 25,
+ "regressions": [
+  {
+   "old": "1N4148W-7-F",
+   "new": "1N4148W",
+   "attr": "Current - Rectified",
+   "old_v": "300mA",
+   "new_v": "150mA",
+   "accepted": "D14-D16 sit inside the 2.52 V ref domain: reverse voltage <= 2.52 V, forward current <= (2.52 - 0.6) / 1 k = 1.9 mA. Against 150 mA."
+  },
+  {
+   "old": "1N4148W-7-F",
+   "new": "1N4148W",
+   "attr": "Non-Repetitive Peak Forward Surge Current",
+   "old_v": "2A",
+   "new_v": "1A",
+   "accepted": "D14-D16 sit inside the 2.52 V ref domain: reverse voltage <= 2.52 V, forward current <= (2.52 - 0.6) / 1 k = 1.9 mA. No surge source; 1 A >> 1.9 mA."
+  },
+  {
+   "old": "1N4148W-7-F",
+   "new": "1N4148W",
+   "attr": "Voltage - DC Reverse(Vr)",
+   "old_v": "100V",
+   "new_v": "75V",
+   "accepted": "D14-D16 sit inside the 2.52 V ref domain: reverse voltage <= 2.52 V, forward current <= (2.52 - 0.6) / 1 k = 1.9 mA. Against 75 V."
+  },
+  {
+   "old": "MMBT3904-7-F",
+   "new": "MMBT3904",
+   "attr": "Current - Collector Cutoff",
+   "old_v": "50nA",
+   "new_v": "100nA",
+   "accepted": "Q7-Q9 switch isoin: Ic <= 5.25 V / 10 k = 0.53 mA, so off-state 100 nA x 10 k = 1 mV off the 5 V high level."
+  },
+  {
+   "old": "MMBT3904-7-F",
+   "new": "MMBT3904",
+   "attr": "Pd - Power Dissipation",
+   "old_v": "310mW",
+   "new_v": "200mW",
+   "accepted": "Q7-Q9 switch isoin: Ic <= 5.25 V / 10 k = 0.53 mA, so Pd < 0.2 mW against 200 mW."
+  },
+  {
+   "old": "MMBT3904-7-F",
+   "new": "MMBT3904",
+   "attr": "Vce Saturation(VCE(sat))",
+   "old_v": "200mV",
+   "new_v": "300mV",
+   "accepted": "Q7-Q9 switch isoin: Ic <= 5.25 V / 10 k = 0.53 mA, so the 300 mV max (rated at 10 mA / 1 mA) leaves > 1.2 V below the ISO7710 1.5 V VIL."
+  },
+  {
+   "old": "RT0603BRD074K99L",
+   "new": "0603WAF4991T5E",
+   "attr": "Temperature Coefficient@res",
+   "old_v": "±25ppm/℃",
+   "new_v": "±100ppm/℃",
+   "accepted": "As tolerance: included in the 4.88 k worst case (PROPOSAL V1)."
+  },
+  {
+   "old": "RT0603BRD074K99L",
+   "new": "0603WAF4991T5E",
+   "attr": "Tolerance",
+   "old_v": "±0.1%",
+   "new_v": "±1%",
+   "accepted": "R71/72/74/75 set a 3 mA bleed (+/-1 % irrelevant); R94 RSR 4.99 k -1 % -1.25 % TCR = 4.88 k stays in TI's 4.8-21 k range (PROPOSAL V1)."
+  },
+  {
+   "old": "RT0603BRD0718K2L",
+   "new": "0603WAF1802T5E",
+   "attr": "Temperature Coefficient@res",
+   "old_v": "±25ppm/℃",
+   "new_v": "±100ppm/℃",
+   "accepted": "R92: +/-100 ppm over 100 K = +/-1 %, counted in the +/-1.9 % above (PROPOSAL V2)."
+  },
+  {
+   "old": "RT0603BRD0718K2L",
+   "new": "0603WAF1802T5E",
+   "attr": "Tolerance",
+   "old_v": "±0.1%",
+   "new_v": "±1%",
+   "accepted": "R92 RCLK: TI SLLSFM0A Table 8-1 recommends 1 % RCLK; R adds +/-1.9 % (tol + TCR) to the IC's own spread around ~607 kHz (PROPOSAL V2)."
+  },
+  {
+   "old": "RT0603BRD0730K1L",
+   "new": "0603WAF3002T5E",
+   "attr": "Temperature Coefficient@res",
+   "old_v": "±25ppm/℃",
+   "new_v": "±100ppm/℃",
+   "accepted": "R93: +/-1 % over 100 K, as tolerance (PROPOSAL V3)."
+  },
+  {
+   "old": "RT0603BRD0730K1L",
+   "new": "0603WAF3002T5E",
+   "attr": "Tolerance",
+   "old_v": "±0.1%",
+   "new_v": "±1%",
+   "accepted": "R93 RILIM: +/-1 % is +/-8 mA on 0.79 A, inside TI's own 0.56-1.02 A spread (PROPOSAL V3)."
+  }
+ ],
+ "unaccepted": [],
+ "rows": [
+  {
+   "old": "C0603C104K5RACTU",
+   "old_listing": "C0603C104K5RACTU",
+   "new": "CC0603KRX7R9BB104",
+   "new_listing": "CC0603KRX7R9BB104",
+   "checks": [
+    {
+     "attr": "Capacitance",
+     "old": "100nF",
+     "new": "100nF",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@cap",
+     "old": "X7R",
+     "new": "X7R",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±10%",
+     "new": "±10%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage Rating",
+     "old": "50V",
+     "new": "50V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "C0603C101J5GACTU",
+   "old_listing": "C0603C101J5GACTU",
+   "new": "CL10C101JB8NNNC",
+   "new_listing": "CL10C101JB8NNNC",
+   "checks": [
+    {
+     "attr": "Capacitance",
+     "old": "100pF",
+     "new": "100pF",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@cap",
+     "old": "C0G",
+     "new": "C0G",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±5%",
+     "new": "±5%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage Rating",
+     "old": "50V",
+     "new": "50V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "GRM21BR71H105KA12L",
+   "old_listing": "GRM21BR71H105KA12L",
+   "new": "CL21B105KBFNNNE",
+   "new_listing": "CL21B105KBFNNNE",
+   "checks": [
+    {
+     "attr": "Capacitance",
+     "old": "1uF",
+     "new": "1uF",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@cap",
+     "old": "X7R",
+     "new": "X7R",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±10%",
+     "new": "±10%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage Rating",
+     "old": "50V",
+     "new": "50V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0805",
+     "new": "0805",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "GRM31CR71H475KA12L",
+   "old_listing": "GRM31CR71H475KA12L",
+   "new": "1206B475K500NT",
+   "new_listing": "1206B475K500NT",
+   "checks": [
+    {
+     "attr": "Capacitance",
+     "old": "4.7uF",
+     "new": "4.7uF",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@cap",
+     "old": "X7R",
+     "new": "X7R",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±10%",
+     "new": "±10%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage Rating",
+     "old": "50V",
+     "new": "50V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "1206",
+     "new": "1206",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "GRM155R71E104KE14D",
+   "old_listing": "GRM155R71E104KE14D",
+   "new": "CL05B104KB54PNC",
+   "new_listing": "CL05B104KB54PNC",
+   "checks": [
+    {
+     "attr": "Capacitance",
+     "old": "100nF",
+     "new": "100nF",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@cap",
+     "old": "X7R",
+     "new": "X7R",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±10%",
+     "new": "±10%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage Rating",
+     "old": "25V",
+     "new": "50V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0402",
+     "new": "0402",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "GRM32ER71H106KA12L",
+   "old_listing": "GRM32ER71H106KA12L",
+   "new": "UMK325AB7106KM-T",
+   "new_listing": "UMK325AB7106KM-T",
+   "checks": [
+    {
+     "attr": "Capacitance",
+     "old": "10uF",
+     "new": "10uF",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@cap",
+     "old": "X7R",
+     "new": "X7R",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±10%",
+     "new": "±10%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage Rating",
+     "old": "50V",
+     "new": "50V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "1210",
+     "new": "1210",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-0710KL",
+   "old_listing": "RC0603FR-0710KL",
+   "new": "0603WAF1002T5E",
+   "new_listing": "0603WAF1002T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "10kΩ",
+     "new": "10kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-07100RL",
+   "old_listing": "RC0603FR-07100RL",
+   "new": "0603WAF1000T5E",
+   "new_listing": "0603WAF1000T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "100Ω",
+     "new": "100Ω",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-07100KL",
+   "old_listing": "RC0603FR-07100KL",
+   "new": "0603WAF1003T5E",
+   "new_listing": "0603WAF1003T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "100kΩ",
+     "new": "100kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-07330RL",
+   "old_listing": "RC0603FR-07330RL",
+   "new": "0603WAF3300T5E",
+   "new_listing": "0603WAF3300T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "330Ω",
+     "new": "330Ω",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-071KL",
+   "old_listing": "RC0603FR-071KL",
+   "new": "0603WAF1001T5E",
+   "new_listing": "0603WAF1001T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "1kΩ",
+     "new": "1kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-075K6L",
+   "old_listing": "RC0603FR-075K6L",
+   "new": "0603WAF5601T5E",
+   "new_listing": "0603WAF5601T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "5.6kΩ",
+     "new": "5.6kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603FR-0733KL",
+   "old_listing": "RC0603FR-0733KL",
+   "new": "0603WAF3302T5E",
+   "new_listing": "0603WAF3302T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "33kΩ",
+     "new": "33kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC0603JR-070RL",
+   "old_listing": "RC0603JR-070RL",
+   "new": "0603WAF0000T5E",
+   "new_listing": "0603WAF0000T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "0Ω",
+     "new": "0Ω",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "-",
+     "new": "-",
+     "rule": "unparsed: must match",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±5%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC1206FR-071KL",
+   "old_listing": "RC1206FR-071KL",
+   "new": "1206W4F1001T5E",
+   "new_listing": "1206W4F1001T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "250mW",
+     "new": "250mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "1kΩ",
+     "new": "1kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "200V",
+     "new": "200V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "1206",
+     "new": "1206",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC1206FR-071RL",
+   "old_listing": "RC1206FR-071RL",
+   "new": "1206W4F100KT5E",
+   "new_listing": "1206W4F100KT5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "250mW",
+     "new": "250mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "1Ω",
+     "new": "1Ω",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±200ppm/℃",
+     "new": "±200ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "200V",
+     "new": "200V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "1206",
+     "new": "1206",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "1N4148W-7-F",
+   "old_listing": "1N4148W-7-F",
+   "new": "1N4148W",
+   "new_listing": "1N4148W",
+   "checks": [
+    {
+     "attr": "Current - Rectified",
+     "old": "300mA",
+     "new": "150mA",
+     "rule": ">=",
+     "ok": false
+    },
+    {
+     "attr": "Non-Repetitive Peak Forward Surge Current",
+     "old": "2A",
+     "new": "1A",
+     "rule": ">=",
+     "ok": false
+    },
+    {
+     "attr": "Pd - Power Dissipation",
+     "old": "400mW",
+     "new": "400mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Reverse Leakage Current (Ir)",
+     "old": "1uA@75V",
+     "new": "1uA@75V",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Reverse Recovery Time (trr)",
+     "old": "4ns",
+     "new": "4ns",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage - DC Reverse(Vr)",
+     "old": "100V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": false
+    },
+    {
+     "attr": "Voltage - Forward(Vf@If)",
+     "old": "1.25V@150mA",
+     "new": "1V@50mA",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "SOD-123",
+     "new": "SOD-123",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "MMBT3904-7-F",
+   "old_listing": "MMBT3904-7-F",
+   "new": "MMBT3904",
+   "new_listing": "MMBT3904(RANGE:100-300)",
+   "checks": [
+    {
+     "attr": "Collector - Emitter Voltage VCEO",
+     "old": "40V",
+     "new": "40V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Current - Collector Cutoff",
+     "old": "50nA",
+     "new": "100nA",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Current - Collector(Ic)",
+     "old": "200mA",
+     "new": "200mA",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "DC Current Gain",
+     "old": "100",
+     "new": "100",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Emitter-Base Voltage(Vebo)",
+     "old": "6V",
+     "new": "6V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Pd - Power Dissipation",
+     "old": "310mW",
+     "new": "200mW",
+     "rule": ">=",
+     "ok": false
+    },
+    {
+     "attr": "Transition frequency(fT)",
+     "old": "300MHz",
+     "new": "300MHz",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Vce Saturation(VCE(sat))",
+     "old": "200mV",
+     "new": "300mV",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "package",
+     "old": "SOT-23",
+     "new": "SOT-23",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RT0603BRD07133KL",
+   "old_listing": "RT0603BRD07133KL",
+   "new": "ARG03BTC1333",
+   "new_listing": "ARG03BTC1333",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "133kΩ",
+     "new": "133kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±25ppm/℃",
+     "new": "±25ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±0.1%",
+     "new": "±0.1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RT0603BRD074K99L",
+   "old_listing": "RT0603BRD074K99L",
+   "new": "0603WAF4991T5E",
+   "new_listing": "0603WAF4991T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "4.99kΩ",
+     "new": "4.99kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±25ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±0.1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RC1206FR-07120KL",
+   "old_listing": "RC1206FR-07120KL",
+   "new": "1206W4F1003T5E",
+   "new_listing": "1206W4F1003T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "250mW",
+     "new": "250mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "120kΩ",
+     "new": "100kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±100ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "200V",
+     "new": "200V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "1206",
+     "new": "1206",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RT0603BRD0718K2L",
+   "old_listing": "RT0603BRD0718K2L",
+   "new": "0603WAF1802T5E",
+   "new_listing": "0603WAF1802T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "18.2kΩ",
+     "new": "18kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±25ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±0.1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RT0603BRD0730K1L",
+   "old_listing": "RT0603BRD0730K1L",
+   "new": "0603WAF3002T5E",
+   "new_listing": "0603WAF3002T5E",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "30.1kΩ",
+     "new": "30kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±25ppm/℃",
+     "new": "±100ppm/℃",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±0.1%",
+     "new": "±1%",
+     "rule": "<=",
+     "ok": false
+    },
+    {
+     "attr": "Voltage-Supply(Max)",
+     "old": "75V",
+     "new": "75V",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RT0603BRD076K12L",
+   "old_listing": "RT0603BRD076K12L",
+   "new": "RT0603BRD076K2L",
+   "new_listing": "RT0603BRD076K2L",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "6.12kΩ",
+     "new": "6.2kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±25ppm/℃",
+     "new": "±25ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±0.1%",
+     "new": "±0.1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "old": "RT0603BRD0710KL",
+   "old_listing": "RT0603BRD0710KL",
+   "new": "TNPW060311K7BEEA",
+   "new_listing": "TNPW060311K7BEEA",
+   "checks": [
+    {
+     "attr": "Power(Watts)",
+     "old": "100mW",
+     "new": "100mW",
+     "rule": ">=",
+     "ok": true
+    },
+    {
+     "attr": "Resistance",
+     "old": "10kΩ",
+     "new": "11.7kΩ",
+     "rule": "same",
+     "ok": true
+    },
+    {
+     "attr": "Temperature Coefficient@res",
+     "old": "±25ppm/℃",
+     "new": "±25ppm/℃",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "Tolerance",
+     "old": "±0.1%",
+     "new": "±0.1%",
+     "rule": "<=",
+     "ok": true
+    },
+    {
+     "attr": "package",
+     "old": "0603",
+     "new": "0603",
+     "rule": "same",
+     "ok": true
+    }
+   ]
+  }
+ ]
+}

@@ -38,14 +38,16 @@ confirm the governing edition, applicable appliance part and voltage convention.
 [Table/footnote excerpt](https://www.equipmentnorm.com/NewSamples/IEC/178131394/IEC-60335-1-2020-2.pdf)
 (printed p113, sample PDF p8); [IEC publication](https://webstore.iec.ch/en/publication/105687).
 
-The TI UCC21550, AMC1311 and ISO7710 insulation tables state material group I
-and pollution degree 2. Their package distances are evidence about those
+The TI AMC1311 and ISO7710 insulation tables state material group I and
+pollution degree 2. The gate drivers are the Infineon 2EDR8259X since stage 29
+(DECISIONS 31): its Table 24 states material group II (CTI > 400), PD2, and
+package CPG/CLR of 8 mm, exactly the 8.0 mm floor rather than above it. Their package distances are evidence about those
 packages, not blanket PD3 appliance approval. Board slots do not extend
 package surface creepage. The Coilcraft CST3015 datasheet's ≥8 mm spacing
 and 5 kVrms test do not supply its CTI/PD certificate. The IRM-20's input/output
 pin span is not evidence of internal encapsulation or PD3 certification scope.
 
-Sources: [UCC21550](https://www.ti.com/lit/ds/symlink/ucc21550.pdf),
+Sources: [2EDR8259X](https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf) (Rev 1.7; UCC21550 until stage 28),
 [AMC1311](https://www.ti.com/lit/ds/symlink/amc1311.pdf),
 [ISO7710](https://www.ti.com/lit/ds/symlink/iso7710.pdf),
 [CST3015](https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf),

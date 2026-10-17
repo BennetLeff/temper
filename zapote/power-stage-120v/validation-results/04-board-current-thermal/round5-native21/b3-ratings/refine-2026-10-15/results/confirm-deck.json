@@ -1,0 +1,498 @@
+[
+ {
+  "config": "CFdeck_c22_h10_R5x1_f0p934",
+  "what": [
+   "fix",
+   "c22_h10_R5x1_deck",
+   0.934,
+   22.0,
+   1.0
+  ],
+  "bay": 55.0,
+  "direct": {
+   "lam_block": -0.0,
+   "lam_fet_row": 0.7,
+   "block_est_c": 130.0,
+   "fet_row_est_c": 129.3,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.5
+   ],
+   "R5_el": 33.6,
+   "R5_term": 26.1,
+   "U26": 12.5,
+   "U42": 25.0,
+   "C40": -1.2,
+   "C38": 2.0,
+   "gateR_el": 18.0,
+   "gateR_der": -37.4,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": -0.0,
+   "min_gated_ext": -37.4,
+   "lead_sink_w": 1.073457187390785,
+   "balance_rel_max": 3.6628131815700826e-11
+  },
+  "superposed": {
+   "lam_block": -0.0,
+   "lam_fet_row": 0.7,
+   "block_est_c": 130.0,
+   "fet_row_est_c": 129.3,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.5
+   ],
+   "R5_el": 33.6,
+   "R5_term": 26.1,
+   "U26": 12.5,
+   "U42": 25.0,
+   "C40": -1.2,
+   "C38": 2.0,
+   "gateR_el": 18.0,
+   "gateR_der": -37.4,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": -0.0,
+   "min_gated_ext": -37.4,
+   "lead_sink_w": 1.0734516476869103,
+   "balance_rel_max": 2.5009877393895194e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ },
+ {
+  "config": "CFdeck_c28_h10_R5x1_f0p369",
+  "what": [
+   "fix",
+   "c28_h10_R5x1_deck",
+   0.369,
+   28.0,
+   1.0
+  ],
+  "bay": 55.0,
+  "direct": {
+   "lam_block": 0.1,
+   "lam_fet_row": 6.6,
+   "block_est_c": 129.9,
+   "fet_row_est_c": 123.4,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    14.5
+   ],
+   "R5_el": 27.7,
+   "R5_term": 17.4,
+   "U26": 14.5,
+   "U42": 26.6,
+   "C40": 4.8,
+   "C38": 9.9,
+   "gateR_el": 25.0,
+   "gateR_der": -28.2,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 0.1,
+   "min_gated_ext": -28.2,
+   "lead_sink_w": 0.4128663120021299,
+   "balance_rel_max": 5.294011689741336e-11
+  },
+  "superposed": {
+   "lam_block": 0.1,
+   "lam_fet_row": 6.6,
+   "block_est_c": 129.9,
+   "fet_row_est_c": 123.4,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    14.5
+   ],
+   "R5_el": 27.7,
+   "R5_term": 17.4,
+   "U26": 14.5,
+   "U42": 26.6,
+   "C40": 4.8,
+   "C38": 9.9,
+   "gateR_el": 25.0,
+   "gateR_der": -28.2,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 0.1,
+   "min_gated_ext": -28.2,
+   "lead_sink_w": 0.4128664246204252,
+   "balance_rel_max": 2.5297636635700396e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ },
+ {
+  "config": "CFdeck_c28_h10_R5x0p5_f0p59",
+  "what": [
+   "fix",
+   "c28_h10_R5x0.5_deck",
+   0.59,
+   28.0,
+   0.5
+  ],
+  "bay": 55.0,
+  "direct": {
+   "lam_block": 1.6,
+   "lam_fet_row": -0.0,
+   "block_est_c": 128.4,
+   "fet_row_est_c": 130.0,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.1
+   ],
+   "R5_el": 36.8,
+   "R5_term": 30.4,
+   "U26": 12.1,
+   "U42": 24.8,
+   "C40": -1.8,
+   "C38": 1.0,
+   "gateR_el": 17.2,
+   "gateR_der": -38.7,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": -0.0,
+   "min_gated_ext": -38.7,
+   "lead_sink_w": 0.9728978811163509,
+   "balance_rel_max": 4.247528418267218e-11
+  },
+  "superposed": {
+   "lam_block": 1.6,
+   "lam_fet_row": -0.0,
+   "block_est_c": 128.4,
+   "fet_row_est_c": 130.0,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.1
+   ],
+   "R5_el": 36.8,
+   "R5_term": 30.4,
+   "U26": 12.1,
+   "U42": 24.8,
+   "C40": -1.8,
+   "C38": 1.0,
+   "gateR_el": 17.2,
+   "gateR_der": -38.7,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": -0.0,
+   "min_gated_ext": -38.7,
+   "lead_sink_w": 0.9728989559117278,
+   "balance_rel_max": 2.0304814420097084e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ },
+ {
+  "config": "CCdeck_b55_c21p5_h10",
+  "what": [
+   "ceiling",
+   "min_gated",
+   21.5
+  ],
+  "bay": 55.0,
+  "direct": {
+   "lam_block": 0.1,
+   "lam_fet_row": 0.3,
+   "block_est_c": 129.9,
+   "fet_row_est_c": 129.7,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.4
+   ],
+   "R5_el": 34.1,
+   "R5_term": 26.9,
+   "U26": 12.4,
+   "U42": 24.9,
+   "C40": -1.5,
+   "C38": 1.6,
+   "gateR_el": 17.6,
+   "gateR_der": -37.9,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 0.1,
+   "min_gated_ext": -37.9,
+   "lead_sink_w": 1.1149061772557696,
+   "balance_rel_max": 3.577633624974056e-11
+  },
+  "superposed": {
+   "lam_block": 0.1,
+   "lam_fet_row": 0.3,
+   "block_est_c": 129.9,
+   "fet_row_est_c": 129.7,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.4
+   ],
+   "R5_el": 34.1,
+   "R5_term": 26.9,
+   "U26": 12.4,
+   "U42": 24.9,
+   "C40": -1.5,
+   "C38": 1.6,
+   "gateR_el": 17.6,
+   "gateR_der": -37.9,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 0.1,
+   "min_gated_ext": -37.9,
+   "lead_sink_w": 1.1149030309968178,
+   "balance_rel_max": 2.519752850797586e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ },
+ {
+  "config": "CCdeck_b55_c21_h10",
+  "what": [
+   "ceiling",
+   "min_gated_ext_noder",
+   21.0
+  ],
+  "bay": 55.0,
+  "direct": {
+   "lam_block": 2.6,
+   "lam_fet_row": 2.1,
+   "block_est_c": 127.4,
+   "fet_row_est_c": 127.9,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.7
+   ],
+   "R5_el": 36.9,
+   "R5_term": 30.0,
+   "U26": 12.7,
+   "U42": 25.3,
+   "C40": 0.0,
+   "C38": 3.1,
+   "gateR_el": 19.4,
+   "gateR_der": -36.2,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 2.1,
+   "min_gated_ext": -36.2,
+   "lead_sink_w": 1.0302450548269073,
+   "balance_rel_max": 3.435898593587647e-11
+  },
+  "superposed": {
+   "lam_block": 2.6,
+   "lam_fet_row": 2.1,
+   "block_est_c": 127.4,
+   "fet_row_est_c": 127.9,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    12.7
+   ],
+   "R5_el": 36.9,
+   "R5_term": 30.0,
+   "U26": 12.7,
+   "U42": 25.3,
+   "C40": 0.0,
+   "C38": 3.1,
+   "gateR_el": 19.4,
+   "gateR_der": -36.2,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 2.1,
+   "min_gated_ext": -36.2,
+   "lead_sink_w": 1.0302394364006213,
+   "balance_rel_max": 2.9520686231579824e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ },
+ {
+  "config": "CCdeck_b61_c20_h10",
+  "what": [
+   "ceiling",
+   "min_gated",
+   20.0
+  ],
+  "bay": 61.0,
+  "direct": {
+   "lam_block": 3.2,
+   "lam_fet_row": 1.4,
+   "block_est_c": 126.8,
+   "fet_row_est_c": 128.6,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    7.4
+   ],
+   "R5_el": 38.1,
+   "R5_term": 31.7,
+   "U26": 7.4,
+   "U42": 20.6,
+   "C40": -1.5,
+   "C38": 1.5,
+   "gateR_el": 18.7,
+   "gateR_der": -37.3,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 1.4,
+   "min_gated_ext": -37.3,
+   "lead_sink_w": 1.0703852039631723,
+   "balance_rel_max": 3.7387057653541605e-11
+  },
+  "superposed": {
+   "lam_block": 3.2,
+   "lam_fet_row": 1.4,
+   "block_est_c": 126.8,
+   "fet_row_est_c": 128.6,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    7.4
+   ],
+   "R5_el": 38.1,
+   "R5_term": 31.7,
+   "U26": 7.4,
+   "U42": 20.6,
+   "C40": -1.5,
+   "C38": 1.5,
+   "gateR_el": 18.7,
+   "gateR_der": -37.3,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 1.4,
+   "min_gated_ext": -37.3,
+   "lead_sink_w": 1.070381970140631,
+   "balance_rel_max": 3.570276314498343e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ },
+ {
+  "config": "CCdeck_b61_c19p5_h10",
+  "what": [
+   "ceiling",
+   "min_gated_ext_noder",
+   19.5
+  ],
+  "bay": 61.0,
+  "direct": {
+   "lam_block": 5.5,
+   "lam_fet_row": 3.1,
+   "block_est_c": 124.5,
+   "fet_row_est_c": 126.9,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    7.7
+   ],
+   "R5_el": 40.7,
+   "R5_term": 34.6,
+   "U26": 7.7,
+   "U42": 21.0,
+   "C40": -0.0,
+   "C38": 2.9,
+   "gateR_el": 20.4,
+   "gateR_der": -35.7,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 3.1,
+   "min_gated_ext": -35.7,
+   "lead_sink_w": 0.9916999577857711,
+   "balance_rel_max": 3.944334839653792e-11
+  },
+  "superposed": {
+   "lam_block": 5.5,
+   "lam_fet_row": 3.1,
+   "block_est_c": 124.5,
+   "fet_row_est_c": 126.9,
+   "worst_part": [
+    "U26: TJ max (TI SBVS204G p.4)",
+    7.7
+   ],
+   "R5_el": 40.7,
+   "R5_term": 34.6,
+   "U26": 7.7,
+   "U42": 21.0,
+   "C40": -0.0,
+   "C38": 2.9,
+   "gateR_el": 20.4,
+   "gateR_der": -35.7,
+   "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+   "min_gated": 3.1,
+   "min_gated_ext": -35.7,
+   "lead_sink_w": 0.991694629280637,
+   "balance_rel_max": 4.035673170453809e-11
+  },
+  "diff_K": {
+   "lam_block": 0.0,
+   "lam_fet_row": 0.0,
+   "min_gated": 0.0,
+   "min_gated_ext": 0.0,
+   "R5_el": 0.0,
+   "R5_term": 0.0,
+   "C38": 0.0,
+   "C40": 0.0,
+   "gateR_el": 0.0,
+   "gateR_der": 0.0,
+   "U26": 0.0,
+   "U42": 0.0
+  },
+  "pass": true
+ }
+]

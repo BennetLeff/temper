@@ -1,0 +1,7283 @@
+{
+ "barrier": {
+  "domain_mix_nets": {
+   "G01": {
+    "HOT": 3,
+    "MAINS": 5,
+    "PE": 1
+   },
+   "G02": {
+    "HOT": 2,
+    "MAINS": 1
+   },
+   "G03": {
+    "HOT": 5,
+    "SW_A": 2,
+    "SW_B": 2
+   },
+   "G04": {
+    "HOT": 5,
+    "SW_B": 1
+   },
+   "G08": {
+    "HOT": 29,
+    "SELV": 9
+   },
+   "HSA": {
+    "HOT": 6,
+    "SW_A": 20
+   },
+   "HSB": {
+    "HOT": 6,
+    "SW_B": 20
+   },
+   "LS": {
+    "HOT": 42,
+    "MAINS": 3,
+    "SELV": 17,
+    "SW_A": 3,
+    "SW_B": 3
+   },
+   "SELV": {
+    "HOT": 3,
+    "MAINS": 6,
+    "PE": 1,
+    "SELV": 40,
+    "SW_A": 1
+   }
+  },
+  "intra_group_pairs_within_9mm": {
+   "G01": 8,
+   "G08": 61,
+   "LS": 129,
+   "SELV": 18
+  },
+  "pair_weight_within_9mm": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.6944,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 2.2778,
+    "SELV": 3.6111
+   },
+   "G02": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.25,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.5,
+    "SELV": 0.5
+   },
+   "G03": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.5833,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.8333,
+    "SELV": 1.8333
+   },
+   "G04": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.3333,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.3333,
+    "SELV": 0.6667
+   },
+   "G08": {
+    "G01": 0.6944,
+    "G02": 0.25,
+    "G03": 0.5833,
+    "G04": 0.3333,
+    "G08": 0.0,
+    "HSA": 2.8333,
+    "HSB": 3.6667,
+    "LS": 20.7778,
+    "SELV": 15.4444
+   },
+   "HSA": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 2.8333,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 10.1667,
+    "SELV": 11.3333
+   },
+   "HSB": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 3.6667,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 11.5,
+    "SELV": 12.3333
+   },
+   "LS": {
+    "G01": 2.2778,
+    "G02": 0.5,
+    "G03": 0.8333,
+    "G04": 0.3333,
+    "G08": 20.7778,
+    "HSA": 10.1667,
+    "HSB": 11.5,
+    "LS": 0.0,
+    "SELV": 32.2222
+   },
+   "SELV": {
+    "G01": 3.6111,
+    "G02": 0.5,
+    "G03": 1.8333,
+    "G04": 0.6667,
+    "G08": 15.4444,
+    "HSA": 11.3333,
+    "HSB": 12.3333,
+    "LS": 32.2222,
+    "SELV": 0.0
+   }
+  },
+  "pairs_within_9mm": [
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "B.Cu",
+    "mm": 8.047,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_a-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "B.Cu",
+    "mm": 8.047,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_b-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "In1.Cu",
+    "mm": 8.061,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "In2.Cu",
+    "mm": 8.08,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "In1.Cu",
+    "mm": 8.099,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "bus_fault_iso"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "hb_rx"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "leg_a-out_h",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_la"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_a-out_l",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "leg_a.driver-nc_7"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "leg_b-out_h",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_lb"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_b-out_l",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "leg_b.driver-nc_7"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_ha"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.1,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "In1.Cu",
+    "mm": 8.105,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "bias_good"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "monitor_ls-good",
+    "layer": "In1.Cu",
+    "mm": 8.109,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "In2.Cu",
+    "mm": 8.116,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "In1.Cu",
+    "mm": 8.12,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G03",
+     "G04",
+     "HSB"
+    ],
+    "hot_net": "sw_b",
+    "layer": "B.Cu",
+    "mm": 8.145,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "line_zc_raw"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "In1.Cu",
+    "mm": 8.157,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "hb_rx"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "bus_fault_iso"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "leg_a-out_h",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_ha"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "leg_a-out_h",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_a-out_l",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_a-out_l",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "leg_b-out_h",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "leg_b-out_h",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_b-out_l",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_b-out_l",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "hb_rx"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_la"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_lb"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "leg_a.driver-nc_7"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "leg_b.driver-nc_7"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_la"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_lb"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "bus_fault_iso"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "leg_a.driver-nc_7"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.158,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "leg_b.driver-nc_7"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.16,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_b-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "hot_net": "bus_p",
+    "layer": "In2.Cu",
+    "mm": 8.162,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "In1.Cu",
+    "mm": 8.164,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "In2.Cu",
+    "mm": 8.164,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.181,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "bias_good"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "In1.Cu",
+    "mm": 8.186,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "SELV"
+    ],
+    "hot_net": "led1",
+    "layer": "F.Cu",
+    "mm": 8.2,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "line_zc_raw"
+   },
+   {
+    "hot_groups": [
+     "SELV"
+    ],
+    "hot_net": "led2",
+    "layer": "F.Cu",
+    "mm": 8.2,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "hot_net": "hv_ret",
+    "layer": "In1.Cu",
+    "mm": 8.2,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "In1.Cu",
+    "mm": 8.218,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "l_filt",
+    "layer": "In1.Cu",
+    "mm": 8.218,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "n_filt",
+    "layer": "In1.Cu",
+    "mm": 8.218,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "In2.Cu",
+    "mm": 8.218,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "l_filt",
+    "layer": "In2.Cu",
+    "mm": 8.218,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "n_filt",
+    "layer": "In2.Cu",
+    "mm": 8.218,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.23,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "In1.Cu",
+    "mm": 8.242,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "In1.Cu",
+    "mm": 8.25,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_b-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "In1.Cu",
+    "mm": 8.293,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "In1.Cu",
+    "mm": 8.3,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_a-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "mon_good_hb",
+    "layer": "In1.Cu",
+    "mm": 8.319,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G03",
+     "HSA",
+     "SELV"
+    ],
+    "hot_net": "sw_a",
+    "layer": "B.Cu",
+    "mm": 8.34,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "bias_good"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "hot_net": "bus_p",
+    "layer": "In1.Cu",
+    "mm": 8.352,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "vsense_in",
+    "layer": "In1.Cu",
+    "mm": 8.366,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "In1.Cu",
+    "mm": 8.391,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "hb_rx"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "hb_rx"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "leg_a-out_h",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_a-out_l",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "leg_b-out_h",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_b-out_l",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_ha"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "bus_fault_iso"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "bus_fault_iso"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "F.Cu",
+    "mm": 8.396,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "SELV"
+    ],
+    "hot_net": "led1",
+    "layer": "F.Cu",
+    "mm": 8.417,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "SELV"
+    ],
+    "hot_net": "led2",
+    "layer": "F.Cu",
+    "mm": 8.417,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "line_zc_raw"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "In2.Cu",
+    "mm": 8.437,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_ha"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "l_filt",
+    "layer": "B.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "n_filt",
+    "layer": "B.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "l_filt",
+    "layer": "F.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "n_filt",
+    "layer": "F.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "l_filt",
+    "layer": "In1.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "n_filt",
+    "layer": "In1.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "l_filt",
+    "layer": "In2.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "LS",
+     "SELV"
+    ],
+    "hot_net": "n_filt",
+    "layer": "In2.Cu",
+    "mm": 8.507,
+    "selv_groups": [
+     "G01",
+     "SELV"
+    ],
+    "selv_net": "pe"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "B.Cu",
+    "mm": 8.544,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_ha"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "In2.Cu",
+    "mm": 8.548,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_a-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "In2.Cu",
+    "mm": 8.558,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.594,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "B.Cu",
+    "mm": 8.6,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "In1.Cu",
+    "mm": 8.661,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "In2.Cu",
+    "mm": 8.716,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "In1.Cu",
+    "mm": 8.727,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "In1.Cu",
+    "mm": 8.754,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "ct_oc_neg"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.787,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "In2.Cu",
+    "mm": 8.794,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_b-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "In1.Cu",
+    "mm": 8.796,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08",
+     "LS"
+    ],
+    "hot_net": "v15_ls",
+    "layer": "In2.Cu",
+    "mm": 8.796,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "B.Cu",
+    "mm": 8.799,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "bus_fault_hot",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb.iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "hb_tx",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc10"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "leg_a-out_h",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_a-out_l",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "leg_b-out_h",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "LS"
+    ],
+    "hot_net": "leg_b-out_l",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "ls_v5",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS"
+    ],
+    "selv_net": "hb.iso-nc11"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_hb",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "hb_rx"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b-driver_dis"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "bus_fault_iso"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "p_ha",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc2",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc5",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc15"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc6",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "u_iso-nc8",
+    "layer": "F.Cu",
+    "mm": 8.804,
+    "selv_groups": [
+     "G08"
+    ],
+    "selv_net": "u_iso-nc12"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "In2.Cu",
+    "mm": 8.805,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.85,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "vbus_n"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "vsense_in",
+    "layer": "F.Cu",
+    "mm": 8.85,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "vbus_p"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "mon_good_hb",
+    "layer": "In1.Cu",
+    "mm": 8.85,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "bias_hb-en",
+    "layer": "F.Cu",
+    "mm": 8.859,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_b-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "bias_hb-en",
+    "layer": "F.Cu",
+    "mm": 8.87,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_hb"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "In2.Cu",
+    "mm": 8.87,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G03",
+     "G04",
+     "HSB"
+    ],
+    "hot_net": "sw_b",
+    "layer": "In1.Cu",
+    "mm": 8.889,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G03",
+     "G04",
+     "HSB"
+    ],
+    "hot_net": "sw_b",
+    "layer": "In2.Cu",
+    "mm": 8.889,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "hot_net": "bus_p",
+    "layer": "In2.Cu",
+    "mm": 8.89,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_a.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.894,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "leg_a-permit_gate"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "hot5",
+    "layer": "F.Cu",
+    "mm": 8.903,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "vbus_p"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "ocp_kelvin_p",
+    "layer": "F.Cu",
+    "mm": 8.903,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "vbus_p"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "vsense_in",
+    "layer": "F.Cu",
+    "mm": 8.903,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "G08"
+    ],
+    "hot_net": "vsense_in",
+    "layer": "F.Cu",
+    "mm": 8.903,
+    "selv_groups": [
+     "G08",
+     "SELV"
+    ],
+    "selv_net": "vbus_n"
+   },
+   {
+    "hot_groups": [
+     "G03",
+     "HSA",
+     "SELV"
+    ],
+    "hot_net": "sw_a",
+    "layer": "B.Cu",
+    "mm": 8.915,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "permit"
+   },
+   {
+    "hot_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "hot_net": "bus_p",
+    "layer": "In2.Cu",
+    "mm": 8.915,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_la"
+   },
+   {
+    "hot_groups": [
+     "G03",
+     "G04",
+     "HSB"
+    ],
+    "hot_net": "sw_b",
+    "layer": "F.Cu",
+    "mm": 8.928,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   },
+   {
+    "hot_groups": [
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "p_hb",
+    "layer": "In2.Cu",
+    "mm": 8.95,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "leg_b.driver-dt"
+   },
+   {
+    "hot_groups": [
+     "HSB"
+    ],
+    "hot_net": "bias_hb.split-fb",
+    "layer": "F.Cu",
+    "mm": 8.965,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "v3v3"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "HSB",
+     "LS"
+    ],
+    "hot_net": "n_ls",
+    "layer": "F.Cu",
+    "mm": 8.966,
+    "selv_groups": [
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "pwm_ha"
+   },
+   {
+    "hot_groups": [
+     "HSA",
+     "LS"
+    ],
+    "hot_net": "n_ha",
+    "layer": "B.Cu",
+    "mm": 8.978,
+    "selv_groups": [
+     "SELV"
+    ],
+    "selv_net": "bias_good"
+   },
+   {
+    "hot_groups": [
+     "HSB"
+    ],
+    "hot_net": "bias_hb.split-fb",
+    "layer": "F.Cu",
+    "mm": 8.992,
+    "selv_groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "selv_net": "selv_gnd"
+   }
+  ]
+ },
+ "board_sha256": "61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df",
+ "controls": [
+  {
+   "control": "dump is the stage-43 board",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "territory covers each group's own courtyards (>97 % of their cells)",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "rasterised copper area: zone pieces > 20 mm2 within 6 %, all copper within 1 %",
+   "detail": "zone max err 0.0520, total err 0.0001",
+   "pass": true
+  },
+  {
+   "control": "routing-room map: sampled SELV-legal cells are >= 8.0 mm from HOT copper (shapely)",
+   "detail": "closest 7.985 mm over 600 samples",
+   "pass": true
+  },
+  {
+   "control": "barrier: min HOT-side to SELV/PE copper >= 8.0 mm and equals the D5 audit's 8.047 (HOT-SELV) / 8.507 (HOT-PE)",
+   "detail": "min 8.047 (n_ha / leg_a-permit_gate)",
+   "pass": true
+  }
+ ],
+ "corridors": {
+  "contested_count": 5,
+  "contested_tiles": [
+   {
+    "fill_by_layer": {
+     "B.Cu": 0.0444,
+     "F.Cu": 0.1525,
+     "In1.Cu": 0.9894,
+     "In2.Cu": 0.9831
+    },
+    "fill_mean": 0.5423,
+    "groups": [
+     "G01",
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "n_groups": 4,
+    "x": 60.0,
+    "y": 130.0
+   },
+   {
+    "fill_by_layer": {
+     "B.Cu": 0.0356,
+     "F.Cu": 0.1344,
+     "In1.Cu": 0.9956,
+     "In2.Cu": 0.995
+    },
+    "fill_mean": 0.5402,
+    "groups": [
+     "G01",
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "n_groups": 4,
+    "x": 50.0,
+    "y": 130.0
+   },
+   {
+    "fill_by_layer": {
+     "B.Cu": 0.1356,
+     "F.Cu": 0.1275,
+     "In1.Cu": 0.9387,
+     "In2.Cu": 0.94
+    },
+    "fill_mean": 0.5355,
+    "groups": [
+     "G01",
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "n_groups": 4,
+    "x": 90.0,
+    "y": 130.0
+   },
+   {
+    "fill_by_layer": {
+     "B.Cu": 0.09,
+     "F.Cu": 0.0831,
+     "In1.Cu": 0.9756,
+     "In2.Cu": 0.9669
+    },
+    "fill_mean": 0.5289,
+    "groups": [
+     "G01",
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "n_groups": 4,
+    "x": 30.0,
+    "y": 130.0
+   },
+   {
+    "fill_by_layer": {
+     "B.Cu": 0.05,
+     "F.Cu": 0.0306,
+     "In1.Cu": 1.0,
+     "In2.Cu": 1.0
+    },
+    "fill_mean": 0.5202,
+    "groups": [
+     "G01",
+     "G08",
+     "LS",
+     "SELV"
+    ],
+    "n_groups": 4,
+    "x": 70.0,
+    "y": 140.0
+   }
+  ],
+  "pair_contested_tiles": {
+   "G01": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 5,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 5,
+    "SELV": 5
+   },
+   "G02": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "G03": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "G04": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "G08": {
+    "G01": 5,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 5,
+    "SELV": 5
+   },
+   "HSA": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "HSB": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "LS": {
+    "G01": 5,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 5,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 5
+   },
+   "SELV": {
+    "G01": 5,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 5,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 5,
+    "SELV": 0
+   }
+  },
+  "routing_room_probes": {
+   "LOW": "mon_good_ha",
+   "SELV": "hsb_good",
+   "SW_B": "bias_hb-fbm"
+  },
+  "territory_free_fraction": {
+   "G01": {
+    "LOW": {
+     "B.Cu": 0.3178,
+     "F.Cu": 0.2463,
+     "In1.Cu": 0.5092,
+     "In2.Cu": 0.465,
+     "mean_layers": 0.3846,
+     "min_layer": 0.2463
+    },
+    "SELV": {
+     "B.Cu": 0.1588,
+     "F.Cu": 0.1589,
+     "In1.Cu": 0.143,
+     "In2.Cu": 0.1432,
+     "mean_layers": 0.151,
+     "min_layer": 0.143
+    },
+    "SW_B": {
+     "B.Cu": 0.3046,
+     "F.Cu": 0.2383,
+     "In1.Cu": 0.4624,
+     "In2.Cu": 0.4631,
+     "mean_layers": 0.3671,
+     "min_layer": 0.2383
+    }
+   },
+   "G02": {
+    "LOW": {
+     "B.Cu": 0.6075,
+     "F.Cu": 0.5653,
+     "In1.Cu": 0.0239,
+     "In2.Cu": 0.0201,
+     "mean_layers": 0.3042,
+     "min_layer": 0.0201
+    },
+    "SELV": {
+     "B.Cu": 0.2285,
+     "F.Cu": 0.1614,
+     "In1.Cu": 0.0084,
+     "In2.Cu": 0.0084,
+     "mean_layers": 0.1017,
+     "min_layer": 0.0084
+    },
+    "SW_B": {
+     "B.Cu": 0.5291,
+     "F.Cu": 0.4753,
+     "In1.Cu": 0.0083,
+     "In2.Cu": 0.0083,
+     "mean_layers": 0.2552,
+     "min_layer": 0.0083
+    }
+   },
+   "G03": {
+    "LOW": {
+     "B.Cu": 0.0497,
+     "F.Cu": 0.2115,
+     "In1.Cu": 0.0057,
+     "In2.Cu": 0.0552,
+     "mean_layers": 0.0805,
+     "min_layer": 0.0057
+    },
+    "SELV": {
+     "B.Cu": 0.0,
+     "F.Cu": 0.0,
+     "In1.Cu": 0.0,
+     "In2.Cu": 0.0,
+     "mean_layers": 0.0,
+     "min_layer": 0.0
+    },
+    "SW_B": {
+     "B.Cu": 0.0854,
+     "F.Cu": 0.1475,
+     "In1.Cu": 0.0184,
+     "In2.Cu": 0.0261,
+     "mean_layers": 0.0694,
+     "min_layer": 0.0184
+    }
+   },
+   "G04": {
+    "LOW": {
+     "B.Cu": 0.2176,
+     "F.Cu": 0.5208,
+     "In1.Cu": 0.4624,
+     "In2.Cu": 0.4491,
+     "mean_layers": 0.4125,
+     "min_layer": 0.2176
+    },
+    "SELV": {
+     "B.Cu": 0.0415,
+     "F.Cu": 0.1215,
+     "In1.Cu": 0.1549,
+     "In2.Cu": 0.1969,
+     "mean_layers": 0.1287,
+     "min_layer": 0.0415
+    },
+    "SW_B": {
+     "B.Cu": 0.2685,
+     "F.Cu": 0.5887,
+     "In1.Cu": 0.437,
+     "In2.Cu": 0.5033,
+     "mean_layers": 0.4494,
+     "min_layer": 0.2685
+    }
+   },
+   "G08": {
+    "LOW": {
+     "B.Cu": 0.4589,
+     "F.Cu": 0.28,
+     "In1.Cu": 0.1913,
+     "In2.Cu": 0.3563,
+     "mean_layers": 0.3216,
+     "min_layer": 0.1913
+    },
+    "SELV": {
+     "B.Cu": 0.1344,
+     "F.Cu": 0.0832,
+     "In1.Cu": 0.0493,
+     "In2.Cu": 0.0655,
+     "mean_layers": 0.0831,
+     "min_layer": 0.0493
+    },
+    "SW_B": {
+     "B.Cu": 0.1506,
+     "F.Cu": 0.0759,
+     "In1.Cu": 0.0299,
+     "In2.Cu": 0.0592,
+     "mean_layers": 0.0789,
+     "min_layer": 0.0299
+    }
+   },
+   "HSA": {
+    "LOW": {
+     "B.Cu": 0.0873,
+     "F.Cu": 0.0674,
+     "In1.Cu": 0.0203,
+     "In2.Cu": 0.0705,
+     "mean_layers": 0.0614,
+     "min_layer": 0.0203
+    },
+    "SELV": {
+     "B.Cu": 0.0035,
+     "F.Cu": 0.0,
+     "In1.Cu": 0.0,
+     "In2.Cu": 0.0001,
+     "mean_layers": 0.0009,
+     "min_layer": 0.0
+    },
+    "SW_B": {
+     "B.Cu": 0.0754,
+     "F.Cu": 0.0592,
+     "In1.Cu": 0.0,
+     "In2.Cu": 0.0452,
+     "mean_layers": 0.045,
+     "min_layer": 0.0
+    }
+   },
+   "HSB": {
+    "LOW": {
+     "B.Cu": 0.1006,
+     "F.Cu": 0.0981,
+     "In1.Cu": 0.0166,
+     "In2.Cu": 0.1029,
+     "mean_layers": 0.0795,
+     "min_layer": 0.0166
+    },
+    "SELV": {
+     "B.Cu": 0.0007,
+     "F.Cu": 0.0,
+     "In1.Cu": 0.0,
+     "In2.Cu": 0.0007,
+     "mean_layers": 0.0004,
+     "min_layer": 0.0
+    },
+    "SW_B": {
+     "B.Cu": 0.478,
+     "F.Cu": 0.5401,
+     "In1.Cu": 0.0221,
+     "In2.Cu": 0.516,
+     "mean_layers": 0.3891,
+     "min_layer": 0.0221
+    }
+   },
+   "LS": {
+    "LOW": {
+     "B.Cu": 0.4242,
+     "F.Cu": 0.3844,
+     "In1.Cu": 0.3042,
+     "In2.Cu": 0.4123,
+     "mean_layers": 0.3813,
+     "min_layer": 0.3042
+    },
+    "SELV": {
+     "B.Cu": 0.1528,
+     "F.Cu": 0.0556,
+     "In1.Cu": 0.1172,
+     "In2.Cu": 0.1345,
+     "mean_layers": 0.115,
+     "min_layer": 0.0556
+    },
+    "SW_B": {
+     "B.Cu": 0.2509,
+     "F.Cu": 0.1748,
+     "In1.Cu": 0.1977,
+     "In2.Cu": 0.2446,
+     "mean_layers": 0.217,
+     "min_layer": 0.1748
+    }
+   },
+   "SELV": {
+    "LOW": {
+     "B.Cu": 0.1593,
+     "F.Cu": 0.12,
+     "In1.Cu": 0.1555,
+     "In2.Cu": 0.1638,
+     "mean_layers": 0.1496,
+     "min_layer": 0.12
+    },
+    "SELV": {
+     "B.Cu": 0.5297,
+     "F.Cu": 0.5162,
+     "In1.Cu": 0.1094,
+     "In2.Cu": 0.183,
+     "mean_layers": 0.3346,
+     "min_layer": 0.1094
+    },
+    "SW_B": {
+     "B.Cu": 0.155,
+     "F.Cu": 0.1152,
+     "In1.Cu": 0.1355,
+     "In2.Cu": 0.161,
+     "mean_layers": 0.1417,
+     "min_layer": 0.1152
+    }
+   }
+  },
+  "tile_mm": 10,
+  "y47_60_band": {
+   "x0-10": {
+    "fill_by_layer": {
+     "B.Cu": 0.3707,
+     "F.Cu": 0.5413,
+     "In1.Cu": 0.5418,
+     "In2.Cu": 0.5889
+    },
+    "groups": [
+     "HSB",
+     "LS"
+    ]
+   },
+   "x10-20": {
+    "fill_by_layer": {
+     "B.Cu": 0.3736,
+     "F.Cu": 0.1755,
+     "In1.Cu": 0.113,
+     "In2.Cu": 0.2538
+    },
+    "groups": [
+     "HSB",
+     "LS"
+    ]
+   },
+   "x100-110": {
+    "fill_by_layer": {
+     "B.Cu": 0.3058,
+     "F.Cu": 0.1981,
+     "In1.Cu": 0.6197,
+     "In2.Cu": 0.3337
+    },
+    "groups": [
+     "G08",
+     "LS"
+    ]
+   },
+   "x110-120": {
+    "fill_by_layer": {
+     "B.Cu": 0.2947,
+     "F.Cu": 0.2231,
+     "In1.Cu": 0.612,
+     "In2.Cu": 0.3341
+    },
+    "groups": [
+     "G08",
+     "LS"
+    ]
+   },
+   "x120-130": {
+    "fill_by_layer": {
+     "B.Cu": 0.2351,
+     "F.Cu": 0.0947,
+     "In1.Cu": 0.4385,
+     "In2.Cu": 0.2764
+    },
+    "groups": [
+     "G08"
+    ]
+   },
+   "x130-140": {
+    "fill_by_layer": {
+     "B.Cu": 0.2308,
+     "F.Cu": 0.1692,
+     "In1.Cu": 0.3077,
+     "In2.Cu": 0.2692
+    },
+    "groups": []
+   },
+   "x140-150": {
+    "fill_by_layer": {
+     "B.Cu": 0.2308,
+     "F.Cu": 0.9077,
+     "In1.Cu": 0.2899,
+     "In2.Cu": 0.2692
+    },
+    "groups": []
+   },
+   "x150-160": {
+    "fill_by_layer": {
+     "B.Cu": 0.5856,
+     "F.Cu": 0.1207,
+     "In1.Cu": 0.2221,
+     "In2.Cu": 0.2221
+    },
+    "groups": [
+     "G04"
+    ]
+   },
+   "x160-170": {
+    "fill_by_layer": {
+     "B.Cu": 0.3957,
+     "F.Cu": 0.0091,
+     "In1.Cu": 0.0635,
+     "In2.Cu": 0.0635
+    },
+    "groups": [
+     "G04"
+    ]
+   },
+   "x170-180": {
+    "fill_by_layer": {
+     "B.Cu": 0.2308,
+     "F.Cu": 0.0,
+     "In1.Cu": 0.2692,
+     "In2.Cu": 0.2692
+    },
+    "groups": []
+   },
+   "x180-190": {
+    "fill_by_layer": {
+     "B.Cu": 0.3846,
+     "F.Cu": 0.0,
+     "In1.Cu": 0.2437,
+     "In2.Cu": 0.2437
+    },
+    "groups": []
+   },
+   "x190-200": {
+    "fill_by_layer": {
+     "B.Cu": 1.0,
+     "F.Cu": 0.0,
+     "In1.Cu": 0.3668,
+     "In2.Cu": 0.3668
+    },
+    "groups": []
+   },
+   "x20-30": {
+    "fill_by_layer": {
+     "B.Cu": 0.1187,
+     "F.Cu": 0.0154,
+     "In1.Cu": 0.0548,
+     "In2.Cu": 0.0548
+    },
+    "groups": [
+     "HSB",
+     "LS",
+     "SELV"
+    ]
+   },
+   "x200-210": {
+    "fill_by_layer": {
+     "B.Cu": 0.4096,
+     "F.Cu": 0.375,
+     "In1.Cu": 1.0,
+     "In2.Cu": 0.5745
+    },
+    "groups": []
+   },
+   "x210-220": {
+    "fill_by_layer": {
+     "B.Cu": 0.5769,
+     "F.Cu": 0.6462,
+     "In1.Cu": 0.4385,
+     "In2.Cu": 0.3144
+    },
+    "groups": []
+   },
+   "x220-230": {
+    "fill_by_layer": {
+     "B.Cu": 0.487,
+     "F.Cu": 0.5447,
+     "In1.Cu": 0.174,
+     "In2.Cu": 0.0952
+    },
+    "groups": []
+   },
+   "x230-240": {
+    "fill_by_layer": {
+     "B.Cu": 0.5091,
+     "F.Cu": 0.4514,
+     "In1.Cu": 0.025,
+     "In2.Cu": 0.025
+    },
+    "groups": []
+   },
+   "x240-250": {
+    "fill_by_layer": {
+     "B.Cu": 0.0361,
+     "F.Cu": 0.7846,
+     "In1.Cu": 0.0817,
+     "In2.Cu": 0.0817
+    },
+    "groups": []
+   },
+   "x250-260": {
+    "fill_by_layer": {
+     "B.Cu": 0.0077,
+     "F.Cu": 0.4615,
+     "In1.Cu": 0.2308,
+     "In2.Cu": 0.2308
+    },
+    "groups": []
+   },
+   "x260-270": {
+    "fill_by_layer": {
+     "B.Cu": 0.0111,
+     "F.Cu": 0.4615,
+     "In1.Cu": 0.2308,
+     "In2.Cu": 0.2308
+    },
+    "groups": []
+   },
+   "x270-280": {
+    "fill_by_layer": {
+     "B.Cu": 0.0,
+     "F.Cu": 0.4615,
+     "In1.Cu": 0.2308,
+     "In2.Cu": 0.2308
+    },
+    "groups": []
+   },
+   "x280-290": {
+    "fill_by_layer": {
+     "B.Cu": 0.0,
+     "F.Cu": 0.6885,
+     "In1.Cu": 0.2192,
+     "In2.Cu": 0.2192
+    },
+    "groups": []
+   },
+   "x30-40": {
+    "fill_by_layer": {
+     "B.Cu": 0.0399,
+     "F.Cu": 0.0452,
+     "In1.Cu": 0.288,
+     "In2.Cu": 0.2933
+    },
+    "groups": [
+     "LS",
+     "SELV"
+    ]
+   },
+   "x40-50": {
+    "fill_by_layer": {
+     "B.Cu": 0.1236,
+     "F.Cu": 0.0697,
+     "In1.Cu": 0.0096,
+     "In2.Cu": 0.0135
+    },
+    "groups": [
+     "G08",
+     "HSA",
+     "LS"
+    ]
+   },
+   "x50-60": {
+    "fill_by_layer": {
+     "B.Cu": 0.3139,
+     "F.Cu": 0.5865,
+     "In1.Cu": 0.4957,
+     "In2.Cu": 0.0192
+    },
+    "groups": [
+     "G08",
+     "HSA",
+     "HSB",
+     "LS"
+    ]
+   },
+   "x60-70": {
+    "fill_by_layer": {
+     "B.Cu": 0.3615,
+     "F.Cu": 0.0721,
+     "In1.Cu": 0.0284,
+     "In2.Cu": 0.0625
+    },
+    "groups": [
+     "HSA",
+     "LS"
+    ]
+   },
+   "x70-80": {
+    "fill_by_layer": {
+     "B.Cu": 0.0447,
+     "F.Cu": 0.0337,
+     "In1.Cu": 0.1601,
+     "In2.Cu": 0.1716
+    },
+    "groups": [
+     "HSA",
+     "LS",
+     "SELV"
+    ]
+   },
+   "x80-90": {
+    "fill_by_layer": {
+     "B.Cu": 0.0202,
+     "F.Cu": 0.0322,
+     "In1.Cu": 0.2192,
+     "In2.Cu": 0.201
+    },
+    "groups": [
+     "G08",
+     "LS",
+     "SELV"
+    ]
+   },
+   "x90-100": {
+    "fill_by_layer": {
+     "B.Cu": 0.0933,
+     "F.Cu": 0.0788,
+     "In1.Cu": 0.0365,
+     "In2.Cu": 0.2313
+    },
+    "groups": [
+     "G08",
+     "LS"
+    ]
+   }
+  },
+  "y47_60_x0_26_routing_room": {
+   "LOW": {
+    "B.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.1041
+    },
+    "F.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.2404
+    },
+    "In1.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.3306
+    },
+    "In2.Cu": {
+     "crossing_y47_to_y60": true,
+     "free_frac": 0.2125
+    },
+    "via_legal_cells": 118
+   },
+   "SELV": {
+    "B.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.0
+    },
+    "F.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.0
+    },
+    "In1.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.0
+    },
+    "In2.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.0
+    },
+    "via_legal_cells": 0
+   },
+   "SW_B": {
+    "B.Cu": {
+     "crossing_y47_to_y60": true,
+     "free_frac": 0.1625
+    },
+    "F.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.0178
+    },
+    "In1.Cu": {
+     "crossing_y47_to_y60": false,
+     "free_frac": 0.125
+    },
+    "In2.Cu": {
+     "crossing_y47_to_y60": true,
+     "free_frac": 0.1659
+    },
+    "via_legal_cells": 0
+   }
+  },
+  "y47_60_x0_60_mean_fill": {
+   "B.Cu": 0.2234,
+   "F.Cu": 0.2389,
+   "In1.Cu": 0.2505,
+   "In2.Cu": 0.2039
+  },
+  "y47_60_x0_60_min_fill": {
+   "B.Cu": 0.0399,
+   "F.Cu": 0.0154,
+   "In1.Cu": 0.0096,
+   "In2.Cu": 0.0135
+  }
+ },
+ "interleave_mm2": {
+  "by_layer": {
+   "B.Cu": {
+    "owned": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 64.3125
+     },
+     "G08": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.5,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 17.25,
+      "SELV": 0.0
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 4.0625,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.375,
+      "G04": 0.0,
+      "G08": 0.25,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "SELV": {
+      "G01": 3.375,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 4.4375,
+      "G08": 11.75,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.3125,
+      "SELV": 0.0
+     }
+    },
+    "shared_weighted": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 113.8802,
+      "G03": 0.0,
+      "G04": 0.1875,
+      "G08": 4.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 91.0625,
+      "SELV": 18.75
+     },
+     "G02": {
+      "G01": 23.7969,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.8125,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 28.3802,
+      "G02": 132.151,
+      "G03": 0.0,
+      "G04": 406.6458,
+      "G08": 51.5625,
+      "HSA": 55.7292,
+      "HSB": 63.4792,
+      "LS": 115.1875,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 4.5833,
+      "G02": 36.8542,
+      "G03": 146.7083,
+      "G04": 0.0,
+      "G08": 36.9375,
+      "HSA": 33.8958,
+      "HSB": 63.4792,
+      "LS": 106.1042,
+      "SELV": 107.125
+     },
+     "G08": {
+      "G01": 23.8802,
+      "G02": 95.2969,
+      "G03": 21.8125,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 40.1146,
+      "SELV": 14.4479
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 82.5729,
+      "G04": 0.0,
+      "G08": 5.125,
+      "HSA": 0.0,
+      "HSB": 12.625,
+      "LS": 190.9792,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 4.5833,
+      "G02": 36.8542,
+      "G03": 176.7188,
+      "G04": 406.6458,
+      "G08": 42.0625,
+      "HSA": 50.9583,
+      "HSB": 0.0,
+      "LS": 311.8958,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 169.3333,
+      "G02": 18.5833,
+      "G03": 68.7917,
+      "G04": 0.1875,
+      "G08": 23.3229,
+      "HSA": 199.6562,
+      "HSB": 232.0312,
+      "LS": 0.0,
+      "SELV": 46.7917
+     },
+     "SELV": {
+      "G01": 172.7083,
+      "G02": 18.5833,
+      "G03": 49.0,
+      "G04": 58.6875,
+      "G08": 17.3542,
+      "HSA": 21.8333,
+      "HSB": 0.0,
+      "LS": 99.3125,
+      "SELV": 0.0
+     }
+    }
+   },
+   "F.Cu": {
+    "owned": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.5,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 4.125,
+      "SELV": 0.0
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 12.625,
+      "G04": 0.0,
+      "G08": 3.5625,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "SELV": {
+      "G01": 1.1875,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 1.125,
+      "SELV": 0.0
+     }
+    },
+    "shared_weighted": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 111.625,
+      "G03": 10.0625,
+      "G04": 1.5,
+      "G08": 9.9844,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 136.0573,
+      "SELV": 14.8958
+     },
+     "G02": {
+      "G01": 23.7969,
+      "G02": 0.0,
+      "G03": 10.0625,
+      "G04": 0.0,
+      "G08": 9.9844,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 4.3281,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 41.9219,
+      "G02": 96.5,
+      "G03": 0.0,
+      "G04": 21.5417,
+      "G08": 37.1094,
+      "HSA": 32.625,
+      "HSB": 10.6875,
+      "LS": 58.4323,
+      "SELV": 56.8125
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 4.2292,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 6.0625,
+      "LS": 0.0,
+      "SELV": 42.8125
+     },
+     "G08": {
+      "G01": 23.8802,
+      "G02": 96.5,
+      "G03": 44.7083,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 49.2552,
+      "SELV": 31.9062
+     },
+     "HSA": {
+      "G01": 18.125,
+      "G02": 0.0,
+      "G03": 60.2812,
+      "G04": 20.8542,
+      "G08": 16.5208,
+      "HSA": 0.0,
+      "HSB": 19.2083,
+      "LS": 119.25,
+      "SELV": 56.8125
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 15.6667,
+      "G04": 0.6875,
+      "G08": 0.4792,
+      "HSA": 18.875,
+      "HSB": 0.0,
+      "LS": 88.4375,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 308.625,
+      "G02": 15.125,
+      "G03": 63.9271,
+      "G04": 1.5,
+      "G08": 22.7812,
+      "HSA": 98.2188,
+      "HSB": 102.7396,
+      "LS": 0.0,
+      "SELV": 43.4896
+     },
+     "SELV": {
+      "G01": 335.4687,
+      "G02": 15.125,
+      "G03": 54.5625,
+      "G04": 76.4167,
+      "G08": 20.6354,
+      "HSA": 26.5,
+      "HSB": 0.0,
+      "LS": 167.5208,
+      "SELV": 0.0
+     }
+    }
+   },
+   "In1.Cu": {
+    "owned": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 5.25,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 11.75,
+      "HSB": 0.0,
+      "LS": 61.0625,
+      "SELV": 0.0
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 6.25,
+      "G04": 0.0,
+      "G08": 1.5625,
+      "HSA": 13.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "SELV": {
+      "G01": 0.25,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.1875,
+      "SELV": 0.0
+     }
+    },
+    "shared_weighted": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 794.0781,
+      "G03": 225.5312,
+      "G04": 169.875,
+      "G08": 18.4844,
+      "HSA": 72.3594,
+      "HSB": 76.5781,
+      "LS": 308.1406,
+      "SELV": 67.0052
+     },
+     "G02": {
+      "G01": 147.4062,
+      "G02": 0.0,
+      "G03": 225.5312,
+      "G04": 169.875,
+      "G08": 18.4844,
+      "HSA": 72.3594,
+      "HSB": 76.5781,
+      "LS": 308.1406,
+      "SELV": 60.2656
+     },
+     "G03": {
+      "G01": 147.4062,
+      "G02": 793.5781,
+      "G03": 0.0,
+      "G04": 169.9583,
+      "G08": 31.1302,
+      "HSA": 77.6719,
+      "HSB": 77.6406,
+      "LS": 344.8073,
+      "SELV": 60.2656
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 1.0625,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 315.8021,
+      "G02": 796.5781,
+      "G03": 298.2188,
+      "G04": 171.9792,
+      "G08": 0.0,
+      "HSA": 94.3385,
+      "HSB": 76.5781,
+      "LS": 456.4115,
+      "SELV": 1084.0677
+     },
+     "HSA": {
+      "G01": 8.75,
+      "G02": 10.8333,
+      "G03": 0.2812,
+      "G04": 18.1875,
+      "G08": 13.3333,
+      "HSA": 0.0,
+      "HSB": 21.1875,
+      "LS": 280.3438,
+      "SELV": 16.1042
+     },
+     "HSB": {
+      "G01": 8.75,
+      "G02": 10.8333,
+      "G03": 0.0833,
+      "G04": 18.2708,
+      "G08": 13.3333,
+      "HSA": 10.0208,
+      "HSB": 0.0,
+      "LS": 283.7396,
+      "SELV": 16.1042
+     },
+     "LS": {
+      "G01": 177.2917,
+      "G02": 14.3333,
+      "G03": 73.9688,
+      "G04": 20.2917,
+      "G08": 100.1354,
+      "HSA": 577.8438,
+      "HSB": 569.2812,
+      "LS": 0.0,
+      "SELV": 1049.4271
+     },
+     "SELV": {
+      "G01": 168.7917,
+      "G02": 3.5,
+      "G03": 0.0,
+      "G04": 7.2292,
+      "G08": 62.9062,
+      "HSA": 0.8958,
+      "HSB": 0.0,
+      "LS": 37.0,
+      "SELV": 0.0
+     }
+    }
+   },
+   "In2.Cu": {
+    "owned": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 1.25,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 30.6875,
+      "SELV": 0.0
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.375,
+      "G04": 0.0,
+      "G08": 4.0625,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "SELV": {
+      "G01": 0.25,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.1875,
+      "SELV": 0.0
+     }
+    },
+    "shared_weighted": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 726.25,
+      "G03": 228.3438,
+      "G04": 169.875,
+      "G08": 32.5,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 232.625,
+      "SELV": 61.349
+     },
+     "G02": {
+      "G01": 157.8281,
+      "G02": 0.0,
+      "G03": 228.3438,
+      "G04": 169.875,
+      "G08": 32.5,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 232.625,
+      "SELV": 60.7344
+     },
+     "G03": {
+      "G01": 157.8281,
+      "G02": 725.75,
+      "G03": 0.0,
+      "G04": 169.9583,
+      "G08": 33.5,
+      "HSA": 106.0573,
+      "HSB": 71.4479,
+      "LS": 235.0208,
+      "SELV": 60.7344
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 5.9167,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 326.4323,
+      "G02": 728.75,
+      "G03": 230.0104,
+      "G04": 171.9792,
+      "G08": 0.0,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 305.4583,
+      "SELV": 1080.7552
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.2812,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 17.2083,
+      "LS": 31.0833,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0833,
+      "G08": 0.0,
+      "HSA": 1.7708,
+      "HSB": 0.0,
+      "LS": 30.8542,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 168.75,
+      "G02": 3.5,
+      "G03": 1.0729,
+      "G04": 2.1042,
+      "G08": 70.6562,
+      "HSA": 17.0208,
+      "HSB": 30.7396,
+      "LS": 0.0,
+      "SELV": 1022.5417
+     },
+     "SELV": {
+      "G01": 169.0,
+      "G02": 3.5,
+      "G03": 0.0,
+      "G04": 7.2292,
+      "G08": 63.4688,
+      "HSA": 1.7917,
+      "HSB": 0.0,
+      "LS": 36.5521,
+      "SELV": 0.0
+     }
+    }
+   }
+  },
+  "by_layer_kind": {
+   "B.Cu": {
+    "routed": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 23.6302,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 4.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 5.1667,
+      "SELV": 18.75
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.8125,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 5.0469,
+      "G03": 0.0,
+      "G04": 0.0833,
+      "G08": 3.5417,
+      "HSA": 5.1042,
+      "HSB": 3.0417,
+      "LS": 4.1458,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 3.0417,
+      "LS": 0.5417,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0833,
+      "G02": 5.0469,
+      "G03": 0.9167,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 36.8229,
+      "SELV": 14.4479
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.4479,
+      "G04": 0.0,
+      "G08": 5.125,
+      "HSA": 0.0,
+      "HSB": 1.2292,
+      "LS": 19.1979,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0833,
+      "G08": 5.125,
+      "HSA": 1.7292,
+      "HSB": 0.0,
+      "LS": 22.0208,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 13.0833,
+      "G02": 18.5833,
+      "G03": 1.0729,
+      "G04": 0.0,
+      "G08": 12.2396,
+      "HSA": 13.2917,
+      "HSB": 14.4167,
+      "LS": 0.0,
+      "SELV": 46.7917
+     },
+     "SELV": {
+      "G01": 16.4583,
+      "G02": 18.5833,
+      "G03": 0.1667,
+      "G04": 9.5625,
+      "G08": 17.3542,
+      "HSA": 5.1042,
+      "HSB": 0.0,
+      "LS": 11.2292,
+      "SELV": 0.0
+     }
+    },
+    "zone": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 90.25,
+      "G03": 0.0,
+      "G04": 0.1875,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 85.8958,
+      "SELV": 0.0
+     },
+     "G02": {
+      "G01": 23.7969,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 28.3802,
+      "G02": 127.1042,
+      "G03": 0.0,
+      "G04": 406.5625,
+      "G08": 48.0208,
+      "HSA": 50.625,
+      "HSB": 60.4375,
+      "LS": 111.0417,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 4.5833,
+      "G02": 36.8542,
+      "G03": 146.625,
+      "G04": 0.0,
+      "G08": 36.9375,
+      "HSA": 33.8958,
+      "HSB": 60.4375,
+      "LS": 105.5625,
+      "SELV": 107.125
+     },
+     "G08": {
+      "G01": 23.7969,
+      "G02": 90.25,
+      "G03": 20.8958,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 3.2917,
+      "SELV": 0.0
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 82.125,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 11.3958,
+      "LS": 171.7812,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 4.5833,
+      "G02": 36.8542,
+      "G03": 176.6354,
+      "G04": 406.5625,
+      "G08": 36.9375,
+      "HSA": 49.2292,
+      "HSB": 0.0,
+      "LS": 289.875,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 156.25,
+      "G02": 0.0,
+      "G03": 67.7188,
+      "G04": 0.1875,
+      "G08": 11.0833,
+      "HSA": 186.3646,
+      "HSB": 217.6146,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "SELV": {
+      "G01": 156.25,
+      "G02": 0.0,
+      "G03": 48.8333,
+      "G04": 49.125,
+      "G08": 0.0,
+      "HSA": 16.7292,
+      "HSB": 0.0,
+      "LS": 88.0833,
+      "SELV": 0.0
+     }
+    }
+   },
+   "F.Cu": {
+    "routed": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 17.8333,
+      "G03": 2.5625,
+      "G04": 0.0,
+      "G08": 1.0625,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 14.8958
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 2.5625,
+      "G04": 0.0,
+      "G08": 1.0625,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 6.25,
+      "G03": 0.0,
+      "G04": 0.6875,
+      "G08": 2.0625,
+      "HSA": 13.75,
+      "HSB": 10.6875,
+      "LS": 23.5417,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 4.2292,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 6.0625,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0833,
+      "G02": 6.25,
+      "G03": 9.0833,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 43.7812,
+      "SELV": 31.9062
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 10.9896,
+      "G04": 0.0,
+      "G08": 0.4792,
+      "HSA": 0.0,
+      "HSB": 2.8958,
+      "LS": 42.3125,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 15.6667,
+      "G04": 0.6875,
+      "G08": 0.4792,
+      "HSA": 3.1875,
+      "HSB": 0.0,
+      "LS": 40.9167,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 1.8333,
+      "G02": 11.5833,
+      "G03": 35.8021,
+      "G04": 0.0,
+      "G08": 12.6979,
+      "HSA": 43.2187,
+      "HSB": 43.0521,
+      "LS": 0.0,
+      "SELV": 43.4896
+     },
+     "SELV": {
+      "G01": 10.5521,
+      "G02": 11.5833,
+      "G03": 5.2708,
+      "G04": 5.125,
+      "G08": 4.5938,
+      "HSA": 7.625,
+      "HSB": 0.0,
+      "LS": 6.375,
+      "SELV": 0.0
+     }
+    },
+    "zone": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 93.7917,
+      "G03": 7.5,
+      "G04": 1.5,
+      "G08": 8.9219,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 136.0573,
+      "SELV": 0.0
+     },
+     "G02": {
+      "G01": 23.7969,
+      "G02": 0.0,
+      "G03": 7.5,
+      "G04": 0.0,
+      "G08": 8.9219,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 4.3281,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 41.9219,
+      "G02": 90.25,
+      "G03": 0.0,
+      "G04": 20.8542,
+      "G08": 35.0469,
+      "HSA": 18.875,
+      "HSB": 0.0,
+      "LS": 34.8906,
+      "SELV": 56.8125
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 42.8125
+     },
+     "G08": {
+      "G01": 23.7969,
+      "G02": 90.25,
+      "G03": 35.625,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 5.474,
+      "SELV": 0.0
+     },
+     "HSA": {
+      "G01": 18.125,
+      "G02": 0.0,
+      "G03": 49.2917,
+      "G04": 20.8542,
+      "G08": 16.0417,
+      "HSA": 0.0,
+      "HSB": 16.3125,
+      "LS": 76.9375,
+      "SELV": 56.8125
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 15.6875,
+      "HSB": 0.0,
+      "LS": 47.5208,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 306.7917,
+      "G02": 3.5417,
+      "G03": 28.125,
+      "G04": 1.5,
+      "G08": 10.0833,
+      "HSA": 55.0,
+      "HSB": 59.6875,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "SELV": {
+      "G01": 324.9167,
+      "G02": 3.5417,
+      "G03": 49.2917,
+      "G04": 71.2917,
+      "G08": 16.0417,
+      "HSA": 18.875,
+      "HSB": 0.0,
+      "LS": 161.1458,
+      "SELV": 0.0
+     }
+    }
+   },
+   "In1.Cu": {
+    "routed": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 5.5469,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.8125,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 6.7396
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.8125,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 5.0469,
+      "G03": 0.0,
+      "G04": 0.0833,
+      "G08": 3.2083,
+      "HSA": 4.7917,
+      "HSB": 1.0625,
+      "LS": 7.3333,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 1.0625,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0833,
+      "G02": 5.0469,
+      "G03": 5.6667,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 21.4583,
+      "HSB": 0.0,
+      "LS": 66.5,
+      "SELV": 7.0938
+     },
+     "HSA": {
+      "G01": 8.75,
+      "G02": 10.8333,
+      "G03": 0.2812,
+      "G04": 17.3333,
+      "G08": 10.8333,
+      "HSA": 0.0,
+      "HSB": 7.3125,
+      "LS": 46.8542,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 8.75,
+      "G02": 10.8333,
+      "G03": 0.0833,
+      "G04": 17.4167,
+      "G08": 10.8333,
+      "HSA": 10.0208,
+      "HSB": 0.0,
+      "LS": 49.4375,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 8.9792,
+      "G02": 11.3333,
+      "G03": 6.9479,
+      "G04": 17.3333,
+      "G08": 25.2396,
+      "HSA": 42.0104,
+      "HSB": 18.0625,
+      "LS": 0.0,
+      "SELV": 16.6146
+     },
+     "SELV": {
+      "G01": 0.4792,
+      "G02": 0.5,
+      "G03": 0.0,
+      "G04": 5.125,
+      "G08": 0.7604,
+      "HSA": 0.8958,
+      "HSB": 0.0,
+      "LS": 1.8125,
+      "SELV": 0.0
+     }
+    },
+    "zone": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 788.5312,
+      "G03": 225.5312,
+      "G04": 169.875,
+      "G08": 17.6719,
+      "HSA": 72.3594,
+      "HSB": 76.5781,
+      "LS": 308.1406,
+      "SELV": 60.2656
+     },
+     "G02": {
+      "G01": 147.4062,
+      "G02": 0.0,
+      "G03": 225.5312,
+      "G04": 169.875,
+      "G08": 17.6719,
+      "HSA": 72.3594,
+      "HSB": 76.5781,
+      "LS": 308.1406,
+      "SELV": 60.2656
+     },
+     "G03": {
+      "G01": 147.4062,
+      "G02": 788.5312,
+      "G03": 0.0,
+      "G04": 169.875,
+      "G08": 27.9219,
+      "HSA": 72.8802,
+      "HSB": 76.5781,
+      "LS": 337.474,
+      "SELV": 60.2656
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 315.7188,
+      "G02": 791.5312,
+      "G03": 292.5521,
+      "G04": 171.9792,
+      "G08": 0.0,
+      "HSA": 72.8802,
+      "HSB": 76.5781,
+      "LS": 389.9115,
+      "SELV": 1076.974
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.8542,
+      "G08": 2.5,
+      "HSA": 0.0,
+      "HSB": 13.875,
+      "LS": 233.4896,
+      "SELV": 16.1042
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.8542,
+      "G08": 2.5,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 234.3021,
+      "SELV": 16.1042
+     },
+     "LS": {
+      "G01": 168.3125,
+      "G02": 3.0,
+      "G03": 67.0208,
+      "G04": 2.9583,
+      "G08": 74.8958,
+      "HSA": 535.8333,
+      "HSB": 551.2188,
+      "LS": 0.0,
+      "SELV": 1032.8125
+     },
+     "SELV": {
+      "G01": 168.3125,
+      "G02": 3.0,
+      "G03": 0.0,
+      "G04": 2.1042,
+      "G08": 62.1458,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 35.1875,
+      "SELV": 0.0
+     }
+    }
+   },
+   "In2.Cu": {
+    "routed": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 5.5469,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 1.0938,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 1.4531,
+      "SELV": 0.6146
+     },
+     "G02": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 1.0938,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 1.4531,
+      "SELV": 0.0
+     },
+     "G03": {
+      "G01": 0.0,
+      "G02": 5.0469,
+      "G03": 0.0,
+      "G04": 0.0833,
+      "G08": 2.0938,
+      "HSA": 1.7917,
+      "HSB": 5.9167,
+      "LS": 3.849,
+      "SELV": 0.0
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 5.9167,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 0.0833,
+      "G02": 5.0469,
+      "G03": 1.6667,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 39.9531,
+      "SELV": 8.1458
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.2812,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 1.2292,
+      "LS": 12.4583,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0833,
+      "G04": 0.0833,
+      "G08": 0.0,
+      "HSA": 1.7708,
+      "HSB": 0.0,
+      "LS": 12.2292,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 0.2292,
+      "G02": 0.5,
+      "G03": 1.0729,
+      "G04": 0.0,
+      "G08": 7.9479,
+      "HSA": 17.0208,
+      "HSB": 14.7604,
+      "LS": 0.0,
+      "SELV": 10.6667
+     },
+     "SELV": {
+      "G01": 0.4792,
+      "G02": 0.5,
+      "G03": 0.0,
+      "G04": 5.125,
+      "G08": 0.7604,
+      "HSA": 1.7917,
+      "HSB": 0.0,
+      "LS": 2.2188,
+      "SELV": 0.0
+     }
+    },
+    "zone": {
+     "G01": {
+      "G01": 0.0,
+      "G02": 720.7031,
+      "G03": 228.3438,
+      "G04": 169.875,
+      "G08": 31.4062,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 231.1719,
+      "SELV": 60.7344
+     },
+     "G02": {
+      "G01": 157.8281,
+      "G02": 0.0,
+      "G03": 228.3438,
+      "G04": 169.875,
+      "G08": 31.4062,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 231.1719,
+      "SELV": 60.7344
+     },
+     "G03": {
+      "G01": 157.8281,
+      "G02": 720.7031,
+      "G03": 0.0,
+      "G04": 169.875,
+      "G08": 31.4062,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 231.1719,
+      "SELV": 60.7344
+     },
+     "G04": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 0.0,
+      "SELV": 0.0
+     },
+     "G08": {
+      "G01": 326.349,
+      "G02": 723.7031,
+      "G03": 228.3438,
+      "G04": 171.9792,
+      "G08": 0.0,
+      "HSA": 104.2656,
+      "HSB": 65.5312,
+      "LS": 265.5052,
+      "SELV": 1072.6094
+     },
+     "HSA": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 15.9792,
+      "LS": 18.625,
+      "SELV": 0.0
+     },
+     "HSB": {
+      "G01": 0.0,
+      "G02": 0.0,
+      "G03": 0.0,
+      "G04": 0.0,
+      "G08": 0.0,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 18.625,
+      "SELV": 0.0
+     },
+     "LS": {
+      "G01": 168.5208,
+      "G02": 3.0,
+      "G03": 0.0,
+      "G04": 2.1042,
+      "G08": 62.7083,
+      "HSA": 0.0,
+      "HSB": 15.9792,
+      "LS": 0.0,
+      "SELV": 1011.875
+     },
+     "SELV": {
+      "G01": 168.5208,
+      "G02": 3.0,
+      "G03": 0.0,
+      "G04": 2.1042,
+      "G08": 62.7083,
+      "HSA": 0.0,
+      "HSB": 0.0,
+      "LS": 34.3333,
+      "SELV": 0.0
+     }
+    }
+   }
+  },
+  "note": "row = copper's group, column = territory it lies in",
+  "owned_total": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G02": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G03": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G04": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 64.3125
+   },
+   "G08": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 7.5,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 11.75,
+    "HSB": 0.0,
+    "LS": 113.125,
+    "SELV": 0.0
+   },
+   "HSA": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "HSB": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 4.0625,
+    "SELV": 0.0
+   },
+   "LS": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 19.625,
+    "G04": 0.0,
+    "G08": 9.4375,
+    "HSA": 13.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "SELV": {
+    "G01": 5.0625,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 4.4375,
+    "G08": 11.75,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 1.8125,
+    "SELV": 0.0
+   }
+  },
+  "shared_weighted_total": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 1745.8333,
+    "G03": 463.9375,
+    "G04": 341.4375,
+    "G08": 64.9688,
+    "HSA": 176.625,
+    "HSB": 142.1094,
+    "LS": 767.8854,
+    "SELV": 162.0
+   },
+   "G02": {
+    "G01": 352.8281,
+    "G02": 0.0,
+    "G03": 463.9375,
+    "G04": 339.75,
+    "G08": 61.7812,
+    "HSA": 176.625,
+    "HSB": 142.1094,
+    "LS": 545.0938,
+    "SELV": 121.0
+   },
+   "G03": {
+    "G01": 375.5365,
+    "G02": 1747.9792,
+    "G03": 0.0,
+    "G04": 768.1042,
+    "G08": 153.3021,
+    "HSA": 272.0833,
+    "HSB": 223.2552,
+    "LS": 753.4479,
+    "SELV": 177.8125
+   },
+   "G04": {
+    "G01": 4.5833,
+    "G02": 36.8542,
+    "G03": 151.1042,
+    "G04": 0.0,
+    "G08": 36.9375,
+    "HSA": 33.8958,
+    "HSB": 76.5208,
+    "LS": 106.1042,
+    "SELV": 149.9375
+   },
+   "G08": {
+    "G01": 689.9948,
+    "G02": 1717.125,
+    "G03": 594.75,
+    "G04": 343.9583,
+    "G08": 0.0,
+    "HSA": 198.6042,
+    "HSB": 142.1094,
+    "LS": 851.2396,
+    "SELV": 2211.1771
+   },
+   "HSA": {
+    "G01": 26.875,
+    "G02": 10.8333,
+    "G03": 143.4167,
+    "G04": 39.0417,
+    "G08": 34.9792,
+    "HSA": 0.0,
+    "HSB": 70.2292,
+    "LS": 621.6562,
+    "SELV": 72.9167
+   },
+   "HSB": {
+    "G01": 13.3333,
+    "G02": 47.6875,
+    "G03": 192.5521,
+    "G04": 425.6875,
+    "G08": 55.875,
+    "HSA": 81.625,
+    "HSB": 0.0,
+    "LS": 714.9271,
+    "SELV": 16.1042
+   },
+   "LS": {
+    "G01": 824.0,
+    "G02": 51.5417,
+    "G03": 207.7604,
+    "G04": 24.0833,
+    "G08": 216.8958,
+    "HSA": 892.7396,
+    "HSB": 934.7917,
+    "LS": 0.0,
+    "SELV": 2162.25
+   },
+   "SELV": {
+    "G01": 845.9687,
+    "G02": 40.7083,
+    "G03": 103.5625,
+    "G04": 149.5625,
+    "G08": 164.3646,
+    "HSA": 51.0208,
+    "HSB": 0.0,
+    "LS": 340.3854,
+    "SELV": 0.0
+   }
+  }
+ },
+ "method": "Layer 2, physical / layout coupling on the stage-43 board (native21s43, all-copper dump 61447816...).\n\n    python3 -I validation-results/13-coupling/scripts/physical.py      (after assign.py)\n\n1. Courtyard proximity: part pairs of two groups whose courtyard boxes (stage-43 chain, native21-courtyards.json) are\n   within 2 mm and 3 mm; bounding-box and convex-hull overlap of the groups' courtyards.\n2. Territory: every 0.25 mm board cell belongs to the group whose courtyard is nearest (cells over 6 mm from every\n   courtyard are 'open'). Copper interleaving = copper (tracks, vias, zone fills; pads excluded) of nets owned by\n   group A (every pad in A) lying in group B's territory, per layer, mm2. Shared nets are counted per group they touch,\n   weighted 1/(groups on the net), and split into poured (zone) and routed (track / via) copper.\n3. Copper adjacency: cells of A-owned routed copper within 0.5 mm of B-owned routed copper on the same layer (who\n   shares routing room with whom), per layer.\n4. Corridors: 10 x 10 mm tiles, copper fill over the four layers and the groups whose copper is in the tile; the\n   y 47-60 band census (DECISIONS 33: closed on all four layers for the 30a / 30b moves).\n5. Barrier: for each pair, the minimum same-layer distance between one group's HOT-side copper (HOT, MAINS, SW_A, SW_B)\n   and the other's SELV / PE copper. Pairs at < 9.0 mm share the 8.0 mm barrier margin; pairs whose copper is in\n   opposite domains only and > 12 mm apart are separated by the barrier (no copper can interleave).",
+ "pitch_mm": 0.25,
+ "proximity": {
+  "pairs_within_2mm": {
+   "G01": {
+    "G01": 0,
+    "G02": 1,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 3,
+    "SELV": 0
+   },
+   "G02": {
+    "G01": 1,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 6
+   },
+   "G03": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 2,
+    "HSA": 7,
+    "HSB": 6,
+    "LS": 9,
+    "SELV": 0
+   },
+   "G04": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "G08": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 2,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 23,
+    "SELV": 2
+   },
+   "HSA": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 7,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 11,
+    "SELV": 0
+   },
+   "HSB": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 6,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 12,
+    "SELV": 0
+   },
+   "LS": {
+    "G01": 3,
+    "G02": 0,
+    "G03": 9,
+    "G04": 0,
+    "G08": 23,
+    "HSA": 11,
+    "HSB": 12,
+    "LS": 0,
+    "SELV": 4
+   },
+   "SELV": {
+    "G01": 0,
+    "G02": 6,
+    "G03": 0,
+    "G04": 0,
+    "G08": 2,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 4,
+    "SELV": 0
+   }
+  },
+  "pairs_within_3mm": {
+   "G01": {
+    "G01": 0,
+    "G02": 1,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 3,
+    "SELV": 1
+   },
+   "G02": {
+    "G01": 1,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 6
+   },
+   "G03": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 3,
+    "HSA": 10,
+    "HSB": 7,
+    "LS": 15,
+    "SELV": 0
+   },
+   "G04": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "G08": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 3,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 46,
+    "SELV": 3
+   },
+   "HSA": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 10,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 21,
+    "SELV": 0
+   },
+   "HSB": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 7,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 22,
+    "SELV": 0
+   },
+   "LS": {
+    "G01": 3,
+    "G02": 0,
+    "G03": 15,
+    "G04": 0,
+    "G08": 46,
+    "HSA": 21,
+    "HSB": 22,
+    "LS": 0,
+    "SELV": 7
+   },
+   "SELV": {
+    "G01": 1,
+    "G02": 6,
+    "G03": 0,
+    "G04": 0,
+    "G08": 3,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 7,
+    "SELV": 0
+   }
+  },
+  "touch_fraction_2mm": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.1111,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0463,
+    "SELV": 0.0
+   },
+   "G02": {
+    "G01": 0.1111,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.1081
+   },
+   "G03": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0556,
+    "HSA": 0.125,
+    "HSB": 0.125,
+    "LS": 0.1204,
+    "SELV": 0.0
+   },
+   "G04": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G08": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0556,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.2246,
+    "SELV": 0.0364
+   },
+   "HSA": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.125,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0878,
+    "SELV": 0.0
+   },
+   "HSB": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.125,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0878,
+    "SELV": 0.0
+   },
+   "LS": {
+    "G01": 0.0463,
+    "G02": 0.0,
+    "G03": 0.1204,
+    "G04": 0.0,
+    "G08": 0.2246,
+    "HSA": 0.0878,
+    "HSB": 0.0878,
+    "LS": 0.0,
+    "SELV": 0.0488
+   },
+   "SELV": {
+    "G01": 0.0,
+    "G02": 0.1081,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0364,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0488,
+    "SELV": 0.0
+   }
+  },
+  "touch_parts_2mm": {
+   "G01": {
+    "G02": [
+     "L1"
+    ],
+    "LS": [
+     "F1",
+     "L1",
+     "R1"
+    ]
+   },
+   "G02": {
+    "G01": [
+     "C5"
+    ],
+    "SELV": [
+     "C5",
+     "C6",
+     "D17"
+    ]
+   },
+   "G03": {
+    "G08": [
+     "C20",
+     "Q6"
+    ],
+    "HSA": [
+     "C38",
+     "C39",
+     "Q2"
+    ],
+    "HSB": [
+     "C40",
+     "C41",
+     "Q5"
+    ],
+    "LS": [
+     "C38",
+     "C39",
+     "C40",
+     "Q3",
+     "Q6"
+    ]
+   },
+   "G04": {},
+   "G08": {
+    "G03": [
+     "R5"
+    ],
+    "LS": [
+     "C149",
+     "C25",
+     "C27",
+     "C28",
+     "C30",
+     "C31",
+     "C36",
+     "C49",
+     "R31",
+     "R34",
+     "R35",
+     "R36",
+     "R37",
+     "R5",
+     "U4",
+     "U6",
+     "U7"
+    ],
+    "SELV": [
+     "C37",
+     "U4"
+    ]
+   },
+   "HSA": {
+    "G03": [
+     "C126",
+     "C55",
+     "R10",
+     "R51",
+     "R71"
+    ],
+    "LS": [
+     "C10",
+     "C111",
+     "C113",
+     "U41",
+     "U43"
+    ]
+   },
+   "HSB": {
+    "G03": [
+     "C128",
+     "C62",
+     "R18",
+     "R55",
+     "R74"
+    ],
+    "LS": [
+     "C119",
+     "C121",
+     "C17",
+     "U42",
+     "U44"
+    ]
+   },
+   "LS": {
+    "G01": [
+     "J3",
+     "PS2"
+    ],
+    "G03": [
+     "C129",
+     "C56",
+     "C63",
+     "R12",
+     "R20",
+     "R56",
+     "R72",
+     "R75"
+    ],
+    "G08": [
+     "C133",
+     "C24",
+     "C68",
+     "C9",
+     "C98",
+     "R13",
+     "R58",
+     "R81",
+     "R82",
+     "R85",
+     "R86",
+     "R87",
+     "U29",
+     "U32"
+    ],
+    "HSA": [
+     "C102",
+     "C103",
+     "C105",
+     "C158",
+     "C74",
+     "R127",
+     "R62",
+     "U1"
+    ],
+    "HSB": [
+     "C106",
+     "C107",
+     "C109",
+     "C160",
+     "C81",
+     "R128",
+     "R129",
+     "U2"
+    ],
+    "SELV": [
+     "R59",
+     "U1",
+     "U2",
+     "U32"
+    ]
+   },
+   "SELV": {
+    "G02": [
+     "R130",
+     "R67",
+     "R69",
+     "R70",
+     "U36"
+    ],
+    "G08": [
+     "C134",
+     "C42"
+    ],
+    "LS": [
+     "C134",
+     "C14",
+     "C7",
+     "T1"
+    ]
+   }
+  }
+ },
+ "regions": {
+  "bbox": {
+   "G01": [
+    79.36,
+    0.46,
+    289.18,
+    137.34
+   ],
+   "G02": [
+    202.71,
+    58.8,
+    289.18,
+    110.89
+   ],
+   "G03": [
+    0.6,
+    1.59,
+    84.59,
+    32.99
+   ],
+   "G04": [
+    127.21,
+    39.83,
+    193.04,
+    118.75
+   ],
+   "G08": [
+    35.01,
+    8.8,
+    121.32,
+    132.28
+   ],
+   "HSA": [
+    44.26,
+    8.53,
+    78.58,
+    117.41
+   ],
+   "HSB": [
+    0.51,
+    8.53,
+    31.57,
+    117.96
+   ],
+   "LS": [
+    1.73,
+    0.1,
+    223.0,
+    127.0
+   ],
+   "SELV": [
+    2.0,
+    57.08,
+    289.38,
+    186.94
+   ]
+  },
+  "bbox_overlap_frac": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 1.0,
+    "G03": 0.0624,
+    "G04": 1.0,
+    "G08": 0.4862,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.6474,
+    "SELV": 0.5864
+   },
+   "G02": {
+    "G01": 1.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.2346,
+    "SELV": 1.0
+   },
+   "G03": {
+    "G01": 0.0624,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.4548,
+    "HSA": 0.3184,
+    "HSB": 0.2873,
+    "LS": 0.9867,
+    "SELV": 0.0
+   },
+   "G04": {
+    "G01": 1.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 1.0,
+    "SELV": 0.7814
+   },
+   "G08": {
+    "G01": 0.4862,
+    "G02": 0.0,
+    "G03": 0.4548,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.9974,
+    "HSB": 0.0,
+    "LS": 0.9572,
+    "SELV": 0.6091
+   },
+   "HSA": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.3184,
+    "G04": 0.0,
+    "G08": 0.9974,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 1.0,
+    "SELV": 0.5541
+   },
+   "HSB": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.2873,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.9607,
+    "SELV": 0.5296
+   },
+   "LS": {
+    "G01": 0.6474,
+    "G02": 0.2346,
+    "G03": 0.9867,
+    "G04": 1.0,
+    "G08": 0.9572,
+    "HSA": 1.0,
+    "HSB": 0.9607,
+    "LS": 0.0,
+    "SELV": 0.5503
+   },
+   "SELV": {
+    "G01": 0.5864,
+    "G02": 1.0,
+    "G03": 0.0,
+    "G04": 0.7814,
+    "G08": 0.6091,
+    "HSA": 0.5541,
+    "HSB": 0.5296,
+    "LS": 0.5503,
+    "SELV": 0.0
+   }
+  },
+  "courtyards_inside_other_hull": {
+   "G01": {
+    "G01": 0,
+    "G02": 1,
+    "G03": 0,
+    "G04": 11,
+    "G08": 16,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 6,
+    "SELV": 5
+   },
+   "G02": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 5
+   },
+   "G03": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 1,
+    "HSA": 5,
+    "HSB": 5,
+    "LS": 10,
+    "SELV": 0
+   },
+   "G04": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 0,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 0,
+    "SELV": 0
+   },
+   "G08": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 2,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 15,
+    "HSB": 0,
+    "LS": 63,
+    "SELV": 7
+   },
+   "HSA": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 1,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 11,
+    "SELV": 0
+   },
+   "HSB": {
+    "G01": 0,
+    "G02": 0,
+    "G03": 1,
+    "G04": 0,
+    "G08": 0,
+    "HSA": 0,
+    "HSB": 0,
+    "LS": 7,
+    "SELV": 0
+   },
+   "LS": {
+    "G01": 1,
+    "G02": 0,
+    "G03": 6,
+    "G04": 7,
+    "G08": 38,
+    "HSA": 31,
+    "HSB": 15,
+    "LS": 0,
+    "SELV": 14
+   },
+   "SELV": {
+    "G01": 3,
+    "G02": 2,
+    "G03": 0,
+    "G04": 5,
+    "G08": 29,
+    "HSA": 33,
+    "HSB": 10,
+    "LS": 42,
+    "SELV": 0
+   }
+  },
+  "hull_overlap_frac": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.5921,
+    "G03": 0.0,
+    "G04": 1.0,
+    "G08": 0.0981,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.4781,
+    "SELV": 0.261
+   },
+   "G02": {
+    "G01": 0.5921,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.1985
+   },
+   "G03": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.2382,
+    "HSA": 0.1827,
+    "HSB": 0.1807,
+    "LS": 0.7023,
+    "SELV": 0.0
+   },
+   "G04": {
+    "G01": 1.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.4351,
+    "SELV": 0.5487
+   },
+   "G08": {
+    "G01": 0.0981,
+    "G02": 0.0,
+    "G03": 0.2382,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.3859,
+    "HSB": 0.0,
+    "LS": 0.9578,
+    "SELV": 0.5553
+   },
+   "HSA": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.1827,
+    "G04": 0.0,
+    "G08": 0.3859,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.8655,
+    "SELV": 0.5624
+   },
+   "HSB": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.1807,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.3855,
+    "SELV": 0.1127
+   },
+   "LS": {
+    "G01": 0.4781,
+    "G02": 0.0,
+    "G03": 0.7023,
+    "G04": 0.4351,
+    "G08": 0.9578,
+    "HSA": 0.8655,
+    "HSB": 0.3855,
+    "LS": 0.0,
+    "SELV": 0.3166
+   },
+   "SELV": {
+    "G01": 0.261,
+    "G02": 0.1985,
+    "G03": 0.0,
+    "G04": 0.5487,
+    "G08": 0.5553,
+    "HSA": 0.5624,
+    "HSB": 0.1127,
+    "LS": 0.3166,
+    "SELV": 0.0
+   }
+  },
+  "territory_area_mm2": {
+   "G01": 5972.625,
+   "G02": 4092.5,
+   "G03": 1982.4375,
+   "G04": 4570.75,
+   "G08": 1695.8125,
+   "HSA": 2196.125,
+   "HSB": 2018.625,
+   "LS": 5758.75,
+   "SELV": 5780.375,
+   "open": 11082.0
+  }
+ },
+ "routed_adjacency_mm2": {
+  "by_layer": {
+   "B.Cu": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.75,
+     "SELV": 1.0625
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 4.375,
+     "SELV": 3.5
+    },
+    "HSA": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "HSB": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "LS": {
+     "G01": 0.25,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 5.9375,
+     "HSA": 2.375,
+     "HSB": 1.75,
+     "LS": 0.0,
+     "SELV": 4.25
+    },
+    "SELV": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    }
+   },
+   "F.Cu": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.375,
+     "SELV": 0.4375
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 1.0625,
+     "SELV": 4.75
+    },
+    "HSA": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "HSB": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "LS": {
+     "G01": 0.125,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 2.125,
+     "HSA": 2.875,
+     "HSB": 2.1875,
+     "LS": 0.0,
+     "SELV": 1.125
+    },
+    "SELV": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    }
+   },
+   "In1.Cu": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 3.25,
+     "SELV": 0.0
+    },
+    "HSA": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "HSB": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "LS": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 3.5625,
+     "HSA": 0.625,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.1875
+    },
+    "SELV": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    }
+   },
+   "In2.Cu": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 2.8125,
+     "SELV": 0.0
+    },
+    "HSA": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "HSB": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    },
+    "LS": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 3.875,
+     "HSA": 5.75,
+     "HSB": 2.6875,
+     "LS": 0.0,
+     "SELV": 0.125
+    },
+    "SELV": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G08": 0.0,
+     "HSA": 0.0,
+     "HSB": 0.0,
+     "LS": 0.0,
+     "SELV": 0.0
+    }
+   }
+  },
+  "total": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 1.125,
+    "SELV": 1.5
+   },
+   "G02": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G03": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G04": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "G08": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 11.5,
+    "SELV": 8.25
+   },
+   "HSA": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "HSB": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   },
+   "LS": {
+    "G01": 0.375,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 15.5,
+    "HSA": 11.625,
+    "HSB": 6.625,
+    "LS": 0.0,
+    "SELV": 5.6875
+   },
+   "SELV": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G08": 0.0,
+    "HSA": 0.0,
+    "HSB": 0.0,
+    "LS": 0.0,
+    "SELV": 0.0
+   }
+  }
+ }
+}

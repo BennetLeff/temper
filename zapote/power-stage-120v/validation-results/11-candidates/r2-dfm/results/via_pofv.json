@@ -1,0 +1,1988 @@
+{
+ "vias_0p3_total": 741,
+ "in_pad_total": 150,
+ "inside": 72,
+ "edge": 78,
+ "by_class": {
+  "SMALL": 109,
+  "POWER": 2,
+  "TP": 19,
+  "EP": 9,
+  "R5": 11
+ },
+ "by_class_pos": {
+  "EP/inside": 9,
+  "POWER/edge": 2,
+  "R5/edge": 3,
+  "R5/inside": 8,
+  "SMALL/edge": 71,
+  "SMALL/inside": 38,
+  "TP/edge": 2,
+  "TP/inside": 17
+ },
+ "by_ref_required_classes": {
+  "C26": 1,
+  "U26": 9,
+  "R5": 11,
+  "C106": 1
+ },
+ "required_in_pad": 20,
+ "movable_without_function_change": 130,
+ "rows": [
+  {
+   "via": [
+    104.233,
+    56.785
+   ],
+   "pad": "U6.5",
+   "net": "hot5",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    110.0,
+    71.245
+   ],
+   "pad": "R48.1",
+   "net": "hot5",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    114.905,
+    116.125
+   ],
+   "pad": "U9.3",
+   "net": "hot5",
+   "pos": "inside",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    109.833,
+    56.785
+   ],
+   "pad": "U7.5",
+   "net": "hot5",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    117.49,
+    59.035
+   ],
+   "pad": "C26.1",
+   "net": "hot5",
+   "pos": "edge",
+   "pad_area_mm2": 3.05,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "POWER"
+  },
+  {
+   "via": [
+    110.0,
+    73.6
+   ],
+   "pad": "R31.1",
+   "net": "hot5",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    112.233,
+    61.0
+   ],
+   "pad": "TP6.1",
+   "net": "hot5",
+   "pos": "edge",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    107.5,
+    71.045
+   ],
+   "pad": "R50.2",
+   "net": "hot5_uv_raw",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    2.0,
+    112.085
+   ],
+   "pad": "TP29.1",
+   "net": "sw_b",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    48.07,
+    76.825
+   ],
+   "pad": "U30.3",
+   "net": "p_ha",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    59.058,
+    99.695
+   ],
+   "pad": "U38.1",
+   "net": "p_ha",
+   "pos": "edge",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    51.775,
+    76.975
+   ],
+   "pad": "U30.12",
+   "net": "n_ha",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    64.912,
+    113.297
+   ],
+   "pad": "U33.7",
+   "net": "n_ha",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.85,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    61.8,
+    75.145
+   ],
+   "pad": "C71.2",
+   "net": "n_ha",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    54.5,
+    70.7
+   ],
+   "pad": "U41.24",
+   "net": "n_ha",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    64.8,
+    50.0
+   ],
+   "pad": "TP8.1",
+   "net": "n_ha",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    51.3,
+    70.7
+   ],
+   "pad": "U41.19",
+   "net": "n_ha",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    116.4,
+    82.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    56.1,
+    60.2
+   ],
+   "pad": "U41.10",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    8.199999,
+    55.2
+   ],
+   "pad": "U42.13",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    116.4,
+    80.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    116.4,
+    81.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    5.0,
+    56.8
+   ],
+   "pad": "U42.17",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    114.4,
+    80.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    114.4,
+    81.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    89.58,
+    41.665
+   ],
+   "pad": "C53.2",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.85,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    115.4,
+    81.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    115.4,
+    80.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    54.5,
+    61.8
+   ],
+   "pad": "U41.12",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    86.708,
+    41.735
+   ],
+   "pad": "TP22.1",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    53.7,
+    61.225
+   ],
+   "pad": "U41.14",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    6.6,
+    55.2
+   ],
+   "pad": "U42.15",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    114.4,
+    82.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    54.5,
+    60.2
+   ],
+   "pad": "U41.13",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    9.8,
+    55.2
+   ],
+   "pad": "U42.10",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    92.225,
+    116.125
+   ],
+   "pad": "U32.7",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    115.4,
+    82.05
+   ],
+   "pad": "U26.21",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 9.92,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "EP"
+  },
+  {
+   "via": [
+    64.599999,
+    63.6
+   ],
+   "pad": "R127.2",
+   "net": "n_ls",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    51.3,
+    61.8
+   ],
+   "pad": "U41.17",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    99.87,
+    76.825
+   ],
+   "pad": "C70.2",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    89.575,
+    39.1
+   ],
+   "pad": "C52.2",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.85,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    8.199999,
+    56.8
+   ],
+   "pad": "U42.13",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    52.9,
+    60.2
+   ],
+   "pad": "U41.15",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    7.4,
+    56.225
+   ],
+   "pad": "U42.14",
+   "net": "n_ls",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    36.9,
+    14.7
+   ],
+   "pad": "R5.4",
+   "net": "hv_ret",
+   "pos": "edge",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    37.35,
+    15.45
+   ],
+   "pad": "R5.4",
+   "net": "hv_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    37.65,
+    14.25
+   ],
+   "pad": "R5.4",
+   "net": "hv_ret",
+   "pos": "edge",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    38.1,
+    15.0
+   ],
+   "pad": "R5.4",
+   "net": "hv_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    54.4,
+    112.635
+   ],
+   "pad": "R101.1",
+   "net": "sw_a",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    62.487,
+    50.4
+   ],
+   "pad": "TP28.1",
+   "net": "sw_a",
+   "pos": "edge",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    51.688,
+    93.995
+   ],
+   "pad": "U18.2",
+   "net": "sw_a",
+   "pos": "edge",
+   "pad_area_mm2": 0.86,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    35.22,
+    42.675
+   ],
+   "pad": "C148.1",
+   "net": "v15_ls",
+   "pos": "edge",
+   "pad_area_mm2": 1.39,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    81.816,
+    41.514
+   ],
+   "pad": "C146.1",
+   "net": "v15_ls",
+   "pos": "edge",
+   "pad_area_mm2": 1.39,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    8.199999,
+    65.7
+   ],
+   "pad": "U42.24",
+   "net": "n_hb",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    31.09,
+    40.0
+   ],
+   "pad": "C18.2",
+   "net": "n_hb",
+   "pos": "inside",
+   "pad_area_mm2": 1.39,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    4.312,
+    115.797
+   ],
+   "pad": "TP10.1",
+   "net": "n_hb",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    5.0,
+    65.7
+   ],
+   "pad": "U42.19",
+   "net": "n_hb",
+   "pos": "edge",
+   "pad_area_mm2": 0.83,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    14.8,
+    96.895
+   ],
+   "pad": "U39.2",
+   "net": "n_hb",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    112.05,
+    73.245
+   ],
+   "pad": "R31.2",
+   "net": "ref25",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    103.75,
+    74.095
+   ],
+   "pad": "R37.2",
+   "net": "ocp_kelvin_p",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    117.225,
+    73.695
+   ],
+   "pad": "TP25.1",
+   "net": "ocp_kelvin_p",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    100.35,
+    88.695
+   ],
+   "pad": "TP27.1",
+   "net": "ocp_kelvin_p",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    110.225,
+    115.325
+   ],
+   "pad": "U9.7",
+   "net": "ocp_kelvin_p",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    103.8,
+    115.675
+   ],
+   "pad": "U4.3",
+   "net": "ocp_kelvin_p",
+   "pos": "edge",
+   "pad_area_mm2": 1.06,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    96.035,
+    115.325
+   ],
+   "pad": "U32.4",
+   "net": "monitor_ls-isoin",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    113.298,
+    125.875
+   ],
+   "pad": "U9.13",
+   "net": "bus_fault_iso",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    76.762,
+    104.268
+   ],
+   "pad": "TP32.1",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    77.6,
+    63.72
+   ],
+   "pad": "C54.2",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    35.51,
+    62.392
+   ],
+   "pad": "TP33.1",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    13.663,
+    127.5
+   ],
+   "pad": "TP31.1",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    29.773,
+    63.664
+   ],
+   "pad": "C61.2",
+   "net": "selv_gnd",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    30.35,
+    71.815
+   ],
+   "pad": "TP34.1",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    27.675,
+    132.865
+   ],
+   "pad": "TP35.1",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    130.692,
+    128.584
+   ],
+   "pad": "TP30.1",
+   "net": "selv_gnd",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    33.972,
+    130.695
+   ],
+   "pad": "U13.4",
+   "net": "bus_fault",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    11.248,
+    128.287
+   ],
+   "pad": "TP13.1",
+   "net": "v3v3",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    97.305,
+    126.675
+   ],
+   "pad": "U32.14",
+   "net": "v3v3",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    105.505,
+    126.725
+   ],
+   "pad": "U4.8",
+   "net": "v3v3",
+   "pos": "edge",
+   "pad_area_mm2": 1.06,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    30.7,
+    58.25
+   ],
+   "pad": "C14.1",
+   "net": "v3v3",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    5.2,
+    127.3
+   ],
+   "pad": "C88.1",
+   "net": "v3v3",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    50.8,
+    112.735
+   ],
+   "pad": "R102.1",
+   "net": "bias_ha.monitor-ov",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    37.05,
+    9.95
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    37.8,
+    10.4
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    39.75,
+    9.65
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    38.55,
+    9.95
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    37.8,
+    9.5
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    39.3,
+    10.4
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "inside",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    39.0,
+    9.2
+   ],
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "pos": "edge",
+   "pad_area_mm2": 6.12,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "R5"
+  },
+  {
+   "via": [
+    20.725,
+    108.095
+   ],
+   "pad": "U34.3",
+   "net": "bias_hb.monitor-v5",
+   "pos": "inside",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    18.9,
+    109.275
+   ],
+   "pad": "C141.1",
+   "net": "bias_hb.monitor-v5",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    111.132,
+    86.195
+   ],
+   "pad": "U37.5",
+   "net": "monitor_ls-v5",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    14.8,
+    95.945
+   ],
+   "pad": "U39.1",
+   "net": "p_hb",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    2.4,
+    71.925
+   ],
+   "pad": "U31.3",
+   "net": "p_hb",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    11.885,
+    68.915
+   ],
+   "pad": "C82.1",
+   "net": "p_hb",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    6.487,
+    87.595
+   ],
+   "pad": "U20.1",
+   "net": "bias_hb.split-fb",
+   "pos": "edge",
+   "pad_area_mm2": 0.86,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    95.2,
+    126.6
+   ],
+   "pad": "U32.13",
+   "net": "bias_ls_bad",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    9.335,
+    100.145
+   ],
+   "pad": "D16.1",
+   "net": "bias_hb.monitor-base",
+   "pos": "edge",
+   "pad_area_mm2": 1.03,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    62.1,
+    104.845
+   ],
+   "pad": "R63.2",
+   "net": "bias_ha.monitor-ref",
+   "pos": "edge",
+   "pad_area_mm2": 1.91,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    106.62,
+    81.695
+   ],
+   "pad": "U29.10",
+   "net": "monitor_ls-spanov",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    103.35,
+    111.635
+   ],
+   "pad": "R87.2",
+   "net": "monitor_ls-spanov",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    48.2,
+    112.065
+   ],
+   "pad": "R107.2",
+   "net": "bias_ha.monitor-good",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    52.62,
+    76.385
+   ],
+   "pad": "U30.13",
+   "net": "bias_ha.monitor-good",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    118.2,
+    79.6
+   ],
+   "pad": "TP4.1",
+   "net": "v24_raw",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    7.0,
+    53.1
+   ],
+   "pad": "C106.1",
+   "net": "v24_raw",
+   "pos": "edge",
+   "pad_area_mm2": 3.05,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "POWER"
+  },
+  {
+   "via": [
+    29.383,
+    130.595
+   ],
+   "pad": "U12.4",
+   "net": "ct_s2",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    113.677,
+    86.195
+   ],
+   "pad": "U16.1",
+   "net": "bias_ls-fb",
+   "pos": "inside",
+   "pad_area_mm2": 0.86,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    106.4,
+    103.235
+   ],
+   "pad": "R77.2",
+   "net": "bias_ls-fb",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    11.25,
+    108.965
+   ],
+   "pad": "R122.2",
+   "net": "bias_hb.monitor-good",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    48.8,
+    114.935
+   ],
+   "pad": "R105.2",
+   "net": "bias_ha.monitor-spanov",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    63.75,
+    109.885
+   ],
+   "pad": "R97.2",
+   "net": "bias_ha.monitor-halfref",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    58.55,
+    109.885
+   ],
+   "pad": "R98.1",
+   "net": "bias_ha.monitor-halfref",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    48.129,
+    80.904
+   ],
+   "pad": "U30.6",
+   "net": "bias_ha.monitor-halfref",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    52.6,
+    81.4
+   ],
+   "pad": "U30.9",
+   "net": "bias_ha.monitor-spanuv",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    56.25,
+    114.385
+   ],
+   "pad": "R103.2",
+   "net": "bias_ha.monitor-spanuv",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    47.2,
+    109.265
+   ],
+   "pad": "C78.1",
+   "net": "bias_ha.monitor-spanuv",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    104.233,
+    58.685
+   ],
+   "pad": "U6.4",
+   "net": "ocp_thresh",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    75.7,
+    66.015
+   ],
+   "pad": "R8.1",
+   "net": "leg_a-dis",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    102.0,
+    109.635
+   ],
+   "pad": "R89.1",
+   "net": "monitor_ls-ref",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    116.75,
+    71.045
+   ],
+   "pad": "TP5.1",
+   "net": "ocp_node",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    2.4,
+    77.735
+   ],
+   "pad": "U31.7",
+   "net": "bias_hb.monitor-uv",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    9.2,
+    106.535
+   ],
+   "pad": "C83.1",
+   "net": "bias_hb.monitor-uv",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    75.7,
+    70.315
+   ],
+   "pad": "R7.1",
+   "net": "leg_a-permit_gate",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    105.75,
+    107.835
+   ],
+   "pad": "C66.1",
+   "net": "monitor_ls-uv",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    22.55,
+    131.095
+   ],
+   "pad": "U10.3",
+   "net": "ct_sense_mon",
+   "pos": "edge",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    107.448,
+    54.295
+   ],
+   "pad": "U14.3",
+   "net": "hot5_uv_sense",
+   "pos": "edge",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    34.028,
+    67.595
+   ],
+   "pad": "R14.2",
+   "net": "leg_b-permit_gate",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    13.942,
+    129.824999
+   ],
+   "pad": "TP18.1",
+   "net": "bias_bad",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.6,
+   "class": "TP"
+  },
+  {
+   "via": [
+    34.0,
+    66.015
+   ],
+   "pad": "R76.2",
+   "net": "leg_b-driver_dis",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    33.633,
+    56.675
+   ],
+   "pad": "U2.5",
+   "net": "leg_b-driver_dis",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    104.233,
+    54.095
+   ],
+   "pad": "U15.4",
+   "net": "hot5_ok_hot",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    9.4,
+    112.195
+   ],
+   "pad": "R121.1",
+   "net": "bias_hb.monitor-spanov",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    82.0,
+    37.0
+   ],
+   "pad": "TP1.1",
+   "net": "leg_a-out_l",
+   "pos": "inside",
+   "pad_area_mm2": 0.78,
+   "pad_layer": "B.Cu",
+   "via_pad_dia": 0.85,
+   "class": "TP"
+  },
+  {
+   "via": [
+    112.6,
+    104.825
+   ],
+   "pad": "C67.1",
+   "net": "monitor_ls-ov",
+   "pos": "edge",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    110.3,
+    109.335
+   ],
+   "pad": "R83.2",
+   "net": "monitor_ls-ov",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    64.849999,
+    103.475
+   ],
+   "pad": "C137.1",
+   "net": "bias_ha.monitor-v5",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    64.8,
+    107.895
+   ],
+   "pad": "U33.3",
+   "net": "bias_ha.monitor-v5",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    107.62,
+    78.085
+   ],
+   "pad": "U29.13",
+   "net": "monitor_ls-good",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    5.4,
+    106.865
+   ],
+   "pad": "C85.1",
+   "net": "bias_hb.monitor-spanuv",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    24.392,
+    130.695
+   ],
+   "pad": "U10.4",
+   "net": "ct_ref_hi",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    6.55,
+    133.065
+   ],
+   "pad": "R44.1",
+   "net": "ct_ref_hi",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    75.9,
+    56.275
+   ],
+   "pad": "U1.1",
+   "net": "pwm_ha",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    76.825,
+    56.075
+   ],
+   "pad": "U1.2",
+   "net": "pwm_la",
+   "pos": "inside",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    28.955,
+    55.875
+   ],
+   "pad": "U2.1",
+   "net": "pwm_hb",
+   "pos": "edge",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    26.907,
+    128.794999
+   ],
+   "pad": "U12.1",
+   "net": "ct_zc",
+   "pos": "inside",
+   "pad_area_mm2": 0.77,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    107.2,
+    83.165
+   ],
+   "pad": "U29.9",
+   "net": "monitor_ls-spanuv",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    101.75,
+    107.435
+   ],
+   "pad": "C68.1",
+   "net": "monitor_ls-spanuv",
+   "pos": "inside",
+   "pad_area_mm2": 0.81,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    105.3,
+    111.635
+   ],
+   "pad": "R86.1",
+   "net": "monitor_ls-spanuv",
+   "pos": "inside",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    2.4,
+    73.925
+   ],
+   "pad": "U31.4",
+   "net": "bias_hb.monitor-ov",
+   "pos": "edge",
+   "pad_area_mm2": 1.15,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    76.1,
+    67.675
+   ],
+   "pad": "R9.1",
+   "net": "leg_a.driver-dt",
+   "pos": "edge",
+   "pad_area_mm2": 0.72,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  },
+  {
+   "via": [
+    30.475,
+    109.365
+   ],
+   "pad": "U34.13",
+   "net": "bias_hb_bad",
+   "pos": "inside",
+   "pad_area_mm2": 0.97,
+   "pad_layer": "F.Cu",
+   "via_pad_dia": 0.6,
+   "class": "SMALL"
+  }
+ ],
+ "other_via_sizes": {
+  "0.6/0.3": 603,
+  "0.85/0.3": 138,
+  "1.6/0.8": 10
+ }
+}

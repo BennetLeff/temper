@@ -1,0 +1,156 @@
+1155c1155
+<                     "worst_case_value": 451.6,
+---
+>                     "worst_case_value": 512.4,
+1157,1158c1157,1158
+<                     "condition": "bus worst stacked corner, V0 = 287.62 V (closed form)",
+<                     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
+---
+>                     "condition": "stacked closed form on the current tank state: E_t 0.897 J (max tank energy at gate-off, bank-ov grid at the s47 shunt top 119.09 A, I_off <= 155.7 A), gate-off at V0 323.04 V / I0 25.95 A (500 uH / 30 A line ring through the U7 sense filter, tau 16.469 us, + T_D 2.267 us after the 287.62 V band top), C -19 %, no D3 clamp credit (band-terms bus_event; was 451.6 V on E_t 0.475 J, V0 287.62 V)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516"
+1200c1200
+<                     "ratio": 0.4516
+---
+>                     "ratio": 0.5124
+1249c1249
+<             "notes": "Batch A 2026-10-15: datasheet re-fetched (identical), UL E95060 read on p.1, Tj bound added (0.79). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V)."
+---
+>             "notes": "Batch A 2026-10-15: datasheet re-fetched (identical), UL E95060 read on p.1, Tj bound added (0.79). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V)."
+1259c1259
+<             "status": "PARTIAL",
+---
+>             "status": "VIOLATION",
+1336c1336
+<                     "worst_case_value": 451.6,
+---
+>                     "worst_case_value": 512.4,
+1338,1339c1338,1339
+<                     "condition": "worst stacked corner, V0 = 287.62 V (closed form)",
+<                     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
+---
+>                     "condition": "stacked closed form on the current tank state: E_t 0.897 J (max tank energy at gate-off, bank-ov grid at the s47 shunt top 119.09 A, I_off <= 155.7 A), gate-off at V0 323.04 V / I0 25.95 A (500 uH / 30 A line ring through the U7 sense filter, tau 16.469 us, + T_D 2.267 us after the 287.62 V band top), C -19 %, no D3 clamp credit (band-terms bus_event; was 451.6 V on E_t 0.475 J, V0 287.62 V)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516"
+1438c1438
+<                     "ratio": 0.6021
+---
+>                     "ratio": 0.6832
+1446,1447c1446,1447
+<                     "rule": "451.6 <= 456 V",
+<                     "ratio": 0.7923
+---
+>                     "rule": "512.4 <= 456 V",
+>                     "ratio": 0.8989
+1528,1529c1528,1529
+<             "finding": null,
+<             "notes": "Batch A 2026-10-15: added the hot Vop, pulse, AC-component and case-temperature ratings (all pass); the 26 A row is dropped (the default ceiling is 22 A, DECISIONS.md:566). Merged 2026-10-15 onto s42 (DECISIONS 55/56): case re-cited to the release case (83.6 C, 0.80 of 105 C; c28 99.2 C); the B3 gate's advisory C5/C6 row now uses TDK's 105 C (b3_ratings_gate.py ADVISORY film_4pin), closing that gap; the 28 A ripple extrapolation is the airflow-route gap. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
+---
+>             "finding": "S20b 2026-10-16: 512.4 V stacked gate-off event with no D3 credit is 0.899 of the 105 C Vop 570 V (rule 0.8) (band-terms bus_event; E_t 0.897 J at the 119.09 A shunt top)",
+>             "notes": "Batch A 2026-10-15: added the hot Vop, pulse, AC-component and case-temperature ratings (all pass); the 26 A row is dropped (the default ceiling is 22 A, DECISIONS.md:566). Merged 2026-10-15 onto s42 (DECISIONS 55/56): case re-cited to the release case (83.6 C, 0.80 of 105 C; c28 99.2 C); the B3 gate's advisory C5/C6 row now uses TDK's 105 C (b3_ratings_gate.py ADVISORY film_4pin), closing that gap; the 28 A ripple extrapolation is the airflow-route gap. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V)."
+1616c1616
+<                     "worst_case_value": 225.8,
+---
+>                     "worst_case_value": 256.2,
+1618,1619c1618,1619
+<                     "condition": "451.6 V worst stacked no-clamp corner / 2",
+<                     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; elec/src/power_stage_120v.ato:351-358"
+---
+>                     "condition": "512.4 V stacked event / 2 (R3 / R4 in series); stacked closed form on the current tank state: E_t 0.897 J (max tank energy at gate-off, bank-ov grid at the s47 shunt top 119.09 A, I_off <= 155.7 A), gate-off at V0 323.04 V / I0 25.95 A (500 uH / 30 A line ring through the U7 sense filter, tau 16.469 us, + T_D 2.267 us after the 287.62 V band top), C -19 %, no D3 clamp credit (band-terms bus_event; was 451.6 V on E_t 0.475 J, V0 287.62 V)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516; elec/src/power_stage_120v.ato:351-358"
+1657,1658c1657,1658
+<                     "rule": "225.8 <= 400 V",
+<                     "ratio": 0.5645
+---
+>                     "rule": "256.2 <= 400 V",
+>                     "ratio": 0.6405
+1709c1709
+<             "notes": "Batch A 2026-10-15: current RC_L sheet read; values unchanged (200 / 400 V); transient check added. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
+---
+>             "notes": "Batch A 2026-10-15: current RC_L sheet read; values unchanged (200 / 400 V); transient check added. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V)."
+3770c3770
+<             "status": "PARTIAL",
+---
+>             "status": "VIOLATION",
+3826c3826
+<                     "worst_case_value": 451.6,
+---
+>                     "worst_case_value": 512.4,
+3828,3829c3828,3829
+<                     "condition": "static-OVP start 287.62 V, 500 uH / 30 A line event, C -19 %, no D3 clamp credit",
+<                     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
+---
+>                     "condition": "stacked closed form on the current tank state: E_t 0.897 J (max tank energy at gate-off, bank-ov grid at the s47 shunt top 119.09 A, I_off <= 155.7 A), gate-off at V0 323.04 V / I0 25.95 A (500 uH / 30 A line ring through the U7 sense filter, tau 16.469 us, + T_D 2.267 us after the 287.62 V band top), C -19 %, no D3 clamp credit (band-terms bus_event; was 451.6 V on E_t 0.475 J, V0 287.62 V)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516"
+3911,3912c3911,3912
+<                     "rule": "451.6 V <= 500 V",
+<                     "ratio": 0.4516
+---
+>                     "rule": "512.4 V <= 500 V",
+>                     "ratio": 0.5124
+3957,3958c3957,3958
+<             "finding": null,
+<             "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
+---
+>             "finding": "S20b 2026-10-16: 512.4 V stacked gate-off event with no D3 credit is 0.512 of the 1 kV rating (rule 0.5) (band-terms bus_event; E_t 0.897 J at the 119.09 A shunt top)",
+>             "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V)."
+6597a6598,6604
+>                 },
+>                 {
+>                     "parameter": "Pulse power, gate-off event (per device)",
+>                     "worst_case_value": 27678.0,
+>                     "unit": "W",
+>                     "condition": "stacked gate-off event above (E_t 0.897 J, OVP-delay gate-off), time-domain: bounded by a near-ideal clamp at the -10 C VBR min (323 V string): 167.05 A x 331.37 V / 2, 25.68 us above half peak, 0.65 J per device; V-I lines through the published points give 62-72 A and about 15 kW (band-terms bus_event)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516; validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:154-165"
+6654a6662,6670
+>                 },
+>                 {
+>                     "id": "pulse power, gate-off event",
+>                     "rating": "PPP at 49 us rectangular",
+>                     "stress": "Pulse power, gate-off event (per device)",
+>                     "max_ratio": 1.0,
+>                     "severity": "violation",
+>                     "rule": "27.7 kW <= 34 kW (49 us rectangular, 85 C derated; the event is ~26 us at 73 C)",
+>                     "ratio": 0.8141
+6674c6690
+<             "notes": "2026-10-15 batch B: Good-Ark's own sheet obtained (closes 'no Good-Ark copy'); its p.3 row matches ALT-D3 / parts.ato (VBR min 167.6 V, so the string is 335.2 V). Approval basis: a TVS across the internal DC link after BR1 is not an SPD under UL 1449 and carries no UL recognition (UL 94 V-0 epoxy only); evaluated in the end product. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
+---
+>             "notes": "2026-10-15 batch B: Good-Ark's own sheet obtained (closes 'no Good-Ark copy'); its p.3 row matches ALT-D3 / parts.ato (VBR min 167.6 V, so the string is 335.2 V). Approval basis: a TVS across the internal DC link after BR1 is not an SPD under UL 1449 and carries no UL recognition (UL 94 V-0 epoxy only); evaluated in the end product. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V)."
+6841c6857
+<                     "worst_case_value": 451.6,
+---
+>                     "worst_case_value": 512.4,
+6843,6844c6859,6860
+<                     "condition": "worst stacked corner (V0 = 287.62 V static OVP top, stacked)",
+<                     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
+---
+>                     "condition": "stacked closed form on the current tank state: E_t 0.897 J (max tank energy at gate-off, bank-ov grid at the s47 shunt top 119.09 A, I_off <= 155.7 A), gate-off at V0 323.04 V / I0 25.95 A (500 uH / 30 A line ring through the U7 sense filter, tau 16.469 us, + T_D 2.267 us after the 287.62 V band top), C -19 %, no D3 clamp credit (band-terms bus_event; was 451.6 V on E_t 0.475 J, V0 287.62 V)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516"
+6912c6928
+<                     "ratio": 0.4516
+---
+>                     "ratio": 0.5124
+6921c6937
+<                     "ratio": 0.6569
+---
+>                     "ratio": 0.7453
+6971c6987
+<             "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V)."
+---
+>             "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V)."
+10993c11009
+<                     "worst_case_value": 451.6,
+---
+>                     "worst_case_value": 512.4,
+10995,10996c11011,11012
+<                     "condition": "bus worst stacked corner, V0 = 287.62 V (HOT-to-HOT functional here) (peak)",
+<                     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
+---
+>                     "condition": "stacked closed form on the current tank state: E_t 0.897 J (max tank energy at gate-off, bank-ov grid at the s47 shunt top 119.09 A, I_off <= 155.7 A), gate-off at V0 323.04 V / I0 25.95 A (500 uH / 30 A line ring through the U7 sense filter, tau 16.469 us, + T_D 2.267 us after the 287.62 V band top), C -19 %, no D3 clamp credit (band-terms bus_event; was 451.6 V on E_t 0.475 J, V0 287.62 V) (HOT-to-HOT functional here) (peak)",
+>                     "evidence": "validation-results/02-protection-timing/bank-ov-double-fault/bank_ov_double_fault.py; validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/02-protection-timing/stage15-28A/fault_check.py; elec/src/power_stage_120v.ato:505-516"
+11063c11079
+<                     "ratio": 0.2556
+---
+>                     "ratio": 0.29
+11138c11154
+<             "notes": "Replaces UCC21550BDWKR (stage 29): CMTI 1.32x -> 1.58x on the 95 V/ns model edge; no distributor stock gap (Digi-Key 1,043; LCSC C17455725). Approvals (p.1): UL 1577 E311313 (5700 Vrms), CSA via Component Acceptance Notice 5A, VDE/IEC 60747-17 40055138; the barrier is HOT-to-HOT functional here, so no approval is relied on for safety. 2026-10-15 batch B: CMTI stresses moved from the 95 V/ns model to the DECISIONS 54 as-built S4 rows. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL: CMTI re-evaluated at s42's S4 edge, 49.7 V/ns at typical Qrr: 150 / 49.7 = 3.0x, the 1.5x gate-command rule met. Batch B's finding was stated on the s29-s41 edge: CMTI derating (RESOLUTION-PLAN F6: >= 1.5x the hard edge for gate-command crossings) fails on the as-built board: at typical diode recovery charge the S4 switch-node edge is 109-112 V/ns (gate-network-2026-10-15 README:109, DECISIONS 54) against the 150 V/ns static CMTI, 1.34x. The edge is still under the rating itself (0.75); the 1.75x on the vendor-model 85.8 V/ns understated Qrr. Same root cause as IPW65R018CFD7's VIOLATION (S4 recovery snap). Fix: candidate 39 (R_on 68 ohm 2512 + Cgs 4.7 nF) gives 49.7 V/ns, 3.0x; confirm on the D-8 double-pulse bench. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V; 203.38 Vrms).",
+---
+>             "notes": "Replaces UCC21550BDWKR (stage 29): CMTI 1.32x -> 1.58x on the 95 V/ns model edge; no distributor stock gap (Digi-Key 1,043; LCSC C17455725). Approvals (p.1): UL 1577 E311313 (5700 Vrms), CSA via Component Acceptance Notice 5A, VDE/IEC 60747-17 40055138; the barrier is HOT-to-HOT functional here, so no approval is relied on for safety. 2026-10-15 batch B: CMTI stresses moved from the 95 V/ns model to the DECISIONS 54 as-built S4 rows. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL: CMTI re-evaluated at s42's S4 edge, 49.7 V/ns at typical Qrr: 150 / 49.7 = 3.0x, the 1.5x gate-command rule met. Batch B's finding was stated on the s29-s41 edge: CMTI derating (RESOLUTION-PLAN F6: >= 1.5x the hard edge for gate-command crossings) fails on the as-built board: at typical diode recovery charge the S4 switch-node edge is 109-112 V/ns (gate-network-2026-10-15 README:109, DECISIONS 54) against the 150 V/ns static CMTI, 1.34x. The edge is still under the rating itself (0.75); the 1.75x on the vendor-model 85.8 V/ns understated Qrr. Same root cause as IPW65R018CFD7's VIOLATION (S4 recovery snap). Fix: candidate 39 (R_on 68 ohm 2512 + Cgs 4.7 nF) gives 49.7 V/ns, 3.0x; confirm on the D-8 double-pulse bench. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V; 203.38 Vrms). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V).",

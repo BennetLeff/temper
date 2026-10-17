@@ -12,10 +12,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 
 import numpy as np
 
 from check_ports import read_msh
+
+# Top copper surface (mesh z): the committed four-layer stack, or MESH_STACKUP's (as mesh25d_hybrid.py).
+Z_TOP = 1.5625
+if os.environ.get("MESH_STACKUP"):
+    from mesh25d_hybrid import stack_layers
+    Z_TOP = stack_layers(os.environ["MESH_STACKUP"])[2] - 0.0005
 
 
 def main() -> None:
@@ -71,7 +78,7 @@ def main() -> None:
             ends = []
             for (px, py) in (cl["a"], cl["b"]):
                 m = ((np.abs(pts[:, 0] - px) <= 0.31) & (np.abs(pts[:, 1] + py) <= 0.31)
-                     & (pts[:, 2] >= 1.5625) & (pts[:, 2] < 2.4))
+                     & (pts[:, 2] >= Z_TOP) & (pts[:, 2] < Z_TOP + 0.8375))  # 1.5625 / 2.4 on four layers
                 ends.append(sorted({ids[find(keys[i])] for i in np.flatnonzero(m)}))
             legs.append({"closure": cl["name"], "kind": cl["kind"], "a_body": ends[0], "b_body": ends[1]})
             print(json.dumps(legs[-1]))

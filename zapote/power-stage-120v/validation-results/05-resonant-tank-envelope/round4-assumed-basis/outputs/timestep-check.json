@@ -1,0 +1,76 @@
+{
+ "threshold_pct": 2.0,
+ "max_abs_change_pct": 0.0329,
+ "pass": true,
+ "cases": [
+  {
+   "case": "cast_iron-nom-140v-1710w",
+   "i_pk": {
+    "50ns": 44.466,
+    "25ns": 44.4706,
+    "change_pct": 0.0103
+   },
+   "vc_pk": {
+    "50ns": 316.52,
+    "25ns": 316.5756,
+    "change_pct": 0.0176
+   },
+   "i_rms": {
+    "50ns": 22.0,
+    "25ns": 22.0025,
+    "change_pct": 0.0114
+   },
+   "p_avg": {
+    "50ns": 1284.2,
+    "25ns": 1284.57,
+    "change_pct": 0.0288
+   }
+  },
+  {
+   "case": "aluminium_clad_multiply-high-120v-1710w",
+   "i_pk": {
+    "50ns": 43.693,
+    "25ns": 43.6975,
+    "change_pct": 0.0103
+   },
+   "vc_pk": {
+    "50ns": 367.16,
+    "25ns": 367.2094,
+    "change_pct": 0.0135
+   },
+   "i_rms": {
+    "50ns": 21.989,
+    "25ns": 21.9912,
+    "change_pct": 0.01
+   },
+   "p_avg": {
+    "50ns": 1221.7,
+    "25ns": 1222.073,
+    "change_pct": 0.0305
+   }
+  },
+  {
+   "case": "offset_or_small_pan_SYNTHETIC-low-140v-1710w",
+   "i_pk": {
+    "50ns": 47.672,
+    "25ns": 47.6877,
+    "change_pct": 0.0329
+   },
+   "vc_pk": {
+    "50ns": 337.24,
+    "25ns": 337.2973,
+    "change_pct": 0.017
+   },
+   "i_rms": {
+    "50ns": 22.0,
+    "25ns": 22.0029,
+    "change_pct": 0.0132
+   },
+   "p_avg": {
+    "50ns": 472.1,
+    "25ns": 472.2353,
+    "change_pct": 0.0287
+   }
+  }
+ ]
+}

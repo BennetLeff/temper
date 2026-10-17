@@ -1,0 +1,71 @@
+{
+ "basis": "KNSCHA MMKP82: sine, ambient <= 85 C, internal temperature rise dT = 10 C (p.6 / p.7 remarks)",
+ "auto": {
+  "2000V_Irms_top_curve_A": {
+   "file": "render/img/kn-008.jpg",
+   "frame": {
+    "x_0.1kHz": 160.0,
+    "px_per_decade_x": 234.0,
+    "y_top": 102.0,
+    "px_per_decade_y": 174.0
+   },
+   "top_curve": {
+    "10k": 4.316,
+    "20k": 5.263,
+    "30k": 4.231,
+    "35k": 6.251,
+    "40k": 6.251,
+    "50k": 4.703,
+    "70k": 7.327,
+    "100k": 8.254
+   }
+  },
+  "1600V_Irms_top_curve_A": {
+   "file": "render/img/kn-013.jpg",
+   "frame": {
+    "x_0.1kHz": 166.0,
+    "px_per_decade_x": 239.5,
+    "y_top": 100.0,
+    "px_per_decade_y": 176.5
+   },
+   "top_curve": {
+    "10k": 4.283,
+    "20k": 7.36,
+    "30k": 7.554,
+    "35k": 7.554,
+    "40k": 5.416,
+    "50k": 5.669,
+    "70k": 5.651,
+    "100k": 8.331
+   }
+  }
+ },
+ "eye": {
+  "Irms_2000V_104_P27.5_A": {
+   "35k": 6.2,
+   "40k": 6.35,
+   "100k": 8.25
+  },
+  "Vrms_2000V_104_P27.5_V": {
+   "35k": 290.0,
+   "40k": 245.0
+  }
+ },
+ "control_vrms_vs_irms": {
+  "35k": {
+   "I_from_Vrms_A": 6.38,
+   "I_eye_A": 6.2,
+   "ratio": 0.972
+  },
+  "40k": {
+   "I_from_Vrms_A": 6.16,
+   "I_eye_A": 6.35,
+   "ratio": 1.031
+  }
+ },
+ "used_I_allow_A": {
+  "35k": 6.2,
+  "40k": 6.16
+ },
+ "control_failed": []
+}

@@ -1,0 +1,311 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C7826",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "SN74LVC1G00DBVR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8553283146826067968",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-SN74LVC1G00DBVR_C7826.pdf",
+  "dataManualFileAccessId": "8579715186854584320",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc1g00",
+  "componentName": "TI SN74LVC1G00DBVR",
+  "minImage": "",
+  "minImageAccessId": "8553283147421929472",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8553283147421929472",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8553283146826067968",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8553283155202093056",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8553283154564694016",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8553283167206731776",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8553283166514130944",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 4
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8578673540549300224",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8578673539567833088",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI SN74LVC1G00DBVR",
+  "componentSpecificationEn": "SOT-23-5",
+  "describe": "-40\u2103~+125\u2103 1 1.2V\u30011.9V\u30012.3V\u30012.4V\u30013.8V 1.65V~5.5V 1.7V~2V 10uA 2 300mV\u3001400mV\u3001450mV\u3001550mV 32mA 32mA 4.3ns@5V,50pF 74LVC Series NAND Gate Overvoltage-tolerant input\u3001Rear drive protection\u3001Local shutdown mode\u3001Live insertion protection SOT-23-5 Logic Gates ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Output Logic Level - Low",
+    "component_code": "C7826",
+    "attribute_value_name": "300mV\u3001400mV\u3001450mV\u3001550mV"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C7826",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Propagation Delay",
+    "component_code": "C7826",
+    "attribute_value_name": "4.3ns@5V,50pF"
+   },
+   {
+    "attribute_name_en": "Output Logic Level - High",
+    "component_code": "C7826",
+    "attribute_value_name": "1.2V\u30011.9V\u30012.3V\u30012.4V\u30013.8V"
+   },
+   {
+    "attribute_name_en": "Logic Type",
+    "component_code": "C7826",
+    "attribute_value_name": "NAND Gate"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C7826",
+    "attribute_value_name": "32mA"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C7826",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Series",
+    "component_code": "C7826",
+    "attribute_value_name": "74LVC Series"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C7826",
+    "attribute_value_name": "1.7V~2V"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C7826",
+    "attribute_value_name": "1.65V~5.5V"
+   },
+   {
+    "attribute_name_en": "Number of Gates",
+    "component_code": "C7826",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C7826",
+    "attribute_value_name": "10uA"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C7826",
+    "attribute_value_name": "Overvoltage-tolerant input\u3001Rear drive protection\u3001Local shutdown mode\u3001Live insertion protection"
+   },
+   {
+    "attribute_name_en": "Inputs per Gates",
+    "component_code": "C7826",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C7826",
+    "attribute_value_name": "32mA"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Logic",
+  "secondSortName": "Logic Gates",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 8303,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 3897,
+  "overseasStockCount": 3897,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C7826",
+    "startNumber": 1,
+    "endNumber": 49,
+    "productPrice": 0.1225,
+    "erpComponentPriceKeyId": 291470297,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C7826",
+    "startNumber": 50,
+    "endNumber": 149,
+    "productPrice": 0.1021,
+    "erpComponentPriceKeyId": 291470294,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C7826",
+    "startNumber": 150,
+    "endNumber": 499,
+    "productPrice": 0.092,
+    "erpComponentPriceKeyId": 291470300,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C7826",
+    "startNumber": 500,
+    "endNumber": 2999,
+    "productPrice": 0.0843,
+    "erpComponentPriceKeyId": 291470295,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C7826",
+    "startNumber": 3000,
+    "endNumber": 5999,
+    "productPrice": 0.0783,
+    "erpComponentPriceKeyId": 291470293,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C7826",
+    "startNumber": 6000,
+    "endNumber": -1,
+    "productPrice": 0.0752,
+    "erpComponentPriceKeyId": 291470298,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 5,
+  "leastNumberPrice": 0.0925,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_texas-instruments-sn74lvc1g00dbvr_C7826.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u5355\u8def2\u8f93\u5165\u6b63\u4e0e\u975e\u95e8",
+  "lossNumber": 4,
+  "secondTypeNameEn": "Logic Gates",
+  "firstTypeNameEn": "Logic",
+  "secondTypeNameId": 2168,
+  "firstTypeNameId": 19,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 3526,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.1225,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 89,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 5,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277672,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-40\u2103~+125\u2103 1 1.2V\u30011.9V\u30012.3V\u30012.4V\u30013.8V 1.65V~5.5V 1.7V~2V 10uA 2 300mV\u3001400mV\u3001450mV\u3001550mV 32mA 32mA 4.3ns@5V,50pF 74LVC Series NAND Gate Overvoltage-tolerant input\u3001Rear drive protection\u3001Local shutdown mode\u3001Live insertion protection SOT-23-5 Logic Gates ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:40:47Z"
+}

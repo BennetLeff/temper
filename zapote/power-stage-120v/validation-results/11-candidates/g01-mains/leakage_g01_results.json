@@ -1,0 +1,96 @@
+{
+ "rows": [
+  {
+   "config": "as built (2.2+4.7+2.2)",
+   "Y_total_nF": 9.100000000000001,
+   "Y_mA": 0.5434100777508567,
+   "datasheet_max": 0.9741421213647918,
+   "typical": 0.5749612549387991,
+   "two_supplies_max": 0.8311818325561278
+  },
+  {
+   "config": "board Y removed",
+   "Y_total_nF": 6.9,
+   "Y_mA": 0.41203621280010005,
+   "datasheet_max": 0.8427682564140353,
+   "typical": 0.44358738998804254,
+   "two_supplies_max": 0.699807967605371
+  },
+  {
+   "config": "board Y removed, module 2.2 only",
+   "Y_total_nF": 2.2,
+   "Y_mA": 0.13137386495075654,
+   "datasheet_max": 0.5621059085646918,
+   "typical": 0.16292504213869902,
+   "two_supplies_max": 0.41914561975602754
+  },
+  {
+   "config": "board Y removed, module 4.7 only",
+   "Y_total_nF": 4.7,
+   "Y_mA": 0.2806623478493435,
+   "datasheet_max": 0.7113943914632788,
+   "typical": 0.312213525037286,
+   "two_supplies_max": 0.5684341026546145
+  },
+  {
+   "config": "board 2.2 only (module Y removed)",
+   "Y_total_nF": 2.2,
+   "Y_mA": 0.13137386495075654,
+   "datasheet_max": 0.5621059085646918,
+   "typical": 0.16292504213869902,
+   "two_supplies_max": 0.41914561975602754
+  },
+  {
+   "config": "board 1.0 + module 2.2",
+   "Y_total_nF": 3.2,
+   "Y_mA": 0.19108925811019134,
+   "datasheet_max": 0.6218213017241265,
+   "typical": 0.22264043529813382,
+   "two_supplies_max": 0.47886101291546235
+  },
+  {
+   "config": "board 2.2 + module 2.2",
+   "Y_total_nF": 4.4,
+   "Y_mA": 0.26274772990151307,
+   "datasheet_max": 0.6934797735154483,
+   "typical": 0.29429890708945555,
+   "two_supplies_max": 0.550519484706784
+  },
+  {
+   "config": "all Y removed",
+   "Y_total_nF": 0,
+   "Y_mA": 0.0,
+   "datasheet_max": 0.4307320436139352,
+   "typical": 0.03155117718794248,
+   "two_supplies_max": 0.287771754805271
+  }
+ ],
+ "limits": {
+  "UL1026 portable 0.5 mA, 50 % budget (repo rule)": {
+   "datasheet_max": 0.0,
+   "typical": 3.66,
+   "two_supplies_max": 0.0
+  },
+  "UL1026 portable 0.5 mA, 80 % budget": {
+   "datasheet_max": 0.0,
+   "typical": 6.17,
+   "two_supplies_max": 1.88
+  },
+  "0.5 mA full limit": {
+   "datasheet_max": 1.16,
+   "typical": 7.84,
+   "two_supplies_max": 3.55
+  },
+  "0.75 mA stationary, 50 % budget": {
+   "datasheet_max": 0.0,
+   "typical": 5.75,
+   "two_supplies_max": 1.46
+  },
+  "0.75 mA stationary full": {
+   "datasheet_max": 5.35,
+   "typical": 12.03,
+   "two_supplies_max": 7.74
+  }
+ },
+ "finding": "With the three IRM supplies at their datasheet MAX (0.4285 mA incl. 60/50 factor) the supplies alone exceed the 0.25 mA repo budget; no Y reduction can pass the 50 % rule. The F5 text 'Y <= 5.0 nF/line' ignores the supply term (it is the Y+coil capacity at 0.25 mA with supplies at 0)."
+}

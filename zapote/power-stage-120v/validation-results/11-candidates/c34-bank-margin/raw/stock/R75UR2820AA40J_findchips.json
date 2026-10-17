@@ -1,0 +1,18 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R75UR2820AA40J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R75UR2820AA40J",
+ "stock": {
+  "Avnet Americas": 0
+ },
+ "price_breaks": [
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R75UR2470AA30J (fuzzy; NOT the 82 nF part)",
+   "stock": 0,
+   "min_qty": 2448,
+   "note": "no exact listing found for R75UR2820AA40J"
+  }
+ ]
+}

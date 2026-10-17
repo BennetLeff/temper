@@ -1,0 +1,57 @@
+{
+ "jlc_lines": 84,
+ "extended_lines": 61,
+ "basic_lines": 22,
+ "smd_joints": 961,
+ "tht_joints_lcsc_lines": 96,
+ "assembly_fees_5": {
+  "standard_total": 203.23,
+  "standard_per_board": 40.65,
+  "economic_total": 216.57,
+  "economic_per_board": 43.31,
+  "economic_allowed": true
+ },
+ "assembly_fees_500": {
+  "standard_total": 1891.43,
+  "standard_per_board": 3.78,
+  "economic_total": 1757.01,
+  "economic_per_board": 3.51,
+  "economic_allowed": false
+ },
+ "bare_floor_per_board_usd": 3.89,
+ "bare_sensitivity_grid": {
+  "2oz_x1.15_pofv+0%": {
+   "per_board": 4.47,
+   "pofv_part_per_board": 0.0
+  },
+  "2oz_x1.15_pofv+10%": {
+   "per_board": 4.92,
+   "pofv_part_per_board": 0.45
+  },
+  "2oz_x1.15_pofv+25%": {
+   "per_board": 5.59,
+   "pofv_part_per_board": 1.12
+  },
+  "2oz_x1.15_pofv+50%": {
+   "per_board": 6.71,
+   "pofv_part_per_board": 2.24
+  },
+  "2oz_x1.3_pofv+0%": {
+   "per_board": 5.06,
+   "pofv_part_per_board": 0.0
+  },
+  "2oz_x1.3_pofv+10%": {
+   "per_board": 5.56,
+   "pofv_part_per_board": 0.51
+  },
+  "2oz_x1.3_pofv+25%": {
+   "per_board": 6.32,
+   "pofv_part_per_board": 1.26
+  },
+  "2oz_x1.3_pofv+50%": {
+   "per_board": 7.59,
+   "pofv_part_per_board": 2.53
+  }
+ },
+ "pofv_value_at_500_boards_per_10pct": 224.0
+}

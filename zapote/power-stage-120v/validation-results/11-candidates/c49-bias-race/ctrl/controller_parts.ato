@@ -1,0 +1,602 @@
+# Parts new to the integrated SELV controller. Ported blocks (interlock,
+# thermal-sense, RTD) keep their own component definitions unchanged.
+#
+# Every part below was checked against its datasheet (pin numbers quoted in
+# the docstring) and the JLC/LCSC catalogue on 2026-10-08. LCSC codes and the
+# datasheet basis are tabulated in ../../bom/controller-parts.json; that table
+# is what tools/verify_controller.py checks every resolved MPN against.
+
+# ------------------------------------------------------------------ MCU
+
+component Esp32S3Wroom1UN8:
+    """Espressif ESP32-S3-WROOM-1U-N8 (8 MB quad flash, no PSRAM, U.FL antenna connector),
+    LCSC C2980297. Enclosure R33: the antenna is an off-board 2450AT18A100 chip-antenna
+    board on a 150 mm 1.13 mm coax, so there is no on-board antenna or keep-out.
+    Pin numbers: ESP32-S3-WROOM-1 & -1U datasheet v1.8, Table 3-1 (the -1 and -1U share
+    the 41-pin pinout, pin 41 = EPAD = GND). No octal PSRAM, so IO35/36/37 are free (note b)."""
+    designator_prefix = "U"
+    mpn = "ESP32-S3-WROOM-1U-N8"
+    manufacturer = "Espressif Systems"
+    footprint = "RF_Module:ESP32-S3-WROOM-1U"
+    signal GND1 ~ pin 1
+    signal V3V3 ~ pin 2
+    signal EN ~ pin 3
+    signal IO4 ~ pin 4
+    signal IO5 ~ pin 5
+    signal IO6 ~ pin 6
+    signal IO7 ~ pin 7
+    signal IO15 ~ pin 8
+    signal IO16 ~ pin 9
+    signal IO17 ~ pin 10
+    signal IO18 ~ pin 11
+    signal IO8 ~ pin 12
+    signal IO19 ~ pin 13
+    signal IO20 ~ pin 14
+    signal IO3 ~ pin 15
+    signal IO46 ~ pin 16
+    signal IO9 ~ pin 17
+    signal IO10 ~ pin 18
+    signal IO11 ~ pin 19
+    signal IO12 ~ pin 20
+    signal IO13 ~ pin 21
+    signal IO14 ~ pin 22
+    signal IO21 ~ pin 23
+    signal IO47 ~ pin 24
+    signal IO48 ~ pin 25
+    signal IO45 ~ pin 26
+    signal IO0 ~ pin 27
+    signal IO35 ~ pin 28
+    signal IO36 ~ pin 29
+    signal IO37 ~ pin 30
+    signal IO38 ~ pin 31
+    signal IO39 ~ pin 32
+    signal IO40 ~ pin 33
+    signal IO41 ~ pin 34
+    signal IO42 ~ pin 35
+    signal RXD0 ~ pin 36
+    signal TXD0 ~ pin 37
+    signal IO2 ~ pin 38
+    signal IO1 ~ pin 39
+    signal GND40 ~ pin 40
+    signal EPAD ~ pin 41
+
+# ------------------------------------------------------------------ power
+
+component Tps62933F:
+    """TI TPS62933FDRLR, 3.8-30 V 3 A sync buck, forced-CCM, SOT-583 (LCSC C5219272).
+    SLUSEA4D Fig 7-1: RT1 EN2 VIN3 GND4 SW5 BST6 SS7 FB8. VFB 788-812 mV at TJ 0-85 C."""
+    designator_prefix = "U"
+    mpn = "TPS62933FDRLR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-583-8"
+    signal RT ~ pin 1
+    signal EN ~ pin 2
+    signal VIN ~ pin 3
+    signal GND ~ pin 4
+    signal SW ~ pin 5
+    signal BST ~ pin 6
+    signal SS ~ pin 7
+    signal FB ~ pin 8
+
+component Tps62933:
+    """TI TPS62933DRLR, PFM variant of the same die/pinout (LCSC C3200405), fan rail."""
+    designator_prefix = "U"
+    mpn = "TPS62933DRLR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-583-8"
+    signal RT ~ pin 1
+    signal EN ~ pin 2
+    signal VIN ~ pin 3
+    signal GND ~ pin 4
+    signal SW ~ pin 5
+    signal BST ~ pin 6
+    signal SS ~ pin 7
+    signal FB ~ pin 8
+
+component Ind10u:
+    """Sunlord SWPA6045S100MT, 10 uH, Irms 2.45 A, Isat 3.5 A, 48 mOhm (LCSC C79272)."""
+    designator_prefix = "L"
+    mpn = "SWPA6045S100MT"
+    manufacturer = "Sunlord"
+    footprint = "Inductor_SMD:L_Sunlord_SWPA6045S"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Ind22u:
+    """Sunlord SWPA6045S220MT, 22 uH, Irms 1.8 A, Isat 2.2 A, 89 mOhm (LCSC C83454)."""
+    designator_prefix = "L"
+    mpn = "SWPA6045S220MT"
+    manufacturer = "Sunlord"
+    footprint = "Inductor_SMD:L_Sunlord_SWPA6045S"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Cap100u25Elec:
+    """Panasonic EEE-FK1E101P, 100 uF 25 V aluminium SMD, case D8 8x6.2 (LCSC C178539).
+    Damps the 15 V harness inductance against the buck input ceramics."""
+    designator_prefix = "C"
+    mpn = "EEE-FK1E101P"
+    manufacturer = "Panasonic"
+    footprint = "Capacitor_SMD:CP_Elec_8x6.2"
+    signal p ~ pin 1
+    signal n ~ pin 2
+
+component Tps3703Window:
+    """TI TPS3703A4330DSERQ1 (automotive grade, LCSC C1850327, stocked): 3.3 V fixed
+    window, +/-4 % UV/OV, +/-0.7 % threshold accuracy, VHYS 0.3-0.8 %, CT open =
+    7-13 ms release delay, open-drain RESET. SBVS344D pin functions (DSE):
+    SENSE1 VDD2 CT3 RESET4 GND5 MR6 -- identical to the commercial TPS3703A4330DSER
+    (SBVS249B), which JLC listed at zero stock on 2026-10-08."""
+    designator_prefix = "U"
+    mpn = "TPS3703A4330DSERQ1"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SON:WSON-6_1.5x1.5mm_P0.5mm"
+    signal SENSE ~ pin 1
+    signal VDD ~ pin 2
+    signal CT ~ pin 3
+    signal RESET ~ pin 4
+    signal GND ~ pin 5
+    signal MR ~ pin 6
+
+# ------------------------------------------------------------------ analog
+
+component Opa2388:
+    """TI OPA2388IDR dual zero-drift RRIO op amp, SOIC-8 (LCSC C1517414).
+    SBOS777D Fig 5-3: OUTA1 -INA2 +INA3 V-4 +INB5 -INB6 OUTB7 V+8. D-11 receiver."""
+    designator_prefix = "U"
+    mpn = "OPA2388IDR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal OUTA ~ pin 1
+    signal INA_N ~ pin 2
+    signal INA_P ~ pin 3
+    signal VN ~ pin 4
+    signal INB_P ~ pin 5
+    signal INB_N ~ pin 6
+    signal OUTB ~ pin 7
+    signal VP ~ pin 8
+
+component Tlv9062:
+    """TI TLV9062IDR dual RRIO CMOS op amp, 0.5 pA typical bias, SOIC-8 (LCSC C398355).
+    SBOS839N D package: OUT1 1, IN1- 2, IN1+ 3, V- 4, IN2+ 5, IN2- 6, OUT2 7, V+ 8."""
+    designator_prefix = "U"
+    mpn = "TLV9062IDR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal OUTA ~ pin 1
+    signal INA_N ~ pin 2
+    signal INA_P ~ pin 3
+    signal VN ~ pin 4
+    signal INB_P ~ pin 5
+    signal INB_N ~ pin 6
+    signal OUTB ~ pin 7
+    signal VP ~ pin 8
+
+component Lm4040A25:
+    """TI LM4040A25IDBZR 2.5 V 0.1 % shunt reference, SOT-23 (LCSC C9421).
+    SLOS456Q Table 5-1 (DBZ): cathode 1, anode 2, pin 3 float-or-anode (tied to anode)."""
+    designator_prefix = "U"
+    mpn = "LM4040A25IDBZR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal K ~ pin 1
+    signal A ~ pin 2
+    signal NC3 ~ pin 3
+
+component EsdTvs3v3:
+    """onsemi ESD5Z3.3T1G, 3.3 V unidirectional TVS, 50 nA leakage, SOD-523 (LCSC C61148).
+    Cathode = pin 1 (band)."""
+    designator_prefix = "D"
+    mpn = "ESD5Z3.3T1G"
+    manufacturer = "onsemi"
+    footprint = "Diode_SMD:D_SOD-523"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+# ------------------------------------------------------------------ logic
+
+component Tca9555:
+    """TI TCA9555PWR 16-bit I2C GPIO expander, internal I/O pull-ups, TSSOP-24 (LCSC C465732).
+    SCPS200E Pin Functions (PW): INT1 A1 2 A2 3 P00-P07 4-11 GND12 P10-P17 13-20 A0 21 SCL22 SDA23 VCC24."""
+    designator_prefix = "U"
+    mpn = "TCA9555PWR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm"
+    signal INT ~ pin 1
+    signal A1 ~ pin 2
+    signal A2 ~ pin 3
+    signal P00 ~ pin 4
+    signal P01 ~ pin 5
+    signal P02 ~ pin 6
+    signal P03 ~ pin 7
+    signal P04 ~ pin 8
+    signal P05 ~ pin 9
+    signal P06 ~ pin 10
+    signal P07 ~ pin 11
+    signal GND ~ pin 12
+    signal P10 ~ pin 13
+    signal P11 ~ pin 14
+    signal P12 ~ pin 15
+    signal P13 ~ pin 16
+    signal P14 ~ pin 17
+    signal P15 ~ pin 18
+    signal P16 ~ pin 19
+    signal P17 ~ pin 20
+    signal A0 ~ pin 21
+    signal SCL ~ pin 22
+    signal SDA ~ pin 23
+    signal VCC ~ pin 24
+
+component Lvc244a:
+    """TI SN74LVC244APWR octal buffer, Ioff, TSSOP-20 (LCSC C7668). Read-back isolation:
+    the MCU can observe protective nets but can never drive them.
+    SCAS414AG pinout: 1OE1 1A1 2 2Y4 3 1A2 4 2Y3 5 1A3 6 2Y2 7 1A4 8 2Y1 9 GND10
+    2A1 11 1Y4 12 2A2 13 1Y3 14 2A3 15 1Y2 16 2A4 17 1Y1 18 2OE19 VCC20."""
+    designator_prefix = "U"
+    mpn = "SN74LVC244APWR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm"
+    signal OE1_N ~ pin 1
+    signal A1_1 ~ pin 2
+    signal Y2_4 ~ pin 3
+    signal A1_2 ~ pin 4
+    signal Y2_3 ~ pin 5
+    signal A1_3 ~ pin 6
+    signal Y2_2 ~ pin 7
+    signal A1_4 ~ pin 8
+    signal Y2_1 ~ pin 9
+    signal GND ~ pin 10
+    signal A2_1 ~ pin 11
+    signal Y1_4 ~ pin 12
+    signal A2_2 ~ pin 13
+    signal Y1_3 ~ pin 14
+    signal A2_3 ~ pin 15
+    signal Y1_2 ~ pin 16
+    signal A2_4 ~ pin 17
+    signal Y1_1 ~ pin 18
+    signal OE2_N ~ pin 19
+    signal VCC ~ pin 20
+
+component Lvc1g14:
+    """TI SN74LVC1G14DBVR Schmitt inverter, Ioff, SOT-23-5 (LCSC C7835).
+    SCES218AA DBV: NC1 A2 GND3 Y4 VCC5."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G14DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal NC1 ~ pin 1
+    signal A ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Nmos2n7002:
+    """CJ 2N7002 60 V 115 mA N-MOSFET, SOT-23 (LCSC C8545): G1 S2 D3."""
+    designator_prefix = "Q"
+    mpn = "2N7002"
+    manufacturer = "Jiangsu Changjing Electronics"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+# ------------------------------------------------------------------ connectors
+
+component SelvHeader16:
+    """Molex Micro-Fit 3.0 43045-1612, 2x8 vertical (LCSC C491447). Same part and pin
+    numbering as native-21 J4; the harness is a 1:1 43025-1600 to 43025-1600 cable."""
+    designator_prefix = "J"
+    mpn = "0430451612"
+    manufacturer = "Molex"
+    footprint = "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+
+component XhHeader2:
+    """JST B2B-XH-A(LF)(SN), 2-pin 2.50 mm vertical (LCSC C158012)."""
+    designator_prefix = "J"
+    mpn = "B2B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component XhHeader3:
+    """JST B3B-XH-A(LF)(SN), 3-pin 2.50 mm vertical (LCSC C144394)."""
+    designator_prefix = "J"
+    mpn = "B3B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+
+
+
+
+component VhHeader2:
+    """JST B2P-VH(LF)(SN), 2-pin 3.96 mm top-entry header (LCSC C20571196, per stage-16 PLAN-16 sec. 3).
+    JST eVH.pdf p.1: 10 A AC/DC with AWG16 (7 A with AWG18 on the shrouded header), 250 V,
+    AWG22-16, mounting height 16.5 mm; p.3: body 7.86 x 8.5 mm. Mates VHR-2N + SVH-21T-P1.1."""
+    designator_prefix = "J"
+    mpn = "B2P-VH(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+
+component DebugHeader8:
+    """Wurth 61300811121, 1x8 2.54 mm pin header (LCSC C6400764); fit for bring-up only."""
+    designator_prefix = "J"
+    mpn = "61300811121"
+    manufacturer = "Wurth Elektronik"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+
+# ------------------------------------------------------------------ follow-up 2026-10-08
+
+component MicroFitRA16:
+    """Molex Micro-Fit 3.0 43045-1600, 2x8 right-angle through-hole header with snap-in
+    plastic PCB pegs (LCSC C277731). Replaces the vertical 43045-1612 at J4 (R27: mating
+    axis +X on the right edge). Circuit numbers are the Micro-Fit circuit numbers, so the
+    1:1 43025-1600 harness and the J4 contract are unchanged. KiCad footprint cites
+    Molex drawing 430450201_sd.pdf; drawing not read here [UNVERIFIED envelope fit]."""
+    designator_prefix = "J"
+    mpn = "0430451600"
+    manufacturer = "Molex"
+    footprint = "Connector_Molex:Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+    signal p13 ~ pin 13
+    signal p14 ~ pin 14
+    signal p15 ~ pin 15
+    signal p16 ~ pin 16
+
+component Ad8436Rq:
+    """Analog Devices AD8436BRQZ true RMS-to-DC converter, QSOP-20 (RQ-20) (LCSC C652840,
+    JLC stock 0: consign). Datasheet Rev. B Table 1: 65 kHz bandwidth for 1 % additional
+    error and 1 MHz -3 dB at 300 mV rms; single supply 4.8-36 V; ac-coupled output offset 0;
+    B grade +/-10 uV +/-0.25 % rdg. Table 4 (RQ-20): SUM1 DNC2 RMS3 IBUFOUT4 IBUFIN-5
+    IBUFIN+6 IBUFGN7 DNC8 OGND9 OUT10 VEE11 IGND12 OBUFIN+13 OBUFIN-14 OBUFOUT15
+    OBUFV+16 IBUFV+17 VCC18 CCF19 CAVG20."""
+    designator_prefix = "U"
+    mpn = "AD8436ARQZ-R7"   # C35: A grade (C495329, 106 in stock) for the prototype lot; was AD8436BRQZ (C652840, 0 stock)
+    manufacturer = "Analog Devices"
+    footprint = "Package_SO:QSOP-20_3.9x8.7mm_P0.635mm"
+    signal SUM ~ pin 1
+    signal DNC2 ~ pin 2
+    signal RMS ~ pin 3
+    signal IBUFOUT ~ pin 4
+    signal IBUFIN_N ~ pin 5
+    signal IBUFIN_P ~ pin 6
+    signal IBUFGN ~ pin 7
+    signal DNC8 ~ pin 8
+    signal OGND ~ pin 9
+    signal OUT ~ pin 10
+    signal VEE ~ pin 11
+    signal IGND ~ pin 12
+    signal OBUFIN_P ~ pin 13
+    signal OBUFIN_N ~ pin 14
+    signal OBUFOUT ~ pin 15
+    signal OBUFVP ~ pin 16
+    signal IBUFVP ~ pin 17
+    signal VCC ~ pin 18
+    signal CCF ~ pin 19
+    signal CAVG ~ pin 20
+
+component Mcp3202:
+    """Microchip MCP3202-CI/SN 12-bit 2-channel SAR ADC, SPI, 2.7-5.5 V, SOIC-8 (LCSC C56997).
+    DS21034F pin table: CS/SHDN1 CH0 2 CH1 3 VSS4 DIN5 DOUT6 CLK7 VDD/VREF8. Inputs
+    VSS..VDD; absolute maximum VDD + 0.6 V. DOUT is high-Z while CS is high."""
+    designator_prefix = "U"
+    mpn = "MCP3202-CI/SN"
+    manufacturer = "Microchip"
+    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+    signal CS_N ~ pin 1
+    signal CH0 ~ pin 2
+    signal CH1 ~ pin 3
+    signal VSS ~ pin 4
+    signal DIN ~ pin 5
+    signal DOUT ~ pin 6
+    signal CLK ~ pin 7
+    signal VDD ~ pin 8
+
+
+component Tlv76050:
+    """TI TLV76050DBZR 5.0 V 100 mA LDO, VIN to 30 V, current limit and thermal shutdown,
+    SOT-23 DBZ (LCSC C2867465). TLV760 pin functions: OUT1 IN2 GND3."""
+    designator_prefix = "U"
+    mpn = "TLV76050DBZR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal OUT ~ pin 1
+    signal IN ~ pin 2
+    signal GND ~ pin 3
+
+component Bat54s:
+    """Diodes Inc. BAT54S-7-F series Schottky pair, SOT-23 (LCSC C83574). DS11005 Rev 34:
+    pin 1 = anode of D1, pin 3 = D1 cathode / D2 anode (common), pin 2 = cathode of D2.
+    VF <= 320 mV at 1 mA, <= 400 mV at 10 mA; IR <= 2 uA at 25 V."""
+    designator_prefix = "D"
+    mpn = "BAT54S-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal A ~ pin 1
+    signal K ~ pin 2
+    signal COM ~ pin 3
+
+component XhHeader12:
+    """JST B12B-XH-A(LF)(SN), 12-pin 2.50 mm vertical (LCSC C158027). JST eXH.pdf: body
+    (n-1) x 2.5 + 4.9 = 32.4 mm long, 5.75 mm deep, 7.0 mm above the board; 9.8 mm mated
+    (assembled) height with the XHP-12 housing. Enclosure R33 J7: UI bus to the fascia board."""
+    designator_prefix = "J"
+    mpn = "B12B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
+    signal p11 ~ pin 11
+    signal p12 ~ pin 12
+
+component Srv05_4:
+    """MSKSEMI SRV05-4 4-line ESD array, SOT-23-6 (LCSC C2836319). Datasheet "Pin
+    Configuration and Functions": IO1 1, GND 2, IO2 3, IO3 4, Vcc 5, IO4 6. VRWM 5 V,
+    VBR >= 6 V, IR <= 1 uA at 5 V, IEC 61000-4-2 +/-12 kV contact, CJ 0.6 pF typ (I/O-GND).
+    Vcc ties to the 3.3 V rail, so the steering diodes clamp each line to v3v3 + VF."""
+    designator_prefix = "U"
+    mpn = "SRV05-4"
+    manufacturer = "MSKSEMI"
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    signal IO1 ~ pin 1
+    signal GND ~ pin 2
+    signal IO2 ~ pin 3
+    signal IO3 ~ pin 4
+    signal VCC ~ pin 5
+    signal IO4 ~ pin 6
+
+component Tlv9061:
+    """TI TLV9061IDBVR single rail-to-rail CMOS op amp, SOT-23-5 (LCSC C398358). SBOS839N
+    Table 5-1 (DBV): OUT 1, V- 2, IN+ 3, IN- 4, V+ 5. Same family as the TLV9062 buffers."""
+    designator_prefix = "U"
+    mpn = "TLV9061IDBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal OUT ~ pin 1
+    signal VN ~ pin 2
+    signal IN_P ~ pin 3
+    signal IN_N ~ pin 4
+    signal VP ~ pin 5
+
+component IndSwrb1205_10u:
+    """Sunlord SWRB1205S-100MT, 10 uH +/-20 %, rated 4.0 A (25 % L drop or temperature rise),
+    DCR 25 mOhm max, 12.5 x 12.5 x 6.0 mm max (Sunlord SWRB-S datasheet, rev 2017/04/15;
+    LCSC/JLC C169383). Blower buck inductor (L3, DECISIONS C28): covers the blower's 2.70 A
+    maximum input current with margin. Operating -40..105 C including self-heating."""
+    designator_prefix = "L"
+    mpn = "SWRB1205S-100MT"
+    manufacturer = "Sunlord"
+    footprint = "Temper_Controller:L_Sunlord_SWRB1205S"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+# ------------------------------------------------------------------ C1 change requests (DECISIONS C37-C41)
+
+component EsdTvs5v0:
+    """onsemi ESD5Z5.0T1G, 5.0 V unidirectional TVS, SOD-523 (LCSC C82044). Same ESD5Z series
+    datasheet and pin table as ESD5Z3.3T1G: cathode = pin 1 (band). Rim NTC line (sensor-r3 CR-6):
+    its 5.0 V stand-off sits above v3v3 max 3.367 V; the ESD5Z3.3's 3.3 V did not."""
+    designator_prefix = "D"
+    mpn = "ESD5Z5.0T1G"
+    manufacturer = "onsemi"
+    footprint = "Diode_SMD:D_SOD-523"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component Lvc1g32:
+    """TI SN74LVC1G32DBVR single 2-input OR, Ioff, SOT-23-5 (LCSC C10096; already on the BOM in the
+    thermal-sense block). SCES219W DBV: A1 B2 GND3 Y4 VCC5."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G32DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Lvc1g86:
+    """TI SN74LVC1G86DBVR single 2-input XOR, Ioff, SOT-23-5 (LCSC C402161).
+    SCES222 DBV: A1 B2 GND3 Y4 VCC5 (same pin table as the 1G08/1G32)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G86DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Lvc74a:
+    """TI SN74LVC74APWR dual positive-edge D flip-flop with clear and preset, TSSOP-14 (LCSC C350561).
+    SCAS287 PW pin table: 1CLR_N 1, 1D 2, 1CLK 3, 1PRE_N 4, 1Q 5, 1Q_N 6, GND 7, 2Q_N 8, 2Q 9,
+    2PRE_N 10, 2CLK 11, 2D 12, 2CLR_N 13, VCC 14."""
+    designator_prefix = "U"
+    mpn = "SN74LVC74APWR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal Q1_N ~ pin 6
+    signal GND ~ pin 7
+    signal Q2_N ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
+component TagConnectPads10:
+    """Bring-up / programming pads (DECISIONS C41): a Tag-Connect TC2050-IDC-NL land pattern, ten
+    0.79 mm copper pads on 1.27 mm pitch plus three NPTH alignment holes. Board copper only: no part
+    is fitted (the KiCad footprint carries exclude_from_bom / exclude_from_pos_files), so nothing
+    protrudes that a harness, ribbon or loose housing could press, short or mate."""
+    designator_prefix = "J"
+    mpn = "TC2050-IDC-NL-LAND"
+    manufacturer = "board copper (no part)"
+    footprint = "Connector:Tag-Connect_TC2050-IDC-NL_2x05_P1.27mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10

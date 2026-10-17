@@ -1,0 +1,29 @@
+{
+ "case": "edr_rg8p2 A 27C S4 170V -20A dir0 dt340 (aborted at ESL 10 n, TRMAX 0.2 n)",
+ "rows": [
+  {
+   "trmax": "0.1n",
+   "esl_nH": 10,
+   "aborted": false,
+   "off_V": -1.242227,
+   "vds_pk": 436.3061,
+   "tr2080": 2.62924e-09
+  },
+  {
+   "trmax": "0.2n",
+   "esl_nH": 9.5,
+   "aborted": false,
+   "off_V": -1.237943,
+   "vds_pk": 435.2738,
+   "tr2080": 2.66853e-09
+  },
+  {
+   "trmax": "0.2n",
+   "esl_nH": 10.5,
+   "aborted": false,
+   "off_V": -1.255334,
+   "vds_pk": 434.9697,
+   "tr2080": 2.577202e-09
+  }
+ ]
+}

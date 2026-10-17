@@ -1,0 +1,1013 @@
+{
+ "part": {
+  "ref": "PS2",
+  "mpn": "MPM-20-24",
+  "maker": "MEAN WELL",
+  "bom": "native-21/frozen/default.csv (s42 BOM, via monitor-sweep.json) and ledger.json entry MPM-20-24",
+  "datasheet": "MPM-20-SPEC 2024-10-30, sha256 24d3a6bb642d74ea..., dl/MANIFEST.json"
+ },
+ "rating_basis": {
+  "working_temp": {
+   "value_c": 85.0,
+   "kind": "AMBIENT (surrounding air), with load derating",
+   "quote": "p.2 'WORKING TEMP. -35 ~ +85\u2103 (Refer to \"Derating Curve\")'; p.3 curve x-axis 'AMBIENT TEMPERATURE (\u2103)', '(HORIZONTAL)'"
+  },
+  "derating_curve_12_24V": {
+   "points_c_pct": [
+    [
+     55.0,
+     100.0
+    ],
+    [
+     60.0,
+     70.0
+    ],
+    [
+     70.0,
+     50.0
+    ],
+    [
+     85.0,
+     30.0
+    ]
+   ],
+   "source": "p.3 Derating Curve, read from a 300 dpi render (dl/../render/mpm20-derating2/3.png)"
+  },
+  "case_temperature_limit": null,
+  "case_temperature_note": "No Tc limit and no Tc measurement point in MPM-20-SPEC (4 pp.) or in the MEAN WELL PCB-type installation manual (PCB_EN.pdf, families incl. MPM). Only OTP: p.2 'OVER TEMPERATURE Protection type : Shut down o/p voltage, recovers automatically after temperature goes down' (no threshold).",
+  "installation_condition": "PCB_EN.pdf p.1 Installation (4): 'Allow good ventilation ... a 10-15 cm clearance must be kept when the adjacent device is a heat source'; (5) high ambient requires de-rating per the spec; Warning (3) p.2 'refer to the specifications about the maximum ambient temperature limitations'.",
+  "test_conditions": "p.2 Note 1: all parameters at 230VAC input, rated load and 25 C ambient unless stated",
+  "safety_standards": "p.2 'IEC 60601-1:2005+A1, TUV BS EN/EN 60601-1:2006+A1+A12+A2, ANSI/AAMI ES60601-1:2005/A2:2021, CAN/CSA C22.2 No. 60601-1:2014+A2, IEC 60335-1:2010/AMD2:2016, Dekra BS EN/EN 60335-1:2012+A11+A13+A1+A14+A2+A15, EAC TP TC 004 approved'; 2xMOPP; I/P-O/P 4KVAC; touch current <80 uA/264VAC (Note 7). No IEC/UL 62368-1, no UL file number, and no temperature (Tma) printed for the approvals."
+ },
+ "loads": {
+  "model_60kHz_as_built": {
+   "p_out_w": 7.078,
+   "load_pct": 32.8,
+   "source": "B3 c28 heat file (make_heat_sources.py C28_F; = 1.348 W loss / (1/0.84-1)), used in every BASIS case",
+   "t_amb_limit_c": 82.9,
+   "t_amb_limit_90pct_rule_c": 80.2
+  },
+  "recom_typ_53pct": {
+   "p_out_w": 6.513,
+   "load_pct": 30.2,
+   "source": "same, RECOM at 53 % typ (ALT-BIAS.md R13) - estimate",
+   "t_amb_limit_c": 84.9,
+   "t_amb_limit_90pct_rule_c": 82.4
+  },
+  "ledger_allocation_80kHz_740nC": {
+   "p_out_w": 9.59,
+   "load_pct": 44.4,
+   "source": "ledger stress 'P bias allocation' (ALT-BIAS.md:52), bias-sizing allowance, not a physical charge",
+   "t_amb_limit_c": 74.2,
+   "t_amb_limit_90pct_rule_c": 70.5
+  },
+  "alt_bias_80kHz": {
+   "p_out_w": 11.1,
+   "load_pct": 51.4,
+   "source": "ALT-BIAS.md R13 sim/budget.py at 80 kHz, outside the 35-60 kHz window (ledger: not used)",
+   "t_amb_limit_c": 69.3,
+   "t_amb_limit_90pct_rule_c": 66.5
+  }
+ },
+ "b3_pad_proxy": {
+  "c18_h10": {
+   "bay_c": 61.0,
+   "pad_max_c": 109.7,
+   "pad_mean_c": 105.6,
+   "gate_estimator_c": 112.2,
+   "model_body_node_c": 116.9,
+   "watts_into_board_w": 0.674
+  },
+  "c22_h10": {
+   "bay_c": 55.0,
+   "pad_max_c": 108.1,
+   "pad_mean_c": 104.6,
+   "gate_estimator_c": 110.9,
+   "model_body_node_c": 115.9,
+   "watts_into_board_w": 0.674
+  },
+  "c28_h10": {
+   "bay_c": 55.0,
+   "pad_max_c": 117.5,
+   "pad_mean_c": 115.2,
+   "gate_estimator_c": 120.7,
+   "model_body_node_c": 126.3,
+   "watts_into_board_w": 0.674
+  }
+ },
+ "field_study": {
+  "base": {
+   "case": "c18_h10",
+   "bay_c": 61.0,
+   "pitch_mm": 0.5,
+   "zero_ps2": false,
+   "board_sha256": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
+   "ps2_watts_into_model": 0.6740930370370369,
+   "ps2_part_row_c": {
+    "ref": "PS2",
+    "mpn": "MPM-20-24",
+    "watts_into_model": 0.6740930370370369,
+    "layer": "F.Cu",
+    "x_mm": 186.2,
+    "y_mm": 14.0,
+    "pad_area_mm2": 30.118650875622016,
+    "pad_mean_c": 104.86559206776371,
+    "pad_max_cell_c": 108.8098212957685,
+    "pad_max_padmean_c": 108.77331977701414,
+    "spec": "meanwell",
+    "tj_c": 116.09391291294588,
+    "r_pad_kw": 15.0,
+    "r_top_kw": 0.0,
+    "tj_limit_c": 96.0,
+    "body_air_w": 0.0,
+    "tcase_c": 116.09391291294588,
+    "network_pad_area_mm2": 120.47460350248808,
+    "sink_fraction": 0.5
+   },
+   "ps2_probe_c": {
+    "layer": "F.Cu",
+    "pad_max_cell_c": 108.8098212957685,
+    "pad_mean_c": 104.86559206776371,
+    "pad_max_padmean_c": 108.77331977701414,
+    "cells": 172,
+    "nets": [
+     "n_filt",
+     "n_ls",
+     "tco_l",
+     "v24_raw"
+    ]
+   },
+   "per_pad_c": {
+    "1": {
+     "F.Cu": {
+      "mean_c": 108.43164460630344,
+      "max_c": 108.77557446421127
+     },
+     "In1.Cu": {
+      "mean_c": 109.16080260664569,
+      "max_c": 109.22252690952348
+     },
+     "In2.Cu": {
+      "mean_c": 109.44986161253496,
+      "max_c": 109.51421197416823
+     },
+     "B.Cu": {
+      "mean_c": 109.60035605802645,
+      "max_c": 109.64727056150852
+     }
+    },
+    "2": {
+     "F.Cu": {
+      "mean_c": 94.03150101845989,
+      "max_c": 95.81956636601495
+     },
+     "In1.Cu": {
+      "mean_c": 98.09199312135317,
+      "max_c": 98.17856743690488
+     },
+     "In2.Cu": {
+      "mean_c": 99.60465233507611,
+      "max_c": 99.7268801380988
+     },
+     "B.Cu": {
+      "mean_c": 100.18278193873698,
+      "max_c": 100.29614323585665
+     }
+    },
+    "3": {
+     "F.Cu": {
+      "mean_c": 107.2327901889955,
+      "max_c": 107.27051365912652
+     },
+     "In1.Cu": {
+      "mean_c": 106.52090728050385,
+      "max_c": 107.03189164554644
+     },
+     "In2.Cu": {
+      "mean_c": 107.36563815776839,
+      "max_c": 107.41372575356309
+     },
+     "B.Cu": {
+      "mean_c": 107.59273469585442,
+      "max_c": 107.6163414193075
+     }
+    },
+    "4": {
+     "F.Cu": {
+      "mean_c": 108.77331977701414,
+      "max_c": 108.8098212957685
+     },
+     "In1.Cu": {
+      "mean_c": 108.3667205634362,
+      "max_c": 108.65570364209972
+     },
+     "In2.Cu": {
+      "mean_c": 108.81676652402139,
+      "max_c": 108.86789758356986
+     },
+     "B.Cu": {
+      "mean_c": 108.9574668686504,
+      "max_c": 108.99664834442481
+     }
+    }
+   },
+   "board_under_body": {
+    "F.Cu": {
+     "body_mean_c": 74.02940398412827,
+     "body_max_c": 108.8098212957685,
+     "body_min_c": 63.38445531723863,
+     "ring_mean_c": 80.57009967895534
+    },
+    "In1.Cu": {
+     "body_mean_c": 74.10918032151892,
+     "body_max_c": 109.22252690952348,
+     "body_min_c": 63.41038297289336,
+     "ring_mean_c": 80.5955847433866
+    },
+    "In2.Cu": {
+     "body_mean_c": 74.08780841560527,
+     "body_max_c": 109.51421197416823,
+     "body_min_c": 63.41038206811972,
+     "ring_mean_c": 80.52651093328456
+    },
+    "B.Cu": {
+     "body_mean_c": 73.95801215855683,
+     "body_max_c": 109.64727056150852,
+     "body_min_c": 63.384453563180664,
+     "ring_mean_c": 80.37209012742903
+    }
+   },
+   "copper_temp_model": {
+    "model": "hot-iterated",
+    "alpha_per_k": 0.00393,
+    "t_ref_c": 20.0,
+    "air_c": 61.0,
+    "method": "q affine in T: fixed point solved exactly (-alpha q20 on the cell diagonal), then Picard steps on the unmodified operator to max |dT| < 0.001 K; current paths fixed (A4 J distribution)",
+    "picard_steps": 1,
+    "max_dT_k": 0.0,
+    "loop_gain_rayleigh": 0.03456445124963791,
+    "max_heated_copper_c": 118.47633356756768,
+    "loss_w_20c": 6.337234087373835,
+    "loss_w_hot": 8.321214042830611,
+    "loss_multiplier": 1.313067172224175,
+    "loss_multiplier_by_case": {
+     "sw_a-p00625-pl18": 1.29453,
+     "sw_a_low-p00625-pl18": 1.31605,
+     "sw_b_high-p00625-pl18": 1.32104,
+     "sw_b_low-p00625-pl18": 1.31107,
+     "res_a-p0125-pl18": 1.26124,
+     "coil_feed-p0125-pl18": 1.27753,
+     "leg_a_18p7-p00625-pl18": 1.36739,
+     "leg_b_18p7-p00625-pl18": 1.37554,
+     "hv_mixed_a-p00625-pl18": 1.33959,
+     "hv_mixed_b-p00625-pl18": 1.34873,
+     "bus_mixed_q2-p0125-pl18": 1.32249,
+     "bus_mixed_q5-p0125-pl18": 1.32761,
+     "ac_n_main-p0125-pl18": 1.28952,
+     "ac_l_main-p0125-pl18": 1.21344
+    }
+   },
+   "layers": [
+    "F.Cu",
+    "dielectric 1",
+    "In1.Cu",
+    "dielectric 2",
+    "In2.Cu",
+    "dielectric 3",
+    "B.Cu"
+   ]
+  },
+  "zero": {
+   "case": "c18_h10",
+   "bay_c": 61.0,
+   "pitch_mm": 0.5,
+   "zero_ps2": true,
+   "board_sha256": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
+   "ps2_watts_into_model": 0.0,
+   "ps2_part_row_c": {
+    "watts_into_model": 0.0,
+    "note": "0 W row: omitted by body_runs (no network)"
+   },
+   "ps2_probe_c": {
+    "layer": "F.Cu",
+    "pad_max_cell_c": 80.16280767414632,
+    "pad_mean_c": 71.12477680729748,
+    "pad_max_padmean_c": 79.96472521641374,
+    "cells": 172,
+    "nets": [
+     "n_filt",
+     "n_ls",
+     "tco_l",
+     "v24_raw"
+    ]
+   },
+   "per_pad_c": {
+    "1": {
+     "F.Cu": {
+      "mean_c": 64.88704122329753,
+      "max_c": 64.9378704343651
+     },
+     "In1.Cu": {
+      "mean_c": 64.96384299570998,
+      "max_c": 65.02327828934145
+     },
+     "In2.Cu": {
+      "mean_c": 64.98896123154428,
+      "max_c": 65.04759866743248
+     },
+     "B.Cu": {
+      "mean_c": 64.9819272684074,
+      "max_c": 65.0149082460153
+     }
+    },
+    "2": {
+     "F.Cu": {
+      "mean_c": 79.96472521641374,
+      "max_c": 80.17894641864086
+     },
+     "In1.Cu": {
+      "mean_c": 79.79265098324613,
+      "max_c": 79.81256007540411
+     },
+     "In2.Cu": {
+      "mean_c": 79.69857435800726,
+      "max_c": 79.72213763349833
+     },
+     "B.Cu": {
+      "mean_c": 79.64100977208092,
+      "max_c": 79.67742924227291
+     }
+    },
+    "3": {
+     "F.Cu": {
+      "mean_c": 74.34722006382864,
+      "max_c": 74.42254967590802
+     },
+     "In1.Cu": {
+      "mean_c": 74.45642907260765,
+      "max_c": 74.87543669295434
+     },
+     "In2.Cu": {
+      "mean_c": 74.32884882021469,
+      "max_c": 74.43479676195011
+     },
+     "B.Cu": {
+      "mean_c": 74.28449991515691,
+      "max_c": 74.3135224798986
+     }
+    },
+    "4": {
+     "F.Cu": {
+      "mean_c": 67.03727244671035,
+      "max_c": 67.09033551041165
+     },
+     "In1.Cu": {
+      "mean_c": 67.09800763224226,
+      "max_c": 67.37954067199908
+     },
+     "In2.Cu": {
+      "mean_c": 67.0226735501763,
+      "max_c": 67.09642812955249
+     },
+     "B.Cu": {
+      "mean_c": 67.00117229839246,
+      "max_c": 67.02864898104247
+     }
+    }
+   },
+   "board_under_body": {
+    "F.Cu": {
+     "body_mean_c": 66.14754153551957,
+     "body_max_c": 81.00467882040346,
+     "body_min_c": 61.61192124258993,
+     "ring_mean_c": 76.12272958285514
+    },
+    "In1.Cu": {
+     "body_mean_c": 66.17903615726823,
+     "body_max_c": 80.97062279379458,
+     "body_min_c": 61.61833742244371,
+     "ring_mean_c": 76.29378493042007
+    },
+    "In2.Cu": {
+     "body_mean_c": 66.15574612964886,
+     "body_max_c": 81.07480608798258,
+     "body_min_c": 61.61785701189576,
+     "ring_mean_c": 76.37982286672653
+    },
+    "B.Cu": {
+     "body_mean_c": 66.0868021045147,
+     "body_max_c": 80.79948465171057,
+     "body_min_c": 61.61098981737523,
+     "ring_mean_c": 76.30151611867447
+    }
+   },
+   "copper_temp_model": {
+    "model": "hot-iterated",
+    "alpha_per_k": 0.00393,
+    "t_ref_c": 20.0,
+    "air_c": 61.0,
+    "method": "q affine in T: fixed point solved exactly (-alpha q20 on the cell diagonal), then Picard steps on the unmodified operator to max |dT| < 0.001 K; current paths fixed (A4 J distribution)",
+    "picard_steps": 1,
+    "max_dT_k": 0.0,
+    "loop_gain_rayleigh": 0.035083499504387966,
+    "max_heated_copper_c": 118.3493309637168,
+    "loss_w_20c": 6.337234087373835,
+    "loss_w_hot": 8.304454056503529,
+    "loss_multiplier": 1.3104224874774848,
+    "loss_multiplier_by_case": {
+     "sw_a-p00625-pl18": 1.29059,
+     "sw_a_low-p00625-pl18": 1.31332,
+     "sw_b_high-p00625-pl18": 1.31733,
+     "sw_b_low-p00625-pl18": 1.30722,
+     "res_a-p0125-pl18": 1.25846,
+     "coil_feed-p0125-pl18": 1.27666,
+     "leg_a_18p7-p00625-pl18": 1.36669,
+     "leg_b_18p7-p00625-pl18": 1.37505,
+     "hv_mixed_a-p00625-pl18": 1.3387,
+     "hv_mixed_b-p00625-pl18": 1.34775,
+     "bus_mixed_q2-p0125-pl18": 1.32147,
+     "bus_mixed_q5-p0125-pl18": 1.32722,
+     "ac_n_main-p0125-pl18": 1.2885,
+     "ac_l_main-p0125-pl18": 1.21315
+    }
+   },
+   "layers": [
+    "F.Cu",
+    "dielectric 1",
+    "In1.Cu",
+    "dielectric 2",
+    "In2.Cu",
+    "dielectric 3",
+    "B.Cu"
+   ]
+  }
+ },
+ "network_constants": {
+  "A_top_m2": 0.00142528,
+  "A_sides_m2": 0.0038208,
+  "A_bottom_m2": 0.00142528,
+  "h_w_m2k": 10.0,
+  "side_layer_factor": 0.178,
+  "control_film_factor_17p5mm": 0.242,
+  "R_pins_k_w": {
+   "low": 5.0,
+   "mid": 15.0,
+   "high": 40.0
+  },
+  "gap_mm": {
+   "low": 0.5,
+   "mid": 1.0,
+   "high": 2.0
+  },
+  "k_air": 0.03
+ },
+ "analysis": {
+  "ps2_self_heat_on_own_pads_k": 33.7,
+  "board_spreading_at_pads_k_per_w": 50.1,
+  "per_pad_c18": {
+   "1": {
+    "with_ps2_c": 108.4,
+    "without_ps2_c": 64.9
+   },
+   "2": {
+    "with_ps2_c": 94.0,
+    "without_ps2_c": 80.0
+   },
+   "3": {
+    "with_ps2_c": 107.2,
+    "without_ps2_c": 74.3
+   },
+   "4": {
+    "with_ps2_c": 108.8,
+    "without_ps2_c": 67.0
+   }
+  },
+  "pad_nets": {
+   "1": "tco_l (0.4 mm F.Cu track, 53.8 mm to J3)",
+   "2": "n_filt (F.Cu pour 1823 mm2, mains neutral after L1)",
+   "3": "n_ls (0.4 mm In1 track)",
+   "4": "v24_raw (0.4 mm In1 track)"
+  },
+  "control": "base solve reproduces the ps-selv c18_h10_p0p5 PS2 probe: pad max 108.81 C, mean 104.87 C (= run file)",
+  "nearby_probe_excess_k": {
+   "c18_h10": 19.1,
+   "c22_h10": 23.9,
+   "c28_h10": 34.1
+  },
+  "cases": {
+   "c18_h10": {
+    "bay_c": 61.0,
+    "basis": "zero-PS2 solve (this study, 0.5 mm)",
+    "pad_mean_no_ps2_c": 71.1,
+    "board_under_body_no_ps2_c": 66.1,
+    "ring_10mm_no_ps2_c": 76.1,
+    "hottest_pad_no_ps2_c": 80.0,
+    "corners": {
+     "low": {
+      "local_air_side_layer_c": 63.7,
+      "board_seen_c": 68.4,
+      "t_equivalent_ambient_c": 65.3,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0395,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 80.0,
+       "pad_mean_c": 79.2,
+       "heat_to_board_w": 0.456,
+       "heat_to_air_w": 0.892
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 84.5,
+       "pad_mean_c": 83.3,
+       "heat_to_board_w": 0.637,
+       "heat_to_air_w": 1.132
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 76.8,
+       "pad_mean_c": 76.3,
+       "heat_to_board_w": 0.331,
+       "heat_to_air_w": 0.726
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 85.2,
+       "pad_mean_c": 83.9,
+       "heat_to_board_w": 0.662,
+       "heat_to_air_w": 1.165
+      }
+     },
+     "mid": {
+      "local_air_side_layer_c": 63.7,
+      "board_seen_c": 68.5,
+      "t_equivalent_ambient_c": 65.1,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0325,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 81.0,
+       "pad_mean_c": 78.7,
+       "heat_to_board_w": 0.404,
+       "heat_to_air_w": 0.944
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 85.9,
+       "pad_mean_c": 82.5,
+       "heat_to_board_w": 0.565,
+       "heat_to_air_w": 1.204
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 77.5,
+       "pad_mean_c": 76.1,
+       "heat_to_board_w": 0.293,
+       "heat_to_air_w": 0.764
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 86.6,
+       "pad_mean_c": 83.0,
+       "heat_to_board_w": 0.587,
+       "heat_to_air_w": 1.239
+      }
+     },
+     "high": {
+      "local_air_side_layer_c": 63.7,
+      "board_seen_c": 68.5,
+      "t_equivalent_ambient_c": 64.7,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0233,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 82.5,
+       "pad_mean_c": 77.4,
+       "heat_to_board_w": 0.325,
+       "heat_to_air_w": 1.023
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 88.0,
+       "pad_mean_c": 80.5,
+       "heat_to_board_w": 0.455,
+       "heat_to_air_w": 1.315
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 78.6,
+       "pad_mean_c": 75.3,
+       "heat_to_board_w": 0.236,
+       "heat_to_air_w": 0.822
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 88.8,
+       "pad_mean_c": 80.9,
+       "heat_to_board_w": 0.473,
+       "heat_to_air_w": 1.354
+      }
+     }
+    },
+    "bound_surroundings_c": 80.0,
+    "margin_k_central": {
+     "model_60kHz_as_built": 17.8,
+     "recom_typ_53pct": 19.8,
+     "ledger_allocation_80kHz_740nC": 9.1,
+     "alt_bias_80kHz": 4.2
+    },
+    "margin_k_central_90pct_rule": {
+     "model_60kHz_as_built": 15.1,
+     "recom_typ_53pct": 17.3,
+     "ledger_allocation_80kHz_740nC": 5.4,
+     "alt_bias_80kHz": 1.4
+    },
+    "margin_k_bound": {
+     "model_60kHz_as_built": 2.9,
+     "recom_typ_53pct": 4.9,
+     "ledger_allocation_80kHz_740nC": -5.8,
+     "alt_bias_80kHz": -10.7
+    },
+    "b3_gate_margin_k_pad_vs_85": -27.2
+   },
+   "c22_h10": {
+    "bay_c": 55.0,
+    "basis": "estimate: B3 pad mean - c18 self-heat 33.7 K; under/ring/pin2 scaled x1.25 by nearby probes ['R22', 'R23', 'R24', 'R25', 'J3', 'R1', 'R2']",
+    "pad_mean_no_ps2_c": 70.9,
+    "board_under_body_no_ps2_c": 61.5,
+    "ring_10mm_no_ps2_c": 74.0,
+    "hottest_pad_no_ps2_c": 78.8,
+    "corners": {
+     "low": {
+      "local_air_side_layer_c": 58.4,
+      "board_seen_c": 65.8,
+      "t_equivalent_ambient_c": 61.0,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0395,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 75.7,
+       "pad_mean_c": 75.3,
+       "heat_to_board_w": 0.392,
+       "heat_to_air_w": 0.956
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 80.3,
+       "pad_mean_c": 79.4,
+       "heat_to_board_w": 0.573,
+       "heat_to_air_w": 1.196
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 72.5,
+       "pad_mean_c": 72.4,
+       "heat_to_board_w": 0.267,
+       "heat_to_air_w": 0.79
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 80.9,
+       "pad_mean_c": 80.0,
+       "heat_to_board_w": 0.598,
+       "heat_to_air_w": 1.229
+      }
+     },
+     "mid": {
+      "local_air_side_layer_c": 58.4,
+      "board_seen_c": 65.9,
+      "t_equivalent_ambient_c": 60.7,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0325,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 76.6,
+       "pad_mean_c": 75.2,
+       "heat_to_board_w": 0.346,
+       "heat_to_air_w": 1.002
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 81.5,
+       "pad_mean_c": 79.1,
+       "heat_to_board_w": 0.507,
+       "heat_to_air_w": 1.262
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 73.1,
+       "pad_mean_c": 72.6,
+       "heat_to_board_w": 0.235,
+       "heat_to_air_w": 0.823
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 82.2,
+       "pad_mean_c": 79.6,
+       "heat_to_board_w": 0.529,
+       "heat_to_air_w": 1.298
+      }
+     },
+     "high": {
+      "local_air_side_layer_c": 58.4,
+      "board_seen_c": 65.9,
+      "t_equivalent_ambient_c": 60.1,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0233,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 77.9,
+       "pad_mean_c": 74.8,
+       "heat_to_board_w": 0.278,
+       "heat_to_air_w": 1.07
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 83.4,
+       "pad_mean_c": 77.8,
+       "heat_to_board_w": 0.408,
+       "heat_to_air_w": 1.362
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 74.0,
+       "pad_mean_c": 72.6,
+       "heat_to_board_w": 0.189,
+       "heat_to_air_w": 0.869
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 84.2,
+       "pad_mean_c": 78.3,
+       "heat_to_board_w": 0.425,
+       "heat_to_air_w": 1.401
+      }
+     }
+    },
+    "bound_surroundings_c": 78.8,
+    "margin_k_central": {
+     "model_60kHz_as_built": 22.2,
+     "recom_typ_53pct": 24.2,
+     "ledger_allocation_80kHz_740nC": 13.5,
+     "alt_bias_80kHz": 8.6
+    },
+    "margin_k_central_90pct_rule": {
+     "model_60kHz_as_built": 19.5,
+     "recom_typ_53pct": 21.7,
+     "ledger_allocation_80kHz_740nC": 9.8,
+     "alt_bias_80kHz": 5.8
+    },
+    "margin_k_bound": {
+     "model_60kHz_as_built": 4.1,
+     "recom_typ_53pct": 6.1,
+     "ledger_allocation_80kHz_740nC": -4.6,
+     "alt_bias_80kHz": -9.5
+    },
+    "b3_gate_margin_k_pad_vs_85": -25.9
+   },
+   "c28_h10": {
+    "bay_c": 55.0,
+    "basis": "estimate: B3 pad mean - c18 self-heat 33.7 K; under/ring/pin2 scaled x1.79 by nearby probes ['R22', 'R23', 'R24', 'R25', 'J3', 'R1', 'R2']",
+    "pad_mean_no_ps2_c": 81.5,
+    "board_under_body_no_ps2_c": 64.2,
+    "ring_10mm_no_ps2_c": 82.0,
+    "hottest_pad_no_ps2_c": 88.9,
+    "corners": {
+     "low": {
+      "local_air_side_layer_c": 59.8,
+      "board_seen_c": 72.1,
+      "t_equivalent_ambient_c": 64.4,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0395,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 79.0,
+       "pad_mean_c": 79.2,
+       "heat_to_board_w": 0.273,
+       "heat_to_air_w": 1.076
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 83.6,
+       "pad_mean_c": 83.4,
+       "heat_to_board_w": 0.454,
+       "heat_to_air_w": 1.316
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 75.9,
+       "pad_mean_c": 76.4,
+       "heat_to_board_w": 0.148,
+       "heat_to_air_w": 0.91
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 84.2,
+       "pad_mean_c": 84.0,
+       "heat_to_board_w": 0.478,
+       "heat_to_air_w": 1.349
+      }
+     },
+     "mid": {
+      "local_air_side_layer_c": 59.8,
+      "board_seen_c": 72.4,
+      "t_equivalent_ambient_c": 63.8,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0325,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 79.7,
+       "pad_mean_c": 80.1,
+       "heat_to_board_w": 0.238,
+       "heat_to_air_w": 1.111
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 84.6,
+       "pad_mean_c": 83.9,
+       "heat_to_board_w": 0.399,
+       "heat_to_air_w": 1.371
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 76.3,
+       "pad_mean_c": 77.5,
+       "heat_to_board_w": 0.126,
+       "heat_to_air_w": 0.931
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 85.3,
+       "pad_mean_c": 84.4,
+       "heat_to_board_w": 0.421,
+       "heat_to_air_w": 1.406
+      }
+     },
+     "high": {
+      "local_air_side_layer_c": 59.8,
+      "board_seen_c": 72.4,
+      "t_equivalent_ambient_c": 62.8,
+      "g_air_w_k": 0.0525,
+      "g_board_w_k": 0.0233,
+      "model_7p08W_eta0p84": {
+       "p_loss_w": 1.348,
+       "case_c": 80.6,
+       "pad_mean_c": 81.0,
+       "heat_to_board_w": 0.19,
+       "heat_to_air_w": 1.158
+      },
+      "model_7p08W_eta0p80": {
+       "p_loss_w": 1.769,
+       "case_c": 86.1,
+       "pad_mean_c": 84.1,
+       "heat_to_board_w": 0.32,
+       "heat_to_air_w": 1.449
+      },
+      "model_7p08W_eta0p87": {
+       "p_loss_w": 1.058,
+       "case_c": 76.7,
+       "pad_mean_c": 78.8,
+       "heat_to_board_w": 0.101,
+       "heat_to_air_w": 0.957
+      },
+      "alloc_9p59W_eta0p84": {
+       "p_loss_w": 1.827,
+       "case_c": 86.9,
+       "pad_mean_c": 84.5,
+       "heat_to_board_w": 0.338,
+       "heat_to_air_w": 1.489
+      }
+     }
+    },
+    "bound_surroundings_c": 88.9,
+    "margin_k_central": {
+     "model_60kHz_as_built": 19.1,
+     "recom_typ_53pct": 21.1,
+     "ledger_allocation_80kHz_740nC": 10.4,
+     "alt_bias_80kHz": 5.5
+    },
+    "margin_k_central_90pct_rule": {
+     "model_60kHz_as_built": 16.4,
+     "recom_typ_53pct": 18.6,
+     "ledger_allocation_80kHz_740nC": 6.7,
+     "alt_bias_80kHz": 2.7
+    },
+    "margin_k_bound": {
+     "model_60kHz_as_built": -6.0,
+     "recom_typ_53pct": -4.0,
+     "ledger_allocation_80kHz_740nC": -14.7,
+     "alt_bias_80kHz": -19.6
+    },
+    "b3_gate_margin_k_pad_vs_85": -35.7
+   }
+  }
+ },
+ "verdict": {
+  "summary": "Inside rating (estimate) at c18@61, c22@55, c28@55 at the as-built 7.08 W load; the B3 sweep's -27.2 / -35.7 K compares an ambient rating with a pad temperature inflated ~34 K by B3's meanwell network having no body-to-air path. Confirm at the S2 soak (local air unmeasured).",
+  "per_case": {
+   "c18_h10@61": {
+    "class": "inside rating (estimate)",
+    "t_eq_c": 65.1,
+    "limit_c_at_7p08W": 82.9,
+    "margin_k": 17.8,
+    "margin_k_90pct_rule": 15.1,
+    "margin_k_at_9p59W": 9.1,
+    "bound_margin_k": 2.9,
+    "bound_margin_k_at_9p59W": -5.8
+   },
+   "c22_h10@55": {
+    "class": "inside rating (estimate)",
+    "t_eq_c": 60.7,
+    "margin_k": 22.2,
+    "margin_k_90pct_rule": 19.5,
+    "margin_k_at_9p59W": 13.5,
+    "bound_margin_k": 4.1,
+    "bound_margin_k_at_9p59W": -4.6
+   },
+   "c28_h10@55": {
+    "class": "inside rating (estimate)",
+    "t_eq_c": 63.8,
+    "margin_k": 19.1,
+    "margin_k_90pct_rule": 16.4,
+    "margin_k_at_9p59W": 10.4,
+    "bound_margin_k": -6.0,
+    "bound_margin_k_at_9p59W": -14.7
+   }
+  },
+  "not_determinable_without_bench": [
+   "9.59 W sizing allocation under the bound (all surroundings at max(bay+15 K, hottest unpowered pad))",
+   "78 C all-allowances-stacked bay: c18 margin +0.8 K at 7.08 W, -7.9 K at 9.59 W (T_eq shifted 1:1 with bay; estimate)"
+  ],
+  "estimate_flags": [
+   "c22/c28 board values are superposition + probe scaling, no zero-PS2 solve",
+   "network conductances (pins 5-40 K/W, gap 0.5-2 mm, h 10) are estimates",
+   "equivalent-ambient reading assumes MEAN WELL derates in still air on a chamber-temperature board (sheet does not define the ambient point)"
+  ]
+ },
+ "fixes_ranked": [
+  {
+   "rank": 0,
+   "fix": "B3 model: meanwell body-to-air path + rating row on T_eq/local air vs p.3 curve at load; bench S2",
+   "cost": "none",
+   "approval_effect": "none"
+  },
+  {
+   "rank": 1,
+   "fix": "PS2 load derating",
+   "margin": "17.8 K at 7.08 W (c18); curve allows 13.0 W (11.7 W at 90 %) at T_eq 65 C; keep the 60 kHz firmware window top as the PS2 load bound",
+   "approval_effect": "none"
+  },
+  {
+   "rank": 2,
+   "fix": "thermal relief on pin 2 (n_filt pour), the only pad importing board heat (80 C vs 66 C under body)",
+   "gain": "<= ~1 K T_eq (estimate)",
+   "approval_effect": "none for module; recheck D5 at J3/pin 2"
+  },
+  {
+   "rank": 3,
+   "fix": "105 C+ module, same footprint/pinout",
+   "result": "none found (MEAN WELL IRM-20/MPM-30/IRM-30 85 C; RECOM RAC20-K 85 C ambient / 95 C case, not footprint-compatible; MORNSUN LHE20 85 C, different case)",
+   "approval_effect": "any swap reopens S1 touch current (MPM-20 <80 uA, 8.8 uA budget margin); MPM-30 lacks a 60335-1 approval ('by request')"
+  },
+  {
+   "rank": 4,
+   "fix": "move PS2 (layout lane)",
+   "gain": "low: board under PS2 already 66 C (bay+5 K)",
+   "approval_effect": "D5/TCO-loop re-audit"
+  },
+  {
+   "rank": 5,
+   "fix": "airflow",
+   "gain": "unknown; no board-face airflow record (D-18 ducts blower through the sink)",
+   "approval_effect": "none"
+  }
+ ],
+ "bench_check": {
+  "TC1": "PS2 case top centre",
+  "TC2": "shielded air 5 mm off long side, mid-height",
+  "TC3": "bay air >= 50 mm away",
+  "TC4": "pin 1 or 4 pad (hazardous voltage: insulated TC + isolated logger, or IR)",
+  "also": "PS2 output current",
+  "predictions_rise_over_bay_k": {
+   "case": "+20 (+16..+27)",
+   "local_air": "+2.7 (bound +15)",
+   "pad": "+18 (+14..+22)"
+  },
+  "refute_if": {
+   "case_rise_k_ge": 35,
+   "local_air_rise_k_gt": 21.9,
+   "pad_rise_k_near": "44-48 (B3)",
+   "p_out_w_gt": 9.6
+  },
+  "criterion": "(TC2-TC3)+61 C <= p.3 limit at measured load (82.9 C at 7.08 W; 80.2 C at 90 %)"
+ },
+ "unsourced": [
+  "MPM-20 OTP threshold / internal ratings / Tc point",
+  "certificate Tma for 60601-1 / 60335-1",
+  "MEAN WELL ambient measurement point",
+  "PS2 bottom gap and pin thermal resistance",
+  "RAC20-K touch current",
+  "efficiency at 120-140 VAC, 33 % load",
+  "local air at PS2"
+ ]
+}

@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""Fill the JLCPCB BOM's LCSC column from sourcing/lcsc-map.csv (2026-10-08 LCSC survey).
+
+    python3 apply_lcsc.py  ->  fab/bom-jlcpcb.csv (LCSC Part # and Assembly columns)
+
+Rules: EXACT matches are used as found. Design changes made after the survey (DECISIONS.md
+2026-10-08: R83/R101/R116 -> RT0603BRD077K68L, R51/R52/R55/R56 -> RL1206FR-070R68L) map to the
+C-numbers checked on lcsc.com. The snubber caps' alternate (Yageo CC1206JKNPOCBN102: 1206, 1 nF,
+5 %, 1 kV, C0G) was accepted as a JLC substitution for the source MPN GRM31A5C3A102JW01D until stage 43,
+when the source took the Yageo part itself (GRM31A5C3A102JW01D is not a Murata part). R34's
+alternate has no stock, so R34 is consigned. NOT_FOUND lines are consigned or hand-assembled.
+
+Stage 8 (review 2026-10-08): rows match the survey by MPN, not by designator group, because new
+parts join existing groups (C10 / C17 joined the 100 nF line). The HS bulk GRM21BZ71E106KE15L
+(C11 / C18) is new since the survey. J3 is now B2P3-VH(LF)(SN), which has no LCSC match, so it
+falls to hand assembly; the survey's C160315 is the old 3.96 mm B2P-VH and must not be used. The F1
+fuse clips (2 x Littelfuse 01220088Z) are part of F1's footprint, not source components, so they
+get their own hand-assembly line (review M8).
+"""
+import csv
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent.parent
+MAP = {r["MPN"]: r for r in csv.DictReader(open(HERE / "sourcing" / "lcsc-map.csv"))}
+CHANGED = {"RT0603BRD077K68L": "C375517", "RL1206FR-070R68L": "C728510",    # verified on lcsc.com 2026-10-08
+           "GRM21BZ71E106KE15L": "C237493",                                  # stage 8; lcsc.com 2026-10-08, 930 in stock
+           "GRM21BR71H105KA12L": "C77083"}                                   # stage 9; lcsc.com 2026-10-08, 119 k in stock
+# BOM simplification 2026-10-09 (../bom-simplification/PROPOSAL.md, safe set): JLC Basic parts of identical
+# spec, plus the stocked 0.1 % replacements for R34/R35, R77/R95/R110 and R87/R105/R120. C-numbers, class
+# and stock were read from JLC's part listings on 2026-10-09 (bom-simplification/totals.py re-checks them).
+BASIC = {"CC0603KRX7R9BB104": "C14663", "CL10C101JB8NNNC": "C14858", "CL21B105KBFNNNE": "C28323",
+         "1206B475K500NT": "C29823", "CL05B104KB54PNC": "C307331", "0603WAF1002T5E": "C25804",
+         "0603WAF1000T5E": "C22775", "0603WAF1003T5E": "C25803", "0603WAF3300T5E": "C23138",
+         "0603WAF1001T5E": "C21190", "0603WAF5601T5E": "C23189", "0603WAF3302T5E": "C4216",
+         "0603WAF0000T5E": "C21189", "1206W4F1001T5E": "C4410", "1206W4F100KT5E": "C17928",
+         "1N4148W": "C81598", "MMBT3904": "C20526", "0603WAF4991T5E": "C23046", "0603WAF1802T5E": "C25810",
+         "0603WAF3002T5E": "C22984", "1206W4F1003T5E": "C17900",
+         # stage 14 (bias modules): 330 pF C0G and the 27 k enable-divider leg, JLC Basic (read 2026-10-09)
+         "CL10C331JB8NNNC": "C1664", "0603WAF2702T5E": "C22967",
+         # stage 9 part, listed Basic by JLC's part API on 2026-10-13 (11-candidates/research/bom-simplification A1)
+         "CC0805KRX7R9BB104": "C49678",
+         # stage 30 heartbeat series resistor 220 ohm, JLC Basic (JLC part API 2026-10-14)
+         "0603WAF2200T5E": "C22962"}
+CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "TNPW060311K7BEEA": "C4553285",
+                "RT0603BRD076K2L": "C136960", "ARG03BTC1333": "C1509631",
+                # stage 14: module feedback divider, 0.1 % 25 ppm (JLC Extended, read 2026-10-09)
+                "RT0603BRD0763K4L": "C326723", "RT0603BRD0711KL": "C728581",
+                # stage 15 (28 A hardware): R34 12.6 k and the CT references R43/R46 2.21 k, 0.1 % (read 2026-10-10,
+                # scratchpad stage15/jlc_lookup.py: 1,202 / 4,358 in stock)
+                "RT0603BRD0712K6L": "C861103", "RT0603BRD072K21L": "C705758",
+                # stage 17 (R5 derating, DECISIONS 17): Bourns CSS2H-2512R-1L00F replaces WSK25121L000FEA
+                # (JLC Extended, 1,482 in stock on 2026-10-12; round5-native21/stage17-r5/screen.json)
+                "CSS2H-2512R-1L00F": "C4175647",
+                # stage 20 (DECISIONS 23; 11-candidates/g04-g09-tank-detect, JLC part API 2026-10-13): 1:200 CT
+                # (SMT, 64 in stock), its 3.0 ohm burden, the stocked opto bin, the J-tolerance bank part
+                "CST3015-200ED": "C50132500", "RC1206FR-073RL": "C137279", "VOL628A-2X001T": "C145344",
+                "B32654A1104J000": "C3794777",
+                # stage 22 (DECISIONS 27): DIS NAND and the inverting BIAS_GOOD Schmitt (JLC part API 2026-10-13, g05-g07 evidence)
+                "SN74LVC1G00DBVR": "C7826", "SN74LVC1G14DBVR": "C7835",
+                # stage 26 (DECISIONS 28; r2-cost R2-05): the low-ESR SVPC variant, same 6.3 x 5.9 can (lcsc.com 2026-10-13, 845 in stock)
+                "6SVPC220MV": "C128504",
+                # stage 27 (DECISIONS 29): J1 Phoenix MKDS 5/2-9,5, UL group B 30 A (c27-j1-terminal; LCSC 75 / JLC 164 on 2026-10-13)
+                "1714971": "C92145",
+                # stage 28 (DECISIONS 30): F2 UMT-H 1.5 kA (zero LCSC/JLC stock: consign from DigiKey) and the 0.15 ohm limiter R130
+                "3403.0279.23": "C3163739", "AC05000001507JAC00": "C1382388",
+                # stage 29 (DECISIONS 31): Infineon 2EDR8259X drivers and the 8.2 ohm gate resistors (c25-driver, 2026-10-13/14)
+                "2EDR8259XXUMA1": "C17455725", "RS-06L8R20FT": "C323355",
+                # stage 30 (DECISIONS 33): buffered heartbeat M1b and the HS rail-verdict isolators (JLC part API 2026-10-14,
+                # stage30-heartbeat/jlc-raw)
+                "ISO6721FBDR": "C5216431", "ISO7710FDWR": "C2859831", "BAT54S-7-F": "C83574",
+                "SN74LVC1G132DBVR": "C403723",
+                # stage 31 (DECISIONS 34): Chipanalog isolators and the Samsung 1210 (JLC part API 2026-10-14,
+                # 11-candidates/c31-bom/scripts/jlc-raw)
+                "CA-IS3720HW": "C428883", "CA-IS3720LW": "C2890049", "CL32B106KBJNNNE": "C138687",
+                # stage 35 (candidate 35): J2 / J5 Wuerth REDCUBE SMT WP-SMBU 7466004R (JLC part API 2026-10-14, 0 in
+                # stock, 11-candidates/c35-smt-terminals/scripts/jlc-raw)
+                "7466004R": "C6708126",
+                # stage 38 (candidate 23, DECISIONS 47): PS2 MEAN WELL MPM-20-24 (JLC part API 2026-10-15,
+                # sourcing/study-2026-10-15/scripts/jlc-raw/detail_C6675337.json)
+                "MPM-20-24": "C6675337",
+                # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and the 4.7 nF C0G Cgs (JLC part
+                # API 2026-10-15, sourcing/study-2026-10-15/scripts/jlc-raw)
+                "25121WF680JT4E": "C50371", "GRM1885C1H472JA01D": "C85980",
+                # stage 43: C12 / C13 / C19 / C20 source MPN is the ordered part, YAGEO CC1206JKNPOCBN102 (JLC part API
+                # 2026-10-15, sourcing/study-2026-10-15/scripts/jlc-raw/detail_C113872.json); no substitute line any more
+                "CC1206JKNPOCBN102": "C113872",
+                # stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B monitor reference and the four new tap
+                # tops, 0.1 % 25 ppm 0603 (JLC part API 2026-10-15, 11-candidates/s16-monitor-2026-10-15 jlc-raw, copied
+                # to sourcing/study-2026-10-15/scripts/jlc-raw)
+                "TL431BIDBZR": "C41283", "RT0603BRD07750RL": "C861551", "RT0603BRD072K94L": "C705761",
+                "RT0603BRD0790K9L": "C728600", "RT0603BRD07104KL": "C861070",
+                # stage 46 (S17 hot copper, c46-monitor-grades): the 125 C grades of the monitor reference and comparator
+                # (JLC part API 2026-10-15, copied to sourcing/study-2026-10-15/scripts/jlc-raw: 17,789 / 1,966 in stock)
+                "TL431BQDBZR": "C190245", "LM2901BIDR": "C22427890",
+                # stage 47 (S17 hot copper, c47-ref25-grade): REF25 on the extended-range LM4050AEM3-2.5 (JLC part API
+                # 2026-10-15: 50 in stock against 500, so the lot is an owner pre-order consigned to JLC; the listing's
+                # -40..85 C is wrong for the E suffix, SNOS455H 5.3 p.5 and addendum p.25 give -40..125 C)
+                "LM4050AEM3-2.5/NOPB": "C2156518",
+                # stage 48 (OPEN-ITEMS S19, c48-ldo-en-ref-watch): U3 / U37 / U38 / U39 on the TPS709-Q1 grade (was
+                # TPS70950DBVR C96028): JLC part API 2026-10-16, Extended, 11,607 in stock, $0.7048 at 500
+                # (sourcing/study-2026-10-15/scripts/jlc-raw/detail_C485909.json)
+                "TPS70950QDBVRQ1": "C485909",
+                # stage 49 (DECISIONS 68, candidate 34, c49-c34-bank): the resonant bank on TDK B32643B8104J000. JLC lists it
+                # (C3781430, Extended THT) with 0 in stock (JLC part API 2026-10-15, 11-candidates/c34-bank-margin/scripts/
+                # jlc-raw/detail_C3781430.json): an OWNER PRE-ORDER consigned to JLC under this code, untaped MOQ 2,080
+                # (B3264*B p.11), 28-week manufacturer lead (DigiKey 2026-10-14, DECISIONS 37); STOCK addendum s49.
+                "B32643B8104J000": "C3781430",
+                # stage 49 (OPEN-ITEMS S23, B'-1.02 V, s23-ocp-cm-2026-10-16): R33 7.5 k / R34 16 k, 0.1 % 25 ppm (JLC part API
+                # 2026-10-16: 20,378 / 17,962 in stock); R35 11 k joins the existing RT0603BRD0711KL line (C728581)
+                "RT0603BRD077K5L": "C728597", "RT0603BRD0716KL": "C326732",
+                # stage 51 (DECISIONS 73, c51-bank-source): the resonant bank on KNSCHA MMK104J3DF1KN208G2, JLC C528962
+                # (Extended THT; JLC part API 2026-10-16T17:48Z: 4,952 in stock against the 2,500 a 500-board lot needs,
+                # $0.3035 at 1000+; sourcing/study-2026-10-15/scripts/jlc-raw/detail_C528962.json). TDK B32643B8104J000
+                # (C3781430, above) is the not-fitted 28 A alternate on the same footprint.
+                "MMK104J3DF1KN208G2": "C528962",
+                # stage 52 (DECISIONS 74, prototype lot; 11-candidates/b15-proto-alternates, JLC part API 2026-10-16):
+                # L1 TDK B82726S2243A020 = C7084710 (Extended, 0 at JLC; Mouser 62 / DigiKey 29 cover the lot through
+                # global sourcing) and C3 / C4 Murata DE1E3RA222MJ4BH01F = C7170908 (Extended, 104 in stock). The bank
+                # B32643H8104J000 has no JLC / LCSC listing: it stays a consigned line (no LCSC number).
+                "B82726S2243A020": "C7084710", "DE1E3RA222MJ4BH01F": "C7170908"})
+# Lines with an LCSC code that JLC holds none of for the lot: consigned like the bank (no LCSC number, so JLC neither places
+# nor shortage-blocks them, and the CPL audit lists them as excluded). Stage 52 review (s52-proto-bom/fp3d-review row 17):
+# L1 B82726S2243A020 = C7084710 has JLC stock 0 (sourcing/STOCK-2026-10-16.csv, read 2026-10-16T19:12Z) against Mouser 62 /
+# DigiKey 29; it is bought from a distributor and hand-soldered in house (or consigned / JLC global sourcing at order).
+CONSIGN = {"B82726S2243A020": "consign or hand-assemble (JLC C7084710 holds 0 on 2026-10-16; buy Mouser / DigiKey, "
+                              "hand-solder or consign / JLC global sourcing)"}
+ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
+bom_path = HERE / "fab" / "bom-jlcpcb.csv"
+rows = list(csv.DictReader(open(bom_path)))
+counts = {"exact": 0, "changed": 0, "substitute": 0, "consign": 0}
+for r in rows:
+    mpn = r["Manufacturer Part Number"]
+    m = MAP.get(mpn)
+    if mpn in CONSIGN:
+        r["LCSC Part #"], r["Assembly"] = "", CONSIGN[mpn]
+        counts["consign"] += 1
+    elif mpn in BASIC:
+        r["LCSC Part #"], r["Assembly"] = BASIC[mpn], "JLC (Basic)"
+        counts["changed"] += 1
+    elif mpn in CHANGED:
+        r["LCSC Part #"], r["Assembly"] = CHANGED[mpn], "JLC (Extended)"
+        counts["changed"] += 1
+    elif m and m["Match"] == "EXACT" and m["MPN"] == mpn:
+        r["LCSC Part #"], r["Assembly"] = m["LCSC"], f"JLC ({m['JLC_class'] or 'class unknown'}); stock at survey: {m['Stock']}"
+        counts["exact"] += 1
+    elif m and m["Match"] == "ALTERNATE" and mpn in ACCEPT_ALT:
+        r["LCSC Part #"], r["Assembly"] = m["LCSC"], f"JLC substitute {m['Alternate_MPN']} (equivalent: 1206 1 nF 5 % 1 kV C0G)"
+        counts["substitute"] += 1
+    else:
+        r["LCSC Part #"], r["Assembly"] = "", "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+        counts["consign"] += 1
+clip = dict.fromkeys(rows[0], "")
+clip.update({"Comment": "Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)", "Designator": "F1-CLIP",
+             "Manufacturer Part Number": "01250003H", "LCSC Part #": "C223911", "Mount": "THT", "Assembly": "hand-solder, 2 per board (not a source component)"})
+# The F1 clips are not a board component (no CPL row): JLC rejects any BOM designator without a CPL entry,
+# so they go to a separate hand-assembly purchase list, not into the JLC BOM (2026-10-13).
+rows = [r for r in rows if r["Designator"] != "F1-CLIP"]
+with open(bom_path, "w", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+    w.writeheader()
+    w.writerows(rows)
+extras_path = bom_path.parent / "hand-assembly-extras.csv"
+with open(extras_path, "w", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=list(clip.keys()))
+    w.writeheader()
+    w.writerow(clip)
+print(counts)

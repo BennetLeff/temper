@@ -1,0 +1,193 @@
+{
+ "P1_P2_c22_h10_R10": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R10: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 133.5,
+    "margin_k": 21.5
+   },
+   {
+    "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 129.1,
+    "margin_k": -33.7
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c22_h10_R12": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R12: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 136.7,
+    "margin_k": 18.3
+   },
+   {
+    "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 135.0,
+    "margin_k": -39.6
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c22_h10_R18": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R18: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 121.9,
+    "margin_k": 33.1
+   },
+   {
+    "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 118.1,
+    "margin_k": -22.7
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c22_h10_R20": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R20: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 125.7,
+    "margin_k": 29.3
+   },
+   {
+    "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 121.6,
+    "margin_k": -26.2
+   }
+  ],
+  "ok": true
+ },
+ "P3_c22_h10": {
+  "limits": {
+   "chip1206": 95.4,
+   "chip2512": 140.1
+  },
+  "expected_gain_K": 44.72,
+  "ok": true
+ },
+ "P4_c22_h10": {
+  "ok": true
+ },
+ "P1_P2_c28_h10_R10": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R10: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 156.2,
+    "margin_k": -1.2
+   },
+   {
+    "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 151.6,
+    "margin_k": -56.2
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c28_h10_R12": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R12: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 163.0,
+    "margin_k": -8.0
+   },
+   {
+    "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 159.5,
+    "margin_k": -64.1
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c28_h10_R18": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R18: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 138.1,
+    "margin_k": 16.9
+   },
+   {
+    "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 134.6,
+    "margin_k": -39.3
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c28_h10_R20": {
+  "spec": "chip1206",
+  "watts": 0.1403104520808329,
+  "rows": [
+   {
+    "item": "R20: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 146.4,
+    "margin_k": 8.6
+   },
+   {
+    "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 143.1,
+    "margin_k": -47.8
+   }
+  ],
+  "ok": true
+ },
+ "P3_c28_h10": {
+  "limits": {
+   "chip1206": 95.4,
+   "chip2512": 140.1
+  },
+  "expected_gain_K": 44.72,
+  "ok": true
+ },
+ "P4_c28_h10": {
+  "ok": true
+ },
+ "all_controls_pass": true
+}

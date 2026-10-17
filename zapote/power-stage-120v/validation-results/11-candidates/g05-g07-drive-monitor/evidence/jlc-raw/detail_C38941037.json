@@ -1,0 +1,305 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C38941037",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "UCC21550ADWKR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8767163878990471168",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": null,
+  "dataManualFileAccessId": "",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/lit/ds/symlink/ucc21550.pdf",
+  "componentName": "TI UCC21550ADWKR",
+  "minImage": "",
+  "minImageAccessId": "8767163880059613184",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8767163880059613184",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8767163878990471168",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8767163889253933056",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8767163888150560768",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8767163896706535424",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8767163895528206336",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI UCC21550ADWKR",
+  "componentSpecificationEn": "SOIC-14",
+  "describe": "SOIC-14 Isolators - Gate Drivers ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C38941037",
+    "attribute_value_name": "-40\u2103~+150\u2103"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply (Driver)",
+    "component_code": "C38941037",
+    "attribute_value_name": "6.5V~25V"
+   },
+   {
+    "attribute_name_en": "Propagation Delay tpHL",
+    "component_code": "C38941037",
+    "attribute_value_name": "33ns"
+   },
+   {
+    "attribute_name_en": "Driven Configuration",
+    "component_code": "C38941037",
+    "attribute_value_name": "Half-Bridge"
+   },
+   {
+    "attribute_name_en": "Load Type",
+    "component_code": "C38941037",
+    "attribute_value_name": "MOSFET\u3001IGBT\u3001SiC\u3001GaN"
+   },
+   {
+    "attribute_name_en": "Quiescent Current(Iq)",
+    "component_code": "C38941037",
+    "attribute_value_name": "1.4mA"
+   },
+   {
+    "attribute_name_en": "Fall Time",
+    "component_code": "C38941037",
+    "attribute_value_name": "8ns"
+   },
+   {
+    "attribute_name_en": "CMTI(kV/us)",
+    "component_code": "C38941037",
+    "attribute_value_name": "125kV/us"
+   },
+   {
+    "attribute_name_en": "Isolation voltage(Vrms)",
+    "component_code": "C38941037",
+    "attribute_value_name": "5000V"
+   },
+   {
+    "attribute_name_en": "Rise Time",
+    "component_code": "C38941037",
+    "attribute_value_name": "8ns"
+   },
+   {
+    "attribute_name_en": "Number of Channels",
+    "component_code": "C38941037",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C38941037",
+    "attribute_value_name": "Dead-time control"
+   },
+   {
+    "attribute_name_en": "Peak Output Current(sink)",
+    "component_code": "C38941037",
+    "attribute_value_name": "4A"
+   },
+   {
+    "attribute_name_en": "Propagation Delay tpLH",
+    "component_code": "C38941037",
+    "attribute_value_name": "33ns"
+   },
+   {
+    "attribute_name_en": "Peak Output Current(source)",
+    "component_code": "C38941037",
+    "attribute_value_name": "6A"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply (Input)",
+    "component_code": "C38941037",
+    "attribute_value_name": "3V~5.5V"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Power Management (PMIC)",
+  "secondSortName": "Isolators - Gate Drivers",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 40662674,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 76,
+  "overseasStockCount": 76,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C38941037",
+    "startNumber": 1,
+    "endNumber": 9,
+    "productPrice": 2.1676,
+    "erpComponentPriceKeyId": 581703518788386820,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C38941037",
+    "startNumber": 10,
+    "endNumber": 29,
+    "productPrice": 1.9083,
+    "erpComponentPriceKeyId": 581703518788386823,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C38941037",
+    "startNumber": 30,
+    "endNumber": 99,
+    "productPrice": 1.7256,
+    "erpComponentPriceKeyId": 581703518788386819,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C38941037",
+    "startNumber": 100,
+    "endNumber": 499,
+    "productPrice": 1.5593,
+    "erpComponentPriceKeyId": 581703518788386821,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C38941037",
+    "startNumber": 500,
+    "endNumber": 999,
+    "productPrice": 1.4826,
+    "erpComponentPriceKeyId": 581703518788386822,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C38941037",
+    "startNumber": 1000,
+    "endNumber": -1,
+    "productPrice": 1.4516,
+    "erpComponentPriceKeyId": 581703518788386818,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 2000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.326,
+  "lcscGoodsUrl": null,
+  "erpComponentName": "\u9694\u79bb\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668\uff0c\u53ef\u7f16\u7a0b\u6b7b\u533a\u65f6\u95f4\uff0c\u5bbd\u6e29\u5ea6\u8303\u56f4",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Isolators - Gate Drivers",
+  "firstTypeNameEn": "Power Management (PMIC)",
+  "secondTypeNameId": 2107,
+  "firstTypeNameId": 9,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 76,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 2.1676,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 5,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244351347441843,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas InstrumentsSOIC-14 Isolators - Gate Drivers ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:31:52Z"
+}

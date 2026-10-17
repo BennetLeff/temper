@@ -164,6 +164,7 @@ add_executable(test_state_machine_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -187,6 +188,7 @@ add_executable(test_max31865_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -293,6 +295,7 @@ add_executable(test_integration_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -352,13 +355,16 @@ add_executable(test_ntc_guard_only
     test_main_ntc_guard.c
     test_ntc_guard.c
     ../components/safety/ntc_guard.c
+    ../components/control/thermal_mgmt.c
 )
 target_include_directories(test_ntc_guard_only PRIVATE 
     ../components/hal/include
     ../components/safety/include
+    ../components/control
     unity
 )
 target_link_libraries(test_ntc_guard_only m)
+add_test(NAME ntc_guard_tests COMMAND test_ntc_guard_only)
 
 # Fan Guard Tests
 add_executable(test_fan_guard_only
@@ -379,13 +385,16 @@ add_executable(test_coil_guard_only
     test_main_coil_guard.c
     test_coil_guard.c
     ../components/safety/coil_guard.c
+    ../components/control/thermal_mgmt.c
 )
 target_include_directories(test_coil_guard_only PRIVATE 
     ../components/hal/include
     ../components/safety/include
+    ../components/control
     unity
 )
 target_link_libraries(test_coil_guard_only m)
+add_test(NAME coil_guard_tests COMMAND test_coil_guard_only)
 
 
 # ============================================================================
@@ -463,6 +472,7 @@ add_executable(test_sil_fault_injection
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -503,6 +513,12 @@ add_executable(test_pwm_esp32_only ${UNITY_SOURCES} test_pwm_esp32.c
 target_include_directories(test_pwm_esp32_only PRIVATE pwm_sdk_stub ${INCLUDE_DIRS})
 target_link_libraries(test_pwm_esp32_only m)
 add_test(NAME pwm_esp32_tests COMMAND test_pwm_esp32_only)
+add_executable(test_input_limits test_input_limits.c ../components/power/input_limits.c
+    ../components/power/blower_aux.c)
+target_include_directories(test_input_limits PRIVATE ../components/power/include)
+target_link_libraries(test_input_limits m)
+target_compile_options(test_input_limits PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME input_limits_tests COMMAND test_input_limits)
 add_executable(test_burst_scheduler test_burst_scheduler.c ../components/power/burst_scheduler.c)
 target_include_directories(test_burst_scheduler PRIVATE ../components/power/include)
 target_link_libraries(test_burst_scheduler m)
@@ -519,3 +535,82 @@ target_include_directories(test_prototype_pwm PRIVATE ${PROTOTYPE}/tests/pwm_stu
 target_compile_options(test_prototype_pwm PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 target_link_libraries(test_prototype_pwm m)
 add_test(NAME prototype_pwm_tests COMMAND test_prototype_pwm)
+
+# Native-21 hardware binding (integrated SELV controller): pure signal layer plus the binding
+# driven through power_service and the unchanged fullbridge adapter with a fake HAL.
+add_executable(test_n21_binding test_n21_binding.c
+    ../components/power/n21_signal.c ../components/power/n21_binding.c
+    ../components/power/power_service.c ../components/power/fullbridge_adapter.c
+    ../components/power/burst_scheduler.c ../components/power/input_limits.c
+    ../components/power/blower_aux.c ../components/power/line_zc.c ../components/power/tank_freq.c)
+target_include_directories(test_n21_binding PRIVATE ../components/power/include ../components/hal/include)
+target_link_libraries(test_n21_binding m)
+target_compile_options(test_n21_binding PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME n21_binding_tests COMMAND test_n21_binding)
+
+# Stage-15 tank ceiling: trip derivation, config caps, f_res fit, no-pan clamp and the bounded
+# per-pan frequency loop (pure), against a first-harmonic series-RLC tank model.
+add_executable(test_tank_freq test_tank_freq.c ../components/power/tank_freq.c)
+target_include_directories(test_tank_freq PRIVATE ../components/power/include)
+target_link_libraries(test_tank_freq m)
+target_compile_options(test_tank_freq PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME tank_freq_tests COMMAND test_tank_freq)
+
+# Stage-16 blower supply (PS3): inlet allowance scheduled from the blower drive, its model against
+# the C28 drive map, the Delta data and the temper-aux-load-r1 MPM-20 / MPM-65 increments, the allowance-first speed-up in closed loop with
+# the frequency loop, and the resulting tank holds at 108 / 120 / 132 V.
+add_executable(test_blower_aux test_blower_aux.c ../components/power/blower_aux.c
+    ../components/power/input_limits.c ../components/power/tank_freq.c
+    ../components/control/thermal_mgmt.c)
+target_include_directories(test_blower_aux PRIVATE ../components/power/include ../components/control)
+target_link_libraries(test_blower_aux m)
+target_compile_options(test_blower_aux PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME blower_aux_tests COMMAND test_blower_aux)
+
+# Integrated controller pin map (layout L2 + L3 blower lines): no duplicates, strap rules, RUN_EN
+# low at boot, UART0 console off while GPIO44 is UI MISO, TCA9555 plan. The map is also
+# cross-checked against the controller ato by firmware/tools/test_check_controller_pinmap.py.
+add_executable(test_controller_pins test_controller_pins.c ../components/hal/controller_board.c)
+target_include_directories(test_controller_pins PRIVATE ../components/hal/include ../components/power/include)
+target_compile_definitions(test_controller_pins PRIVATE
+    SDKCONFIG_DEFAULTS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../sdkconfig.defaults")
+target_compile_options(test_controller_pins PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME controller_pins_tests COMMAND test_controller_pins)
+
+# Rim NTC conversion, 250 C pan cap, R32 fan law, L3 blower stall hook (pure).
+add_executable(test_thermal_mgmt test_thermal_mgmt.c ../components/control/thermal_mgmt.c)
+target_include_directories(test_thermal_mgmt PRIVATE ../components/control)
+target_link_libraries(test_thermal_mgmt m)
+target_compile_options(test_thermal_mgmt PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME thermal_mgmt_tests COMMAND test_thermal_mgmt)
+
+# ESP32 platform layer, pure part (components/platform): MAX31865 word -> ohm -> PT100 with the
+# fail-safe sentinels, blower full-speed floor, NVS fault-log ring, display text, UI-board inputs.
+add_executable(test_platform_logic test_platform_logic.c ../components/platform/platform_logic.c
+    ../components/sensors/max31865.c ../components/hal/mock/hal_init_mock.c ../components/hal/mock/mock_gpio.c
+    ../components/hal/mock/mock_adc.c ../components/hal/mock/mock_pwm.c ../components/hal/mock/mock_spi.c
+    ../components/hal/mock/mock_timer.c)
+target_include_directories(test_platform_logic PRIVATE ../components/platform/include
+    ../components/sensors/include ../components/hal/include ../components/power/include ..)
+target_link_libraries(test_platform_logic m)
+target_compile_options(test_platform_logic PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME platform_logic_tests COMMAND test_platform_logic)
+
+# Half-cycle RMS estimator scatter vs slot phase (evidence: build-evidence/rms-estimator)
+add_executable(test_rms_estimator test_rms_estimator.c
+    ../components/power/n21_signal.c ../components/power/input_limits.c ../components/power/blower_aux.c)
+target_include_directories(test_rms_estimator PRIVATE ../components/power/include ../components/hal/include)
+target_link_libraries(test_rms_estimator m)
+target_compile_options(test_rms_estimator PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME rms_estimator_tests COMMAND test_rms_estimator)
+
+# Bench-only shadow tank RMS (pure computation, lock case, telemetry-only) (evidence: build-evidence/rms-estimator)
+add_executable(test_rms_shadow test_rms_shadow.c
+    ../components/power/rms_shadow.c ../components/power/n21_signal.c ../components/power/n21_binding.c
+    ../components/power/power_service.c ../components/power/fullbridge_adapter.c
+    ../components/power/burst_scheduler.c ../components/power/input_limits.c
+    ../components/power/blower_aux.c ../components/power/line_zc.c ../components/power/tank_freq.c)
+target_include_directories(test_rms_shadow PRIVATE ../components/power/include ../components/hal/include)
+target_link_libraries(test_rms_shadow m)
+target_compile_options(test_rms_shadow PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME rms_shadow_tests COMMAND test_rms_shadow)

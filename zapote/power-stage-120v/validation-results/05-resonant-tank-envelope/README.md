@@ -1,4 +1,40 @@
-# 05 Resonant tank operating envelope — partial result
+# 05 Resonant tank operating envelope
+
+## Current status: round 4, assumed basis (2026-10-09). See [round4-assumed-basis/](round4-assumed-basis/README.md)
+
+**ASSUMED / pre-measurement.** No coil or pan has been measured. The coil and pan values are
+digitized from published charts:
+- onsemi AND9201 (2015) p. 7;
+- Infineon UG-2023-15 (2023) p. 21 Fig. 16;
+- cross-checked against MDPI Electronics 12(19):4145 and Pascual et al., IEEE Access 11 (2023).
+
+The basis covers L0 = 70 µH ±10 %, R_ac = 0.245 Ω (0.17–0.41) at 40 kHz, and five pan classes.
+On it, the documented **135-case grid is complete**: 5 pan classes × 3 corners × 108/120/140 V ×
+1710/855/300 W, plus 27 supplemental offset-pan cases and tolerance and alternative-bank runs. It
+ran under the native-21 envelope: 35–60 kHz, f ≥ 1.05·f_res, tank ≤ 22 A RMS, 11.1 A input hold.
+
+**Verdict:**
+- **Fits the envelope.** ZVS margin (f/f_res ≥ 1.23), capacitor voltage (≤184 V RMS, ≤367 V peak) and the CT (≥2.8 A below the minimum CT trip) all fit.
+- **The 942C blocker is resolved by a conservative bound, and the parts fail it.** The bound is I_allow ≥ I(70 °C, 100 kHz)·√(f/100 kHz), cross-checked against the 25 °C curves. At the 22 A ceiling, C21/C22 exceed it in 90/135 cases (up to 1.64×). They also exceed the best estimate in 30/135 cases (up to 1.045×).
+- **Recommended fix.** 5 × 942C16P1K-F (0.50 µF), which passes the bound everywhere, or a bench hot-spot measurement.
+- **Shunt OCP.** Envelope tank peaks (47.3–47.7 A) reach the 47.52 A low edge of the shunt OCP band.
+
+**Design response (stage 13, DECISIONS.md 2026-10-09):**
+- **Bank:** 5 × **TDK B32654A1104K000** (0.50 µF, 1600 Vdc / 500 Vac, 7.3 A at 85 °C / 100 kHz), not the 942C16P1K-F, which does not fit the slot.
+- **Rating evidence:** an independent review found the √f bound valid but about 1.4× pessimistic for the 942C. On CDE's own curve shapes the as-built bank is 1.08–1.17× over. The TDK bank is 0.86× on TDK's own 85 °C current-vs-frequency curve (read by eye, ±10 %).
+- **Resonance:** this round's 0.50 µF run covers it (minimum f/f_res 1.21).
+
+What the bench measures first:
+1. loaded L/R per pan class over 25–60 kHz;
+2. bank hot-spot (middle TDK cap of the tightly stacked column) at 22 A, 35–45 kHz, ΔT ≤ 20 K;
+3. tank peak against the actual trip thresholds.
+
+The round-1 text below and rounds 3 and 4A are history. They used the earlier `coil_mc.rs` pan
+classes and no 22 A envelope.
+
+---
+
+## Round 1 (2026-09-27): partial result
 
 - **Board:** `native-13/section.kicad_pcb`, SHA-256 `8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129` (presentation revision; native-09 references in older documents are stale).
 - **Kit/source revision:** `36ba41f249eea0b9c78c9d7bdd6e38ea04bb37f9`; 2026-09-27; ngspice 45.2; Python 3; Codex GPT-6.

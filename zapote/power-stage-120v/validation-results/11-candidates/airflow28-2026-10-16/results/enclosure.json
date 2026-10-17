@@ -1,0 +1,2188 @@
+{
+ "uniform:c18@55": {
+  "h": 10,
+  "h_x1.2": 12.0,
+  "q_air_w": 16.93,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.16,
+    "v_laminar_m_s": 0.79,
+    "flow_cfm_turb_gap10": 4.4,
+    "bulk_rise_K_gap10": 7.4,
+    "flow_cfm_turb_gap25": 11.0,
+    "bulk_rise_K_gap25": 3.0
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.06,
+    "v_laminar_m_s": 0.57,
+    "flow_cfm_turb_gap10": 5.6,
+    "bulk_rise_K_gap10": 5.8,
+    "flow_cfm_turb_gap25": 14.1,
+    "bulk_rise_K_gap25": 2.3
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.29,
+    "v_laminar_m_s": 1.23,
+    "flow_cfm_turb_gap10": 6.6,
+    "bulk_rise_K_gap10": 5.0,
+    "flow_cfm_turb_gap25": 16.4,
+    "bulk_rise_K_gap25": 2.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.43,
+    "v_laminar_m_s": 1.83,
+    "flow_cfm_turb_gap10": 11.5,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 28.7,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.28,
+    "v_laminar_m_s": 1.2,
+    "flow_cfm_turb_gap10": 15.8,
+    "bulk_rise_K_gap10": 2.1,
+    "flow_cfm_turb_gap25": 39.4,
+    "bulk_rise_K_gap25": 0.8
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.45,
+    "v_laminar_m_s": 1.14,
+    "flow_cfm_turb_gap10": 5.5,
+    "bulk_rise_K_gap10": 5.9,
+    "flow_cfm_turb_gap25": 13.8,
+    "bulk_rise_K_gap25": 2.4
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.34,
+    "v_laminar_m_s": 0.82,
+    "flow_cfm_turb_gap10": 7.1,
+    "bulk_rise_K_gap10": 4.6,
+    "flow_cfm_turb_gap25": 17.7,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.62,
+    "v_laminar_m_s": 1.77,
+    "flow_cfm_turb_gap10": 8.2,
+    "bulk_rise_K_gap10": 4.0,
+    "flow_cfm_turb_gap25": 20.6,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.79,
+    "v_laminar_m_s": 2.64,
+    "flow_cfm_turb_gap10": 14.4,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 36.0,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.61,
+    "v_laminar_m_s": 1.73,
+    "flow_cfm_turb_gap10": 19.8,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 49.5,
+    "bulk_rise_K_gap25": 0.7
+   }
+  }
+ },
+ "uniform:c20@55": {
+  "h": 11,
+  "h_x1.2": 13.2,
+  "q_air_w": 18.89,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.3,
+    "v_laminar_m_s": 0.96,
+    "flow_cfm_turb_gap10": 5.0,
+    "bulk_rise_K_gap10": 7.4,
+    "flow_cfm_turb_gap25": 12.4,
+    "bulk_rise_K_gap25": 2.9
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.2,
+    "v_laminar_m_s": 0.69,
+    "flow_cfm_turb_gap10": 6.4,
+    "bulk_rise_K_gap10": 5.8,
+    "flow_cfm_turb_gap25": 15.9,
+    "bulk_rise_K_gap25": 2.3
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.45,
+    "v_laminar_m_s": 1.49,
+    "flow_cfm_turb_gap10": 7.4,
+    "bulk_rise_K_gap10": 4.9,
+    "flow_cfm_turb_gap25": 18.5,
+    "bulk_rise_K_gap25": 2.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.61,
+    "v_laminar_m_s": 2.22,
+    "flow_cfm_turb_gap10": 12.9,
+    "bulk_rise_K_gap10": 2.8,
+    "flow_cfm_turb_gap25": 32.3,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.45,
+    "v_laminar_m_s": 1.45,
+    "flow_cfm_turb_gap10": 17.8,
+    "bulk_rise_K_gap10": 2.1,
+    "flow_cfm_turb_gap25": 44.4,
+    "bulk_rise_K_gap25": 0.8
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.63,
+    "v_laminar_m_s": 1.38,
+    "flow_cfm_turb_gap10": 6.2,
+    "bulk_rise_K_gap10": 5.9,
+    "flow_cfm_turb_gap25": 15.6,
+    "bulk_rise_K_gap25": 2.3
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.51,
+    "v_laminar_m_s": 0.99,
+    "flow_cfm_turb_gap10": 8.0,
+    "bulk_rise_K_gap10": 4.6,
+    "flow_cfm_turb_gap25": 19.9,
+    "bulk_rise_K_gap25": 1.8
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.83,
+    "v_laminar_m_s": 2.15,
+    "flow_cfm_turb_gap10": 9.3,
+    "bulk_rise_K_gap10": 3.9,
+    "flow_cfm_turb_gap25": 23.2,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.02,
+    "v_laminar_m_s": 3.19,
+    "flow_cfm_turb_gap10": 16.2,
+    "bulk_rise_K_gap10": 2.2,
+    "flow_cfm_turb_gap25": 40.6,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.81,
+    "v_laminar_m_s": 2.09,
+    "flow_cfm_turb_gap10": 22.3,
+    "bulk_rise_K_gap10": 1.6,
+    "flow_cfm_turb_gap25": 55.8,
+    "bulk_rise_K_gap25": 0.7
+   }
+  }
+ },
+ "uniform:c22@55": {
+  "h": 14,
+  "h_x1.2": 16.8,
+  "q_air_w": 21.19,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.76,
+    "v_laminar_m_s": 1.55,
+    "flow_cfm_turb_gap10": 6.7,
+    "bulk_rise_K_gap10": 6.1,
+    "flow_cfm_turb_gap25": 16.8,
+    "bulk_rise_K_gap25": 2.4
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.62,
+    "v_laminar_m_s": 1.11,
+    "flow_cfm_turb_gap10": 8.6,
+    "bulk_rise_K_gap10": 4.8,
+    "flow_cfm_turb_gap25": 21.5,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.97,
+    "v_laminar_m_s": 2.41,
+    "flow_cfm_turb_gap10": 10.0,
+    "bulk_rise_K_gap10": 4.1,
+    "flow_cfm_turb_gap25": 25.0,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.17,
+    "v_laminar_m_s": 3.59,
+    "flow_cfm_turb_gap10": 17.5,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 43.7,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.95,
+    "v_laminar_m_s": 2.35,
+    "flow_cfm_turb_gap10": 24.0,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 60.0,
+    "bulk_rise_K_gap25": 0.7
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.21,
+    "v_laminar_m_s": 2.23,
+    "flow_cfm_turb_gap10": 8.4,
+    "bulk_rise_K_gap10": 4.9,
+    "flow_cfm_turb_gap25": 21.1,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.04,
+    "v_laminar_m_s": 1.6,
+    "flow_cfm_turb_gap10": 10.8,
+    "bulk_rise_K_gap10": 3.8,
+    "flow_cfm_turb_gap25": 27.0,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.47,
+    "v_laminar_m_s": 3.48,
+    "flow_cfm_turb_gap10": 12.6,
+    "bulk_rise_K_gap10": 3.3,
+    "flow_cfm_turb_gap25": 31.4,
+    "bulk_rise_K_gap25": 1.3
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.73,
+    "v_laminar_m_s": 5.17,
+    "flow_cfm_turb_gap10": 22.0,
+    "bulk_rise_K_gap10": 1.9,
+    "flow_cfm_turb_gap25": 54.9,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.45,
+    "v_laminar_m_s": 3.39,
+    "flow_cfm_turb_gap10": 30.2,
+    "bulk_rise_K_gap10": 1.4,
+    "flow_cfm_turb_gap25": 75.4,
+    "bulk_rise_K_gap25": 0.5
+   }
+  }
+ },
+ "uniform:c24@55": {
+  "h": 17,
+  "h_x1.2": 20.4,
+  "q_air_w": 23.7,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.24,
+    "v_laminar_m_s": 2.28,
+    "flow_cfm_turb_gap10": 8.6,
+    "bulk_rise_K_gap10": 5.4,
+    "flow_cfm_turb_gap25": 21.4,
+    "bulk_rise_K_gap25": 2.1
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.07,
+    "v_laminar_m_s": 1.64,
+    "flow_cfm_turb_gap10": 10.9,
+    "bulk_rise_K_gap10": 4.2,
+    "flow_cfm_turb_gap25": 27.4,
+    "bulk_rise_K_gap25": 1.7
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.51,
+    "v_laminar_m_s": 3.56,
+    "flow_cfm_turb_gap10": 12.7,
+    "bulk_rise_K_gap10": 3.6,
+    "flow_cfm_turb_gap25": 31.9,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.77,
+    "v_laminar_m_s": 5.29,
+    "flow_cfm_turb_gap10": 22.3,
+    "bulk_rise_K_gap10": 2.1,
+    "flow_cfm_turb_gap25": 55.7,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.49,
+    "v_laminar_m_s": 3.47,
+    "flow_cfm_turb_gap10": 30.6,
+    "bulk_rise_K_gap10": 1.5,
+    "flow_cfm_turb_gap25": 76.5,
+    "bulk_rise_K_gap25": 0.6
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.82,
+    "v_laminar_m_s": 3.29,
+    "flow_cfm_turb_gap10": 10.7,
+    "bulk_rise_K_gap10": 4.3,
+    "flow_cfm_turb_gap25": 26.9,
+    "bulk_rise_K_gap25": 1.7
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.59,
+    "v_laminar_m_s": 2.37,
+    "flow_cfm_turb_gap10": 13.7,
+    "bulk_rise_K_gap10": 3.3,
+    "flow_cfm_turb_gap25": 34.4,
+    "bulk_rise_K_gap25": 1.3
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.15,
+    "v_laminar_m_s": 5.13,
+    "flow_cfm_turb_gap10": 16.0,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 40.0,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.48,
+    "v_laminar_m_s": 7.62,
+    "flow_cfm_turb_gap10": 28.0,
+    "bulk_rise_K_gap10": 1.6,
+    "flow_cfm_turb_gap25": 70.0,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.13,
+    "v_laminar_m_s": 4.99,
+    "flow_cfm_turb_gap10": 38.4,
+    "bulk_rise_K_gap10": 1.2,
+    "flow_cfm_turb_gap25": 96.1,
+    "bulk_rise_K_gap25": 0.5
+   }
+  }
+ },
+ "uniform:c26@55": {
+  "h": 22,
+  "h_x1.2": 26.4,
+  "q_air_w": 26.48,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.1,
+    "v_laminar_m_s": 3.82,
+    "flow_cfm_turb_gap10": 11.8,
+    "bulk_rise_K_gap10": 4.3,
+    "flow_cfm_turb_gap25": 29.5,
+    "bulk_rise_K_gap25": 1.7
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.85,
+    "v_laminar_m_s": 2.75,
+    "flow_cfm_turb_gap10": 15.1,
+    "bulk_rise_K_gap10": 3.4,
+    "flow_cfm_turb_gap25": 37.8,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.46,
+    "v_laminar_m_s": 5.96,
+    "flow_cfm_turb_gap10": 17.6,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 44.0,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.82,
+    "v_laminar_m_s": 8.86,
+    "flow_cfm_turb_gap10": 30.8,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 76.9,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.44,
+    "v_laminar_m_s": 5.81,
+    "flow_cfm_turb_gap10": 42.2,
+    "bulk_rise_K_gap10": 1.2,
+    "flow_cfm_turb_gap25": 105.6,
+    "bulk_rise_K_gap25": 0.5
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.89,
+    "v_laminar_m_s": 5.5,
+    "flow_cfm_turb_gap10": 14.8,
+    "bulk_rise_K_gap10": 3.5,
+    "flow_cfm_turb_gap25": 37.1,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.58,
+    "v_laminar_m_s": 3.96,
+    "flow_cfm_turb_gap10": 19.0,
+    "bulk_rise_K_gap10": 2.7,
+    "flow_cfm_turb_gap25": 47.4,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.34,
+    "v_laminar_m_s": 8.58,
+    "flow_cfm_turb_gap10": 22.1,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 55.2,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.8,
+    "v_laminar_m_s": 12.76,
+    "flow_cfm_turb_gap10": 38.6,
+    "bulk_rise_K_gap10": 1.3,
+    "flow_cfm_turb_gap25": 96.6,
+    "bulk_rise_K_gap25": 0.5
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.32,
+    "v_laminar_m_s": 8.36,
+    "flow_cfm_turb_gap10": 53.1,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 132.6,
+    "bulk_rise_K_gap25": 0.4
+   }
+  }
+ },
+ "uniform:c28@55": {
+  "h": 27,
+  "h_x1.2": 32.4,
+  "q_air_w": 29.48,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.0,
+    "v_laminar_m_s": 5.75,
+    "flow_cfm_turb_gap10": 15.3,
+    "bulk_rise_K_gap10": 3.7,
+    "flow_cfm_turb_gap25": 38.1,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.68,
+    "v_laminar_m_s": 4.14,
+    "flow_cfm_turb_gap10": 19.5,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 48.8,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.47,
+    "v_laminar_m_s": 8.98,
+    "flow_cfm_turb_gap10": 22.7,
+    "bulk_rise_K_gap10": 2.5,
+    "flow_cfm_turb_gap25": 56.8,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.93,
+    "v_laminar_m_s": 13.35,
+    "flow_cfm_turb_gap10": 39.7,
+    "bulk_rise_K_gap10": 1.4,
+    "flow_cfm_turb_gap25": 99.3,
+    "bulk_rise_K_gap25": 0.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.44,
+    "v_laminar_m_s": 8.75,
+    "flow_cfm_turb_gap10": 54.6,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 136.4,
+    "bulk_rise_K_gap25": 0.4
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.02,
+    "v_laminar_m_s": 8.29,
+    "flow_cfm_turb_gap10": 19.2,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 47.9,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.63,
+    "v_laminar_m_s": 5.97,
+    "flow_cfm_turb_gap10": 24.5,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 61.3,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.61,
+    "v_laminar_m_s": 12.93,
+    "flow_cfm_turb_gap10": 28.5,
+    "bulk_rise_K_gap10": 2.0,
+    "flow_cfm_turb_gap25": 71.4,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 6.2,
+    "v_laminar_m_s": 19.23,
+    "flow_cfm_turb_gap10": 49.9,
+    "bulk_rise_K_gap10": 1.1,
+    "flow_cfm_turb_gap25": 124.8,
+    "bulk_rise_K_gap25": 0.5
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.58,
+    "v_laminar_m_s": 12.6,
+    "flow_cfm_turb_gap10": 68.5,
+    "bulk_rise_K_gap10": 0.8,
+    "flow_cfm_turb_gap25": 171.3,
+    "bulk_rise_K_gap25": 0.3
+   }
+  }
+ },
+ "uniform:c18@61": {
+  "h": 11,
+  "h_x1.2": 13.2,
+  "q_air_w": 16.9,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.3,
+    "v_laminar_m_s": 0.96,
+    "flow_cfm_turb_gap10": 5.0,
+    "bulk_rise_K_gap10": 6.6,
+    "flow_cfm_turb_gap25": 12.4,
+    "bulk_rise_K_gap25": 2.6
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.2,
+    "v_laminar_m_s": 0.69,
+    "flow_cfm_turb_gap10": 6.4,
+    "bulk_rise_K_gap10": 5.1,
+    "flow_cfm_turb_gap25": 15.9,
+    "bulk_rise_K_gap25": 2.1
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.45,
+    "v_laminar_m_s": 1.49,
+    "flow_cfm_turb_gap10": 7.4,
+    "bulk_rise_K_gap10": 4.4,
+    "flow_cfm_turb_gap25": 18.5,
+    "bulk_rise_K_gap25": 1.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.61,
+    "v_laminar_m_s": 2.22,
+    "flow_cfm_turb_gap10": 12.9,
+    "bulk_rise_K_gap10": 2.5,
+    "flow_cfm_turb_gap25": 32.3,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.45,
+    "v_laminar_m_s": 1.45,
+    "flow_cfm_turb_gap10": 17.8,
+    "bulk_rise_K_gap10": 1.8,
+    "flow_cfm_turb_gap25": 44.4,
+    "bulk_rise_K_gap25": 0.7
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.63,
+    "v_laminar_m_s": 1.38,
+    "flow_cfm_turb_gap10": 6.2,
+    "bulk_rise_K_gap10": 5.2,
+    "flow_cfm_turb_gap25": 15.6,
+    "bulk_rise_K_gap25": 2.1
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.51,
+    "v_laminar_m_s": 0.99,
+    "flow_cfm_turb_gap10": 8.0,
+    "bulk_rise_K_gap10": 4.1,
+    "flow_cfm_turb_gap25": 19.9,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.83,
+    "v_laminar_m_s": 2.15,
+    "flow_cfm_turb_gap10": 9.3,
+    "bulk_rise_K_gap10": 3.5,
+    "flow_cfm_turb_gap25": 23.2,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.02,
+    "v_laminar_m_s": 3.19,
+    "flow_cfm_turb_gap10": 16.2,
+    "bulk_rise_K_gap10": 2.0,
+    "flow_cfm_turb_gap25": 40.6,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.81,
+    "v_laminar_m_s": 2.09,
+    "flow_cfm_turb_gap10": 22.3,
+    "bulk_rise_K_gap10": 1.5,
+    "flow_cfm_turb_gap25": 55.8,
+    "bulk_rise_K_gap25": 0.6
+   }
+  }
+ },
+ "uniform:c20@61": {
+  "h": 13,
+  "h_x1.2": 15.6,
+  "q_air_w": 18.92,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.6,
+    "v_laminar_m_s": 1.33,
+    "flow_cfm_turb_gap10": 6.1,
+    "bulk_rise_K_gap10": 6.0,
+    "flow_cfm_turb_gap25": 15.3,
+    "bulk_rise_K_gap25": 2.4
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.48,
+    "v_laminar_m_s": 0.96,
+    "flow_cfm_turb_gap10": 7.8,
+    "bulk_rise_K_gap10": 4.7,
+    "flow_cfm_turb_gap25": 19.6,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.79,
+    "v_laminar_m_s": 2.08,
+    "flow_cfm_turb_gap10": 9.1,
+    "bulk_rise_K_gap10": 4.0,
+    "flow_cfm_turb_gap25": 22.8,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.98,
+    "v_laminar_m_s": 3.1,
+    "flow_cfm_turb_gap10": 15.9,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 39.8,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.78,
+    "v_laminar_m_s": 2.03,
+    "flow_cfm_turb_gap10": 21.9,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 54.7,
+    "bulk_rise_K_gap25": 0.7
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.01,
+    "v_laminar_m_s": 1.92,
+    "flow_cfm_turb_gap10": 7.7,
+    "bulk_rise_K_gap10": 4.8,
+    "flow_cfm_turb_gap25": 19.2,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.86,
+    "v_laminar_m_s": 1.38,
+    "flow_cfm_turb_gap10": 9.8,
+    "bulk_rise_K_gap10": 3.7,
+    "flow_cfm_turb_gap25": 24.6,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.25,
+    "v_laminar_m_s": 3.0,
+    "flow_cfm_turb_gap10": 11.4,
+    "bulk_rise_K_gap10": 3.2,
+    "flow_cfm_turb_gap25": 28.6,
+    "bulk_rise_K_gap25": 1.3
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.49,
+    "v_laminar_m_s": 4.46,
+    "flow_cfm_turb_gap10": 20.0,
+    "bulk_rise_K_gap10": 1.8,
+    "flow_cfm_turb_gap25": 50.0,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.24,
+    "v_laminar_m_s": 2.92,
+    "flow_cfm_turb_gap10": 27.5,
+    "bulk_rise_K_gap10": 1.3,
+    "flow_cfm_turb_gap25": 68.7,
+    "bulk_rise_K_gap25": 0.5
+   }
+  }
+ },
+ "uniform:c22@61": {
+  "h": 17,
+  "h_x1.2": 20.4,
+  "q_air_w": 21.25,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.24,
+    "v_laminar_m_s": 2.28,
+    "flow_cfm_turb_gap10": 8.6,
+    "bulk_rise_K_gap10": 4.8,
+    "flow_cfm_turb_gap25": 21.4,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.07,
+    "v_laminar_m_s": 1.64,
+    "flow_cfm_turb_gap10": 10.9,
+    "bulk_rise_K_gap10": 3.8,
+    "flow_cfm_turb_gap25": 27.4,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.51,
+    "v_laminar_m_s": 3.56,
+    "flow_cfm_turb_gap10": 12.7,
+    "bulk_rise_K_gap10": 3.2,
+    "flow_cfm_turb_gap25": 31.9,
+    "bulk_rise_K_gap25": 1.3
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.77,
+    "v_laminar_m_s": 5.29,
+    "flow_cfm_turb_gap10": 22.3,
+    "bulk_rise_K_gap10": 1.8,
+    "flow_cfm_turb_gap25": 55.7,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.49,
+    "v_laminar_m_s": 3.47,
+    "flow_cfm_turb_gap10": 30.6,
+    "bulk_rise_K_gap10": 1.3,
+    "flow_cfm_turb_gap25": 76.5,
+    "bulk_rise_K_gap25": 0.5
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.82,
+    "v_laminar_m_s": 3.29,
+    "flow_cfm_turb_gap10": 10.7,
+    "bulk_rise_K_gap10": 3.8,
+    "flow_cfm_turb_gap25": 26.9,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.59,
+    "v_laminar_m_s": 2.37,
+    "flow_cfm_turb_gap10": 13.7,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 34.4,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.15,
+    "v_laminar_m_s": 5.13,
+    "flow_cfm_turb_gap10": 16.0,
+    "bulk_rise_K_gap10": 2.6,
+    "flow_cfm_turb_gap25": 40.0,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.48,
+    "v_laminar_m_s": 7.62,
+    "flow_cfm_turb_gap10": 28.0,
+    "bulk_rise_K_gap10": 1.5,
+    "flow_cfm_turb_gap25": 70.0,
+    "bulk_rise_K_gap25": 0.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.13,
+    "v_laminar_m_s": 4.99,
+    "flow_cfm_turb_gap10": 38.4,
+    "bulk_rise_K_gap10": 1.1,
+    "flow_cfm_turb_gap25": 96.1,
+    "bulk_rise_K_gap25": 0.4
+   }
+  }
+ },
+ "uniform:c24@61": {
+  "h": 20,
+  "h_x1.2": 24.0,
+  "q_air_w": 23.76,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.75,
+    "v_laminar_m_s": 3.16,
+    "flow_cfm_turb_gap10": 10.5,
+    "bulk_rise_K_gap10": 4.4,
+    "flow_cfm_turb_gap25": 26.2,
+    "bulk_rise_K_gap25": 1.8
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.53,
+    "v_laminar_m_s": 2.27,
+    "flow_cfm_turb_gap10": 13.4,
+    "bulk_rise_K_gap10": 3.4,
+    "flow_cfm_turb_gap25": 33.5,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.07,
+    "v_laminar_m_s": 4.93,
+    "flow_cfm_turb_gap10": 15.6,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 39.0,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.39,
+    "v_laminar_m_s": 7.33,
+    "flow_cfm_turb_gap10": 27.3,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 68.3,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.05,
+    "v_laminar_m_s": 4.8,
+    "flow_cfm_turb_gap10": 37.5,
+    "bulk_rise_K_gap10": 1.2,
+    "flow_cfm_turb_gap25": 93.7,
+    "bulk_rise_K_gap25": 0.5
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.45,
+    "v_laminar_m_s": 4.55,
+    "flow_cfm_turb_gap10": 13.2,
+    "bulk_rise_K_gap10": 3.5,
+    "flow_cfm_turb_gap25": 32.9,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.18,
+    "v_laminar_m_s": 3.27,
+    "flow_cfm_turb_gap10": 16.8,
+    "bulk_rise_K_gap10": 2.7,
+    "flow_cfm_turb_gap25": 42.1,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.86,
+    "v_laminar_m_s": 7.09,
+    "flow_cfm_turb_gap10": 19.6,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 49.0,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.26,
+    "v_laminar_m_s": 10.55,
+    "flow_cfm_turb_gap10": 34.3,
+    "bulk_rise_K_gap10": 1.3,
+    "flow_cfm_turb_gap25": 85.7,
+    "bulk_rise_K_gap25": 0.5
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.83,
+    "v_laminar_m_s": 6.91,
+    "flow_cfm_turb_gap10": 47.1,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 117.7,
+    "bulk_rise_K_gap25": 0.4
+   }
+  }
+ },
+ "uniform:c26@61": {
+  "h": 25,
+  "h_x1.2": 30.0,
+  "q_air_w": 26.54,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.63,
+    "v_laminar_m_s": 4.93,
+    "flow_cfm_turb_gap10": 13.9,
+    "bulk_rise_K_gap10": 3.7,
+    "flow_cfm_turb_gap25": 34.6,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.35,
+    "v_laminar_m_s": 3.55,
+    "flow_cfm_turb_gap10": 17.7,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 44.3,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.06,
+    "v_laminar_m_s": 7.7,
+    "flow_cfm_turb_gap10": 20.6,
+    "bulk_rise_K_gap10": 2.5,
+    "flow_cfm_turb_gap25": 51.6,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.48,
+    "v_laminar_m_s": 11.45,
+    "flow_cfm_turb_gap10": 36.1,
+    "bulk_rise_K_gap10": 1.4,
+    "flow_cfm_turb_gap25": 90.2,
+    "bulk_rise_K_gap25": 0.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.03,
+    "v_laminar_m_s": 7.5,
+    "flow_cfm_turb_gap10": 49.6,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 123.9,
+    "bulk_rise_K_gap25": 0.4
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.56,
+    "v_laminar_m_s": 7.1,
+    "flow_cfm_turb_gap10": 17.4,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 43.5,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.2,
+    "v_laminar_m_s": 5.12,
+    "flow_cfm_turb_gap10": 22.3,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 55.6,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.1,
+    "v_laminar_m_s": 11.08,
+    "flow_cfm_turb_gap10": 25.9,
+    "bulk_rise_K_gap10": 2.0,
+    "flow_cfm_turb_gap25": 64.8,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.63,
+    "v_laminar_m_s": 16.48,
+    "flow_cfm_turb_gap10": 45.3,
+    "bulk_rise_K_gap10": 1.1,
+    "flow_cfm_turb_gap25": 113.3,
+    "bulk_rise_K_gap25": 0.5
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.06,
+    "v_laminar_m_s": 10.8,
+    "flow_cfm_turb_gap10": 62.2,
+    "bulk_rise_K_gap10": 0.8,
+    "flow_cfm_turb_gap25": 155.6,
+    "bulk_rise_K_gap25": 0.3
+   }
+  }
+ },
+ "uniform:c28@61": {
+  "h": 31,
+  "h_x1.2": 37.2,
+  "q_air_w": 29.56,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.75,
+    "v_laminar_m_s": 7.59,
+    "flow_cfm_turb_gap10": 18.1,
+    "bulk_rise_K_gap10": 3.2,
+    "flow_cfm_turb_gap25": 45.3,
+    "bulk_rise_K_gap25": 1.3
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.38,
+    "v_laminar_m_s": 5.46,
+    "flow_cfm_turb_gap10": 23.2,
+    "bulk_rise_K_gap10": 2.5,
+    "flow_cfm_turb_gap25": 58.0,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.31,
+    "v_laminar_m_s": 11.83,
+    "flow_cfm_turb_gap10": 27.0,
+    "bulk_rise_K_gap10": 2.1,
+    "flow_cfm_turb_gap25": 67.5,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.86,
+    "v_laminar_m_s": 17.6,
+    "flow_cfm_turb_gap10": 47.2,
+    "bulk_rise_K_gap10": 1.2,
+    "flow_cfm_turb_gap25": 118.1,
+    "bulk_rise_K_gap25": 0.5
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.28,
+    "v_laminar_m_s": 11.53,
+    "flow_cfm_turb_gap10": 64.8,
+    "bulk_rise_K_gap10": 0.9,
+    "flow_cfm_turb_gap25": 162.1,
+    "bulk_rise_K_gap25": 0.4
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.97,
+    "v_laminar_m_s": 10.92,
+    "flow_cfm_turb_gap10": 22.8,
+    "bulk_rise_K_gap10": 2.5,
+    "flow_cfm_turb_gap25": 56.9,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 5.5,
+    "v_laminar_m_s": 7.87,
+    "flow_cfm_turb_gap10": 29.1,
+    "bulk_rise_K_gap10": 2.0,
+    "flow_cfm_turb_gap25": 72.8,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 6.67,
+    "v_laminar_m_s": 17.04,
+    "flow_cfm_turb_gap10": 33.9,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 84.8,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 7.37,
+    "v_laminar_m_s": 25.34,
+    "flow_cfm_turb_gap10": 59.3,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 148.3,
+    "bulk_rise_K_gap25": 0.4
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 6.63,
+    "v_laminar_m_s": 16.61,
+    "flow_cfm_turb_gap10": 81.4,
+    "bulk_rise_K_gap10": 0.7,
+    "flow_cfm_turb_gap25": 203.6,
+    "bulk_rise_K_gap25": 0.3
+   }
+  }
+ },
+ "top:c28@55": {
+  "h": 38.0,
+  "h_x1.2": 45.6,
+  "q_air_w": 29.45,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 1,
+    "v_turbulent_m_s": 6.13,
+    "v_laminar_m_s": 11.4,
+    "flow_cfm_turb_gap10": 11.7,
+    "bulk_rise_K_gap10": 4.9,
+    "flow_cfm_turb_gap25": 29.2,
+    "bulk_rise_K_gap25": 1.9
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 1,
+    "v_turbulent_m_s": 5.65,
+    "v_laminar_m_s": 8.21,
+    "flow_cfm_turb_gap10": 15.0,
+    "bulk_rise_K_gap10": 3.8,
+    "flow_cfm_turb_gap25": 37.4,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 1,
+    "v_turbulent_m_s": 6.85,
+    "v_laminar_m_s": 17.78,
+    "flow_cfm_turb_gap10": 17.4,
+    "bulk_rise_K_gap10": 3.3,
+    "flow_cfm_turb_gap25": 43.5,
+    "bulk_rise_K_gap25": 1.3
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.56,
+    "v_laminar_m_s": 26.45,
+    "flow_cfm_turb_gap10": 30.5,
+    "bulk_rise_K_gap10": 1.9,
+    "flow_cfm_turb_gap25": 76.1,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 1,
+    "v_turbulent_m_s": 6.81,
+    "v_laminar_m_s": 17.33,
+    "flow_cfm_turb_gap10": 41.8,
+    "bulk_rise_K_gap10": 1.4,
+    "flow_cfm_turb_gap25": 104.6,
+    "bulk_rise_K_gap25": 0.5
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.7,
+    "v_laminar_m_s": 16.42,
+    "flow_cfm_turb_gap10": 14.7,
+    "bulk_rise_K_gap10": 3.9,
+    "flow_cfm_turb_gap25": 36.7,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.09,
+    "v_laminar_m_s": 11.82,
+    "flow_cfm_turb_gap10": 18.8,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 47.0,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 1,
+    "v_turbulent_m_s": 8.6,
+    "v_laminar_m_s": 25.61,
+    "flow_cfm_turb_gap10": 21.9,
+    "bulk_rise_K_gap10": 2.6,
+    "flow_cfm_turb_gap25": 54.7,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 1,
+    "v_turbulent_m_s": 9.5,
+    "v_laminar_m_s": 38.08,
+    "flow_cfm_turb_gap10": 38.3,
+    "bulk_rise_K_gap10": 1.5,
+    "flow_cfm_turb_gap25": 95.6,
+    "bulk_rise_K_gap25": 0.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 1,
+    "v_turbulent_m_s": 8.55,
+    "v_laminar_m_s": 24.95,
+    "flow_cfm_turb_gap10": 52.5,
+    "bulk_rise_K_gap10": 1.1,
+    "flow_cfm_turb_gap25": 131.3,
+    "bulk_rise_K_gap25": 0.4
+   }
+  }
+ },
+ "top:c28@61": {
+  "h": 47.0,
+  "h_x1.2": 56.4,
+  "q_air_w": 29.53,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.99,
+    "v_laminar_m_s": 17.44,
+    "flow_cfm_turb_gap10": 15.2,
+    "bulk_rise_K_gap10": 3.7,
+    "flow_cfm_turb_gap25": 38.1,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.36,
+    "v_laminar_m_s": 12.56,
+    "flow_cfm_turb_gap10": 19.5,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 48.8,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 1,
+    "v_turbulent_m_s": 8.93,
+    "v_laminar_m_s": 27.2,
+    "flow_cfm_turb_gap10": 22.7,
+    "bulk_rise_K_gap10": 2.5,
+    "flow_cfm_turb_gap25": 56.8,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 1,
+    "v_turbulent_m_s": 9.87,
+    "v_laminar_m_s": 40.46,
+    "flow_cfm_turb_gap10": 39.7,
+    "bulk_rise_K_gap10": 1.4,
+    "flow_cfm_turb_gap25": 99.3,
+    "bulk_rise_K_gap25": 0.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 1,
+    "v_turbulent_m_s": 8.88,
+    "v_laminar_m_s": 26.51,
+    "flow_cfm_turb_gap10": 54.6,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 136.4,
+    "bulk_rise_K_gap25": 0.4
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 1,
+    "v_turbulent_m_s": 10.04,
+    "v_laminar_m_s": 25.11,
+    "flow_cfm_turb_gap10": 19.1,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 47.9,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 1,
+    "v_turbulent_m_s": 9.25,
+    "v_laminar_m_s": 18.08,
+    "flow_cfm_turb_gap10": 24.5,
+    "bulk_rise_K_gap10": 2.3,
+    "flow_cfm_turb_gap25": 61.2,
+    "bulk_rise_K_gap25": 0.9
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 1,
+    "v_turbulent_m_s": 11.22,
+    "v_laminar_m_s": 39.17,
+    "flow_cfm_turb_gap10": 28.5,
+    "bulk_rise_K_gap10": 2.0,
+    "flow_cfm_turb_gap25": 71.3,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 1,
+    "v_turbulent_m_s": 12.39,
+    "v_laminar_m_s": 58.26,
+    "flow_cfm_turb_gap10": 49.9,
+    "bulk_rise_K_gap10": 1.1,
+    "flow_cfm_turb_gap25": 124.7,
+    "bulk_rise_K_gap25": 0.5
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 1,
+    "v_turbulent_m_s": 11.15,
+    "v_laminar_m_s": 38.17,
+    "flow_cfm_turb_gap10": 68.5,
+    "bulk_rise_K_gap10": 0.8,
+    "flow_cfm_turb_gap25": 171.3,
+    "bulk_rise_K_gap25": 0.3
+   }
+  }
+ },
+ "zone:c28@55": {
+  "h": 41.0,
+  "h_x1.2": 49.2,
+  "q_air_w": 29.92,
+  "at_h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 1,
+    "v_turbulent_m_s": 6.74,
+    "v_laminar_m_s": 13.27,
+    "flow_cfm_turb_gap10": 12.9,
+    "bulk_rise_K_gap10": 4.5,
+    "flow_cfm_turb_gap25": 32.1,
+    "bulk_rise_K_gap25": 1.8
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 1,
+    "v_turbulent_m_s": 6.21,
+    "v_laminar_m_s": 9.55,
+    "flow_cfm_turb_gap10": 16.4,
+    "bulk_rise_K_gap10": 3.5,
+    "flow_cfm_turb_gap25": 41.1,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.53,
+    "v_laminar_m_s": 20.7,
+    "flow_cfm_turb_gap10": 19.2,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 47.9,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 1,
+    "v_turbulent_m_s": 8.32,
+    "v_laminar_m_s": 30.79,
+    "flow_cfm_turb_gap10": 33.5,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 83.7,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.48,
+    "v_laminar_m_s": 20.17,
+    "flow_cfm_turb_gap10": 46.0,
+    "bulk_rise_K_gap10": 1.3,
+    "flow_cfm_turb_gap25": 115.0,
+    "bulk_rise_K_gap25": 0.5
+   }
+  },
+  "at_1.2h": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 1,
+    "v_turbulent_m_s": 8.46,
+    "v_laminar_m_s": 19.11,
+    "flow_cfm_turb_gap10": 16.1,
+    "bulk_rise_K_gap10": 3.6,
+    "flow_cfm_turb_gap25": 40.4,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 1,
+    "v_turbulent_m_s": 7.8,
+    "v_laminar_m_s": 13.76,
+    "flow_cfm_turb_gap10": 20.7,
+    "bulk_rise_K_gap10": 2.8,
+    "flow_cfm_turb_gap25": 51.6,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 1,
+    "v_turbulent_m_s": 9.46,
+    "v_laminar_m_s": 29.81,
+    "flow_cfm_turb_gap10": 24.1,
+    "bulk_rise_K_gap10": 2.4,
+    "flow_cfm_turb_gap25": 60.1,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 1,
+    "v_turbulent_m_s": 10.45,
+    "v_laminar_m_s": 44.33,
+    "flow_cfm_turb_gap10": 42.1,
+    "bulk_rise_K_gap10": 1.4,
+    "flow_cfm_turb_gap25": 105.2,
+    "bulk_rise_K_gap25": 0.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 1,
+    "v_turbulent_m_s": 9.4,
+    "v_laminar_m_s": 29.05,
+    "flow_cfm_turb_gap10": 57.8,
+    "bulk_rise_K_gap10": 1.0,
+    "flow_cfm_turb_gap25": 144.4,
+    "bulk_rise_K_gap25": 0.4
+   }
+  }
+ },
+ "jetmix_base": {
+  "h12": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.45,
+    "v_laminar_m_s": 1.14,
+    "flow_cfm_turb_gap10": 5.5,
+    "bulk_rise_K_gap10": 10.5,
+    "flow_cfm_turb_gap25": 13.8,
+    "bulk_rise_K_gap25": 4.2
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.34,
+    "v_laminar_m_s": 0.82,
+    "flow_cfm_turb_gap10": 7.1,
+    "bulk_rise_K_gap10": 8.2,
+    "flow_cfm_turb_gap25": 17.7,
+    "bulk_rise_K_gap25": 3.3
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.62,
+    "v_laminar_m_s": 1.77,
+    "flow_cfm_turb_gap10": 8.2,
+    "bulk_rise_K_gap10": 7.0,
+    "flow_cfm_turb_gap25": 20.6,
+    "bulk_rise_K_gap25": 2.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.79,
+    "v_laminar_m_s": 2.64,
+    "flow_cfm_turb_gap10": 14.4,
+    "bulk_rise_K_gap10": 4.0,
+    "flow_cfm_turb_gap25": 36.0,
+    "bulk_rise_K_gap25": 1.6
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.61,
+    "v_laminar_m_s": 1.73,
+    "flow_cfm_turb_gap10": 19.8,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 49.5,
+    "bulk_rise_K_gap25": 1.2
+   }
+  },
+  "h15": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.92,
+    "v_laminar_m_s": 1.78,
+    "flow_cfm_turb_gap10": 7.3,
+    "bulk_rise_K_gap10": 7.9,
+    "flow_cfm_turb_gap25": 18.3,
+    "bulk_rise_K_gap25": 3.2
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.77,
+    "v_laminar_m_s": 1.28,
+    "flow_cfm_turb_gap10": 9.4,
+    "bulk_rise_K_gap10": 6.2,
+    "flow_cfm_turb_gap25": 23.4,
+    "bulk_rise_K_gap25": 2.5
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.14,
+    "v_laminar_m_s": 2.77,
+    "flow_cfm_turb_gap10": 10.9,
+    "bulk_rise_K_gap10": 5.3,
+    "flow_cfm_turb_gap25": 27.2,
+    "bulk_rise_K_gap25": 2.1
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.37,
+    "v_laminar_m_s": 4.12,
+    "flow_cfm_turb_gap10": 19.1,
+    "bulk_rise_K_gap10": 3.0,
+    "flow_cfm_turb_gap25": 47.6,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.13,
+    "v_laminar_m_s": 2.7,
+    "flow_cfm_turb_gap10": 26.2,
+    "bulk_rise_K_gap10": 2.2,
+    "flow_cfm_turb_gap25": 65.4,
+    "bulk_rise_K_gap25": 0.9
+   }
+  },
+  "h16": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.08,
+    "v_laminar_m_s": 2.02,
+    "flow_cfm_turb_gap10": 7.9,
+    "bulk_rise_K_gap10": 7.3,
+    "flow_cfm_turb_gap25": 19.8,
+    "bulk_rise_K_gap25": 2.9
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 1.91,
+    "v_laminar_m_s": 1.46,
+    "flow_cfm_turb_gap10": 10.1,
+    "bulk_rise_K_gap10": 5.7,
+    "flow_cfm_turb_gap25": 25.4,
+    "bulk_rise_K_gap25": 2.3
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.32,
+    "v_laminar_m_s": 3.15,
+    "flow_cfm_turb_gap10": 11.8,
+    "bulk_rise_K_gap10": 4.9,
+    "flow_cfm_turb_gap25": 29.5,
+    "bulk_rise_K_gap25": 2.0
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.57,
+    "v_laminar_m_s": 4.69,
+    "flow_cfm_turb_gap10": 20.7,
+    "bulk_rise_K_gap10": 2.8,
+    "flow_cfm_turb_gap25": 51.6,
+    "bulk_rise_K_gap25": 1.1
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.31,
+    "v_laminar_m_s": 3.07,
+    "flow_cfm_turb_gap10": 28.4,
+    "bulk_rise_K_gap10": 2.0,
+    "flow_cfm_turb_gap25": 70.9,
+    "bulk_rise_K_gap25": 0.8
+   }
+  },
+  "h17": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.24,
+    "v_laminar_m_s": 2.28,
+    "flow_cfm_turb_gap10": 8.6,
+    "bulk_rise_K_gap10": 6.8,
+    "flow_cfm_turb_gap25": 21.4,
+    "bulk_rise_K_gap25": 2.7
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.07,
+    "v_laminar_m_s": 1.64,
+    "flow_cfm_turb_gap10": 10.9,
+    "bulk_rise_K_gap10": 5.3,
+    "flow_cfm_turb_gap25": 27.4,
+    "bulk_rise_K_gap25": 2.1
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.51,
+    "v_laminar_m_s": 3.56,
+    "flow_cfm_turb_gap10": 12.7,
+    "bulk_rise_K_gap10": 4.5,
+    "flow_cfm_turb_gap25": 31.9,
+    "bulk_rise_K_gap25": 1.8
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.77,
+    "v_laminar_m_s": 5.29,
+    "flow_cfm_turb_gap10": 22.3,
+    "bulk_rise_K_gap10": 2.6,
+    "flow_cfm_turb_gap25": 55.7,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.49,
+    "v_laminar_m_s": 3.47,
+    "flow_cfm_turb_gap10": 30.6,
+    "bulk_rise_K_gap10": 1.9,
+    "flow_cfm_turb_gap25": 76.5,
+    "bulk_rise_K_gap25": 0.8
+   }
+  },
+  "h18": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.41,
+    "v_laminar_m_s": 2.56,
+    "flow_cfm_turb_gap10": 9.2,
+    "bulk_rise_K_gap10": 6.3,
+    "flow_cfm_turb_gap25": 23.0,
+    "bulk_rise_K_gap25": 2.5
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.22,
+    "v_laminar_m_s": 1.84,
+    "flow_cfm_turb_gap10": 11.8,
+    "bulk_rise_K_gap10": 4.9,
+    "flow_cfm_turb_gap25": 29.4,
+    "bulk_rise_K_gap25": 2.0
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.69,
+    "v_laminar_m_s": 3.99,
+    "flow_cfm_turb_gap10": 13.7,
+    "bulk_rise_K_gap10": 4.2,
+    "flow_cfm_turb_gap25": 34.2,
+    "bulk_rise_K_gap25": 1.7
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.97,
+    "v_laminar_m_s": 5.93,
+    "flow_cfm_turb_gap10": 23.9,
+    "bulk_rise_K_gap10": 2.4,
+    "flow_cfm_turb_gap25": 59.8,
+    "bulk_rise_K_gap25": 1.0
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.67,
+    "v_laminar_m_s": 3.89,
+    "flow_cfm_turb_gap10": 32.9,
+    "bulk_rise_K_gap10": 1.8,
+    "flow_cfm_turb_gap25": 82.2,
+    "bulk_rise_K_gap25": 0.7
+   }
+  },
+  "h20": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.75,
+    "v_laminar_m_s": 3.16,
+    "flow_cfm_turb_gap10": 10.5,
+    "bulk_rise_K_gap10": 5.5,
+    "flow_cfm_turb_gap25": 26.2,
+    "bulk_rise_K_gap25": 2.2
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 2.53,
+    "v_laminar_m_s": 2.27,
+    "flow_cfm_turb_gap10": 13.4,
+    "bulk_rise_K_gap10": 4.3,
+    "flow_cfm_turb_gap25": 33.5,
+    "bulk_rise_K_gap25": 1.7
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.07,
+    "v_laminar_m_s": 4.93,
+    "flow_cfm_turb_gap10": 15.6,
+    "bulk_rise_K_gap10": 3.7,
+    "flow_cfm_turb_gap25": 39.0,
+    "bulk_rise_K_gap25": 1.5
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.39,
+    "v_laminar_m_s": 7.33,
+    "flow_cfm_turb_gap10": 27.3,
+    "bulk_rise_K_gap10": 2.1,
+    "flow_cfm_turb_gap25": 68.3,
+    "bulk_rise_K_gap25": 0.8
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.05,
+    "v_laminar_m_s": 4.8,
+    "flow_cfm_turb_gap10": 37.5,
+    "bulk_rise_K_gap10": 1.5,
+    "flow_cfm_turb_gap25": 93.7,
+    "bulk_rise_K_gap25": 0.6
+   }
+  },
+  "h24": {
+   "hot corner, along x (enter at the x 0 edge), 125 mm run, 90 mm wide": {
+    "L_mm": 125.0,
+    "width_mm": 90.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.45,
+    "v_laminar_m_s": 4.55,
+    "flow_cfm_turb_gap10": 13.2,
+    "bulk_rise_K_gap10": 4.4,
+    "flow_cfm_turb_gap25": 32.9,
+    "bulk_rise_K_gap25": 1.8
+   },
+   "hot corner, along y, 90 mm run, 125 mm wide": {
+    "L_mm": 90.0,
+    "width_mm": 125.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.18,
+    "v_laminar_m_s": 3.27,
+    "flow_cfm_turb_gap10": 16.8,
+    "bulk_rise_K_gap10": 3.4,
+    "flow_cfm_turb_gap25": 42.1,
+    "bulk_rise_K_gap25": 1.4
+   },
+   "corner + tank path along x, 195 mm run, 120 mm wide": {
+    "L_mm": 195.0,
+    "width_mm": 120.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.86,
+    "v_laminar_m_s": 7.09,
+    "flow_cfm_turb_gap10": 19.6,
+    "bulk_rise_K_gap10": 2.9,
+    "flow_cfm_turb_gap25": 49.0,
+    "bulk_rise_K_gap25": 1.2
+   },
+   "whole board along x, 290 mm run, 190 mm wide": {
+    "L_mm": 290.0,
+    "width_mm": 190.0,
+    "faces": 2,
+    "v_turbulent_m_s": 4.26,
+    "v_laminar_m_s": 10.55,
+    "flow_cfm_turb_gap10": 34.3,
+    "bulk_rise_K_gap10": 1.7,
+    "flow_cfm_turb_gap25": 85.7,
+    "bulk_rise_K_gap25": 0.7
+   },
+   "whole board along y, 190 mm run, 290 mm wide": {
+    "L_mm": 190.0,
+    "width_mm": 290.0,
+    "faces": 2,
+    "v_turbulent_m_s": 3.83,
+    "v_laminar_m_s": 6.91,
+    "flow_cfm_turb_gap10": 47.1,
+    "bulk_rise_K_gap10": 1.2,
+    "flow_cfm_turb_gap25": 117.7,
+    "bulk_rise_K_gap25": 0.5
+   }
+  }
+ }
+}

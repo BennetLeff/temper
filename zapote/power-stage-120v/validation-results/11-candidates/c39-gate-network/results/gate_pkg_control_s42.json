@@ -1,0 +1,193 @@
+{
+ "P1_P2_c22_h10_R10": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 143.5,
+    "margin_k": 11.5
+   },
+   {
+    "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 138.1,
+    "margin_k": -6.2
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c22_h10_R12": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 143.0,
+    "margin_k": 12.0
+   },
+   {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 137.0,
+    "margin_k": -5.1
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c22_h10_R18": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 138.4,
+    "margin_k": 16.6
+   },
+   {
+    "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 135.3,
+    "margin_k": -3.4
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c22_h10_R20": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 140.6,
+    "margin_k": 14.4
+   },
+   {
+    "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 137.1,
+    "margin_k": -5.1
+   }
+  ],
+  "ok": true
+ },
+ "P3_c22_h10": {
+  "limits": {
+   "chip2512": 131.9,
+   "chip1206": 62.8
+  },
+  "expected_gain_K": 69.17,
+  "ok": true
+ },
+ "P4_c22_h10": {
+  "ok": true
+ },
+ "P1_P2_c28_h10_R10": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 165.4,
+    "margin_k": -10.4
+   },
+   {
+    "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 160.0,
+    "margin_k": -28.0
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c28_h10_R12": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 171.3,
+    "margin_k": -16.3
+   },
+   {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 165.3,
+    "margin_k": -33.4
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c28_h10_R18": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 154.1,
+    "margin_k": 0.9
+   },
+   {
+    "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 151.3,
+    "margin_k": -19.4
+   }
+  ],
+  "ok": true
+ },
+ "P1_P2_c28_h10_R20": {
+  "spec": "chip2512",
+  "watts": 0.21698899382866887,
+  "rows": [
+   {
+    "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 160.0,
+    "margin_k": -5.0
+   },
+   {
+    "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 156.0,
+    "margin_k": -24.0
+   }
+  ],
+  "ok": true
+ },
+ "P3_c28_h10": {
+  "limits": {
+   "chip2512": 131.9,
+   "chip1206": 62.8
+  },
+  "expected_gain_K": 69.17,
+  "ok": true
+ },
+ "P4_c28_h10": {
+  "ok": true
+ },
+ "all_controls_pass": true
+}

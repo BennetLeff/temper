@@ -1,0 +1,5 @@
+{
+ "schema": 1,
+ "about": "Known pin_absmax violations on the board of record. chain.sh fails only on a FAIL that is not listed here; scorecard gate `pin_absmax` is True only with zero failures, and it hard-gates from stage 48 on (no longer in RELEASE_GATES). Remove an entry when the fix lands (run with --fail-stale to be told). Stage 48 (c48-ldo-en-ref-watch) closed the four S19 EN entries (U3.3, U37.3, U38.3, U39.3): EN now sits on 100 k / 27 k dividers.",
+ "expected": {}
+}

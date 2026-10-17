@@ -1,0 +1,3646 @@
+{
+ "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+ "nominal_trip_A_s48": 92.593,
+ "kelvin_shift_A": -2.41,
+ "search_top5": {
+  "0.8": [
+   [
+    3,
+    0.0,
+    11700,
+    6420,
+    18200,
+    8980,
+    92.59259259259255,
+    0.8259749816041206,
+    0.6456953642384107
+   ],
+   [
+    3,
+    0.010354217790521147,
+    12600,
+    6810,
+    17200,
+    8350,
+    92.58223837480203,
+    0.8170254403131115,
+    0.6491499227202473
+   ],
+   [
+    3,
+    0.012225398251885622,
+    12400,
+    6490,
+    15800,
+    7410,
+    92.58036719434067,
+    0.7981473502800517,
+    0.65643197458973
+   ],
+   [
+    3,
+    0.01661372205717271,
+    12100,
+    6190,
+    15800,
+    7230,
+    92.57597887053538,
+    0.7848458532349111,
+    0.6615636960087479
+   ],
+   [
+    3,
+    0.02447273492597901,
+    13800,
+    7060,
+    15800,
+    7230,
+    92.61706532751853,
+    0.7848458532349111,
+    0.6615532118887824
+   ]
+  ],
+  "0.9": [
+   [
+    2,
+    0.20949939879803026,
+    11000,
+    6810,
+    15800,
+    8870,
+    92.38309319379452,
+    0.8988650182407782,
+    0.6176305446378438
+   ],
+   [
+    2,
+    0.22792022792029343,
+    11700,
+    7500,
+    15800,
+    9200,
+    92.82051282051285,
+    0.9199999999999999,
+    0.609375
+   ],
+   [
+    3,
+    5.684341886080802e-14,
+    11700,
+    7410,
+    16000,
+    9200,
+    92.59259259259261,
+    0.9126984126984127,
+    0.6122448979591837
+   ],
+   [
+    3,
+    0.012401070460356323,
+    10900,
+    6900,
+    17400,
+    10000,
+    92.5801915221322,
+    0.9124087591240876,
+    0.6123595505617978
+   ],
+   [
+    3,
+    0.02509731815328564,
+    11000,
+    6730,
+    16400,
+    9090,
+    92.56749527443927,
+    0.8915260886622205,
+    0.6204173716864072
+   ]
+  ],
+  "1.0": [
+   [
+    1,
+    0.03662244333881404,
+    10000,
+    7590,
+    15800,
+    11000,
+    92.55597014925374,
+    1.0261194029850746,
+    0.5685048322910744
+   ],
+   [
+    1,
+    0.09736670184439333,
+    11000,
+    8350,
+    15800,
+    11000,
+    92.68995929443695,
+    1.0261194029850746,
+    0.5684754521963824
+   ],
+   [
+    2,
+    2.842170943040401e-14,
+    10000,
+    7500,
+    16000,
+    11000,
+    92.59259259259258,
+    1.0185185185185184,
+    0.5714285714285714
+   ],
+   [
+    2,
+    2.842170943040401e-14,
+    11000,
+    8250,
+    16000,
+    11000,
+    92.59259259259258,
+    1.0185185185185184,
+    0.5714285714285714
+   ],
+   [
+    2,
+    0.06504438322612316,
+    11000,
+    8060,
+    15800,
+    10600,
+    92.52754820936643,
+    1.0037878787878787,
+    0.577124868835257
+   ]
+  ]
+ },
+ "rows": [
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R0 Q1",
+   "ocp_before_A": [
+    68.512,
+    117.826
+   ],
+   "ocp_low_after_A": 66.1,
+   "floor_margin_A": 1.93,
+   "ocp_top_A": 117.826,
+   "bank_V": 1502,
+   "bank_margin_V": 98,
+   "ovp_V": [
+    272.6,
+    287.485
+   ],
+   "ovp_top_margin_V": 0.535,
+   "ovp_low_margin_V": 3.23,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R0 phys",
+   "ocp_before_A": [
+    68.082,
+    118.274
+   ],
+   "ocp_low_after_A": 65.67,
+   "floor_margin_A": 1.5,
+   "ocp_top_A": 118.274,
+   "bank_V": 1508,
+   "bank_margin_V": 92,
+   "ovp_V": [
+    272.574,
+    287.512
+   ],
+   "ovp_top_margin_V": 0.508,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R1 Q1",
+   "ocp_before_A": [
+    65.855,
+    120.575
+   ],
+   "ocp_low_after_A": 63.45,
+   "floor_margin_A": -0.72,
+   "ocp_top_A": 120.575,
+   "bank_V": 1537,
+   "bank_margin_V": 63,
+   "ovp_V": [
+    272.572,
+    287.51
+   ],
+   "ovp_top_margin_V": 0.51,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R1 phys",
+   "ocp_before_A": [
+    65.043,
+    121.421
+   ],
+   "ocp_low_after_A": 62.63,
+   "floor_margin_A": -1.54,
+   "ocp_top_A": 121.421,
+   "bank_V": 1548,
+   "bank_margin_V": 52,
+   "ovp_V": [
+    272.523,
+    287.561
+   ],
+   "ovp_top_margin_V": 0.459,
+   "ovp_low_margin_V": 3.15,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R3 Q1",
+   "ocp_before_A": [
+    67.998,
+    118.358
+   ],
+   "ocp_low_after_A": 65.59,
+   "floor_margin_A": 1.42,
+   "ocp_top_A": 118.358,
+   "bank_V": 1509,
+   "bank_margin_V": 91,
+   "ovp_V": [
+    272.594,
+    287.49
+   ],
+   "ovp_top_margin_V": 0.53,
+   "ovp_low_margin_V": 3.22,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R3 phys",
+   "ocp_before_A": [
+    67.494,
+    118.883
+   ],
+   "ocp_low_after_A": 65.08,
+   "floor_margin_A": 0.91,
+   "ocp_top_A": 118.883,
+   "bank_V": 1516,
+   "bank_margin_V": 84,
+   "ovp_V": [
+    272.564,
+    287.521
+   ],
+   "ovp_top_margin_V": 0.499,
+   "ovp_low_margin_V": 3.19,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R4 Q1",
+   "ocp_before_A": [
+    57.927,
+    128.847
+   ],
+   "ocp_low_after_A": 55.52,
+   "floor_margin_A": -8.65,
+   "ocp_top_A": 128.847,
+   "bank_V": 1643,
+   "bank_margin_V": -43,
+   "ovp_V": [
+    271.963,
+    288.145
+   ],
+   "ovp_top_margin_V": -0.125,
+   "ovp_low_margin_V": 2.59,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) release c17.5@61 R4 phys",
+   "ocp_before_A": [
+    57.497,
+    129.295
+   ],
+   "ocp_low_after_A": 55.09,
+   "floor_margin_A": -9.08,
+   "ocp_top_A": 129.295,
+   "bank_V": 1648,
+   "bank_margin_V": -48,
+   "ovp_V": [
+    271.937,
+    288.172
+   ],
+   "ovp_top_margin_V": -0.152,
+   "ovp_low_margin_V": 2.57,
+   "vcm_V": {
+    "ocp": [
+     1.1924,
+     1.215
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R0 Q1",
+   "ocp_before_A": [
+    67.253,
+    119.427
+   ],
+   "ocp_low_after_A": 64.84,
+   "floor_margin_A": 0.67,
+   "ocp_top_A": 119.427,
+   "bank_V": 1523,
+   "bank_margin_V": 77,
+   "ovp_V": [
+    272.443,
+    287.649
+   ],
+   "ovp_top_margin_V": 0.371,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R0 phys",
+   "ocp_before_A": [
+    66.825,
+    119.877
+   ],
+   "ocp_low_after_A": 64.42,
+   "floor_margin_A": 0.25,
+   "ocp_top_A": 119.877,
+   "bank_V": 1528,
+   "bank_margin_V": 72,
+   "ovp_V": [
+    272.417,
+    287.676
+   ],
+   "ovp_top_margin_V": 0.344,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R1 Q1",
+   "ocp_before_A": [
+    64.611,
+    122.192
+   ],
+   "ocp_low_after_A": 62.2,
+   "floor_margin_A": -1.97,
+   "ocp_top_A": 122.192,
+   "bank_V": 1558,
+   "bank_margin_V": 42,
+   "ovp_V": [
+    272.415,
+    287.675
+   ],
+   "ovp_top_margin_V": 0.345,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R1 phys",
+   "ocp_before_A": [
+    63.803,
+    123.042
+   ],
+   "ocp_low_after_A": 61.39,
+   "floor_margin_A": -2.78,
+   "ocp_top_A": 123.042,
+   "bank_V": 1569,
+   "bank_margin_V": 31,
+   "ovp_V": [
+    272.366,
+    287.725
+   ],
+   "ovp_top_margin_V": 0.295,
+   "ovp_low_margin_V": 3.0,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R3 Q1",
+   "ocp_before_A": [
+    66.742,
+    119.962
+   ],
+   "ocp_low_after_A": 64.33,
+   "floor_margin_A": 0.16,
+   "ocp_top_A": 119.962,
+   "bank_V": 1529,
+   "bank_margin_V": 71,
+   "ovp_V": [
+    272.438,
+    287.654
+   ],
+   "ovp_top_margin_V": 0.366,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R3 phys",
+   "ocp_before_A": [
+    66.24,
+    120.49
+   ],
+   "ocp_low_after_A": 63.83,
+   "floor_margin_A": -0.34,
+   "ocp_top_A": 120.49,
+   "bank_V": 1536,
+   "bank_margin_V": 64,
+   "ovp_V": [
+    272.407,
+    287.686
+   ],
+   "ovp_top_margin_V": 0.334,
+   "ovp_low_margin_V": 3.04,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R4 Q1",
+   "ocp_before_A": [
+    56.725,
+    130.509
+   ],
+   "ocp_low_after_A": 54.31,
+   "floor_margin_A": -9.86,
+   "ocp_top_A": 130.509,
+   "bank_V": 1664,
+   "bank_margin_V": -64,
+   "ovp_V": [
+    271.807,
+    288.309
+   ],
+   "ovp_top_margin_V": -0.289,
+   "ovp_low_margin_V": 2.44,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "as built (12.6 k / 11.7 k, 10 k / 10 k) c28@55 R4 phys",
+   "ocp_before_A": [
+    56.298,
+    130.959
+   ],
+   "ocp_low_after_A": 53.89,
+   "floor_margin_A": -10.28,
+   "ocp_top_A": 130.959,
+   "bank_V": 1670,
+   "bank_margin_V": -70,
+   "ovp_V": [
+    271.781,
+    288.336
+   ],
+   "ovp_top_margin_V": -0.316,
+   "ovp_low_margin_V": 2.41,
+   "vcm_V": {
+    "ocp": [
+     1.1922,
+     1.2153
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "as built (12.6 k / 11.7 k, 10 k / 10 k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.2037,
+   "shunt_weight": 0.5,
+   "dI_dVOS_A_per_mV": 2.0,
+   "R32||R33_ohm": 5000,
+   "R34||R35_ohm": 6067,
+   "ref_load_kohm": [
+    20.0,
+    24.3
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 10000.0,
+    "R34": 12600.0,
+    "R35": 11700.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD0710KL",
+    "R34": "RT0603BRD0712K6L",
+    "R35": "TNPW060311K7BEEA"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R0 Q1",
+   "ocp_before_A": [
+    73.219,
+    112.428
+   ],
+   "ocp_low_after_A": 70.81,
+   "floor_margin_A": 6.64,
+   "ocp_top_A": 112.428,
+   "bank_V": 1433,
+   "bank_margin_V": 167,
+   "ovp_V": [
+    272.6,
+    287.485
+   ],
+   "ovp_top_margin_V": 0.535,
+   "ovp_low_margin_V": 3.23,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R0 phys",
+   "ocp_before_A": [
+    72.871,
+    112.79
+   ],
+   "ocp_low_after_A": 70.46,
+   "floor_margin_A": 6.29,
+   "ocp_top_A": 112.79,
+   "bank_V": 1438,
+   "bank_margin_V": 162,
+   "ovp_V": [
+    272.574,
+    287.512
+   ],
+   "ovp_top_margin_V": 0.508,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R1 Q1",
+   "ocp_before_A": [
+    70.585,
+    115.159
+   ],
+   "ocp_low_after_A": 68.17,
+   "floor_margin_A": 4.0,
+   "ocp_top_A": 115.159,
+   "bank_V": 1468,
+   "bank_margin_V": 132,
+   "ovp_V": [
+    272.572,
+    287.51
+   ],
+   "ovp_top_margin_V": 0.51,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R1 phys",
+   "ocp_before_A": [
+    69.928,
+    115.843
+   ],
+   "ocp_low_after_A": 67.52,
+   "floor_margin_A": 3.35,
+   "ocp_top_A": 115.843,
+   "bank_V": 1477,
+   "bank_margin_V": 123,
+   "ovp_V": [
+    272.523,
+    287.561
+   ],
+   "ovp_top_margin_V": 0.459,
+   "ovp_low_margin_V": 3.15,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R3 Q1",
+   "ocp_before_A": [
+    72.71,
+    112.957
+   ],
+   "ocp_low_after_A": 70.3,
+   "floor_margin_A": 6.13,
+   "ocp_top_A": 112.957,
+   "bank_V": 1440,
+   "bank_margin_V": 160,
+   "ovp_V": [
+    272.594,
+    287.49
+   ],
+   "ovp_top_margin_V": 0.53,
+   "ovp_low_margin_V": 3.22,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R3 phys",
+   "ocp_before_A": [
+    72.301,
+    113.381
+   ],
+   "ocp_low_after_A": 69.89,
+   "floor_margin_A": 5.72,
+   "ocp_top_A": 113.381,
+   "bank_V": 1446,
+   "bank_margin_V": 154,
+   "ovp_V": [
+    272.564,
+    287.521
+   ],
+   "ovp_top_margin_V": 0.499,
+   "ovp_low_margin_V": 3.19,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R4 Q1",
+   "ocp_before_A": [
+    64.645,
+    121.345
+   ],
+   "ocp_low_after_A": 62.23,
+   "floor_margin_A": -1.94,
+   "ocp_top_A": 121.345,
+   "bank_V": 1547,
+   "bank_margin_V": 53,
+   "ovp_V": [
+    271.963,
+    288.145
+   ],
+   "ovp_top_margin_V": -0.125,
+   "ovp_low_margin_V": 2.59,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) release c17.5@61 R4 phys",
+   "ocp_before_A": [
+    64.297,
+    121.707
+   ],
+   "ocp_low_after_A": 61.89,
+   "floor_margin_A": -2.28,
+   "ocp_top_A": 121.707,
+   "bank_V": 1552,
+   "bank_margin_V": 48,
+   "ovp_V": [
+    271.937,
+    288.172
+   ],
+   "ovp_top_margin_V": -0.152,
+   "ovp_low_margin_V": 2.57,
+   "vcm_V": {
+    "ocp": [
+     0.8898,
+     0.9079
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R0 Q1",
+   "ocp_before_A": [
+    72.154,
+    113.763
+   ],
+   "ocp_low_after_A": 69.74,
+   "floor_margin_A": 5.57,
+   "ocp_top_A": 113.763,
+   "bank_V": 1450,
+   "bank_margin_V": 150,
+   "ovp_V": [
+    272.443,
+    287.649
+   ],
+   "ovp_top_margin_V": 0.371,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R0 phys",
+   "ocp_before_A": [
+    71.808,
+    114.127
+   ],
+   "ocp_low_after_A": 69.4,
+   "floor_margin_A": 5.23,
+   "ocp_top_A": 114.127,
+   "bank_V": 1455,
+   "bank_margin_V": 145,
+   "ovp_V": [
+    272.417,
+    287.676
+   ],
+   "ovp_top_margin_V": 0.344,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R1 Q1",
+   "ocp_before_A": [
+    69.535,
+    116.508
+   ],
+   "ocp_low_after_A": 67.12,
+   "floor_margin_A": 2.95,
+   "ocp_top_A": 116.508,
+   "bank_V": 1485,
+   "bank_margin_V": 115,
+   "ovp_V": [
+    272.415,
+    287.675
+   ],
+   "ovp_top_margin_V": 0.345,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R1 phys",
+   "ocp_before_A": [
+    68.881,
+    117.196
+   ],
+   "ocp_low_after_A": 66.47,
+   "floor_margin_A": 2.3,
+   "ocp_top_A": 117.196,
+   "bank_V": 1494,
+   "bank_margin_V": 106,
+   "ovp_V": [
+    272.366,
+    287.725
+   ],
+   "ovp_top_margin_V": 0.295,
+   "ovp_low_margin_V": 3.0,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R3 Q1",
+   "ocp_before_A": [
+    71.648,
+    114.294
+   ],
+   "ocp_low_after_A": 69.24,
+   "floor_margin_A": 5.07,
+   "ocp_top_A": 114.294,
+   "bank_V": 1457,
+   "bank_margin_V": 143,
+   "ovp_V": [
+    272.438,
+    287.654
+   ],
+   "ovp_top_margin_V": 0.366,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R3 phys",
+   "ocp_before_A": [
+    71.242,
+    114.721
+   ],
+   "ocp_low_after_A": 68.83,
+   "floor_margin_A": 4.66,
+   "ocp_top_A": 114.721,
+   "bank_V": 1463,
+   "bank_margin_V": 137,
+   "ovp_V": [
+    272.407,
+    287.686
+   ],
+   "ovp_top_margin_V": 0.334,
+   "ovp_low_margin_V": 3.04,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R4 Q1",
+   "ocp_before_A": [
+    63.626,
+    122.728
+   ],
+   "ocp_low_after_A": 61.22,
+   "floor_margin_A": -2.95,
+   "ocp_top_A": 122.728,
+   "bank_V": 1565,
+   "bank_margin_V": 35,
+   "ovp_V": [
+    271.807,
+    288.309
+   ],
+   "ovp_top_margin_V": -0.289,
+   "ovp_low_margin_V": 2.44,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) c28@55 R4 phys",
+   "ocp_before_A": [
+    63.28,
+    123.092
+   ],
+   "ocp_low_after_A": 60.87,
+   "floor_margin_A": -3.3,
+   "ocp_top_A": 123.092,
+   "bank_V": 1569,
+   "bank_margin_V": 31,
+   "ovp_V": [
+    271.781,
+    288.336
+   ],
+   "ovp_top_margin_V": -0.316,
+   "ovp_low_margin_V": 2.41,
+   "vcm_V": {
+    "ocp": [
+     0.8896,
+     0.9082
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.383,
+   "vcm_nom_V": 0.8989,
+   "shunt_weight": 0.6176,
+   "dI_dVOS_A_per_mV": 1.619,
+   "R32||R33_ohm": 4206,
+   "R34||R35_ohm": 5681,
+   "ref_load_kohm": [
+    17.81,
+    24.67
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 6810.0,
+    "R34": 15800.0,
+    "R35": 8870.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD076K81L",
+    "R34": "RT0603BRD0715K8L",
+    "R35": "RT0603BRD078K87L"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R0 Q1",
+   "ocp_before_A": [
+    72.602,
+    113.222
+   ],
+   "ocp_low_after_A": 70.19,
+   "floor_margin_A": 6.02,
+   "ocp_top_A": 113.222,
+   "bank_V": 1444,
+   "bank_margin_V": 156,
+   "ovp_V": [
+    272.6,
+    287.485
+   ],
+   "ovp_top_margin_V": 0.535,
+   "ovp_low_margin_V": 3.23,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R0 phys",
+   "ocp_before_A": [
+    72.244,
+    113.595
+   ],
+   "ocp_low_after_A": 69.83,
+   "floor_margin_A": 5.66,
+   "ocp_top_A": 113.595,
+   "bank_V": 1448,
+   "bank_margin_V": 152,
+   "ovp_V": [
+    272.574,
+    287.512
+   ],
+   "ovp_top_margin_V": 0.508,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R1 Q1",
+   "ocp_before_A": [
+    69.966,
+    115.955
+   ],
+   "ocp_low_after_A": 67.56,
+   "floor_margin_A": 3.39,
+   "ocp_top_A": 115.955,
+   "bank_V": 1478,
+   "bank_margin_V": 122,
+   "ovp_V": [
+    272.572,
+    287.51
+   ],
+   "ovp_top_margin_V": 0.51,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R1 phys",
+   "ocp_before_A": [
+    69.289,
+    116.659
+   ],
+   "ocp_low_after_A": 66.88,
+   "floor_margin_A": 2.71,
+   "ocp_top_A": 116.659,
+   "bank_V": 1487,
+   "bank_margin_V": 113,
+   "ovp_V": [
+    272.523,
+    287.561
+   ],
+   "ovp_top_margin_V": 0.459,
+   "ovp_low_margin_V": 3.15,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R3 Q1",
+   "ocp_before_A": [
+    72.092,
+    113.751
+   ],
+   "ocp_low_after_A": 69.68,
+   "floor_margin_A": 5.51,
+   "ocp_top_A": 113.751,
+   "bank_V": 1450,
+   "bank_margin_V": 150,
+   "ovp_V": [
+    272.594,
+    287.49
+   ],
+   "ovp_top_margin_V": 0.53,
+   "ovp_low_margin_V": 3.22,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R3 phys",
+   "ocp_before_A": [
+    71.672,
+    114.188
+   ],
+   "ocp_low_after_A": 69.26,
+   "floor_margin_A": 5.09,
+   "ocp_top_A": 114.188,
+   "bank_V": 1456,
+   "bank_margin_V": 144,
+   "ovp_V": [
+    272.564,
+    287.521
+   ],
+   "ovp_top_margin_V": 0.499,
+   "ovp_low_margin_V": 3.19,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R4 Q1",
+   "ocp_before_A": [
+    63.783,
+    122.395
+   ],
+   "ocp_low_after_A": 61.37,
+   "floor_margin_A": -2.8,
+   "ocp_top_A": 122.395,
+   "bank_V": 1561,
+   "bank_margin_V": 39,
+   "ovp_V": [
+    271.963,
+    288.145
+   ],
+   "ovp_top_margin_V": -0.125,
+   "ovp_low_margin_V": 2.59,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) release c17.5@61 R4 phys",
+   "ocp_before_A": [
+    63.425,
+    122.767
+   ],
+   "ocp_low_after_A": 61.02,
+   "floor_margin_A": -3.15,
+   "ocp_top_A": 122.767,
+   "bank_V": 1565,
+   "bank_margin_V": 35,
+   "ovp_V": [
+    271.937,
+    288.172
+   ],
+   "ovp_top_margin_V": -0.152,
+   "ovp_low_margin_V": 2.57,
+   "vcm_V": {
+    "ocp": [
+     0.934,
+     0.9528
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R0 Q1",
+   "ocp_before_A": [
+    71.509,
+    114.595
+   ],
+   "ocp_low_after_A": 69.1,
+   "floor_margin_A": 4.93,
+   "ocp_top_A": 114.595,
+   "bank_V": 1461,
+   "bank_margin_V": 139,
+   "ovp_V": [
+    272.443,
+    287.649
+   ],
+   "ovp_top_margin_V": 0.371,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R0 phys",
+   "ocp_before_A": [
+    71.152,
+    114.97
+   ],
+   "ocp_low_after_A": 68.74,
+   "floor_margin_A": 4.57,
+   "ocp_top_A": 114.97,
+   "bank_V": 1466,
+   "bank_margin_V": 134,
+   "ovp_V": [
+    272.417,
+    287.676
+   ],
+   "ovp_top_margin_V": 0.344,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R1 Q1",
+   "ocp_before_A": [
+    68.886,
+    117.344
+   ],
+   "ocp_low_after_A": 66.48,
+   "floor_margin_A": 2.31,
+   "ocp_top_A": 117.344,
+   "bank_V": 1496,
+   "bank_margin_V": 104,
+   "ovp_V": [
+    272.415,
+    287.675
+   ],
+   "ovp_top_margin_V": 0.345,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R1 phys",
+   "ocp_before_A": [
+    68.213,
+    118.051
+   ],
+   "ocp_low_after_A": 65.8,
+   "floor_margin_A": 1.63,
+   "ocp_top_A": 118.051,
+   "bank_V": 1505,
+   "bank_margin_V": 95,
+   "ovp_V": [
+    272.366,
+    287.725
+   ],
+   "ovp_top_margin_V": 0.295,
+   "ovp_low_margin_V": 3.0,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R3 Q1",
+   "ocp_before_A": [
+    71.001,
+    115.127
+   ],
+   "ocp_low_after_A": 68.59,
+   "floor_margin_A": 4.42,
+   "ocp_top_A": 115.127,
+   "bank_V": 1468,
+   "bank_margin_V": 132,
+   "ovp_V": [
+    272.438,
+    287.654
+   ],
+   "ovp_top_margin_V": 0.366,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R3 phys",
+   "ocp_before_A": [
+    70.584,
+    115.566
+   ],
+   "ocp_low_after_A": 68.17,
+   "floor_margin_A": 4.0,
+   "ocp_top_A": 115.566,
+   "bank_V": 1473,
+   "bank_margin_V": 127,
+   "ovp_V": [
+    272.407,
+    287.686
+   ],
+   "ovp_top_margin_V": 0.334,
+   "ovp_low_margin_V": 3.04,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R4 Q1",
+   "ocp_before_A": [
+    62.737,
+    123.819
+   ],
+   "ocp_low_after_A": 60.33,
+   "floor_margin_A": -3.84,
+   "ocp_top_A": 123.819,
+   "bank_V": 1579,
+   "bank_margin_V": 21,
+   "ovp_V": [
+    271.807,
+    288.309
+   ],
+   "ovp_top_margin_V": -0.289,
+   "ovp_low_margin_V": 2.44,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 0.94 V (11k / 7.32k, 16.5k / 10k) c28@55 R4 phys",
+   "ocp_before_A": [
+    62.381,
+    124.193
+   ],
+   "ocp_low_after_A": 59.97,
+   "floor_margin_A": -4.2,
+   "ocp_top_A": 124.193,
+   "bank_V": 1583,
+   "bank_margin_V": 17,
+   "ovp_V": [
+    271.781,
+    288.336
+   ],
+   "ovp_top_margin_V": -0.316,
+   "ovp_low_margin_V": 2.41,
+   "vcm_V": {
+    "ocp": [
+     0.9338,
+     0.953
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 0.94 V (11k / 7.32k, 16.5k / 10k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.453,
+   "vcm_nom_V": 0.9434,
+   "shunt_weight": 0.6004,
+   "dI_dVOS_A_per_mV": 1.665,
+   "R32||R33_ohm": 4395,
+   "R34||R35_ohm": 6226,
+   "ref_load_kohm": [
+    18.32,
+    26.5
+   ],
+   "values": {
+    "R32": 11000.0,
+    "R33": 7320.0,
+    "R34": 16500.0,
+    "R35": 10000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0711KL",
+    "R33": "RT0603BRD077K32L",
+    "R34": "RT0603BRD0716K5L",
+    "R35": "RT0603BRD0710KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R0 Q1",
+   "ocp_before_A": [
+    71.566,
+    114.603
+   ],
+   "ocp_low_after_A": 69.16,
+   "floor_margin_A": 4.99,
+   "ocp_top_A": 114.603,
+   "bank_V": 1461,
+   "bank_margin_V": 139,
+   "ovp_V": [
+    272.6,
+    287.485
+   ],
+   "ovp_top_margin_V": 0.535,
+   "ovp_low_margin_V": 3.23,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R0 phys",
+   "ocp_before_A": [
+    71.189,
+    114.994
+   ],
+   "ocp_low_after_A": 68.78,
+   "floor_margin_A": 4.61,
+   "ocp_top_A": 114.994,
+   "bank_V": 1466,
+   "bank_margin_V": 134,
+   "ovp_V": [
+    272.574,
+    287.512
+   ],
+   "ovp_top_margin_V": 0.508,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R1 Q1",
+   "ocp_before_A": [
+    68.924,
+    117.34
+   ],
+   "ocp_low_after_A": 66.51,
+   "floor_margin_A": 2.34,
+   "ocp_top_A": 117.34,
+   "bank_V": 1496,
+   "bank_margin_V": 104,
+   "ovp_V": [
+    272.572,
+    287.51
+   ],
+   "ovp_top_margin_V": 0.51,
+   "ovp_low_margin_V": 3.2,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R1 phys",
+   "ocp_before_A": [
+    68.213,
+    118.08
+   ],
+   "ocp_low_after_A": 65.8,
+   "floor_margin_A": 1.63,
+   "ocp_top_A": 118.08,
+   "bank_V": 1505,
+   "bank_margin_V": 95,
+   "ovp_V": [
+    272.523,
+    287.561
+   ],
+   "ovp_top_margin_V": 0.459,
+   "ovp_low_margin_V": 3.15,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R3 Q1",
+   "ocp_before_A": [
+    71.054,
+    115.133
+   ],
+   "ocp_low_after_A": 68.64,
+   "floor_margin_A": 4.47,
+   "ocp_top_A": 115.133,
+   "bank_V": 1468,
+   "bank_margin_V": 132,
+   "ovp_V": [
+    272.594,
+    287.49
+   ],
+   "ovp_top_margin_V": 0.53,
+   "ovp_low_margin_V": 3.22,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R3 phys",
+   "ocp_before_A": [
+    70.613,
+    115.591
+   ],
+   "ocp_low_after_A": 68.2,
+   "floor_margin_A": 4.03,
+   "ocp_top_A": 115.591,
+   "bank_V": 1474,
+   "bank_margin_V": 126,
+   "ovp_V": [
+    272.564,
+    287.521
+   ],
+   "ovp_top_margin_V": 0.499,
+   "ovp_low_margin_V": 3.19,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R4 Q1",
+   "ocp_before_A": [
+    62.3,
+    124.243
+   ],
+   "ocp_low_after_A": 59.89,
+   "floor_margin_A": -4.28,
+   "ocp_top_A": 124.243,
+   "bank_V": 1584,
+   "bank_margin_V": 16,
+   "ovp_V": [
+    271.963,
+    288.145
+   ],
+   "ovp_top_margin_V": -0.125,
+   "ovp_low_margin_V": 2.59,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) release c17.5@61 R4 phys",
+   "ocp_before_A": [
+    61.924,
+    124.634
+   ],
+   "ocp_low_after_A": 59.51,
+   "floor_margin_A": -4.66,
+   "ocp_top_A": 124.634,
+   "bank_V": 1589,
+   "bank_margin_V": 11,
+   "ovp_V": [
+    271.937,
+    288.172
+   ],
+   "ovp_top_margin_V": -0.152,
+   "ovp_low_margin_V": 2.57,
+   "vcm_V": {
+    "ocp": [
+     1.0086,
+     1.0285
+    ],
+    "ovp": [
+     2.3174,
+     2.3493
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "release c17.5@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R0 Q1",
+   "ocp_before_A": [
+    70.424,
+    116.042
+   ],
+   "ocp_low_after_A": 68.01,
+   "floor_margin_A": 3.84,
+   "ocp_top_A": 116.042,
+   "bank_V": 1480,
+   "bank_margin_V": 120,
+   "ovp_V": [
+    272.443,
+    287.649
+   ],
+   "ovp_top_margin_V": 0.371,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R0 phys",
+   "ocp_before_A": [
+    70.049,
+    116.436
+   ],
+   "ocp_low_after_A": 67.64,
+   "floor_margin_A": 3.47,
+   "ocp_top_A": 116.436,
+   "bank_V": 1485,
+   "bank_margin_V": 115,
+   "ovp_V": [
+    272.417,
+    287.676
+   ],
+   "ovp_top_margin_V": 0.344,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R1 Q1",
+   "ocp_before_A": [
+    67.796,
+    118.795
+   ],
+   "ocp_low_after_A": 65.39,
+   "floor_margin_A": 1.22,
+   "ocp_top_A": 118.795,
+   "bank_V": 1515,
+   "bank_margin_V": 85,
+   "ovp_V": [
+    272.415,
+    287.675
+   ],
+   "ovp_top_margin_V": 0.345,
+   "ovp_low_margin_V": 3.05,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R1 phys",
+   "ocp_before_A": [
+    67.089,
+    119.538
+   ],
+   "ocp_low_after_A": 64.68,
+   "floor_margin_A": 0.51,
+   "ocp_top_A": 119.538,
+   "bank_V": 1524,
+   "bank_margin_V": 76,
+   "ovp_V": [
+    272.366,
+    287.725
+   ],
+   "ovp_top_margin_V": 0.295,
+   "ovp_low_margin_V": 3.0,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R3 Q1",
+   "ocp_before_A": [
+    69.915,
+    116.575
+   ],
+   "ocp_low_after_A": 67.51,
+   "floor_margin_A": 3.34,
+   "ocp_top_A": 116.575,
+   "bank_V": 1486,
+   "bank_margin_V": 114,
+   "ovp_V": [
+    272.438,
+    287.654
+   ],
+   "ovp_top_margin_V": 0.366,
+   "ovp_low_margin_V": 3.07,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R3 phys",
+   "ocp_before_A": [
+    69.476,
+    117.036
+   ],
+   "ocp_low_after_A": 67.07,
+   "floor_margin_A": 2.9,
+   "ocp_top_A": 117.036,
+   "bank_V": 1492,
+   "bank_margin_V": 108,
+   "ovp_V": [
+    272.407,
+    287.686
+   ],
+   "ovp_top_margin_V": 0.334,
+   "ovp_low_margin_V": 3.04,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R4 Q1",
+   "ocp_before_A": [
+    61.208,
+    125.735
+   ],
+   "ocp_low_after_A": 58.8,
+   "floor_margin_A": -5.37,
+   "ocp_top_A": 125.735,
+   "bank_V": 1603,
+   "bank_margin_V": -3,
+   "ovp_V": [
+    271.807,
+    288.309
+   ],
+   "ovp_top_margin_V": -0.289,
+   "ovp_low_margin_V": 2.44,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  },
+  {
+   "label": "B' 1.02 V (10k / 7.5k, 16k / 11k) c28@55 R4 phys",
+   "ocp_before_A": [
+    60.834,
+    126.129
+   ],
+   "ocp_low_after_A": 58.42,
+   "floor_margin_A": -5.75,
+   "ocp_top_A": 126.129,
+   "bank_V": 1608,
+   "bank_margin_V": -8,
+   "ovp_V": [
+    271.781,
+    288.336
+   ],
+   "ovp_top_margin_V": -0.316,
+   "ovp_low_margin_V": 2.41,
+   "vcm_V": {
+    "ocp": [
+     1.0083,
+     1.0287
+    ],
+    "ovp": [
+     2.3173,
+     2.3494
+    ]
+   },
+   "design": "B' 1.02 V (10k / 7.5k, 16k / 11k)",
+   "network": "c28@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "nominal_trip_A": 92.593,
+   "vcm_nom_V": 1.0185,
+   "shunt_weight": 0.5714,
+   "dI_dVOS_A_per_mV": 1.75,
+   "R32||R33_ohm": 4286,
+   "R34||R35_ohm": 6519,
+   "ref_load_kohm": [
+    17.5,
+    27.0
+   ],
+   "values": {
+    "R32": 10000.0,
+    "R33": 7500.0,
+    "R34": 16000.0,
+    "R35": 11000.0
+   },
+   "mpn": {
+    "R32": "RT0603BRD0710KL",
+    "R33": "RT0603BRD077K5L",
+    "R34": "RT0603BRD0716KL",
+    "R35": "RT0603BRD0711KL"
+   }
+  }
+ ],
+ "bench_allowance_mV_at_Q1_HOT5": {
+  "as built (12.6 k / 11.7 k, 10 k / 10 k) | release c17.5@61": 0.965,
+  "as built (12.6 k / 11.7 k, 10 k / 10 k) | c28@55": 0.335,
+  "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) | release c17.5@61": 4.101,
+  "B' 0.90 V (11k / 6.81k, 15.8k / 8.87k) | c28@55": 3.44,
+  "B' 0.94 V (11k / 7.32k, 16.5k / 10k) | release c17.5@61": 3.616,
+  "B' 0.94 V (11k / 7.32k, 16.5k / 10k) | c28@55": 2.961,
+  "B' 1.02 V (10k / 7.5k, 16k / 11k) | release c17.5@61": 2.851,
+  "B' 1.02 V (10k / 7.5k, 16k / 11k) | c28@55": 2.194
+ }
+}

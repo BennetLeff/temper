@@ -13,6 +13,7 @@
 #define NTC_GUARD_H
 
 #include "hal_types.h"
+#include "../../control/thermal_mgmt.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -20,13 +21,25 @@
 extern "C" {
 #endif
 
-// Safety limits (ADC raw counts, 12-bit)
-#define NTC_ADC_MIN 100     // Below this = Short to GND
-#define NTC_ADC_MAX 3900    // Above this = Open/Short to VCC
+/*
+ * Fitted parts (integrated controller, layout L3, DECISIONS C32): heatsink Vishay NTCALUG01A104GA
+ * (100 k, B25/85 4190 K) and coil Semitec 104GT-2 class (100 k, B25/85 4267 K, -50..+300 C), both
+ * on a 10.0 kOhm pull-up to v3v3. The R-T models are in thermal_mgmt.h (THERMAL_NTC_SINK,
+ * THERMAL_NTC_COIL), shared with the fan law and the coil guard, so every consumer converts a
+ * reading the same way. ntc_guard_init() defaults to the heatsink part.
+ *
+ * Raw counts are taken as ratiometric to v3v3 (12 bit, 4095 = v3v3), as before. Open and short
+ * thresholds follow the model: a node colder than -20 C reads OPEN, hotter than 200 C reads SHORT
+ * (thermal_mgmt.c). A node above the ESP32-S3 ADC's ~3.1 V range (colder than ~15 C) is
+ * NTC_GUARD_ERR_RANGE: there an open sensor and a cold one look alike to the ADC, so it is never
+ * passed on as "cool". (Open HS / COIL sensors are also latched in hardware by the thermal-sense
+ * block's OPEN_REF comparator.)
+ */
+#define NTC_ADC_FULL_SCALE 4095.0f
 
-// Physical limits
+// Physical limits (equal to the channel's open / short temperatures)
 #define NTC_TEMP_MIN_C -20.0f
-#define NTC_TEMP_MAX_C 150.0f
+#define NTC_TEMP_MAX_C 200.0f
 #define NTC_MAX_RATE_C_PER_SEC 10.0f
 
 /**
@@ -47,6 +60,7 @@ typedef enum {
  */
 typedef struct {
     hal_adc_channel_t adc_channel;
+    const ntc_channel_t *part;     /* divider + R-T model; THERMAL_NTC_SINK by default */
     float last_temp_c;
     uint32_t last_read_ms;
     bool valid;
@@ -58,6 +72,10 @@ typedef struct {
  * @param channel ADC channel
  */
 void ntc_guard_init(ntc_guard_t *ctx, hal_adc_channel_t channel);
+/* As ntc_guard_init(), for a given divider (THERMAL_NTC_COIL, THERMAL_NTC_SINK). */
+void ntc_guard_init_part(ntc_guard_t *ctx, hal_adc_channel_t channel, const ntc_channel_t *part);
+/* Raw 12-bit counts -> temperature through ctx->part, with the open / short classification. */
+ntc_guard_status_t ntc_guard_convert(const ntc_guard_t *ctx, uint16_t raw, float *temp_c);
 
 /**
  * @brief Read temperature with safety checks

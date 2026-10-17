@@ -1,0 +1,11 @@
+U10: v3v3/selv_gnd nearest cap C88 supply 17.18 return 21.02 mm, plane vias {v3v3: 1.64, selv_gnd: 1.68} (limits 2.0/4.0) FAIL
+U11: v3v3/selv_gnd nearest cap C88 supply 21.97 return 25.81 mm, plane vias {v3v3: 1.64, selv_gnd: 1.68} (limits 2.0/4.0) FAIL
+U12: v3v3/selv_gnd nearest cap C88 supply 12.39 return 16.24 mm, plane vias {v3v3: 1.64, selv_gnd: 1.68} (limits 2.0/4.0) FAIL
+U13: v3v3/selv_gnd nearest cap C88 supply 7.66 return 11.46 mm, plane vias {v3v3: 1.64, selv_gnd: 1.68} (limits 3.0/4.0) FAIL
+U24: v3v3/selv_gnd nearest cap C142 supply 30.07 return 34.06 mm, plane vias {v3v3: 5.4, selv_gnd: 2.25} (limits 2.0/4.0) FAIL
+U25: v3v3/selv_gnd nearest cap C142 supply 34.42 return 37.17 mm, plane vias {v3v3: 5.4, selv_gnd: 2.25} (limits 3.0/4.0) FAIL
+U40: v3v3/selv_gnd nearest cap C142 supply 26.61 return 30.70 mm, plane vias {v3v3: 5.4, selv_gnd: 2.25} (limits 2.0/4.0) FAIL
+U15: hot5/ocp_kelvin_p nearest cap C49 supply 11.81 return 13.42 mm, plane vias {hot5: 1.16, ocp_kelvin_p: 1.48} (limits 4.5/6.0) FAIL
+U29: v15_ls/n_ls nearest cap C100 supply 16.27 return 16.45 mm, plane vias {v15_ls: 9.62, n_ls: 1.67} (limits 2.5/None) FAIL
+U30: p_ha/n_ha nearest cap C104 supply 22.07 return 21.21 mm, plane vias {p_ha: 3.13, n_ha: 1.6} (limits 2.5/None) FAIL
+U31: p_hb/n_hb nearest cap C108 supply 23.15 return 22.27 mm, plane vias {p_hb: 6.2, n_hb: 1.6} (limits 4.5/None) FAIL

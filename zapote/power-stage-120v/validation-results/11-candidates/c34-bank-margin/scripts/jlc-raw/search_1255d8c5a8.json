@@ -1,0 +1,448 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 3,
+   "list": [
+    {
+     "componentId": 4349814,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "80nF \u00b15% 700V 2kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76ur282050h4j_C3782148.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1224
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.1224
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 287,
+       "productPrice": 1.1224
+      },
+      {
+       "startNumber": 288,
+       "endNumber": 575,
+       "productPrice": 0.4356
+      },
+      {
+       "startNumber": 576,
+       "endNumber": 863,
+       "productPrice": 0.4193
+      },
+      {
+       "startNumber": 864,
+       "endNumber": -1,
+       "productPrice": 0.4128
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 576,
+       "endNumber": 863,
+       "productPrice": 0.4039
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.0812
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 287,
+       "productPrice": 1.0812
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0812
+      },
+      {
+       "startNumber": 864,
+       "endNumber": -1,
+       "productPrice": 0.3976
+      },
+      {
+       "startNumber": 288,
+       "endNumber": 575,
+       "productPrice": 0.4196
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76UR282050H4J/C3782148",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 288,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 9,
+     "minPurchaseNum": 9,
+     "initialPrice": 1.1224,
+     "componentCode": "C3782148",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76UR282050H4J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161135_KEMET-R76UR282050H4J_C3782148.pdf",
+     "dataManualFileAccessId": "8590310000070455296",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76UR282050H4J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 700V\u30012kV 80nF \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "700V\u30012kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "80nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76UR2820</span>50H4J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21247453,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Film Capacitors",
+     "erpComponentName": "R76UR28205040J",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/film-capacitors_kemet-r76ur28205040j_C19919858.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5155
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.5155
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 287,
+       "productPrice": 1.5155
+      },
+      {
+       "startNumber": 288,
+       "endNumber": 575,
+       "productPrice": 0.6053
+      },
+      {
+       "startNumber": 576,
+       "endNumber": 863,
+       "productPrice": 0.5857
+      },
+      {
+       "startNumber": 864,
+       "endNumber": -1,
+       "productPrice": 0.5743
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 576,
+       "endNumber": 863,
+       "productPrice": 0.5642
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.4599
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 287,
+       "productPrice": 1.4599
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4599
+      },
+      {
+       "startNumber": 864,
+       "endNumber": -1,
+       "productPrice": 0.5532
+      },
+      {
+       "startNumber": 288,
+       "endNumber": 575,
+       "productPrice": 0.5831
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "abdb7141dee34ebf83c317f56a600047",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76UR28205040J/C19919858",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 288,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.5155,
+     "componentCode": "C19919858",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76UR28205040J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401151903_KEMET-R76UR28205040J_C19919858.pdf",
+     "dataManualFileAccessId": "8603698416711323648",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76UR28205040J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Film Capacitors ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Film Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76UR2820</span>5040J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21247454,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Film Capacitors",
+     "erpComponentName": "R76UR2820JE40K",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/film-capacitors_kemet-r76ur2820je40k_C19919859.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.54
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.54
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 287,
+       "productPrice": 1.54
+      },
+      {
+       "startNumber": 288,
+       "endNumber": 575,
+       "productPrice": 0.6151
+      },
+      {
+       "startNumber": 576,
+       "endNumber": 863,
+       "productPrice": 0.5955
+      },
+      {
+       "startNumber": 864,
+       "endNumber": -1,
+       "productPrice": 0.5841
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 576,
+       "endNumber": 863,
+       "productPrice": 0.5736
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.4835
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 287,
+       "productPrice": 1.4835
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4835
+      },
+      {
+       "startNumber": 864,
+       "endNumber": -1,
+       "productPrice": 0.5626
+      },
+      {
+       "startNumber": 288,
+       "endNumber": 575,
+       "productPrice": 0.5925
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "abdb7141dee34ebf83c317f56a600047",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76UR2820JE40K/C19919859",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 288,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.54,
+     "componentCode": "C19919859",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76UR2820JE40K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401151903_KEMET-R76UR2820JE40K_C19919859.pdf",
+     "dataManualFileAccessId": "8603518156514209792",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76UR2820JE40K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Film Capacitors ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Film Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76UR2820</span>JE40K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "R76UR2820"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T00:36:16Z"
+}

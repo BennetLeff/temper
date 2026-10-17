@@ -1,0 +1,302 @@
+{
+ "floor_mm": 8.0,
+ "copper": {
+  "HOT-SELV": {
+   "min_mm": 8.047,
+   "pass": true,
+   "between": [
+    "zone n_ha",
+    "via leg_a-permit_gate"
+   ],
+   "at_mm": [
+    67.59,
+    40.89
+   ]
+  },
+  "HOT-PE": {
+   "min_mm": 8.507,
+   "pass": true,
+   "between": [
+    "pad l_filt C3",
+    "pad pe C3"
+   ],
+   "at_mm": [
+    225.0,
+    102.8
+   ]
+  }
+ },
+ "barrier_crossing_parts": [
+  {
+   "ref": "C3",
+   "mpn": "DE1E3RA222MJ4BH01F",
+   "land_gap_mm": 8.507,
+   "board_pass": true,
+   "package": {
+    "clr": null,
+    "cpg": null,
+    "src": "Murata DE1 Type RA H01F Y1 (AC400 V) safety capacitor: component approval basis, no package distance table",
+    "rating": "Y1 component approval (certificates in the datasheet ledger)"
+   }
+  },
+  {
+   "ref": "C4",
+   "mpn": "DE1E3RA222MJ4BH01F",
+   "land_gap_mm": 8.507,
+   "board_pass": true,
+   "package": {
+    "clr": null,
+    "cpg": null,
+    "src": "Murata DE1 Type RA H01F Y1 (AC400 V) safety capacitor: component approval basis, no package distance table",
+    "rating": "Y1 component approval (certificates in the datasheet ledger)"
+   }
+  },
+  {
+   "ref": "T1",
+   "mpn": "CST3015-200ED",
+   "land_gap_mm": 18.5,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Coilcraft CST3015 datasheet (series package: \u22658 mm spacing, 5 kVrms test)",
+    "rating": "no CTI/PD certificate"
+   }
+  },
+  {
+   "ref": "U1",
+   "mpn": "2EDR8259XXUMA1",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)",
+    "rating": "reinforced (IEC 60747-17 cert 40055138)"
+   }
+  },
+  {
+   "ref": "U2",
+   "mpn": "2EDR8259XXUMA1",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)",
+    "rating": "reinforced (IEC 60747-17 cert 40055138)"
+   }
+  },
+  {
+   "ref": "U32",
+   "mpn": "CA-IS3720HW",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)",
+    "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"
+   }
+  },
+  {
+   "ref": "U36",
+   "mpn": "VOL628A-2X001T",
+   "land_gap_mm": 8.2,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Vishay doc 82401 rev 1.9 p.4 (CTR bin -2; package as -3X001T)",
+    "rating": "option 1 (VDE)"
+   }
+  },
+  {
+   "ref": "U4",
+   "mpn": "AMC1311BDWVR",
+   "land_gap_mm": 8.85,
+   "board_pass": true,
+   "package": {
+    "clr": 8.5,
+    "cpg": 8.5,
+    "src": "TI AMC1311 datasheet, DWV insulation table",
+    "rating": "reinforced"
+   }
+  },
+  {
+   "ref": "U9",
+   "mpn": "CA-IS3720HW",
+   "land_gap_mm": 8.1,
+   "board_pass": true,
+   "package": {
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)",
+    "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"
+   }
+  }
+ ],
+ "npth_to_hot": [
+  {
+   "ref": "H1",
+   "at": [
+    285.0,
+    135.0
+   ],
+   "hot_mm": 13.0,
+   "role": "metal-capable fixing / connector hardware",
+   "pass": true
+  },
+  {
+   "ref": "H10",
+   "at": [
+    152.0,
+    122.0
+   ],
+   "hot_mm": 6.4,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H2",
+   "at": [
+    223.0,
+    135.0
+   ],
+   "hot_mm": 20.68,
+   "role": "metal-capable fixing / connector hardware",
+   "pass": true
+  },
+  {
+   "ref": "H3",
+   "at": [
+    6.0,
+    180.0
+   ],
+   "hot_mm": 59.41,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H4",
+   "at": [
+    86.0,
+    180.0
+   ],
+   "hot_mm": 61.6,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H5",
+   "at": [
+    24.0,
+    74.0
+   ],
+   "hot_mm": 1.2,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H6",
+   "at": [
+    88.0,
+    100.0
+   ],
+   "hot_mm": 7.92,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H7",
+   "at": [
+    128.0,
+    54.0
+   ],
+   "hot_mm": 1.9,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H8",
+   "at": [
+    194.0,
+    130.0
+   ],
+   "hot_mm": 14.15,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H9",
+   "at": [
+    142.0,
+    4.0
+   ],
+   "hot_mm": 0.9,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "J2",
+   "at": [
+    132.0,
+    85.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  },
+  {
+   "ref": "J4",
+   "at": [
+    31.5,
+    184.02
+   ],
+   "hot_mm": 65.76,
+   "role": "metal-capable fixing / connector hardware",
+   "pass": true
+  },
+  {
+   "ref": "J4",
+   "at": [
+    58.5,
+    184.02
+   ],
+   "hot_mm": 64.51,
+   "role": "metal-capable fixing / connector hardware",
+   "pass": true
+  },
+  {
+   "ref": "J5",
+   "at": [
+    132.0,
+    70.5
+   ],
+   "hot_mm": 0.25,
+   "role": "own hole of a HOT terminal",
+   "pass": true
+  }
+ ],
+ "board_fixings": {
+  "H1": "metal",
+  "H2": "metal",
+  "H3": "nylon",
+  "H4": "nylon",
+  "H5": "nylon",
+  "H6": "nylon",
+  "H7": "nylon",
+  "H8": "nylon",
+  "H9": "nylon",
+  "H10": "nylon"
+ },
+ "open_for_lab": [
+  "laminate CTI >= 175 V (group IIIa) on the order: JLC question open (FAB-JLCPCB.md)",
+  "PD3 / material-group qualification of the package distances (TI tables state group I, PD2)",
+  "IEC 60664-4 high-frequency distances above 30 kHz (switching 33-40 kHz)",
+  "CST3015 CTI / PD certificate; IRM-20 internal insulation scope",
+  "heatsink insulators of the TO-247 tabs (HOT drain to chassis/PE heatsink): material and creepage",
+  "hipot / partial discharge on the assembled board"
+ ],
+ "verdict_pcb": true
+}

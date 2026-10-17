@@ -1,0 +1,22 @@
+{
+ "supply_mA_each": 0.14296028880866427,
+ "y_board_mA": 0.1313738649507565,
+ "y_module_mA": 0.4120362128001,
+ "coil_mA": 0.0018511771879424787,
+ "rows": {
+  "baseline (3 modules charged, as F5 study)": 0.9741,
+  "V1 PS2 not in PE path (HOT-referenced secondary)": 0.8312,
+  "V2 PS1 merged into PS3 (proposal P1), PS2 still charged": 0.8312,
+  "V3 = V1 + V2 (P1 and PS2 reclassified)": 0.6882,
+  "V4 = V3 and typical-measured modules (0.015 mA @240 V Simpex, informational)": 0.5552
+ },
+ "y_nominal_nF_allowed": {
+  "3 supplies in path, 0.25 mA budget": 0.0,
+  "3 supplies in path, 0.5 mA limit": 1.16,
+  "2 supplies in path, 0.25 mA budget": 0.0,
+  "2 supplies in path, 0.5 mA limit": 3.55,
+  "1 supplies in path, 0.25 mA budget": 1.76,
+  "1 supplies in path, 0.5 mA limit": 5.95
+ },
+ "y_nominal_nF_now": 9.1
+}

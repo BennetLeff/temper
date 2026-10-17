@@ -1,0 +1,1264 @@
+{
+ "status": "ASSUMED / pre-measurement; maxima over evaluated cases",
+ "fha_calibration": {
+  "p_ngspice_over_fha_median": 1.0021,
+  "i_ngspice_over_fha_median": 1.0011,
+  "p_ratio_range": [
+   1.0014,
+   1.0034
+  ],
+  "i_ratio_range": [
+   1.0007,
+   1.0018
+  ]
+ },
+ "constants": {
+  "share_worst": 0.23404255319148937,
+  "I_part_limit_A_85C_35kHz": 5.97,
+  "shunt_min_A": 47.32,
+  "fw_peak_limit_A": 45.0,
+  "mc_draws": 4000
+ },
+ "geometries": {
+  "basis_d170": {
+   "sections_mm": [
+    [
+     22,
+     85,
+     1.0
+    ]
+   ],
+   "L_per_turn2_free_uH": 0.1424133047868114,
+   "L_per_turn2_installed_uH": 0.13958265706952566,
+   "installed_over_free": 0.9801237130089556,
+   "turns_for_70uH_free": 22.170410666141176,
+   "turns_for_66.34uH_installed": 21.800778528160762
+  },
+  "basis_d180": {
+   "sections_mm": [
+    [
+     22,
+     90,
+     1.0
+    ]
+   ],
+   "L_per_turn2_free_uH": 0.14950794014403312,
+   "L_per_turn2_installed_uH": 0.14598645574692215,
+   "installed_over_free": 0.9764461713958574,
+   "turns_for_70uH_free": 21.637988767165595,
+   "turns_for_66.34uH_installed": 21.317263384359794
+  },
+  "basis_d200": {
+   "sections_mm": [
+    [
+     22,
+     100,
+     1.0
+    ]
+   ],
+   "L_per_turn2_free_uH": 0.15877953493547664,
+   "L_per_turn2_installed_uH": 0.15378546742442062,
+   "installed_over_free": 0.9685471587186255,
+   "turns_for_70uH_free": 20.996734525841987,
+   "turns_for_66.34uH_installed": 20.769693376894924
+  },
+  "d210_2sec": {
+   "sections_mm": [
+    [
+     26,
+     63,
+     0.5294117647058824
+    ],
+    [
+     75,
+     106,
+     0.47058823529411764
+    ]
+   ],
+   "L_per_turn2_free_uH": 0.17333625504316386,
+   "L_per_turn2_installed_uH": 0.16611219275483693,
+   "installed_over_free": 0.9583234200685368,
+   "turns_for_70uH_free": 20.095754445224348,
+   "turns_for_66.34uH_installed": 19.984209690211046
+  },
+  "d228_2sec": {
+   "sections_mm": [
+    [
+     26,
+     68,
+     0.525
+    ],
+    [
+     76,
+     114,
+     0.475
+    ]
+   ],
+   "L_per_turn2_free_uH": 0.18204965313232288,
+   "L_per_turn2_installed_uH": 0.1729091706023375,
+   "installed_over_free": 0.9497912664335502,
+   "turns_for_70uH_free": 19.608938846683806,
+   "turns_for_66.34uH_installed": 19.587486934486723
+  },
+  "d240_cont": {
+   "sections_mm": [
+    [
+     22,
+     116,
+     1.0
+    ]
+   ],
+   "L_per_turn2_free_uH": 0.17596167588226405,
+   "L_per_turn2_installed_uH": 0.167095989063798,
+   "installed_over_free": 0.9496158082490752,
+   "turns_for_70uH_free": 19.945272546883313,
+   "turns_for_66.34uH_installed": 19.92529320893409
+  },
+  "d228_gap84": {
+   "sections_mm": [
+    [
+     27.4,
+     82.6,
+     0.761904761904762
+    ],
+    [
+     93.4,
+     112.6,
+     0.2380952380952381
+    ]
+   ],
+   "ferrite_r_mm": [
+    32.0,
+    118.0
+   ],
+   "L_per_turn2_free_uH": 0.16761307180678836,
+   "L_per_turn2_installed_uH": 0.1604654247779765,
+   "installed_over_free": 0.957356267313977,
+   "turns_for_70uH_free": 20.435961570279893,
+   "turns_for_80uH_free": 21.846961875790335,
+   "L_installed_at_18.9_turns_uH": 57.319854384940975
+  }
+ },
+ "configs": {
+  "basis-d180-pan200": {
+   "geom": "basis_d180",
+   "pan_d_mm": 200,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 34,
+    "INPUT_LIMITED": 11
+   },
+   "full_power_cases": "11/45",
+   "full_power_120V": "4/15",
+   "f_res_kHz_range": [
+    29.57,
+    36.04
+   ],
+   "f_op_kHz_range": [
+    36.25,
+    50.44
+   ],
+   "f_over_fres_min": 1.2156,
+   "f_over_fres_max_at_full_power": 1.2823,
+   "fha_phase_min_deg": 53.23,
+   "i_edge_crest_min_A": 34.105,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.244,
+   "cases_pk_over_45A_fw_limit": 16,
+   "margin_to_shunt_min_A": 0.08,
+   "vc_pk_max_V": 374.84,
+   "vc_rms_max_V": 187.62,
+   "vc_rms_over_500Vac": 0.375,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 121.2,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     32.35,
+     33.64
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 40.34,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 26.7,
+    "zvs_floor_max_kHz": 42.36
+   },
+   "mc_yield_108V_mean_over_classes": 0.441,
+   "mc_yield_120V_mean_over_classes": 0.259,
+   "mc_yield_140V_mean_over_classes": 0.074,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.601,
+    "enamelled_steel": 0.118,
+    "ss1810_ferromagnetic_base": 0.245,
+    "thin_stainless_single_ply": 0.294,
+    "aluminium_clad_multiply": 0.039
+   }
+  },
+  "d228-2sec-pan180": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 180,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 45
+   },
+   "full_power_cases": "0/45",
+   "full_power_120V": "0/15",
+   "f_res_kHz_range": [
+    29.71,
+    36.74
+   ],
+   "f_op_kHz_range": [
+    35.97,
+    52.02
+   ],
+   "f_over_fres_min": 1.2105,
+   "f_over_fres_max_at_full_power": null,
+   "fha_phase_min_deg": 59.18,
+   "i_edge_crest_min_A": 41.288,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.909,
+   "cases_pk_over_45A_fw_limit": 32,
+   "margin_to_shunt_min_A": -0.59,
+   "vc_pk_max_V": 388.21,
+   "vc_rms_max_V": 194.42,
+   "vc_rms_over_500Vac": 0.389,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 122.7,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     32.69,
+     34.09
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 41.12,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 26.83,
+    "zvs_floor_max_kHz": 43.17
+   },
+   "mc_yield_108V_mean_over_classes": 0.028,
+   "mc_yield_120V_mean_over_classes": 0.002,
+   "mc_yield_140V_mean_over_classes": 0.0,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.009,
+    "enamelled_steel": 0.0,
+    "ss1810_ferromagnetic_base": 0.0,
+    "thin_stainless_single_ply": 0.0,
+    "aluminium_clad_multiply": 0.0
+   }
+  },
+  "d228-2sec-pan220": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 40,
+    "INPUT_LIMITED": 5
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    30.16,
+    39.03
+   ],
+   "f_op_kHz_range": [
+    36.94,
+    56.21
+   ],
+   "f_over_fres_min": 1.2235,
+   "f_over_fres_max_at_full_power": 1.2482,
+   "fha_phase_min_deg": 55.34,
+   "i_edge_crest_min_A": 36.668,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 21.999,
+   "i_tank_pk_max_A": 47.613,
+   "cases_pk_over_45A_fw_limit": 21,
+   "margin_to_shunt_min_A": -0.29,
+   "vc_pk_max_V": 365.29,
+   "vc_rms_max_V": 183.13,
+   "vc_rms_over_500Vac": 0.366,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 124.0,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     33.78,
+     35.55
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 43.68,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.23,
+    "zvs_floor_max_kHz": 45.87
+   },
+   "mc_yield_108V_mean_over_classes": 0.289,
+   "mc_yield_120V_mean_over_classes": 0.13,
+   "mc_yield_140V_mean_over_classes": 0.021,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.41,
+    "enamelled_steel": 0.033,
+    "ss1810_ferromagnetic_base": 0.059,
+    "thin_stainless_single_ply": 0.139,
+    "aluminium_clad_multiply": 0.01
+   }
+  },
+  "d228-2sec-pan260": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 260,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 38,
+    "INPUT_LIMITED": 7
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    30.2,
+    39.27
+   ],
+   "f_op_kHz_range": [
+    37.08,
+    56.61
+   ],
+   "f_over_fres_min": 1.223,
+   "f_over_fres_max_at_full_power": 1.2513,
+   "fha_phase_min_deg": 54.5,
+   "i_edge_crest_min_A": 35.662,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 21.999,
+   "i_tank_pk_max_A": 47.516,
+   "cases_pk_over_45A_fw_limit": 17,
+   "margin_to_shunt_min_A": -0.2,
+   "vc_pk_max_V": 365.78,
+   "vc_rms_max_V": 183.24,
+   "vc_rms_over_500Vac": 0.366,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 124.1,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     33.89,
+     35.7
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 43.95,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.27,
+    "zvs_floor_max_kHz": 46.15
+   },
+   "mc_yield_108V_mean_over_classes": 0.372,
+   "mc_yield_120V_mean_over_classes": 0.2,
+   "mc_yield_140V_mean_over_classes": 0.044,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.523,
+    "enamelled_steel": 0.074,
+    "ss1810_ferromagnetic_base": 0.145,
+    "thin_stainless_single_ply": 0.221,
+    "aluminium_clad_multiply": 0.038
+   }
+  },
+  "d240-pan180": {
+   "geom": "d240_cont",
+   "pan_d_mm": 180,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 44,
+    "INPUT_LIMITED": 1
+   },
+   "full_power_cases": "1/45",
+   "full_power_120V": "0/15",
+   "f_res_kHz_range": [
+    29.83,
+    37.31
+   ],
+   "f_op_kHz_range": [
+    36.13,
+    53.07
+   ],
+   "f_over_fres_min": 1.2114,
+   "f_over_fres_max_at_full_power": 1.2114,
+   "fha_phase_min_deg": 58.23,
+   "i_edge_crest_min_A": 40.557,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.874,
+   "cases_pk_over_45A_fw_limit": 29,
+   "margin_to_shunt_min_A": -0.55,
+   "vc_pk_max_V": 382.81,
+   "vc_rms_max_V": 191.61,
+   "vc_rms_over_500Vac": 0.383,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 123.1,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     32.97,
+     34.46
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 41.76,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 26.94,
+    "zvs_floor_max_kHz": 43.85
+   },
+   "mc_yield_108V_mean_over_classes": 0.056,
+   "mc_yield_120V_mean_over_classes": 0.01,
+   "mc_yield_140V_mean_over_classes": 0.0,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.049,
+    "enamelled_steel": 0.0,
+    "ss1810_ferromagnetic_base": 0.0,
+    "thin_stainless_single_ply": 0.002,
+    "aluminium_clad_multiply": 0.0
+   }
+  },
+  "d240-pan220": {
+   "geom": "d240_cont",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 38,
+    "INPUT_LIMITED": 7
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    30.27,
+    39.67
+   ],
+   "f_op_kHz_range": [
+    37.13,
+    57.45
+   ],
+   "f_over_fres_min": 1.2257,
+   "f_over_fres_max_at_full_power": 1.2504,
+   "fha_phase_min_deg": 55.08,
+   "i_edge_crest_min_A": 36.364,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.606,
+   "cases_pk_over_45A_fw_limit": 19,
+   "margin_to_shunt_min_A": -0.29,
+   "vc_pk_max_V": 363.52,
+   "vc_rms_max_V": 182.19,
+   "vc_rms_over_500Vac": 0.364,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 124.4,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     34.07,
+     35.95
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 44.41,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.34,
+    "zvs_floor_max_kHz": 46.63
+   },
+   "mc_yield_108V_mean_over_classes": 0.32,
+   "mc_yield_120V_mean_over_classes": 0.157,
+   "mc_yield_140V_mean_over_classes": 0.031,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.452,
+    "enamelled_steel": 0.047,
+    "ss1810_ferromagnetic_base": 0.095,
+    "thin_stainless_single_ply": 0.176,
+    "aluminium_clad_multiply": 0.016
+   }
+  },
+  "d240-pan260": {
+   "geom": "d240_cont",
+   "pan_d_mm": 260,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 37,
+    "INPUT_LIMITED": 8
+   },
+   "full_power_cases": "9/45",
+   "full_power_120V": "3/15",
+   "f_res_kHz_range": [
+    30.32,
+    39.95
+   ],
+   "f_op_kHz_range": [
+    37.28,
+    57.92
+   ],
+   "f_over_fres_min": 1.2231,
+   "f_over_fres_max_at_full_power": 1.2859,
+   "fha_phase_min_deg": 54.22,
+   "i_edge_crest_min_A": 35.336,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.507,
+   "cases_pk_over_45A_fw_limit": 17,
+   "margin_to_shunt_min_A": -0.19,
+   "vc_pk_max_V": 363.92,
+   "vc_rms_max_V": 182.25,
+   "vc_rms_over_500Vac": 0.364,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 124.5,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     34.2,
+     36.12
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 44.72,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.38,
+    "zvs_floor_max_kHz": 46.96
+   },
+   "mc_yield_108V_mean_over_classes": 0.408,
+   "mc_yield_120V_mean_over_classes": 0.233,
+   "mc_yield_140V_mean_over_classes": 0.058,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.551,
+    "enamelled_steel": 0.106,
+    "ss1810_ferromagnetic_base": 0.188,
+    "thin_stainless_single_ply": 0.265,
+    "aluminium_clad_multiply": 0.056
+   }
+  },
+  "d228-L53-pan220": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 53.0,
+   "status": {
+    "TANK_LIMITED": 34,
+    "BURST_REQUIRED": 10,
+    "INPUT_LIMITED": 1
+   },
+   "full_power_cases": "1/45",
+   "full_power_120V": "0/15",
+   "f_res_kHz_range": [
+    34.0,
+    44.0
+   ],
+   "f_op_kHz_range": [
+    42.42,
+    60.0
+   ],
+   "f_over_fres_min": 1.2476,
+   "f_over_fres_max_at_full_power": 1.2476,
+   "fha_phase_min_deg": 57.58,
+   "i_edge_crest_min_A": 39.984,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 28.918,
+   "i_tank_pk_max_A": 61.458,
+   "cases_pk_over_45A_fw_limit": 29,
+   "margin_to_shunt_min_A": -14.14,
+   "vc_pk_max_V": 321.2,
+   "vc_rms_max_V": 160.99,
+   "vc_rms_over_500Vac": 0.322,
+   "cap_part_I_worst_A": 6.77,
+   "cap_part_I_over_TDK_85C_35kHz": 1.134,
+   "coil_loss_max_W": 175.6,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     38.09,
+     40.08
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 49.25,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 30.71,
+    "zvs_floor_max_kHz": 51.72
+   },
+   "mc_yield_108V_mean_over_classes": 0.111,
+   "mc_yield_120V_mean_over_classes": 0.042,
+   "mc_yield_140V_mean_over_classes": 0.038,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.128,
+    "enamelled_steel": 0.024,
+    "ss1810_ferromagnetic_base": 0.002,
+    "thin_stainless_single_ply": 0.048,
+    "aluminium_clad_multiply": 0.006
+   }
+  },
+  "d228-L58-pan220": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 58.0,
+   "status": {
+    "TANK_LIMITED": 40,
+    "INPUT_LIMITED": 3,
+    "BURST_REQUIRED": 2
+   },
+   "full_power_cases": "3/45",
+   "full_power_120V": "1/15",
+   "f_res_kHz_range": [
+    32.4,
+    41.93
+   ],
+   "f_op_kHz_range": [
+    40.12,
+    60.0
+   ],
+   "f_over_fres_min": 1.2383,
+   "f_over_fres_max_at_full_power": 1.2597,
+   "fha_phase_min_deg": 56.71,
+   "i_edge_crest_min_A": 38.652,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 24.044,
+   "i_tank_pk_max_A": 51.948,
+   "cases_pk_over_45A_fw_limit": 27,
+   "margin_to_shunt_min_A": -4.63,
+   "vc_pk_max_V": 340.44,
+   "vc_rms_max_V": 170.47,
+   "vc_rms_over_500Vac": 0.341,
+   "cap_part_I_worst_A": 5.63,
+   "cap_part_I_over_TDK_85C_35kHz": 0.943,
+   "coil_loss_max_W": 130.8,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     36.3,
+     38.2
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 46.94,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 29.26,
+    "zvs_floor_max_kHz": 49.28
+   },
+   "mc_yield_108V_mean_over_classes": 0.17,
+   "mc_yield_120V_mean_over_classes": 0.06,
+   "mc_yield_140V_mean_over_classes": 0.009,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.232,
+    "enamelled_steel": 0.003,
+    "ss1810_ferromagnetic_base": 0.007,
+    "thin_stainless_single_ply": 0.057,
+    "aluminium_clad_multiply": 0.001
+   }
+  },
+  "d228-L75-pan220": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 75.0,
+   "status": {
+    "TANK_LIMITED": 36,
+    "INPUT_LIMITED": 7,
+    "FLOOR_LIMITED": 2
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    28.24,
+    36.55
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    51.38
+   ],
+   "f_over_fres_min": 1.2064,
+   "f_over_fres_max_at_full_power": 1.2646,
+   "fha_phase_min_deg": 55.76,
+   "i_edge_crest_min_A": 33.397,
+   "floor_limited": 2,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.254,
+   "cases_pk_over_45A_fw_limit": 16,
+   "margin_to_shunt_min_A": 0.07,
+   "vc_pk_max_V": 396.82,
+   "vc_rms_max_V": 198.73,
+   "vc_rms_over_500Vac": 0.397,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 118.3,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     31.64,
+     33.29
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 40.91,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.5,
+    "zvs_floor_max_kHz": 42.95
+   },
+   "mc_yield_108V_mean_over_classes": 0.377,
+   "mc_yield_120V_mean_over_classes": 0.223,
+   "mc_yield_140V_mean_over_classes": 0.058,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.512,
+    "enamelled_steel": 0.101,
+    "ss1810_ferromagnetic_base": 0.199,
+    "thin_stainless_single_ply": 0.263,
+    "aluminium_clad_multiply": 0.038
+   }
+  },
+  "d228-L82-pan220": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 82.0,
+   "status": {
+    "TANK_LIMITED": 31,
+    "INPUT_LIMITED": 3,
+    "FLOOR_LIMITED": 11
+   },
+   "full_power_cases": "4/45",
+   "full_power_120V": "1/15",
+   "f_res_kHz_range": [
+    26.93,
+    34.85
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    48.16
+   ],
+   "f_over_fres_min": 1.2144,
+   "f_over_fres_max_at_full_power": 1.2456,
+   "fha_phase_min_deg": 56.58,
+   "i_edge_crest_min_A": 28.692,
+   "floor_limited": 11,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 46.978,
+   "cases_pk_over_45A_fw_limit": 11,
+   "margin_to_shunt_min_A": 0.34,
+   "vc_pk_max_V": 397.5,
+   "vc_rms_max_V": 199.19,
+   "vc_rms_over_500Vac": 0.398,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 114.2,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     30.16,
+     31.74
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 39.0,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 24.32,
+    "zvs_floor_max_kHz": 40.95
+   },
+   "mc_yield_108V_mean_over_classes": 0.394,
+   "mc_yield_120V_mean_over_classes": 0.27,
+   "mc_yield_140V_mean_over_classes": 0.093,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.52,
+    "enamelled_steel": 0.169,
+    "ss1810_ferromagnetic_base": 0.272,
+    "thin_stainless_single_ply": 0.318,
+    "aluminium_clad_multiply": 0.073
+   }
+  },
+  "d210-2sec-pan220": {
+   "geom": "d210_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 66.34,
+   "status": {
+    "TANK_LIMITED": 38,
+    "INPUT_LIMITED": 7
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    29.92,
+    37.75
+   ],
+   "f_op_kHz_range": [
+    36.62,
+    53.73
+   ],
+   "f_over_fres_min": 1.2219,
+   "f_over_fres_max_at_full_power": 1.2459,
+   "fha_phase_min_deg": 54.92,
+   "i_edge_crest_min_A": 36.117,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.518,
+   "cases_pk_over_45A_fw_limit": 18,
+   "margin_to_shunt_min_A": -0.2,
+   "vc_pk_max_V": 370.55,
+   "vc_rms_max_V": 185.71,
+   "vc_rms_over_500Vac": 0.371,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 122.9,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     33.19,
+     34.75
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 42.25,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.02,
+    "zvs_floor_max_kHz": 44.36
+   },
+   "mc_yield_108V_mean_over_classes": 0.307,
+   "mc_yield_120V_mean_over_classes": 0.146,
+   "mc_yield_140V_mean_over_classes": 0.026,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.441,
+    "enamelled_steel": 0.038,
+    "ss1810_ferromagnetic_base": 0.078,
+    "thin_stainless_single_ply": 0.161,
+    "aluminium_clad_multiply": 0.01
+   }
+  },
+  "gap84-pan180": {
+   "geom": "d228_gap84",
+   "pan_d_mm": 180,
+   "L0_installed_uH": 66.5,
+   "status": {
+    "TANK_LIMITED": 44,
+    "INPUT_LIMITED": 1
+   },
+   "full_power_cases": "1/45",
+   "full_power_120V": "0/15",
+   "f_res_kHz_range": [
+    29.7,
+    36.82
+   ],
+   "f_op_kHz_range": [
+    36.07,
+    52.1
+   ],
+   "f_over_fres_min": 1.2143,
+   "f_over_fres_max_at_full_power": 1.2143,
+   "fha_phase_min_deg": 57.24,
+   "i_edge_crest_min_A": 39.123,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.736,
+   "cases_pk_over_45A_fw_limit": 27,
+   "margin_to_shunt_min_A": -0.42,
+   "vc_pk_max_V": 380.0,
+   "vc_rms_max_V": 190.35,
+   "vc_rms_over_500Vac": 0.381,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 122.5,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     32.72,
+     34.13
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 41.21,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 26.82,
+    "zvs_floor_max_kHz": 43.27
+   },
+   "mc_yield_108V_mean_over_classes": 0.1,
+   "mc_yield_120V_mean_over_classes": 0.029,
+   "mc_yield_140V_mean_over_classes": 0.0,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.13,
+    "enamelled_steel": 0.0,
+    "ss1810_ferromagnetic_base": 0.0,
+    "thin_stainless_single_ply": 0.015,
+    "aluminium_clad_multiply": 0.0
+   }
+  },
+  "gap84-pan220": {
+   "geom": "d228_gap84",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 66.5,
+   "status": {
+    "TANK_LIMITED": 38,
+    "INPUT_LIMITED": 7
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    30.04,
+    38.53
+   ],
+   "f_op_kHz_range": [
+    36.79,
+    55.22
+   ],
+   "f_over_fres_min": 1.2233,
+   "f_over_fres_max_at_full_power": 1.2472,
+   "fha_phase_min_deg": 55.0,
+   "i_edge_crest_min_A": 36.22,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.561,
+   "cases_pk_over_45A_fw_limit": 18,
+   "margin_to_shunt_min_A": -0.24,
+   "vc_pk_max_V": 368.11,
+   "vc_rms_max_V": 184.49,
+   "vc_rms_over_500Vac": 0.369,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 123.5,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     33.53,
+     35.23
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 43.12,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.12,
+    "zvs_floor_max_kHz": 45.28
+   },
+   "mc_yield_108V_mean_over_classes": 0.319,
+   "mc_yield_120V_mean_over_classes": 0.153,
+   "mc_yield_140V_mean_over_classes": 0.028,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.451,
+    "enamelled_steel": 0.041,
+    "ss1810_ferromagnetic_base": 0.088,
+    "thin_stainless_single_ply": 0.175,
+    "aluminium_clad_multiply": 0.012
+   }
+  },
+  "gap84-pan260": {
+   "geom": "d228_gap84",
+   "pan_d_mm": 260,
+   "L0_installed_uH": 66.5,
+   "status": {
+    "TANK_LIMITED": 38,
+    "INPUT_LIMITED": 7
+   },
+   "full_power_cases": "9/45",
+   "full_power_120V": "3/15",
+   "f_res_kHz_range": [
+    30.07,
+    38.7
+   ],
+   "f_op_kHz_range": [
+    36.89,
+    55.51
+   ],
+   "f_over_fres_min": 1.2213,
+   "f_over_fres_max_at_full_power": 1.284,
+   "fha_phase_min_deg": 54.38,
+   "i_edge_crest_min_A": 35.49,
+   "floor_limited": 0,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.479,
+   "cases_pk_over_45A_fw_limit": 17,
+   "margin_to_shunt_min_A": -0.16,
+   "vc_pk_max_V": 368.34,
+   "vc_rms_max_V": 184.5,
+   "vc_rms_over_500Vac": 0.369,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 123.5,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     33.61,
+     35.33
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 43.32,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 27.15,
+    "zvs_floor_max_kHz": 45.48
+   },
+   "mc_yield_108V_mean_over_classes": 0.371,
+   "mc_yield_120V_mean_over_classes": 0.201,
+   "mc_yield_140V_mean_over_classes": 0.05,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.525,
+    "enamelled_steel": 0.074,
+    "ss1810_ferromagnetic_base": 0.146,
+    "thin_stainless_single_ply": 0.227,
+    "aluminium_clad_multiply": 0.034
+   }
+  },
+  "gap84-L76-pan180": {
+   "geom": "d228_gap84",
+   "pan_d_mm": 180,
+   "L0_installed_uH": 76.0,
+   "status": {
+    "TANK_LIMITED": 36,
+    "FLOOR_LIMITED": 9
+   },
+   "full_power_cases": "0/45",
+   "full_power_120V": "0/15",
+   "f_res_kHz_range": [
+    27.65,
+    34.28
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    47.32
+   ],
+   "f_over_fres_min": 1.213,
+   "f_over_fres_max_at_full_power": null,
+   "fha_phase_min_deg": 60.09,
+   "i_edge_crest_min_A": 32.883,
+   "floor_limited": 9,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.4,
+   "cases_pk_over_45A_fw_limit": 21,
+   "margin_to_shunt_min_A": -0.08,
+   "vc_pk_max_V": 398.12,
+   "vc_rms_max_V": 199.68,
+   "vc_rms_over_500Vac": 0.399,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 116.2,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     30.46,
+     31.78
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 38.37,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 24.97,
+    "zvs_floor_max_kHz": 40.29
+   },
+   "mc_yield_108V_mean_over_classes": 0.167,
+   "mc_yield_120V_mean_over_classes": 0.072,
+   "mc_yield_140V_mean_over_classes": 0.006,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.258,
+    "enamelled_steel": 0.006,
+    "ss1810_ferromagnetic_base": 0.019,
+    "thin_stainless_single_ply": 0.076,
+    "aluminium_clad_multiply": 0.0
+   }
+  },
+  "gap84-L76-pan220": {
+   "geom": "d228_gap84",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 76.0,
+   "status": {
+    "TANK_LIMITED": 35,
+    "INPUT_LIMITED": 6,
+    "FLOOR_LIMITED": 4
+   },
+   "full_power_cases": "8/45",
+   "full_power_120V": "3/15",
+   "f_res_kHz_range": [
+    27.97,
+    35.87
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    50.09
+   ],
+   "f_over_fres_min": 1.2127,
+   "f_over_fres_max_at_full_power": 1.2638,
+   "fha_phase_min_deg": 55.29,
+   "i_edge_crest_min_A": 32.158,
+   "floor_limited": 4,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.164,
+   "cases_pk_over_45A_fw_limit": 16,
+   "margin_to_shunt_min_A": 0.16,
+   "vc_pk_max_V": 391.2,
+   "vc_rms_max_V": 196.2,
+   "vc_rms_over_500Vac": 0.392,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 117.2,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     31.22,
+     32.8
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 40.15,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.26,
+    "zvs_floor_max_kHz": 42.16
+   },
+   "mc_yield_108V_mean_over_classes": 0.397,
+   "mc_yield_120V_mean_over_classes": 0.249,
+   "mc_yield_140V_mean_over_classes": 0.074,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.537,
+    "enamelled_steel": 0.132,
+    "ss1810_ferromagnetic_base": 0.234,
+    "thin_stainless_single_ply": 0.291,
+    "aluminium_clad_multiply": 0.051
+   }
+  },
+  "gap84-L76-pan260": {
+   "geom": "d228_gap84",
+   "pan_d_mm": 260,
+   "L0_installed_uH": 76.0,
+   "status": {
+    "INPUT_LIMITED": 11,
+    "TANK_LIMITED": 31,
+    "FLOOR_LIMITED": 3
+   },
+   "full_power_cases": "11/45",
+   "full_power_120V": "4/15",
+   "f_res_kHz_range": [
+    28.0,
+    36.03
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    50.35
+   ],
+   "f_over_fres_min": 1.211,
+   "f_over_fres_max_at_full_power": 1.267,
+   "fha_phase_min_deg": 54.69,
+   "i_edge_crest_min_A": 31.732,
+   "floor_limited": 3,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.072,
+   "cases_pk_over_45A_fw_limit": 13,
+   "margin_to_shunt_min_A": 0.25,
+   "vc_pk_max_V": 391.7,
+   "vc_rms_max_V": 196.35,
+   "vc_rms_over_500Vac": 0.393,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 117.3,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     31.3,
+     32.9
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 40.33,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.28,
+    "zvs_floor_max_kHz": 42.35
+   },
+   "mc_yield_108V_mean_over_classes": 0.454,
+   "mc_yield_120V_mean_over_classes": 0.309,
+   "mc_yield_140V_mean_over_classes": 0.103,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.61,
+    "enamelled_steel": 0.177,
+    "ss1810_ferromagnetic_base": 0.319,
+    "thin_stainless_single_ply": 0.35,
+    "aluminium_clad_multiply": 0.09
+   }
+  },
+  "d228-L76-pan180": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 180,
+   "L0_installed_uH": 76.0,
+   "status": {
+    "TANK_LIMITED": 39,
+    "FLOOR_LIMITED": 6
+   },
+   "full_power_cases": "0/45",
+   "full_power_120V": "0/15",
+   "f_res_kHz_range": [
+    27.63,
+    34.16
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    47.17
+   ],
+   "f_over_fres_min": 1.2147,
+   "f_over_fres_max_at_full_power": null,
+   "fha_phase_min_deg": 62.45,
+   "i_edge_crest_min_A": 33.959,
+   "floor_limited": 6,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.575,
+   "cases_pk_over_45A_fw_limit": 27,
+   "margin_to_shunt_min_A": -0.26,
+   "vc_pk_max_V": 397.69,
+   "vc_rms_max_V": 199.59,
+   "vc_rms_over_500Vac": 0.399,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 116.5,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     30.4,
+     31.7
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 38.24,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 24.95,
+    "zvs_floor_max_kHz": 40.15
+   },
+   "mc_yield_108V_mean_over_classes": 0.065,
+   "mc_yield_120V_mean_over_classes": 0.018,
+   "mc_yield_140V_mean_over_classes": 0.0,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.084,
+    "enamelled_steel": 0.0,
+    "ss1810_ferromagnetic_base": 0.0,
+    "thin_stainless_single_ply": 0.005,
+    "aluminium_clad_multiply": 0.0
+   }
+  },
+  "d228-L76-pan220": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 220,
+   "L0_installed_uH": 76.0,
+   "status": {
+    "TANK_LIMITED": 35,
+    "INPUT_LIMITED": 7,
+    "FLOOR_LIMITED": 3
+   },
+   "full_power_cases": "7/45",
+   "full_power_120V": "2/15",
+   "f_res_kHz_range": [
+    28.04,
+    36.29
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    50.88
+   ],
+   "f_over_fres_min": 1.2083,
+   "f_over_fres_max_at_full_power": 1.2632,
+   "fha_phase_min_deg": 55.61,
+   "i_edge_crest_min_A": 32.662,
+   "floor_limited": 3,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.218,
+   "cases_pk_over_45A_fw_limit": 16,
+   "margin_to_shunt_min_A": 0.1,
+   "vc_pk_max_V": 393.61,
+   "vc_rms_max_V": 197.15,
+   "vc_rms_over_500Vac": 0.394,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 117.6,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     31.41,
+     33.06
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 40.62,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.32,
+    "zvs_floor_max_kHz": 42.65
+   },
+   "mc_yield_108V_mean_over_classes": 0.387,
+   "mc_yield_120V_mean_over_classes": 0.232,
+   "mc_yield_140V_mean_over_classes": 0.062,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.531,
+    "enamelled_steel": 0.116,
+    "ss1810_ferromagnetic_base": 0.203,
+    "thin_stainless_single_ply": 0.268,
+    "aluminium_clad_multiply": 0.04
+   }
+  },
+  "d228-L76-pan260": {
+   "geom": "d228_2sec",
+   "pan_d_mm": 260,
+   "L0_installed_uH": 76.0,
+   "status": {
+    "INPUT_LIMITED": 11,
+    "TANK_LIMITED": 31,
+    "FLOOR_LIMITED": 3
+   },
+   "full_power_cases": "12/45",
+   "full_power_120V": "4/15",
+   "f_res_kHz_range": [
+    28.08,
+    36.51
+   ],
+   "f_op_kHz_range": [
+    35.0,
+    51.23
+   ],
+   "f_over_fres_min": 1.206,
+   "f_over_fres_max_at_full_power": 1.2674,
+   "fha_phase_min_deg": 54.78,
+   "i_edge_crest_min_A": 32.067,
+   "floor_limited": 3,
+   "i_tank_rms_max_A": 22.0,
+   "i_tank_pk_max_A": 47.108,
+   "cases_pk_over_45A_fw_limit": 14,
+   "margin_to_shunt_min_A": 0.21,
+   "vc_pk_max_V": 393.3,
+   "vc_rms_max_V": 196.85,
+   "vc_rms_over_500Vac": 0.394,
+   "cap_part_I_worst_A": 5.15,
+   "cap_part_I_over_TDK_85C_35kHz": 0.862,
+   "coil_loss_max_W": 117.7,
+   "resonance_with_tolerances": {
+    "f_res_nom_kHz": [
+     31.51,
+     33.19
+    ],
+    "f_res_max_kHz (L0-10%, kl min, C-10%)": 40.87,
+    "f_res_min_kHz (L0+10%, kl max, C+10%)": 25.36,
+    "zvs_floor_max_kHz": 42.91
+   },
+   "mc_yield_108V_mean_over_classes": 0.454,
+   "mc_yield_120V_mean_over_classes": 0.314,
+   "mc_yield_140V_mean_over_classes": 0.105,
+   "mc_yield_120V_by_class": {
+    "cast_iron": 0.622,
+    "enamelled_steel": 0.192,
+    "ss1810_ferromagnetic_base": 0.304,
+    "thin_stainless_single_ply": 0.354,
+    "aluminium_clad_multiply": 0.097
+   }
+  }
+ }
+}

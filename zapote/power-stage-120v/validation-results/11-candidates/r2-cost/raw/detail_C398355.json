@@ -1,0 +1,316 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C398355",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "TLV9062IDR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583014031002619904",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TLV9062IDR_C398355.pdf",
+  "dataManualFileAccessId": "8588883815930466304",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv9061",
+  "componentName": "TI TLV9062IDR",
+  "minImage": "",
+  "minImageAccessId": "8583014033054580736",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583014033054580736",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583014031002619904",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583014036066226176",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583014035218976768",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583014039014281216",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583014038132936704",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583014042009419776",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583014041115897856",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 4
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI TLV9062IDR",
+  "componentSpecificationEn": "SOIC-8",
+  "describe": "-40\u2103~+125\u2103 0.05pA 0.5pA 1.6mV 1.8V~5.5V 103dB 10MHz 10nV/\u221aHz@1kHz 2 50mA 530nV/\u2103 538uA 6.5V/us Enable/shutdown function\u3001ESD protection\u3001EMI filtering/RF suppression Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Operational Amplifier ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C398355",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Vos - Input Offset Voltage",
+    "component_code": "C398355",
+    "attribute_value_name": "1.6mV"
+   },
+   {
+    "attribute_name_en": "Input Offset Current(Ios)",
+    "component_code": "C398355",
+    "attribute_value_name": "0.05pA"
+   },
+   {
+    "attribute_name_en": "Output Current",
+    "component_code": "C398355",
+    "attribute_value_name": "50mA"
+   },
+   {
+    "attribute_name_en": "Input Offset Voltage Drift(Vos TC)",
+    "component_code": "C398355",
+    "attribute_value_name": "530nV/\u2103"
+   },
+   {
+    "attribute_name_en": "Slew Rate",
+    "component_code": "C398355",
+    "attribute_value_name": "6.5V/us"
+   },
+   {
+    "attribute_name_en": "Gain Bandwidth Product",
+    "component_code": "C398355",
+    "attribute_value_name": "10MHz"
+   },
+   {
+    "attribute_name_en": "Single supply",
+    "component_code": "C398355",
+    "attribute_value_name": "1.8V~5.5V"
+   },
+   {
+    "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+    "component_code": "C398355",
+    "attribute_value_name": "103dB"
+   },
+   {
+    "attribute_name_en": "Rail to Rail",
+    "component_code": "C398355",
+    "attribute_value_name": "Rail-to-Rail Input, Rail-to-Rail Output"
+   },
+   {
+    "attribute_name_en": "Number of Channels",
+    "component_code": "C398355",
+    "attribute_value_name": "2"
+   },
+   {
+    "attribute_name_en": "Input Voltage Noise Density",
+    "component_code": "C398355",
+    "attribute_value_name": "10nV/\u221aHz@1kHz"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C398355",
+    "attribute_value_name": "538uA"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C398355",
+    "attribute_value_name": "Enable/shutdown function\u3001ESD protection\u3001EMI filtering/RF suppression"
+   },
+   {
+    "attribute_name_en": "Ib - Input Bias Current",
+    "component_code": "C398355",
+    "attribute_value_name": "0.5pA"
+   },
+   {
+    "attribute_name_en": "Dual Supply",
+    "component_code": "C398355",
+    "attribute_value_name": "-"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Amplifiers/Comparators",
+  "secondSortName": "Operational Amplifier",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 380585,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 165759,
+  "overseasStockCount": 165759,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C398355",
+    "startNumber": 1,
+    "endNumber": 49,
+    "productPrice": 0.1212,
+    "erpComponentPriceKeyId": 298179992,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C398355",
+    "startNumber": 50,
+    "endNumber": 149,
+    "productPrice": 0.0961,
+    "erpComponentPriceKeyId": 298179998,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C398355",
+    "startNumber": 150,
+    "endNumber": 499,
+    "productPrice": 0.0832,
+    "erpComponentPriceKeyId": 298180000,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C398355",
+    "startNumber": 500,
+    "endNumber": 2499,
+    "productPrice": 0.0728,
+    "erpComponentPriceKeyId": 298180005,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C398355",
+    "startNumber": 2500,
+    "endNumber": 4999,
+    "productPrice": 0.069,
+    "erpComponentPriceKeyId": 298179994,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C398355",
+    "startNumber": 5000,
+    "endNumber": -1,
+    "productPrice": 0.0664,
+    "erpComponentPriceKeyId": 298179996,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 2500,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 1,
+  "leastNumberPrice": 0.0183,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/operational-amplifier_texas-instruments-tlv9062idr_C398355.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u9002\u7528\u4e8e\u6210\u672c\u654f\u611f\u578b\u7cfb\u7edf\u768410MHz\u3001\u8f68\u5230\u8f68\u8f93\u5165\u8f93\u51fa\uff08RRIO\uff09CMOS\u8fd0\u7b97\u653e\u5927\u5668",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Operational Amplifier",
+  "firstTypeNameEn": "Amplifiers/Comparators",
+  "secondTypeNameId": 3029,
+  "firstTypeNameId": 23,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 165160,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.1212,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 94,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 0,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244381135388776,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-40\u2103~+125\u2103 0.05pA 0.5pA 1.6mV 1.8V~5.5V 103dB 10MHz 10nV/\u221aHz@1kHz 2 50mA 530nV/\u2103 538uA 6.5V/us Enable/shutdown function\u3001ESD protection\u3001EMI filtering/RF suppression Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Operational Amplifier ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:42Z"
+}

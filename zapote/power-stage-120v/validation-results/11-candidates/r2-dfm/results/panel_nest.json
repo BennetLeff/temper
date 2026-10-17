@@ -1,0 +1,19 @@
+{
+ "single_bbox_mm": [
+  290.0,
+  190.0
+ ],
+ "single_bbox_cm2": 551.0,
+ "outline_cm2": 451.5,
+ "two_up_best": {
+  "panel_bbox_mm": [
+   290.0,
+   332.0
+  ],
+  "panel_cm2": 962.8,
+  "dx": 0,
+  "dy": 142
+ },
+ "panel_cm2_per_board": 481.4,
+ "bbox_saving_pct_vs_two_singles": 12.6
+}

@@ -1,0 +1,142 @@
+{
+ "r54_vias4": [
+  {
+   "kind": "via",
+   "xy": [
+    37.3,
+    14.7
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "via",
+   "xy": [
+    38.1,
+    15.6
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "via",
+   "xy": [
+    39.0,
+    14.7
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "via",
+   "xy": [
+    39.8,
+    15.6
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  }
+ ],
+ "r54_pour": [
+  {
+   "kind": "zone",
+   "layer": "F.Cu",
+   "net": "hv_ret",
+   "box": [
+    41.0,
+    15.2,
+    46.5,
+    17.2
+   ]
+  }
+ ],
+ "r54_vias4_pour": [
+  {
+   "kind": "via",
+   "xy": [
+    37.3,
+    14.7
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "via",
+   "xy": [
+    38.1,
+    15.6
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "via",
+   "xy": [
+    39.0,
+    14.7
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "via",
+   "xy": [
+    39.8,
+    15.6
+   ],
+   "layers": [
+    "F.Cu",
+    "In1.Cu"
+   ],
+   "dia": 0.8,
+   "drill": 0.5,
+   "net": "hv_ret"
+  },
+  {
+   "kind": "zone",
+   "layer": "F.Cu",
+   "net": "hv_ret",
+   "box": [
+    41.0,
+    15.2,
+    46.5,
+    17.2
+   ]
+  }
+ ]
+}

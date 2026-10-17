@@ -1,0 +1,408 @@
+{
+ "cluster": "C1",
+ "sites_used": [
+  "LAM_R5.4",
+  "R12.1",
+  "R12.2",
+  "R10.1",
+  "R10.2",
+  "R20.1",
+  "R20.2",
+  "R18.2",
+  "R5.1",
+  "FETROW_B",
+  "Q2S_F",
+  "Q2S_B"
+ ],
+ "search_pitch": 0.5,
+ "h_p0p5": 31.504593840212614,
+ "search_history": [
+  31.441,
+  31.505
+ ],
+ "fit_p0p5": {
+  "h": 31.504593840212614,
+  "sigma_stat": 0.32790331950001456,
+  "chi2": 19.765606666376577,
+  "dof": 11,
+  "birge": 1.340475040165598,
+  "sites": {
+   "LAM_R5.4": {
+    "h": 29.58,
+    "meas_c": 70.76,
+    "model_c": 69.54,
+    "sigma_k": 1.355,
+    "dT_dh_k_per_w_m2k": -0.604,
+    "rise_over_air_k": 45.5
+   },
+   "R12.1": {
+    "h": 30.62,
+    "meas_c": 62.25,
+    "model_c": 61.7,
+    "sigma_k": 1.363,
+    "dT_dh_k_per_w_m2k": -0.604,
+    "rise_over_air_k": 37.0
+   },
+   "R12.2": {
+    "h": 28.99,
+    "meas_c": 63.34,
+    "model_c": 61.72,
+    "sigma_k": 1.633,
+    "dT_dh_k_per_w_m2k": -0.611,
+    "rise_over_air_k": 38.1
+   },
+   "R10.1": {
+    "h": 32.37,
+    "meas_c": 52.85,
+    "model_c": 53.36,
+    "sigma_k": 0.399,
+    "dT_dh_k_per_w_m2k": -0.602,
+    "rise_over_air_k": 27.6
+   },
+   "R10.2": {
+    "h": 32.98,
+    "meas_c": 52.6,
+    "model_c": 53.47,
+    "sigma_k": 0.354,
+    "dT_dh_k_per_w_m2k": -0.607,
+    "rise_over_air_k": 27.3
+   },
+   "R20.1": {
+    "h": 31.05,
+    "meas_c": 48.24,
+    "model_c": 48.0,
+    "sigma_k": 0.487,
+    "dT_dh_k_per_w_m2k": -0.511,
+    "rise_over_air_k": 23.0
+   },
+   "R20.2": {
+    "h": 32.23,
+    "meas_c": 47.83,
+    "model_c": 48.19,
+    "sigma_k": 0.538,
+    "dT_dh_k_per_w_m2k": -0.512,
+    "rise_over_air_k": 22.5
+   },
+   "R18.2": {
+    "h": 31.78,
+    "meas_c": 40.02,
+    "model_c": 40.13,
+    "sigma_k": 0.316,
+    "dT_dh_k_per_w_m2k": -0.41,
+    "rise_over_air_k": 14.7
+   },
+   "R5.1": {
+    "h": 29.57,
+    "meas_c": 68.27,
+    "model_c": 67.1,
+    "sigma_k": 0.716,
+    "dT_dh_k_per_w_m2k": -0.583,
+    "rise_over_air_k": 43.0
+   },
+   "FETROW_B": {
+    "h": 30.45,
+    "meas_c": 67.23,
+    "model_c": 66.54,
+    "sigma_k": 0.319,
+    "dT_dh_k_per_w_m2k": -0.635,
+    "rise_over_air_k": 41.9
+   },
+   "Q2S_F": {
+    "h": 30.63,
+    "meas_c": 66.25,
+    "model_c": 65.76,
+    "sigma_k": 0.474,
+    "dT_dh_k_per_w_m2k": -0.556,
+    "rise_over_air_k": 41.0
+   },
+   "Q2S_B": {
+    "h": 32.38,
+    "meas_c": 61.52,
+    "model_c": 61.89,
+    "sigma_k": 0.386,
+    "dT_dh_k_per_w_m2k": -0.431,
+    "rise_over_air_k": 36.2
+   }
+  },
+  "bracketed": 1.0
+ },
+ "points_p0p5": [
+  17.36,
+  24.8,
+  31.44,
+  34.72
+ ],
+ "h_p0p25": 31.58790819587887,
+ "fit_p0p25": {
+  "h": 31.58790819587887,
+  "sigma_stat": 0.24704471115795254,
+  "chi2": 7.9008352936393065,
+  "dof": 11,
+  "birge": 1.0,
+  "sites": {
+   "LAM_R5.4": {
+    "h": 30.4,
+    "meas_c": 70.76,
+    "model_c": 70.01,
+    "sigma_k": 1.074,
+    "dT_dh_k_per_w_m2k": -0.62,
+    "rise_over_air_k": 45.5
+   },
+   "R12.1": {
+    "h": 30.85,
+    "meas_c": 62.25,
+    "model_c": 61.79,
+    "sigma_k": 1.024,
+    "dT_dh_k_per_w_m2k": -0.615,
+    "rise_over_air_k": 37.0
+   },
+   "R12.2": {
+    "h": 30.72,
+    "meas_c": 63.34,
+    "model_c": 62.79,
+    "sigma_k": 1.051,
+    "dT_dh_k_per_w_m2k": -0.625,
+    "rise_over_air_k": 38.1
+   },
+   "R10.1": {
+    "h": 32.3,
+    "meas_c": 52.85,
+    "model_c": 53.28,
+    "sigma_k": 0.428,
+    "dT_dh_k_per_w_m2k": -0.612,
+    "rise_over_air_k": 27.6
+   },
+   "R10.2": {
+    "h": 32.28,
+    "meas_c": 52.6,
+    "model_c": 53.02,
+    "sigma_k": 0.306,
+    "dT_dh_k_per_w_m2k": -0.618,
+    "rise_over_air_k": 27.3
+   },
+   "R20.1": {
+    "h": 31.27,
+    "meas_c": 48.24,
+    "model_c": 48.07,
+    "sigma_k": 0.448,
+    "dT_dh_k_per_w_m2k": -0.521,
+    "rise_over_air_k": 23.0
+   },
+   "R20.2": {
+    "h": 31.11,
+    "meas_c": 47.83,
+    "model_c": 47.58,
+    "sigma_k": 0.313,
+    "dT_dh_k_per_w_m2k": -0.517,
+    "rise_over_air_k": 22.5
+   },
+   "R18.2": {
+    "h": 30.92,
+    "meas_c": 40.02,
+    "model_c": 39.74,
+    "sigma_k": 0.301,
+    "dT_dh_k_per_w_m2k": -0.41,
+    "rise_over_air_k": 14.7
+   },
+   "R5.1": {
+    "h": 30.4,
+    "meas_c": 68.27,
+    "model_c": 67.56,
+    "sigma_k": 0.656,
+    "dT_dh_k_per_w_m2k": -0.588,
+    "rise_over_air_k": 43.0
+   },
+   "FETROW_B": {
+    "h": 31.15,
+    "meas_c": 67.23,
+    "model_c": 66.94,
+    "sigma_k": 0.878,
+    "dT_dh_k_per_w_m2k": -0.644,
+    "rise_over_air_k": 41.9
+   },
+   "Q2S_F": {
+    "h": 31.28,
+    "meas_c": 66.25,
+    "model_c": 66.08,
+    "sigma_k": 0.707,
+    "dT_dh_k_per_w_m2k": -0.564,
+    "rise_over_air_k": 41.0
+   },
+   "Q2S_B": {
+    "h": 32.52,
+    "meas_c": 61.52,
+    "model_c": 61.92,
+    "sigma_k": 0.381,
+    "dT_dh_k_per_w_m2k": -0.433,
+    "rise_over_air_k": 36.2
+   }
+  },
+  "bracketed": 1.0
+ },
+ "points_p0p25": [
+  27.72,
+  31.5,
+  35.92
+ ],
+ "h": 31.58790819587887,
+ "u_terms_1sigma": {
+  "statistical (TC + placement, Birge-inflated)": 0.24704471115795254,
+  "mesh (0.25 vs 0.5 mm fit)": 0.083314355666257,
+  "copper loss +2%": 0.5004298018796653,
+  "film / module air rise +1.5 K": 0.19403146256041737,
+  "tab TCs +0.5 K": 0.2284935129907666,
+  "drain-lead g (drawing range)": 0.7105244475761445,
+  "bench attachments (g x 0.5 .. x 1.5)": 0.19361483716875583,
+  "air reference +/-0.3 K": 0.5627744017026295,
+  "TC common offset +/-0.2 K": 0.36740937807440943
+ },
+ "u_1sigma": 1.1841858915756274,
+ "U95": 2.3683717831512547,
+ "h_L95": 29.219536412727617,
+ "chi2_dof": 0.7182577539672097,
+ "birge": 1.0,
+ "site_fit": {
+  "LAM_R5.4": {
+   "h": 30.4,
+   "meas_c": 70.76,
+   "model_c": 70.01,
+   "sigma_k": 1.074,
+   "dT_dh_k_per_w_m2k": -0.62,
+   "rise_over_air_k": 45.5
+  },
+  "R12.1": {
+   "h": 30.85,
+   "meas_c": 62.25,
+   "model_c": 61.79,
+   "sigma_k": 1.024,
+   "dT_dh_k_per_w_m2k": -0.615,
+   "rise_over_air_k": 37.0
+  },
+  "R12.2": {
+   "h": 30.72,
+   "meas_c": 63.34,
+   "model_c": 62.79,
+   "sigma_k": 1.051,
+   "dT_dh_k_per_w_m2k": -0.625,
+   "rise_over_air_k": 38.1
+  },
+  "R10.1": {
+   "h": 32.3,
+   "meas_c": 52.85,
+   "model_c": 53.28,
+   "sigma_k": 0.428,
+   "dT_dh_k_per_w_m2k": -0.612,
+   "rise_over_air_k": 27.6
+  },
+  "R10.2": {
+   "h": 32.28,
+   "meas_c": 52.6,
+   "model_c": 53.02,
+   "sigma_k": 0.306,
+   "dT_dh_k_per_w_m2k": -0.618,
+   "rise_over_air_k": 27.3
+  },
+  "R20.1": {
+   "h": 31.27,
+   "meas_c": 48.24,
+   "model_c": 48.07,
+   "sigma_k": 0.448,
+   "dT_dh_k_per_w_m2k": -0.521,
+   "rise_over_air_k": 23.0
+  },
+  "R20.2": {
+   "h": 31.11,
+   "meas_c": 47.83,
+   "model_c": 47.58,
+   "sigma_k": 0.313,
+   "dT_dh_k_per_w_m2k": -0.517,
+   "rise_over_air_k": 22.5
+  },
+  "R18.2": {
+   "h": 30.92,
+   "meas_c": 40.02,
+   "model_c": 39.74,
+   "sigma_k": 0.301,
+   "dT_dh_k_per_w_m2k": -0.41,
+   "rise_over_air_k": 14.7
+  },
+  "R5.1": {
+   "h": 30.4,
+   "meas_c": 68.27,
+   "model_c": 67.56,
+   "sigma_k": 0.656,
+   "dT_dh_k_per_w_m2k": -0.588,
+   "rise_over_air_k": 43.0
+  },
+  "FETROW_B": {
+   "h": 31.15,
+   "meas_c": 67.23,
+   "model_c": 66.94,
+   "sigma_k": 0.878,
+   "dT_dh_k_per_w_m2k": -0.644,
+   "rise_over_air_k": 41.9
+  },
+  "Q2S_F": {
+   "h": 31.28,
+   "meas_c": 66.25,
+   "model_c": 66.08,
+   "sigma_k": 0.707,
+   "dT_dh_k_per_w_m2k": -0.564,
+   "rise_over_air_k": 41.0
+  },
+  "Q2S_B": {
+   "h": 32.52,
+   "meas_c": 61.52,
+   "model_c": 61.92,
+   "sigma_k": 0.381,
+   "dT_dh_k_per_w_m2k": -0.433,
+   "rise_over_air_k": 36.2
+  }
+ },
+ "loss_check": {
+  "model_board_w": 14.911,
+  "measured_w": 14.941,
+  "ratio": 1.002,
+  "action": "if |ratio - 1| > 2 sigma_cu_rel, re-fit with cu_scale = ratio - 1 and say so"
+ },
+ "peak_model": {
+  "temperature_c": 70.34415418173336,
+  "layer": "F.Cu",
+  "x_mm": 38.5,
+  "y_mm": 15.5
+ },
+ "leads": [
+  {
+   "ref": "Q2",
+   "pad": "2",
+   "g_w_per_k": 0.08447269233611707,
+   "t_case_c": 87.30000000000001,
+   "pad_mean_c": 90.11193538342927,
+   "w_to_sink": 0.2375317525134617
+  },
+  {
+   "ref": "Q3",
+   "pad": "2",
+   "g_w_per_k": 0.08447269233611707,
+   "t_case_c": 81.19,
+   "pad_mean_c": 80.31810756554059,
+   "w_to_sink": -0.07365110136627828
+  },
+  {
+   "ref": "Q5",
+   "pad": "2",
+   "g_w_per_k": 0.08447269233611707,
+   "t_case_c": 81.13,
+   "pad_mean_c": 78.47896879974542,
+   "w_to_sink": -0.22393974295255248
+  },
+  {
+   "ref": "Q6",
+   "pad": "2",
+   "g_w_per_k": 0.08447269233611707,
+   "t_case_c": 91.19,
+   "pad_mean_c": 92.9454789111978,
+   "w_to_sink": 0.14829002996815338
+  }
+ ]
+}

@@ -1,0 +1,336 @@
+{
+ "candidates_V": {
+  "F1 runaway, trip + overshoot (time-domain)": 1688.8,
+  "F2 pan removal, loop intact, trip + overshoot (time-domain)": 1494.8,
+  "quasi-steady just under the upper band edge, f >= 35 kHz": 1178.4,
+  "quasi-steady just under the upper band edge, no f floor": 1702.4
+ },
+ "clamp_sizing": {
+  "I_off_A_governing_or_max": 155.4,
+  "dVdt_at_I_off_V_per_us": 345.4,
+  "dVdt_limit_p36_V_per_us": 1000.0,
+  "energy_in_bank_at_peak_mJ": 652.1,
+  "energy_in_coil_at_I_off_mJ": 883.8
+ },
+ "committed_bound_Vc_pk_V": {
+  "no_growth_198V": 1514,
+  "with_growth_198V": 2049,
+  "with_growth_280V": 2271
+ },
+ "context_quasi_steady_no_floor_by_trip_level_V": {
+  "ct_band_high_76.09A": 1164.5,
+  "fw_peak_trip_62A": 988.5,
+  "shunt_band_high_118.74A": 1702.4
+ },
+ "control_model_vs_fundamental": [
+  {
+   "I_fundamental_A": 110.48,
+   "I_time_domain_A": 112.51,
+   "R": 0.6,
+   "Vc_I_times_Xc_V": 1158.2,
+   "Vc_time_domain_V": 1152.8,
+   "bus_V": 198.0,
+   "f_over_f0": 1.1,
+   "rel_err": 0.0184
+  },
+  {
+   "I_fundamental_A": 124.37,
+   "I_time_domain_A": 122.4,
+   "R": 1.6,
+   "Vc_I_times_Xc_V": 1510.1,
+   "Vc_time_domain_V": 1517.7,
+   "bus_V": 198.0,
+   "f_over_f0": 1.05,
+   "rel_err": 0.0158
+  },
+  {
+   "I_fundamental_A": 142.18,
+   "I_time_domain_A": 140.52,
+   "R": 0.6,
+   "Vc_I_times_Xc_V": 1821.8,
+   "Vc_time_domain_V": 1834.6,
+   "bus_V": 280.0,
+   "f_over_f0": 0.9,
+   "rel_err": 0.0116
+  }
+ ],
+ "control_sim_inside_committed_I_off_bound": true,
+ "controls": {
+  "bank_vc_pk_max_28A_V": 483.72,
+  "committed_bound_198 V": {
+   "I_off_max_A": 160.7,
+   "bank_Vpk_no_growth_V": 1514,
+   "bank_Vpk_with_growth_V": 2049,
+   "matches_fault_check_json": true
+  },
+  "committed_bound_280 V": {
+   "I_off_max_A": 178.1,
+   "bank_Vpk_no_growth_V": 1514,
+   "bank_Vpk_with_growth_V": 2271,
+   "matches_fault_check_json": true
+  },
+  "envelope_peak_28A": 59.17,
+  "f_res_min_hz": 25092,
+  "shunt_band_R34_12k6_A": [
+   66.3,
+   118.74
+  ],
+  "t_d_us": 2.267,
+  "z0_max_ohm": 12.75
+ },
+ "f_floor_sensitivity": {
+  "15 kHz": {
+   "steady_max_V": 1702.4,
+   "time_domain_max_V": 1688.8
+  },
+  "20 kHz": {
+   "steady_max_V": 1702.2,
+   "time_domain_max_V": 1688.8
+  },
+  "25 kHz": {
+   "steady_max_V": 1671.9,
+   "time_domain_max_V": 1664.6
+  },
+  "30 kHz": {
+   "steady_max_V": 1397.2,
+   "time_domain_max_V": 1629.6
+  },
+  "35 kHz": {
+   "steady_max_V": 1178.4,
+   "time_domain_max_V": 1494.8
+  }
+ },
+ "governing_Vc_pk_V": 1702.4,
+ "governing_case": "quasi-steady just under the upper band edge, no f floor",
+ "inputs": {
+  "C_uF_bank": [
+   0.44999999999999996,
+   0.5,
+   0.55
+  ],
+  "L_uH": [
+   59.85,
+   66.5,
+   73.15000000000002
+  ],
+  "R_levels_ohm": {
+   "0.05": 0.05,
+   "0.15": 0.15,
+   "0.60": 0.6,
+   "1.60": 1.6
+  },
+  "bank_AC_peak_equiv_500Vrms_V": 707.1,
+  "bank_VR_dc_V": 1600.0,
+  "bank_proof_1p6VR_V": 2560.0,
+  "bus_V": {
+   "198 V": 198.0,
+   "280 V": 280.0
+  },
+  "shunt_band_A": [
+   66.3,
+   118.74
+  ],
+  "t_d_us": 2.267
+ },
+ "matrix_by_bus_and_R": {
+  "198 V | R 0.05": {
+   "F1_runaway_V": 1564.6,
+   "F2_loop_intact_V": 1359.1,
+   "I_off_max_A": 147.8,
+   "steady_35k_floor_V": 833.3,
+   "steady_no_floor_V": 1645.0
+  },
+  "198 V | R 0.15": {
+   "F1_runaway_V": 1526.9,
+   "F2_loop_intact_V": 1332.3,
+   "I_off_max_A": 144.7,
+   "steady_35k_floor_V": 832.4,
+   "steady_no_floor_V": 1643.7
+  },
+  "198 V | R 0.60": {
+   "F1_runaway_V": 1656.0,
+   "F2_loop_intact_V": 1279.1,
+   "I_off_max_A": 138.3,
+   "steady_35k_floor_V": 817.8,
+   "steady_no_floor_V": 1638.6
+  },
+  "198 V | R 1.60": {
+   "F1_runaway_V": 1552.6,
+   "F2_loop_intact_V": 0.0,
+   "I_off_max_A": 126.0,
+   "steady_35k_floor_V": 738.4,
+   "steady_no_floor_V": 1598.8
+  },
+  "280 V | R 0.05": {
+   "F1_runaway_V": 1664.6,
+   "F2_loop_intact_V": 1494.8,
+   "I_off_max_A": 154.8,
+   "steady_35k_floor_V": 1178.4,
+   "steady_no_floor_V": 1702.4
+  },
+  "280 V | R 0.15": {
+   "F1_runaway_V": 1634.3,
+   "F2_loop_intact_V": 1464.7,
+   "I_off_max_A": 155.4,
+   "steady_35k_floor_V": 1177.2,
+   "steady_no_floor_V": 1702.2
+  },
+  "280 V | R 0.60": {
+   "F1_runaway_V": 1688.8,
+   "F2_loop_intact_V": 1339.2,
+   "I_off_max_A": 149.4,
+   "steady_35k_floor_V": 1156.5,
+   "steady_no_floor_V": 1697.9
+  },
+  "280 V | R 1.60": {
+   "F1_runaway_V": 1553.6,
+   "F2_loop_intact_V": 1261.7,
+   "I_off_max_A": 138.3,
+   "steady_35k_floor_V": 1044.2,
+   "steady_no_floor_V": 1671.7
+  }
+ },
+ "max_I_off_A_any_run": 155.44553227005014,
+ "n_tripped_runs": 1304,
+ "quasi_steady_just_under_trip_worst": {
+  "fw_floor_35k": {
+   "I_pk_A": 116.619,
+   "R_ohm": 0.05,
+   "Vc_pk_V": 1178.439,
+   "Xc_ohm": 10.105,
+   "bus": "280 V",
+   "corner": "Lmin_Cmin",
+   "f_hz": 35000.0
+  },
+  "no_floor": {
+   "I_pk_A": 118.727,
+   "R_ohm": 0.05,
+   "Vc_pk_V": 1702.423,
+   "Xc_ohm": 14.339,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "f_hz": 24665.5
+  }
+ },
+ "ratio_to_AC_peak_equiv": 2.408,
+ "ratio_to_VR_dc": 1.064,
+ "ratio_to_proof_1p6VR": 0.665,
+ "time_domain_worst": {
+  "F1_runaway": {
+   "I_off_A": 127.75,
+   "R_ohm": 0.6,
+   "V_off_V": 232.695,
+   "Vc_peak_V": 1688.773,
+   "Xc_ohm": 15.0,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 283.89,
+   "f_hz": 23579,
+   "f_over_f0": 0.85,
+   "half_cycles": 5,
+   "tripped": true
+  },
+  "F2_pan_removal": {
+   "I_off_A": 148.668,
+   "R_ohm": 0.05,
+   "V_off_V": 162.195,
+   "Vc_peak_V": 1494.768,
+   "Xc_ohm": 10.028,
+   "bus": "280 V",
+   "corner": "Lmin_Cmin",
+   "dVdt_V_per_us": 330.373,
+   "f_hz": 35268,
+   "f_over_f0": 1.15,
+   "half_cycles": 4,
+   "tripped": true
+  }
+ },
+ "top_tripped_runs": [
+  {
+   "I_off_A": 127.75,
+   "R_ohm": 0.6,
+   "V_off_V": 232.695,
+   "Vc_peak_V": 1688.773,
+   "Xc_ohm": 15.0,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 283.89,
+   "f_hz": 23579,
+   "f_over_f0": 0.85,
+   "half_cycles": 5,
+   "tripped": true
+  },
+  {
+   "I_off_A": 146.158,
+   "R_ohm": 0.05,
+   "V_off_V": 261.972,
+   "Vc_peak_V": 1664.577,
+   "Xc_ohm": 12.75,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 324.795,
+   "f_hz": 27740,
+   "f_over_f0": 1.0,
+   "half_cycles": 4,
+   "tripped": true
+  },
+  {
+   "I_off_A": 146.158,
+   "R_ohm": 0.05,
+   "V_off_V": 261.977,
+   "Vc_peak_V": 1664.576,
+   "Xc_ohm": 12.752,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 324.795,
+   "f_hz": 27734,
+   "f_over_f0": 1.0,
+   "half_cycles": 4,
+   "tripped": true
+  },
+  {
+   "I_off_A": 146.158,
+   "R_ohm": 0.05,
+   "V_off_V": 261.967,
+   "Vc_peak_V": 1664.576,
+   "Xc_ohm": 12.747,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 324.795,
+   "f_hz": 27746,
+   "f_over_f0": 1.0,
+   "half_cycles": 4,
+   "tripped": true
+  },
+  {
+   "I_off_A": 146.157,
+   "R_ohm": 0.05,
+   "V_off_V": 261.987,
+   "Vc_peak_V": 1664.571,
+   "Xc_ohm": 12.756,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 324.794,
+   "f_hz": 27726,
+   "f_over_f0": 1.0,
+   "half_cycles": 4,
+   "tripped": true
+  },
+  {
+   "I_off_A": 146.158,
+   "R_ohm": 0.05,
+   "V_off_V": 261.963,
+   "Vc_peak_V": 1664.57,
+   "Xc_ohm": 12.743,
+   "bus": "280 V",
+   "corner": "Lmax_Cmin (max Z0)",
+   "dVdt_V_per_us": 324.795,
+   "f_hz": 27754,
+   "f_over_f0": 1.0,
+   "half_cycles": 4,
+   "tripped": true
+  }
+ ],
+ "verdict": "INCONCLUSIVE",
+ "x_normal_operating_peak": 3.52
+}

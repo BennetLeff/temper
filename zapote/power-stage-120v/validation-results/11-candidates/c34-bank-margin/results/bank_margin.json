@@ -1,0 +1,1682 @@
+{
+ "inputs": {
+  "tdk-p57-1600v.csv": "2392a5abc4f1ef34f83264ac1cf801e4aff382f878a3965346ae970c6a3bcd32",
+  "board-side-protection.csv": "df38458e23a215378a453b1086013566fb91243f670c88bbf17c14512ed590e3",
+  "fstrat-b-bank-sweep.csv": "1cedd5e1de018a807f52094c5b43218d491f09ab7df669abecf5c9e8e7a63d50",
+  "board-side-bank.csv": "8bcfa251499f285b3c06f0d425989d826f50e884cc4203ca63a5afdb100e6ab8",
+  "bank_options.json": "eb25aa8aeecea385e55fa945b23f886ecbf868e9e4c553b1f33c673c2f7e4156",
+  "slot_geometry.json": "180e6f9345589afacd0ef654cc21a68153bb979cfc8892527ff41fc9e99f0166",
+  "tdk_curves_c34.json": "b5764841b7f2f5a260d2700194f4b8a2260655738f39a42eaf481fbfb9fa93f4",
+  "b32643b_curves.json": "9b923637ca0cea4bc7e64a68a3287144498184c9d3e8babcf001e0c41417b724",
+  "kemet_r76_curves.json": "c704e8048de5eea1731202fdda69906429df96279cdf171b39315ed34013c0e1",
+  "parts_kemet.json": "c30a3270a490caade88957127c027005045e2de57d6b847daaa9dc01a4ea720f",
+  "parts_tdk.json": "b851ab5291fca016efd5f5dcf1df0b93df167f8f969f21950fe4aeee36eda6ac",
+  "parts_tdk_b3264.json": "49d0321a32582b254211a49f0f4a09b883d9e7e5f8354c4e6bdad0e3c9677dcb"
+ },
+ "kemet_esr_D": {
+  "kemet_esr_1600": 0.0002027,
+  "kemet_esr_2000": 0.0002146
+ },
+ "basis": {
+  "I_tank_A": 28.0,
+  "freqs_Hz": [
+   35000.0,
+   40000.0,
+   45000.0,
+   50000.0
+  ],
+  "go_ratio": 0.85,
+  "pk_over_rms_28A": 2.113
+ },
+ "controls": {
+  "C1_round6_bank_table_K": {
+   "35k": [
+    24.8,
+    24.8
+   ],
+   "40k": [
+    25.3,
+    25.3
+   ],
+   "45k": [
+    26.1,
+    26.1
+   ],
+   "50k": [
+    27.3,
+    27.3
+   ]
+  },
+  "C2_bank_options_40k": {
+   "K": [
+    1.105,
+    1.105
+   ],
+   "J": [
+    1.022,
+    1.022
+   ]
+  },
+  "C3_round6_grid_max_28A": {
+   "recomputed_K": 1.117,
+   "round6": 1.117,
+   "cases": 405,
+   "f_min_kHz": 35.0,
+   "same_cases_J": 1.033,
+   "L70_only_K": 1.098,
+   "L70_only_J": 1.015
+  },
+  "C4_curve_99k_over_table": 0.99,
+  "failed": [],
+  "passed": true
+ },
+ "basis_comparison": {
+  "round6_1.12x": "K (+-10 %) share 0.234, each grid case at its own operating frequency, max over the 28 A / 0.50 uF configs on L 70/80/90 uH (80/90 uH sit on the 35 kHz floor); 70 uH alone gives the L70 value",
+  "scorecard_1.022": "J (+-5 %) share 0.2165 at a fixed 40 kHz (bank_options.py baseline J)",
+  "this_study": "J share, worst f over the whole 35-50 kHz window = the 35 kHz floor for every TDK 1600 V curve",
+  "J_at_35k": 1.045,
+  "J_at_40k": 1.022,
+  "K_at_35k": 1.13
+ },
+ "per_part_35k": [
+  {
+   "id": "tdk_b8473j",
+   "mpn": "B32643B8473J000",
+   "C_nF": 47,
+   "w_mm": 10.5,
+   "pitch": 22.5,
+   "I_allow_35k_A": 5.08,
+   "V_allow_35k_Vrms": 491.1,
+   "nF_per_mm_of_column": 4.27,
+   "uF_in_72mm_row": 0.282
+  },
+  {
+   "id": "tdk_a2473j",
+   "mpn": "B32654A2473J000",
+   "C_nF": 47,
+   "w_mm": 18.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 4.81,
+   "V_allow_35k_Vrms": 465.0,
+   "nF_per_mm_of_column": 2.54,
+   "uF_in_72mm_row": 0.141
+  },
+  {
+   "id": "tdk_b8563j",
+   "mpn": "B32643B8563J000",
+   "C_nF": 56,
+   "w_mm": 10.5,
+   "pitch": 22.5,
+   "I_allow_35k_A": 5.5,
+   "V_allow_35k_Vrms": 446.4,
+   "nF_per_mm_of_column": 5.09,
+   "uF_in_72mm_row": 0.336
+  },
+  {
+   "id": "kem_ur2470j",
+   "mpn": "R76UR2470SE30J",
+   "C_nF": 47,
+   "w_mm": 11.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 4.43,
+   "V_allow_35k_Vrms": 428.7,
+   "nF_per_mm_of_column": 4.09,
+   "uF_in_72mm_row": 0.282
+  },
+  {
+   "id": "tdk_b8683j",
+   "mpn": "B32643B8683J000",
+   "C_nF": 68,
+   "w_mm": 11.0,
+   "pitch": 22.5,
+   "I_allow_35k_A": 6.02,
+   "V_allow_35k_Vrms": 402.5,
+   "nF_per_mm_of_column": 5.91,
+   "uF_in_72mm_row": 0.408
+  },
+  {
+   "id": "tdk_a2683j",
+   "mpn": "B32654A2683J000",
+   "C_nF": 68,
+   "w_mm": 19.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 5.99,
+   "V_allow_35k_Vrms": 400.4,
+   "nF_per_mm_of_column": 3.49,
+   "uF_in_72mm_row": 0.204
+  },
+  {
+   "id": "tdk_b8823j",
+   "mpn": "B32643B8823J000",
+   "C_nF": 82,
+   "w_mm": 12.0,
+   "pitch": 22.5,
+   "I_allow_35k_A": 6.64,
+   "V_allow_35k_Vrms": 368.1,
+   "nF_per_mm_of_column": 6.56,
+   "uF_in_72mm_row": 0.41
+  },
+  {
+   "id": "tdk_a2104j",
+   "mpn": "B32654A2104J000",
+   "C_nF": 100,
+   "w_mm": 22.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 7.86,
+   "V_allow_35k_Vrms": 357.5,
+   "nF_per_mm_of_column": 4.44,
+   "uF_in_72mm_row": 0.3
+  },
+  {
+   "id": "tdk_a1473j",
+   "mpn": "B32654A1473J000",
+   "C_nF": 47,
+   "w_mm": 11.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 3.59,
+   "V_allow_35k_Vrms": 347.3,
+   "nF_per_mm_of_column": 4.09,
+   "uF_in_72mm_row": 0.282
+  },
+  {
+   "id": "tdk_b8104j",
+   "mpn": "B32643B8104J000",
+   "C_nF": 100,
+   "w_mm": 14.5,
+   "pitch": 22.5,
+   "I_allow_35k_A": 7.29,
+   "V_allow_35k_Vrms": 331.7,
+   "nF_per_mm_of_column": 6.67,
+   "uF_in_72mm_row": 0.4
+  },
+  {
+   "id": "kem_ur2820j",
+   "mpn": "R76UR2820SE40J",
+   "C_nF": 82,
+   "w_mm": 13.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 5.86,
+   "V_allow_35k_Vrms": 324.9,
+   "nF_per_mm_of_column": 6.07,
+   "uF_in_72mm_row": 0.41
+  },
+  {
+   "id": "kem_tr2680j",
+   "mpn": "R76TR2680SE30J",
+   "C_nF": 68,
+   "w_mm": 9.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 4.74,
+   "V_allow_35k_Vrms": 316.8,
+   "nF_per_mm_of_column": 7.16,
+   "uF_in_72mm_row": 0.476
+  },
+  {
+   "id": "tdk_b8124j",
+   "mpn": "B32643B8124J000",
+   "C_nF": 120,
+   "w_mm": 14.5,
+   "pitch": 22.5,
+   "I_allow_35k_A": 8.13,
+   "V_allow_35k_Vrms": 308.2,
+   "nF_per_mm_of_column": 8.0,
+   "uF_in_72mm_row": 0.48
+  },
+  {
+   "id": "kem_tr2820j",
+   "mpn": "R76TR2820SE30J",
+   "C_nF": 82,
+   "w_mm": 11.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 5.51,
+   "V_allow_35k_Vrms": 305.7,
+   "nF_per_mm_of_column": 7.13,
+   "uF_in_72mm_row": 0.492
+  },
+  {
+   "id": "kem_ur3100j",
+   "mpn": "R76UR3100SE30J",
+   "C_nF": 100,
+   "w_mm": 14.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 6.49,
+   "V_allow_35k_Vrms": 295.3,
+   "nF_per_mm_of_column": 6.9,
+   "uF_in_72mm_row": 0.5
+  },
+  {
+   "id": "tdk_a1683j",
+   "mpn": "B32654A1683J000",
+   "C_nF": 68,
+   "w_mm": 11.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 4.35,
+   "V_allow_35k_Vrms": 290.6,
+   "nF_per_mm_of_column": 5.91,
+   "uF_in_72mm_row": 0.408
+  },
+  {
+   "id": "tdk_a1104j",
+   "mpn": "B32654A1104J000",
+   "C_nF": 100,
+   "w_mm": 14.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 5.8,
+   "V_allow_35k_Vrms": 263.7,
+   "nF_per_mm_of_column": 6.9,
+   "uF_in_72mm_row": 0.5
+  },
+  {
+   "id": "tdk_a1104k",
+   "mpn": "B32654A1104K000",
+   "C_nF": 100,
+   "w_mm": 14.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 5.8,
+   "V_allow_35k_Vrms": 263.7,
+   "nF_per_mm_of_column": 6.9,
+   "uF_in_72mm_row": 0.5
+  },
+  {
+   "id": "tdk_a1154j",
+   "mpn": "B32654A1154J000",
+   "C_nF": 150,
+   "w_mm": 18.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 7.78,
+   "V_allow_35k_Vrms": 235.9,
+   "nF_per_mm_of_column": 8.11,
+   "uF_in_72mm_row": 0.45
+  },
+  {
+   "id": "tdk_a1224j",
+   "mpn": "B32654A1224J000",
+   "C_nF": 220,
+   "w_mm": 21.0,
+   "pitch": 27.5,
+   "I_allow_35k_A": 10.0,
+   "V_allow_35k_Vrms": 206.7,
+   "nF_per_mm_of_column": 10.23,
+   "uF_in_72mm_row": 0.66
+  }
+ ],
+ "per_part_rule": "pass needs V_allow(35 kHz) >= V_bank(C_min) (1 + t) / 0.85; 0.50 uF J: 268.1 x 1.05 / 0.85 = 331 V",
+ "banks": [
+  {
+   "bank": "5 x B32654A1104J000 (J, fitted today)",
+   "parts": [
+    "5 x B32654A1104J000"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.5,
+   "C_min_uF": 0.475,
+   "worst_share": 0.2165,
+   "note": "",
+   "ratio_35k": 1.045,
+   "tank_A_at_curve_35k": 26.8,
+   "tank_A_at_0.85_35k": 22.8,
+   "ratio_40k": 1.022,
+   "tank_A_at_curve_40k": 27.4,
+   "tank_A_at_0.85_40k": 23.3,
+   "ratio_45k": 0.992,
+   "tank_A_at_curve_45k": 28.2,
+   "tank_A_at_0.85_45k": 24.0,
+   "ratio_50k": 0.95,
+   "tank_A_at_curve_50k": 29.5,
+   "tank_A_at_0.85_50k": 25.0,
+   "ratio_worst_35_50k": 1.045,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 21.8,
+   "ratio_35k_faces_shadowed_est": 1.472,
+   "V_rms_bound_28A_35k": 268.1,
+   "V_pk_est_28A_35k": 566.4,
+   "V_nopan_fault_rms_pk": [
+    387.5,
+    774.9
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.354,
+    "nopan_pk_over_Vdc": 0.484,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.17794,
+   "fit": {
+    "body_row_mm": 72.0,
+    "pin_span_mm": 58.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 24.5,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.0,
+   "yield_28A_70uH_220mm": 0.886,
+   "f_op_median_kHz": 42.4,
+   "parts_cost_500_usd": 2.61,
+   "go": false
+  },
+  {
+   "bank": "5 x B32654A1104K000 (K, control)",
+   "parts": [
+    "5 x B32654A1104K000"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.5,
+   "C_min_uF": 0.45,
+   "worst_share": 0.234,
+   "note": "",
+   "ratio_35k": 1.13,
+   "tank_A_at_curve_35k": 24.8,
+   "tank_A_at_0.85_35k": 21.1,
+   "ratio_40k": 1.105,
+   "tank_A_at_curve_40k": 25.3,
+   "tank_A_at_0.85_40k": 21.5,
+   "ratio_45k": 1.073,
+   "tank_A_at_curve_45k": 26.1,
+   "tank_A_at_0.85_45k": 22.2,
+   "ratio_50k": 1.027,
+   "tank_A_at_curve_50k": 27.3,
+   "tank_A_at_0.85_50k": 23.2,
+   "ratio_worst_35_50k": 1.13,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 25.5,
+   "ratio_35k_faces_shadowed_est": 1.592,
+   "V_rms_bound_28A_35k": 282.9,
+   "V_pk_est_28A_35k": 597.9,
+   "V_nopan_fault_rms_pk": [
+    409.0,
+    818.0
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.374,
+    "nopan_pk_over_Vdc": 0.511,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.18782,
+   "fit": {
+    "body_row_mm": 72.0,
+    "pin_span_mm": 58.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 24.5,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.0,
+   "yield_28A_70uH_220mm": 0.886,
+   "f_op_median_kHz": 42.4,
+   "parts_cost_500_usd": null,
+   "go": false
+  },
+  {
+   "bank": "10 x B32654A1473J (0.47 uF)",
+   "parts": [
+    "10 x B32654A1473J000"
+   ],
+   "n": 10,
+   "C_nom_uF": 0.47,
+   "C_min_uF": 0.4465,
+   "worst_share": 0.1094,
+   "note": "",
+   "ratio_35k": 0.853,
+   "tank_A_at_curve_35k": 32.8,
+   "tank_A_at_0.85_35k": 27.9,
+   "ratio_40k": 0.837,
+   "tank_A_at_curve_40k": 33.5,
+   "tank_A_at_0.85_40k": 28.4,
+   "ratio_45k": 0.785,
+   "tank_A_at_curve_45k": 35.7,
+   "tank_A_at_0.85_45k": 30.3,
+   "ratio_50k": 0.769,
+   "tank_A_at_curve_50k": 36.4,
+   "tank_A_at_0.85_50k": 30.9,
+   "ratio_worst_35_50k": 0.853,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 14.6,
+   "ratio_35k_faces_shadowed_est": 1.25,
+   "V_rms_bound_28A_35k": 285.2,
+   "V_pk_est_28A_35k": 602.5,
+   "V_nopan_fault_rms_pk": [
+    412.2,
+    824.4
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.377,
+    "nopan_pk_over_Vdc": 0.515,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.18929,
+   "fit": {
+    "body_row_mm": 114.5,
+    "pin_span_mm": 103.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 21.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 103.5 mm, 58.3 mm free (y 53.2-111.5): 45.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.031,
+   "yield_28A_70uH_220mm": 0.903,
+   "f_op_median_kHz": 43.7,
+   "parts_cost_500_usd": 3.65,
+   "go": false
+  },
+  {
+   "bank": "7 x B32654A1683J (0.476 uF)",
+   "parts": [
+    "7 x B32654A1683J000"
+   ],
+   "n": 7,
+   "C_nom_uF": 0.476,
+   "C_min_uF": 0.4522,
+   "worst_share": 0.1556,
+   "note": "68 nF curve is an ESTIMATE (interpolated)",
+   "ratio_35k": 1.002,
+   "tank_A_at_curve_35k": 27.9,
+   "tank_A_at_0.85_35k": 23.7,
+   "ratio_40k": 0.982,
+   "tank_A_at_curve_40k": 28.5,
+   "tank_A_at_0.85_40k": 24.2,
+   "ratio_45k": 0.937,
+   "tank_A_at_curve_45k": 29.9,
+   "tank_A_at_0.85_45k": 25.4,
+   "ratio_50k": 0.908,
+   "tank_A_at_curve_50k": 30.9,
+   "tank_A_at_0.85_50k": 26.2,
+   "ratio_worst_35_50k": 1.002,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 20.1,
+   "ratio_35k_faces_shadowed_est": 1.468,
+   "V_rms_bound_28A_35k": 281.6,
+   "V_pk_est_28A_35k": 594.9,
+   "V_nopan_fault_rms_pk": [
+    407.0,
+    814.0
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.372,
+    "nopan_pk_over_Vdc": 0.509,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.18691,
+   "fit": {
+    "body_row_mm": 80.0,
+    "pin_span_mm": 69.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 21.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 69.0 mm, 58.3 mm free (y 53.2-111.5): 10.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.025,
+   "yield_28A_70uH_220mm": 0.899,
+   "f_op_median_kHz": 43.4,
+   "parts_cost_500_usd": 1.62,
+   "go": false
+  },
+  {
+   "bank": "6 x B32654A1104J (0.60 uF)",
+   "parts": [
+    "6 x B32654A1104J000"
+   ],
+   "n": 6,
+   "C_nom_uF": 0.6,
+   "C_min_uF": 0.57,
+   "worst_share": 0.181,
+   "note": "",
+   "ratio_35k": 0.874,
+   "tank_A_at_curve_35k": 32.0,
+   "tank_A_at_0.85_35k": 27.2,
+   "ratio_40k": 0.855,
+   "tank_A_at_curve_40k": 32.8,
+   "tank_A_at_0.85_40k": 27.8,
+   "ratio_45k": 0.83,
+   "tank_A_at_curve_45k": 33.8,
+   "tank_A_at_0.85_45k": 28.7,
+   "ratio_50k": 0.795,
+   "tank_A_at_curve_50k": 35.2,
+   "tank_A_at_0.85_50k": 30.0,
+   "ratio_worst_35_50k": 0.874,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 15.3,
+   "ratio_35k_faces_shadowed_est": 1.231,
+   "V_rms_bound_28A_35k": 223.4,
+   "V_pk_est_28A_35k": 472.0,
+   "V_nopan_fault_rms_pk": [
+    322.9,
+    645.8
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.295,
+    "nopan_pk_over_Vdc": 0.404,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.14828,
+   "fit": {
+    "body_row_mm": 86.5,
+    "pin_span_mm": 72.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 24.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 72.5 mm, 58.3 mm free (y 53.2-111.5): 14.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 0.913,
+   "yield_28A_70uH_220mm": 0.759,
+   "f_op_median_kHz": 39.0,
+   "parts_cost_500_usd": 3.13,
+   "go": false
+  },
+  {
+   "bank": "3 x B32654A1154J (0.45 uF)",
+   "parts": [
+    "3 x B32654A1154J000"
+   ],
+   "n": 3,
+   "C_nom_uF": 0.45,
+   "C_min_uF": 0.4275,
+   "worst_share": 0.3559,
+   "note": "",
+   "ratio_35k": 1.281,
+   "tank_A_at_curve_35k": 21.9,
+   "tank_A_at_0.85_35k": 18.6,
+   "ratio_40k": 1.255,
+   "tank_A_at_curve_40k": 22.3,
+   "tank_A_at_0.85_40k": 19.0,
+   "ratio_45k": 1.215,
+   "tank_A_at_curve_45k": 23.0,
+   "tank_A_at_0.85_45k": 19.6,
+   "ratio_50k": 1.178,
+   "tank_A_at_curve_50k": 23.8,
+   "tank_A_at_0.85_50k": 20.2,
+   "ratio_worst_35_50k": 1.281,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 32.8,
+   "ratio_35k_faces_shadowed_est": 1.726,
+   "V_rms_bound_28A_35k": 297.8,
+   "V_pk_est_28A_35k": 629.3,
+   "V_nopan_fault_rms_pk": [
+    430.5,
+    861.1
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.393,
+    "nopan_pk_over_Vdc": 0.538,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.19771,
+   "fit": {
+    "body_row_mm": 55.0,
+    "pin_span_mm": 37.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 27.5,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.054,
+   "yield_28A_70uH_220mm": 0.914,
+   "f_op_median_kHz": 44.5,
+   "parts_cost_500_usd": 2.04,
+   "go": false
+  },
+  {
+   "bank": "1 x A1104J + 3 x A1154J (0.55 uF)",
+   "parts": [
+    "1 x B32654A1104J000",
+    "3 x B32654A1154J000"
+   ],
+   "n": 4,
+   "C_nom_uF": 0.55,
+   "C_min_uF": 0.5225,
+   "worst_share": 0.293,
+   "note": "",
+   "ratio_35k": 1.055,
+   "tank_A_at_curve_35k": 26.6,
+   "tank_A_at_0.85_35k": 22.6,
+   "ratio_40k": 1.033,
+   "tank_A_at_curve_40k": 27.1,
+   "tank_A_at_0.85_40k": 23.0,
+   "ratio_45k": 1.001,
+   "tank_A_at_curve_45k": 28.0,
+   "tank_A_at_0.85_45k": 23.8,
+   "ratio_50k": 0.97,
+   "tank_A_at_curve_50k": 28.9,
+   "tank_A_at_0.85_50k": 24.5,
+   "ratio_worst_35_50k": 1.055,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 22.3,
+   "ratio_35k_faces_shadowed_est": 1.421,
+   "V_rms_bound_28A_35k": 243.7,
+   "V_pk_est_28A_35k": 514.9,
+   "V_nopan_fault_rms_pk": [
+    352.2,
+    704.5
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.322,
+    "nopan_pk_over_Vdc": 0.44,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.16176,
+   "fit": {
+    "body_row_mm": 69.5,
+    "pin_span_mm": 53.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 27.5,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 0.953,
+   "yield_28A_70uH_220mm": 0.822,
+   "f_op_median_kHz": 40.7,
+   "parts_cost_500_usd": 2.56,
+   "go": false
+  },
+  {
+   "bank": "2 x B32654A1224J (0.44 uF)",
+   "parts": [
+    "2 x B32654A1224J000"
+   ],
+   "n": 2,
+   "C_nom_uF": 0.44,
+   "C_min_uF": 0.418,
+   "worst_share": 0.525,
+   "note": "",
+   "ratio_35k": 1.47,
+   "tank_A_at_curve_35k": 19.0,
+   "tank_A_at_0.85_35k": 16.2,
+   "ratio_40k": 1.44,
+   "tank_A_at_curve_40k": 19.4,
+   "tank_A_at_0.85_40k": 16.5,
+   "ratio_45k": 1.38,
+   "tank_A_at_curve_45k": 20.3,
+   "tank_A_at_0.85_45k": 17.2,
+   "ratio_50k": 1.352,
+   "tank_A_at_curve_50k": 20.7,
+   "tank_A_at_0.85_50k": 17.6,
+   "ratio_worst_35_50k": 1.47,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 43.2,
+   "ratio_35k_faces_shadowed_est": 1.657,
+   "V_rms_bound_28A_35k": 304.6,
+   "V_pk_est_28A_35k": 643.6,
+   "V_nopan_fault_rms_pk": [
+    440.3,
+    880.6
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.402,
+    "nopan_pk_over_Vdc": 0.55,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.2022,
+   "fit": {
+    "body_row_mm": 42.5,
+    "pin_span_mm": 21.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 31.0,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.066,
+   "yield_28A_70uH_220mm": 0.92,
+   "f_op_median_kHz": 45.0,
+   "parts_cost_500_usd": 0.92,
+   "go": false
+  },
+  {
+   "bank": "2 x A1224J + 1 x A1104J (0.54 uF)",
+   "parts": [
+    "2 x B32654A1224J000",
+    "1 x B32654A1104J000"
+   ],
+   "n": 3,
+   "C_nom_uF": 0.54,
+   "C_min_uF": 0.513,
+   "worst_share": 0.4318,
+   "note": "",
+   "ratio_35k": 1.209,
+   "tank_A_at_curve_35k": 23.2,
+   "tank_A_at_0.85_35k": 19.7,
+   "ratio_40k": 1.184,
+   "tank_A_at_curve_40k": 23.6,
+   "tank_A_at_0.85_40k": 20.1,
+   "ratio_45k": 1.135,
+   "tank_A_at_curve_45k": 24.7,
+   "tank_A_at_0.85_45k": 21.0,
+   "ratio_50k": 1.112,
+   "tank_A_at_curve_50k": 25.2,
+   "tank_A_at_0.85_50k": 21.4,
+   "ratio_worst_35_50k": 1.209,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 29.2,
+   "ratio_35k_faces_shadowed_est": 1.597,
+   "V_rms_bound_28A_35k": 248.2,
+   "V_pk_est_28A_35k": 524.4,
+   "V_nopan_fault_rms_pk": [
+    358.8,
+    717.5
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.328,
+    "nopan_pk_over_Vdc": 0.448,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.16476,
+   "fit": {
+    "body_row_mm": 57.0,
+    "pin_span_mm": 39.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 31.0,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 0.962,
+   "yield_28A_70uH_220mm": 0.835,
+   "f_op_median_kHz": 41.0,
+   "parts_cost_500_usd": 1.45,
+   "go": false
+  },
+  {
+   "bank": "5 x B32654A2104J (2000 V, 0.50 uF)",
+   "parts": [
+    "5 x B32654A2104J000"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.5,
+   "C_min_uF": 0.475,
+   "worst_share": 0.2165,
+   "note": "",
+   "ratio_35k": 0.771,
+   "tank_A_at_curve_35k": 36.3,
+   "tank_A_at_0.85_35k": 30.9,
+   "ratio_40k": 0.72,
+   "tank_A_at_curve_40k": 38.9,
+   "tank_A_at_0.85_40k": 33.0,
+   "ratio_45k": 0.702,
+   "tank_A_at_curve_45k": 39.9,
+   "tank_A_at_0.85_45k": 33.9,
+   "ratio_50k": 0.684,
+   "tank_A_at_curve_50k": 41.0,
+   "tank_A_at_0.85_50k": 34.8,
+   "ratio_worst_35_50k": 0.771,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 11.9,
+   "ratio_35k_faces_shadowed_est": 1.026,
+   "V_rms_bound_28A_35k": 268.1,
+   "V_pk_est_28A_35k": 566.4,
+   "V_nopan_fault_rms_pk": [
+    387.5,
+    774.9
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 700,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.283,
+    "nopan_pk_over_Vdc": 0.387,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.07736,
+   "fit": {
+    "body_row_mm": 112.0,
+    "pin_span_mm": 90.0,
+    "free_pin_span_mm": 58.1,
+    "height_mm": 36.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 90.0 mm, 58.1 mm free (y 53.4-111.5): 31.9 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.0,
+   "yield_28A_70uH_220mm": 0.886,
+   "f_op_median_kHz": 42.4,
+   "parts_cost_500_usd": 7.33,
+   "go": true
+  },
+  {
+   "bank": "7 x B32654A2683J (2000 V, 0.476 uF)",
+   "parts": [
+    "7 x B32654A2683J000"
+   ],
+   "n": 7,
+   "C_nom_uF": 0.476,
+   "C_min_uF": 0.4522,
+   "worst_share": 0.1556,
+   "note": "",
+   "ratio_35k": 0.727,
+   "tank_A_at_curve_35k": 38.5,
+   "tank_A_at_0.85_35k": 32.7,
+   "ratio_40k": 0.69,
+   "tank_A_at_curve_40k": 40.6,
+   "tank_A_at_0.85_40k": 34.5,
+   "ratio_45k": 0.669,
+   "tank_A_at_curve_45k": 41.9,
+   "tank_A_at_0.85_45k": 35.6,
+   "ratio_50k": 0.645,
+   "tank_A_at_curve_50k": 43.4,
+   "tank_A_at_0.85_50k": 36.9,
+   "ratio_worst_35_50k": 0.727,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 10.6,
+   "ratio_35k_faces_shadowed_est": 0.978,
+   "V_rms_bound_28A_35k": 281.6,
+   "V_pk_est_28A_35k": 594.9,
+   "V_nopan_fault_rms_pk": [
+    407.0,
+    814.0
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 700,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.297,
+    "nopan_pk_over_Vdc": 0.407,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.08126,
+   "fit": {
+    "body_row_mm": 136.0,
+    "pin_span_mm": 117.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 30.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 117.0 mm, 58.3 mm free (y 53.2-111.5): 58.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.025,
+   "yield_28A_70uH_220mm": 0.899,
+   "f_op_median_kHz": 43.4,
+   "parts_cost_500_usd": null,
+   "go": true
+  },
+  {
+   "bank": "10 x B32654A2473J (2000 V, 0.47 uF)",
+   "parts": [
+    "10 x B32654A2473J000"
+   ],
+   "n": 10,
+   "C_nom_uF": 0.47,
+   "C_min_uF": 0.4465,
+   "worst_share": 0.1094,
+   "note": "",
+   "ratio_35k": 0.637,
+   "tank_A_at_curve_35k": 43.9,
+   "tank_A_at_0.85_35k": 37.3,
+   "ratio_40k": 0.617,
+   "tank_A_at_curve_40k": 45.3,
+   "tank_A_at_0.85_40k": 38.5,
+   "ratio_45k": 0.586,
+   "tank_A_at_curve_45k": 47.8,
+   "tank_A_at_0.85_45k": 40.6,
+   "ratio_50k": 0.568,
+   "tank_A_at_curve_50k": 49.3,
+   "tank_A_at_0.85_50k": 41.9,
+   "ratio_worst_35_50k": 0.637,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 8.1,
+   "ratio_35k_faces_shadowed_est": 0.859,
+   "V_rms_bound_28A_35k": 285.2,
+   "V_pk_est_28A_35k": 602.5,
+   "V_nopan_fault_rms_pk": [
+    412.2,
+    824.4
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 700,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.301,
+    "nopan_pk_over_Vdc": 0.412,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.0823,
+   "fit": {
+    "body_row_mm": 184.5,
+    "pin_span_mm": 166.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 27.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 166.5 mm, 58.3 mm free (y 53.2-111.5): 108.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.031,
+   "yield_28A_70uH_220mm": 0.903,
+   "f_op_median_kHz": 43.7,
+   "parts_cost_500_usd": null,
+   "go": true
+  },
+  {
+   "bank": "5 x B32643B8104J (2000 V, 22.5 mm, 0.50 uF)",
+   "parts": [
+    "5 x B32643B8104J000"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.5,
+   "C_min_uF": 0.475,
+   "worst_share": 0.2165,
+   "note": "",
+   "ratio_35k": 0.831,
+   "tank_A_at_curve_35k": 33.7,
+   "tank_A_at_0.85_35k": 28.6,
+   "ratio_40k": 0.816,
+   "tank_A_at_curve_40k": 34.3,
+   "tank_A_at_0.85_40k": 29.2,
+   "ratio_45k": 0.804,
+   "tank_A_at_curve_45k": 34.8,
+   "tank_A_at_0.85_45k": 29.6,
+   "ratio_50k": 0.796,
+   "tank_A_at_curve_50k": 35.2,
+   "tank_A_at_0.85_50k": 29.9,
+   "ratio_worst_35_50k": 0.831,
+   "vendor_dT_basis_K": 15.0,
+   "self_heating_at_28A_35k_K": 10.4,
+   "ratio_35k_faces_shadowed_est": 1.164,
+   "V_rms_bound_28A_35k": 268.1,
+   "V_pk_est_28A_35k": 566.4,
+   "V_nopan_fault_rms_pk": [
+    387.5,
+    774.9
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.283,
+    "nopan_pk_over_Vdc": 0.387,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.04683,
+   "fit": {
+    "body_row_mm": 74.5,
+    "pin_span_mm": 60.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 29.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 60.0 mm, 58.3 mm free (y 53.2-111.5): 1.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+     "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+    ]
+   },
+   "f_res_scale": 1.0,
+   "yield_28A_70uH_220mm": 0.886,
+   "f_op_median_kHz": 42.4,
+   "parts_cost_500_usd": 1.24,
+   "go": true
+  },
+  {
+   "bank": "6 x B32643B8823J (2000 V, 22.5 mm, 0.492 uF)",
+   "parts": [
+    "6 x B32643B8823J000"
+   ],
+   "n": 6,
+   "C_nom_uF": 0.492,
+   "C_min_uF": 0.4674,
+   "worst_share": 0.181,
+   "note": "",
+   "ratio_35k": 0.764,
+   "tank_A_at_curve_35k": 36.7,
+   "tank_A_at_0.85_35k": 31.2,
+   "ratio_40k": 0.753,
+   "tank_A_at_curve_40k": 37.2,
+   "tank_A_at_0.85_40k": 31.6,
+   "ratio_45k": 0.742,
+   "tank_A_at_curve_45k": 37.7,
+   "tank_A_at_0.85_45k": 32.1,
+   "ratio_50k": 0.734,
+   "tank_A_at_curve_50k": 38.2,
+   "tank_A_at_0.85_50k": 32.4,
+   "ratio_worst_35_50k": 0.764,
+   "vendor_dT_basis_K": 15.0,
+   "self_heating_at_28A_35k_K": 8.8,
+   "ratio_35k_faces_shadowed_est": 1.08,
+   "V_rms_bound_28A_35k": 272.4,
+   "V_pk_est_28A_35k": 575.6,
+   "V_nopan_fault_rms_pk": [
+    393.8,
+    787.5
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.288,
+    "nopan_pk_over_Vdc": 0.394,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.04759,
+   "fit": {
+    "body_row_mm": 74.5,
+    "pin_span_mm": 62.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 22.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 62.5 mm, 58.3 mm free (y 53.2-111.5): 4.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+     "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+    ]
+   },
+   "f_res_scale": 1.008,
+   "yield_28A_70uH_220mm": 0.89,
+   "f_op_median_kHz": 42.7,
+   "parts_cost_500_usd": null,
+   "go": true
+  },
+  {
+   "bank": "7 x B32643B8683J (2000 V, 22.5 mm, 0.476 uF)",
+   "parts": [
+    "7 x B32643B8683J000"
+   ],
+   "n": 7,
+   "C_nom_uF": 0.476,
+   "C_min_uF": 0.4522,
+   "worst_share": 0.1556,
+   "note": "",
+   "ratio_35k": 0.724,
+   "tank_A_at_curve_35k": 38.7,
+   "tank_A_at_0.85_35k": 32.9,
+   "ratio_40k": 0.711,
+   "tank_A_at_curve_40k": 39.4,
+   "tank_A_at_0.85_40k": 33.5,
+   "ratio_45k": 0.7,
+   "tank_A_at_curve_45k": 40.0,
+   "tank_A_at_0.85_45k": 34.0,
+   "ratio_50k": 0.69,
+   "tank_A_at_curve_50k": 40.6,
+   "tank_A_at_0.85_50k": 34.5,
+   "ratio_worst_35_50k": 0.724,
+   "vendor_dT_basis_K": 15.0,
+   "self_heating_at_28A_35k_K": 7.9,
+   "ratio_35k_faces_shadowed_est": 1.036,
+   "V_rms_bound_28A_35k": 281.6,
+   "V_pk_est_28A_35k": 594.9,
+   "V_nopan_fault_rms_pk": [
+    407.0,
+    814.0
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.297,
+    "nopan_pk_over_Vdc": 0.407,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.04919,
+   "fit": {
+    "body_row_mm": 80.0,
+    "pin_span_mm": 69.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 20.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 69.0 mm, 58.3 mm free (y 53.2-111.5): 10.7 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+     "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+    ]
+   },
+   "f_res_scale": 1.025,
+   "yield_28A_70uH_220mm": 0.899,
+   "f_op_median_kHz": 43.4,
+   "parts_cost_500_usd": null,
+   "go": true
+  },
+  {
+   "bank": "4 x B32643B8124J (2000 V, 22.5 mm, 0.48 uF)",
+   "parts": [
+    "4 x B32643B8124J000"
+   ],
+   "n": 4,
+   "C_nom_uF": 0.48,
+   "C_min_uF": 0.456,
+   "worst_share": 0.2692,
+   "note": "",
+   "ratio_35k": 0.927,
+   "tank_A_at_curve_35k": 30.2,
+   "tank_A_at_0.85_35k": 25.7,
+   "ratio_40k": 0.92,
+   "tank_A_at_curve_40k": 30.4,
+   "tank_A_at_0.85_40k": 25.9,
+   "ratio_45k": 0.907,
+   "tank_A_at_curve_45k": 30.9,
+   "tank_A_at_0.85_45k": 26.2,
+   "ratio_50k": 0.897,
+   "tank_A_at_curve_50k": 31.2,
+   "tank_A_at_0.85_50k": 26.5,
+   "ratio_worst_35_50k": 0.927,
+   "vendor_dT_basis_K": 15.0,
+   "self_heating_at_28A_35k_K": 12.9,
+   "ratio_35k_faces_shadowed_est": 1.299,
+   "V_rms_bound_28A_35k": 279.2,
+   "V_pk_est_28A_35k": 590.0,
+   "V_nopan_fault_rms_pk": [
+    403.6,
+    807.2
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.295,
+    "nopan_pk_over_Vdc": 0.404,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.04878,
+   "fit": {
+    "body_row_mm": 59.5,
+    "pin_span_mm": 45.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 29.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+    ]
+   },
+   "f_res_scale": 1.021,
+   "yield_28A_70uH_220mm": 0.897,
+   "f_op_median_kHz": 43.2,
+   "parts_cost_500_usd": null,
+   "go": false
+  },
+  {
+   "bank": "4 x B32643B8104J + 1 x B32643B8823J (0.482 uF)",
+   "parts": [
+    "4 x B32643B8104J000",
+    "1 x B32643B8823J000"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.482,
+   "C_min_uF": 0.4579,
+   "worst_share": 0.2244,
+   "note": "",
+   "ratio_35k": 0.861,
+   "tank_A_at_curve_35k": 32.5,
+   "tank_A_at_0.85_35k": 27.6,
+   "ratio_40k": 0.846,
+   "tank_A_at_curve_40k": 33.1,
+   "tank_A_at_0.85_40k": 28.1,
+   "ratio_45k": 0.834,
+   "tank_A_at_curve_45k": 33.6,
+   "tank_A_at_0.85_45k": 28.5,
+   "ratio_50k": 0.825,
+   "tank_A_at_curve_50k": 34.0,
+   "tank_A_at_0.85_50k": 28.9,
+   "ratio_worst_35_50k": 0.861,
+   "vendor_dT_basis_K": 15.0,
+   "self_heating_at_28A_35k_K": 11.1,
+   "ratio_35k_faces_shadowed_est": 1.207,
+   "V_rms_bound_28A_35k": 278.1,
+   "V_pk_est_28A_35k": 587.5,
+   "V_nopan_fault_rms_pk": [
+    401.9,
+    803.9
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.294,
+    "nopan_pk_over_Vdc": 0.402,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.04857,
+   "fit": {
+    "body_row_mm": 72.0,
+    "pin_span_mm": 58.8,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 29.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 58.8 mm, 58.3 mm free (y 53.2-111.5): 0.5 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below",
+     "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+    ]
+   },
+   "f_res_scale": 1.019,
+   "yield_28A_70uH_220mm": 0.896,
+   "f_op_median_kHz": 43.2,
+   "parts_cost_500_usd": null,
+   "go": false
+  },
+  {
+   "bank": "4 x B32643B8124J + 1 x B32643B8683J (0.548 uF)",
+   "parts": [
+    "4 x B32643B8124J000",
+    "1 x B32643B8683J000"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.548,
+   "C_min_uF": 0.5206,
+   "worst_share": 0.2366,
+   "note": "",
+   "ratio_35k": 0.814,
+   "tank_A_at_curve_35k": 34.4,
+   "tank_A_at_0.85_35k": 29.2,
+   "ratio_40k": 0.809,
+   "tank_A_at_curve_40k": 34.6,
+   "tank_A_at_0.85_40k": 29.4,
+   "ratio_45k": 0.797,
+   "tank_A_at_curve_45k": 35.1,
+   "tank_A_at_0.85_45k": 29.9,
+   "ratio_50k": 0.788,
+   "tank_A_at_curve_50k": 35.5,
+   "tank_A_at_0.85_50k": 30.2,
+   "ratio_worst_35_50k": 0.814,
+   "vendor_dT_basis_K": 15.0,
+   "self_heating_at_28A_35k_K": 9.9,
+   "ratio_35k_faces_shadowed_est": 1.141,
+   "V_rms_bound_28A_35k": 244.6,
+   "V_pk_est_28A_35k": 516.8,
+   "V_nopan_fault_rms_pk": [
+    353.5,
+    707.1
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 500,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.258,
+    "nopan_pk_over_Vdc": 0.354,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.04272,
+   "fit": {
+    "body_row_mm": 71.0,
+    "pin_span_mm": 58.2,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 29.5,
+    "fits_today_copper": false,
+    "changes": [
+     "pitch 22.5 mm: new footprint; RES_A strip to x 168.0 or SW_B strip to x 185.5 (both columns scanned in slot_geometry.json: same y limits)"
+    ]
+   },
+   "f_res_scale": 0.955,
+   "yield_28A_70uH_220mm": 0.825,
+   "f_op_median_kHz": 40.8,
+   "parts_cost_500_usd": null,
+   "go": true
+  },
+  {
+   "bank": "5 x R76UR3100SE30J (KEMET 2000 V, 0.50 uF)",
+   "parts": [
+    "5 x R76UR3100SE30J"
+   ],
+   "n": 5,
+   "C_nom_uF": 0.5,
+   "C_min_uF": 0.475,
+   "worst_share": 0.2165,
+   "note": "",
+   "ratio_35k": 0.933,
+   "tank_A_at_curve_35k": 30.0,
+   "tank_A_at_0.85_35k": 25.5,
+   "ratio_40k": 0.906,
+   "tank_A_at_curve_40k": 30.9,
+   "tank_A_at_0.85_40k": 26.3,
+   "ratio_45k": 0.883,
+   "tank_A_at_curve_45k": 31.7,
+   "tank_A_at_0.85_45k": 27.0,
+   "ratio_50k": 0.863,
+   "tank_A_at_curve_50k": 32.5,
+   "tank_A_at_0.85_50k": 27.6,
+   "ratio_worst_35_50k": 0.933,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 17.4,
+   "ratio_35k_faces_shadowed_est": 1.342,
+   "kemet_Th78_factor": 1.131,
+   "ratio_worst_35_50k_at_Th78_kemet_rule": 0.825,
+   "Th_max_for_0.85_C": 79.8,
+   "V_rms_bound_28A_35k": 268.1,
+   "V_pk_est_28A_35k": 566.4,
+   "V_nopan_fault_rms_pk": [
+    387.5,
+    774.9
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 700,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.283,
+    "nopan_pk_over_Vdc": 0.387,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.07117,
+   "fit": {
+    "body_row_mm": 72.0,
+    "pin_span_mm": 58.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 28.0,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.0,
+   "yield_28A_70uH_220mm": 0.886,
+   "f_op_median_kHz": 42.4,
+   "parts_cost_500_usd": 3.11,
+   "go": false
+  },
+  {
+   "bank": "10 x R76UR2470SE30J (KEMET 2000 V, 0.47 uF)",
+   "parts": [
+    "10 x R76UR2470SE30J"
+   ],
+   "n": 10,
+   "C_nom_uF": 0.47,
+   "C_min_uF": 0.4465,
+   "worst_share": 0.1094,
+   "note": "",
+   "ratio_35k": 0.691,
+   "tank_A_at_curve_35k": 40.5,
+   "tank_A_at_0.85_35k": 34.4,
+   "ratio_40k": 0.664,
+   "tank_A_at_curve_40k": 42.2,
+   "tank_A_at_0.85_40k": 35.9,
+   "ratio_45k": 0.64,
+   "tank_A_at_curve_45k": 43.8,
+   "tank_A_at_0.85_45k": 37.2,
+   "ratio_50k": 0.62,
+   "tank_A_at_curve_50k": 45.2,
+   "tank_A_at_0.85_50k": 38.4,
+   "ratio_worst_35_50k": 0.691,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 9.5,
+   "ratio_35k_faces_shadowed_est": 1.006,
+   "kemet_Th78_factor": 1.131,
+   "ratio_worst_35_50k_at_Th78_kemet_rule": 0.611,
+   "Th_max_for_0.85_C": null,
+   "V_rms_bound_28A_35k": 285.2,
+   "V_pk_est_28A_35k": 602.5,
+   "V_nopan_fault_rms_pk": [
+    412.2,
+    824.4
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 700,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.301,
+    "nopan_pk_over_Vdc": 0.412,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.07572,
+   "fit": {
+    "body_row_mm": 114.5,
+    "pin_span_mm": 103.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 20.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 103.5 mm, 58.3 mm free (y 53.2-111.5): 45.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.031,
+   "yield_28A_70uH_220mm": 0.903,
+   "f_op_median_kHz": 43.7,
+   "parts_cost_500_usd": null,
+   "go": true
+  },
+  {
+   "bank": "6 x R76UR2820SE40J (KEMET 2000 V, 0.492 uF)",
+   "parts": [
+    "6 x R76UR2820SE40J"
+   ],
+   "n": 6,
+   "C_nom_uF": 0.492,
+   "C_min_uF": 0.4674,
+   "worst_share": 0.181,
+   "note": "82 nF unplotted: ESR-model ESTIMATE",
+   "ratio_35k": 0.865,
+   "tank_A_at_curve_35k": 32.4,
+   "tank_A_at_0.85_35k": 27.5,
+   "ratio_40k": 0.835,
+   "tank_A_at_curve_40k": 33.5,
+   "tank_A_at_0.85_40k": 28.5,
+   "ratio_45k": 0.811,
+   "tank_A_at_curve_45k": 34.5,
+   "tank_A_at_0.85_45k": 29.4,
+   "ratio_50k": 0.791,
+   "tank_A_at_curve_50k": 35.4,
+   "tank_A_at_0.85_50k": 30.1,
+   "ratio_worst_35_50k": 0.865,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 15.0,
+   "ratio_35k_faces_shadowed_est": 1.248,
+   "kemet_Th78_factor": 1.131,
+   "ratio_worst_35_50k_at_Th78_kemet_rule": 0.765,
+   "Th_max_for_0.85_C": 84.1,
+   "V_rms_bound_28A_35k": 272.4,
+   "V_pk_est_28A_35k": 575.6,
+   "V_nopan_fault_rms_pk": [
+    393.8,
+    787.5
+   ],
+   "Vdc_min": 2000,
+   "Vac_1k_min": 700,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.288,
+    "nopan_pk_over_Vdc": 0.394,
+    "triple_fault_1683_over_Vdc": 0.842,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.07233,
+   "fit": {
+    "body_row_mm": 80.5,
+    "pin_span_mm": 67.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 25.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 67.5 mm, 58.3 mm free (y 53.2-111.5): 9.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 1.008,
+   "yield_28A_70uH_220mm": 0.89,
+   "f_op_median_kHz": 42.7,
+   "parts_cost_500_usd": null,
+   "go": false
+  },
+  {
+   "bank": "7 x R76TR2680SE30J (KEMET 1600 V, 0.476 uF)",
+   "parts": [
+    "7 x R76TR2680SE30J"
+   ],
+   "n": 7,
+   "C_nom_uF": 0.476,
+   "C_min_uF": 0.4522,
+   "worst_share": 0.1556,
+   "note": "68 nF unplotted: ESR-model ESTIMATE",
+   "ratio_35k": 0.919,
+   "tank_A_at_curve_35k": 30.5,
+   "tank_A_at_0.85_35k": 25.9,
+   "ratio_40k": 0.887,
+   "tank_A_at_curve_40k": 31.6,
+   "tank_A_at_0.85_40k": 26.8,
+   "ratio_45k": 0.862,
+   "tank_A_at_curve_45k": 32.5,
+   "tank_A_at_0.85_45k": 27.6,
+   "ratio_50k": 0.841,
+   "tank_A_at_curve_50k": 33.3,
+   "tank_A_at_0.85_50k": 28.3,
+   "ratio_worst_35_50k": 0.919,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 16.9,
+   "ratio_35k_faces_shadowed_est": 1.374,
+   "kemet_Th78_factor": 1.131,
+   "ratio_worst_35_50k_at_Th78_kemet_rule": 0.813,
+   "Th_max_for_0.85_C": 80.8,
+   "V_rms_bound_28A_35k": 281.6,
+   "V_pk_est_28A_35k": 594.9,
+   "V_nopan_fault_rms_pk": [
+    407.0,
+    814.0
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 650,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.372,
+    "nopan_pk_over_Vdc": 0.509,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.09345,
+   "fit": {
+    "body_row_mm": 66.0,
+    "pin_span_mm": 57.0,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 17.0,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.025,
+   "yield_28A_70uH_220mm": 0.899,
+   "f_op_median_kHz": 43.4,
+   "parts_cost_500_usd": 6.51,
+   "go": false
+  },
+  {
+   "bank": "8 x R76TR2680SE30J (KEMET 1600 V, 0.544 uF)",
+   "parts": [
+    "8 x R76TR2680SE30J"
+   ],
+   "n": 8,
+   "C_nom_uF": 0.544,
+   "C_min_uF": 0.5168,
+   "worst_share": 0.1364,
+   "note": "68 nF unplotted: ESR-model ESTIMATE",
+   "ratio_35k": 0.806,
+   "tank_A_at_curve_35k": 34.7,
+   "tank_A_at_0.85_35k": 29.5,
+   "ratio_40k": 0.778,
+   "tank_A_at_curve_40k": 36.0,
+   "tank_A_at_0.85_40k": 30.6,
+   "ratio_45k": 0.755,
+   "tank_A_at_curve_45k": 37.1,
+   "tank_A_at_0.85_45k": 31.5,
+   "ratio_50k": 0.737,
+   "tank_A_at_curve_50k": 38.0,
+   "tank_A_at_0.85_50k": 32.3,
+   "ratio_worst_35_50k": 0.806,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 13.0,
+   "ratio_35k_faces_shadowed_est": 1.204,
+   "kemet_Th78_factor": 1.131,
+   "ratio_worst_35_50k_at_Th78_kemet_rule": 0.712,
+   "Th_max_for_0.85_C": null,
+   "V_rms_bound_28A_35k": 246.4,
+   "V_pk_est_28A_35k": 520.6,
+   "V_nopan_fault_rms_pk": [
+    356.1,
+    712.3
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 650,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.325,
+    "nopan_pk_over_Vdc": 0.445,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.08177,
+   "fit": {
+    "body_row_mm": 75.5,
+    "pin_span_mm": 66.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 17.0,
+    "fits_today_copper": false,
+    "changes": [
+     "pin rows need 66.5 mm, 58.3 mm free (y 53.2-111.5): 8.2 mm more: re-lay the sw_b band edge (y 46.8) and R22-R25 above, or the B.Cu SELV lane (line_zc_raw, v15_selv, y 127.5-128.6) and J6 below"
+    ]
+   },
+   "f_res_scale": 0.959,
+   "yield_28A_70uH_220mm": 0.83,
+   "f_op_median_kHz": 40.9,
+   "parts_cost_500_usd": 7.44,
+   "go": true
+  },
+  {
+   "bank": "6 x R76TR2820SE30J (KEMET 1600 V, 0.492 uF)",
+   "parts": [
+    "6 x R76TR2820SE30J"
+   ],
+   "n": 6,
+   "C_nom_uF": 0.492,
+   "C_min_uF": 0.4674,
+   "worst_share": 0.181,
+   "note": "82 nF unplotted: ESR-model ESTIMATE",
+   "ratio_35k": 0.92,
+   "tank_A_at_curve_35k": 30.4,
+   "tank_A_at_0.85_35k": 25.9,
+   "ratio_40k": 0.889,
+   "tank_A_at_curve_40k": 31.5,
+   "tank_A_at_0.85_40k": 26.8,
+   "ratio_45k": 0.864,
+   "tank_A_at_curve_45k": 32.4,
+   "tank_A_at_0.85_45k": 27.5,
+   "ratio_50k": 0.844,
+   "tank_A_at_curve_50k": 33.2,
+   "tank_A_at_0.85_50k": 28.2,
+   "ratio_worst_35_50k": 0.92,
+   "vendor_dT_basis_K": 20.0,
+   "self_heating_at_28A_35k_K": 16.9,
+   "ratio_35k_faces_shadowed_est": 1.339,
+   "kemet_Th78_factor": 1.131,
+   "ratio_worst_35_50k_at_Th78_kemet_rule": 0.813,
+   "Th_max_for_0.85_C": 80.7,
+   "V_rms_bound_28A_35k": 272.4,
+   "V_pk_est_28A_35k": 575.6,
+   "V_nopan_fault_rms_pk": [
+    393.8,
+    787.5
+   ],
+   "Vdc_min": 1600,
+   "Vac_1k_min": 650,
+   "V_checks": {
+    "normal_pk_over_Vdc": 0.36,
+    "nopan_pk_over_Vdc": 0.492,
+    "triple_fault_1683_over_Vdc": 1.052,
+    "F3_reopens": false
+   },
+   "dvdt_used_over_rated": 0.09042,
+   "fit": {
+    "body_row_mm": 68.5,
+    "pin_span_mm": 57.5,
+    "free_pin_span_mm": 58.3,
+    "height_mm": 20.0,
+    "fits_today_copper": true,
+    "changes": []
+   },
+   "f_res_scale": 1.008,
+   "yield_28A_70uH_220mm": 0.89,
+   "f_op_median_kHz": 42.7,
+   "parts_cost_500_usd": null,
+   "go": false
+  }
+ ]
+}

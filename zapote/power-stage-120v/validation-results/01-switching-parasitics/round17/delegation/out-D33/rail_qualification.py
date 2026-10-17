@@ -24,6 +24,8 @@ import rail_campaign
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE / 'rail-qualified'
+# Split top resistor (R77/R95/R110): 6.12 k as qualified; --rtop 6200 is the 2026-10-09 BOM value.
+RTOP = 6120.0
 
 
 @dataclass(frozen=True)
@@ -50,12 +52,12 @@ class Corner:
 def loop(c: Corner) -> dict:
     f = np.geomspace(1, 1e8, 60000)
     s = 2j*np.pi*f
-    y = c.banks/4990 + 1/16120 + 1/14420 + 1/17620 + c.banks/10000 + c.banks*(
+    y = c.banks/4990 + 1/(RTOP+10000) + 1/14420 + 1/17620 + c.banks/10000 + c.banks*(
         1/(c.bulk_r+s*10e-9+1/(s*c.bulk_u*1e-6)) +
         1/(c.local_r+s*c.local_l_n*1e-9+1/(s*c.local_u*1e-6)) +
         1/(c.mid_r+s*c.mid_l_n*1e-9+1/(s*c.mid_u*1e-6)) +
         1/(c.hf_r+s*c.hf_l_n*1e-9+1/(s*c.hf_u*1e-6)))
-    gain = (c.gm*10000/16120)/((1+s*159e-6*c.pole1)*(1+s*80e-9*c.pole2)*y)
+    gain = (c.gm*10000/(RTOP+10000))/((1+s*159e-6*c.pole1)*(1+s*80e-9*c.pole2)*y)
     crossings = np.flatnonzero(np.diff((abs(gain)>1).astype(int)))
     if not len(crossings):
         raise ValueError('No loop unity crossing in frequency range')
@@ -90,7 +92,7 @@ Ispan p n {0.014 + .0044*c.banks}
 Rsp raw p 1
 Cspan p n {10*c.banks}u
 Rbleed p 0 {4990/c.banks}
-Rtop 0 fb 6113.88
+Rtop 0 fb {RTOP*.999:.2f}
 Rbot fb n 10010
 Rmonitoruv 0 n 14420
 Rmonitorov 0 n 17620
@@ -177,7 +179,7 @@ def edge(c: Corner, time: np.ndarray, currents: np.ndarray, side: int, dt: int, 
 
 
 def main() -> None:
-    global OUT
+    global OUT, RTOP
     parser = argparse.ArgumentParser()
     parser.add_argument('--loop', action='store_true')
     parser.add_argument('--periodic', action='store_true')
@@ -187,8 +189,10 @@ def main() -> None:
     parser.add_argument('--waveforms', default='edge-current')
     parser.add_argument('--output', default='rail-qualified')
     parser.add_argument('--span', type=float, default=15.5)
+    parser.add_argument('--rtop', type=float, default=6120.0)
     args = parser.parse_args()
     OUT = HERE / args.output
+    RTOP = args.rtop
     OUT.mkdir(exist_ok=True)
     (OUT/'.gitignore').write_text('runs/\n')
     from dataclasses import replace

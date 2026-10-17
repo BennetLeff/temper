@@ -1,0 +1,99 @@
+{
+ "V": 139.70000000000002,
+ "rows": {
+  "UMT250 as built": {
+   "breaking_A": 200,
+   "ik_worst_A": 3566.8702919219445,
+   "ratio": 17.83435145960972
+  },
+  "02153.15MXP alone": {
+   "breaking_A": 1500,
+   "ik_worst_with_Cu_A": 1453.7467551875252,
+   "ik_worst_Cu0_A": 3749.567543653442
+  },
+  "02153.15MXP + 0.1 ohm series": {
+   "breaking_A": 1500,
+   "R_series_ohm": 0.1,
+   "ik_bound_A": 1089.0,
+   "margin_x": 1.38,
+   "I_in_now_108V_A": 1.27,
+   "P_series_now_108V_W": 0.16,
+   "I_in_now_132V_A": 1.04,
+   "P_series_now_132V_W": 0.11,
+   "I_in_P1_108V_A": 1.42,
+   "P_series_P1_108V_W": 0.2,
+   "I_in_P1_132V_A": 1.16,
+   "P_series_P1_132V_W": 0.14
+  },
+  "02153.15MXP + 0.15 ohm series": {
+   "breaking_A": 1500,
+   "R_series_ohm": 0.15,
+   "ik_bound_A": 784.0,
+   "margin_x": 1.91,
+   "I_in_now_108V_A": 1.27,
+   "P_series_now_108V_W": 0.24,
+   "I_in_now_132V_A": 1.04,
+   "P_series_now_132V_W": 0.16,
+   "I_in_P1_108V_A": 1.42,
+   "P_series_P1_108V_W": 0.3,
+   "I_in_P1_132V_A": 1.16,
+   "P_series_P1_132V_W": 0.2
+  },
+  "02153.15MXP + 0.22 ohm series": {
+   "breaking_A": 1500,
+   "R_series_ohm": 0.22,
+   "ik_bound_A": 563.0,
+   "margin_x": 2.67,
+   "I_in_now_108V_A": 1.27,
+   "P_series_now_108V_W": 0.35,
+   "I_in_now_132V_A": 1.04,
+   "P_series_now_132V_W": 0.24,
+   "I_in_P1_108V_A": 1.42,
+   "P_series_P1_108V_W": 0.45,
+   "I_in_P1_132V_A": 1.16,
+   "P_series_P1_132V_W": 0.3
+  },
+  "UMT250 + 0.7 ohm series": {
+   "breaking_A": 200,
+   "R_series_ohm": 0.7,
+   "ik_bound_A": 176.0,
+   "margin_x": 1.14,
+   "I_in_now_108V_A": 1.27,
+   "P_series_now_108V_W": 1.13,
+   "I_in_now_132V_A": 1.04,
+   "P_series_now_132V_W": 0.75,
+   "I_in_P1_108V_A": 1.42,
+   "P_series_P1_108V_W": 1.42,
+   "I_in_P1_132V_A": 1.16,
+   "P_series_P1_132V_W": 0.95
+  },
+  "UMT250 + 1.0 ohm series": {
+   "breaking_A": 200,
+   "R_series_ohm": 1.0,
+   "ik_bound_A": 128.0,
+   "margin_x": 1.57,
+   "I_in_now_108V_A": 1.27,
+   "P_series_now_108V_W": 1.61,
+   "I_in_now_132V_A": 1.04,
+   "P_series_now_132V_W": 1.08,
+   "I_in_P1_108V_A": 1.42,
+   "P_series_P1_108V_W": 2.02,
+   "I_in_P1_132V_A": 1.16,
+   "P_series_P1_132V_W": 1.35
+  },
+  "UMT250 + 2.2 ohm series": {
+   "breaking_A": 200,
+   "R_series_ohm": 2.2,
+   "ik_bound_A": 61.0,
+   "margin_x": 3.29,
+   "I_in_now_108V_A": 1.27,
+   "P_series_now_108V_W": 3.54,
+   "I_in_now_132V_A": 1.04,
+   "P_series_now_132V_W": 2.37,
+   "I_in_P1_108V_A": 1.42,
+   "P_series_P1_108V_W": 4.45,
+   "I_in_P1_132V_A": 1.16,
+   "P_series_P1_132V_W": 2.98
+  }
+ }
+}

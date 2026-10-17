@@ -1,0 +1,638 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 4,
+   "list": [
+    {
+     "componentId": 24849,
+     "componentLibraryType": "expand",
+     "stockCount": 3581,
+     "componentTypeEn": "Audio Interface ICs",
+     "erpComponentName": "\u8d85\u4f4e\u529f\u8017\u7acb\u4f53\u58f0\u97f3\u9891\u7f16\u89e3\u7801\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/audio-interface-ics_texas-instruments-tlv320aic3204irhbr_C24109.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5707
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3016
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1532
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.902
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.827
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7943
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.513
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2538
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1108
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8689
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7966
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7652
+      }
+     ],
+     "firstSortAccessId": "2ade39b3eb5f47a0b806a0d0611c9b6c",
+     "secondSortAccessId": "c8c88c59c835445798d1ea000d5165cb",
+     "canPresaleNumber": 3484,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TLV320AIC3204IRHBR/C24109",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 4.58703,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.5707,
+     "componentCode": "C24109",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV320AIC3204IRHBR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582978381126512640",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1806111747_Texas-Instruments-TLV320AIC3204IRHBR_C24109.pdf",
+     "dataManualFileAccessId": "8588858328642695168",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv320aic3204",
+     "componentName": "TI TLV320AIC3204IRHBR",
+     "minImage": "",
+     "minImageAccessId": "8582978381944401920",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "QFN-32-EP(5x5)",
+     "describe": "-40\u2103~+85\u2103 1.1V~3.6V\u30011.26V~1.95V\u30011.5V~1.95V 8kHz~192kHz Encoder/decoder I2C\u3001SPI QFN-32-EP(5x5) Audio Interface ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Encoder/decoder"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.1V~3.6V\u30011.26V~1.95V\u30011.5V~1.95V"
+      },
+      {
+       "attribute_name_en": "Sampling Rate",
+       "attribute_value_name": "8kHz~192kHz"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Built-in phase-locked loop"
+      },
+      {
+       "attribute_name_en": "Interface",
+       "attribute_value_name": "I2C\u3001SPI"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Audio Interface ICs",
+     "secondSortName": "Interface",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV320</span>AIC<span class='lucene_highlight_class'>3204</span>IRHBR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2243176,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Audio Interface ICs",
+     "erpComponentName": "TLV320AIC3204 \u8d85\u4f4e\u529f\u8017\u7acb\u4f53\u58f0\u97f3\u9891\u7f16\u89e3\u7801\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/audio interface ics_texas instruments_tlv320a3204irhbrg4_C2151128.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6846
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2769
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.0225
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7599
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6424
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5903
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5319
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.1933
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.6953
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.9482
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.5861
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5822
+      }
+     ],
+     "firstSortAccessId": "35ffc800f5de420dbac8854b6f389968",
+     "secondSortAccessId": "cd9af0327df842728dabb7f291cd563e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "2243176-TLV320A3204IRHBRG4/C2151128",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.6846,
+     "componentCode": "C2151128",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV320A3204IRHBRG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2302221230_Texas-Instruments-TLV320A3204IRHBRG4_C2151128.pdf",
+     "dataManualFileAccessId": "8589924392109957120",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv320aic3204",
+     "componentName": "TI TLV320A3204IRHBRG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-32(5x5)",
+     "describe": "-40\u2103~+85\u2103 1.1V~3.6V\u30011.26V~1.95V\u30011.5V~1.95V\u30011.9V~3.6V 48kHz Encoder/decoder Serial VQFN-32(5x5) Audio Interface ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Encoder/decoder"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.1V~3.6V\u30011.26V~1.95V\u30011.5V~1.95V\u30011.9V~3.6V"
+      },
+      {
+       "attribute_name_en": "Sampling Rate",
+       "attribute_value_name": "48kHz"
+      },
+      {
+       "attribute_name_en": "Interface",
+       "attribute_value_name": "Serial"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Audio Interface ICs",
+     "secondSortName": "Interface",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV320</span>A<span class='lucene_highlight_class'>3204</span>IRHBRG4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2743741,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Audio Interface ICs",
+     "erpComponentName": "TLV320AIC3204 \u8d85\u4f4e\u529f\u8017\u7acb\u4f53\u58f0\u97f3\u9891\u7f16\u89e3\u7801\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/audio-interface-ics_texas-instruments-tlv320aic3204irhbt_C2651832.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.1358
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.989
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.8911
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.7949
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.7949
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.7949
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.9106
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.5823
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.5823
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.5823
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.7692
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.675
+      }
+     ],
+     "firstSortAccessId": "2ade39b3eb5f47a0b806a0d0611c9b6c",
+     "secondSortAccessId": "c8c88c59c835445798d1ea000d5165cb",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "2743741-TLV320AIC3204IRHBT/C2651832",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 31.158,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 6.1358,
+     "componentCode": "C2651832",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV320AIC3204IRHBT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583493862241816576",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2302221130_Texas-Instruments-TLV320AIC3204IRHBT_C2651832.pdf",
+     "dataManualFileAccessId": "8588918817645080576",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv320aic3204",
+     "componentName": "TI TLV320AIC3204IRHBT",
+     "minImage": "",
+     "minImageAccessId": "8583493863209754624",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "VQFN-32(5x5)",
+     "describe": "-40\u2103~+85\u2103 1.1V~3.6V\u30011.26V~1.95V\u30011.5V~1.95V\u30011.9V~3.6V Encoder/decoder I2C\u3001SPI VQFN-32(5x5) Audio Interface ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Encoder/decoder"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.1V~3.6V\u30011.26V~1.95V\u30011.5V~1.95V\u30011.9V~3.6V"
+      },
+      {
+       "attribute_name_en": "Sampling Rate",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Built-in phase-locked loop"
+      },
+      {
+       "attribute_name_en": "Interface",
+       "attribute_value_name": "I2C\u3001SPI"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Audio Interface ICs",
+     "secondSortName": "Interface",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV320</span>AIC<span class='lucene_highlight_class'>3204</span>IRHBT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 43301703,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "TLV320AIC3204",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-TLV320AIC3204/C9900149205",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900149205",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "TLV320AIC3204",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT TLV320AIC3204",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "QFN-32_5x5mm",
+     "describe": "QFN-32_5x5mm New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV320</span>AIC<span class='lucene_highlight_class'>3204</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TLV3204"
+ },
+ "message": null,
+ "_kw": "TLV3204",
+ "_fetched_utc": "2026-10-13T19:35:19Z"
+}

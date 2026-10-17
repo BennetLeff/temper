@@ -6,6 +6,7 @@
 #include "coil_guard.h"
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 void coil_guard_init(coil_guard_t *ctx) {
     if (!ctx) return;
@@ -22,11 +23,12 @@ void coil_guard_set_baseline(coil_guard_t *ctx, float freq_hz) {
 coil_guard_status_t coil_guard_update(coil_guard_t *ctx, float current_freq_hz, float coil_temp_c) {
     if (!ctx) return COIL_GUARD_ERR_NULL;
     
-    // 1. Check Temperature (if available)
-    if (coil_temp_c > -100.0f) { // Valid temp provided
-        if (coil_temp_c > COIL_MAX_TEMP_C) {
-            return COIL_GUARD_ERR_OVERTEMP;
-        }
+    // 1. Temperature: an invalid reading fails safe; the trip sits above the derate band.
+    if (!isfinite(coil_temp_c) || coil_temp_c < COIL_TEMP_VALID_MIN_C) {
+        return COIL_GUARD_ERR_SENSOR;
+    }
+    if (coil_temp_c >= COIL_MAX_TEMP_C) {
+        return COIL_GUARD_ERR_OVERTEMP;
     }
     
     // 2. Check Inductance Drop via Frequency Shift
@@ -50,5 +52,10 @@ coil_guard_status_t coil_guard_update(coil_guard_t *ctx, float current_freq_hz, 
         }
     }
     
+    // 3. Derating (informational; the cap itself is coil_tank_cap_pct())
+    if (coil_tank_cap_pct(coil_temp_c) < 100u) {
+        return COIL_GUARD_WARN_DERATING;
+    }
+
     return COIL_GUARD_OK;
 }

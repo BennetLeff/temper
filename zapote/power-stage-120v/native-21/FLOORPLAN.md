@@ -1,6 +1,7 @@
 # Native-21 floorplan (layout stage 1, Claude, 2026-10-06)
 
-Board **290 × 140 mm**, 4 layers (native-20 stackup). In the R4 enclosure it
+Board **290 × 190 mm L-shaped outline** (stage 1 planned 290 × 140; the tongue below y 140 grew
+during routing; recorded as the outline by owner decision 2026-10-08, review M10), 4 layers, 2 oz all layers (JLC041622-7628). In the R4 enclosure it
 sits rotated 180°: the board's **top edge (KiCad y = 0) faces the enclosure
 rear**, and its left edge (KiCad x = 0) is at world x = 141 (right). Board
 frame below is KiCad: x right, y down, mm. World = (141 − x, 236 − y).
@@ -17,16 +18,16 @@ C21–C23 47 × 28, T1 24 × 33, RV1 24 × 24, F1 38 × 9, C1/C2 27 × 12.
 | Zone | Board x | Board y | Contents | Why |
 | --- | --- | --- | --- | --- |
 | **Sink row** | 0 – 106 | 0 – 8 | Q5, Q6, Q3, Q2, then **BR1** (106 mm), tabs at y ≈ 1.6, flush with the edge | Sink span world x 35…141 (L13). BR1 moved from native-20's far left to after Q2, so airflow (inlet world right = board left) passes the FETs before BR1 (D-18 order), without mirroring any footprint |
-| **Power core** | 0 – 115 | 8 – 62 | native-20 core rows kept: gate R/hold-off under each gate pin, snubbers, R5 between the low-side sources, C38–C41 HF row, U1/U2 straddling the SELV island edge, F6 network (Cgs, PMEG + 1 Ω) at each gate, bias reservoirs (2×10 µF + 2×1 µF + 4×100 nF + 220 µF/0.68 Ω) **at each driver's VSS pins** | Proven gate and commutation loops; rail model ≤ 0.5 nH added per branch (ECO L1) |
+| **Power core** | 0 – 115 | 8 – 62 | native-20 core rows kept: gate R/hold-off under each gate pin, snubbers, R5 between the low-side sources, C38–C41 HF row, U1/U2 straddling the SELV island edge, F6 network (Cgs, PMEG + 1 Ω) at each gate, bias reservoirs (2×10 µF + 2×1 µF + 4×100 nF + 220 µF/0.68 Ω) **at each driver's VSS pins** | Gate loops per ECO L1. **Commutation loops measured, not carried over** (FEM 2026-10-08, FINDINGS M11): the film row sits 6 mm lower for F6, so leg A's parallel loop rises 24.9 → 37.6 nH at the reference, while leg B's falls 29.1 → 24.5 nH (C41 pulled in). Both legs pass all 252 F6 cases on the provisional matrices |
 | **HS bias A / B** | 0 – 115 | 62 – 95 | SN6507-fed transformers T2/T3, rectifiers, LC filter, TPS7A47 split + TLVH431, rail monitor (LM339, TL431, ISO7710 straddling the island edge) per high-side domain, each a compact island referenced to its own switch node | HS domains swing with sw_a/sw_b: keep each island small, beside its driver, with functional creepage to its neighbours |
-| **SELV island** | 30 – 160 | 62 – 125 | J4 (harness exits the rear via a short pigtail), U9/U4 SELV halves, CT comparators U10–U13, DIS ORs, BIAS_BAD filter, LINE_ZC buffer, PS1 secondary side | One island with an 8 mm moat (D5); every crossing part (U1, U2, U4, U9, U32–U34, U36, T1, PS1) straddles its edge |
+| **SELV island** | 30 – 160 | 62 – 125 | J4 on the tongue's front edge (harness exits forward to the front controller), U9/U4 SELV halves, CT comparators U10–U13, DIS ORs, BIAS_BAD filter, LINE_ZC buffer, PS1 secondary side | One island with an 8 mm moat (D5); every crossing part (U1, U2, U4, U9, U32–U34, U36, T1, PS1) straddles its edge |
 | **HOT protection** | 106 – 160 | 8 – 60 | U3 HOT5 LDO, U5/U6/U7 OCP/OVP, U8 NAND, U14/U15 HOT5 monitor, R30–R37 dividers, on OCP_KELVIN_P with a **star return to R5.2** (L4) | Kelvin budget; short lead from R5 |
 | **Mains / rectifier** | 106 – 290 | 0 – 60 | J1 at the top edge (rear), F1, RV1, C1/C2 X2, L1, C3/C4 Y1, link terminals J7–J10, C5 bulk, D3 TVS; BR1 adjacent at the row end | Mains enters at the rear (owner, D-36 L15) and flows L1 → BR1 → bus |
 | **Tank** | 160 – 290 | 60 – 140 | T1 CT, C21–C23 resonant bank, bleed string R22–R25, C6 bulk, coil terminals J2/J5 at the top edge | Coil leads exit rearward (L15) |
 | **Supplies** | 160 – 290 | 95 – 140 | PS1 (SELV), PS2 IRM-20-24 (TCO_L), J3 TCO loop, J6 PE, SN6507 driver + snubbers | AC-DC modules away from the gate loops; PS1 straddles the SELV moat |
 
-Every connector that leaves the board (J1, J2, J5, J3, J6, J4 pigtail) is on
-or near the top edge, outside the sink span x 0–106 (L15).
+Off-board connectors: J1 and J3 on the rear edge; J2/J5 under the coil carrier; J4 on the tongue's front
+edge (M10); J6 on the front edge of the main body. The mains and coil connectors stay outside the sink span x 0–106 (L15).
 
 ## Open choices settled here
 
@@ -173,11 +174,62 @@ run, and that count is 0. Their inductance effect belongs to the FEM rerun on th
     the bank template (body collisions 0, board in R4 0 hits).
   - Kelvin OCP band on this copper: 47.51-97.98 A.
   - Manifest: `verification/final-manifest.json`.
+- **Stage 6 (2026-10-08):** the board current screen (task 04 round 5) found R5's current pads fed through
+  two (HV_RET) and three (LEG_RET) 0.3 mm vias, up to 18 A in one via. `layout/patches21.py` (base =
+  stage-5 copper; the stage-4/5 record is `patches21_v1.py`) adds legal 0.6/0.3 vias, 7 in R5.4 and
+  10 at R5.1, filled and capped in the pads. It clips SW_B's B.Cu outline under R5, where its fill was
+  0 mm². The worst via falls to 7.3 A (coherent 34 A case). DRC, parity, barrier (both gates), DFM
+  and plane splits are all 0 / PASS; the Kelvin band is unchanged.
+  Also in stage 6: SW_B's B.Cu tank lane widened from 4.4-5.6 to 7.2-9.3 mm over x 58-74 (SW_A's B.Cu link
+  pour trimmed to y <= 12.5; the Cgs/R71 return via moved to (73.1, 15.2)). Tank-path screen and the 22 A
+  RMS tank ceiling: task 04 round 5 README, DECISIONS.md 2026-10-08.
+- **Stage 8 (2026-10-08):** fixes from the independent pre-fab review (validation-results/08-manufacturing-package/native-21/REVIEW-TRIAGE.md):
+  - **Driver decoupling (B1).** New HS VDDA–VSSA caps: 100 nF 4.3 mm from the pin, 10 µF 7.9–8.6 mm. The LS 100 nF sits at VDDB.
+  - **Leg A hand routes.** The HS stack is hand-laid on F.Cu (`layout/patches21.py` add_stage8). LOW-group In1 runs leave no legal n_ha via spot there.
+  - **Thermal vias (B2).** 3 × 3 in U26–U28's exposed pads, 2 × 2 in U35's.
+  - **Isolator decoupling (M1).** AMC1311 / ISO7710 caps at their pins.
+  - **Reliefs (M3).** On 30 low-current THT pads.
+  - **Holes (M4).** Re-planned nylon holes (washer face copper-free); SELV-tongue corner holes H2 / H3.
+  - **Silk (M12).** Board ID, HV warning, PE, BR1.
+  - **J3 / F1 (M7 / M8).** J3 becomes B2P3-VH; F1 gets 30 A clips and a 25 A fuse.
+  - **Placement fixes.** The 0805 bulk first landed 7.48 mm from the SELV PWM pins (barrier gate caught it). Leg A's LS bulk briefly sat over SW_B's tank lane; it went back to its block spot.
+  - **Results:** DRC 0 / 0 unconnected / parity 0, both barrier gates 0, DFM PASS, Gerber review 892/892, D5 PASS, Kelvin band 47.52–97.98 A, body collisions 0, R4 fit 0 hits, task 04 tank paths unchanged.
+  - **Build fix.** The reliefs step first died silently on a KiCad 10 API change: its stderr was discarded and the pipe hid the exit code. `incr_iter.sh` now fails on it.
+- **Stage 9 (2026-10-08):** the closure review's B1 / N1 rework.
+  - UCC21550 VDD–VSS 0805 stacks straddle each output pin: 100 nF + 1 µF, + 10 µF high side. Every loop is 2.07–2.2 mm with no vias.
+  - Bleed resistors back at their stage-7 spots; the sw_a gate return is 24.1 mm again.
+  - Board-only holes and fiducials frozen at the positions the enclosure adopted.
+  - Board `e9d1cc4f…`: every gate 0 / PASS (DECISIONS.md "stage 9").
+- **Stage 10 (2026-10-08):** the AMC1311's 1 µF supply caps (TI SBAS786C §10; closure review M1).
+  - C150 (VDD2, SELV) sits 4.9 mm from pin 8.
+  - C149 (VDD1, HOT) went to the nearest free 0805 spot, 13.8 mm by copper with 2 vias; C28's 100 nF stays the HF cap at 7.3 mm.
+  - Board `ef993141…`: every gate 0 / PASS.
+- **Stage 11 (2026-10-08):** the closure re-review's minor items.
+  - AMC1311 VDD2 100 nF (C29) placed before its 1 µF, back at the pin: 2.40 mm, no vias.
+  - Hole and fiducial designators on F.Fab.
+  - Silk text placement uses the real stroke width: silk warnings 13 → 3.
+  - Board `e85a4c82…`: every gate 0 / PASS.
+- **Stage 12 (2026-10-09):** F1 is now a UL Class CC fuse (Littelfuse KLDR025.TXP, 600 V / 200 kA) for the 120–127 V nameplate (Mexico from day 1).
+  - **Fit:** 10 × 38 clips (2 × 01250003H) on plated slots at (252.00, 7.25); C1 moved +0.6 mm; the F.Cu ac_l_in / l_f pours redrawn.
+  - **Board `fc386321…`:** every gate 0 / PASS.
+  - **Tool fixes:** the DFM slot-ring check and the task-04 slot model.
+- **Stage 19 (2026-10-12):** converter-local caps at U41 / U42 / U26 (U26 moved), the comparator / monitor 100 nF caps beside their ICs (N1, from `365151b62`), bus_fault_hot along its Kelvin return, ct_zc / pwm_lb continuous; DRC warnings cleared (K6). Board `370fcf37…` (DECISIONS item 19).
+- **Stage 19b (2026-10-12):** four 100 nF v3v3-selv_gnd transfer caps C153-C156 beside pwm_hb's J4-side layer changes. Board `b19a4553…` (DECISIONS item 19b).
 - **Open items:**
-  - **44 vias** remain mostly inside SMD pads (no legal spot within 1.3 mm). Order them
-    plugged and capped (JLC via-in-pad) or rework by hand.
-  - Accepted warnings: 6 short dangling stubs, 20 silk-over-copper, PS1/PS2 outline silk at the
-    board edge (2) and J3/PS2 outline silk (2). Nudging PS1/PS2/J3 broke the mains-entry escapes
+  - **U26 spreading plane (watch):** In1 n_ls within 12 mm of U26 fell 181 → 162 mm² over stages 8–11. IR-check at first power-up.
+  - **Board fixings (stage 8 positions, frozen):** H1 metal-capable, H2-H7 nylon only (H4-H6 need nylon standoffs >= 10 mm, HOT copper near the hole wall); the enclosure must match them
+    (verification/D5-AUDIT.md). Bring-up test pads and fiducials: BRINGUP-PROBES.md.
+  - **Via-in-pad (stage 8 count):** 77 drills fully inside SMD pads and 64 overlapping a pad edge, all POFV. The stage-5 note follows: **44 vias** remained mostly inside SMD pads (the straight-stub dogbone found no spot within 1.3 mm;
+    a routed-stub trial moves 15 more, 28 stay; R5's current pads need in-pad vias anyway). **Decided
+    2026-10-08:** order every 0.3 mm via epoxy-filled and capped (JLC POFV); see DECISIONS.md.
+  - **2 oz via rule (2026-10-08):** JLC's 0.254 mm ring is the PTH rule; vias need diameter >= hole
+    + 0.1 mm, so the 0.6/0.3 signal vias stand (DFM gate PASS). A trial upsize to 0.72/0.2 could not
+    re-route the LS bias block: the block is at 84 % courtyard area, its size-sorted row-pack
+    scatters each IC's parts (IC-to-satellite runs of 12-30 mm), and functional sub-packing needs
+    about 4 mm more height than the block has. If a future change needs more routing room there, the
+    lever is 0402 for its low-voltage passives (an ECO through the source), then a functional pack.
+  - Accepted warnings (stage 8): 13 short dangling stubs, 20 silk-over-copper, 9 silk overlaps, 4 silk at the board edge
+    (stage 7: 6 stubs, PS1/PS2 outline silk at the edge (2), J3/PS2 outline silk (2)). Nudging PS1/PS2/J3 broke the mains-entry escapes
     and the PS1/C4 courtyards. The 199 `lib_footprint_issues` are the project's unconfigured
     stock-library table.
   - FEM extraction and decision reruns (task 01): setup and coarse mesh gates done, solves pending

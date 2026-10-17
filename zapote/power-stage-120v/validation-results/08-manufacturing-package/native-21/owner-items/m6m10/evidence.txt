@@ -1,0 +1,79 @@
+== coil_voltage.py
+case                          f kHz  L uH   Irms    Ipk    |Z|   Vrms    Vpk Vrms@22A
+cast_iron-low-108v-1710w      34.61  51.8  26.44  51.47  11.53  304.7  593.3    253.6
+cast_iron-low-108v-855w       38.13  51.8  18.25  36.59  12.67  231.2  463.7    278.8
+cast_iron-low-108v-300w       47.03  51.8  10.29  22.52  15.57  160.2  350.6    342.5
+cast_iron-low-120v-1710w      35.56  51.8  26.27  51.44  11.84  311.0  608.8    260.4
+cast_iron-low-120v-855w       39.47  51.8  18.10  36.87  13.11  237.3  483.3    288.4
+cast_iron-low-120v-300w       49.72  51.8  10.17  22.56  16.44  167.1  370.9    361.7
+cast_iron-low-140v-1710w      37.13  51.8  25.96  51.52  12.35  320.5  636.2    271.7
+cast_iron-low-140v-855w       41.78  51.8  17.86  37.43  13.86  247.5  518.7    304.9
+cast_iron-low-140v-300w       54.63  51.8   9.92  22.41  18.04  178.9  404.2    396.9
+70 uH @ 35 kHz: X=15.39 ohm; 22 A rms (time) -> 339 V rms; line-crest carrier pk (I_pk = 2*I_rms for sine envelope) -> 677 V pk
+70 uH @ 45 kHz: X=19.79 ohm; 22 A rms (time) -> 435 V rms; line-crest carrier pk (I_pk = 2*I_rms for sine envelope) -> 871 V pk
+70 uH @ 60 kHz: X=26.39 ohm; 22 A rms (time) -> 581 V rms; line-crest carrier pk (I_pk = 2*I_rms for sine envelope) -> 1161 V pk
+shorted coil: 108 V line, 34 kHz: Xc=8.67 ohm, I_pk= 22.4 A (line crest), I_rms(time)= 11.2 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 108 V line, 40 kHz: Xc=7.37 ohm, I_pk= 26.4 A (line crest), I_rms(time)= 13.2 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 108 V line, 60 kHz: Xc=4.91 ohm, I_pk= 39.6 A (line crest), I_rms(time)= 19.8 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 120 V line, 34 kHz: Xc=8.67 ohm, I_pk= 24.9 A (line crest), I_rms(time)= 12.5 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 120 V line, 40 kHz: Xc=7.37 ohm, I_pk= 29.3 A (line crest), I_rms(time)= 14.7 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 120 V line, 60 kHz: Xc=4.91 ohm, I_pk= 44.0 A (line crest), I_rms(time)= 22.0 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 132 V line, 34 kHz: Xc=8.67 ohm, I_pk= 27.4 A (line crest), I_rms(time)= 13.7 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 132 V line, 40 kHz: Xc=7.37 ohm, I_pk= 32.3 A (line crest), I_rms(time)= 16.1 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 132 V line, 60 kHz: Xc=4.91 ohm, I_pk= 48.4 A (line crest), I_rms(time)= 24.2 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 140 V line, 34 kHz: Xc=8.67 ohm, I_pk= 29.1 A (line crest), I_rms(time)= 14.5 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 140 V line, 40 kHz: Xc=7.37 ohm, I_pk= 34.2 A (line crest), I_rms(time)= 17.1 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+shorted coil: 140 V line, 60 kHz: Xc=4.91 ohm, I_pk= 51.3 A (line crest), I_rms(time)= 25.7 A; OCP band 47.5-98 A pk, tank ceiling 22 A rms
+Table 18 PD3 IIIa creepage for retained cases, time-RMS min = 305 V rms: 3.86 mm
+Table 18 PD3 IIIa creepage for retained cases, time-RMS max = 320 V rms: 4.05 mm
+Table 18 PD3 IIIa creepage for 22 A ceiling at the retained 1710 W frequencies, max = 272 V rms: 3.46 mm
+Table 18 PD3 IIIa creepage for ASSEMBLY 540 V pk as carrier-crest RMS (540/sqrt2) = 382 V rms: 4.78 mm
+Table 18 PD3 IIIa creepage for retained max 636 V pk as carrier-crest RMS = 450 V rms: 5.65 mm
+Table 18 PD3 IIIa creepage for 400 V rms row = 400 V rms: 5.00 mm
+envelope bound @ 132 V line: f_res(48 uH)=31.3 kHz, Xc=9.43 ohm -> V_coil <= 326 V rms (time), <= 653 V pk; Table 18 PD3 IIIa at 326 V rms = 4.11 mm
+envelope bound @ 140 V line: f_res(48 uH)=31.3 kHz, Xc=9.43 ohm -> V_coil <= 333 V rms (time), <= 667 V pk; Table 18 PD3 IIIa at 333 V rms = 4.20 mm
+== stud_copper.py
+pad keys ['net', 'ref', 'tht', 'pts']
+res_a vs coil_feed plan-view min gap: 5.000 mm
+  F.Cu: 5.000 mm
+  In1.Cu: 5.940 mm
+  In2.Cu: 5.940 mm
+  B.Cu: 5.000 mm
+  at [127.52, 75.1] [127.3, 80.1]
+res_a F.Cu bounds within 20 mm of stud [127.4, 65.9, 136.6, 75.1] area 67
+res_a In1.Cu bounds within 20 mm of stud [127.5, 66.0, 136.5, 75.0] area 32
+res_a In2.Cu bounds within 20 mm of stud [127.5, 66.0, 136.5, 75.0] area 32
+res_a B.Cu bounds within 20 mm of stud [127.0, 61.8, 152.0, 79.2] area 283
+coil_feed F.Cu bounds within 20 mm of stud [126.0, 80.0, 136.6, 103.0] area 200
+coil_feed In1.Cu bounds within 20 mm of stud [127.5, 81.0, 136.5, 90.0] area 32
+coil_feed In2.Cu bounds within 20 mm of stud [127.5, 81.0, 136.5, 90.0] area 32
+coil_feed B.Cu bounds within 20 mm of stud [126.0, 80.0, 136.6, 101.0] area 191
+J5 nearest other-net copper to the 7 mm body (plan view): [('n_ls', 5.87), ('sw_a', 6.11), ('v24_raw', 6.25), ('ocp_kelvin_p', 7.9), ('ocp_kelvin_n', 8.12), ('ocp_thresh', 8.15), ('bus_fault_hot', 9.34), ('hot5', 9.75)]
+J2 nearest other-net copper to the 7 mm body (plan view): [('sw_a', 3.5), ('n_ls', 5.5), ('monitor_ls-isoin', 7.71), ('v24_raw', 8.16), ('bus_fault_hot', 9.34), ('monitor_ls-base', 9.58), ('bias_sw2', 10.3), ('ocp_kelvin_p', 10.42)]
+== tank_pairs.py
+res_a    -coil_feed plan  5.000 mm at (127.5,75.1) per-layer {'F.Cu': 5.0, 'In1.Cu': 5.94, 'In2.Cu': 5.94, 'B.Cu': 5.0}  A-edge within 5.5 mm: 15 mm   [coil voltage (J5-J2)]
+res_a    -sw_a      plan  0.000 mm at (141.2,77.0) per-layer {'F.Cu': 5.0, 'In1.Cu': 66.856, 'In2.Cu': 66.856, 'B.Cu': 65.658}  A-edge within 5.5 mm: 74 mm   [coil voltage (+T1 1-turn drop)]
+res_a    -sw_b      plan  0.000 mm at (156.7,50.0) per-layer {'F.Cu': 31.8, 'In1.Cu': 37.793, 'In2.Cu': 37.793, 'B.Cu': 5.002}  A-edge within 5.5 mm: 43 mm   [resonant-capacitor voltage]
+coil_feed-sw_b      plan 30.000 mm at (126.5,80.0) per-layer {'F.Cu': 59.555, 'In1.Cu': 59.652, 'In2.Cu': 59.652, 'B.Cu': 30.0}  A-edge within 5.5 mm: 0 mm   [bridge output]
+res_a    -n_ls      plan  0.000 mm at (161.0,75.2) per-layer {'F.Cu': 13.791, 'In1.Cu': 5.002, 'In2.Cu': 14.534, 'B.Cu': 13.778}  A-edge within 5.5 mm: 56 mm   [res_a to LOW group]
+res_a    -hv_ret    plan  0.000 mm at (156.7,50.5) per-layer {'F.Cu': 30.304, 'In1.Cu': 5.9, 'In2.Cu': 45.999, 'B.Cu': 42.5}  A-edge within 5.5 mm: 44 mm   [res_a to bus return]
+res_a    -bus_p     plan  0.000 mm at (156.7,50.5) per-layer {'F.Cu': 18.214, 'In1.Cu': 32.57, 'In2.Cu': 5.9, 'B.Cu': 31.016}  A-edge within 5.5 mm: 44 mm   [res_a to bus +]
+== lug_rotation.py
+pitch   15 mm: bare lugs parallel (+x)  5.00 mm; worst over rotation  0.00 mm (angles 0,230); insulated (ring only)  5.00 mm
+pitch   20 mm: bare lugs parallel (+x) 10.00 mm; worst over rotation  0.00 mm (angles 0,245); insulated (ring only) 10.00 mm
+pitch   30 mm: bare lugs parallel (+x) 20.00 mm; worst over rotation  0.00 mm (angles 50,275); insulated (ring only) 20.00 mm
+pitch   37 mm: bare lugs parallel (+x) 27.00 mm; worst over rotation  3.50 mm (angles 75,285); insulated (ring only) 27.00 mm
+pitch   40 mm: bare lugs parallel (+x) 30.00 mm; worst over rotation  6.50 mm (angles 75,285); insulated (ring only) 30.00 mm
+== slot_check.py
+slot 2.0 mm, y76.6-78.6, x122-152: bounds [122.0, 76.6, 152.0, 78.6]  -> {'sw_a@F.Cu': 15.55, 'res_a@B.Cu': 8.25, 'n_ls@In1.Cu': 1.87, 'v24_raw@In1.Cu': 0.0}
+slot + 0.5 mm setback: bounds [121.5, 76.1, 152.5, 79.1]  -> {'sw_a@F.Cu': 23.53, 'res_a@B.Cu': 17.39, 'n_ls@In1.Cu': 3.62, 'v24_raw@In1.Cu': 0.89}
+whole inter-stud strip y75.1-80.1, x115-153: bounds [115.0, 75.1, 153.0, 80.1]  -> {'coil_feed@F.Cu': 0.08, 'sw_a@F.Cu': 40.09, 'res_a@F.Cu': 0.0, 'res_a@B.Cu': 37.46, 'coil_feed@B.Cu': 0.08, 'n_ls@In1.Cu': 28.14, 'ocp_kelvin_p@In1.Cu': 1.12, 'v15_ls@F.Cu': 2.69, 'v24_raw@F.Cu': 1.47, 'v24_raw@In1.Cu': 5.1, 'bias_sw2@In1.Cu': 0.74, 'bias_ls-nr@F.Cu': 0.12, 'bias_ls-nr@In2.Cu': 0.52, 'bus_fault_hot@In2.Cu': 1.25, 'v15_ls@via': 0.0, 'v24_raw@via': 0.57, 'bias_ls-nr@via': 0.28, 'bias_ls.ldo-p11@pad': 0.02, 'bias_ls.ldo-p12@pad': 0.03, 'v24_raw@pad': 0.06, 'bias_ls-nr@pad': 0.03}
+J5 at (147.0, 58.0) courtyard: bounds [141.9, 52.9, 152.1, 63.1]  -> {'sw_a@F.Cu': 68.34, 'res_a@B.Cu': 17.01, 'n_ls@In1.Cu': 2.88, 'v24_raw@In1.Cu': 2.17}
+J5 at (146.0, 57.0) courtyard: bounds [140.9, 51.9, 151.1, 62.1]  -> {'sw_a@F.Cu': 78.54, 'res_a@B.Cu': 7.81, 'n_ls@In1.Cu': 2.85, 'v24_raw@In1.Cu': 2.15}
+J5 at (145.0, 55.0) courtyard: bounds [139.9, 49.9, 150.1, 60.1]  -> {'sw_a@F.Cu': 88.74, 'sw_b@B.Cu': 1.02, 'res_a@B.Cu': 0.51, 'hv_ret@In1.Cu': 6.12, 'bus_p@In2.Cu': 6.12, 'n_ls@In1.Cu': 2.4}
+J5 at (132.0, 55.5) courtyard: bounds [126.9, 50.4, 137.1, 60.6]  -> {'hv_ret@In1.Cu': 1.02, 'bus_p@In2.Cu': 1.02, 'n_ls@In1.Cu': 4.08, 'v24_raw@In1.Cu': 2.55, '@pad': 7.22}
+== board_in_enclosure (R4) rerun, stage-11 boxes
+{
+ "bodies": 417,
+ "hits": []
+}

@@ -1,0 +1,39 @@
+{
+ "source": "Wuerth REDCUBE SMD Terminals Design Guide p.11, grey curve 'THR 7x7mm / SMD D7mm' (one curve for both terminals)",
+ "pdf_sha256_prefix16": "1d9eb5ae2bdfbb18",
+ "test_basis": "6 mm2 cable; 4-layer 105 um Cu PCB (footnote) / 2 x 70 um (text)",
+ "curve_A_by_ambient_C": {
+  "20": 50.9,
+  "25": 50.0,
+  "30": 49.0,
+  "35": 48.0,
+  "40": 47.1,
+  "45": 46.0,
+  "50": 44.8,
+  "55": 43.7,
+  "60": 42.6,
+  "65": 41.3,
+  "70": 40.1,
+  "75": 38.9,
+  "80": 37.5,
+  "85": 36.2,
+  "90": 34.7,
+  "95": 33.2,
+  "100": 31.7,
+  "105": 30.1,
+  "110": 28.4,
+  "115": 26.5,
+  "120": 24.6,
+  "125": 22.4,
+  "130": 20.1,
+  "135": 17.4,
+  "140": 14.2,
+  "145": 10.0
+ },
+ "ambient_C_at_current_A": {
+  "29.4": 107.1,
+  "28.0": 111.1,
+  "22.0": 125.9
+ },
+ "reading_error_A": 0.5
+}

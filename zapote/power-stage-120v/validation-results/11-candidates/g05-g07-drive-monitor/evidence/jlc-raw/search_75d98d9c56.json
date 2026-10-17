@@ -1,0 +1,1463 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 7,
+   "list": [
+    {
+     "componentId": 24051153,
+     "componentLibraryType": "expand",
+     "stockCount": 3988,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u589e\u5f3a\u578b\u9694\u79bb\u5f0f\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolators-gate-drivers_texas-instruments-ucc21550adwr_C22427509.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6424
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3782
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2331
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0683
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9949
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9623
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9584
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1878
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5822
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3277
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0291
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.927
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "0092b7a79e464f4bb751af1a85913a2f",
+     "canPresaleNumber": 3980,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550ADWR/C22427509",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 4.50854,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.6424,
+     "componentCode": "C22427509",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550ADWR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8768344161907433472",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com.cn/cn/lit/ds/symlink/ucc21550.pdf?ts=1734489825077&ref_url=https%253A%252F%252Fwww.ti.com.cn%252Fsitesearch%252Fzh-cn%252Fdocs%252Funiversalsearch.tsp%253FlangPref%253Dzh-CN%2526nr%253D17%2526searchTerm%253DUCC21550ADWR",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com.cn/cn/lit/ds/symlink/ucc21550.pdf?ts=1734489825077&ref_url=https%253A%252F%252Fwww.ti.com.cn%252Fsitesearch%252Fzh-cn%252Fdocs%252Funiversalsearch.tsp%253FlangPref%253Dzh-CN%2526nr%253D17%2526searchTerm%253DUCC21550ADWR",
+     "componentName": "TI UCC21550ADWR",
+     "minImage": "",
+     "minImageAccessId": "8768344162988888064",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+150\u2103@(Tj) 0.8V~1V 125kV/us 2 2V~2.3V 3V~5.5V 45ns 45ns 4A 5000 6.5V~25V 6A 8ns 8ns SOIC-16 Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "6.5V~25V"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "45ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT\u3001SiC\u3001GaN"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "0.8V~1V"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "2mA"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "125kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "2V~2.3V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "45ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>ADWR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 24094596,
+     "componentLibraryType": "expand",
+     "stockCount": 224,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u589e\u5f3a\u578b\u9694\u79bb\u5f0f\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7827
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.5707
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.419
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.282
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.22
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1939
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.3669
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.235
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7173
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1501
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1753
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.513
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": 211,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550BDWR/C22445586",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 6.90016,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.7827,
+     "componentCode": "C22445586",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550BDWR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8766225176625733632",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com.cn/cn/lit/ds/symlink/ucc21550.pdf",
+     "componentName": "TI UCC21550BDWR",
+     "minImage": "",
+     "minImageAccessId": "8766225178617487360",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "-40\u2103~+150\u2103@(Tj) 0.8V~1V 125kV/us 2 2V~2.3V 3V~5.5V 45ns 45ns 4A 6A 8ns 8ns 9.2V~25V Dead-time control Half-Bridge\u3001Low Side\u3001High Side MOSFET\u3001IGBT SOIC-16 Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "9.2V~25V"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "45ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge\u3001Low Side\u3001High Side"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "0.8V~1V"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "125kV/us"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "2V~2.3V"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "45ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>BDWR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 40662674,
+     "componentLibraryType": "expand",
+     "stockCount": 76,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u9694\u79bb\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668\uff0c\u53ef\u7f16\u7a0b\u6b7b\u533a\u65f6\u95f4\uff0c\u5bbd\u6e29\u5ea6\u8303\u56f4",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1676
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.9083
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.7256
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.5593
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4826
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4516
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3984
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.6623
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0881
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.502
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4282
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8383
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 76,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550ADWKR/C38941037",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 8.3915,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.1676,
+     "componentCode": "C38941037",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550ADWKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8767163878990471168",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/lit/ds/symlink/ucc21550.pdf",
+     "componentName": "TI UCC21550ADWKR",
+     "minImage": "",
+     "minImageAccessId": "8767163880059613184",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-14",
+     "describe": "SOIC-14 Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "6.5V~25V"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT\u3001SiC\u3001GaN"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "125kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>ADWKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 41445945,
+     "componentLibraryType": "expand",
+     "stockCount": 47,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u589e\u5f3a\u578b\u9694\u79bb\u5f0f\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6865
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4223
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2559
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0863
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.008
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9754
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.971
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2098
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6246
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3701
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0464
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9396
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 47,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550CDWKR/C39721114",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 5.4,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.6865,
+     "componentCode": "C39721114",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550CDWKR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764009498987892736",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com.cn/cn/lit/ds/symlink/ucc21550.pdf",
+     "componentName": "TI UCC21550CDWKR",
+     "minImage": "",
+     "minImageAccessId": "8764009500192198656",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-16",
+     "describe": "SOIC-16 Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "13.5V~25V"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT\u3001SiC\u3001GaN"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "2mA"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "125kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>CDWKR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 39782505,
+     "componentLibraryType": "expand",
+     "stockCount": 35,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "4A\u30016A \u589e\u5f3a\u9694\u79bb\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.7001
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.0526
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.6383
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.2388
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.2388
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.2388
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.0465
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.4314
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.4542
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.8305
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.0465
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.0465
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 35,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550CQDWKRQ1/C38056306",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 26.1125,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.7001,
+     "componentCode": "C38056306",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550CQDWKRQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com.cn/cn/lit/ds/symlink/ucc21550-q1.pdf",
+     "componentName": "TI UCC21550CQDWKRQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-14",
+     "describe": "SOIC-14 Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "13.5V~25V"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT\u3001SiC\u3001GaN"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "125kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>CQDWKRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44086258,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "\u589e\u5f3a\u578b\u9694\u79bb\u5f0f\u53cc\u901a\u9053\u6805\u6781\u9a71\u52a8\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.1405
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.4212
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.9613
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.5177
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.5177
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.5177
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.3152
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.7425
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.8784
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.1856
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.3152
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.3152
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 9,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550BQDWKRQ1/C42216738",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 29.00103,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 7.1405,
+     "componentCode": "C42216738",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550BQDWKRQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com.cn/cn/lit/ds/symlink/ucc21550-q1.pdf",
+     "componentName": "TI UCC21550BQDWKRQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-14",
+     "describe": "-40\u2103~+150\u2103 1.4mA 125kV/us 2 33ns 33ns 3V~5.5V 4A 5000V 6A 8ns 8ns 9.2V~25V Dead-time control Half-Bridge MOSFET\u3001IGBT\u3001SiC\u3001GaN SOIC-14 Isolators - Gate Drivers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Driver)",
+       "attribute_value_name": "9.2V~25V"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpHL",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Driven Configuration",
+       "attribute_value_name": "Half-Bridge"
+      },
+      {
+       "attribute_name_en": "Load Type",
+       "attribute_value_name": "MOSFET\u3001IGBT\u3001SiC\u3001GaN"
+      },
+      {
+       "attribute_name_en": "Quiescent Current(Iq)",
+       "attribute_value_name": "1.4mA"
+      },
+      {
+       "attribute_name_en": "Fall Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "CMTI(kV/us)",
+       "attribute_value_name": "125kV/us"
+      },
+      {
+       "attribute_name_en": "Isolation voltage(Vrms)",
+       "attribute_value_name": "5000V"
+      },
+      {
+       "attribute_name_en": "Rise Time",
+       "attribute_value_name": "8ns"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Dead-time control"
+      },
+      {
+       "attribute_name_en": "Propagation Delay tpLH",
+       "attribute_value_name": "33ns"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(sink)",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Peak Output Current(source)",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply (Input)",
+       "attribute_value_name": "3V~5.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>BQDWKRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 40639951,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolators - Gate Drivers",
+     "erpComponentName": "UCC21550AQDWKRQ1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.6235
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.6204
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.0104
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.4983
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.4983
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.4983
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.3332
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.8266
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.3804
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.4142
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.3332
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.3332
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC21550AQDWKRQ1/C38915251",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2000,
+     "shopCostPrice": 26.637,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 6.6235,
+     "componentCode": "C38915251",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC21550AQDWKRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8768088721457455104",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI UCC21550AQDWKRQ1",
+     "minImage": "",
+     "minImageAccessId": "8768088722439057408",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOIC-14",
+     "describe": "SOIC-14 Isolators - Gate Drivers ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolators - Gate Drivers",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC21550</span>AQDWKRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "UCC21550"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T19:25:51Z"
+}

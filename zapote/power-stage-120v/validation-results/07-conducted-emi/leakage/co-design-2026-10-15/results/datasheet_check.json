@@ -1,0 +1,95 @@
+{
+ "meanwell/IRM-20-SPEC.PDF": {
+  "sha256_16": "aa1afdbcdf0bf6db",
+  "rows": [
+   "p.1: File Name:IRM-20-SPEC 2025-11-21",
+   "p.2: LEAKAGE CURRENT < 0.25mA/277Vac",
+   "p.2: File Name:IRM-20-SPEC 2025-11-21",
+   "p.3: File Name:IRM-20-SPEC 2025-11-21"
+  ]
+ },
+ "meanwell/IRM-60-SPEC.PDF": {
+  "sha256_16": "b4095594f50a4d09",
+  "rows": [
+   "p.1: File Name:IRM-60-SPEC 2025-11-21",
+   "p.2: LEAKAGE CURRENT < 0.25mA/277Vac",
+   "p.2: File Name:IRM-60-SPEC 2025-11-21",
+   "p.3: File Name:IRM-60-SPEC 2025-11-21",
+   "p.4: (Unit:mm, Tolerance:±1mm) Case No.IRM60",
+   "p.4: File Name:IRM-60-SPEC 2025-11-21"
+  ]
+ },
+ "meanwell/MPM-20-SPEC.PDF": {
+  "sha256_16": "24d3a6bb642d74ea",
+  "rows": [
+   "p.1: File Name:MPM-20-SPEC 202 4-10-30",
+   "p.2: LEAKAGE CURRENT (max.) Note.7 Touch current <80μA/264VAC",
+   "p.2: OTHERS DIMENSION 52.4*27.2*24mm (L*W*H) or 2.06″*1.07″*0.94″ inch",
+   "p.2: 7. Touch current was measured from primary input to DC output.",
+   "p.2: File Name:MPM-20-SPEC 202 4-10-30",
+   "p.3: File Name:MPM-20-SPEC 202 4-10-30",
+   "p.4: (Unit: mm , tolerance ± 0.5 mm) Case No.219A",
+   "p.4: File Name:MPM-20-SPEC 202 4-10-30"
+  ]
+ },
+ "meanwell/MPM-65-SPEC.PDF": {
+  "sha256_16": "3d324f12a4153a71",
+  "rows": [
+   "p.1: File Name:MPM-65-SPEC 202 4-10-30",
+   "p.2: VOLTAGE RANGE Note.5 80 ~ 264VAC 113 ~ 370VDC",
+   "p.2: LEAKAGE CURRENT (max.) Note.6 Touch current <100μA/264VAC",
+   "p.2: SAFETY STANDARDS IEC 60601-1:2005+A1, TUV BS EN/ EN 60601-1:2006+A1+A12+A2, ANSI/AAMI ES60601-1:2005+A2",
+   "p.2: OTHERS DIMENSION PCB mounting style : 87*52*29.5mm (L*W*H) Screw terminal style : 109*52*33.5mm (L*W*H)",
+   "p.2: 6. Touch current was measured from primary input to DC output.",
+   "p.2: File Name:MPM-65-SPEC 202 4-10-30",
+   "p.3: File Name:MPM-65-SPEC 202 4-10-30",
+   "p.4: ( Unit: mm , tolerance ± 1 mm) Case No.IRM60",
+   "p.4: File Name:MPM-65-SPEC 202 4-10-30"
+  ]
+ },
+ "meanwell/IRM-20-SPEC.PDF#case": {
+  "sha256_16": "aa1afdbcdf0bf6db",
+  "rows": [
+   "p.2: OTHERS DIMENSION 52.4*27.2*24mm (L*W*H)",
+   "p.3: (Unit:mm [inch] , Tolerance:±0.5[±0.02]) Case No.219A"
+  ]
+ },
+ "murata/murata_RA_EGD08G.pdf": {
+  "sha256_16": "299987fc56df39ef",
+  "rows": [
+   "p.8: DE1E3RA102MA4BP01F E 1000 ±20% 7.0 4.0 10.0 0.6 A4 250",
+   "p.8: DE1E3RA152MA4BP01F E 1500 ±20% 8.0 4.0 10.0 0.6 A4 250",
+   "p.8: DE1E3RA222MA4BP01F E 2200 ±20% 9.0 4.0 10.0 0.6 A4 250",
+   "p.8: DE1E3RA332MA4BP01F E 3300 ±20% 10.0 5.0 10.0 0.6 A4 250"
+  ]
+ },
+ "kemet/SC-20-201.pdf": {
+  "sha256_16": "9f108a8cdd4c46cc",
+  "rows": [
+   "p.1: D 49mm MAX Voltage AC 250 VAC",
+   "p.1: L​L 15mm +/-2mm Rated Current 20 A",
+   "p.1: S​1 2​2​m​m DC Resistance 10 mOhms",
+   "p.1: Generated 10/15/2026 ©︎ 2006 - 2026 YAGEO"
+  ]
+ },
+ "kemet/SCF31X-220-2R1A011JH.pdf": {
+  "sha256_16": "2fe4dbb96bae7eb3",
+  "rows": [
+   "p.1: F​e​a​t​u​r​e​s High Inductance, High",
+   "p.1: D 45mm MAX Voltage AC 500 VAC",
+   "p.1: L​L 3.5mm +/-0.5mm Rated Current 22 A",
+   "p.1: S​1 30mm MIN DC Resistance 4.39 mOhms",
+   "p.1: Generated 10/15/2026 ©︎ 2006 - 2026 YAGEO"
+  ]
+ },
+ "kemet/SCF39XV-200-Z2R1A012JH.pdf": {
+  "sha256_16": "9be1fd76919ae427",
+  "rows": [
+   "p.1: D 53mm MAX Voltage AC 1000 VAC",
+   "p.1: B​D 51mm +/-0.5mm Inductance Tolerance -​3​0​/​+​5​0​%",
+   "p.1: B​T 50mm +/-0.5mm Rated Current 20 A",
+   "p.1: Packaging Specifications DC Resistance 4.14 mOhms (N1), 11.96 mOhms",
+   "p.1: Generated 10/15/2026 ©︎ 2006 - 2026 YAGEO"
+  ]
+ }
+}

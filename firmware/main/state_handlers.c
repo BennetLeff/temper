@@ -9,6 +9,7 @@
 
 #include "state_handlers.h"
 #include "config.h"
+#include "../components/control/thermal_mgmt.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -43,11 +44,70 @@ extern void fan_set_speed(fan_speed_t speed);
 extern void fan_set_auto_mode(bool enabled);
 extern float read_pan_temperature(void);
 extern float read_heatsink_temperature(void);
-extern float read_dc_bus_current(void);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
+/* R36 rim NTC (GPIO9, ADC1_CH8): false while no valid reading (open, short, stale, or below the
+ * ADC's range). cold_or_open: the node is above the ADC's range (cold, < ~70 C) or open. */
+extern bool read_rim_temperature_status(float *temp_c, bool *cold_or_open);
+extern float read_coil_temperature(void);
+/* L3 sensor-plausibility faults to the thermal glue: coil -> tank clamp <= 17.5 A, blower full. */
+extern void thermal_set_sensor_faults(bool rim_fault, bool coil_fault);
+/* L3 thermal power cap (DECISIONS C28, C32), 0..100: min(coil derate 150-160 C, blower stall
+ * derate). Computed by the blower controller tick (thermal_io.c, blower_ctrl_step()). */
+extern uint8_t thermal_power_cap_pct(void);
+/* Stage 16 start interlock (DECISIONS C33, thermal_io.c): false while the blower supply PS3 is
+ * reported absent (BLW_PG low, debounced and plausible). Unknown BLW_PG does not block. */
+extern bool thermal_blower_start_permitted(void);
+#define MSG_NO_BLOWER_SUPPLY "NO BLOWER PWR"
+/* Power board BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2, option P: BIAS_GOOD = bias_ok AND
+ * PERMIT). Check 2 is the binding's start sequence (n21_binding.c): it raises RUN_EN with the pads
+ * forced low and requires BIAS_GOOD high BIAS_GOOD_PERMIT_RISE_MS later. power_bias_start_refused():
+ * it was not, RUN_EN is low again and the request is held refused until power_set_level(0). Not a
+ * fault. False with no J4.1 input or no binding. Checks 1 and 3 run every tick in
+ * state_machine_update() (check_bias_good). */
+extern bool power_bias_start_refused(void);
+#define MSG_NO_POWER_BIAS "NO POWER BIAS"
+
+
+/* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
+ * PREHEAT and HEATING passes through here. The pan RTD and the rim NTC each derate from 240 C to
+ * 0 at 250 C (thermal_mgmt.h); the coil derate and the blower stall derate can only lower the
+ * result further. */
+static thermal_plaus_t s_plaus;
+
+void state_handlers_thermal_plaus_reset(void)
+{
+    thermal_plaus_init(&s_plaus);
+    thermal_set_sensor_faults(false, false);
+}
+
+bool state_handlers_rim_sensor_fault(void) { return s_plaus.rim_fault; }
+bool state_handlers_coil_sensor_fault(void) { return s_plaus.coil_fault; }
+
+static uint8_t apply_thermal_caps(uint8_t requested, float pan_temp_c)
+{
+    float rim_c = NAN;
+    bool rim_cold_or_open = false;
+    bool rim_ok = read_rim_temperature_status(&rim_c, &rim_cold_or_open);
+    /* A latched rim-sensor fault drops the rim: the pan RTD alone caps at 250 C. */
+    pan_cap_t cap = pan_cap_evaluate(pan_temp_c, isfinite(pan_temp_c), rim_c, rim_ok && !s_plaus.rim_fault);
+    uint8_t limit = cap.cap_pct;
+    uint8_t thermal = thermal_power_cap_pct();
+    if (thermal < limit) limit = thermal;
+    uint8_t out = requested < limit ? requested : limit;
+
+    /* Plausibility of the rim and coil NTCs (cold and open read alike at the ADC's top). */
+    bool rim_was = s_plaus.rim_fault, coil_was = s_plaus.coil_fault;
+    thermal_plaus_update(&s_plaus, get_time_ms(), rim_cold_or_open, pan_temp_c, isfinite(pan_temp_c),
+                         read_coil_temperature(), out);
+    if (s_plaus.rim_fault != rim_was || s_plaus.coil_fault != coil_was) {
+        thermal_set_sensor_faults(s_plaus.rim_fault, s_plaus.coil_fault);
+        display_show_message(s_plaus.coil_fault && !coil_was ? "COIL SENSOR FAULT" : "RIM SENSOR FAULT");
+    }
+    return out;
+}
 
 /* Pan detection stubs */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
@@ -79,6 +139,16 @@ extern bool test_rtd_sensor(void);
 extern bool test_display_communication(void);
 extern bool test_eeprom_read(void);
 
+/* B13 H2 check 2 (EVENT_BIAS_GOOD_LOW_AT_START), in every state that requests power: a refused
+ * start withdraws the request and leaves through `next` with "NO POWER BIAS". */
+static bool bias_start_refused_exit(system_state_t next) {
+    if (!power_bias_start_refused()) return false;
+    power_set_level(0);
+    show_message_then_transition(MSG_NO_POWER_BIAS, next);
+    watchdog_feed();
+    return true;
+}
+
 /* ============================================================================
  * STATE_INIT Implementation
  * ============================================================================ */
@@ -103,12 +173,13 @@ void state_init_update(void) {
     /* Run power-on self-test */
     bool post_passed = run_self_test();
 
-    if (post_passed) {
-        transition_to(STATE_IDLE);
-    } else {
+    if (!post_passed) {
         sm_get_context()->fault_code = FAULT_SELF_TEST_FAILED;
         transition_to(STATE_FAULT);
+        return;
     }
+
+    transition_to(STATE_IDLE);
 }
 
 /* ============================================================================
@@ -140,6 +211,12 @@ void state_idle_entry(void) {
 void state_idle_update(void) {
     /* Check for start button */
     if (button_is_pressed(BUTTON_START) && sm_get_context()->target_temperature > 0) {
+        /* No cooling without PS3: refuse the start and say why (C33). */
+        if (!thermal_blower_start_permitted()) {
+            display_show_message(MSG_NO_BLOWER_SUPPLY);
+            watchdog_feed();
+            return;
+        }
         transition_to(STATE_PAN_DET);
         return;
     }
@@ -177,7 +254,19 @@ void state_pan_det_entry(void) {
     /* Wake up from low power */
     peripherals_exit_low_power();
 
-    /* Enable low-power detection mode */
+    /* Every start path (start button, profile, UI) enters here. Without PS3 there is no cooling
+     * (C33): no detection power; state_pan_det_update() returns to IDLE. */
+    if (!thermal_blower_start_permitted()) {
+        power_set_level(0);
+        display_show_message(MSG_NO_BLOWER_SUPPLY);
+        watchdog_set_timeout(WDT_TIMEOUT_MONITOR_MS);
+        return;
+    }
+
+    /* Enable low-power detection mode. The request is held at 5 % through the whole detection:
+     * RUN_EN rises once, so BIAS_GOOD check 2 runs once per start (the binding's start sequence),
+     * not per detection sample. The legacy ping (power_service_pan_pulse) is disabled; a ping
+     * design must pulse the PWM with PERMIT held high, never pulse PERMIT. */
     power_set_level(5);
 
     /* Visual feedback */
@@ -198,6 +287,17 @@ void state_pan_det_entry(void) {
 }
 
 void state_pan_det_update(void) {
+    /* Start interlock (C33): PS3 absent before heating starts -> back to IDLE, no heating. */
+    if (!thermal_blower_start_permitted()) {
+        power_set_level(0);
+        show_message_then_transition(MSG_NO_BLOWER_SUPPLY, STATE_IDLE);
+        watchdog_feed();
+        return;
+    }
+
+    /* B13 H2 check 2: the start was refused (BIAS_GOOD not high after RUN_EN) -> back to IDLE. */
+    if (bias_start_refused_exit(STATE_IDLE)) return;
+
     /* Run pan detection */
     pan_status_t result = detect_pan_presence();
 
@@ -268,6 +368,9 @@ void state_preheat_entry(void) {
 }
 
 void state_preheat_update(void) {
+    /* B13 H2 check 2: a (re)start refused by the binding -> COOLDOWN (the coil may be hot). */
+    if (bias_start_refused_exit(STATE_COOLDOWN)) return;
+
     /* Read current temperature */
     float current_temp = read_pan_temperature();
     float temp_error = sm_get_context()->target_temperature - current_temp;
@@ -292,7 +395,7 @@ void state_preheat_update(void) {
 
     float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
     uint8_t clamped_power = (uint8_t)fminf((float)requested_power, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
-    power_set_level(clamped_power);
+    power_set_level(apply_thermal_caps(clamped_power, current_temp));
 
     /* Safety checks */
     if (check_safety_interlocks()) {
@@ -349,6 +452,10 @@ void state_heating_entry(void) {
 }
 
 void state_heating_update(void) {
+    /* B13 H2 check 2: a restart refused by the binding (the request went to zero, e.g. the PID at
+     * target, and RUN_EN rose again into a low BIAS_GOOD) -> COOLDOWN. */
+    if (bias_start_refused_exit(STATE_COOLDOWN)) return;
+
     /* Read current temperature */
     float current_temp = read_pan_temperature();
     uint32_t now = get_time_ms();
@@ -384,7 +491,7 @@ void state_heating_update(void) {
         /* low_temp_update(current_temp); */
         /* Use standard PID for now */
         float pid_output = pid_update(sm_get_context()->target_temperature, current_temp);
-        power_set_level((uint8_t)(pid_output * 10));
+        power_set_level(apply_thermal_caps((uint8_t)(pid_output * 10), current_temp));
     } else {
         /* Run standard PID controller */
         float pid_output = pid_update(sm_get_context()->target_temperature, current_temp);
@@ -392,7 +499,7 @@ void state_heating_update(void) {
         /* Apply intensity limiting */
         float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
         float clamped_output = fminf(pid_output, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
-        power_set_level((uint8_t)clamped_output);
+        power_set_level(apply_thermal_caps((uint8_t)clamped_output, current_temp));
     }
 
     /* Update PLL for ZVS tracking */
@@ -616,7 +723,7 @@ void state_fault_update(void) {
     display_show_message(state_machine_get_fault_string(sm_get_context()->fault_code));
 
     /* Check for user reset */
-    if (button_is_pressed(BUTTON_RESET)) {
+    if (button_is_pressed(BUTTON_BACK)) {
         if (fault_cleared()) {
             /* Fault condition has cleared: reinitialize */
             sm_get_context()->fault_code = FAULT_NONE;
@@ -673,7 +780,7 @@ void state_runaway_fault_update(void) {
     watchdog_feed();
 
     /* Check for user reset attempt */
-    if (button_is_pressed(BUTTON_RESET)) {
+    if (button_is_pressed(BUTTON_BACK)) {
         if (fault_cleared()) {
             sm_get_context()->fault_code = FAULT_NONE;
             sm_get_context()->runaway_latched = false;

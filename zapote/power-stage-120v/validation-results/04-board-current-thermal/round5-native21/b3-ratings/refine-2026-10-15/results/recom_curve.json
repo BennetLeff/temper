@@ -1,0 +1,55 @@
+{
+ "source": "RECOM R24C2T25/R Rev. 1-2024 p.2 (dl/recom/R24C2T25_R.pdf, sha256 2e8133d235cbb96286937284e6485b40b6a8285a33f28ae68c8b75baf826272f)",
+ "full_load_W_from_curve_consistency": {
+  "20": 1.741,
+  "30": 1.763,
+  "50": 1.742,
+  "100": 1.68
+ },
+ "full_load_W": 1.7000000000000002,
+ "rows": {
+  "deck_worst_S2": {
+   "Q_nC": 382.6,
+   "P_out_W": 0.7796,
+   "load_pct": 45.9,
+   "loss_45pct_allocation_W": 0.9528,
+   "loss_53pct_typ_W": 0.6913,
+   "curve_Pd_21V_W": 0.814,
+   "curve_Pd_24V_W": 0.876,
+   "curve_Pd_27V_W": 0.989,
+   "curve_eta_24V_pct": 47.7,
+   "curve_eta_27V_pct": 45.3,
+   "loss_from_eta_24V_W": 0.855,
+   "loss_from_eta_27V_W": 0.941
+  },
+  "deck_S1_ZVS": {
+   "Q_nC": 370.0,
+   "P_out_W": 0.7667,
+   "load_pct": 45.1,
+   "loss_45pct_allocation_W": 0.9371,
+   "loss_53pct_typ_W": 0.6799,
+   "curve_Pd_21V_W": 0.806,
+   "curve_Pd_24V_W": 0.867,
+   "curve_Pd_27V_W": 0.979,
+   "curve_eta_24V_pct": 47.5,
+   "curve_eta_27V_pct": 45.2,
+   "loss_from_eta_24V_W": 0.847,
+   "loss_from_eta_27V_W": 0.93
+  },
+  "allocation": {
+   "Q_nC": 740.0,
+   "P_out_W": 1.1441,
+   "load_pct": 67.3,
+   "loss_45pct_allocation_W": 1.3983,
+   "loss_53pct_typ_W": 1.0146,
+   "curve_Pd_21V_W": 1.05,
+   "curve_Pd_24V_W": 1.131,
+   "curve_Pd_27V_W": 1.279,
+   "curve_eta_24V_pct": 50.2,
+   "curve_eta_27V_pct": 47.7,
+   "loss_from_eta_24V_W": 1.135,
+   "loss_from_eta_27V_W": 1.254
+  }
+ },
+ "finding": "At 60 kHz the deck worst edge loads the module to 0.7796 W (45.9 % of 1.70 W). The dissipation curve gives 0.876 W at 24 V in and 0.989 W at 27 V. The 45 % allocation row of record (0.9528 W) sits between them, while the 53 % typical full-load figure (0.6913 W) is below the curve at this load (efficiency at 24 V 47.7 %)."
+}

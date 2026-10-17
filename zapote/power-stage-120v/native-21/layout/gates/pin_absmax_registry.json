@@ -1,0 +1,3905 @@
+{
+ "schema": 1,
+ "about": "Per-pin absolute-maximum registry for gates/pin_absmax.py. `nets`: a declared voltage range per net, relative to a named reference net, each with a citation or a derivation checked against the frozen netlist. `parts`: per IC MPN, the datasheet absolute maximum (and recommended range) of each pin function as V(pin) - V(reference pin), each with the PDF page and a verbatim row quote (checked offline by --verify-datasheets). Anything not declared is UNDECLARED.",
+ "page_basis": "page numbers are PDF page indices (1-based) of the file named in datasheet.file; they equal the printed page for the TI sheets",
+ "datasheet_dir_note": "datasheets live outside the repo (untrusted downloads): worktrees/runs-native21/pin-absmax-dl/pdf; manifest MANIFEST.sha there",
+ "resistor_tolerance": {
+  "0603WAF": {
+   "tol": 0.01,
+   "file": "uniroyal_w4f.pdf",
+   "page": 2,
+   "quote": "7thcode:Tolerance.E.g.:D=\u00b10.5%F=\u00b11%"
+  },
+  "1206W4F": {
+   "tol": 0.01,
+   "file": "uniroyal_w4f.pdf",
+   "page": 2,
+   "quote": "7thcode:Tolerance.E.g.:D=\u00b10.5%F=\u00b11%"
+  },
+  "RC1206FR-07": {
+   "tol": 0.01,
+   "file": "yageo_rc.pdf",
+   "page": 2,
+   "quote": "F=\u00b11.0%"
+  },
+  "RT0603BRD07": {
+   "tol": 0.001,
+   "file": "yageo_rt.pdf",
+   "page": 2,
+   "quote": "B=\u00b10.1%"
+  },
+  "TNPW0603": {
+   "tol": 0.01,
+   "file": "vishay_tnpw.pdf",
+   "page": 1,
+   "quote": "Resistancetolerance(1)\u00b10.5%;\u00b10.1%\u00b11%;\u00b10.5%;\u00b10.1%"
+  },
+  "_default": {
+   "tol": 0.05,
+   "file": "n/a",
+   "page": 0,
+   "quote": "unlisted resistor families are bounded at 5 %"
+  }
+ },
+ "undeclared_notes": {
+  "leg_a.driver-dt": "2EDR8259X STP/DTC: a resistor-programmed, device-regulated pin; the datasheet gives no voltage for the node (Table 9 only bounds it by VDDI + 0.3 V)",
+  "leg_b.driver-dt": "same as leg_a.driver-dt",
+  "ct_sense_mon": "BAS116H clamp diodes D4 / D5 to V3V3 / SELV_GND behind R42 (1 k): needs a diode Vf row and the TLV3201 note-2 10 mA clause (inputs may swing >0.5 V beyond the rails if current-limited)",
+  "ct_s2": "current-transformer secondary reference node (R40 / R41 bias plus the CT signal): needs the CT burden model, not a rail figure",
+  "led1": "mains-driven LED branch of U36 (R67 / R68 / R69 / R70 from L_FILT / N_FILT): a series-resistor-limited LED, VR 6 V applies to the reverse junction; needs the LED Vf row",
+  "led2": "same as led1",
+  "hb_hold": "U40 input on the D19 / C164-C166 hold network (RC with a Schottky): no analysed bound yet"
+ },
+ "nets": {
+  "leg_ret": {
+   "kind": "root",
+   "cite": "README.md 'Domains and barrier': HOT reference is LEG_RET, the leg side of the 1 mohm shunt",
+   "derive": "frame root"
+  },
+  "ocp_kelvin_p": {
+   "kind": "rail",
+   "ref": "leg_ret",
+   "lo": -0.1203,
+   "hi": 0.1203,
+   "cite": "R5 Bourns CSS2H-2512R-1L00F, 1 mohm (DECISIONS.md:66 / datasheet ledger CSS2H-2512R-1L00F) carrying the OCP band top 119.09 A (DECISIONS.md:2279 'At c28: 67.57-119.09 A'; :2295 '119.09^2 x 1 mohm = 14.18 W'): 119.09 A x 1.01 mohm = 0.1203 V; either sign (the leg current reverses). HOT ground of the protection island (U4.4, U9.1, U3.2, ...)."
+  },
+  "ocp_kelvin_n": {
+   "kind": "rail",
+   "ref": "leg_ret",
+   "lo": -0.1203,
+   "hi": 0.1203,
+   "cite": "R5 Bourns CSS2H-2512R-1L00F, 1 mohm (DECISIONS.md:66 / datasheet ledger CSS2H-2512R-1L00F) carrying the OCP band top 119.09 A (DECISIONS.md:2279 'At c28: 67.57-119.09 A'; :2295 '119.09^2 x 1 mohm = 14.18 W'): 119.09 A x 1.01 mohm = 0.1203 V; the pad-4 side of R5 (R5.3), bounded the same way relative to LEG_RET."
+  },
+  "hv_ret": {
+   "kind": "rail",
+   "ref": "leg_ret",
+   "lo": -0.1203,
+   "hi": 0.1203,
+   "cite": "R5 Bourns CSS2H-2512R-1L00F, 1 mohm (DECISIONS.md:66 / datasheet ledger CSS2H-2512R-1L00F) carrying the OCP band top 119.09 A (DECISIONS.md:2279 'At c28: 67.57-119.09 A'; :2295 '119.09^2 x 1 mohm = 14.18 W'): 119.09 A x 1.01 mohm = 0.1203 V; the bus-return side of R5 (R5.4)."
+  },
+  "bus_p": {
+   "kind": "rail",
+   "ref": "hv_ret",
+   "lo": 0.0,
+   "hi": 287.62,
+   "cite": "zapote/power-stage-120v/DECISIONS.md:2279 'At c28: ... OVP 272.47-287.62 V' (bus-OVP band top, s47 band, commit 41413d48d); the rectified bus cannot sit above the OVP trip in operation",
+   "fault": {
+    "hi": 287.62,
+    "cite": "no separate fault envelope modelled above the OVP band top"
+   }
+  },
+  "n_ls": {
+   "kind": "rail",
+   "ref": "leg_ret",
+   "lo": -2.0773,
+   "hi": -1.9638,
+   "cite": "S16 rail model neg_rail('LS', dt=100): (1.9639, 2.0773) V below LEG_RET, the hot-grade (100 K) basis of c46 bands46 B; validation-results/11-candidates/s16-monitor-2026-10-15/scripts/model.py",
+   "datasheet_cites": []
+  },
+  "v15_ls": {
+   "kind": "rail",
+   "ref": "n_ls",
+   "lo": 16.575,
+   "hi": 17.425,
+   "cite": "S16 rail model ls_span(): TPS7A4700 ANY-OUT 17.0 V +-2.5 % (SBVS204G Table 5.5 p.6): 16.575-17.425 V above N_LS; validation-results/11-candidates/s16-monitor-2026-10-15/scripts/model.py"
+  },
+  "v24_raw": {
+   "kind": "rail",
+   "ref": "n_ls",
+   "lo": 23.43,
+   "hi": 24.57,
+   "cite": "Mean Well MPM-20-24 (PS2): 24 V +-2.0 % ('Tolerance: includes set up tolerance, line regulation and load regulation', mpm-20-spec.pdf p.2) plus 180 mVp-p ripple (+-0.09 V)",
+   "fault": {
+    "lo": 23.43,
+    "hi": 32.4,
+    "cite": "MPM-20-SPEC p.2 PROTECTION OVER VOLTAGE 27.6 ~ 32.4 V ('Shut off o/p voltage, clamping by zener diode'): the clamp top"
+   },
+   "datasheet_cites": [
+    {
+     "file": "mpm-20-spec.pdf",
+     "page": 2,
+     "quote": "VOLTAGETOLERANCENote.5\u00b12.0%\u00b12.0%\u00b12.0%\u00b12.0%\u00b12.0%"
+    },
+    {
+     "file": "mpm-20-spec.pdf",
+     "page": 2,
+     "quote": "27.6~32.4V"
+    }
+   ]
+  },
+  "hot5": {
+   "kind": "rail",
+   "ref": "ocp_kelvin_p",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U3 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
+   "datasheet_cites": [
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
+    }
+   ]
+  },
+  "ref25": {
+   "kind": "rail",
+   "ref": "ocp_kelvin_p",
+   "lo": 2.485,
+   "hi": 2.515,
+   "cite": "U5 LM4050AEM3-2.5: 2.500 V +-15 mV over temperature (SNOS455H p.7 'tolerance(5) LM4050AEM3 +-15')",
+   "datasheet_cites": [
+    {
+     "file": "lm4050n.pdf",
+     "page": 7,
+     "quote": "tolerance(5)LM4050AEM3\u00b115"
+    }
+   ]
+  },
+  "ls_v5": {
+   "kind": "rail",
+   "ref": "n_ls",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U37 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
+   "datasheet_cites": [
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
+    }
+   ]
+  },
+  "sw_a": {
+   "kind": "hull",
+   "ref": "leg_ret",
+   "nets": [
+    "leg_ret",
+    "bus_p"
+   ],
+   "cite": "topology: Q2/Q3 (or Q5/Q6) half bridge between BUS_P and LEG_RET",
+   "derive": "half-bridge midpoint: the FETs and their body diodes hold it between LEG_RET and BUS_P (static; the diode drop, ~1 V typ at 58 A per IPW65R018CFD7 p.6, and switching ringing are not modelled); the high-side island frame hangs from it"
+  },
+  "n_ha": {
+   "kind": "rail",
+   "ref": "sw_a",
+   "lo": -2.0611,
+   "hi": -1.9638,
+   "cite": "S16 rail model neg_rail('HS', dt=100): (1.9639, 2.0610) V below the HS source node; validation-results/11-candidates/s16-monitor-2026-10-15/scripts/model.py"
+  },
+  "p_ha": {
+   "kind": "rail",
+   "ref": "n_ha",
+   "lo": 16.5484,
+   "hi": 17.2765,
+   "cite": "S16 rail model hs_span(dt=100): RECOM R24C2T25/R VFB 2.4675-2.533 V on the 63.4 k / 11 k divider, +-0.1 % / 25 ppm per K over 100 K, FB hysteresis (Rev 1-2024 p.2): 16.5485-17.2764 V above N_HA; validation-results/11-candidates/s16-monitor-2026-10-15/scripts/model.py"
+  },
+  "bias_ha.monitor-v5": {
+   "kind": "rail",
+   "ref": "n_ha",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U38 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
+   "datasheet_cites": [
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
+    }
+   ]
+  },
+  "sw_b": {
+   "kind": "hull",
+   "ref": "leg_ret",
+   "nets": [
+    "leg_ret",
+    "bus_p"
+   ],
+   "cite": "topology: Q2/Q3 (or Q5/Q6) half bridge between BUS_P and LEG_RET",
+   "derive": "half-bridge midpoint: the FETs and their body diodes hold it between LEG_RET and BUS_P (static; the diode drop, ~1 V typ at 58 A per IPW65R018CFD7 p.6, and switching ringing are not modelled); the high-side island frame hangs from it"
+  },
+  "n_hb": {
+   "kind": "rail",
+   "ref": "sw_b",
+   "lo": -2.0611,
+   "hi": -1.9638,
+   "cite": "S16 rail model neg_rail('HS', dt=100): (1.9639, 2.0610) V below the HS source node; validation-results/11-candidates/s16-monitor-2026-10-15/scripts/model.py"
+  },
+  "p_hb": {
+   "kind": "rail",
+   "ref": "n_hb",
+   "lo": 16.5484,
+   "hi": 17.2765,
+   "cite": "S16 rail model hs_span(dt=100): RECOM R24C2T25/R VFB 2.4675-2.533 V on the 63.4 k / 11 k divider, +-0.1 % / 25 ppm per K over 100 K, FB hysteresis (Rev 1-2024 p.2): 16.5485-17.2764 V above N_HB; validation-results/11-candidates/s16-monitor-2026-10-15/scripts/model.py"
+  },
+  "bias_hb.monitor-v5": {
+   "kind": "rail",
+   "ref": "n_hb",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U39 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
+   "datasheet_cites": [
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
+    }
+   ]
+  },
+  "selv_gnd": {
+   "kind": "root",
+   "cite": "README.md J4 table: SELV_GND is the controller return (J4.2, 4, 15, 16)",
+   "derive": "frame root"
+  },
+  "v3v3": {
+   "kind": "rail",
+   "ref": "selv_gnd",
+   "lo": 3.135,
+   "hi": 3.465,
+   "cite": "README.md:75 'V3V3 In: controller 3.135-3.465 V rail matching the interlock contract'; FAULT-INTERFACE.md:29 'within the interlock's 3.135-3.465 V contract'"
+  },
+  "pwm_ha": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "J4.5"
+   ],
+   "cite": "README.md J4 table: PWM_*/PERMIT are 3.3 V logic inputs from the controller, which is supplied from V3V3 (J4.3, README.md:75); an interface contract, not a measurement",
+   "derive": "controller output swings within [SELV_GND, V3V3]",
+   "external": true
+  },
+  "pwm_la": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "J4.6"
+   ],
+   "cite": "README.md J4 table: PWM_*/PERMIT are 3.3 V logic inputs from the controller, which is supplied from V3V3 (J4.3, README.md:75); an interface contract, not a measurement",
+   "derive": "controller output swings within [SELV_GND, V3V3]",
+   "external": true
+  },
+  "pwm_hb": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "J4.7"
+   ],
+   "cite": "README.md J4 table: PWM_*/PERMIT are 3.3 V logic inputs from the controller, which is supplied from V3V3 (J4.3, README.md:75); an interface contract, not a measurement",
+   "derive": "controller output swings within [SELV_GND, V3V3]",
+   "external": true
+  },
+  "pwm_lb": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "J4.8"
+   ],
+   "cite": "README.md J4 table: PWM_*/PERMIT are 3.3 V logic inputs from the controller, which is supplied from V3V3 (J4.3, README.md:75); an interface contract, not a measurement",
+   "derive": "controller output swings within [SELV_GND, V3V3]",
+   "external": true
+  },
+  "permit": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "J4.9"
+   ],
+   "cite": "README.md J4 table: PWM_*/PERMIT are 3.3 V logic inputs from the controller, which is supplied from V3V3 (J4.3, README.md:75); an interface contract, not a measurement",
+   "derive": "controller output swings within [SELV_GND, V3V3]",
+   "external": true
+  },
+  "bus_fault": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U13.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "bus_fault_iso": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U9.13"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "hb_rx": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U32.13"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "hb_bufo": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U46.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "bias_good": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U40.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "line_zc": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U24.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "ct_zc": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U12.1"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "ct_oc_pos": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U10.1"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "ct_oc_neg": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U11.1"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "vbus_p": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U4.7"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "vbus_n": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U4.6"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "leg_a-driver_dis": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U22.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "leg_b-driver_dis": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U23.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "bus_fault_flt": {
+   "kind": "follow",
+   "src": "bus_fault_iso",
+   "via": [
+    "R134"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "R134 (series) from the U9 output into the U13 input; C167 to ground is DC-open"
+  },
+  "hb_rc": {
+   "kind": "follow",
+   "src": "hb_tx",
+   "via": [
+    "R131"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "R131 (series) from U45.4 into the RC node; C162 to ground is DC-open"
+  },
+  "hb_tx": {
+   "kind": "logic",
+   "ref": "n_ls",
+   "supply": "ls_v5",
+   "sources": [
+    "U45.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "leg_a-permit_gate": {
+   "kind": "divider",
+   "top": "permit",
+   "bottom": "selv_gnd",
+   "r_top": [
+    "R6"
+   ],
+   "r_bot": [
+    "R7"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R6 100 ohm in series from PERMIT, R7 100 k to SELV_GND: the tap is PERMIT scaled by R7/(R6+R7)"
+  },
+  "leg_b-permit_gate": {
+   "kind": "divider",
+   "top": "permit",
+   "bottom": "selv_gnd",
+   "r_top": [
+    "R14"
+   ],
+   "r_bot": [
+    "R15"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R14 100 ohm in series from PERMIT, R15 to SELV_GND"
+  },
+  "ct_ref_hi": {
+   "kind": "divider",
+   "top": "v3v3",
+   "bottom": "selv_gnd",
+   "r_top": [
+    "R43"
+   ],
+   "r_bot": [
+    "R44"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R43 2.21 k from V3V3, R44 10 k to SELV_GND"
+  },
+  "ct_ref_lo": {
+   "kind": "divider",
+   "top": "v3v3",
+   "bottom": "selv_gnd",
+   "r_top": [
+    "R45"
+   ],
+   "r_bot": [
+    "R46"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R45 from V3V3, R46 to SELV_GND"
+  },
+  "line_zc_raw": {
+   "kind": "hull",
+   "ref": "selv_gnd",
+   "nets": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "cite": "VOL628A open-collector output + R125 pull-up to V3V3 (frozen netlist)",
+   "derive": "U36 phototransistor collector with the R125 pull-up to V3V3 and the U24 input: a collector pulled up to V3V3 and down to SELV_GND (emitter) stays in [SELV_GND, V3V3]"
+  },
+  "ocp_ok_hot": {
+   "kind": "logic",
+   "ref": "ocp_kelvin_p",
+   "supply": "hot5",
+   "sources": [
+    "U6.1"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "ovp_ok_hot": {
+   "kind": "logic",
+   "ref": "ocp_kelvin_p",
+   "supply": "hot5",
+   "sources": [
+    "U7.1"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "bus_fault_hot": {
+   "kind": "logic",
+   "ref": "ocp_kelvin_p",
+   "supply": "hot5",
+   "sources": [
+    "U8.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "hot5_ok_hot": {
+   "kind": "logic",
+   "ref": "ocp_kelvin_p",
+   "supply": "hot5",
+   "sources": [
+    "U15.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
+  },
+  "hot5_uv_raw": {
+   "kind": "hull",
+   "ref": "ocp_kelvin_p",
+   "nets": [
+    "ocp_kelvin_p",
+    "hot5"
+   ],
+   "cite": "TPS3700 open-drain output (SBVS187G Pin Functions p.4) + R50 pull-up to HOT5",
+   "derive": "U14 OUTA is open-drain with the R50 pull-up to HOT5; U15.2 is a high-impedance input: the node lies between its ground and HOT5"
+  },
+  "hot5_uv_sense": {
+   "kind": "divider",
+   "top": "hot5",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R48"
+   ],
+   "r_bot": [
+    "R49"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R48 105 k from HOT5, R49 10 k to the HOT ground"
+  },
+  "ocp_node": {
+   "kind": "divider",
+   "top": "ref25",
+   "bottom": "ocp_kelvin_n",
+   "r_top": [
+    "R32"
+   ],
+   "r_bot": [
+    "R33"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R32 10 k from REF25, R33 10 k to OCP_KELVIN_N (shunt pad-4 sense)"
+  },
+  "ocp_thresh": {
+   "kind": "divider",
+   "top": "ref25",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R34"
+   ],
+   "r_bot": [
+    "R35"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R34 12.6 k from REF25, R35 11.7 k to OCP_KELVIN_P"
+  },
+  "ovp_thresh": {
+   "kind": "divider",
+   "top": "ref25",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R36"
+   ],
+   "r_bot": [
+    "R37"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R36 10 k from REF25, R37 140 k to OCP_KELVIN_P"
+  },
+  "vsense_in": {
+   "kind": "divider",
+   "top": "bus_p",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R26",
+    "R27",
+    "R28",
+    "R29"
+   ],
+   "r_bot": [
+    "R30"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R26-R29 (4 x 470 k) from BUS_P, R30 15.8 k to OCP_KELVIN_P: the bus divider feeding U4.IN and U7.IN-"
+  },
+  "leg_a-out_h": {
+   "kind": "logic",
+   "ref": "n_ha",
+   "supply": "p_ha",
+   "sources": [
+    "U1.15"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "gate-driver output pin swings within [its GNDx, its VDDx]"
+  },
+  "leg_a-out_l": {
+   "kind": "logic",
+   "ref": "n_ls",
+   "supply": "v15_ls",
+   "sources": [
+    "U1.10"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "gate-driver output pin swings within [its GNDx, its VDDx]"
+  },
+  "leg_b-out_h": {
+   "kind": "logic",
+   "ref": "n_hb",
+   "supply": "p_hb",
+   "sources": [
+    "U2.15"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "gate-driver output pin swings within [its GNDx, its VDDx]"
+  },
+  "leg_b-out_l": {
+   "kind": "logic",
+   "ref": "n_ls",
+   "supply": "v15_ls",
+   "sources": [
+    "U2.10"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "gate-driver output pin swings within [its GNDx, its VDDx]"
+  },
+  "leg_a-gate_h": {
+   "kind": "follow",
+   "src": "leg_a-out_h",
+   "via": [
+    "R10"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "R10 gate resistor from OUTA; the turn-off path D6 / R53 and the Miller clamp C55 return to the same output or to SW_A"
+  },
+  "leg_a-gate_l": {
+   "kind": "follow",
+   "src": "leg_a-out_l",
+   "via": [
+    "R12"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "R12 gate resistor from OUTB; D7 / R54 turn-off path to the same output"
+  },
+  "leg_b-gate_h": {
+   "kind": "follow",
+   "src": "leg_b-out_h",
+   "via": [
+    "R18"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "R18 gate resistor from OUTA"
+  },
+  "leg_b-gate_l": {
+   "kind": "follow",
+   "src": "leg_b-out_l",
+   "via": [
+    "R20"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "R20 gate resistor from OUTB"
+  },
+  "monitor_ls-ref": {
+   "kind": "rail",
+   "ref": "n_ls",
+   "lo": 2.444,
+   "hi": 2.554,
+   "cite": "U17 TL431BQ with K tied to REF: VKA = Vref 2.483-2.507 V at 25 C (SLVS543S Table 6.13 p.14) +-VI(dev) 34 mV, plus |zKA| 0.5 ohm x (IK - 10 mA) for IK 1.5-35 mA (S16 model IK_DC): validation-results/11-candidates/c46-monitor-grades/scripts/bands46.py",
+   "datasheet_cites": []
+  },
+  "monitor_ls-halfref": {
+   "kind": "divider",
+   "top": "monitor_ls-ref",
+   "bottom": "n_ls",
+   "r_top": [
+    "R79"
+   ],
+   "r_bot": [
+    "R80"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R79 / R80 10 k / 10 k half-reference divider"
+  },
+  "monitor_ls-uv": {
+   "kind": "divider",
+   "top": "leg_ret",
+   "bottom": "n_ls",
+   "r_top": [
+    "R81"
+   ],
+   "r_bot": [
+    "R82"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "neg-rail UV tap R81 / R82 between the island's source node and its negative rail"
+  },
+  "monitor_ls-ov": {
+   "kind": "divider",
+   "top": "leg_ret",
+   "bottom": "n_ls",
+   "r_top": [
+    "R83"
+   ],
+   "r_bot": [
+    "R84"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "neg-rail OV tap R83 / R84"
+  },
+  "monitor_ls-spanuv": {
+   "kind": "divider",
+   "top": "v15_ls",
+   "bottom": "n_ls",
+   "r_top": [
+    "R85"
+   ],
+   "r_bot": [
+    "R86"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "span UV tap R85 / R86 across the island rail"
+  },
+  "monitor_ls-spanov": {
+   "kind": "divider",
+   "top": "v15_ls",
+   "bottom": "n_ls",
+   "r_top": [
+    "R87"
+   ],
+   "r_bot": [
+    "R88"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "span OV tap R87 / R88 across the island rail"
+  },
+  "monitor_ls-good": {
+   "kind": "hull",
+   "ref": "n_ls",
+   "nets": [
+    "n_ls",
+    "ls_v5"
+   ],
+   "cite": "LM2901B open-collector OUT (SLCS006Z 5 Pin Functions) + pull-up to the island 5 V rail (frozen netlist)",
+   "derive": "LM2901B open-collector outputs pulled up by R91 to the island's 5 V rail; the other connections (D18.1, D20.3, U45.1) are diode / input pins whose own nodes are in the same hull"
+  },
+  "bias_ha.monitor-ref": {
+   "kind": "rail",
+   "ref": "n_ha",
+   "lo": 2.444,
+   "hi": 2.554,
+   "cite": "U19 TL431BQ with K tied to REF: VKA = Vref 2.483-2.507 V at 25 C (SLVS543S Table 6.13 p.14) +-VI(dev) 34 mV, plus |zKA| 0.5 ohm x (IK - 10 mA) for IK 1.5-35 mA (S16 model IK_DC): validation-results/11-candidates/c46-monitor-grades/scripts/bands46.py",
+   "datasheet_cites": []
+  },
+  "bias_ha.monitor-halfref": {
+   "kind": "divider",
+   "top": "bias_ha.monitor-ref",
+   "bottom": "n_ha",
+   "r_top": [
+    "R97"
+   ],
+   "r_bot": [
+    "R98"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R97 / R98 10 k / 10 k half-reference divider"
+  },
+  "bias_ha.monitor-uv": {
+   "kind": "divider",
+   "top": "sw_a",
+   "bottom": "n_ha",
+   "r_top": [
+    "R99"
+   ],
+   "r_bot": [
+    "R100"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "neg-rail UV tap R99 / R100 between the island's source node and its negative rail"
+  },
+  "bias_ha.monitor-ov": {
+   "kind": "divider",
+   "top": "sw_a",
+   "bottom": "n_ha",
+   "r_top": [
+    "R101"
+   ],
+   "r_bot": [
+    "R102"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "neg-rail OV tap R101 / R102"
+  },
+  "bias_ha.monitor-spanuv": {
+   "kind": "divider",
+   "top": "p_ha",
+   "bottom": "n_ha",
+   "r_top": [
+    "R103"
+   ],
+   "r_bot": [
+    "R104"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "span UV tap R103 / R104 across the island rail"
+  },
+  "bias_ha.monitor-spanov": {
+   "kind": "divider",
+   "top": "p_ha",
+   "bottom": "n_ha",
+   "r_top": [
+    "R105"
+   ],
+   "r_bot": [
+    "R106"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "span OV tap R105 / R106 across the island rail"
+  },
+  "bias_ha.monitor-good": {
+   "kind": "hull",
+   "ref": "n_ha",
+   "nets": [
+    "n_ha",
+    "bias_ha.monitor-v5"
+   ],
+   "cite": "LM2901B open-collector OUT (SLCS006Z 5 Pin Functions) + pull-up to the island 5 V rail (frozen netlist)",
+   "derive": "LM2901B open-collector outputs pulled up by R109 to the island's 5 V rail; the other connections (U43.3 input) are diode / input pins whose own nodes are in the same hull"
+  },
+  "bias_hb.monitor-ref": {
+   "kind": "rail",
+   "ref": "n_hb",
+   "lo": 2.444,
+   "hi": 2.554,
+   "cite": "U21 TL431BQ with K tied to REF: VKA = Vref 2.483-2.507 V at 25 C (SLVS543S Table 6.13 p.14) +-VI(dev) 34 mV, plus |zKA| 0.5 ohm x (IK - 10 mA) for IK 1.5-35 mA (S16 model IK_DC): validation-results/11-candidates/c46-monitor-grades/scripts/bands46.py",
+   "datasheet_cites": []
+  },
+  "bias_hb.monitor-halfref": {
+   "kind": "divider",
+   "top": "bias_hb.monitor-ref",
+   "bottom": "n_hb",
+   "r_top": [
+    "R112"
+   ],
+   "r_bot": [
+    "R113"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R112 / R113 10 k / 10 k half-reference divider"
+  },
+  "bias_hb.monitor-uv": {
+   "kind": "divider",
+   "top": "sw_b",
+   "bottom": "n_hb",
+   "r_top": [
+    "R114"
+   ],
+   "r_bot": [
+    "R115"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "neg-rail UV tap R114 / R115 between the island's source node and its negative rail"
+  },
+  "bias_hb.monitor-ov": {
+   "kind": "divider",
+   "top": "sw_b",
+   "bottom": "n_hb",
+   "r_top": [
+    "R116"
+   ],
+   "r_bot": [
+    "R117"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "neg-rail OV tap R116 / R117"
+  },
+  "bias_hb.monitor-spanuv": {
+   "kind": "divider",
+   "top": "p_hb",
+   "bottom": "n_hb",
+   "r_top": [
+    "R118"
+   ],
+   "r_bot": [
+    "R119"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "span UV tap R118 / R119 across the island rail"
+  },
+  "bias_hb.monitor-spanov": {
+   "kind": "divider",
+   "top": "p_hb",
+   "bottom": "n_hb",
+   "r_top": [
+    "R120"
+   ],
+   "r_bot": [
+    "R121"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "span OV tap R120 / R121 across the island rail"
+  },
+  "bias_hb.monitor-good": {
+   "kind": "hull",
+   "ref": "n_hb",
+   "nets": [
+    "n_hb",
+    "bias_hb.monitor-v5"
+   ],
+   "cite": "LM2901B open-collector OUT (SLCS006Z 5 Pin Functions) + pull-up to the island 5 V rail (frozen netlist)",
+   "derive": "LM2901B open-collector outputs pulled up by R124 to the island's 5 V rail; the other connections (U44.3 input) are diode / input pins whose own nodes are in the same hull"
+  },
+  "mon_good_ha": {
+   "kind": "logic",
+   "ref": "n_ls",
+   "supply": "ls_v5",
+   "sources": [
+    "U43.6"
+   ],
+   "cite": "part registry `out` function + netlist",
+   "derive": "ISO6721 OUTB push-pull on VCC2 = LS_V5 (D18.3 joins the LS good node, itself inside [N_LS, LS_V5])"
+  },
+  "mon_good_hb": {
+   "kind": "logic",
+   "ref": "n_ls",
+   "supply": "ls_v5",
+   "sources": [
+    "U44.6"
+   ],
+   "cite": "part registry `out` function + netlist",
+   "derive": "ISO6721 OUTB push-pull on VCC2 = LS_V5 (D20.2 joins the LS good node)"
+  },
+  "bias_ls-fb": {
+   "kind": "divider",
+   "top": "leg_ret",
+   "bottom": "n_ls",
+   "r_top": [
+    "R77"
+   ],
+   "r_bot": [
+    "R78"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R77 6.2 k from LEG_RET, R78 10 k to N_LS: U16 TLVH431 REF divider (regulates the neg rail)"
+  },
+  "bias_ha.split-fb": {
+   "kind": "divider",
+   "top": "sw_a",
+   "bottom": "n_ha",
+   "r_top": [
+    "R95"
+   ],
+   "r_bot": [
+    "R96"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R95 6.2 k from SW_A, R96 10 k to N_HA (U18 REF divider)"
+  },
+  "bias_hb.split-fb": {
+   "kind": "divider",
+   "top": "sw_b",
+   "bottom": "n_hb",
+   "r_top": [
+    "R110"
+   ],
+   "r_bot": [
+    "R111"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R110 6.2 k from SW_B, R111 10 k to N_HB (U20 REF divider)"
+  },
+  "bias_ha-en": {
+   "kind": "divider",
+   "top": "v24_raw",
+   "bottom": "n_ls",
+   "r_top": [
+    "R62"
+   ],
+   "r_bot": [
+    "R127"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R62 100 k from V24_RAW, R127 27 k to N_LS: the U41 CTRL divider"
+  },
+  "bias_hb-en": {
+   "kind": "divider",
+   "top": "v24_raw",
+   "bottom": "n_ls",
+   "r_top": [
+    "R128"
+   ],
+   "r_bot": [
+    "R129"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R128 100 k from V24_RAW, R129 27 k to N_LS: the U42 CTRL divider"
+  },
+  "bias_ha-fbm": {
+   "kind": "divider",
+   "top": "p_ha",
+   "bottom": "n_ha",
+   "r_top": [
+    "R92"
+   ],
+   "r_bot": [
+    "R93"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R92 63.4 k from P_HA, R93 11 k to N_HA: the U41 FB divider"
+  },
+  "bias_hb-fbm": {
+   "kind": "divider",
+   "top": "p_hb",
+   "bottom": "n_hb",
+   "r_top": [
+    "R94"
+   ],
+   "r_bot": [
+    "R61"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "R94 63.4 k from P_HB, R61 11 k to N_HB: the U42 FB divider"
+  },
+  "ldo_nr": {
+   "kind": "equal",
+   "to": "v15_ls",
+   "cite": "TPS7A4700 SBVS204G Section 5.5 p.6: 'VNR Noise reduction pin voltage ... TPS7A4700 using ANY-OUT option: VOUT'",
+   "derive": "in ANY-OUT mode the NR pin sits at the output voltage; C64 to N_LS carries no DC",
+   "datasheet_cites": [
+    {
+     "file": "tps7a47.pdf",
+     "page": 6,
+     "quote": "VNRNoisereductionpinvoltage"
+    }
+   ]
+  },
+  "hsb_good": {
+   "kind": "hull",
+   "ref": "selv_gnd",
+   "nets": [
+    "selv_gnd",
+    "permit"
+   ],
+   "cite": "frozen netlist: R135 pin 1 on permit (default.net:3488), pin 2 on hsb_good with U46.1 (default.net:3253-3255); stage 50 (c50-permit-gate)",
+   "derive": "U46 input A driven from PERMIT through R135 (100 k); its only other connection is a high-impedance CMOS input, so the node lies in [SELV_GND, PERMIT]"
+  },
+  "hot5_en": {
+   "kind": "divider",
+   "top": "v15_ls",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R136"
+   ],
+   "r_bot": [
+    "R137"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U3 EN from R136 100 k off V15_LS and R137 27 k to the HOT ground (U3 GND), in place of EN tied to IN"
+  },
+  "monitor_ls-ldo_en": {
+   "kind": "divider",
+   "top": "v15_ls",
+   "bottom": "n_ls",
+   "r_top": [
+    "R138"
+   ],
+   "r_bot": [
+    "R139"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U37 EN from R138 100 k off the rail top V15_LS and R139 27 k to the rail bottom N_LS (its GND), in place of EN tied to IN"
+  },
+  "bias_ha.monitor-ldo_en": {
+   "kind": "divider",
+   "top": "p_ha",
+   "bottom": "n_ha",
+   "r_top": [
+    "R140"
+   ],
+   "r_bot": [
+    "R141"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U38 EN from R140 100 k off the rail top P_HA and R141 27 k to the rail bottom N_HA (its GND), in place of EN tied to IN"
+  },
+  "bias_hb.monitor-ldo_en": {
+   "kind": "divider",
+   "top": "p_hb",
+   "bottom": "n_hb",
+   "r_top": [
+    "R142"
+   ],
+   "r_bot": [
+    "R143"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U39 EN from R142 100 k off the rail top P_HB and R143 27 k to the rail bottom N_HB (its GND), in place of EN tied to IN"
+  },
+  "ref25_wd": {
+   "kind": "divider",
+   "top": "ref25",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R144"
+   ],
+   "r_bot": [
+    "R145"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS B13 H1): the REF25 watchdog tap into U14 INB-, R144 63.4 k from REF25 and R145 11.7 k to the HOT ground"
+  },
+  "bias_good_j4": {
+   "kind": "follow",
+   "src": "bias_good",
+   "via": [
+    "R146"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "stage 48 (OPEN-ITEMS B13 H2): R146 220 k in series from BIAS_GOOD to J4 pin 1 (the controller's power-on readback); no IC pin on the net"
+  }
+ },
+ "parts": {
+  "TPS70950DBVR": {
+   "datasheet": {
+    "file": "tps709.pdf",
+    "title": "TI TPS709 SBVS186H, March 2012, revised July 2021",
+    "url": "https://www.ti.com/lit/ds/symlink/tps709.pdf"
+   },
+   "pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "OUT"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "IN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 32,
+       "page": 4,
+       "quote": "VIN-0.332",
+       "table": "6.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 2.7,
+       "max": 30,
+       "page": 4,
+       "quote": "VINInputvoltage2.730V",
+       "table": "6.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "EN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 4,
+       "quote": "VEN-0.37",
+       "table": "6.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VENEnablevoltage06.5V",
+       "table": "6.3 Recommended Operating Conditions"
+      }
+     ],
+     "forbid_tie": [
+      {
+       "with": "IN",
+       "page": 13,
+       "quote": "Do not connect EN to VIN. The EN pin is clamped by a 6.5-V Zener diode. Do not exceed the 7-V absolute maximum rating on the enable pin",
+       "table": "7.4 Device Functional Modes"
+      }
+     ]
+    },
+    "OUT": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 4,
+       "quote": "VOUT-0.37",
+       "table": "6.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.2,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VOUTOutputvoltage1.26.5V",
+       "table": "6.3 Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  },
+  "TPS7A4700RGWR": {
+   "datasheet": {
+    "file": "tps7a47.pdf",
+    "title": "TI TPS7A4700 SBVS204G, June 2012, revised May 2026",
+    "url": "https://www.ti.com/lit/ds/symlink/tps7a47.pdf"
+   },
+   "pins": {
+    "1": "OUT",
+    "2": "NC",
+    "3": "SENSE",
+    "4": "6P4V2",
+    "5": "6P4V1",
+    "6": "3P2V",
+    "7": "GND",
+    "8": "1P6V",
+    "9": "0P8V",
+    "10": "0P4V",
+    "11": "0P2V",
+    "12": "0P1V",
+    "13": "EN",
+    "14": "NR",
+    "15": "IN",
+    "16": "IN",
+    "17": "NC",
+    "18": "NC",
+    "19": "NC",
+    "20": "OUT",
+    "21": "GND"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "IN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "INpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 3.0,
+       "max": 35.0,
+       "page": 5,
+       "quote": "VI3.035.0V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "EN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "ENpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      },
+      {
+       "vs": "IN",
+       "min": -36,
+       "max": 0.4,
+       "page": 4,
+       "quote": "ENpintoINpin-36+0.4",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": null,
+       "page": 5,
+       "quote": "VEN0VIN",
+       "table": "5.3 Recommended Operating Conditions"
+      },
+      {
+       "vs": "IN",
+       "min": null,
+       "max": 0,
+       "page": 5,
+       "quote": "VEN0VIN",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "OUT": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "OUTpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.4,
+       "max": 34.0,
+       "page": 5,
+       "quote": "VO1.434.0V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "NR": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "NRpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ]
+    },
+    "SENSE": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "SENSE/FBpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ]
+    },
+    "0P1V": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "0P1VpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "0P2V": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "0P2VpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "0P4V": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "0P4VpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "0P8V": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "0P8VpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "1P6V": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "1P6VpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "3P2V": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "3P2VpintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "6P4V1": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "6P4V1pintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    },
+    "6P4V2": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.4,
+       "max": 36,
+       "page": 4,
+       "quote": "6P4V2pintoGNDpin-0.4+36",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 0,
+       "page": 3,
+       "quote": "Donotconnectanyvoltageotherthan",
+       "table": "4 Pin Functions: ANY-OUT step pins, GND or floating only"
+      }
+     ]
+    }
+   }
+  },
+  "TL431BQDBZR": {
+   "datasheet": {
+    "file": "tl431.pdf",
+    "title": "TI TL431 SLVS543S, Aug 2004, revised May 2024",
+    "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf"
+   },
+   "pins": {
+    "1": "K",
+    "2": "REF",
+    "3": "A"
+   },
+   "functions": {
+    "A": {
+     "role": "ref"
+    },
+    "K": {
+     "limits": [
+      {
+       "vs": "A",
+       "min": null,
+       "max": 37,
+       "page": 5,
+       "quote": "VKACathodeVoltage(2)37V",
+       "table": "6.1 Absolute Maximum Ratings (voltages are with respect to ANODE, note 2)"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "A",
+       "min": null,
+       "max": 36,
+       "page": 5,
+       "quote": "VKACathodeVoltageVref36V",
+       "table": "6.4 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "REF": {
+     "role": "nolimit",
+     "note": "REF has a current rating only (II(ref) -0.05..10 mA), no voltage row",
+     "page": 5,
+     "quote": "II(ref)ReferenceInputCurrent-0.0510mA"
+    }
+   }
+  },
+  "TLVH431BQDBZR": {
+   "datasheet": {
+    "file": "tlvh431.pdf",
+    "title": "TI TLVH431 (SLVS)",
+    "url": "https://www.ti.com/lit/ds/symlink/tlvh431.pdf"
+   },
+   "pins": {
+    "1": "REF",
+    "2": "K",
+    "3": "A"
+   },
+   "functions": {
+    "A": {
+     "role": "ref"
+    },
+    "K": {
+     "limits": [
+      {
+       "vs": "A",
+       "min": null,
+       "max": 20,
+       "page": 5,
+       "quote": "VKACathodevoltage(2)20V",
+       "table": "5.1 Absolute Maximum Ratings (voltages are with respect to the anode, note 2)"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "A",
+       "min": null,
+       "max": 18,
+       "page": 5,
+       "quote": "VKACathodevoltageVREF18V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "REF": {
+     "role": "nolimit",
+     "note": "REF has a current rating only (Iref -0.05..3 mA), no voltage row",
+     "page": 5,
+     "quote": "IrefReferencecurrent-0.053mA"
+    }
+   }
+  },
+  "LM2901BIDR": {
+   "datasheet": {
+    "file": "lm339b_lm2901b.pdf",
+    "title": "TI LM339B/LM2901B SLCS006Z, Oct 1979, revised May 2025",
+    "url": "https://www.ti.com/lit/ds/symlink/lm339b.pdf"
+   },
+   "pins": {
+    "1": "OUT",
+    "2": "OUT",
+    "3": "VCC",
+    "4": "IN-",
+    "5": "IN+",
+    "6": "IN-",
+    "7": "IN+",
+    "8": "IN-",
+    "9": "IN+",
+    "10": "IN-",
+    "11": "IN+",
+    "12": "GND",
+    "13": "OUT",
+    "14": "OUT"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 38,
+       "page": 5,
+       "quote": "Supplyvoltage:VS=(V+)-(V-)-0.338V",
+       "table": "6.1 Absolute Maximum Ratings for LM339B and LM2901B"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 2,
+       "max": 36,
+       "page": 6,
+       "quote": "Supplyvoltage:VS=(V+)-(V-)236V",
+       "table": "6.4 Recommended Operating Conditions for LM339B and LM2901B"
+      }
+     ]
+    },
+    "IN+": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 38,
+       "page": 5,
+       "quote": "Inputpins(IN+,IN-)-0.338V",
+       "table": "6.1 (reference not printed in the table; taken as V-, the GND pin)"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": -0.1,
+       "max": null,
+       "page": 6,
+       "quote": "InputVoltageRange,VIVR(V-)-0.1(V+)-2.0V",
+       "table": "6.4"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": -2.0,
+       "page": 6,
+       "quote": "InputVoltageRange,VIVR(V-)-0.1(V+)-2.0V",
+       "table": "6.4"
+      }
+     ]
+    },
+    "IN-": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 38,
+       "page": 5,
+       "quote": "Inputpins(IN+,IN-)-0.338V",
+       "table": "6.1 (reference not printed in the table; taken as V-, the GND pin)"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": -0.1,
+       "max": null,
+       "page": 6,
+       "quote": "InputVoltageRange,VIVR(V-)-0.1(V+)-2.0V",
+       "table": "6.4"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": -2.0,
+       "page": 6,
+       "quote": "InputVoltageRange,VIVR(V-)-0.1(V+)-2.0V",
+       "table": "6.4"
+      }
+     ]
+    },
+    "OUT": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 38,
+       "page": 5,
+       "quote": "Outputpin(OUT)-0.338V",
+       "table": "6.1 (reference taken as V-)"
+      }
+     ]
+    }
+   }
+  },
+  "LM4050AEM3-2.5/NOPB": {
+   "datasheet": {
+    "file": "lm4050n.pdf",
+    "title": "TI LM4050-N SNOS455H, May 2000, revised March 2025",
+    "url": "https://www.ti.com/lit/ds/symlink/lm4050-n.pdf"
+   },
+   "pins": {
+    "1": "CATHODE",
+    "2": "ANODE",
+    "3": "NC"
+   },
+   "functions": {
+    "ANODE": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "CATHODE": {
+     "role": "nolimit",
+     "note": "a shunt reference: the abs max is current (reverse 20 mA), no voltage row",
+     "page": 4,
+     "quote": "ReverseCurrent20mA"
+    }
+   }
+  },
+  "TLV3201AIDBVR": {
+   "datasheet": {
+    "file": "tlv3201.pdf",
+    "title": "TI TLV3201 SBOS561C, March 2012, revised May 2024",
+    "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf"
+   },
+   "pins": {
+    "1": "OUT",
+    "2": "GND",
+    "3": "IN+",
+    "4": "IN-",
+    "5": "VCC"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": null,
+       "max": 7,
+       "page": 4,
+       "quote": "Supplyvoltage7",
+       "table": "6.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 2.7,
+       "max": 5.5,
+       "page": 4,
+       "quote": "VSSupplyvoltage,VS=(VS+)-(VS-)2.7(\u00b11.35)5.5(\u00b12.75)V",
+       "table": "6.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "IN+": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 4,
+       "quote": "Signalinputpins(2)-0.5(VCC)+0.5",
+       "table": "6.1 (input pins are diode-clamped to the rails; note 2)"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 4,
+       "quote": "Signalinputpins(2)-0.5(VCC)+0.5",
+       "table": "6.1"
+      }
+     ]
+    },
+    "IN-": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 4,
+       "quote": "Signalinputpins(2)-0.5(VCC)+0.5",
+       "table": "6.1"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 4,
+       "quote": "Signalinputpins(2)-0.5(VCC)+0.5",
+       "table": "6.1"
+      }
+     ]
+    },
+    "OUT": {
+     "role": "out",
+     "supply": "VCC",
+     "ground": "GND",
+     "limits": [],
+     "note": "push-pull output; the table gives a short-circuit current (100 mA), no voltage row",
+     "page": 4,
+     "quote": "Outputshortcircuit(3)100"
+    }
+   }
+  },
+  "SN74LVC1G00DBVR": {
+   "datasheet": {
+    "file": "sn74lvc1g00.pdf",
+    "title": "TI SN74LVC1G00",
+    "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf"
+   },
+   "pins": {
+    "1": "A",
+    "2": "B",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VCCSupplyvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.65,
+       "max": 5.5,
+       "page": 5,
+       "quote": "Operating1.655.5",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "Y": {
+     "role": "out",
+     "supply": "VCC",
+     "ground": "GND",
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 4,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate(2)(3)-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 4,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate(2)(3)-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      }
+     ]
+    },
+    "A": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "B": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "C": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  },
+  "SN74LVC1G17DBVR": {
+   "datasheet": {
+    "file": "sn74lvc1g17.pdf",
+    "title": "TI SN74LVC1G17",
+    "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf"
+   },
+   "pins": {
+    "1": "NC",
+    "2": "A",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VCCSupplyvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.65,
+       "max": 5.5,
+       "page": 5,
+       "quote": "Operating1.655.5",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "Y": {
+     "role": "out",
+     "supply": "VCC",
+     "ground": "GND",
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 4,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate(2)(3)-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 4,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate(2)(3)-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      }
+     ]
+    },
+    "A": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "B": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "C": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  },
+  "SN74LVC1G132DBVR": {
+   "datasheet": {
+    "file": "sn74lvc1g132.pdf",
+    "title": "TI SN74LVC1G132",
+    "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf"
+   },
+   "pins": {
+    "1": "A",
+    "2": "B",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VCCSupplyvoltage-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.65,
+       "max": 5.5,
+       "page": 5,
+       "quote": "Operating1.655.5",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "Y": {
+     "role": "out",
+     "supply": "VCC",
+     "ground": "GND",
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 4,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate(2)(3)-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 4,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate(2)(3)-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      }
+     ]
+    },
+    "A": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltage(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "B": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltage(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "C": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VIInputvoltage(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 5,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  },
+  "SN74LVC1G10DBVR": {
+   "datasheet": {
+    "file": "sn74lvc1g10.pdf",
+    "title": "TI SN74LVC1G10 SCES486E",
+    "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g10.pdf"
+   },
+   "pins": {
+    "1": "A",
+    "2": "GND",
+    "3": "B",
+    "4": "Y",
+    "5": "VCC",
+    "6": "C"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VCCSupplyvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.65,
+       "max": 5.5,
+       "page": 3,
+       "quote": "Operating1.655.5",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "Y": {
+     "role": "out",
+     "supply": "VCC",
+     "ground": "GND",
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 2,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 2,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      }
+     ]
+    },
+    "A": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 3,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "B": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 3,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "C": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 3,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  },
+  "SN74LVC1G332DBVR": {
+   "datasheet": {
+    "file": "sn74lvc1g332.pdf",
+    "title": "TI SN74LVC1G332 SCES489E",
+    "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf"
+   },
+   "pins": {
+    "1": "A",
+    "2": "GND",
+    "3": "B",
+    "4": "Y",
+    "5": "VCC",
+    "6": "C"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VCC": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VCCSupplyvoltagerange-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.65,
+       "max": 5.5,
+       "page": 3,
+       "quote": "Operating1.655.5",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "Y": {
+     "role": "out",
+     "supply": "VCC",
+     "ground": "GND",
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": null,
+       "page": 2,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      },
+      {
+       "vs": "VCC",
+       "min": null,
+       "max": 0.5,
+       "page": 2,
+       "quote": "VOVoltagerangeappliedtoanyoutputinthehighorlowstate-0.5VCC+0.5V",
+       "table": "Absolute Maximum Ratings, output in the high or low state"
+      }
+     ]
+    },
+    "A": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 3,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "B": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 3,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    },
+    "C": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.5,
+       "max": 6.5,
+       "page": 2,
+       "quote": "VIInputvoltagerange(2)-0.56.5V",
+       "table": "Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 5.5,
+       "page": 3,
+       "quote": "VIInputvoltage05.5V",
+       "table": "Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  },
+  "TPS3700DDCR": {
+   "datasheet": {
+    "file": "tps3700.pdf",
+    "title": "TI TPS3700 SBVS187G, Feb 2012, revised Feb 2019",
+    "url": "https://www.ti.com/lit/ds/symlink/tps3700.pdf"
+   },
+   "pins": {
+    "1": "OUTA",
+    "2": "GND",
+    "3": "INA+",
+    "4": "INB-",
+    "5": "VDD",
+    "6": "OUTB"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "VDD": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 20,
+       "page": 5,
+       "quote": "VDD-0.320V",
+       "table": "6.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.8,
+       "max": 18,
+       "page": 5,
+       "quote": "VDDSupplyvoltage1.818V",
+       "table": "6.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "OUTA": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 20,
+       "page": 5,
+       "quote": "OUTA,OUTB-0.320V",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 18,
+       "page": 5,
+       "quote": "VOOutputvoltageOUTA,OUTB018V",
+       "table": "6.3"
+      }
+     ]
+    },
+    "OUTB": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 20,
+       "page": 5,
+       "quote": "OUTA,OUTB-0.320V",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 18,
+       "page": 5,
+       "quote": "VOOutputvoltageOUTA,OUTB018V",
+       "table": "6.3"
+      }
+     ]
+    },
+    "INA+": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 5,
+       "quote": "INA+,INB--0.37V",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 6.5,
+       "page": 5,
+       "quote": "VIInputvoltageINA+,INB-06.5V",
+       "table": "6.3"
+      }
+     ]
+    },
+    "INB-": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 5,
+       "quote": "INA+,INB--0.37V",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 6.5,
+       "page": 5,
+       "quote": "VIInputvoltageINA+,INB-06.5V",
+       "table": "6.3"
+      }
+     ]
+    }
+   }
+  },
+  "AMC1311BDWVR": {
+   "datasheet": {
+    "file": "amc1311.pdf",
+    "title": "TI AMC1311 SBAS786C, Dec 2017, revised June 2022",
+    "url": "https://www.ti.com/lit/ds/symlink/amc1311.pdf"
+   },
+   "pins": {
+    "1": "VDD1",
+    "2": "IN",
+    "3": "SHTDN",
+    "4": "GND1",
+    "5": "GND2",
+    "6": "OUTN",
+    "7": "OUTP",
+    "8": "VDD2"
+   },
+   "functions": {
+    "GND1": {
+     "role": "ref"
+    },
+    "GND2": {
+     "role": "ref"
+    },
+    "VDD1": {
+     "limits": [
+      {
+       "vs": "GND1",
+       "min": -0.3,
+       "max": 6.5,
+       "page": 6,
+       "quote": "High-sideVDD1toGND1-0.36.5",
+       "table": "6.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND1",
+       "min": 3,
+       "max": 5.5,
+       "page": 6,
+       "quote": "VDD1toGND1,AMC1311B355.5",
+       "table": "6.3 Recommended Operating Conditions (AMC1311B row)"
+      }
+     ]
+    },
+    "VDD2": {
+     "limits": [
+      {
+       "vs": "GND2",
+       "min": -0.3,
+       "max": 6.5,
+       "page": 6,
+       "quote": "Low-sideVDD2toGND2-0.36.5",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND2",
+       "min": 3,
+       "max": 5.5,
+       "page": 6,
+       "quote": "Low-sidepowersupplyVDD2toGND233.35.5V",
+       "table": "6.3"
+      }
+     ]
+    },
+    "IN": {
+     "limits": [
+      {
+       "vs": "GND1",
+       "min": -6,
+       "max": null,
+       "page": 6,
+       "quote": "INGND1-6VDD1+0.5",
+       "table": "6.1"
+      },
+      {
+       "vs": "VDD1",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "INGND1-6VDD1+0.5",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND1",
+       "min": -0.1,
+       "max": 2,
+       "page": 6,
+       "quote": "VFSRSpecifiedlinearfull-scalevoltageINtoGND1-0.12",
+       "table": "6.3 (VFSR)"
+      }
+     ]
+    },
+    "SHTDN": {
+     "limits": [
+      {
+       "vs": "GND1",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "SHTDNGND1-0.5VDD1+0.5",
+       "table": "6.1"
+      },
+      {
+       "vs": "VDD1",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "SHTDNGND1-0.5VDD1+0.5",
+       "table": "6.1"
+      }
+     ]
+    },
+    "OUTP": {
+     "role": "out",
+     "supply": "VDD2",
+     "ground": "GND2",
+     "limits": [
+      {
+       "vs": "GND2",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "OUTP,OUTNGND2-0.5VDD2+0.5",
+       "table": "6.1"
+      },
+      {
+       "vs": "VDD2",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "OUTP,OUTNGND2-0.5VDD2+0.5",
+       "table": "6.1"
+      }
+     ]
+    },
+    "OUTN": {
+     "role": "out",
+     "supply": "VDD2",
+     "ground": "GND2",
+     "limits": [
+      {
+       "vs": "GND2",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "OUTP,OUTNGND2-0.5VDD2+0.5",
+       "table": "6.1"
+      },
+      {
+       "vs": "VDD2",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "OUTP,OUTNGND2-0.5VDD2+0.5",
+       "table": "6.1"
+      }
+     ]
+    }
+   }
+  },
+  "CA-IS3720HW": {
+   "datasheet": {
+    "file": "ca-is372x_en.pdf",
+    "title": "Chipanalog CA-IS3720/3721/3722 Version 1.02, 2022-09-06 (English)",
+    "url": "https://www.tellurium.com.cn/ (English v1.02); ledger copy is v1.05 (Chinese)"
+   },
+   "pins": {
+    "1": "GNDA",
+    "2": "NC",
+    "3": "VDDA",
+    "4": "VI1",
+    "5": "VI2",
+    "6": "NC",
+    "7": "GNDA",
+    "8": "NC",
+    "9": "GNDB",
+    "10": "NC",
+    "11": "NC",
+    "12": "VO2",
+    "13": "VO1",
+    "14": "VDDB",
+    "15": "NC",
+    "16": "GNDB"
+   },
+   "functions": {
+    "GNDA": {
+     "role": "ref"
+    },
+    "GNDB": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VDDA": {
+     "limits": [
+      {
+       "vs": "GNDA",
+       "min": -0.5,
+       "max": 7.0,
+       "page": 6,
+       "quote": "VDDA,VDDBPowersupplyvoltage2-0.57.0V",
+       "table": "7.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDA",
+       "min": 2.375,
+       "max": 5.5,
+       "page": 6,
+       "quote": "VDDA,VDDBSupplyVoltage2.3753.35.5V",
+       "table": "7.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "VDDB": {
+     "limits": [
+      {
+       "vs": "GNDB",
+       "min": -0.5,
+       "max": 7.0,
+       "page": 6,
+       "quote": "VDDA,VDDBPowersupplyvoltage2-0.57.0V",
+       "table": "7.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDB",
+       "min": 2.375,
+       "max": 5.5,
+       "page": 6,
+       "quote": "VDDA,VDDBSupplyVoltage2.3753.35.5V",
+       "table": "7.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "VI1": {
+     "limits": [
+      {
+       "vs": "GNDA",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1 Absolute Maximum Ratings (note 2: with respect to the local ground)"
+      },
+      {
+       "vs": "VDDA",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1"
+      },
+      {
+       "vs": "GNDA",
+       "min": null,
+       "max": 7.0,
+       "page": 6,
+       "quote": "3.Maximumvoltagemustnotbeexceed7V.",
+       "table": "7.1 note 3"
+      }
+     ]
+    },
+    "VI2": {
+     "limits": [
+      {
+       "vs": "GNDA",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1 Absolute Maximum Ratings (note 2: with respect to the local ground)"
+      },
+      {
+       "vs": "VDDA",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1"
+      },
+      {
+       "vs": "GNDA",
+       "min": null,
+       "max": 7.0,
+       "page": 6,
+       "quote": "3.Maximumvoltagemustnotbeexceed7V.",
+       "table": "7.1 note 3"
+      }
+     ]
+    },
+    "VO1": {
+     "limits": [
+      {
+       "vs": "GNDB",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1 Absolute Maximum Ratings (note 2: with respect to the local ground)"
+      },
+      {
+       "vs": "VDDB",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1"
+      },
+      {
+       "vs": "GNDB",
+       "min": null,
+       "max": 7.0,
+       "page": 6,
+       "quote": "3.Maximumvoltagemustnotbeexceed7V.",
+       "table": "7.1 note 3"
+      }
+     ],
+     "role": "out",
+     "supply": "VDDB",
+     "ground": "GNDB"
+    },
+    "VO2": {
+     "limits": [
+      {
+       "vs": "GNDB",
+       "min": -0.5,
+       "max": null,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1 Absolute Maximum Ratings (note 2: with respect to the local ground)"
+      },
+      {
+       "vs": "VDDB",
+       "min": null,
+       "max": 0.5,
+       "page": 6,
+       "quote": "VINVoltageatVIx,VOx,ENx-0.5VDD_+0.53",
+       "table": "7.1"
+      },
+      {
+       "vs": "GNDB",
+       "min": null,
+       "max": 7.0,
+       "page": 6,
+       "quote": "3.Maximumvoltagemustnotbeexceed7V.",
+       "table": "7.1 note 3"
+      }
+     ],
+     "role": "out",
+     "supply": "VDDB",
+     "ground": "GNDB"
+    }
+   }
+  },
+  "ISO6721FBDR": {
+   "datasheet": {
+    "file": "iso6721.pdf",
+    "title": "TI ISO6720/ISO6721 SLLSFJ0F, Jan 2020, revised Feb 2023",
+    "url": "https://www.ti.com/lit/ds/symlink/iso6721.pdf"
+   },
+   "pins": {
+    "1": "VCC1",
+    "2": "OUTA",
+    "3": "INB",
+    "4": "GND1",
+    "5": "GND2",
+    "6": "OUTB",
+    "7": "INA",
+    "8": "VCC2"
+   },
+   "functions": {
+    "GND1": {
+     "role": "ref"
+    },
+    "GND2": {
+     "role": "ref"
+    },
+    "VCC1": {
+     "limits": [
+      {
+       "vs": "GND1",
+       "min": -0.5,
+       "max": 6,
+       "page": 5,
+       "quote": "VCC1toGND1-0.56",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND1",
+       "min": 2.25,
+       "max": 5.5,
+       "page": 6,
+       "quote": "VCC1(1)SupplyVoltageSide1VCC=2.5Vto5V(3)2.255.5V",
+       "table": "6.3"
+      }
+     ]
+    },
+    "VCC2": {
+     "limits": [
+      {
+       "vs": "GND2",
+       "min": -0.5,
+       "max": 6,
+       "page": 5,
+       "quote": "VCC2toGND2-0.56",
+       "table": "6.1"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND2",
+       "min": 2.25,
+       "max": 5.5,
+       "page": 6,
+       "quote": "VCC2(1)SupplyVoltageSide2VCC=2.5Vto5V(3)2.255.5V",
+       "table": "6.3"
+      }
+     ]
+    },
+    "INB": {
+     "limits": [
+      {
+       "vs": "GND1",
+       "min": -0.5,
+       "max": null,
+       "page": 5,
+       "quote": "INxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1 Absolute Maximum Ratings"
+      },
+      {
+       "vs": "VCC1",
+       "min": null,
+       "max": 0.5,
+       "page": 5,
+       "quote": "INxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1"
+      },
+      {
+       "vs": "GND1",
+       "min": null,
+       "max": 6,
+       "page": 5,
+       "quote": "(3)Maximumvoltagemustnotexceed6V.",
+       "table": "6.1 note 3"
+      }
+     ]
+    },
+    "OUTA": {
+     "role": "out",
+     "supply": "VCC1",
+     "ground": "GND1",
+     "limits": [
+      {
+       "vs": "GND1",
+       "min": -0.5,
+       "max": null,
+       "page": 5,
+       "quote": "OUTxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1"
+      },
+      {
+       "vs": "VCC1",
+       "min": null,
+       "max": 0.5,
+       "page": 5,
+       "quote": "OUTxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1"
+      },
+      {
+       "vs": "GND1",
+       "min": null,
+       "max": 6,
+       "page": 5,
+       "quote": "(3)Maximumvoltagemustnotexceed6V.",
+       "table": "6.1 note 3"
+      }
+     ]
+    },
+    "INA": {
+     "limits": [
+      {
+       "vs": "GND2",
+       "min": -0.5,
+       "max": null,
+       "page": 5,
+       "quote": "INxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1 Absolute Maximum Ratings"
+      },
+      {
+       "vs": "VCC2",
+       "min": null,
+       "max": 0.5,
+       "page": 5,
+       "quote": "INxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1"
+      },
+      {
+       "vs": "GND2",
+       "min": null,
+       "max": 6,
+       "page": 5,
+       "quote": "(3)Maximumvoltagemustnotexceed6V.",
+       "table": "6.1 note 3"
+      }
+     ]
+    },
+    "OUTB": {
+     "role": "out",
+     "supply": "VCC2",
+     "ground": "GND2",
+     "limits": [
+      {
+       "vs": "GND2",
+       "min": -0.5,
+       "max": null,
+       "page": 5,
+       "quote": "OUTxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1"
+      },
+      {
+       "vs": "VCC2",
+       "min": null,
+       "max": 0.5,
+       "page": 5,
+       "quote": "OUTxtoGNDx-0.5VCCX+0.5(3)",
+       "table": "6.1"
+      },
+      {
+       "vs": "GND2",
+       "min": null,
+       "max": 6,
+       "page": 5,
+       "quote": "(3)Maximumvoltagemustnotexceed6V.",
+       "table": "6.1 note 3"
+      }
+     ]
+    }
+   }
+  },
+  "2EDR8259XXUMA1": {
+   "datasheet": {
+    "file": "2edr8259.pdf",
+    "title": "Infineon EiceDRIVER 2EDR8259H/2EDRx259X/2EDRx258X Rev 1.7, 2026-04-09",
+    "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf"
+   },
+   "pins": {
+    "1": "INA",
+    "2": "INB",
+    "3": "VDDI",
+    "4": "GNDI",
+    "5": "DIS",
+    "6": "DTC",
+    "7": "NC",
+    "8": "VDDI",
+    "9": "GNDB",
+    "10": "OUTB",
+    "11": "VDDB",
+    "12": "NC",
+    "13": "NC",
+    "14": "GNDA",
+    "15": "OUTA",
+    "16": "VDDA"
+   },
+   "functions": {
+    "GNDI": {
+     "role": "ref"
+    },
+    "GNDA": {
+     "role": "ref"
+    },
+    "GNDB": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "VDDI": {
+     "limits": [
+      {
+       "vs": "GNDI",
+       "min": -0.3,
+       "max": 18,
+       "page": 10,
+       "quote": "InputsupplyvoltageVDDI-0.3-18V-",
+       "table": "Table 9"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDI",
+       "min": 3,
+       "max": 17,
+       "page": 12,
+       "quote": "InputsupplyvoltageatpinVDDI3-17VMin.definedbyUVLOVDDI",
+       "table": "Table 11"
+      }
+     ]
+    },
+    "VDDA": {
+     "limits": [
+      {
+       "vs": "GNDA",
+       "min": -0.3,
+       "max": 22,
+       "page": 10,
+       "quote": "OutputsupplyvoltageatVDDA,VDDB-0.3-221)V-",
+       "table": "Table 9"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDA",
+       "min": null,
+       "max": 21,
+       "page": 12,
+       "quote": "VDDA,VDDB15.621",
+       "table": "Table 11 Operating range (max 21 V for every UVLO option)"
+      }
+     ]
+    },
+    "VDDB": {
+     "limits": [
+      {
+       "vs": "GNDB",
+       "min": -0.3,
+       "max": 22,
+       "page": 10,
+       "quote": "OutputsupplyvoltageatVDDA,VDDB-0.3-221)V-",
+       "table": "Table 9"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDB",
+       "min": null,
+       "max": 21,
+       "page": 12,
+       "quote": "VDDA,VDDB15.621",
+       "table": "Table 11 Operating range (max 21 V for every UVLO option)"
+      }
+     ]
+    },
+    "INA": {
+     "limits": [
+      {
+       "vs": "GNDI",
+       "min": -0.3,
+       "max": 18,
+       "page": 10,
+       "quote": "VoltageatpinsINA,INB,VIN-0.3-18V-",
+       "table": "Table 9 Absolute maximum ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDI",
+       "min": 0,
+       "max": 17,
+       "page": 12,
+       "quote": "InputvoltageatpinsINA,VIN0-17V-",
+       "table": "Table 11 Operating range"
+      }
+     ]
+    },
+    "INB": {
+     "limits": [
+      {
+       "vs": "GNDI",
+       "min": -0.3,
+       "max": 18,
+       "page": 10,
+       "quote": "VoltageatpinsINA,INB,VIN-0.3-18V-",
+       "table": "Table 9 Absolute maximum ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDI",
+       "min": 0,
+       "max": 17,
+       "page": 12,
+       "quote": "InputvoltageatpinsINA,VIN0-17V-",
+       "table": "Table 11 Operating range"
+      }
+     ]
+    },
+    "DIS": {
+     "limits": [
+      {
+       "vs": "GNDI",
+       "min": -0.3,
+       "max": 18,
+       "page": 10,
+       "quote": "VoltageatpinsINA,INB,VIN-0.3-18V-",
+       "table": "Table 9 Absolute maximum ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GNDI",
+       "min": 0,
+       "max": 17,
+       "page": 12,
+       "quote": "InputvoltageatpinsINA,VIN0-17V-",
+       "table": "Table 11 Operating range"
+      }
+     ]
+    },
+    "DTC": {
+     "limits": [
+      {
+       "vs": "VDDI",
+       "min": null,
+       "max": 0.3,
+       "page": 10,
+       "quote": "VoltageatpinDTCVDTC2)-VDDI+0.3V-",
+       "table": "Table 9"
+      }
+     ]
+    },
+    "OUTA": {
+     "role": "out",
+     "supply": "VDDA",
+     "ground": "GNDA",
+     "limits": [
+      {
+       "vs": "GNDA",
+       "min": -0.3,
+       "max": null,
+       "page": 10,
+       "quote": "VoltageatpinsOUTA,VOUT-0.3-VDDA/B+V-",
+       "table": "Table 9"
+      },
+      {
+       "vs": "VDDA",
+       "min": null,
+       "max": 0.3,
+       "page": 10,
+       "quote": "VoltageatpinsOUTA,VOUT-0.3-VDDA/B+V-",
+       "table": "Table 9"
+      }
+     ]
+    },
+    "OUTB": {
+     "role": "out",
+     "supply": "VDDB",
+     "ground": "GNDB",
+     "limits": [
+      {
+       "vs": "GNDB",
+       "min": -0.3,
+       "max": null,
+       "page": 10,
+       "quote": "VoltageatpinsOUTA,VOUT-0.3-VDDA/B+V-",
+       "table": "Table 9"
+      },
+      {
+       "vs": "VDDB",
+       "min": null,
+       "max": 0.3,
+       "page": 10,
+       "quote": "VoltageatpinsOUTA,VOUT-0.3-VDDA/B+V-",
+       "table": "Table 9"
+      }
+     ]
+    }
+   }
+  },
+  "R24C2T25/R-R": {
+   "datasheet": {
+    "file": "r24c2t25.pdf",
+    "title": "RECOM R24C2T25/R Rev. 1-2024",
+    "url": "https://recom-power.com/pdf/Econoline/R24C2T25_R.pdf"
+   },
+   "pins": {
+    "1": "PGND",
+    "2": "PGND",
+    "5": "PGND",
+    "8": "PGND",
+    "9": "PGND",
+    "10": "PGND",
+    "11": "PGND",
+    "12": "PGND",
+    "13": "PGND",
+    "14": "PGND",
+    "15": "PGND",
+    "16": "PGND",
+    "17": "PGND",
+    "18": "PGND",
+    "3": "PG",
+    "4": "CTRL",
+    "6": "AVIN",
+    "7": "PVIN",
+    "19": "VOUT-",
+    "20": "VOUT-",
+    "21": "VOUT-",
+    "22": "VOUT-",
+    "23": "VOUT-",
+    "24": "VOUT-",
+    "25": "VOUT-",
+    "26": "VOUT-",
+    "27": "VOUT-",
+    "30": "VOUT-",
+    "31": "VOUT-",
+    "36": "VOUT-",
+    "28": "VOUT+",
+    "29": "VOUT+",
+    "32": "COM",
+    "33": "FBVOUT-",
+    "34": "FBVOUT+",
+    "35": "FBCOM"
+   },
+   "functions": {
+    "PGND": {
+     "role": "ref"
+    },
+    "VOUT-": {
+     "role": "ref",
+     "note": "secondary reference"
+    },
+    "FBCOM": {
+     "role": "ref",
+     "note": "feedback reference; no rating row"
+    },
+    "AVIN": {
+     "limits": [
+      {
+       "vs": "PGND",
+       "min": -0.3,
+       "max": 32,
+       "page": 2,
+       "quote": "VINtoPGND-0.3VDC32VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS (VIN pins: AVIN = pin 6, PVIN = pin 7, tied)"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "PGND",
+       "min": 21,
+       "max": 27,
+       "page": 2,
+       "quote": "InputVoltageRangeVINreferto\u201eDeratingGraph\u201c21VDC24VDC27VDC",
+       "table": "BASIC CHARACTERISTICS"
+      }
+     ]
+    },
+    "PVIN": {
+     "limits": [
+      {
+       "vs": "PGND",
+       "min": -0.3,
+       "max": 32,
+       "page": 2,
+       "quote": "VINtoPGND-0.3VDC32VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "PGND",
+       "min": 21,
+       "max": 27,
+       "page": 2,
+       "quote": "InputVoltageRangeVINreferto\u201eDeratingGraph\u201c21VDC24VDC27VDC",
+       "table": "BASIC CHARACTERISTICS"
+      }
+     ]
+    },
+    "CTRL": {
+     "limits": [
+      {
+       "vs": "PGND",
+       "min": -0.3,
+       "max": 7,
+       "page": 2,
+       "quote": "CTRL,PGtoPGND-0.3VDC7VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "PGND",
+       "min": 0,
+       "max": 5.5,
+       "page": 7,
+       "quote": "ControlPinVoltageCTRLpintoPGND0VDC5.5VDC",
+       "table": "CONTROL FUNCTION"
+      }
+     ]
+    },
+    "PG": {
+     "limits": [
+      {
+       "vs": "PGND",
+       "min": -0.3,
+       "max": 7,
+       "page": 2,
+       "quote": "CTRL,PGtoPGND-0.3VDC7VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ]
+    },
+    "VOUT+": {
+     "limits": [
+      {
+       "vs": "VOUT-",
+       "min": -0.3,
+       "max": 32,
+       "page": 2,
+       "quote": "VOUT+,COM,FBVOUT+,FBVOUT-toVOUT--0.3VDC32VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ]
+    },
+    "COM": {
+     "limits": [
+      {
+       "vs": "VOUT-",
+       "min": -0.3,
+       "max": 32,
+       "page": 2,
+       "quote": "VOUT+,COM,FBVOUT+,FBVOUT-toVOUT--0.3VDC32VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ]
+    },
+    "FBVOUT+": {
+     "limits": [
+      {
+       "vs": "VOUT-",
+       "min": -0.3,
+       "max": 32,
+       "page": 2,
+       "quote": "VOUT+,COM,FBVOUT+,FBVOUT-toVOUT--0.3VDC32VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ]
+    },
+    "FBVOUT-": {
+     "limits": [
+      {
+       "vs": "VOUT-",
+       "min": -0.3,
+       "max": 32,
+       "page": 2,
+       "quote": "VOUT+,COM,FBVOUT+,FBVOUT-toVOUT--0.3VDC32VDC",
+       "table": "ABSOLUTE MAXIMUM RATINGS"
+      }
+     ]
+    }
+   }
+  },
+  "VOL628A-2X001T": {
+   "datasheet": {
+    "file": "vol628a.pdf",
+    "title": "Vishay VOL628A 82401 Rev. 1.9, 10-Feb-2023",
+    "url": "https://www.vishay.com/docs/82401/vol628a.pdf"
+   },
+   "pins": {
+    "1": "ANODE",
+    "2": "CATHODE",
+    "3": "EMITTER",
+    "4": "COLLECTOR"
+   },
+   "functions": {
+    "EMITTER": {
+     "role": "ref",
+     "note": "output-side reference"
+    },
+    "CATHODE": {
+     "role": "ref",
+     "note": "input-side reference"
+    },
+    "ANODE": {
+     "limits": [
+      {
+       "vs": "CATHODE",
+       "min": -6,
+       "max": null,
+       "page": 2,
+       "quote": "ReversevoltageVR6V",
+       "table": "ABSOLUTE MAXIMUM RATINGS, INPUT"
+      }
+     ]
+    },
+    "COLLECTOR": {
+     "limits": [
+      {
+       "vs": "EMITTER",
+       "min": null,
+       "max": 80,
+       "page": 2,
+       "quote": "CollectoremittervoltageVCEO80V",
+       "table": "ABSOLUTE MAXIMUM RATINGS, OUTPUT"
+      },
+      {
+       "vs": "EMITTER",
+       "min": -7,
+       "max": null,
+       "page": 2,
+       "quote": "EmittercollectorvoltageVECO7V",
+       "table": "ABSOLUTE MAXIMUM RATINGS, OUTPUT (reverse)"
+      }
+     ]
+    }
+   }
+  },
+  "IPW65R018CFD7": {
+   "datasheet": {
+    "file": "ipw65r018cfd7.pdf",
+    "title": "Infineon IPW65R018CFD7 Rev. 2.0, 2021-04-19 (PDF page numbers)",
+    "url": "https://www.infineon.com/dgdl/Infineon-IPW65R018CFD7-DataSheet-v02_00-EN.pdf"
+   },
+   "pins": {
+    "1": "G",
+    "2": "D",
+    "3": "S"
+   },
+   "functions": {
+    "S": {
+     "role": "ref"
+    },
+    "G": {
+     "limits": [
+      {
+       "vs": "S",
+       "min": -20,
+       "max": 20,
+       "page": 3,
+       "quote": "Gatesourcevoltage(static)VGS-20-20Vstatic;",
+       "table": "Table 2 Maximum ratings"
+      }
+     ]
+    },
+    "D": {
+     "limits": [
+      {
+       "vs": "S",
+       "min": null,
+       "max": 650,
+       "page": 5,
+       "quote": "Drain-sourcebreakdownvoltageV(BR)DSS650",
+       "table": "Table 3 (V(BR)DSS min 650 V used as the drain-source stress limit)"
+      }
+     ]
+    }
+   }
+  },
+  "TPS70950QDBVRQ1": {
+   "datasheet": {
+    "file": "tps709-q1.pdf",
+    "title": "TI TPS709-Q1 SLVSCE6D, December 2013, revised August 2025",
+    "url": "https://www.ti.com/lit/ds/symlink/tps709-q1.pdf"
+   },
+   "pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "OUT"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "IN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 32,
+       "page": 3,
+       "quote": "VIN\u20130.332",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 2.7,
+       "max": 30,
+       "page": 4,
+       "quote": "VINInputvoltage2.730V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "EN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 3,
+       "quote": "VEN\u20130.37",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VENEnablevoltage06.5V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ],
+     "forbid_tie": [
+      {
+       "with": "IN",
+       "page": 3,
+       "quote": "This pin can be left floating to enable the device. The maximum voltage must remain below 6.5 V.",
+       "table": "4 Pin Configuration and Functions (EN; VIN runs to 30 V, 5.3 p.4); the catalog sheet states it outright, SBVS186H 7.4 p.13 'Do not connect EN to VIN'"
+      }
+     ]
+    },
+    "OUT": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 3,
+       "quote": "VOUT\u20130.37",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.2,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VOUTOutputvoltage1.26.5V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    }
+   }
+  }
+ }
+}

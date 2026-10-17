@@ -1,0 +1,356 @@
+{
+ "chart_b32656_2000V_A": {
+  "30k": {
+   "560": 14.358,
+   "330": 11.1,
+   "150": 7.99,
+   "68": 4.398
+  },
+  "35k": {
+   "560": 14.854,
+   "330": 11.542,
+   "150": 8.302,
+   "68": 4.643
+  },
+  "40k": {
+   "560": 15.263,
+   "330": 11.921,
+   "150": 8.632,
+   "68": 4.857
+  },
+  "50k": {
+   "560": 15.966,
+   "330": 12.565,
+   "150": 9.137,
+   "68": 5.225
+  },
+  "100k": {
+   "560": 16.378,
+   "330": 13.448,
+   "150": 9.905,
+   "68": 5.791
+  }
+ },
+ "controls": {
+  "c34_gate": 0.967,
+  "failed": []
+ },
+ "parts": {
+  "b32656j": {
+   "mpn": "B32656J2104J000",
+   "basis": "ESTIMATE (p.60 interp, p.31 table)",
+   "dims_mm": [
+    14.0,
+    25.0,
+    42.0
+   ],
+   "I35_A": 6.063,
+   "I40_A": 6.324,
+   "V_allow_35k": 275.7,
+   "vendor_35k": 1.0,
+   "vendor_40k": 0.959,
+   "tank_A_at_0.85": 23.8,
+   "stock_digikey": 413,
+   "gate_28A": 1.37,
+   "gate_gap_28A": 1.151,
+   "T_op_28A": 106.1,
+   "steps": [
+    {
+     "I": 18.0,
+     "vendor": 0.643,
+     "gate": 0.881,
+     "gate_gap": 0.74,
+     "T_op": 89.9,
+     "strict_ok": true,
+     "gap_ok": true
+    },
+    {
+     "I": 20.0,
+     "vendor": 0.714,
+     "gate": 0.979,
+     "gate_gap": 0.822,
+     "T_op": 92.6,
+     "strict_ok": true,
+     "gap_ok": true
+    },
+    {
+     "I": 22.0,
+     "vendor": 0.786,
+     "gate": 1.077,
+     "gate_gap": 0.904,
+     "T_op": 95.5,
+     "strict_ok": false,
+     "gap_ok": true
+    },
+    {
+     "I": 24.0,
+     "vendor": 0.857,
+     "gate": 1.174,
+     "gate_gap": 0.987,
+     "T_op": 98.8,
+     "strict_ok": false,
+     "gap_ok": false
+    },
+    {
+     "I": 26.0,
+     "vendor": 0.928,
+     "gate": 1.272,
+     "gate_gap": 1.069,
+     "T_op": 102.3,
+     "strict_ok": false,
+     "gap_ok": false
+    },
+    {
+     "I": 28.0,
+     "vendor": 1.0,
+     "gate": 1.37,
+     "gate_gap": 1.151,
+     "T_op": 106.1,
+     "strict_ok": false,
+     "gap_ok": false
+    }
+   ],
+   "highest_step_strict": 20.0,
+   "highest_step_gap": 22.0,
+   "release_rad": 1.0199,
+   "release_norad": 1.3171,
+   "voltage": {
+    "V 28 A": 0.354,
+    "no-pan": 0.705,
+    "Vrms": 0.479,
+    "F3 R0/R1": 0.996,
+    "F3 any": 0.893,
+    "Z0 x top": 0.804,
+    "dV/dt": 0.493,
+    "k0 F3 sine (info)": 0.707
+   }
+  },
+  "r76uw3100": {
+   "mpn": "R76UW3100SE30J",
+   "basis": "ESTIMATE (ESR model x control factor)",
+   "dims_mm": [
+    13.0,
+    24.0,
+    41.5
+   ],
+   "I35_A": 6.508,
+   "I40_A": 6.75,
+   "V_allow_35k": 296.0,
+   "vendor_35k": 0.931,
+   "vendor_40k": 0.898,
+   "tank_A_at_0.85": 25.55,
+   "stock_digikey": 354,
+   "gate_28A": 1.35,
+   "gate_gap_28A": 0.885,
+   "T_op_28A": 102.9,
+   "steps": [
+    {
+     "I": 18.0,
+     "vendor": 0.599,
+     "gate": 0.868,
+     "gate_gap": 0.569,
+     "T_op": 88.7,
+     "strict_ok": true,
+     "gap_ok": true
+    },
+    {
+     "I": 20.0,
+     "vendor": 0.665,
+     "gate": 0.964,
+     "gate_gap": 0.632,
+     "T_op": 91.0,
+     "strict_ok": true,
+     "gap_ok": true
+    },
+    {
+     "I": 22.0,
+     "vendor": 0.732,
+     "gate": 1.061,
+     "gate_gap": 0.696,
+     "T_op": 93.6,
+     "strict_ok": false,
+     "gap_ok": true
+    },
+    {
+     "I": 24.0,
+     "vendor": 0.798,
+     "gate": 1.157,
+     "gate_gap": 0.759,
+     "T_op": 96.5,
+     "strict_ok": false,
+     "gap_ok": true
+    },
+    {
+     "I": 26.0,
+     "vendor": 0.865,
+     "gate": 1.254,
+     "gate_gap": 0.822,
+     "T_op": 99.6,
+     "strict_ok": false,
+     "gap_ok": false
+    },
+    {
+     "I": 28.0,
+     "vendor": 0.931,
+     "gate": 1.35,
+     "gate_gap": 0.885,
+     "T_op": 102.9,
+     "strict_ok": false,
+     "gap_ok": false
+    }
+   ],
+   "highest_step_strict": 20.0,
+   "highest_step_gap": 24.0,
+   "release_rad": 0.8851,
+   "release_norad": 1.137,
+   "voltage": {
+    "V 28 A": 0.354,
+    "no-pan": 0.705,
+    "Vrms": 0.479,
+    "F3 R0/R1": 0.996,
+    "F3 any": 0.893,
+    "Z0 x top": 0.804,
+    "dV/dt": 0.23,
+    "k0 F3 sine (info)": 0.33
+   }
+  }
+ },
+ "fit_left_x153": {
+  "board": "runs-native21/s51/c51/section.kicad_pcb (9afc509b)",
+  "res_a_x": 153.0,
+  "sw_b_x": 190.5,
+  "body_x": [
+   150.75,
+   192.75
+  ],
+  "violations_res_a_pins": [
+   {
+    "pad": "RA_53.2",
+    "layer": "F.Cu",
+    "net": "sw_a",
+    "dist_mm": 0.737,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_53.2",
+    "layer": "In1.Cu",
+    "net": "hv_ret",
+    "dist_mm": 1.5,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_53.2",
+    "layer": "In2.Cu",
+    "net": "bus_p",
+    "dist_mm": 1.5,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_68.2",
+    "layer": "F.Cu",
+    "net": "sw_a",
+    "dist_mm": -0.6,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_68.2",
+    "layer": "In1.Cu",
+    "net": "n_ls",
+    "dist_mm": 2.887,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_68.2",
+    "layer": "In1.Cu",
+    "net": "v24_raw",
+    "dist_mm": 4.114,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_83.2",
+    "layer": "F.Cu",
+    "net": "sw_a",
+    "dist_mm": -0.6,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_98.2",
+    "layer": "F.Cu",
+    "net": "sw_a",
+    "dist_mm": -0.6,
+    "need_mm": 5.0
+   },
+   {
+    "pad": "RA_113.2",
+    "layer": "In1.Cu",
+    "net": "v3v3",
+    "dist_mm": 7.85,
+    "need_mm": 12.6
+   },
+   {
+    "pad": "RA_113.2",
+    "layer": "In2.Cu",
+    "net": "selv_gnd",
+    "dist_mm": 7.85,
+    "need_mm": 12.6
+   },
+   {
+    "pad": "RA_111.2",
+    "layer": "In1.Cu",
+    "net": "v3v3",
+    "dist_mm": 9.841,
+    "need_mm": 12.6
+   },
+   {
+    "pad": "RA_111.2",
+    "layer": "In2.Cu",
+    "net": "selv_gnd",
+    "dist_mm": 9.841,
+    "need_mm": 12.6
+   }
+  ],
+  "H10_hole_courtyard": [
+   148.508,
+   118.502,
+   155.495,
+   125.498
+  ],
+  "T1_courtyard": [
+   123.205,
+   93.655,
+   146.795,
+   126.345
+  ],
+  "copper_in_x145_163_band": {
+   "F.Cu": [
+    "TRACK:crbleed_1",
+    "TRACK:res_a",
+    "zone:n_filt:n_filt BR1.3-L1-C2",
+    "zone:sw_a:sw_a Q2.3-T1.1"
+   ],
+   "B.Cu": [
+    "zone:l_filt:l_filt BR1.2-L1",
+    "zone:res_a:res_a J5-C21..C23",
+    "zone:sw_b:sw_b leg B-C21..C23"
+   ],
+   "In1.Cu": [
+    "TRACK:n_ls",
+    "TRACK:v24_raw",
+    "zone:hv_ret:hv_ret trunk",
+    "zone:v3v3:v3v3 SELV island"
+   ],
+   "In2.Cu": [
+    "zone:bus_p:bus_p trunk",
+    "zone:selv_gnd:selv_gnd SELV island"
+   ]
+  }
+ },
+ "b32643h_26A": {
+  "I_tank_A": 26.0,
+  "vendor_85C": 0.915,
+  "gate": 0.934,
+  "gate_gap": 0.907,
+  "strict_ok": false,
+  "gap_ok": false
+ }
+}

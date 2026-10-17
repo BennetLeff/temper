@@ -1,0 +1,2223 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 21,
+   "list": [
+    {
+     "componentId": 307934,
+     "componentLibraryType": "expand",
+     "stockCount": 145,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV \u3010\u805a\u4e19\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_srd-shenzhen-sincerity-tech-pps104j3c2914218lc_C327847.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2247
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1794
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1491
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1249
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1142
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1077
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1204
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1436
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2165
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.11
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1037
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1728
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 143,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "307934-PPS104J3C2914218LC/C327847",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.55,
+     "preMinPurchaseNum": 41,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2247,
+     "componentCode": "C327847",
+     "componentBrandEn": "SRD(Shenzhen Sincerity Tech)",
+     "componentModelEn": "PPS104J3C2914218LC",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8767307227587579904",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2111121930_SRD-Shenzhen-Sincerity-Tech-PPS104J3C2914218LC_C327847.pdf",
+     "dataManualFileAccessId": "8588890999644950528",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SRD PPS104J3C2914218LC",
+     "minImage": "",
+     "minImageAccessId": "8767307228657803264",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+85\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6 Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+85\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6 Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 308738,
+     "componentLibraryType": "expand",
+     "stockCount": 288,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV \u3010\u805a\u4e19\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_xiamen-faratronic-c823c104jb0c000_C328891.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.631
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5136
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4533
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.3946
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.3604
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3408
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6079
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4948
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4367
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.3801
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.3472
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3283
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 287,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "XIAMENFARATRONIC-C823C104JB0C000/C328891",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 1.68537,
+     "preMinPurchaseNum": 18,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.631,
+     "componentCode": "C328891",
+     "componentBrandEn": "XIAMEN FARATRONIC",
+     "componentModelEn": "C823C104JB0C000",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8762273164594561024",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_XIAMEN-FARATRONIC-C823C104JB0C000_C328891.pdf",
+     "dataManualFileAccessId": "8588890851287818240",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "XIAMEN FARATRONIC C823C104JB0C000",
+     "minImage": "",
+     "minImageAccessId": "8762273165743529984",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-40\u2103~+105\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 366164,
+     "componentLibraryType": "expand",
+     "stockCount": 1314,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kyet-kp104j3c2201_C390131.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3312
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2655
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.2373
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1861
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1704
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.161
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1551
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.2286
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1642
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2557
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.319
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1793
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 1229,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KYET-KP104J3C2201/C390131",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.8,
+     "preMinPurchaseNum": 28,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3312,
+     "componentCode": "C390131",
+     "componentBrandEn": "KYET",
+     "componentModelEn": "KP104J3C2201",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583835807040090112",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2111011130_KYET-KP104J3C2201_C390131.pdf",
+     "dataManualFileAccessId": "8590166288930021376",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KYET KP104J3C2201",
+     "minImage": "",
+     "minImageAccessId": "8583835808017498112",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+100\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+100\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+100\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 580387,
+     "componentLibraryType": "expand",
+     "stockCount": 733,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kyet-ps104j3c2502_C557494.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.258
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2071
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1687
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1414
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1293
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.122
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1995
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1246
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2485
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1175
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1625
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1362
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 719,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KYET-PS104J3C2502/C557494",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.62,
+     "preMinPurchaseNum": 35,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.258,
+     "componentCode": "C557494",
+     "componentBrandEn": "KYET",
+     "componentModelEn": "PS104J3C2502",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8759991631062024192",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2005191833_KYET-PS104J3C2502_C557494.pdf",
+     "dataManualFileAccessId": "8590173196289798144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KYET PS104J3C2502",
+     "minImage": "",
+     "minImageAccessId": "8759991632093958144",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=25mm",
+     "describe": "-40\u2103~+100\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6,P=25mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+100\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+100\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=25mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 591181,
+     "componentLibraryType": "expand",
+     "stockCount": 11383,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_knscha-mmk104j3ceskn158g2_C565696.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3827
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.3087
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.2707
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.2311
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.2135
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.203
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.2226
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.2608
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3687
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2974
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1956
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.2056
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 11305,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KNSCHA-MMK104J3CESKN158G2/C565696",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.9,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3827,
+     "componentCode": "C565696",
+     "componentBrandEn": "KNSCHA",
+     "componentModelEn": "MMK104J3CESKN158G2",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583846287041040384",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2305151511_KNSCHA-MMK104J3CESKN158G2_C565696.pdf",
+     "dataManualFileAccessId": "8797903501034561536",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KNSCHA MMK104J3CESKN158G2",
+     "minImage": "",
+     "minImageAccessId": "8583846288098275328",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+105\u2103 1.6kV 100nF Metallized polypropylene \u00b15% Plugin,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> Metallized polypropylene \u00b15% Plugin,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 603644,
+     "componentLibraryType": "expand",
+     "stockCount": 2260,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_knscha-mpp104j3c20nn22810_C576212.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.123
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.1024
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.0922
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.0698
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 5099,
+       "productPrice": 0.0636
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0605
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 299,
+       "productPrice": 0.0987
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1185
+      },
+      {
+       "startNumber": 5100,
+       "endNumber": -1,
+       "productPrice": 0.0583
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.0673
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.0888
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 5099,
+       "productPrice": 0.0613
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 1991,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KNSCHA-MPP104J3C20NN22810/C576212",
+     "leastPatchNumber": 2,
+     "lossNumber": 1,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.263,
+     "preMinPurchaseNum": 89,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.123,
+     "componentCode": "C576212",
+     "componentBrandEn": "KNSCHA",
+     "componentModelEn": "MPP104J3C20NN22810",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583850984410402816",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2006031814_KNSCHA-MPP104J3C20NN22810_C576212.pdf",
+     "dataManualFileAccessId": "8590170250370187264",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KNSCHA MPP104J3C20NN22810",
+     "minImage": "",
+     "minImageAccessId": "8583850985278083072",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=20mm",
+     "describe": "-40\u2103~+105\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6,P=20mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=20mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3058752,
+     "componentLibraryType": "expand",
+     "stockCount": 986,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kyet-kp104j1600vp22_C2857952.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.4533
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.3718
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2886
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.2446
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.2251
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.212
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.3581
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.2168
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.278
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.2042
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.4367
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.2356
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 973,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KYET-KP104J1600VP22/C2857952",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 1.0,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4533,
+     "componentCode": "C2857952",
+     "componentBrandEn": "KYET",
+     "componentModelEn": "KP104J1600VP22",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583639516879577088",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2108150230_KYET-KP104J1600VP22_C2857952.pdf",
+     "dataManualFileAccessId": "8588954159017545728",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KYET KP104J1600VP22",
+     "minImage": "",
+     "minImageAccessId": "8583639517861990400",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+100\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+100\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3452612,
+     "componentLibraryType": "expand",
+     "stockCount": 3227,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kyet-mmkp104j3c2701_C2991050.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.4081
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.3301
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2699
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.2281
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.2096
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1983
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.3179
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.2198
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.26
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.191
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3932
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.2019
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 3227,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KYET-MMKP104J3C2701/C2991050",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.95,
+     "preMinPurchaseNum": 23,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4081,
+     "componentCode": "C2991050",
+     "componentBrandEn": "KYET",
+     "componentModelEn": "MMKP104J3C2701",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584774539075469312",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2204151800_KYET-MMKP104J3C2701_C2991050.pdf",
+     "dataManualFileAccessId": "8590226327857881088",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KYET MMKP104J3C2701",
+     "minImage": "",
+     "minImageAccessId": "8584774540001464320",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-40\u2103~+105\u2103 1.6kV 100nF \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8631227,
+     "componentLibraryType": "expand",
+     "stockCount": 273,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kyet-mmkp104j3c2201_C7529559.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3832
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.3017
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2658
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.2218
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.2022
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1908
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.2906
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.2137
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2561
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1838
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3691
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1948
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 265,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KYET-MMKP104J3C2201/C7529559",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.0,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3832,
+     "componentCode": "C7529559",
+     "componentBrandEn": "KYET",
+     "componentModelEn": "MMKP104J3C2201",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585439383764156416",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308211430_KYET-MMKP104J3C2201_C7529559.pdf",
+     "dataManualFileAccessId": "8603000792861593600",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KYET MMKP104J3C2201",
+     "minImage": "",
+     "minImageAccessId": "8585439384690151424",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1.6kV 100nF \u00b15% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b15% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23810410,
+     "componentLibraryType": "expand",
+     "stockCount": 77,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b110% 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_weidy-w143c104kr8sc1a0nc_C22362719.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5316
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4174
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3685
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3066
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2789
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2626
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2529
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.355
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5121
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2686
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2953
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4021
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 77,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WEIDY-W143C104KR8SC1A0NC/C22362719",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 1.39725,
+     "preMinPurchaseNum": 22,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5316,
+     "componentCode": "C22362719",
+     "componentBrandEn": "WEIDY",
+     "componentModelEn": "W143C104KR8SC1A0NC",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585255731443978240",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403181453_WEIDY-W143C104KR8SC1A0NC_C22362719.pdf",
+     "dataManualFileAccessId": "8590918720535539712",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "WEIDY W143C104KR8SC1A0NC",
+     "minImage": "",
+     "minImageAccessId": "8585255732400414720",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22mm",
+     "describe": "-40\u2103~+105\u2103 1.6kV 100nF \u00b110% \u63d2\u4ef6,P=22mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b110% \u63d2\u4ef6,P=22mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 111147,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b110% 1.6kV \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2247
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1794
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.1602
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1249
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.1142
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1077
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.1543
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1037
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2165
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1204
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.11
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1728
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "111147-PPS104KC291421LC/C109926",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.55,
+     "preMinPurchaseNum": 57,
+     "minPurchaseNum": 57,
+     "initialPrice": 0.1602,
+     "componentCode": "C109926",
+     "componentBrandEn": "SRD(Shenzhen Sincerity Tech)",
+     "componentModelEn": "PPS104KC291421LC",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583577444514713600",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8588942455702237184",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SRD PPS104KC291421LC",
+     "minImage": "",
+     "minImageAccessId": "8583577445455183872",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=25mm",
+     "describe": "-40\u2103~+85\u2103 1.6kV 100nF \u00b110% \u63d2\u4ef6,P=25mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+85\u2103 <span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b110% \u63d2\u4ef6,P=25mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 308626,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b110% 1.6kV \u3010\u805a\u4e19\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_xiamen-faratronic-c323c104k90c000_C328779.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5984
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4794
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4272
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.3473
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.3196
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3017
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5765
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4618
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2906
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.3346
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.3079
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4115
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "XIAMENFARATRONIC-C323C104K90C000/C328779",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 1.46,
+     "preMinPurchaseNum": 19,
+     "minPurchaseNum": 19,
+     "initialPrice": 0.4794,
+     "componentCode": "C328779",
+     "componentBrandEn": "XIAMEN FARATRONIC",
+     "componentModelEn": "C323C104K90C000",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583265279753666560",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_XIAMEN-FARATRONIC-C323C104K90C000_C328779.pdf",
+     "dataManualFileAccessId": "8588890838764302336",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "XIAMEN FARATRONIC C323C104K90C000",
+     "minImage": "",
+     "minImageAccessId": "8583265280630140928",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1.6kV 100nF \u00b110% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Metallized polypropylene"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6kV</span>",
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "1.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1.6kV</span> <span class='lucene_highlight_class'>100nF</span> \u00b110% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 2,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "100nF 1.6kV CBB"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:52:12Z"
+}

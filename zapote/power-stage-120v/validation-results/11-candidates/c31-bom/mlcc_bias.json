@@ -1,0 +1,99 @@
+{
+ "rows": [
+  {
+   "rail": "SW_A-N_HA / SW_B-N_HB (driver VSS reservoirs)",
+   "volts": 2,
+   "designators": [
+    "C90",
+    "C91",
+    "C94",
+    "C95"
+   ],
+   "per_part_uF_stage30": 8.54,
+   "per_part_uF_stage31": 8.76,
+   "per_part_uF_stage31_bias_temp": 8.17,
+   "ratio_new_over_old": 1.026,
+   "pair_uF_stage31": 16.34,
+   "check": "pair >= 10 uF effective (ECO.md): 16.34"
+  },
+  {
+   "rail": "LEG_RET-N_LS (LS driver VSS reservoirs)",
+   "volts": 2,
+   "designators": [
+    "C92",
+    "C93",
+    "C96",
+    "C97"
+   ],
+   "per_part_uF_stage30": 8.54,
+   "per_part_uF_stage31": 8.76,
+   "per_part_uF_stage31_bias_temp": 8.17,
+   "ratio_new_over_old": 1.026,
+   "pair_uF_stage31": 16.34,
+   "check": "pair >= 10 uF effective (ECO.md): 16.34"
+  },
+  {
+   "rail": "5 V rails (HOT5, LS_V5, HS monitor 5 V)",
+   "volts": 5,
+   "designators": [
+    "C26",
+    "C132",
+    "C136",
+    "C140"
+   ],
+   "per_part_uF_stage30": 8.2,
+   "per_part_uF_stage31": 8.23,
+   "per_part_uF_stage31_bias_temp": 7.67,
+   "ratio_new_over_old": 1.004
+  },
+  {
+   "rail": "V15_LS",
+   "volts": 15,
+   "designators": [
+    "C9",
+    "C16",
+    "C24",
+    "C99",
+    "C100"
+   ],
+   "per_part_uF_stage30": 3.67,
+   "per_part_uF_stage31": 5.74,
+   "per_part_uF_stage31_bias_temp": 5.35,
+   "ratio_new_over_old": 1.564
+  },
+  {
+   "rail": "P_H-N_H (module output span)",
+   "volts": 17,
+   "designators": [
+    "C104",
+    "C108"
+   ],
+   "per_part_uF_stage30": 3.16,
+   "per_part_uF_stage31": 5.26,
+   "per_part_uF_stage31_bias_temp": 4.91,
+   "ratio_new_over_old": 1.665
+  },
+  {
+   "rail": "V24_RAW",
+   "volts": 24,
+   "designators": [
+    "C98",
+    "C102",
+    "C103",
+    "C106",
+    "C107"
+   ],
+   "per_part_uF_stage30": 2.22,
+   "per_part_uF_stage31": 3.87,
+   "per_part_uF_stage31_bias_temp": 3.61,
+   "ratio_new_over_old": 1.743
+  }
+ ],
+ "pn_startup_bound": {
+  "as_built_nominal_uF": 21.4,
+  "simulated_pass_uF": 41.4,
+  "ok": true
+ },
+ "fails": [],
+ "pass": true
+}

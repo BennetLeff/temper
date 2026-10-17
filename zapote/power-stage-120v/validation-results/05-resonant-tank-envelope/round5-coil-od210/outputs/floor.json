@@ -1,0 +1,58 @@
+{
+ "inputs": {
+  "F_MIN_Hz": 35000.0,
+  "F_MAX_Hz": 60000.0,
+  "ZVS_MARGIN": 1.05,
+  "C_nom_uF": 0.5,
+  "C_tol": 0.1,
+  "C_worst_uF": 0.44999999999999996,
+  "installed_over_free": 0.95
+ },
+ "fixed_floor": {
+  "f_res_max_Hz": 33333.3,
+  "L_loaded_min_uH": 50.66
+ },
+ "window_top": {
+  "x_reg_grid_max": 1.4497,
+  "x_reg_used": 1.45,
+  "f_res_max_Hz": 41379.3,
+  "L_loaded_min_population_uH": 32.87,
+  "f_k_d228_220mm": 1.191,
+  "kl_ref_cast_iron_nom": 0.6308,
+  "kl_ref_cast_iron_max": 0.8094,
+  "kl_population_min": 0.4998,
+  "ratio_pop": 0.7923,
+  "L_loaded_min_reference_pan_uH": 41.49
+ },
+ "designs": {
+  "70uH": {
+   "L_installed_nom_uH": 66.5,
+   "L_loaded_ref_nom_uH": 41.95,
+   "L_loaded_ref_at_minus10pct_uH": 37.75,
+   "passes_floor_nom": true,
+   "passes_floor_minus10pct": false,
+   "ratio_loaded_over_free_nom": 0.599,
+   "ratio_screen_low (floor at L +10 %)": 0.539,
+   "ratio_screen_high (cast-iron kl max)": 0.769
+  },
+  "80uH": {
+   "L_installed_nom_uH": 76.0,
+   "L_loaded_ref_nom_uH": 47.94,
+   "L_loaded_ref_at_minus10pct_uH": 43.15,
+   "passes_floor_nom": true,
+   "passes_floor_minus10pct": true,
+   "ratio_loaded_over_free_nom": 0.599,
+   "ratio_screen_low (floor at L +10 %)": 0.472,
+   "ratio_screen_high (cast-iron kl max)": 0.769
+  }
+ },
+ "gap84_variant": {
+  "f_k_220mm": 1.165,
+  "kl_ref_nom": 0.6388,
+  "ratio_pop": 0.7994,
+  "L_loaded_min_reference_pan_uH": 41.12,
+  "L_loaded_ref_70uH_nom": 42.48,
+  "L_loaded_ref_70uH_minus10": 38.24,
+  "L_loaded_ref_80uH_minus10": 44.04
+ }
+}

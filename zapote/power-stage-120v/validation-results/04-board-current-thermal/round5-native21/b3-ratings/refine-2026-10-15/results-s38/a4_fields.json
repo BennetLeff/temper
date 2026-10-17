@@ -1,0 +1,301 @@
+{
+ "board": "s38",
+ "source": "/Users/bennet/Desktop/temper/worktrees/ps-selv/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs",
+ "cases": 41,
+ "problems": [],
+ "pass": true,
+ "negative_control": {
+  "other_board": "s35",
+  "other_fields_failing_this_boards_json": 8,
+  "identical_files": 2
+ },
+ "rows": {
+  "ac_l_main-p0125-pl18-heat.npz": {
+   "loss_w": 0.06547327667942066,
+   "found_w": 0.0654732766794191,
+   "ok": true,
+   "sha256": "6dd01cfbe2671b8c53134933efcf247f4e2f235d2d21683f6f63679a17cab2d6",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/ac_l_main-p0125-pl18-heat.npz"
+  },
+  "ac_n_main-p0125-pl18-heat.npz": {
+   "loss_w": 0.5722968120242105,
+   "found_w": 0.572296812023382,
+   "ok": true,
+   "sha256": "b49f4cba837be5d851d1b0540c8f050c3eff0f908040ca231f2165d1905a390a",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/ac_n_main-p0125-pl18-heat.npz"
+  },
+  "bus-dc-q2-p00625-pl18-heat.npz": {
+   "loss_w": 0.3525644218649604,
+   "found_w": 0.352564421780515,
+   "ok": true,
+   "sha256": "961067e277a13c57150994dfd92a802af6e4817fbc8f0dd164c86c6bafe76e76",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus-dc-q2-p00625-pl18-heat.npz"
+  },
+  "bus-dc-q2-p025-pl18-heat.npz": {
+   "loss_w": 0.36255997833691206,
+   "found_w": 0.3625599783316342,
+   "ok": true,
+   "sha256": "4ffc0e1c54bdc10da83f596f2c203adc312c6c6cedeceb532ede9d659fc7eeca",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus-dc-q2-p025-pl18-heat.npz"
+  },
+  "bus_dc_q2-p0125-pl12-heat.npz": {
+   "loss_w": 0.4032911333822135,
+   "found_w": 0.4032911333572349,
+   "ok": true,
+   "sha256": "c41c88e4500c3bf6eac7bb335eb4ab60c455d312eb6a43a8e13d942fbc8406c0",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_dc_q2-p0125-pl12-heat.npz"
+  },
+  "bus_dc_q2-p0125-pl18-heat.npz": {
+   "loss_w": 0.3563626087873266,
+   "found_w": 0.3563626087665226,
+   "ok": true,
+   "sha256": "59af734732b0d71edd64a89c3e94596a3629d98f35512eaf55ebace1fd841f58",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_dc_q2-p0125-pl18-heat.npz"
+  },
+  "bus_dc_q5-p0125-pl18-heat.npz": {
+   "loss_w": 0.9093456682433065,
+   "found_w": 0.9093456680476807,
+   "ok": true,
+   "sha256": "0180d33547b31670b9974cf5edbc28bd5b62701e3a88841b1a8dfcdda2c86663",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_dc_q5-p0125-pl18-heat.npz"
+  },
+  "bus_hf_q2-p0125-pl18-heat.npz": {
+   "loss_w": 0.4632388327325543,
+   "found_w": 0.46323883270117977,
+   "ok": true,
+   "sha256": "dec57ca6c2842086c4d4b2428d194ac295348bb0ac6469144b618866e229544d",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_hf_q2-p0125-pl18-heat.npz"
+  },
+  "bus_hf_q5-p0125-pl18-heat.npz": {
+   "loss_w": 0.5398226355440878,
+   "found_w": 0.5398226354894426,
+   "ok": true,
+   "sha256": "cbc13b9b6acc9ba1e14a2cf81e90e9a8d794aed430429fd1348835fa9250579e",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_hf_q5-p0125-pl18-heat.npz"
+  },
+  "bus_mixed_q2-p0125-pl12-heat.npz": {
+   "loss_w": 1.5690303378452621,
+   "found_w": 1.5690303377210637,
+   "ok": true,
+   "sha256": "340aa3d12e6d77105619303a9f4349cd926470bcc63b2e2aacf3c8e80f1a4733",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_mixed_q2-p0125-pl12-heat.npz"
+  },
+  "bus_mixed_q2-p0125-pl18-heat.npz": {
+   "loss_w": 1.3975934714742255,
+   "found_w": 1.3975934713710896,
+   "ok": true,
+   "sha256": "6d20e445ea6e75c99640213b7cabea61fb810a177f90a7bf23990e482a589304",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_mixed_q2-p0125-pl18-heat.npz"
+  },
+  "bus_mixed_q5-p0125-pl12-heat.npz": {
+   "loss_w": 2.442865841963931,
+   "found_w": 2.442865841467037,
+   "ok": true,
+   "sha256": "07ac092a57108f0758d054178bffbd0ea40d625e53eaed7543ea2a0e6a87e79a",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_mixed_q5-p0125-pl12-heat.npz"
+  },
+  "bus_mixed_q5-p0125-pl18-heat.npz": {
+   "loss_w": 2.2714289756134804,
+   "found_w": 2.271428975158235,
+   "ok": true,
+   "sha256": "8fd87598b786a96647d6ec175921b93c8279ef8ac05dca092cf5736f548803fb",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/bus_mixed_q5-p0125-pl18-heat.npz"
+  },
+  "coil_feed-p0125-pl12-heat.npz": {
+   "loss_w": 0.14917385802878907,
+   "found_w": 0.14917385802878497,
+   "ok": true,
+   "sha256": "bbd0c5cfaa34db72d8113c3c37173969b7ca7b5ce76809facb2c48963ad9ecdd",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/coil_feed-p0125-pl12-heat.npz"
+  },
+  "coil_feed-p0125-pl18-heat.npz": {
+   "loss_w": 0.14889542803365613,
+   "found_w": 0.14889542803365216,
+   "ok": true,
+   "sha256": "60d78c308a6ebddfb338240a4bdddc56db99e251df8eeb0c4455ae7e413f39bc",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/coil_feed-p0125-pl18-heat.npz"
+  },
+  "hv_dc-p00625-pl12-heat.npz": {
+   "loss_w": 0.5369787373512295,
+   "found_w": 0.5369787373060055,
+   "ok": true,
+   "sha256": "b758f044f93009383da0436d389bb827b11d7db9f6de906b309441b41233e278",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_dc-p00625-pl12-heat.npz"
+  },
+  "hv_dc-p00625-pl18-heat.npz": {
+   "loss_w": 0.5193385234510342,
+   "found_w": 0.5193385234102721,
+   "ok": true,
+   "sha256": "ba4acc293210566ee3b6c272ab99a1e3728d319919657d378f1539ab0353b63f",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_dc-p00625-pl18-heat.npz"
+  },
+  "hv_hf_a-p00625-pl18-heat.npz": {
+   "loss_w": 0.448234426793881,
+   "found_w": 0.44823442678633585,
+   "ok": true,
+   "sha256": "4edd52983512838a824ce8a2670cb5d406b59d97de4777ac7d8ce83bfd8c14e3",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_hf_a-p00625-pl18-heat.npz"
+  },
+  "hv_hf_b-p00625-pl18-heat.npz": {
+   "loss_w": 0.24148986778247972,
+   "found_w": 0.24148986778065842,
+   "ok": true,
+   "sha256": "a256d085c3e70d2b1ec1063ff15939335ce8b57887ba98d90ff128de03381612",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_hf_b-p00625-pl18-heat.npz"
+  },
+  "hv_mixed_a-p00625-pl12-heat.npz": {
+   "loss_w": 1.7696949618696194,
+   "found_w": 1.769694961787722,
+   "ok": true,
+   "sha256": "73ca5cdf91e0984d6a69ae4c0b9b1c5b06b1eaf5617303df608a0c7d8c17fce9",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_mixed_a-p00625-pl12-heat.npz"
+  },
+  "hv_mixed_a-p00625-pl18-heat.npz": {
+   "loss_w": 1.7119309702619359,
+   "found_w": 1.7119309701854413,
+   "ok": true,
+   "sha256": "2a9d8457e7ad955de9de8135c19275578c17f9a603e09542627f710fa33800f5",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_mixed_a-p00625-pl18-heat.npz"
+  },
+  "hv_mixed_b-p00625-pl12-heat.npz": {
+   "loss_w": 1.1334734860529567,
+   "found_w": 1.1334734860074538,
+   "ok": true,
+   "sha256": "0549cf9798d5434dfe59dcb735b97d75f5ff59bacaa073cdbbc4b9690a9b3749",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_mixed_b-p00625-pl12-heat.npz"
+  },
+  "hv_mixed_b-p00625-pl18-heat.npz": {
+   "loss_w": 1.07578117587436,
+   "found_w": 1.0757811758333367,
+   "ok": true,
+   "sha256": "1a08425c5d29ee9c511932ad76cb7db919c79c162f84eb63fecd5cf2b7ea35e7",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/hv_mixed_b-p00625-pl18-heat.npz"
+  },
+  "leg_a_15-p00625-pl18-heat.npz": {
+   "loss_w": 0.38621935520984574,
+   "found_w": 0.3862193552080085,
+   "ok": true,
+   "sha256": "5ba3437847fa1560d43e746a023bbbdb454133a1ab2ee030a4f2560bca0d8191",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_a_15-p00625-pl18-heat.npz"
+  },
+  "leg_a_18p7-p00625-pl12-heat.npz": {
+   "loss_w": 0.6250326117638035,
+   "found_w": 0.6250326117607177,
+   "ok": true,
+   "sha256": "e494d1a884a7759efd2172f69e3ea5944dc394e5aaa65810c7d768dd76765f1b",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_a_18p7-p00625-pl12-heat.npz"
+  },
+  "leg_a_18p7-p00625-pl18-heat.npz": {
+   "loss_w": 0.6002535392148042,
+   "found_w": 0.6002535392119488,
+   "ok": true,
+   "sha256": "9ebf035af2143b83d62459b8476dd7e5afa7843f23452ba224e44f48ab24e352",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_a_18p7-p00625-pl18-heat.npz"
+  },
+  "leg_a_19-p00625-pl18-heat.npz": {
+   "loss_w": 0.6196674988033527,
+   "found_w": 0.6196674988004053,
+   "ok": true,
+   "sha256": "679b579da063a1aac39c2e9959cea3aa085e20baf5103e733790546fd3eeec11",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_a_19-p00625-pl18-heat.npz"
+  },
+  "leg_a_34-p00625-pl18-heat.npz": {
+   "loss_w": 1.984309220544808,
+   "found_w": 1.9843092205353694,
+   "ok": true,
+   "sha256": "810ee527a0a15af3c8c364e2a2c09334c161e1483b2967a78790c1818eaa127a",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_a_34-p00625-pl18-heat.npz"
+  },
+  "leg_b_18p7-p00625-pl12-heat.npz": {
+   "loss_w": 0.08210589296316056,
+   "found_w": 0.08210589296305783,
+   "ok": true,
+   "sha256": "d2ad205bf70af9bfd41986e678bdce4708d2a213cb2cd6be7d30669a004455fa",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_b_18p7-p00625-pl12-heat.npz"
+  },
+  "leg_b_18p7-p00625-pl18-heat.npz": {
+   "loss_w": 0.0777004560034476,
+   "found_w": 0.07770045600335307,
+   "ok": true,
+   "sha256": "84ca1a1b1a1764cb66652ee8247f56fc45691d589ec64eb9bb3e65dea517361c",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_b_18p7-p00625-pl18-heat.npz"
+  },
+  "leg_b_34-p00625-pl18-heat.npz": {
+   "loss_w": 0.256861011581645,
+   "found_w": 0.25686101158133257,
+   "ok": true,
+   "sha256": "6dac831d09c4c9fc4de42d17b6320529e6c42751fa97f0b9f2580f4f7b76202f",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/leg_b_34-p00625-pl18-heat.npz"
+  },
+  "res_a-p0125-pl12-heat.npz": {
+   "loss_w": 0.2746593048436162,
+   "found_w": 0.2746593048443894,
+   "ok": true,
+   "sha256": "981866502dfdb918ef3a3b879d43f88dd1782e2be5e50121a6bc8813dbd9f574",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/res_a-p0125-pl12-heat.npz"
+  },
+  "res_a-p0125-pl18-heat.npz": {
+   "loss_w": 0.24462728980780965,
+   "found_w": 0.2446272898084729,
+   "ok": true,
+   "sha256": "56cf8e98fa15a7578b99d8dadc81363cec759c0958196502573116740538a964",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/res_a-p0125-pl18-heat.npz"
+  },
+  "sw_a-p00625-pl12-heat.npz": {
+   "loss_w": 1.3117627619826568,
+   "found_w": 1.3117627619608343,
+   "ok": true,
+   "sha256": "4300d252f6c17eb34fa14524dd574bb9d917b685dcfbf5bf396ff3fcbe21e521",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_a-p00625-pl12-heat.npz"
+  },
+  "sw_a-p00625-pl18-heat.npz": {
+   "loss_w": 1.3117627619825545,
+   "found_w": 1.3117627619606296,
+   "ok": true,
+   "sha256": "a256f2a7859bb290f628cdce6b97e3fb1684869561770af4531ab91d3bc36167",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_a-p00625-pl18-heat.npz"
+  },
+  "sw_a_low-p00625-pl12-heat.npz": {
+   "loss_w": 2.337046482874772,
+   "found_w": 2.3370464828177626,
+   "ok": true,
+   "sha256": "0b959efb23fcff9a812172e549435397d03a85edaad95b331f70735a0c597046",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_a_low-p00625-pl12-heat.npz"
+  },
+  "sw_a_low-p00625-pl18-heat.npz": {
+   "loss_w": 2.226156081600787,
+   "found_w": 2.2261560815494805,
+   "ok": true,
+   "sha256": "74f17833b67ec10b11884f5c99e8d0a59b4bbe621b7d56b155efe56c99d5e892",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_a_low-p00625-pl18-heat.npz"
+  },
+  "sw_b_high-p00625-pl12-heat.npz": {
+   "loss_w": 2.364929039298415,
+   "found_w": 2.364929039257481,
+   "ok": true,
+   "sha256": "83cf0c1b692966ca715e37933d181b71ac318303d494b97e46a51d74854af881",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_b_high-p00625-pl12-heat.npz"
+  },
+  "sw_b_high-p00625-pl18-heat.npz": {
+   "loss_w": 2.285511187032051,
+   "found_w": 2.2855111869920703,
+   "ok": true,
+   "sha256": "93ed35908d0af87b065a9ff15b26963690dc9678aa78e0c445826dbe05b25200",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_b_high-p00625-pl18-heat.npz"
+  },
+  "sw_b_low-p00625-pl12-heat.npz": {
+   "loss_w": 2.3296383264018816,
+   "found_w": 2.329638326800694,
+   "ok": true,
+   "sha256": "54dc1064e9f8323764a17b56aa4481ee1b2cb5e2c7252337a753f30576e8a30a",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_b_low-p00625-pl12-heat.npz"
+  },
+  "sw_b_low-p00625-pl18-heat.npz": {
+   "loss_w": 2.2603831594863135,
+   "found_w": 2.260383159856652,
+   "ok": true,
+   "sha256": "2ecaa49feec629976a1bf7cfcaecf77b03047becd1b623ae88240c4fa23b53f9",
+   "source": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/sw_b_low-p00625-pl18-heat.npz"
+  }
+ }
+}

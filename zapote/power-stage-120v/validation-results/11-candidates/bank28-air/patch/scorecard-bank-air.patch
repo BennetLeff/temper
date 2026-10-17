@@ -1,0 +1,54 @@
+--- a/zapote/power-stage-120v/native-21/layout/gates/scorecard.py	2026-10-16 09:53:19
++++ b/zapote/power-stage-120v/native-21/layout/gates/scorecard.py	2026-10-16 09:53:35
+@@ -67,6 +67,11 @@
+     "fuse_copper_fusing_ratio": ("higher", 0.0),
+     "bank_ratio_tdk_28A_40k": ("lower", 0.0),     # added 2026-10-13 (stage 20): DECISIONS item 21 / 23 thermal margin
+     "bank_ratio_tdk_28A_35k": ("lower", 0.0),     # added 2026-10-14: DECISIONS 37, worst legal frequency (c34-bank-margin)
++    # PROPOSED (bank28): the bank's 28 A metric becomes a physical self-heating check in the 0.5 mm-gap column under the
++    # DECLARED airflow (DECISIONS 66 design flow): sqrt(dT_column / (dT_lim F_T(T_A)^2)), TDK GTI p.25 / p.27 / p.30 and
++    # the family pages, conservative correlation. <= 1.00 meets TDK's own limit. The two vendor-curve ratios above stay
++    # as informational (an isolated part in still air at T_A 85 C).
++    "bank_air_ratio_28A_35k": ("lower", 0.0),
+     "ocp_pickup_stack_pan60_A": ("lower", 0.1),   # added 2026-10-13 (stage 21b): F8, any-phase +50 % stack, gate 6.5 A
+     # added 2026-10-13 (after stage 26): datasheet-ratings ledger (native-21/verification/datasheet-ledger) as a ratchet - a
+     # candidate may not add a rating violation, a BOM line missing from the ledger, or an unaudited SAFETY/POWER line
+@@ -249,11 +254,14 @@
+     # resonant bank at 28 A, 40 kHz: ratio of the predicted per-cap current to TDK's curve, by the fitted part's
+     # tolerance grade (11-candidates/g04-g09-tank-detect/scripts/bank_options.py; lower is better)
+     bo = jload(VR / "11-candidates/g04-g09-tank-detect/results/bank_options.json")
++    bank_mpn = None
++    for r in csv.DictReader(open(FAB / "bom-jlcpcb.csv")):
++        if r["Manufacturer Part Number"].startswith(("B32654A1104", "B32643B8104")) and "C21" in r["Designator"]:
++            bank_mpn = r["Manufacturer Part Number"]
+     if bo:
+         grade = None
+-        for r in csv.DictReader(open(FAB / "bom-jlcpcb.csv")):
+-            if r["Manufacturer Part Number"].startswith("B32654A1104"):
+-                grade = r["Manufacturer Part Number"][-4]          # K or J
++        if bank_mpn and bank_mpn.startswith("B32654A1104"):
++            grade = bank_mpn[-4]                                   # K or J
+         if grade in ("K", "J"):
+             m["bank_ratio_tdk_28A_40k"] = bo["baseline"][{"K": "5x100nF_K(+-10%)", "J": "5x100nF_J(+-5%)"}[grade]]["ratio_to_curve_28A_40k"]
+             src["bank"] = f"11-candidates/g04-g09-tank-detect/results/bank_options.json baseline {grade}"
+@@ -262,6 +270,21 @@
+         if bm and grade in ("K", "J"):
+             m["bank_ratio_tdk_28A_35k"] = bm["basis_comparison"][f"{grade}_at_35k"]
+             src["bank_35k"] = f"11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison {grade}_at_35k"
++    # PROPOSED (bank28): candidate 34's bank (5 x B32643B8104J000) on the vendor curve, from the same c34 table
++    bm = jload(VR / "11-candidates/c34-bank-margin/results/bank_margin.json")
++    if bm and bank_mpn and bank_mpn.startswith("B32643B8104"):
++        row = next((b for b in bm["banks"] if b.get("bank", "").startswith("5 x B32643B8104J")), None)
++        if row:
++            m["bank_ratio_tdk_28A_40k"] = row["ratio_40k"]
++            m["bank_ratio_tdk_28A_35k"] = row["ratio_35k"]
++            src["bank"] = src["bank_35k"] = "11-candidates/c34-bank-margin/results/bank_margin.json banks '5 x B32643B8104J'"
++    # PROPOSED (bank28): physical check under the declared airflow, by the fitted MPN (producer bank_air_metric.py)
++    ba = jload(VR / "11-candidates/bank28-air/results/bank_air_metric.json")
++    if ba and bank_mpn and bank_mpn in ba["by_mpn"]:
++        r = ba["by_mpn"][bank_mpn]
++        m["bank_air_ratio_28A_35k"] = r["bank_air_ratio_28A_35k"]
++        src["bank_air"] = (f"11-candidates/bank28-air/results/bank_air_metric.json {bank_mpn} (declared {ba['declared_set']}; "
++                           f"pads from B3 runs on board {str(r.get('board_sha256_of_pad_runs'))[:8]})")
+     # F8 coil-field pickup into the OCP Kelvin / comparator loops: 60 kHz, 59.2 A pk, pan, conservative closure (base_A),
+     # one script (02-protection-timing/coil-pickup/s21b/run_ocp.py) run on each stage's copper
+     pk = jload(VR / f"02-protection-timing/coil-pickup/s21b/result-{tag.replace('native21', '')}.json")

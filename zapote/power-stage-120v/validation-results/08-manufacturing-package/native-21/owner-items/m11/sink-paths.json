@@ -1,0 +1,847 @@
+{
+ "floor_mm": 8.0,
+ "as_built_R25": [
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "F.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    37.01,
+    6.34
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "F.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    118.95,
+    44.57
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "B.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    62.8,
+    8.28
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "l_filt",
+   "layer_or_pad": "B.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    160.29,
+    28.12
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "n_filt",
+   "layer_or_pad": "F.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    191.16,
+    35.72
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "B.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    119.2,
+    40.94
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "rect_p",
+   "layer_or_pad": "In1.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    102.03,
+    15.72
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "In1.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    38.27,
+    7.56
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "bus_p",
+   "layer_or_pad": "In2.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    168.13,
+    54.58
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "rect_n",
+   "layer_or_pad": "In2.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    116.21,
+    6.8
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_a-gate_l",
+   "layer_or_pad": "pad Q3",
+   "kind": "pad",
+   "min_mm": 1.965,
+   "at_centroid": [
+    44.6,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_b-gate_l",
+   "layer_or_pad": "pad Q6",
+   "kind": "pad",
+   "min_mm": 1.965,
+   "at_centroid": [
+    22.5,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_a-gate_h",
+   "layer_or_pad": "pad Q2",
+   "kind": "pad",
+   "min_mm": 1.965,
+   "at_centroid": [
+    62.6,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_b-gate_h",
+   "layer_or_pad": "pad Q5",
+   "kind": "pad",
+   "min_mm": 1.965,
+   "at_centroid": [
+    4.5,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "pad Q3",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    50.05,
+    4.22
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad Q3",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    55.5,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "pad Q6",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    27.95,
+    4.22
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad Q6",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    33.4,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "bus_p",
+   "layer_or_pad": "pad Q2",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    68.05,
+    4.22
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "pad Q2",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    73.5,
+    4.21
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "bus_p",
+   "layer_or_pad": "pad Q5",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    9.95,
+    4.22
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "pad Q5",
+   "kind": "pad",
+   "min_mm": 1.969,
+   "at_centroid": [
+    15.4,
+    4.22
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "rect_p",
+   "layer_or_pad": "pad BR1",
+   "kind": "pad",
+   "min_mm": 2.6,
+   "at_centroid": [
+    81.7,
+    4.6
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "l_filt",
+   "layer_or_pad": "pad BR1",
+   "kind": "pad",
+   "min_mm": 2.604,
+   "at_centroid": [
+    91.7,
+    4.6
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "n_filt",
+   "layer_or_pad": "pad BR1",
+   "kind": "pad",
+   "min_mm": 2.604,
+   "at_centroid": [
+    99.2,
+    4.6
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "rect_n",
+   "layer_or_pad": "pad BR1",
+   "kind": "pad",
+   "min_mm": 2.604,
+   "at_centroid": [
+    106.7,
+    4.6
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "all",
+   "kind": "via",
+   "min_mm": 3.575,
+   "at_centroid": [
+    40.9,
+    4.0
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_b-gate_l",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 3.81,
+   "at_centroid": [
+    22.5,
+    7.67
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_a-gate_l",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 3.81,
+   "at_centroid": [
+    44.6,
+    7.68
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_a-gate_h",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 3.81,
+   "at_centroid": [
+    62.6,
+    7.68
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_b-gate_h",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 3.81,
+   "at_centroid": [
+    4.5,
+    7.68
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "bus_p",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 3.815,
+   "at_centroid": [
+    9.95,
+    6.41
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 3.815,
+   "at_centroid": [
+    27.95,
+    6.41
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "ocp_kelvin_p",
+   "layer_or_pad": "all",
+   "kind": "via",
+   "min_mm": 7.575,
+   "at_centroid": [
+    36.0,
+    8.0
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "ocp_kelvin_p",
+   "layer_or_pad": "In1.Cu",
+   "kind": "track",
+   "min_mm": 7.85,
+   "at_centroid": [
+    37.7,
+    9.7
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "ocp_kelvin_p",
+   "layer_or_pad": "F.Cu",
+   "kind": "track",
+   "min_mm": 7.85,
+   "at_centroid": [
+    36.61,
+    8.58
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad R5",
+   "kind": "pad",
+   "min_mm": 8.47,
+   "at_centroid": [
+    39.13,
+    10.12
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "ocp_kelvin_p",
+   "layer_or_pad": "pad R5",
+   "kind": "pad",
+   "min_mm": 8.47,
+   "at_centroid": [
+    37.23,
+    9.17
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "hv_ret",
+   "layer_or_pad": "In1.Cu",
+   "kind": "zone",
+   "min_mm": 8.658,
+   "at_centroid": [
+    109.89,
+    32.95
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "pad C20",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    29.2,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad C20",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    32.16,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "bus_p",
+   "layer_or_pad": "pad C19",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    11.21,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "pad C19",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    14.15,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "bus_p",
+   "layer_or_pad": "pad C12",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    69.31,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "pad C12",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    72.25,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "pad C13",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    51.31,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad C13",
+   "kind": "pad",
+   "min_mm": 8.8,
+   "at_centroid": [
+    54.25,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "all",
+   "kind": "via",
+   "min_mm": 9.4,
+   "at_centroid": [
+    59.9,
+    9.7
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "In2.Cu",
+   "kind": "track",
+   "min_mm": 9.55,
+   "at_centroid": [
+    22.03,
+    16.5
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "all",
+   "kind": "via",
+   "min_mm": 9.6,
+   "at_centroid": [
+    1.8,
+    9.9
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_b-gate_l",
+   "layer_or_pad": "pad R20",
+   "kind": "pad",
+   "min_mm": 10.575,
+   "at_centroid": [
+    22.5,
+    11.14
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_a-gate_l",
+   "layer_or_pad": "pad R12",
+   "kind": "pad",
+   "min_mm": 10.575,
+   "at_centroid": [
+    44.6,
+    11.14
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_b-gate_h",
+   "layer_or_pad": "pad R18",
+   "kind": "pad",
+   "min_mm": 10.575,
+   "at_centroid": [
+    4.5,
+    11.14
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_a-gate_h",
+   "layer_or_pad": "pad R10",
+   "kind": "pad",
+   "min_mm": 10.575,
+   "at_centroid": [
+    62.6,
+    11.14
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_a",
+   "layer_or_pad": "pad R11",
+   "kind": "pad",
+   "min_mm": 10.875,
+   "at_centroid": [
+    59.9,
+    11.27
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad R13",
+   "kind": "pad",
+   "min_mm": 10.875,
+   "at_centroid": [
+    41.9,
+    11.27
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "sw_b",
+   "layer_or_pad": "pad R19",
+   "kind": "pad",
+   "min_mm": 10.875,
+   "at_centroid": [
+    1.8,
+    11.27
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "sink (R25 envelope, base face = board edge)",
+   "net": "leg_ret",
+   "layer_or_pad": "pad R21",
+   "kind": "pad",
+   "min_mm": 10.875,
+   "at_centroid": [
+    19.8,
+    11.28
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "plenum end cap (R21 X31 wall)",
+   "net": "rect_n",
+   "layer_or_pad": "In2.Cu",
+   "kind": "zone",
+   "min_mm": 0.6,
+   "at_centroid": [
+    116.21,
+    6.8
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "plenum end cap (R21 X31 wall)",
+   "net": "rect_n",
+   "layer_or_pad": "pad BR1",
+   "kind": "pad",
+   "min_mm": 3.143,
+   "at_centroid": [
+    106.7,
+    4.6
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "plenum end cap (R21 X31 wall)",
+   "net": "n_filt",
+   "layer_or_pad": "F.Cu",
+   "kind": "zone",
+   "min_mm": 7.536,
+   "at_centroid": [
+    191.16,
+    35.72
+   ],
+   "pass_8mm": false
+  },
+  {
+   "pe_solid": "plenum end cap (R21 X31 wall)",
+   "net": "n_filt",
+   "layer_or_pad": "pad BR1",
+   "kind": "pad",
+   "min_mm": 8.826,
+   "at_centroid": [
+    99.2,
+    4.6
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "plenum end cap (R21 X31 wall)",
+   "net": "l_filt",
+   "layer_or_pad": "B.Cu",
+   "kind": "zone",
+   "min_mm": 9.8,
+   "at_centroid": [
+    160.29,
+    28.12
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "plenum end cap (R21 X31 wall)",
+   "net": "rect_p",
+   "layer_or_pad": "In1.Cu",
+   "kind": "zone",
+   "min_mm": 9.8,
+   "at_centroid": [
+    102.03,
+    15.72
+   ],
+   "pass_8mm": true
+  },
+  {
+   "pe_solid": "inlet hood front wall (R21)",
+   "net": "leg_b-gate_h",
+   "layer_or_pad": "pad Q5",
+   "kind": "pad",
+   "min_mm": 10.92,
+   "at_centroid": [
+    4.5,
+    4.21
+   ],
+   "pass_8mm": true
+  }
+ ],
+ "as_built_worst": {
+  "pe_solid": "sink (R25 envelope, base face = board edge)",
+  "net": "leg_ret",
+  "layer_or_pad": "F.Cu",
+  "kind": "zone",
+  "min_mm": 0.6,
+  "at_centroid": [
+   37.01,
+   6.34
+  ],
+  "pass_8mm": false
+ },
+ "proposed": {
+  "inputs": {
+   "z_s": 8.0,
+   "g": 8.0,
+   "t_ins": 2.0,
+   "o_lat": 6.0,
+   "o_top": 6.0,
+   "tab_y": 1.835,
+   "pedestal_face_y": -0.165,
+   "edge_copper_y": 0.6,
+   "lead_pad_edge_y": 1.9649999999999999
+  },
+  "package_heights_above_board_mm": {
+   "body_bottom": [
+    3.85,
+    4.5
+   ],
+   "tab_metal_bottom": [
+    5.55,
+    12.41
+   ],
+   "tab_metal_top": [
+    23.2,
+    25.49
+   ],
+   "body_top": [
+    24.55,
+    26.0
+   ],
+   "lateral_plastic_margin_min": 0.675
+  },
+  "paths_mm": {
+   "F.Cu edge pour (y 0.6) -> pedestal lower edge": 8.765,
+   "B.Cu edge pour -> round the board edge -> pedestal lower edge": 10.365,
+   "B.Cu/In1/In2 edge copper -> set-back sink base face (plan view)": 8.6,
+   "FET lead pad (y 1.965) -> pedestal lower edge": 10.13,
+   "tab metal end edge -> insulator end -> pedestal (creepage)": 8.0,
+   "tab metal top edge -> insulator top -> pedestal (creepage)": 8.0
+  },
+  "pass_8mm": {
+   "F.Cu edge pour (y 0.6) -> pedestal lower edge": true,
+   "B.Cu edge pour -> round the board edge -> pedestal lower edge": true,
+   "B.Cu/In1/In2 edge copper -> set-back sink base face (plan view)": true,
+   "FET lead pad (y 1.965) -> pedestal lower edge": true,
+   "tab metal end edge -> insulator end -> pedestal (creepage)": true,
+   "tab metal top edge -> insulator top -> pedestal (creepage)": true
+  }
+ },
+ "minimum_z_s_for_8mm_with_0p6mm_edge_pour": 7.4,
+ "minimum_g_for_8mm_with_0p6mm_edge_copper": 7.4
+}

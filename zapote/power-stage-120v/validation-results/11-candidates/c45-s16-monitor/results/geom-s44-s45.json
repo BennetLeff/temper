@@ -1,0 +1,262 @@
+{
+ "boards": [
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s44/c44/section.kicad_pcb",
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/c45/section.kicad_pcb"
+ ],
+ "footprint_refs_equal": true,
+ "footprints_differing_in_geometry": [],
+ "tracks_vias": {
+  "a": 5115,
+  "b": 5115,
+  "equal": true
+ },
+ "zones": {
+  "a": 87,
+  "b": 87,
+  "outlines_equal": true
+ },
+ "edge_cuts_equal": true,
+ "field_changes": {
+  "R101": {
+   "MPN": [
+    "RT0603BRD077K68L",
+    "RT0603BRD072K94L"
+   ],
+   "Value": [
+    "RT0603BRD077K68L",
+    "RT0603BRD072K94L"
+   ]
+  },
+  "R103": {
+   "MPN": [
+    "RT0603BRD07120KL",
+    "RT0603BRD0790K9L"
+   ],
+   "Value": [
+    "RT0603BRD07120KL",
+    "RT0603BRD0790K9L"
+   ]
+  },
+  "R104": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ]
+  },
+  "R105": {
+   "MPN": [
+    "ARG03BTC1333",
+    "RT0603BRD07104KL"
+   ],
+   "Value": [
+    "ARG03BTC1333",
+    "RT0603BRD07104KL"
+   ]
+  },
+  "R106": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ]
+  },
+  "R112": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD074K42L"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD074K42L"
+   ]
+  },
+  "R114": {
+   "MPN": [
+    "RT0603BRD074K42L",
+    "RT0603BRD07750RL"
+   ],
+   "Value": [
+    "RT0603BRD074K42L",
+    "RT0603BRD07750RL"
+   ]
+  },
+  "R116": {
+   "MPN": [
+    "RT0603BRD077K68L",
+    "RT0603BRD072K94L"
+   ],
+   "Value": [
+    "RT0603BRD077K68L",
+    "RT0603BRD072K94L"
+   ]
+  },
+  "R118": {
+   "MPN": [
+    "RT0603BRD07120KL",
+    "RT0603BRD0790K9L"
+   ],
+   "Value": [
+    "RT0603BRD07120KL",
+    "RT0603BRD0790K9L"
+   ]
+  },
+  "R119": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ]
+  },
+  "R120": {
+   "MPN": [
+    "ARG03BTC1333",
+    "RT0603BRD07104KL"
+   ],
+   "Value": [
+    "ARG03BTC1333",
+    "RT0603BRD07104KL"
+   ]
+  },
+  "R121": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ]
+  },
+  "R79": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD074K42L"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD074K42L"
+   ]
+  },
+  "R81": {
+   "MPN": [
+    "RT0603BRD074K42L",
+    "RT0603BRD07750RL"
+   ],
+   "Value": [
+    "RT0603BRD074K42L",
+    "RT0603BRD07750RL"
+   ]
+  },
+  "R83": {
+   "MPN": [
+    "RT0603BRD077K68L",
+    "RT0603BRD072K94L"
+   ],
+   "Value": [
+    "RT0603BRD077K68L",
+    "RT0603BRD072K94L"
+   ]
+  },
+  "R85": {
+   "MPN": [
+    "RT0603BRD07120KL",
+    "RT0603BRD0790K9L"
+   ],
+   "Value": [
+    "RT0603BRD07120KL",
+    "RT0603BRD0790K9L"
+   ]
+  },
+  "R86": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ]
+  },
+  "R87": {
+   "MPN": [
+    "ARG03BTC1333",
+    "RT0603BRD07104KL"
+   ],
+   "Value": [
+    "ARG03BTC1333",
+    "RT0603BRD07104KL"
+   ]
+  },
+  "R88": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL"
+   ]
+  },
+  "R97": {
+   "MPN": [
+    "RT0603BRD0710KL",
+    "RT0603BRD074K42L"
+   ],
+   "Value": [
+    "RT0603BRD0710KL",
+    "RT0603BRD074K42L"
+   ]
+  },
+  "R99": {
+   "MPN": [
+    "RT0603BRD074K42L",
+    "RT0603BRD07750RL"
+   ],
+   "Value": [
+    "RT0603BRD074K42L",
+    "RT0603BRD07750RL"
+   ]
+  },
+  "U17": {
+   "MPN": [
+    "TL431AIDBZR",
+    "TL431BIDBZR"
+   ],
+   "Value": [
+    "TL431AIDBZR",
+    "TL431BIDBZR"
+   ]
+  },
+  "U19": {
+   "MPN": [
+    "TL431AIDBZR",
+    "TL431BIDBZR"
+   ],
+   "Value": [
+    "TL431AIDBZR",
+    "TL431BIDBZR"
+   ]
+  },
+  "U21": {
+   "MPN": [
+    "TL431AIDBZR",
+    "TL431BIDBZR"
+   ],
+   "Value": [
+    "TL431AIDBZR",
+    "TL431BIDBZR"
+   ]
+  }
+ },
+ "geometry_identical": true
+}

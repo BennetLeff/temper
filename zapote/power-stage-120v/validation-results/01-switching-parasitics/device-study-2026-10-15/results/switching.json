@@ -1,0 +1,690 @@
+{
+ "IPW65R018CFD7_L1": {
+  "repro": {
+   "complete": "128/128",
+   "max_abs_delta": {
+    "incoming_V": 2.6000000000747647e-06,
+    "vds_pk": 0.0006999999999948159,
+    "t_trans_ns": 0.0
+   }
+  },
+  "edge": {
+   "S1": {
+    "complete": "136",
+    "pass": 136,
+    "pass_hot_1p9": 136,
+    "max_off_gate_V": -1.01,
+    "max_die_VDS_V": 358.1,
+    "max_slew2080_Vns": 20.8,
+    "max_abs_VGS_V": 14.98,
+    "zvs": "136/136"
+   },
+   "S2": {
+    "complete": "68",
+    "pass": 68,
+    "pass_hot_1p9": 68,
+    "max_off_gate_V": -0.601,
+    "max_die_VDS_V": 398.0,
+    "max_slew2080_Vns": 28.7,
+    "max_abs_VGS_V": 14.97
+   },
+   "S4": {
+    "complete": "204",
+    "pass": 204,
+    "pass_hot_1p9": 204,
+    "max_off_gate_V": -0.452,
+    "max_die_VDS_V": 478.9,
+    "max_slew2080_Vns": 85.8,
+    "max_abs_VGS_V": 15.03
+   },
+   "S5": {
+    "complete": "204",
+    "pass": 204,
+    "pass_hot_1p9": 204,
+    "max_off_gate_V": -0.446,
+    "max_die_VDS_V": 442.2,
+    "max_slew2080_Vns": 72.3,
+    "max_abs_VGS_V": 14.99
+   },
+   "not_complete": [],
+   "total": 612
+  },
+  "gate_charge": {
+   "S1": {
+    "max_nC": 376.1,
+    "min_nC": 359.2,
+    "n": 136
+   },
+   "S2": {
+    "max_nC": 382.6,
+    "min_nC": 358.4,
+    "n": 68
+   },
+   "S4": {
+    "max_nC": 381.4,
+    "min_nC": 366.5,
+    "n": 204
+   },
+   "S5": {
+    "max_nC": 374.7,
+    "min_nC": 365.2,
+    "n": 204
+   }
+  },
+  "edge_esl1p06": {
+   "S1": {
+    "complete": "0",
+    "pass": 0,
+    "pass_hot_1p9": 0,
+    "max_off_gate_V": null,
+    "max_die_VDS_V": null,
+    "max_slew2080_Vns": null,
+    "max_abs_VGS_V": null,
+    "zvs": "0/0"
+   },
+   "S2": {
+    "complete": "56",
+    "pass": 56,
+    "pass_hot_1p9": 56,
+    "max_off_gate_V": -0.435,
+    "max_die_VDS_V": 401.4,
+    "max_slew2080_Vns": 27.5,
+    "max_abs_VGS_V": 14.97
+   },
+   "S4": {
+    "complete": "168",
+    "pass": 168,
+    "pass_hot_1p9": 168,
+    "max_off_gate_V": -0.182,
+    "max_die_VDS_V": 479.0,
+    "max_slew2080_Vns": 81.9,
+    "max_abs_VGS_V": 15.04
+   },
+   "S5": {
+    "complete": "168",
+    "pass": 168,
+    "pass_hot_1p9": 168,
+    "max_off_gate_V": -0.699,
+    "max_die_VDS_V": 435.6,
+    "max_slew2080_Vns": 71.8,
+    "max_abs_VGS_V": 14.99
+   },
+   "not_complete": [],
+   "total": 392
+  },
+  "zvs": {
+   "A": {
+    "S1_37A_worst_t_trans_ns": 188.9,
+    "S1_37A_worst_corner": {
+     "variant": "edr_rg8p2_weak",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 1
+    },
+    "S1_37A_margin_ns": {
+     "2EDR_window_min_408": 219.4,
+     "audit_window_min_340": 151.1
+    },
+    "S1_37A_zvs_at_600": "42/42",
+    "zvs_threshold_worst": {
+     "2EDR_window_min_408": {
+      "il_threshold_A": 9.11,
+      "corner": "edr_rg8p2_weak|150|198|0",
+      "margin_vs_37A_A": 27.89,
+      "unbracketed": []
+     },
+     "audit_window_min_340": {
+      "il_threshold_A": 11.65,
+      "corner": "edr_rg8p2_weak|150|280|0",
+      "margin_vs_37A_A": 25.35,
+      "unbracketed": []
+     }
+    }
+   },
+   "B": {
+    "S1_37A_worst_t_trans_ns": 190.36,
+    "S1_37A_worst_corner": {
+     "variant": "edr_rg8p2_weak",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0
+    },
+    "S1_37A_margin_ns": {
+     "2EDR_window_min_408": 217.9,
+     "audit_window_min_340": 149.6
+    },
+    "S1_37A_zvs_at_600": "42/42",
+    "zvs_threshold_worst": {
+     "2EDR_window_min_408": {
+      "il_threshold_A": 9.14,
+      "corner": "edr_rg8p2_weak|150|198|1",
+      "margin_vs_37A_A": 27.86,
+      "unbracketed": []
+     },
+     "audit_window_min_340": {
+      "il_threshold_A": 11.73,
+      "corner": "edr_rg8p2_weak|150|280|1",
+      "margin_vs_37A_A": 25.27,
+      "unbracketed": []
+     }
+    }
+   },
+   "incomplete": 0
+  },
+  "gate_charge_zvs_sweep": {
+   "S1": {
+    "max_nC": 370.0,
+    "min_nC": 358.9,
+    "n": 672
+   }
+  },
+  "energy": {
+   "complete": "432/432"
+  }
+ },
+ "IPW65R029CFD7_L1": {
+  "edge": {
+   "S1": {
+    "complete": "136",
+    "pass": 136,
+    "pass_hot_1p9": 136,
+    "max_off_gate_V": -0.879,
+    "max_die_VDS_V": 358.2,
+    "max_slew2080_Vns": 21.7,
+    "max_abs_VGS_V": 15.28,
+    "zvs": "136/136"
+   },
+   "S2": {
+    "complete": "68",
+    "pass": 68,
+    "pass_hot_1p9": 68,
+    "max_off_gate_V": -0.355,
+    "max_die_VDS_V": 411.4,
+    "max_slew2080_Vns": 24.6,
+    "max_abs_VGS_V": 15.63
+   },
+   "S4": {
+    "complete": "204",
+    "pass": 204,
+    "pass_hot_1p9": 204,
+    "max_off_gate_V": -0.578,
+    "max_die_VDS_V": 450.6,
+    "max_slew2080_Vns": 91.8,
+    "max_abs_VGS_V": 15.03
+   },
+   "S5": {
+    "complete": "204",
+    "pass": 204,
+    "pass_hot_1p9": 204,
+    "max_off_gate_V": -0.769,
+    "max_die_VDS_V": 410.7,
+    "max_slew2080_Vns": 50.4,
+    "max_abs_VGS_V": 14.99
+   },
+   "not_complete": [],
+   "total": 612
+  },
+  "gate_charge": {
+   "S1": {
+    "max_nC": 239.2,
+    "min_nC": 232.3,
+    "n": 136
+   },
+   "S2": {
+    "max_nC": 244.3,
+    "min_nC": 232.4,
+    "n": 68
+   },
+   "S4": {
+    "max_nC": 237.1,
+    "min_nC": 230.8,
+    "n": 204
+   },
+   "S5": {
+    "max_nC": 234.7,
+    "min_nC": 231.7,
+    "n": 204
+   }
+  },
+  "edge_esl1p06": {
+   "S1": {
+    "complete": "0",
+    "pass": 0,
+    "pass_hot_1p9": 0,
+    "max_off_gate_V": null,
+    "max_die_VDS_V": null,
+    "max_slew2080_Vns": null,
+    "max_abs_VGS_V": null,
+    "zvs": "0/0"
+   },
+   "S2": {
+    "complete": "56",
+    "pass": 56,
+    "pass_hot_1p9": 56,
+    "max_off_gate_V": -0.08,
+    "max_die_VDS_V": 423.7,
+    "max_slew2080_Vns": 24.4,
+    "max_abs_VGS_V": 15.87
+   },
+   "S4": {
+    "complete": "168",
+    "pass": 168,
+    "pass_hot_1p9": 168,
+    "max_off_gate_V": 0.015,
+    "max_die_VDS_V": 432.4,
+    "max_slew2080_Vns": 87.4,
+    "max_abs_VGS_V": 15.12
+   },
+   "S5": {
+    "complete": "168",
+    "pass": 168,
+    "pass_hot_1p9": 168,
+    "max_off_gate_V": -0.748,
+    "max_die_VDS_V": 410.2,
+    "max_slew2080_Vns": 46.4,
+    "max_abs_VGS_V": 14.99
+   },
+   "not_complete": [],
+   "total": 392
+  },
+  "cm8_gate_r_proxy": {
+   "Rext8p2_ESL10": {
+    "S1": {
+     "complete": "64",
+     "pass": 64,
+     "pass_hot_1p9": 64,
+     "max_off_gate_V": -0.796,
+     "max_die_VDS_V": 358.6,
+     "max_slew2080_Vns": 21.8,
+     "max_abs_VGS_V": 15.5,
+     "zvs": "64/64"
+    },
+    "S2": {
+     "complete": "32",
+     "pass": 32,
+     "pass_hot_1p9": 32,
+     "max_off_gate_V": -0.17,
+     "max_die_VDS_V": 436.3,
+     "max_slew2080_Vns": 24.8,
+     "max_abs_VGS_V": 15.98
+    },
+    "S4": {
+     "complete": "96",
+     "pass": 93,
+     "pass_hot_1p9": 93,
+     "max_off_gate_V": 0.718,
+     "max_die_VDS_V": 528.4,
+     "max_slew2080_Vns": 108.3,
+     "max_abs_VGS_V": 15.29
+    },
+    "S5": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": -0.128,
+     "max_die_VDS_V": 431.8,
+     "max_slew2080_Vns": 64.0,
+     "max_abs_VGS_V": 15.12
+    },
+    "not_complete": [],
+    "total": 288
+   },
+   "Rext8p2_ESL1.06": {
+    "S1": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null,
+     "zvs": "0/0"
+    },
+    "S2": {
+     "complete": "32",
+     "pass": 32,
+     "pass_hot_1p9": 32,
+     "max_off_gate_V": 0.168,
+     "max_die_VDS_V": 449.9,
+     "max_slew2080_Vns": 24.6,
+     "max_abs_VGS_V": 16.17
+    },
+    "S4": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": 0.037,
+     "max_die_VDS_V": 511.0,
+     "max_slew2080_Vns": 108.3,
+     "max_abs_VGS_V": 15.42
+    },
+    "S5": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": 0.219,
+     "max_die_VDS_V": 419.9,
+     "max_slew2080_Vns": 57.5,
+     "max_abs_VGS_V": 15.15
+    },
+    "not_complete": [],
+    "total": 224
+   },
+   "Rext10_ESL10": {
+    "S1": {
+     "complete": "64",
+     "pass": 64,
+     "pass_hot_1p9": 64,
+     "max_off_gate_V": -0.848,
+     "max_die_VDS_V": 358.3,
+     "max_slew2080_Vns": 21.7,
+     "max_abs_VGS_V": 15.36,
+     "zvs": "64/64"
+    },
+    "S2": {
+     "complete": "32",
+     "pass": 32,
+     "pass_hot_1p9": 32,
+     "max_off_gate_V": -0.305,
+     "max_die_VDS_V": 418.3,
+     "max_slew2080_Vns": 24.6,
+     "max_abs_VGS_V": 15.76
+    },
+    "S4": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": -1.027,
+     "max_die_VDS_V": 445.5,
+     "max_slew2080_Vns": 96.7,
+     "max_abs_VGS_V": 15.11
+    },
+    "S5": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": -0.395,
+     "max_die_VDS_V": 413.0,
+     "max_slew2080_Vns": 53.0,
+     "max_abs_VGS_V": 15.03
+    },
+    "not_complete": [],
+    "total": 288
+   },
+   "Rext10_ESL1.06": {
+    "S1": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null,
+     "zvs": "0/0"
+    },
+    "S2": {
+     "complete": "32",
+     "pass": 32,
+     "pass_hot_1p9": 32,
+     "max_off_gate_V": 0.011,
+     "max_die_VDS_V": 431.0,
+     "max_slew2080_Vns": 24.5,
+     "max_abs_VGS_V": 15.98
+    },
+    "S4": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": -0.076,
+     "max_die_VDS_V": 461.0,
+     "max_slew2080_Vns": 96.3,
+     "max_abs_VGS_V": 15.24
+    },
+    "S5": {
+     "complete": "96",
+     "pass": 96,
+     "pass_hot_1p9": 96,
+     "max_off_gate_V": -0.502,
+     "max_die_VDS_V": 416.7,
+     "max_slew2080_Vns": 49.3,
+     "max_abs_VGS_V": 15.06
+    },
+    "not_complete": [],
+    "total": 224
+   },
+   "Rext12_ESL10": {
+    "S1": {
+     "complete": "16",
+     "pass": 16,
+     "pass_hot_1p9": 16,
+     "max_off_gate_V": -0.926,
+     "max_die_VDS_V": 356.5,
+     "max_slew2080_Vns": 21.0,
+     "max_abs_VGS_V": 14.98,
+     "zvs": "16/16"
+    },
+    "S2": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "S4": {
+     "complete": "144",
+     "pass": 144,
+     "pass_hot_1p9": 144,
+     "max_off_gate_V": -0.497,
+     "max_die_VDS_V": 440.3,
+     "max_slew2080_Vns": 85.3,
+     "max_abs_VGS_V": 15.03
+    },
+    "S5": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "not_complete": [],
+    "total": 160
+   },
+   "Rext12_ESL1.06": {
+    "S1": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null,
+     "zvs": "0/0"
+    },
+    "S2": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "S4": {
+     "complete": "144",
+     "pass": 144,
+     "pass_hot_1p9": 144,
+     "max_off_gate_V": -0.344,
+     "max_die_VDS_V": 418.5,
+     "max_slew2080_Vns": 80.1,
+     "max_abs_VGS_V": 15.06
+    },
+    "S5": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "not_complete": [],
+    "total": 144
+   },
+   "Rext15_ESL10": {
+    "S1": {
+     "complete": "16",
+     "pass": 16,
+     "pass_hot_1p9": 16,
+     "max_off_gate_V": -1.011,
+     "max_die_VDS_V": 356.2,
+     "max_slew2080_Vns": 21.0,
+     "max_abs_VGS_V": 14.98,
+     "zvs": "16/16"
+    },
+    "S2": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "S4": {
+     "complete": "144",
+     "pass": 144,
+     "pass_hot_1p9": 144,
+     "max_off_gate_V": -1.326,
+     "max_die_VDS_V": 422.9,
+     "max_slew2080_Vns": 67.3,
+     "max_abs_VGS_V": 15.03
+    },
+    "S5": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "not_complete": [],
+    "total": 160
+   },
+   "Rext15_ESL1.06": {
+    "S1": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null,
+     "zvs": "0/0"
+    },
+    "S2": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "S4": {
+     "complete": "144",
+     "pass": 144,
+     "pass_hot_1p9": 144,
+     "max_off_gate_V": -1.152,
+     "max_die_VDS_V": 426.3,
+     "max_slew2080_Vns": 62.2,
+     "max_abs_VGS_V": 15.05
+    },
+    "S5": {
+     "complete": "0",
+     "pass": 0,
+     "pass_hot_1p9": 0,
+     "max_off_gate_V": null,
+     "max_die_VDS_V": null,
+     "max_slew2080_Vns": null,
+     "max_abs_VGS_V": null
+    },
+    "not_complete": [],
+    "total": 144
+   }
+  },
+  "zvs": {
+   "A": {
+    "S1_37A_worst_t_trans_ns": 144.02,
+    "S1_37A_worst_corner": {
+     "variant": "edr_rg8p2_weak",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 1
+    },
+    "S1_37A_margin_ns": {
+     "2EDR_window_min_408": 264.3,
+     "audit_window_min_340": 196.0
+    },
+    "S1_37A_zvs_at_600": "42/42",
+    "zvs_threshold_worst": {
+     "2EDR_window_min_408": {
+      "il_threshold_A": 5.89,
+      "corner": "edr_rg8p2_weak|150|280|0",
+      "margin_vs_37A_A": 31.11,
+      "unbracketed": []
+     },
+     "audit_window_min_340": {
+      "il_threshold_A": 7.39,
+      "corner": "edr_rg8p2_weak|150|280|0",
+      "margin_vs_37A_A": 29.61,
+      "unbracketed": []
+     }
+    }
+   },
+   "B": {
+    "S1_37A_worst_t_trans_ns": 145.46,
+    "S1_37A_worst_corner": {
+     "variant": "edr_rg8p2_weak",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0
+    },
+    "S1_37A_margin_ns": {
+     "2EDR_window_min_408": 262.8,
+     "audit_window_min_340": 194.5
+    },
+    "S1_37A_zvs_at_600": "42/42",
+    "zvs_threshold_worst": {
+     "2EDR_window_min_408": {
+      "il_threshold_A": 5.97,
+      "corner": "edr_rg8p2_weak|150|280|1",
+      "margin_vs_37A_A": 31.03,
+      "unbracketed": []
+     },
+     "audit_window_min_340": {
+      "il_threshold_A": 7.52,
+      "corner": "edr_rg8p2_weak|150|280|1",
+      "margin_vs_37A_A": 29.48,
+      "unbracketed": []
+     }
+    }
+   },
+   "incomplete": 0
+  },
+  "gate_charge_zvs_sweep": {
+   "S1": {
+    "max_nC": 239.2,
+    "min_nC": 231.7,
+    "n": 672
+   }
+  },
+  "energy": {
+   "complete": "432/432"
+  }
+ }
+}

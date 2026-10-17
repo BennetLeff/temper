@@ -1,0 +1,2152 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 625,
+   "list": [
+    {
+     "componentId": 2064522,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA36A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa36a_C1972984.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 2,
+       "productPrice": 46.2741
+      },
+      {
+       "startNumber": 3,
+       "endNumber": 4,
+       "productPrice": 46.2741
+      },
+      {
+       "startNumber": 5,
+       "endNumber": 29,
+       "productPrice": 46.2741
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 31,
+       "productPrice": 44.6118
+      },
+      {
+       "startNumber": 32,
+       "endNumber": 33,
+       "productPrice": 44.6118
+      },
+      {
+       "startNumber": 34,
+       "endNumber": -1,
+       "productPrice": 44.6118
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5,
+       "endNumber": 29,
+       "productPrice": 44.576
+      },
+      {
+       "startNumber": 3,
+       "endNumber": 4,
+       "productPrice": 44.576
+      },
+      {
+       "startNumber": 32,
+       "endNumber": 33,
+       "productPrice": 42.9747
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 31,
+       "productPrice": 42.9747
+      },
+      {
+       "startNumber": 34,
+       "endNumber": -1,
+       "productPrice": 42.9747
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 2,
+       "productPrice": 44.576
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 3,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA36A/C1972984",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 169.7969,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 46.2741,
+     "componentCode": "C1972984",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA36A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230946_Littelfuse-30KPA36A_C1972984.pdf",
+     "dataManualFileAccessId": "8588924097812172800",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA36A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "30kW@10/1000us 36V 44.22V 490.3A 5mA 61.8V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "61.8V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "44.22V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "490.3A"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "36V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>36A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067799,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "\u8f74\u5411\u5f15\u7ebfTVS\u4e8c\u6781\u7ba1\uff0c\u7528\u4e8e\u4fdd\u62a4\u654f\u611f\u7535\u5b50\u8bbe\u5907\u514d\u53d7\u7535\u538b\u77ac\u53d8\u5f71\u54cd\uff0c\u5177\u6709\u73bb\u7483\u949d\u5316\u82af\u7247\u3001\u5feb\u901f\u54cd\u5e94\u65f6\u95f4\u548c\u51fa\u8272\u7684\u94b3\u4f4d\u80fd\u529b\u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa33a_C1976261.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 2,
+       "productPrice": 40.0523
+      },
+      {
+       "startNumber": 3,
+       "endNumber": 4,
+       "productPrice": 40.0523
+      },
+      {
+       "startNumber": 5,
+       "endNumber": 29,
+       "productPrice": 40.0523
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 31,
+       "productPrice": 38.8581
+      },
+      {
+       "startNumber": 32,
+       "endNumber": 33,
+       "productPrice": 38.8581
+      },
+      {
+       "startNumber": 34,
+       "endNumber": -1,
+       "productPrice": 38.8581
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 2,
+       "productPrice": 38.5824
+      },
+      {
+       "startNumber": 3,
+       "endNumber": 4,
+       "productPrice": 38.5824
+      },
+      {
+       "startNumber": 34,
+       "endNumber": -1,
+       "productPrice": 37.4321
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 31,
+       "productPrice": 37.4321
+      },
+      {
+       "startNumber": 32,
+       "endNumber": 33,
+       "productPrice": 37.4321
+      },
+      {
+       "startNumber": 5,
+       "endNumber": 29,
+       "productPrice": 38.5824
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA33A/C1976261",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 122.196,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 40.0523,
+     "componentCode": "C1976261",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA33A",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8796185494138961920",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Littelfuse-30KPA33A_C1976261.pdf",
+     "dataManualFileAccessId": "8588941984879165440",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA33A",
+     "minImage": "",
+     "minImageAccessId": "8796185494915178496",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "30kW@10/1000us 33V 36.9V 517.9A 58.5V 5mA IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "58.5V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "517.9A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "36.9V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "33V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>33A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2064526,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA48A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa48a_C1972988.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA48A/C1972988",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1972988",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA48A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230946_Littelfuse-30KPA48A_C1972988.pdf",
+     "dataManualFileAccessId": "8588922799440744448",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA48A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 150uA 30kW@10/1000us 371.3A 48V 58.96V 81.6V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "81.6V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "58.96V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "371.3A"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "48V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "150uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>48A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2065211,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA28A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa28a_C1973673.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA28A/C1973673",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1973673",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA28A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230947_Littelfuse-30KPA28A_C1973673.pdf",
+     "dataManualFileAccessId": "8588923421267148800",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA28A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "28V 30kW@10/1000us 31.28V 50V 5mA 606A IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "50V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "606A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "31.28V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "28V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>28A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067714,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA84A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa84a_C1976176.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.9691
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.9691
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.9691
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.9234
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.8565
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.8222
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7554
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.8528
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.7867
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.7867
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.7867
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7884
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA84A/C1976176",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 38.14941,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.9691,
+     "componentCode": "C1976176",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA84A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230949_Littelfuse-30KPA84A_C1976176.pdf",
+     "dataManualFileAccessId": "8588940332084449280",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA84A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 103.18V 139.2V 217.7A@10/1000us 2uA 30kW@10/1000us 84V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "139.2V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "103.18V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "217.7A@10/1000us"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "84V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "2uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>84A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067780,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA42A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa42a_C1976242.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA42A/C1976242",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1976242",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA42A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA42A_C1976242.pdf",
+     "dataManualFileAccessId": "8588942942766059520",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA42A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 1mA 30kW@10/1000us 420.8A 42V 46.9V 72V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "72V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "420.8A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "46.9V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "42V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "1mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>42A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067784,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA45A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa45a_C1976246.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA45A/C1976246",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1976246",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA45A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA45A_C1976246.pdf",
+     "dataManualFileAccessId": "8588943470132678656",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA45A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 250uA 30kW@10/1000us 391.5A 45V 50.3V 77.4V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "77.4V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "391.5A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "50.3V"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "45V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "250uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>45A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067809,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA64A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa64a_C1976271.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA64A/C1976271",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1976271",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA64A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA64A_C1976271.pdf",
+     "dataManualFileAccessId": "8588942894632091648",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA64A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "104V 10uA 291.3A@10/1000us 30kW@10/1000us 64V 78.65V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "104V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "78.65V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "291.3A@10/1000us"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "64V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>64A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067811,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA75A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa75a_C1976273.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA75A/C1976273",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1976273",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA75A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA75A_C1976273.pdf",
+     "dataManualFileAccessId": "8588942465864224768",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA75A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 119.4V 253.8A@10/1000us 2uA 30kW@10/1000us 75V 92.18V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "119.4V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "92.18V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "253.8A@10/1000us"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "2uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>75A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067812,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA66A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa66a_C1976274.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.5971
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.5971
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.5971
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7798
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7162
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6852
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6234
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7145
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4284
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4284
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4284
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6532
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA66A/C1976274",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.5971,
+     "componentCode": "C1976274",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA66A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA66A_C1976274.pdf",
+     "dataManualFileAccessId": "8588943113553788928",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA66A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 107V 283.2A@10/1000us 2uA 30kW@10/1000us 66V 81.07V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "107V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "81.07V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "283.2A@10/1000us"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "66V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "2uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>66A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067817,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA30A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa30a_C1976279.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.6526
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.801
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7374
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7064
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.6438
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.7349
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.4818
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.6737
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA30A/C1976279",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 35.71957,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.6526,
+     "componentCode": "C1976279",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA30A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA30A_C1976279.pdf",
+     "dataManualFileAccessId": "8588943416087990273",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA30A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 30V 30kW@10/1000us 36.86V 548.9A 55.2V 5mA IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "55.2V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "36.86V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "548.9A"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "30V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>30A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2067874,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "ESD and Surge Protection (TVS/ESD)",
+     "erpComponentName": "30KPA90A \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_littelfuse-30kpa90a_C1976336.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.9691
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.9691
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.9691
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.9234
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.8565
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.8222
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 1.7554
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.8528
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 4.7867
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.7867
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 4.7867
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 799,
+       "productPrice": 1.7884
+      }
+     ],
+     "firstSortAccessId": "68f218c9a74e4148a83415d14e926c64",
+     "secondSortAccessId": "434702f18e684c28a613a717cb768f2b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Littelfuse-30KPA90A/C1976336",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 800,
+     "shopCostPrice": 38.14941,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 4.9691,
+     "componentCode": "C1976336",
+     "componentBrandEn": "Littelfuse",
+     "componentModelEn": "30KPA90A",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401230950_Littelfuse-30KPA90A_C1976336.pdf",
+     "dataManualFileAccessId": "8588940119734685696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Littelfuse 30KPA90A",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "P600",
+     "describe": "-55\u2103~+175\u2103 100.5V 146.4V 207A 2uA 30kW@10/1000us 90V IEC 61000-4-2\u3001IEC 61000-4-4 TVS Unidirectional P600 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "TVS"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Power Dissipation (Ppp)",
+       "attribute_value_name": "30kW@10/1000us"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "level of protection",
+       "attribute_value_name": "IEC 61000-4-2\u3001IEC 61000-4-4"
+      },
+      {
+       "attribute_name_en": "Clamping Voltage",
+       "attribute_value_name": "146.4V"
+      },
+      {
+       "attribute_name_en": "Polarity",
+       "attribute_value_name": "Unidirectional"
+      },
+      {
+       "attribute_name_en": "Reverse Stand-Off Voltage (Vrwm)",
+       "attribute_value_name": "90V"
+      },
+      {
+       "attribute_name_en": "Peak Pulse Current (Ipp)",
+       "attribute_value_name": "207A"
+      },
+      {
+       "attribute_name_en": "Voltage - Breakdown",
+       "attribute_value_name": "100.5V"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "2uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "ESD and Surge Protection (TVS/ESD)",
+     "secondSortName": "Circuit Protection",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>30KPA</span>90A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 53,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "30KPA"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-14T21:25:46Z"
+}

@@ -1,0 +1,315 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C70285",
+  "componentBrandEn": "Texas Instruments",
+  "componentModelEn": "SN74LVC1G74DCUR",
+  "componentImageUrl": "",
+  "productBigImageAccessId": "8583006803114266624",
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1806150327_Texas-Instruments-SN74LVC1G74DCUR_C70285.pdf",
+  "dataManualFileAccessId": "8588881862097293312",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/sn74lvc1g74",
+  "componentName": "TI SN74LVC1G74DCUR",
+  "minImage": "",
+  "minImageAccessId": "8583006803945009152",
+  "minImageAccessIdUrl": null,
+  "imageList": [
+   {
+    "productImage": null,
+    "productImageAccessId": "8583006803945009152",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583006803114266624",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 1
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583006807128756224",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583006806234288128",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 2
+   },
+   {
+    "productImage": null,
+    "productImageAccessId": "8583006810281791488",
+    "productImageAccessIdUrl": null,
+    "productBigImage": null,
+    "productBigImageAccessId": "8583006809410457600",
+    "productBigImageAccessIdUrl": null,
+    "componentImageAccessId": null,
+    "componentImageAccessIdUrl": null,
+    "fileType": 3
+   }
+  ],
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "TI SN74LVC1G74DCUR",
+  "componentSpecificationEn": "VSSOP-8",
+  "describe": "-40\u2103~+125\u2103 1 1 1.1ns 1.65V~5.5V 10uA 200MHz 32mA 32mA 500ps 5pF 6.4ns@5V,50pF 74LVC Series Complementary D-Type Rising Edge Set and Reset VSSOP-8 Flip Flops ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C70285",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Clock Frequency",
+    "component_code": "C70285",
+    "attribute_value_name": "200MHz"
+   },
+   {
+    "attribute_name_en": "Propagation Delay",
+    "component_code": "C70285",
+    "attribute_value_name": "6.4ns@5V,50pF"
+   },
+   {
+    "attribute_name_en": "Synchronous/Asynchronous",
+    "component_code": "C70285",
+    "attribute_value_name": "Asynchronous"
+   },
+   {
+    "attribute_name_en": "Number of Bits per Element",
+    "component_code": "C70285",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Output Type",
+    "component_code": "C70285",
+    "attribute_value_name": "Complementary"
+   },
+   {
+    "attribute_name_en": "Trigger Type",
+    "component_code": "C70285",
+    "attribute_value_name": "Rising Edge"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C70285",
+    "attribute_value_name": "32mA"
+   },
+   {
+    "attribute_name_en": "Setup Time",
+    "component_code": "C70285",
+    "attribute_value_name": "1.1ns"
+   },
+   {
+    "attribute_name_en": "Series",
+    "component_code": "C70285",
+    "attribute_value_name": "74LVC Series"
+   },
+   {
+    "attribute_name_en": "Function",
+    "component_code": "C70285",
+    "attribute_value_name": "Set and Reset"
+   },
+   {
+    "attribute_name_en": "Type",
+    "component_code": "C70285",
+    "attribute_value_name": "D-Type"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C70285",
+    "attribute_value_name": "1.65V~5.5V"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C70285",
+    "attribute_value_name": "10uA"
+   },
+   {
+    "attribute_name_en": "Number of Elements",
+    "component_code": "C70285",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Hold Time",
+    "component_code": "C70285",
+    "attribute_value_name": "500ps"
+   },
+   {
+    "attribute_name_en": "Input Capacitance",
+    "component_code": "C70285",
+    "attribute_value_name": "5pF"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C70285",
+    "attribute_value_name": "32mA"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Logic",
+  "secondSortName": "Flip Flops",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 71380,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 10528,
+  "overseasStockCount": 10528,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C70285",
+    "startNumber": 1,
+    "endNumber": 49,
+    "productPrice": 0.2966,
+    "erpComponentPriceKeyId": 251279242,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C70285",
+    "startNumber": 50,
+    "endNumber": 149,
+    "productPrice": 0.2392,
+    "erpComponentPriceKeyId": 251279246,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C70285",
+    "startNumber": 150,
+    "endNumber": 499,
+    "productPrice": 0.2145,
+    "erpComponentPriceKeyId": 251279205,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C70285",
+    "startNumber": 500,
+    "endNumber": 2999,
+    "productPrice": 0.167,
+    "erpComponentPriceKeyId": 251279226,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C70285",
+    "startNumber": 3000,
+    "endNumber": 5999,
+    "productPrice": 0.1534,
+    "erpComponentPriceKeyId": 251279201,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C70285",
+    "startNumber": 6000,
+    "endNumber": -1,
+    "productPrice": 0.145,
+    "erpComponentPriceKeyId": 251279221,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 5,
+  "leastNumberPrice": 0.2235,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/flip-flops_texas-instruments-sn74lvc1g74dcur_C70285.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u5355\u6b63\u8fb9\u6cbf\u89e6\u53d1D\u578b\u89e6\u53d1\u5668\uff0c\u5e26\u6e05\u96f6\u548c\u7f6e\u4f4d\u529f\u80fd",
+  "lossNumber": 0,
+  "secondTypeNameEn": "Flip Flops",
+  "firstTypeNameEn": "Logic",
+  "secondTypeNameId": 2163,
+  "firstTypeNameId": 19,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 10302,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.2966,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 31,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 5,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277667,
+  "overseasComponentBrandBizKey": "385285308357283842",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Texas Instruments-40\u2103~+125\u2103 1 1 1.1ns 1.65V~5.5V 10uA 200MHz 32mA 32mA 500ps 5pF 6.4ns@5V,50pF 74LVC Series Complementary D-Type Rising Edge Set and Reset VSSOP-8 Flip Flops ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-13T20:35:45Z"
+}

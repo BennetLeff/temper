@@ -1,0 +1,224 @@
+{
+ "V": 132.0,
+ "f": 60.0,
+ "tol": 0.2,
+ "coil_mA": 0.0018511771879424787,
+ "supply_max_mA_each": 0.14296028880866427,
+ "supply_5typ_mA_each": 0.0495,
+ "mA_per_nF_nominal_Y": 0.059715393159434776,
+ "controls": {
+  "benchmark 9.1 nF, 3 supplies max = 0.974 mA (leakage_budget.py DESIGN)": {
+   "got": 0.9741,
+   "want": 0.9741
+  },
+  "g01 P1 4.4 nF, 3 max = 0.693 (F5 table)": {
+   "got": 0.6935,
+   "want": 0.693
+  },
+  "g01 P1 + g06 P1: 4.4 nF, 2 max = 0.551 (F5 table)": {
+   "got": 0.5505,
+   "want": 0.551
+  },
+  "g01 P1 + g06 P1 + P3: 4.4 nF, 1 max = 0.408 (F5 table)": {
+   "got": 0.4076,
+   "want": 0.408
+  },
+  "g01 P1 + g06 P1: 4.4 nF, 2 x (5 x typ) = 0.364 (F5 Test B)": {
+   "got": 0.3636,
+   "want": 0.364
+  },
+  "Y allowed 3 max @0.5 = 1.16 nF (leakage_variants.py)": {
+   "got": 1.16,
+   "want": 1.16
+  },
+  "Y allowed 1 max @0.5 = 5.95 nF": {
+   "got": 5.948,
+   "want": 5.95
+  }
+ },
+ "controls_ok": true,
+ "y_budget": [
+  {
+   "supplies": "3 supplies (as built)",
+   "n_sup": 3,
+   "basis": "datasheet max",
+   "limit_mA": 0.5,
+   "criterion": "0.5 mA limit (Test A)",
+   "supplies_mA": 0.4289,
+   "y_allowed_nominal_nF_per_line": 1.16
+  },
+  {
+   "supplies": "3 supplies (as built)",
+   "n_sup": 3,
+   "basis": "datasheet max",
+   "limit_mA": 0.25,
+   "criterion": "0.25 mA 50 % target",
+   "supplies_mA": 0.4289,
+   "y_allowed_nominal_nF_per_line": 0.0
+  },
+  {
+   "supplies": "3 supplies (as built)",
+   "n_sup": 3,
+   "basis": "5 x measured typical",
+   "limit_mA": 0.4,
+   "criterion": "0.40 mA (Test B)",
+   "supplies_mA": 0.1485,
+   "y_allowed_nominal_nF_per_line": 4.181
+  },
+  {
+   "supplies": "3 supplies (as built)",
+   "n_sup": 3,
+   "basis": "5 x measured typical",
+   "limit_mA": 0.25,
+   "criterion": "0.25 mA 50 % target",
+   "supplies_mA": 0.1485,
+   "y_allowed_nominal_nF_per_line": 1.669
+  },
+  {
+   "supplies": "PS1 deleted (cand. 23 / g06 P1)",
+   "n_sup": 2,
+   "basis": "datasheet max",
+   "limit_mA": 0.5,
+   "criterion": "0.5 mA limit (Test A)",
+   "supplies_mA": 0.2859,
+   "y_allowed_nominal_nF_per_line": 3.554
+  },
+  {
+   "supplies": "PS1 deleted (cand. 23 / g06 P1)",
+   "n_sup": 2,
+   "basis": "datasheet max",
+   "limit_mA": 0.25,
+   "criterion": "0.25 mA 50 % target",
+   "supplies_mA": 0.2859,
+   "y_allowed_nominal_nF_per_line": 0.0
+  },
+  {
+   "supplies": "PS1 deleted (cand. 23 / g06 P1)",
+   "n_sup": 2,
+   "basis": "5 x measured typical",
+   "limit_mA": 0.4,
+   "criterion": "0.40 mA (Test B)",
+   "supplies_mA": 0.099,
+   "y_allowed_nominal_nF_per_line": 5.01
+  },
+  {
+   "supplies": "PS1 deleted (cand. 23 / g06 P1)",
+   "n_sup": 2,
+   "basis": "5 x measured typical",
+   "limit_mA": 0.25,
+   "criterion": "0.25 mA 50 % target",
+   "supplies_mA": 0.099,
+   "y_allowed_nominal_nF_per_line": 2.498
+  },
+  {
+   "supplies": "PS1 deleted + PS2 off the PE path (g06 P3, bench claim)",
+   "n_sup": 1,
+   "basis": "datasheet max",
+   "limit_mA": 0.5,
+   "criterion": "0.5 mA limit (Test A)",
+   "supplies_mA": 0.143,
+   "y_allowed_nominal_nF_per_line": 5.948
+  },
+  {
+   "supplies": "PS1 deleted + PS2 off the PE path (g06 P3, bench claim)",
+   "n_sup": 1,
+   "basis": "datasheet max",
+   "limit_mA": 0.25,
+   "criterion": "0.25 mA 50 % target",
+   "supplies_mA": 0.143,
+   "y_allowed_nominal_nF_per_line": 1.761
+  },
+  {
+   "supplies": "PS1 deleted + PS2 off the PE path (g06 P3, bench claim)",
+   "n_sup": 1,
+   "basis": "5 x measured typical",
+   "limit_mA": 0.4,
+   "criterion": "0.40 mA (Test B)",
+   "supplies_mA": 0.0495,
+   "y_allowed_nominal_nF_per_line": 5.839
+  },
+  {
+   "supplies": "PS1 deleted + PS2 off the PE path (g06 P3, bench claim)",
+   "n_sup": 1,
+   "basis": "5 x measured typical",
+   "limit_mA": 0.25,
+   "criterion": "0.25 mA 50 % target",
+   "supplies_mA": 0.0495,
+   "y_allowed_nominal_nF_per_line": 3.327
+  }
+ ],
+ "candidates_touch_mA": {
+  "benchmark (board 2.2 + module 4.7 + 2.2)": {
+   "3sup_max": 0.974,
+   "3sup_typ5": 0.694,
+   "2sup_max": 0.831,
+   "2sup_typ5": 0.644,
+   "1sup_max": 0.688,
+   "1sup_typ5": 0.595,
+   "Y_nF": 9.1
+  },
+  "g01 P1 (board 2.2 + module HF 2.2)": {
+   "3sup_max": 0.693,
+   "3sup_typ5": 0.413,
+   "2sup_max": 0.551,
+   "2sup_typ5": 0.364,
+   "1sup_max": 0.408,
+   "1sup_typ5": 0.314,
+   "Y_nF": 4.4
+  },
+  "C29-A: 3.3 nF total (e.g. 2.2 + 1.0 or one 3.3 nF Y1)": {
+   "3sup_max": 0.628,
+   "3sup_typ5": 0.347,
+   "2sup_max": 0.485,
+   "2sup_typ5": 0.298,
+   "1sup_max": 0.342,
+   "1sup_typ5": 0.248,
+   "Y_nF": 3.3
+  },
+  "C29-C: 2.7 nF total (2.2 + 0.47 nF)": {
+   "3sup_max": 0.592,
+   "3sup_typ5": 0.312,
+   "2sup_max": 0.449,
+   "2sup_typ5": 0.262,
+   "1sup_max": 0.306,
+   "1sup_typ5": 0.213,
+   "Y_nF": 2.7
+  },
+  "C29-B: 2.2 nF total (board C3/C4 only, the as-built Y1 pair)": {
+   "3sup_max": 0.562,
+   "3sup_typ5": 0.282,
+   "2sup_max": 0.419,
+   "2sup_typ5": 0.232,
+   "1sup_max": 0.276,
+   "1sup_typ5": 0.183,
+   "Y_nF": 2.2
+  },
+  "C29-x: 1.5 nF total": {
+   "3sup_max": 0.52,
+   "3sup_typ5": 0.24,
+   "2sup_max": 0.377,
+   "2sup_typ5": 0.19,
+   "1sup_max": 0.234,
+   "1sup_typ5": 0.141,
+   "Y_nF": 1.5
+  },
+  "C29-D: 1.0 nF total (3-supply Test A ceiling 1.16)": {
+   "3sup_max": 0.49,
+   "3sup_typ5": 0.21,
+   "2sup_max": 0.347,
+   "2sup_typ5": 0.161,
+   "1sup_max": 0.205,
+   "1sup_typ5": 0.111,
+   "Y_nF": 1.0
+  },
+  "C29-x: 0 nF (no Y at all; supplies + coil only)": {
+   "3sup_max": 0.431,
+   "3sup_typ5": 0.15,
+   "2sup_max": 0.288,
+   "2sup_typ5": 0.101,
+   "1sup_max": 0.145,
+   "1sup_typ5": 0.051,
+   "Y_nF": 0.0
+  }
+ }
+}

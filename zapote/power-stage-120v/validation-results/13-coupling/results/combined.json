@@ -1,0 +1,6690 @@
+{
+ "combined": {
+  "G01": {
+   "G01": 0.0,
+   "G02": 0.1509,
+   "G03": 0.1801,
+   "G04": 0.1297,
+   "G05": 0.1463,
+   "G06": 0.2119,
+   "G07": 0.0886,
+   "G08": 0.1189,
+   "G09": 0.1841,
+   "G10": 0.2423
+  },
+  "G02": {
+   "G01": 0.1509,
+   "G02": 0.0,
+   "G03": 0.2913,
+   "G04": 0.0538,
+   "G05": 0.0463,
+   "G06": 0.0465,
+   "G07": 0.0287,
+   "G08": 0.0828,
+   "G09": 0.0646,
+   "G10": 0.0348
+  },
+  "G03": {
+   "G01": 0.1801,
+   "G02": 0.2913,
+   "G03": 0.0,
+   "G04": 0.1151,
+   "G05": 0.4513,
+   "G06": 0.1244,
+   "G07": 0.0797,
+   "G08": 0.1222,
+   "G09": 0.0666,
+   "G10": 0.025
+  },
+  "G04": {
+   "G01": 0.1297,
+   "G02": 0.0538,
+   "G03": 0.1151,
+   "G04": 0.0,
+   "G05": 0.1702,
+   "G06": 0.0869,
+   "G07": 0.0712,
+   "G08": 0.1316,
+   "G09": 0.2133,
+   "G10": 0.0748
+  },
+  "G05": {
+   "G01": 0.1463,
+   "G02": 0.0463,
+   "G03": 0.4513,
+   "G04": 0.1702,
+   "G05": 0.0,
+   "G06": 0.3542,
+   "G07": 0.4826,
+   "G08": 0.4035,
+   "G09": 0.2945,
+   "G10": 0.4312
+  },
+  "G06": {
+   "G01": 0.2119,
+   "G02": 0.0465,
+   "G03": 0.1244,
+   "G04": 0.0869,
+   "G05": 0.3542,
+   "G06": 0.0,
+   "G07": 0.4278,
+   "G08": 0.1506,
+   "G09": 0.1388,
+   "G10": 0.1119
+  },
+  "G07": {
+   "G01": 0.0886,
+   "G02": 0.0287,
+   "G03": 0.0797,
+   "G04": 0.0712,
+   "G05": 0.4826,
+   "G06": 0.4278,
+   "G07": 0.0,
+   "G08": 0.3466,
+   "G09": 0.2869,
+   "G10": 0.1967
+  },
+  "G08": {
+   "G01": 0.1189,
+   "G02": 0.0828,
+   "G03": 0.1222,
+   "G04": 0.1316,
+   "G05": 0.4035,
+   "G06": 0.1506,
+   "G07": 0.3466,
+   "G08": 0.0,
+   "G09": 0.2688,
+   "G10": 0.263
+  },
+  "G09": {
+   "G01": 0.1841,
+   "G02": 0.0646,
+   "G03": 0.0666,
+   "G04": 0.2133,
+   "G05": 0.2945,
+   "G06": 0.1388,
+   "G07": 0.2869,
+   "G08": 0.2688,
+   "G09": 0.0,
+   "G10": 0.4478
+  },
+  "G10": {
+   "G01": 0.2423,
+   "G02": 0.0348,
+   "G03": 0.025,
+   "G04": 0.0748,
+   "G05": 0.4312,
+   "G06": 0.1119,
+   "G07": 0.1967,
+   "G08": 0.263,
+   "G09": 0.4478,
+   "G10": 0.0
+  }
+ },
+ "controls": [
+  {
+   "control": "electrical.cut_norm_all symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "electrical.cut_norm_no_rails symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physical.courtyard_touch_2mm symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physical.routed_interleave symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physical.routed_adjacency symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physical.corridor_tiles symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physical.barrier_pairs_9mm symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physics.heat_within_5mm symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physics.dvdt_overlap symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physics.return_path_changes symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physics.coil_field symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "physics.res_a_creepage symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "verification.shared_reads symmetric, zero diagonal",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "combined reproduced from the layer matrices",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "AUC of a constant score is 0.5",
+   "detail": "",
+   "pass": true
+  }
+ ],
+ "empirical": {
+  "auc_by_layer": {
+   "combined": 0.7677,
+   "electrical": 0.6664,
+   "physical": 0.8233,
+   "physics": 0.6498,
+   "verification": 0.7277
+  },
+  "auc_distinct_pairs_combined": 0.7702,
+  "change_type": {
+   "bom_only": {
+    "metrics_moved": [
+     "s20:bank_ratio_tdk_28A_40k",
+     "s29:cmti_gate_ratio_min"
+    ],
+    "ripple_territories": 0,
+    "stages": [
+     "native21s20",
+     "native21s26",
+     "native21s29",
+     "native21s31"
+    ]
+   },
+   "copper": {
+    "metrics_moved": [
+     "s21:b3_c28_h25_peak_C",
+     "s21:b3_nominal_h10_peak_C",
+     "s21:fuse_copper_fusing_ratio",
+     "s21b:kelvin_band_low_A",
+     "s21b:ocp_pickup_stack_pan60_A",
+     "s22:ocp_pickup_stack_pan60_A",
+     "s22:return_path_open_changes",
+     "s27:ledger_unaudited_safety_power",
+     "s27:ledger_violations",
+     "s28:ledger_violations",
+     "s30:b3_c28_h25_peak_C",
+     "s30:b3_nominal_h10_peak_C",
+     "s30:return_path_open_changes",
+     "s32:b3_c28_h25_peak_C",
+     "s32:ledger_violations",
+     "s32:return_path_open_changes",
+     "s38:b3_laminate_margin_K",
+     "s38:b3_rated_part_margin_K",
+     "s38:emi_min_margin_dB",
+     "s38:leakage_touch_mA",
+     "s38:track_acute_corners",
+     "s38:track_any_angle_mm",
+     "s38:track_right_angle_corners",
+     "s40:b3_c28_h25_peak_C",
+     "s40:b3_laminate_margin_K",
+     "s40:b3_nominal_h10_peak_C",
+     "s40:b3_rated_part_margin_K",
+     "s40:return_path_open_changes",
+     "s40:track_acute_corners",
+     "s40:track_any_angle_mm",
+     "s40:track_fold_backs",
+     "s40:track_right_angle_corners",
+     "s41:b3_c28_h25_peak_C",
+     "s41:b3_laminate_margin_K",
+     "s41:b3_nominal_h10_peak_C",
+     "s42:b3_c28_h25_peak_C",
+     "s42:b3_laminate_margin_K",
+     "s42:b3_nominal_h10_peak_C",
+     "s42:b3_rated_part_margin_K",
+     "s42:ledger_violations",
+     "s42:track_any_angle_mm",
+     "s42:track_right_angle_corners",
+     "s43:b3_laminate_margin_K",
+     "s43:b3_nominal_h10_peak_C",
+     "s43:b3_rated_part_margin_K",
+     "s43:b3_release_margin_K",
+     "s43:track_acute_corners",
+     "s43:track_any_angle_mm",
+     "s43:track_fold_backs",
+     "s43:track_right_angle_corners"
+    ],
+    "ripple_territories": 23,
+    "stages": [
+     "native21s21",
+     "native21s21b",
+     "native21s22",
+     "native21s27",
+     "native21s28",
+     "native21s30",
+     "native21s32",
+     "native21s35",
+     "native21s38",
+     "native21s40",
+     "native21s41",
+     "native21s42",
+     "native21s43"
+    ]
+   }
+  },
+  "distinct_pairs": 44,
+  "distinct_positive": 23,
+  "metric_check": [
+   {
+    "intended": [
+     "G04",
+     "G09"
+    ],
+    "moved": [
+     "bank_ratio_tdk_28A_40k"
+    ],
+    "moved_and_predicted": [
+     "bank_ratio_tdk_28A_40k"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 24,
+    "propagated_groups": [
+     "G04",
+     "G05",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 29,
+    "stage": "native21s20"
+   },
+   {
+    "intended": [
+     "G01",
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "moved": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C",
+     "fuse_copper_fusing_ratio"
+    ],
+    "moved_and_predicted": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C",
+     "fuse_copper_fusing_ratio"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 26,
+    "propagated_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G05",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s21"
+   },
+   {
+    "intended": [
+     "G08"
+    ],
+    "moved": [
+     "kelvin_band_low_A",
+     "ocp_pickup_stack_pan60_A"
+    ],
+    "moved_and_predicted": [
+     "kelvin_band_low_A",
+     "ocp_pickup_stack_pan60_A"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 22,
+    "propagated_groups": [
+     "G05",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 26,
+    "stage": "native21s21b"
+   },
+   {
+    "intended": [
+     "G05",
+     "G07"
+    ],
+    "moved": [
+     "ocp_pickup_stack_pan60_A",
+     "return_path_open_changes"
+    ],
+    "moved_and_predicted": [
+     "return_path_open_changes"
+    ],
+    "moved_not_predicted": [
+     "ocp_pickup_stack_pan60_A"
+    ],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 22,
+    "propagated_groups": [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s22"
+   },
+   {
+    "intended": [
+     "G05"
+    ],
+    "moved": [],
+    "moved_and_predicted": [],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 22,
+    "propagated_groups": [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s26"
+   },
+   {
+    "intended": [
+     "G01"
+    ],
+    "moved": [],
+    "moved_and_predicted": [],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 18,
+    "propagated_groups": [
+     "G01"
+    ],
+    "propagated_predicted_reads": 18,
+    "stage": "native21s27"
+   },
+   {
+    "intended": [
+     "G10"
+    ],
+    "moved": [],
+    "moved_and_predicted": [],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 14,
+    "propagated_groups": [
+     "G05",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 26,
+    "stage": "native21s28"
+   },
+   {
+    "intended": [
+     "G05"
+    ],
+    "moved": [
+     "cmti_gate_ratio_min"
+    ],
+    "moved_and_predicted": [
+     "cmti_gate_ratio_min"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 22,
+    "propagated_groups": [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s29"
+   },
+   {
+    "intended": [
+     "G07",
+     "G09"
+    ],
+    "moved": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C",
+     "return_path_open_changes"
+    ],
+    "moved_and_predicted": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C",
+     "return_path_open_changes"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 21,
+    "propagated_groups": [
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 26,
+    "stage": "native21s30"
+   },
+   {
+    "intended": [
+     "G05",
+     "G06",
+     "G07",
+     "G08"
+    ],
+    "moved": [],
+    "moved_and_predicted": [],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 26,
+    "propagated_groups": [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s31"
+   },
+   {
+    "intended": [
+     "G07",
+     "G08",
+     "G09"
+    ],
+    "moved": [
+     "b3_c28_h25_peak_C",
+     "return_path_open_changes"
+    ],
+    "moved_and_predicted": [
+     "b3_c28_h25_peak_C",
+     "return_path_open_changes"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 23,
+    "propagated_groups": [
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 26,
+    "stage": "native21s32"
+   },
+   {
+    "intended": [
+     "G04"
+    ],
+    "moved": [],
+    "moved_and_predicted": [],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 17,
+    "propagated_groups": [
+     "G04"
+    ],
+    "propagated_predicted_reads": 17,
+    "stage": "native21s35"
+   },
+   {
+    "intended": [
+     "G01",
+     "G06",
+     "G10"
+    ],
+    "moved": [
+     "emi_min_margin_dB",
+     "leakage_touch_mA"
+    ],
+    "moved_and_predicted": [
+     "emi_min_margin_dB",
+     "leakage_touch_mA"
+    ],
+    "moved_basis_change": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K"
+    ],
+    "moved_global": [
+     "track_acute_corners",
+     "track_any_angle_mm",
+     "track_right_angle_corners"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 23,
+    "propagated_groups": [
+     "G01",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s38"
+   },
+   {
+    "intended": [
+     "G06",
+     "G07",
+     "G10"
+    ],
+    "moved": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K",
+     "return_path_open_changes"
+    ],
+    "moved_and_predicted": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K",
+     "return_path_open_changes"
+    ],
+    "moved_basis_change": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C"
+    ],
+    "moved_global": [
+     "track_acute_corners",
+     "track_any_angle_mm",
+     "track_fold_backs",
+     "track_right_angle_corners"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 22,
+    "propagated_groups": [
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 26,
+    "stage": "native21s40"
+   },
+   {
+    "intended": [
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "moved": [
+     "b3_c28_h25_peak_C",
+     "b3_laminate_margin_K",
+     "b3_nominal_h10_peak_C"
+    ],
+    "moved_and_predicted": [
+     "b3_c28_h25_peak_C",
+     "b3_laminate_margin_K",
+     "b3_nominal_h10_peak_C"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 24,
+    "propagated_groups": [
+     "G02",
+     "G03",
+     "G05",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s41"
+   },
+   {
+    "intended": [
+     "G05"
+    ],
+    "moved": [
+     "b3_c28_h25_peak_C",
+     "b3_laminate_margin_K",
+     "b3_nominal_h10_peak_C",
+     "b3_rated_part_margin_K"
+    ],
+    "moved_and_predicted": [
+     "b3_c28_h25_peak_C",
+     "b3_laminate_margin_K",
+     "b3_nominal_h10_peak_C",
+     "b3_rated_part_margin_K"
+    ],
+    "moved_global": [
+     "track_any_angle_mm",
+     "track_right_angle_corners"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 22,
+    "propagated_groups": [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 27,
+    "stage": "native21s42"
+   },
+   {
+    "intended": [
+     "G01",
+     "G02",
+     "G03",
+     "G04",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "moved": [
+     "b3_laminate_margin_K",
+     "b3_nominal_h10_peak_C",
+     "b3_rated_part_margin_K",
+     "b3_release_margin_K"
+    ],
+    "moved_and_predicted": [
+     "b3_laminate_margin_K",
+     "b3_nominal_h10_peak_C",
+     "b3_rated_part_margin_K",
+     "b3_release_margin_K"
+    ],
+    "moved_global": [
+     "track_acute_corners",
+     "track_any_angle_mm",
+     "track_fold_backs",
+     "track_right_angle_corners"
+    ],
+    "moved_not_predicted": [],
+    "moved_not_predicted_after_propagation": [],
+    "predicted_reads": 29,
+    "propagated_groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G04",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "propagated_predicted_reads": 29,
+    "stage": "native21s43"
+   }
+  ],
+  "metrics_moved_predicted": 29,
+  "metrics_moved_predicted_with_propagation": 30,
+  "metrics_moved_total": 30,
+  "n_cases": 185,
+  "n_positive": 50,
+  "negative_combined_scores": [
+   0.025,
+   0.0463,
+   0.0538,
+   0.0646,
+   0.0666,
+   0.0712,
+   0.0748,
+   0.0828,
+   0.0869,
+   0.1119,
+   0.1151,
+   0.1189,
+   0.1222,
+   0.1244,
+   0.1297,
+   0.1316,
+   0.1702,
+   0.1801,
+   0.2119,
+   0.2133,
+   0.2423
+  ],
+  "pairs_evaluated": [
+   {
+    "combined": 0.1297,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0485,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G04",
+    "verification": 0.4703
+   },
+   {
+    "combined": 0.1463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1504,
+    "physics": 0.0683,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G05",
+    "verification": 0.3665
+   },
+   {
+    "combined": 0.2119,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0837,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G06",
+    "verification": 0.598
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G07",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.1841,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1958,
+    "physics": 0.0145,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G09",
+    "verification": 0.3961
+   },
+   {
+    "combined": 0.2423,
+    "documented_ripple": false,
+    "electrical": 0.2038,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.2227,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G10",
+    "verification": 0.5429
+   },
+   {
+    "combined": 0.0538,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0034,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G04",
+    "verification": 0.2116
+   },
+   {
+    "combined": 0.0463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0097,
+    "physics": 0.0322,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G05",
+    "verification": 0.1435
+   },
+   {
+    "combined": 0.0465,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.033,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G06",
+    "verification": 0.153
+   },
+   {
+    "combined": 0.0287,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0053,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G07",
+    "verification": 0.1095
+   },
+   {
+    "combined": 0.0646,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.1048,
+    "physics": 0.031,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G09",
+    "verification": 0.1228
+   },
+   {
+    "combined": 0.0348,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0879,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G10",
+    "verification": 0.0514
+   },
+   {
+    "combined": 0.1151,
+    "documented_ripple": false,
+    "electrical": 0.1187,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0024,
+    "physics": 0.0571,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G04",
+    "verification": 0.2822
+   },
+   {
+    "combined": 0.4513,
+    "documented_ripple": false,
+    "electrical": 1.0,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.2216,
+    "physics": 0.2804,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G05",
+    "verification": 0.3032
+   },
+   {
+    "combined": 0.1244,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0145,
+    "physics": 0.1458,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G06",
+    "verification": 0.2518
+   },
+   {
+    "combined": 0.0797,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0187,
+    "physics": 0.09,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G07",
+    "verification": 0.1245
+   },
+   {
+    "combined": 0.0666,
+    "documented_ripple": false,
+    "electrical": 0.0176,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0066,
+    "physics": 0.082,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G09",
+    "verification": 0.1602
+   },
+   {
+    "combined": 0.025,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0044,
+    "physics": 0.0338,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G10",
+    "verification": 0.062
+   },
+   {
+    "combined": 0.1316,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.2183,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G04",
+    "verification": 0.3069
+   },
+   {
+    "combined": 0.4035,
+    "documented_ripple": false,
+    "electrical": 0.0742,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.3533,
+    "physics": 0.1864,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G05",
+    "verification": 1.0
+   },
+   {
+    "combined": 0.1506,
+    "documented_ripple": false,
+    "electrical": 0.013,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.1468,
+    "physics": 0.0473,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G06",
+    "verification": 0.3954
+   },
+   {
+    "combined": 0.3466,
+    "documented_ripple": false,
+    "electrical": 0.0348,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.3733,
+    "physics": 0.0625,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G07",
+    "verification": 0.9157
+   },
+   {
+    "combined": 0.2688,
+    "documented_ripple": false,
+    "electrical": 0.0949,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.2711,
+    "physics": 0.0458,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G09",
+    "verification": 0.6635
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": false,
+    "electrical": 0.2822,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s21",
+    "to": "G10",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.1189,
+    "documented_ripple": false,
+    "electrical": 0.0183,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.1226,
+    "physics": 0.0062,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G01",
+    "verification": 0.3286
+   },
+   {
+    "combined": 0.0828,
+    "documented_ripple": false,
+    "electrical": 0.1551,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0197,
+    "physics": 0.0036,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G02",
+    "verification": 0.153
+   },
+   {
+    "combined": 0.1222,
+    "documented_ripple": false,
+    "electrical": 0.1046,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0492,
+    "physics": 0.1028,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G03",
+    "verification": 0.2323
+   },
+   {
+    "combined": 0.1316,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.2183,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G04",
+    "verification": 0.3069
+   },
+   {
+    "combined": 0.4035,
+    "documented_ripple": false,
+    "electrical": 0.0742,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.3533,
+    "physics": 0.1864,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G05",
+    "verification": 1.0
+   },
+   {
+    "combined": 0.1506,
+    "documented_ripple": false,
+    "electrical": 0.013,
+    "from": "G08",
+    "observed_copper_ripple": true,
+    "physical": 0.1468,
+    "physics": 0.0473,
+    "positive": true,
+    "stage": "native21s21b",
+    "to": "G06",
+    "verification": 0.3954
+   },
+   {
+    "combined": 0.3466,
+    "documented_ripple": false,
+    "electrical": 0.0348,
+    "from": "G08",
+    "observed_copper_ripple": true,
+    "physical": 0.3733,
+    "physics": 0.0625,
+    "positive": true,
+    "stage": "native21s21b",
+    "to": "G07",
+    "verification": 0.9157
+   },
+   {
+    "combined": 0.2688,
+    "documented_ripple": false,
+    "electrical": 0.0949,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.2711,
+    "physics": 0.0458,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G09",
+    "verification": 0.6635
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": false,
+    "electrical": 0.2822,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s21b",
+    "to": "G10",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.1463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.1504,
+    "physics": 0.0683,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G01",
+    "verification": 0.3665
+   },
+   {
+    "combined": 0.0463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.0097,
+    "physics": 0.0322,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G02",
+    "verification": 0.1435
+   },
+   {
+    "combined": 0.4513,
+    "documented_ripple": false,
+    "electrical": 1.0,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.2216,
+    "physics": 0.2804,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G03",
+    "verification": 0.3032
+   },
+   {
+    "combined": 0.1702,
+    "documented_ripple": false,
+    "electrical": 0.3562,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.0093,
+    "physics": 0.0736,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G04",
+    "verification": 0.2416
+   },
+   {
+    "combined": 0.3542,
+    "documented_ripple": false,
+    "electrical": 0.3972,
+    "from": "G05",
+    "observed_copper_ripple": true,
+    "physical": 0.2941,
+    "physics": 0.2108,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G06",
+    "verification": 0.5147
+   },
+   {
+    "combined": 0.4035,
+    "documented_ripple": true,
+    "electrical": 0.0742,
+    "from": "G05",
+    "observed_copper_ripple": true,
+    "physical": 0.3533,
+    "physics": 0.1864,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G08",
+    "verification": 1.0
+   },
+   {
+    "combined": 0.2945,
+    "documented_ripple": false,
+    "electrical": 0.1388,
+    "from": "G05",
+    "observed_copper_ripple": true,
+    "physical": 0.28,
+    "physics": 0.1391,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G09",
+    "verification": 0.6203
+   },
+   {
+    "combined": 0.4312,
+    "documented_ripple": true,
+    "electrical": 0.6886,
+    "from": "G05",
+    "observed_copper_ripple": true,
+    "physical": 0.3208,
+    "physics": 0.2338,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G10",
+    "verification": 0.4816
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G01",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.0287,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0053,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G02",
+    "verification": 0.1095
+   },
+   {
+    "combined": 0.0797,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0187,
+    "physics": 0.09,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G03",
+    "verification": 0.1245
+   },
+   {
+    "combined": 0.0712,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0105,
+    "physics": 0.051,
+    "positive": false,
+    "stage": "native21s22",
+    "to": "G04",
+    "verification": 0.1638
+   },
+   {
+    "combined": 0.4278,
+    "documented_ripple": false,
+    "electrical": 0.2628,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.6406,
+    "physics": 0.3938,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G06",
+    "verification": 0.4138
+   },
+   {
+    "combined": 0.3466,
+    "documented_ripple": true,
+    "electrical": 0.0348,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.3733,
+    "physics": 0.0625,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G08",
+    "verification": 0.9157
+   },
+   {
+    "combined": 0.2869,
+    "documented_ripple": false,
+    "electrical": 0.0877,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.2613,
+    "physics": 0.1016,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G09",
+    "verification": 0.6968
+   },
+   {
+    "combined": 0.1967,
+    "documented_ripple": false,
+    "electrical": 0.0911,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.2338,
+    "physics": 0.056,
+    "positive": true,
+    "stage": "native21s22",
+    "to": "G10",
+    "verification": 0.406
+   },
+   {
+    "combined": 0.1509,
+    "documented_ripple": false,
+    "electrical": 0.1551,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0935,
+    "physics": 0.1194,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G02",
+    "verification": 0.2357
+   },
+   {
+    "combined": 0.1801,
+    "documented_ripple": false,
+    "electrical": 0.1033,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0019,
+    "physics": 0.0768,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G03",
+    "verification": 0.5387
+   },
+   {
+    "combined": 0.1297,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0485,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G04",
+    "verification": 0.4703
+   },
+   {
+    "combined": 0.1463,
+    "documented_ripple": true,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1504,
+    "physics": 0.0683,
+    "positive": true,
+    "stage": "native21s27",
+    "to": "G05",
+    "verification": 0.3665
+   },
+   {
+    "combined": 0.2119,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0837,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G06",
+    "verification": 0.598
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": true,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": true,
+    "stage": "native21s27",
+    "to": "G07",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.1189,
+    "documented_ripple": false,
+    "electrical": 0.0183,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1226,
+    "physics": 0.0062,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G08",
+    "verification": 0.3286
+   },
+   {
+    "combined": 0.1841,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1958,
+    "physics": 0.0145,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G09",
+    "verification": 0.3961
+   },
+   {
+    "combined": 0.2423,
+    "documented_ripple": false,
+    "electrical": 0.2038,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.2227,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s27",
+    "to": "G10",
+    "verification": 0.5429
+   },
+   {
+    "combined": 0.2423,
+    "documented_ripple": false,
+    "electrical": 0.2038,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.2227,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s28",
+    "to": "G01",
+    "verification": 0.5429
+   },
+   {
+    "combined": 0.0348,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0879,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s28",
+    "to": "G02",
+    "verification": 0.0514
+   },
+   {
+    "combined": 0.025,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0044,
+    "physics": 0.0338,
+    "positive": false,
+    "stage": "native21s28",
+    "to": "G03",
+    "verification": 0.062
+   },
+   {
+    "combined": 0.0748,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.0451,
+    "positive": false,
+    "stage": "native21s28",
+    "to": "G04",
+    "verification": 0.253
+   },
+   {
+    "combined": 0.4312,
+    "documented_ripple": false,
+    "electrical": 0.6886,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.3208,
+    "physics": 0.2338,
+    "positive": false,
+    "stage": "native21s28",
+    "to": "G05",
+    "verification": 0.4816
+   },
+   {
+    "combined": 0.1119,
+    "documented_ripple": false,
+    "electrical": 0.0376,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0628,
+    "physics": 0.0338,
+    "positive": false,
+    "stage": "native21s28",
+    "to": "G06",
+    "verification": 0.3134
+   },
+   {
+    "combined": 0.1967,
+    "documented_ripple": false,
+    "electrical": 0.0911,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.2338,
+    "physics": 0.056,
+    "positive": true,
+    "stage": "native21s28",
+    "to": "G07",
+    "verification": 0.406
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": true,
+    "electrical": 0.2822,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": true,
+    "stage": "native21s28",
+    "to": "G08",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.4478,
+    "documented_ripple": false,
+    "electrical": 0.6705,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.4176,
+    "physics": 0.1011,
+    "positive": true,
+    "stage": "native21s28",
+    "to": "G09",
+    "verification": 0.6018
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s30",
+    "to": "G01",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.0287,
+    "documented_ripple": true,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0053,
+    "physics": 0.0001,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G02",
+    "verification": 0.1095
+   },
+   {
+    "combined": 0.0797,
+    "documented_ripple": true,
+    "electrical": 0.0856,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0187,
+    "physics": 0.09,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G03",
+    "verification": 0.1245
+   },
+   {
+    "combined": 0.0712,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0105,
+    "physics": 0.051,
+    "positive": false,
+    "stage": "native21s30",
+    "to": "G04",
+    "verification": 0.1638
+   },
+   {
+    "combined": 0.4826,
+    "documented_ripple": true,
+    "electrical": 0.2707,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.4601,
+    "physics": 0.2535,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G05",
+    "verification": 0.9463
+   },
+   {
+    "combined": 0.4278,
+    "documented_ripple": true,
+    "electrical": 0.2628,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.6406,
+    "physics": 0.3938,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G06",
+    "verification": 0.4138
+   },
+   {
+    "combined": 0.3466,
+    "documented_ripple": false,
+    "electrical": 0.0348,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.3733,
+    "physics": 0.0625,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G08",
+    "verification": 0.9157
+   },
+   {
+    "combined": 0.1967,
+    "documented_ripple": true,
+    "electrical": 0.0911,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.2338,
+    "physics": 0.056,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G10",
+    "verification": 0.406
+   },
+   {
+    "combined": 0.1841,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.1958,
+    "physics": 0.0145,
+    "positive": false,
+    "stage": "native21s30",
+    "to": "G01",
+    "verification": 0.3961
+   },
+   {
+    "combined": 0.0646,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.1048,
+    "physics": 0.031,
+    "positive": false,
+    "stage": "native21s30",
+    "to": "G02",
+    "verification": 0.1228
+   },
+   {
+    "combined": 0.0666,
+    "documented_ripple": false,
+    "electrical": 0.0176,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.0066,
+    "physics": 0.082,
+    "positive": false,
+    "stage": "native21s30",
+    "to": "G03",
+    "verification": 0.1602
+   },
+   {
+    "combined": 0.2133,
+    "documented_ripple": false,
+    "electrical": 0.1237,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.0211,
+    "physics": 0.2562,
+    "positive": false,
+    "stage": "native21s30",
+    "to": "G04",
+    "verification": 0.4524
+   },
+   {
+    "combined": 0.2945,
+    "documented_ripple": false,
+    "electrical": 0.1388,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.28,
+    "physics": 0.1391,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G05",
+    "verification": 0.6203
+   },
+   {
+    "combined": 0.1388,
+    "documented_ripple": false,
+    "electrical": 0.0218,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.0368,
+    "physics": 0.113,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G06",
+    "verification": 0.3836
+   },
+   {
+    "combined": 0.2688,
+    "documented_ripple": false,
+    "electrical": 0.0949,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.2711,
+    "physics": 0.0458,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G08",
+    "verification": 0.6635
+   },
+   {
+    "combined": 0.4478,
+    "documented_ripple": false,
+    "electrical": 0.6705,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.4176,
+    "physics": 0.1011,
+    "positive": true,
+    "stage": "native21s30",
+    "to": "G10",
+    "verification": 0.6018
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G01",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.0287,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0053,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G02",
+    "verification": 0.1095
+   },
+   {
+    "combined": 0.0797,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0187,
+    "physics": 0.09,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G03",
+    "verification": 0.1245
+   },
+   {
+    "combined": 0.0712,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0105,
+    "physics": 0.051,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G04",
+    "verification": 0.1638
+   },
+   {
+    "combined": 0.4826,
+    "documented_ripple": true,
+    "electrical": 0.2707,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.4601,
+    "physics": 0.2535,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G05",
+    "verification": 0.9463
+   },
+   {
+    "combined": 0.4278,
+    "documented_ripple": false,
+    "electrical": 0.2628,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.6406,
+    "physics": 0.3938,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G06",
+    "verification": 0.4138
+   },
+   {
+    "combined": 0.1967,
+    "documented_ripple": true,
+    "electrical": 0.0911,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.2338,
+    "physics": 0.056,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G10",
+    "verification": 0.406
+   },
+   {
+    "combined": 0.1189,
+    "documented_ripple": false,
+    "electrical": 0.0183,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.1226,
+    "physics": 0.0062,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G01",
+    "verification": 0.3286
+   },
+   {
+    "combined": 0.0828,
+    "documented_ripple": false,
+    "electrical": 0.1551,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0197,
+    "physics": 0.0036,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G02",
+    "verification": 0.153
+   },
+   {
+    "combined": 0.1222,
+    "documented_ripple": false,
+    "electrical": 0.1046,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0492,
+    "physics": 0.1028,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G03",
+    "verification": 0.2323
+   },
+   {
+    "combined": 0.1316,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.2183,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G04",
+    "verification": 0.3069
+   },
+   {
+    "combined": 0.4035,
+    "documented_ripple": true,
+    "electrical": 0.0742,
+    "from": "G08",
+    "observed_copper_ripple": true,
+    "physical": 0.3533,
+    "physics": 0.1864,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G05",
+    "verification": 1.0
+   },
+   {
+    "combined": 0.1506,
+    "documented_ripple": false,
+    "electrical": 0.013,
+    "from": "G08",
+    "observed_copper_ripple": true,
+    "physical": 0.1468,
+    "physics": 0.0473,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G06",
+    "verification": 0.3954
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": true,
+    "electrical": 0.2822,
+    "from": "G08",
+    "observed_copper_ripple": true,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G10",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.1841,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.1958,
+    "physics": 0.0145,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G01",
+    "verification": 0.3961
+   },
+   {
+    "combined": 0.0646,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.1048,
+    "physics": 0.031,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G02",
+    "verification": 0.1228
+   },
+   {
+    "combined": 0.0666,
+    "documented_ripple": false,
+    "electrical": 0.0176,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.0066,
+    "physics": 0.082,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G03",
+    "verification": 0.1602
+   },
+   {
+    "combined": 0.2133,
+    "documented_ripple": false,
+    "electrical": 0.1237,
+    "from": "G09",
+    "observed_copper_ripple": false,
+    "physical": 0.0211,
+    "physics": 0.2562,
+    "positive": false,
+    "stage": "native21s32",
+    "to": "G04",
+    "verification": 0.4524
+   },
+   {
+    "combined": 0.2945,
+    "documented_ripple": true,
+    "electrical": 0.1388,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.28,
+    "physics": 0.1391,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G05",
+    "verification": 0.6203
+   },
+   {
+    "combined": 0.1388,
+    "documented_ripple": false,
+    "electrical": 0.0218,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.0368,
+    "physics": 0.113,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G06",
+    "verification": 0.3836
+   },
+   {
+    "combined": 0.4478,
+    "documented_ripple": true,
+    "electrical": 0.6705,
+    "from": "G09",
+    "observed_copper_ripple": true,
+    "physical": 0.4176,
+    "physics": 0.1011,
+    "positive": true,
+    "stage": "native21s32",
+    "to": "G10",
+    "verification": 0.6018
+   },
+   {
+    "combined": 0.1297,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0485,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G01",
+    "verification": 0.4703
+   },
+   {
+    "combined": 0.0538,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0034,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G02",
+    "verification": 0.2116
+   },
+   {
+    "combined": 0.1151,
+    "documented_ripple": false,
+    "electrical": 0.1187,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0024,
+    "physics": 0.0571,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G03",
+    "verification": 0.2822
+   },
+   {
+    "combined": 0.1702,
+    "documented_ripple": false,
+    "electrical": 0.3562,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0093,
+    "physics": 0.0736,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G05",
+    "verification": 0.2416
+   },
+   {
+    "combined": 0.0869,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0289,
+    "physics": 0.0596,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G06",
+    "verification": 0.1996
+   },
+   {
+    "combined": 0.0712,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0105,
+    "physics": 0.051,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G07",
+    "verification": 0.1638
+   },
+   {
+    "combined": 0.1316,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.2183,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G08",
+    "verification": 0.3069
+   },
+   {
+    "combined": 0.2133,
+    "documented_ripple": false,
+    "electrical": 0.1237,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0211,
+    "physics": 0.2562,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G09",
+    "verification": 0.4524
+   },
+   {
+    "combined": 0.0748,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G04",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.0451,
+    "positive": false,
+    "stage": "native21s35",
+    "to": "G10",
+    "verification": 0.253
+   },
+   {
+    "combined": 0.1509,
+    "documented_ripple": false,
+    "electrical": 0.1551,
+    "from": "G01",
+    "observed_copper_ripple": true,
+    "physical": 0.0935,
+    "physics": 0.1194,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G02",
+    "verification": 0.2357
+   },
+   {
+    "combined": 0.1801,
+    "documented_ripple": false,
+    "electrical": 0.1033,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0019,
+    "physics": 0.0768,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G03",
+    "verification": 0.5387
+   },
+   {
+    "combined": 0.1297,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0485,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G04",
+    "verification": 0.4703
+   },
+   {
+    "combined": 0.1463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1504,
+    "physics": 0.0683,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G05",
+    "verification": 0.3665
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G01",
+    "observed_copper_ripple": true,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G07",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.1189,
+    "documented_ripple": false,
+    "electrical": 0.0183,
+    "from": "G01",
+    "observed_copper_ripple": false,
+    "physical": 0.1226,
+    "physics": 0.0062,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G08",
+    "verification": 0.3286
+   },
+   {
+    "combined": 0.1841,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G01",
+    "observed_copper_ripple": true,
+    "physical": 0.1958,
+    "physics": 0.0145,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G09",
+    "verification": 0.3961
+   },
+   {
+    "combined": 0.0465,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G06",
+    "observed_copper_ripple": true,
+    "physical": 0.033,
+    "physics": 0.0001,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G02",
+    "verification": 0.153
+   },
+   {
+    "combined": 0.1244,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.0145,
+    "physics": 0.1458,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G03",
+    "verification": 0.2518
+   },
+   {
+    "combined": 0.0869,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.0289,
+    "physics": 0.0596,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G04",
+    "verification": 0.1996
+   },
+   {
+    "combined": 0.3542,
+    "documented_ripple": false,
+    "electrical": 0.3972,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.2941,
+    "physics": 0.2108,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G05",
+    "verification": 0.5147
+   },
+   {
+    "combined": 0.4278,
+    "documented_ripple": false,
+    "electrical": 0.2628,
+    "from": "G06",
+    "observed_copper_ripple": true,
+    "physical": 0.6406,
+    "physics": 0.3938,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G07",
+    "verification": 0.4138
+   },
+   {
+    "combined": 0.1506,
+    "documented_ripple": false,
+    "electrical": 0.013,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.1468,
+    "physics": 0.0473,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G08",
+    "verification": 0.3954
+   },
+   {
+    "combined": 0.1388,
+    "documented_ripple": false,
+    "electrical": 0.0218,
+    "from": "G06",
+    "observed_copper_ripple": true,
+    "physical": 0.0368,
+    "physics": 0.113,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G09",
+    "verification": 0.3836
+   },
+   {
+    "combined": 0.0348,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.0879,
+    "physics": 0.0,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G02",
+    "verification": 0.0514
+   },
+   {
+    "combined": 0.025,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0044,
+    "physics": 0.0338,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G03",
+    "verification": 0.062
+   },
+   {
+    "combined": 0.0748,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.0451,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G04",
+    "verification": 0.253
+   },
+   {
+    "combined": 0.4312,
+    "documented_ripple": false,
+    "electrical": 0.6886,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.3208,
+    "physics": 0.2338,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G05",
+    "verification": 0.4816
+   },
+   {
+    "combined": 0.1967,
+    "documented_ripple": false,
+    "electrical": 0.0911,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.2338,
+    "physics": 0.056,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G07",
+    "verification": 0.406
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": false,
+    "electrical": 0.2822,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s38",
+    "to": "G08",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.4478,
+    "documented_ripple": false,
+    "electrical": 0.6705,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.4176,
+    "physics": 0.1011,
+    "positive": true,
+    "stage": "native21s38",
+    "to": "G09",
+    "verification": 0.6018
+   },
+   {
+    "combined": 0.2119,
+    "documented_ripple": false,
+    "electrical": 0.1299,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.0837,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G01",
+    "verification": 0.598
+   },
+   {
+    "combined": 0.0465,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.033,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G02",
+    "verification": 0.153
+   },
+   {
+    "combined": 0.1244,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.0145,
+    "physics": 0.1458,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G03",
+    "verification": 0.2518
+   },
+   {
+    "combined": 0.0869,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.0289,
+    "physics": 0.0596,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G04",
+    "verification": 0.1996
+   },
+   {
+    "combined": 0.3542,
+    "documented_ripple": false,
+    "electrical": 0.3972,
+    "from": "G06",
+    "observed_copper_ripple": true,
+    "physical": 0.2941,
+    "physics": 0.2108,
+    "positive": true,
+    "stage": "native21s40",
+    "to": "G05",
+    "verification": 0.5147
+   },
+   {
+    "combined": 0.1506,
+    "documented_ripple": false,
+    "electrical": 0.013,
+    "from": "G06",
+    "observed_copper_ripple": true,
+    "physical": 0.1468,
+    "physics": 0.0473,
+    "positive": true,
+    "stage": "native21s40",
+    "to": "G08",
+    "verification": 0.3954
+   },
+   {
+    "combined": 0.1388,
+    "documented_ripple": false,
+    "electrical": 0.0218,
+    "from": "G06",
+    "observed_copper_ripple": false,
+    "physical": 0.0368,
+    "physics": 0.113,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G09",
+    "verification": 0.3836
+   },
+   {
+    "combined": 0.0886,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0971,
+    "physics": 0.0363,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G01",
+    "verification": 0.2208
+   },
+   {
+    "combined": 0.0287,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0053,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G02",
+    "verification": 0.1095
+   },
+   {
+    "combined": 0.0797,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0187,
+    "physics": 0.09,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G03",
+    "verification": 0.1245
+   },
+   {
+    "combined": 0.0712,
+    "documented_ripple": false,
+    "electrical": 0.0594,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.0105,
+    "physics": 0.051,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G04",
+    "verification": 0.1638
+   },
+   {
+    "combined": 0.4826,
+    "documented_ripple": true,
+    "electrical": 0.2707,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.4601,
+    "physics": 0.2535,
+    "positive": true,
+    "stage": "native21s40",
+    "to": "G05",
+    "verification": 0.9463
+   },
+   {
+    "combined": 0.3466,
+    "documented_ripple": false,
+    "electrical": 0.0348,
+    "from": "G07",
+    "observed_copper_ripple": true,
+    "physical": 0.3733,
+    "physics": 0.0625,
+    "positive": true,
+    "stage": "native21s40",
+    "to": "G08",
+    "verification": 0.9157
+   },
+   {
+    "combined": 0.2869,
+    "documented_ripple": false,
+    "electrical": 0.0877,
+    "from": "G07",
+    "observed_copper_ripple": false,
+    "physical": 0.2613,
+    "physics": 0.1016,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G09",
+    "verification": 0.6968
+   },
+   {
+    "combined": 0.2423,
+    "documented_ripple": false,
+    "electrical": 0.2038,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.2227,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G01",
+    "verification": 0.5429
+   },
+   {
+    "combined": 0.0348,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0879,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G02",
+    "verification": 0.0514
+   },
+   {
+    "combined": 0.025,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0044,
+    "physics": 0.0338,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G03",
+    "verification": 0.062
+   },
+   {
+    "combined": 0.0748,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.0451,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G04",
+    "verification": 0.253
+   },
+   {
+    "combined": 0.4312,
+    "documented_ripple": false,
+    "electrical": 0.6886,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.3208,
+    "physics": 0.2338,
+    "positive": true,
+    "stage": "native21s40",
+    "to": "G05",
+    "verification": 0.4816
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": false,
+    "electrical": 0.2822,
+    "from": "G10",
+    "observed_copper_ripple": true,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": true,
+    "stage": "native21s40",
+    "to": "G08",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.4478,
+    "documented_ripple": false,
+    "electrical": 0.6705,
+    "from": "G10",
+    "observed_copper_ripple": false,
+    "physical": 0.4176,
+    "physics": 0.1011,
+    "positive": false,
+    "stage": "native21s40",
+    "to": "G09",
+    "verification": 0.6018
+   },
+   {
+    "combined": 0.1509,
+    "documented_ripple": false,
+    "electrical": 0.1551,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0935,
+    "physics": 0.1194,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G01",
+    "verification": 0.2357
+   },
+   {
+    "combined": 0.0538,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0,
+    "physics": 0.0034,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G04",
+    "verification": 0.2116
+   },
+   {
+    "combined": 0.0463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0097,
+    "physics": 0.0322,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G05",
+    "verification": 0.1435
+   },
+   {
+    "combined": 0.0465,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.033,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G06",
+    "verification": 0.153
+   },
+   {
+    "combined": 0.0287,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0053,
+    "physics": 0.0001,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G07",
+    "verification": 0.1095
+   },
+   {
+    "combined": 0.0646,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.1048,
+    "physics": 0.031,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G09",
+    "verification": 0.1228
+   },
+   {
+    "combined": 0.0348,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G02",
+    "observed_copper_ripple": false,
+    "physical": 0.0879,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G10",
+    "verification": 0.0514
+   },
+   {
+    "combined": 0.1801,
+    "documented_ripple": false,
+    "electrical": 0.1033,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0019,
+    "physics": 0.0768,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G01",
+    "verification": 0.5387
+   },
+   {
+    "combined": 0.1151,
+    "documented_ripple": false,
+    "electrical": 0.1187,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0024,
+    "physics": 0.0571,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G04",
+    "verification": 0.2822
+   },
+   {
+    "combined": 0.4513,
+    "documented_ripple": false,
+    "electrical": 1.0,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.2216,
+    "physics": 0.2804,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G05",
+    "verification": 0.3032
+   },
+   {
+    "combined": 0.1244,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0145,
+    "physics": 0.1458,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G06",
+    "verification": 0.2518
+   },
+   {
+    "combined": 0.0797,
+    "documented_ripple": false,
+    "electrical": 0.0856,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0187,
+    "physics": 0.09,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G07",
+    "verification": 0.1245
+   },
+   {
+    "combined": 0.0666,
+    "documented_ripple": false,
+    "electrical": 0.0176,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0066,
+    "physics": 0.082,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G09",
+    "verification": 0.1602
+   },
+   {
+    "combined": 0.025,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G03",
+    "observed_copper_ripple": false,
+    "physical": 0.0044,
+    "physics": 0.0338,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G10",
+    "verification": 0.062
+   },
+   {
+    "combined": 0.1189,
+    "documented_ripple": false,
+    "electrical": 0.0183,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.1226,
+    "physics": 0.0062,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G01",
+    "verification": 0.3286
+   },
+   {
+    "combined": 0.1316,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.0011,
+    "physics": 0.2183,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G04",
+    "verification": 0.3069
+   },
+   {
+    "combined": 0.4035,
+    "documented_ripple": false,
+    "electrical": 0.0742,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.3533,
+    "physics": 0.1864,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G05",
+    "verification": 1.0
+   },
+   {
+    "combined": 0.1506,
+    "documented_ripple": false,
+    "electrical": 0.013,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.1468,
+    "physics": 0.0473,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G06",
+    "verification": 0.3954
+   },
+   {
+    "combined": 0.3466,
+    "documented_ripple": false,
+    "electrical": 0.0348,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.3733,
+    "physics": 0.0625,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G07",
+    "verification": 0.9157
+   },
+   {
+    "combined": 0.2688,
+    "documented_ripple": false,
+    "electrical": 0.0949,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.2711,
+    "physics": 0.0458,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G09",
+    "verification": 0.6635
+   },
+   {
+    "combined": 0.263,
+    "documented_ripple": false,
+    "electrical": 0.2822,
+    "from": "G08",
+    "observed_copper_ripple": false,
+    "physical": 0.2729,
+    "physics": 0.0,
+    "positive": false,
+    "stage": "native21s41",
+    "to": "G10",
+    "verification": 0.497
+   },
+   {
+    "combined": 0.1463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.1504,
+    "physics": 0.0683,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G01",
+    "verification": 0.3665
+   },
+   {
+    "combined": 0.0463,
+    "documented_ripple": false,
+    "electrical": 0.0,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.0097,
+    "physics": 0.0322,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G02",
+    "verification": 0.1435
+   },
+   {
+    "combined": 0.4513,
+    "documented_ripple": true,
+    "electrical": 1.0,
+    "from": "G05",
+    "observed_copper_ripple": true,
+    "physical": 0.2216,
+    "physics": 0.2804,
+    "positive": true,
+    "stage": "native21s42",
+    "to": "G03",
+    "verification": 0.3032
+   },
+   {
+    "combined": 0.1702,
+    "documented_ripple": false,
+    "electrical": 0.3562,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.0093,
+    "physics": 0.0736,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G04",
+    "verification": 0.2416
+   },
+   {
+    "combined": 0.3542,
+    "documented_ripple": false,
+    "electrical": 0.3972,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.2941,
+    "physics": 0.2108,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G06",
+    "verification": 0.5147
+   },
+   {
+    "combined": 0.4826,
+    "documented_ripple": false,
+    "electrical": 0.2707,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.4601,
+    "physics": 0.2535,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G07",
+    "verification": 0.9463
+   },
+   {
+    "combined": 0.4035,
+    "documented_ripple": false,
+    "electrical": 0.0742,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.3533,
+    "physics": 0.1864,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G08",
+    "verification": 1.0
+   },
+   {
+    "combined": 0.2945,
+    "documented_ripple": false,
+    "electrical": 0.1388,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.28,
+    "physics": 0.1391,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G09",
+    "verification": 0.6203
+   },
+   {
+    "combined": 0.4312,
+    "documented_ripple": false,
+    "electrical": 0.6886,
+    "from": "G05",
+    "observed_copper_ripple": false,
+    "physical": 0.3208,
+    "physics": 0.2338,
+    "positive": false,
+    "stage": "native21s42",
+    "to": "G10",
+    "verification": 0.4816
+   }
+  ],
+  "positive_combined_scores": [
+   0.0287,
+   0.0348,
+   0.0465,
+   0.0797,
+   0.0886,
+   0.1388,
+   0.1463,
+   0.1506,
+   0.1509,
+   0.1841,
+   0.1967,
+   0.263,
+   0.2688,
+   0.2869,
+   0.2945,
+   0.3466,
+   0.3542,
+   0.4035,
+   0.4278,
+   0.4312,
+   0.4478,
+   0.4513,
+   0.4826
+  ],
+  "tau_median_positive": 0.263
+ },
+ "group_clusters": {
+  "1.0": {
+   "clusters": [
+    [
+     "G01",
+     "G04",
+     "G09",
+     "G10"
+    ],
+    [
+     "G05",
+     "G06",
+     "G07",
+     "G08"
+    ],
+    [
+     "G02",
+     "G03"
+    ]
+   ],
+   "inter_edges_at_or_above_tau": [
+    "G03-G05",
+    "G05-G09",
+    "G05-G10",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10"
+   ],
+   "max_inter": 0.4513,
+   "max_inter_pair": "G03-G05",
+   "mean_inter": 0.1466,
+   "mean_intra": 0.2883,
+   "n": 3
+  },
+  "1.5": {
+   "clusters": [
+    [
+     "G01",
+     "G02",
+     "G03"
+    ],
+    [
+     "G06",
+     "G07"
+    ],
+    [
+     "G09",
+     "G10"
+    ],
+    [
+     "G04"
+    ],
+    [
+     "G05"
+    ],
+    [
+     "G08"
+    ]
+   ],
+   "inter_edges_at_or_above_tau": [
+    "G03-G05",
+    "G05-G06",
+    "G05-G07",
+    "G05-G08",
+    "G05-G09",
+    "G05-G10",
+    "G07-G08",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10"
+   ],
+   "max_inter": 0.4826,
+   "max_inter_pair": "G05-G07",
+   "mean_inter": 0.1735,
+   "mean_intra": 0.2996,
+   "n": 6
+  },
+  "2.0": {
+   "clusters": [
+    [
+     "G02",
+     "G03"
+    ],
+    [
+     "G06",
+     "G07"
+    ],
+    [
+     "G09",
+     "G10"
+    ],
+    [
+     "G01"
+    ],
+    [
+     "G04"
+    ],
+    [
+     "G05"
+    ],
+    [
+     "G08"
+    ]
+   ],
+   "inter_edges_at_or_above_tau": [
+    "G03-G05",
+    "G05-G06",
+    "G05-G07",
+    "G05-G08",
+    "G05-G09",
+    "G05-G10",
+    "G07-G08",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10"
+   ],
+   "max_inter": 0.4826,
+   "max_inter_pair": "G05-G07",
+   "mean_inter": 0.1731,
+   "mean_intra": 0.3889,
+   "n": 7
+  }
+ },
+ "group_total_coupling": {
+  "G01": 1.4529,
+  "G02": 0.7999,
+  "G03": 1.4558,
+  "G04": 1.0464,
+  "G05": 2.7802,
+  "G06": 1.6531,
+  "G07": 2.0087,
+  "G08": 1.888,
+  "G09": 1.9654,
+  "G10": 1.8276
+ },
+ "layer_matrices": {
+  "electrical": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.1551,
+    "G03": 0.1033,
+    "G04": 0.0,
+    "G05": 0.0,
+    "G06": 0.1299,
+    "G07": 0.0,
+    "G08": 0.0183,
+    "G09": 0.1299,
+    "G10": 0.2038
+   },
+   "G02": {
+    "G01": 0.1551,
+    "G02": 0.0,
+    "G03": 0.8739,
+    "G04": 0.0,
+    "G05": 0.0,
+    "G06": 0.0,
+    "G07": 0.0,
+    "G08": 0.1551,
+    "G09": 0.0,
+    "G10": 0.0
+   },
+   "G03": {
+    "G01": 0.1033,
+    "G02": 0.8739,
+    "G03": 0.0,
+    "G04": 0.1187,
+    "G05": 1.0,
+    "G06": 0.0856,
+    "G07": 0.0856,
+    "G08": 0.1046,
+    "G09": 0.0176,
+    "G10": 0.0
+   },
+   "G04": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.1187,
+    "G04": 0.0,
+    "G05": 0.3562,
+    "G06": 0.0594,
+    "G07": 0.0594,
+    "G08": 0.0,
+    "G09": 0.1237,
+    "G10": 0.0
+   },
+   "G05": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 1.0,
+    "G04": 0.3562,
+    "G05": 0.0,
+    "G06": 0.3972,
+    "G07": 0.2707,
+    "G08": 0.0742,
+    "G09": 0.1388,
+    "G10": 0.6886
+   },
+   "G06": {
+    "G01": 0.1299,
+    "G02": 0.0,
+    "G03": 0.0856,
+    "G04": 0.0594,
+    "G05": 0.3972,
+    "G06": 0.0,
+    "G07": 0.2628,
+    "G08": 0.013,
+    "G09": 0.0218,
+    "G10": 0.0376
+   },
+   "G07": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0856,
+    "G04": 0.0594,
+    "G05": 0.2707,
+    "G06": 0.2628,
+    "G07": 0.0,
+    "G08": 0.0348,
+    "G09": 0.0877,
+    "G10": 0.0911
+   },
+   "G08": {
+    "G01": 0.0183,
+    "G02": 0.1551,
+    "G03": 0.1046,
+    "G04": 0.0,
+    "G05": 0.0742,
+    "G06": 0.013,
+    "G07": 0.0348,
+    "G08": 0.0,
+    "G09": 0.0949,
+    "G10": 0.2822
+   },
+   "G09": {
+    "G01": 0.1299,
+    "G02": 0.0,
+    "G03": 0.0176,
+    "G04": 0.1237,
+    "G05": 0.1388,
+    "G06": 0.0218,
+    "G07": 0.0877,
+    "G08": 0.0949,
+    "G09": 0.0,
+    "G10": 0.6705
+   },
+   "G10": {
+    "G01": 0.2038,
+    "G02": 0.0,
+    "G03": 0.0,
+    "G04": 0.0,
+    "G05": 0.6886,
+    "G06": 0.0376,
+    "G07": 0.0911,
+    "G08": 0.2822,
+    "G09": 0.6705,
+    "G10": 0.0
+   }
+  },
+  "physical": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.0935,
+    "G03": 0.0019,
+    "G04": 0.0,
+    "G05": 0.1504,
+    "G06": 0.0837,
+    "G07": 0.0971,
+    "G08": 0.1226,
+    "G09": 0.1958,
+    "G10": 0.2227
+   },
+   "G02": {
+    "G01": 0.0935,
+    "G02": 0.0,
+    "G03": 0.0175,
+    "G04": 0.0,
+    "G05": 0.0097,
+    "G06": 0.033,
+    "G07": 0.0053,
+    "G08": 0.0197,
+    "G09": 0.1048,
+    "G10": 0.0879
+   },
+   "G03": {
+    "G01": 0.0019,
+    "G02": 0.0175,
+    "G03": 0.0,
+    "G04": 0.0024,
+    "G05": 0.2216,
+    "G06": 0.0145,
+    "G07": 0.0187,
+    "G08": 0.0492,
+    "G09": 0.0066,
+    "G10": 0.0044
+   },
+   "G04": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0024,
+    "G04": 0.0,
+    "G05": 0.0093,
+    "G06": 0.0289,
+    "G07": 0.0105,
+    "G08": 0.0011,
+    "G09": 0.0211,
+    "G10": 0.0011
+   },
+   "G05": {
+    "G01": 0.1504,
+    "G02": 0.0097,
+    "G03": 0.2216,
+    "G04": 0.0093,
+    "G05": 0.0,
+    "G06": 0.2941,
+    "G07": 0.4601,
+    "G08": 0.3533,
+    "G09": 0.28,
+    "G10": 0.3208
+   },
+   "G06": {
+    "G01": 0.0837,
+    "G02": 0.033,
+    "G03": 0.0145,
+    "G04": 0.0289,
+    "G05": 0.2941,
+    "G06": 0.0,
+    "G07": 0.6406,
+    "G08": 0.1468,
+    "G09": 0.0368,
+    "G10": 0.0628
+   },
+   "G07": {
+    "G01": 0.0971,
+    "G02": 0.0053,
+    "G03": 0.0187,
+    "G04": 0.0105,
+    "G05": 0.4601,
+    "G06": 0.6406,
+    "G07": 0.0,
+    "G08": 0.3733,
+    "G09": 0.2613,
+    "G10": 0.2338
+   },
+   "G08": {
+    "G01": 0.1226,
+    "G02": 0.0197,
+    "G03": 0.0492,
+    "G04": 0.0011,
+    "G05": 0.3533,
+    "G06": 0.1468,
+    "G07": 0.3733,
+    "G08": 0.0,
+    "G09": 0.2711,
+    "G10": 0.2729
+   },
+   "G09": {
+    "G01": 0.1958,
+    "G02": 0.1048,
+    "G03": 0.0066,
+    "G04": 0.0211,
+    "G05": 0.28,
+    "G06": 0.0368,
+    "G07": 0.2613,
+    "G08": 0.2711,
+    "G09": 0.0,
+    "G10": 0.4176
+   },
+   "G10": {
+    "G01": 0.2227,
+    "G02": 0.0879,
+    "G03": 0.0044,
+    "G04": 0.0011,
+    "G05": 0.3208,
+    "G06": 0.0628,
+    "G07": 0.2338,
+    "G08": 0.2729,
+    "G09": 0.4176,
+    "G10": 0.0
+   }
+  },
+  "physics": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.1194,
+    "G03": 0.0768,
+    "G04": 0.0485,
+    "G05": 0.0683,
+    "G06": 0.0363,
+    "G07": 0.0363,
+    "G08": 0.0062,
+    "G09": 0.0145,
+    "G10": 0.0
+   },
+   "G02": {
+    "G01": 0.1194,
+    "G02": 0.0,
+    "G03": 0.038,
+    "G04": 0.0034,
+    "G05": 0.0322,
+    "G06": 0.0001,
+    "G07": 0.0001,
+    "G08": 0.0036,
+    "G09": 0.031,
+    "G10": 0.0
+   },
+   "G03": {
+    "G01": 0.0768,
+    "G02": 0.038,
+    "G03": 0.0,
+    "G04": 0.0571,
+    "G05": 0.2804,
+    "G06": 0.1458,
+    "G07": 0.09,
+    "G08": 0.1028,
+    "G09": 0.082,
+    "G10": 0.0338
+   },
+   "G04": {
+    "G01": 0.0485,
+    "G02": 0.0034,
+    "G03": 0.0571,
+    "G04": 0.0,
+    "G05": 0.0736,
+    "G06": 0.0596,
+    "G07": 0.051,
+    "G08": 0.2183,
+    "G09": 0.2562,
+    "G10": 0.0451
+   },
+   "G05": {
+    "G01": 0.0683,
+    "G02": 0.0322,
+    "G03": 0.2804,
+    "G04": 0.0736,
+    "G05": 0.0,
+    "G06": 0.2108,
+    "G07": 0.2535,
+    "G08": 0.1864,
+    "G09": 0.1391,
+    "G10": 0.2338
+   },
+   "G06": {
+    "G01": 0.0363,
+    "G02": 0.0001,
+    "G03": 0.1458,
+    "G04": 0.0596,
+    "G05": 0.2108,
+    "G06": 0.0,
+    "G07": 0.3938,
+    "G08": 0.0473,
+    "G09": 0.113,
+    "G10": 0.0338
+   },
+   "G07": {
+    "G01": 0.0363,
+    "G02": 0.0001,
+    "G03": 0.09,
+    "G04": 0.051,
+    "G05": 0.2535,
+    "G06": 0.3938,
+    "G07": 0.0,
+    "G08": 0.0625,
+    "G09": 0.1016,
+    "G10": 0.056
+   },
+   "G08": {
+    "G01": 0.0062,
+    "G02": 0.0036,
+    "G03": 0.1028,
+    "G04": 0.2183,
+    "G05": 0.1864,
+    "G06": 0.0473,
+    "G07": 0.0625,
+    "G08": 0.0,
+    "G09": 0.0458,
+    "G10": 0.0
+   },
+   "G09": {
+    "G01": 0.0145,
+    "G02": 0.031,
+    "G03": 0.082,
+    "G04": 0.2562,
+    "G05": 0.1391,
+    "G06": 0.113,
+    "G07": 0.1016,
+    "G08": 0.0458,
+    "G09": 0.0,
+    "G10": 0.1011
+   },
+   "G10": {
+    "G01": 0.0,
+    "G02": 0.0,
+    "G03": 0.0338,
+    "G04": 0.0451,
+    "G05": 0.2338,
+    "G06": 0.0338,
+    "G07": 0.056,
+    "G08": 0.0,
+    "G09": 0.1011,
+    "G10": 0.0
+   }
+  },
+  "verification": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.2357,
+    "G03": 0.5387,
+    "G04": 0.4703,
+    "G05": 0.3665,
+    "G06": 0.598,
+    "G07": 0.2208,
+    "G08": 0.3286,
+    "G09": 0.3961,
+    "G10": 0.5429
+   },
+   "G02": {
+    "G01": 0.2357,
+    "G02": 0.0,
+    "G03": 0.2357,
+    "G04": 0.2116,
+    "G05": 0.1435,
+    "G06": 0.153,
+    "G07": 0.1095,
+    "G08": 0.153,
+    "G09": 0.1228,
+    "G10": 0.0514
+   },
+   "G03": {
+    "G01": 0.5387,
+    "G02": 0.2357,
+    "G03": 0.0,
+    "G04": 0.2822,
+    "G05": 0.3032,
+    "G06": 0.2518,
+    "G07": 0.1245,
+    "G08": 0.2323,
+    "G09": 0.1602,
+    "G10": 0.062
+   },
+   "G04": {
+    "G01": 0.4703,
+    "G02": 0.2116,
+    "G03": 0.2822,
+    "G04": 0.0,
+    "G05": 0.2416,
+    "G06": 0.1996,
+    "G07": 0.1638,
+    "G08": 0.3069,
+    "G09": 0.4524,
+    "G10": 0.253
+   },
+   "G05": {
+    "G01": 0.3665,
+    "G02": 0.1435,
+    "G03": 0.3032,
+    "G04": 0.2416,
+    "G05": 0.0,
+    "G06": 0.5147,
+    "G07": 0.9463,
+    "G08": 1.0,
+    "G09": 0.6203,
+    "G10": 0.4816
+   },
+   "G06": {
+    "G01": 0.598,
+    "G02": 0.153,
+    "G03": 0.2518,
+    "G04": 0.1996,
+    "G05": 0.5147,
+    "G06": 0.0,
+    "G07": 0.4138,
+    "G08": 0.3954,
+    "G09": 0.3836,
+    "G10": 0.3134
+   },
+   "G07": {
+    "G01": 0.2208,
+    "G02": 0.1095,
+    "G03": 0.1245,
+    "G04": 0.1638,
+    "G05": 0.9463,
+    "G06": 0.4138,
+    "G07": 0.0,
+    "G08": 0.9157,
+    "G09": 0.6968,
+    "G10": 0.406
+   },
+   "G08": {
+    "G01": 0.3286,
+    "G02": 0.153,
+    "G03": 0.2323,
+    "G04": 0.3069,
+    "G05": 1.0,
+    "G06": 0.3954,
+    "G07": 0.9157,
+    "G08": 0.0,
+    "G09": 0.6635,
+    "G10": 0.497
+   },
+   "G09": {
+    "G01": 0.3961,
+    "G02": 0.1228,
+    "G03": 0.1602,
+    "G04": 0.4524,
+    "G05": 0.6203,
+    "G06": 0.3836,
+    "G07": 0.6968,
+    "G08": 0.6635,
+    "G09": 0.0,
+    "G10": 0.6018
+   },
+   "G10": {
+    "G01": 0.5429,
+    "G02": 0.0514,
+    "G03": 0.062,
+    "G04": 0.253,
+    "G05": 0.4816,
+    "G06": 0.3134,
+    "G07": 0.406,
+    "G08": 0.497,
+    "G09": 0.6018,
+    "G10": 0.0
+   }
+  }
+ },
+ "method": "Combine the four coupling layers, score the model against stages 19c -> 43, and count workstreams.\n\n    python3 -I validation-results/13-coupling/scripts/combine.py      (after the five layer scripts)\n\nEach layer gives a symmetric 10 x 10 matrix scaled to [0, 1] by its largest off-diagonal entry; a layer made of\nseveral terms is the mean of its scaled terms:\n  electrical  = mean(normalised cut, all nets; normalised cut, no rails)                     (electrical.json)\n  physical    = mean(courtyard touch fraction <= 2 mm; routed copper in the other's territory; routed adjacency\n                <= 0.5 mm; contested 10 mm corridor tiles; HOT / SELV net pairs inside 9 mm) (physical.json)\n  physics     = mean(heat deposited within 5 mm; dv/dt overlap (adjacent layer + same layer <= 3.5 mm);\n                return-path reference changes; coil-field pickup utilisation; RES_A creepage 1/margin) (physics.json)\n  verification = shared non-global gate / metric reads                                       (verification.json)\ncombined = mean of the four layers. Pairs are ranked by combined.\nEmpirical check (history.json): for every stage that changed copper or parts, each (intended group, other group) pair\nis positive if the other group's territory took >= 2 changed routed-copper items or DECISIONS records a ripple\nbetween them; ROC AUC of each layer and of the combined score over those pairs. Metric check: metrics that moved at\neach stage against the non-global metrics the intended groups re-trigger (verification.json).\nWorkstreams: at threshold tau, groups joined by a combined edge >= tau must be serialised (connected components =\nworkstreams); the largest set of groups with no edge >= tau between them can be changed concurrently. tau is set\nfrom the history: the median combined score of the observed-ripple pairs. Six-layer scenario (c33 PLAN.md 'can\nchange'): the routing-room terms (routed interleave, routed adjacency, corridors, return-path changes, and the coil\npickup's plane-continuity term) set to zero as an upper bound on what two extra planes could cut; barrier, creepage,\nelectrical, thermal and verification terms kept.",
+ "ranked_pairs": [
+  {
+   "combined": 0.4826,
+   "electrical": 0.2707,
+   "pair": "G05-G07",
+   "physical": 0.4601,
+   "physics": 0.2535,
+   "verification": 0.9463
+  },
+  {
+   "combined": 0.4513,
+   "electrical": 1.0,
+   "pair": "G03-G05",
+   "physical": 0.2216,
+   "physics": 0.2804,
+   "verification": 0.3032
+  },
+  {
+   "combined": 0.4478,
+   "electrical": 0.6705,
+   "pair": "G09-G10",
+   "physical": 0.4176,
+   "physics": 0.1011,
+   "verification": 0.6018
+  },
+  {
+   "combined": 0.4312,
+   "electrical": 0.6886,
+   "pair": "G05-G10",
+   "physical": 0.3208,
+   "physics": 0.2338,
+   "verification": 0.4816
+  },
+  {
+   "combined": 0.4278,
+   "electrical": 0.2628,
+   "pair": "G06-G07",
+   "physical": 0.6406,
+   "physics": 0.3938,
+   "verification": 0.4138
+  },
+  {
+   "combined": 0.4035,
+   "electrical": 0.0742,
+   "pair": "G05-G08",
+   "physical": 0.3533,
+   "physics": 0.1864,
+   "verification": 1.0
+  },
+  {
+   "combined": 0.3542,
+   "electrical": 0.3972,
+   "pair": "G05-G06",
+   "physical": 0.2941,
+   "physics": 0.2108,
+   "verification": 0.5147
+  },
+  {
+   "combined": 0.3466,
+   "electrical": 0.0348,
+   "pair": "G07-G08",
+   "physical": 0.3733,
+   "physics": 0.0625,
+   "verification": 0.9157
+  },
+  {
+   "combined": 0.2945,
+   "electrical": 0.1388,
+   "pair": "G05-G09",
+   "physical": 0.28,
+   "physics": 0.1391,
+   "verification": 0.6203
+  },
+  {
+   "combined": 0.2913,
+   "electrical": 0.8739,
+   "pair": "G02-G03",
+   "physical": 0.0175,
+   "physics": 0.038,
+   "verification": 0.2357
+  },
+  {
+   "combined": 0.2869,
+   "electrical": 0.0877,
+   "pair": "G07-G09",
+   "physical": 0.2613,
+   "physics": 0.1016,
+   "verification": 0.6968
+  },
+  {
+   "combined": 0.2688,
+   "electrical": 0.0949,
+   "pair": "G08-G09",
+   "physical": 0.2711,
+   "physics": 0.0458,
+   "verification": 0.6635
+  },
+  {
+   "combined": 0.263,
+   "electrical": 0.2822,
+   "pair": "G08-G10",
+   "physical": 0.2729,
+   "physics": 0.0,
+   "verification": 0.497
+  },
+  {
+   "combined": 0.2423,
+   "electrical": 0.2038,
+   "pair": "G01-G10",
+   "physical": 0.2227,
+   "physics": 0.0,
+   "verification": 0.5429
+  },
+  {
+   "combined": 0.2133,
+   "electrical": 0.1237,
+   "pair": "G04-G09",
+   "physical": 0.0211,
+   "physics": 0.2562,
+   "verification": 0.4524
+  },
+  {
+   "combined": 0.2119,
+   "electrical": 0.1299,
+   "pair": "G01-G06",
+   "physical": 0.0837,
+   "physics": 0.0363,
+   "verification": 0.598
+  },
+  {
+   "combined": 0.1967,
+   "electrical": 0.0911,
+   "pair": "G07-G10",
+   "physical": 0.2338,
+   "physics": 0.056,
+   "verification": 0.406
+  },
+  {
+   "combined": 0.1841,
+   "electrical": 0.1299,
+   "pair": "G01-G09",
+   "physical": 0.1958,
+   "physics": 0.0145,
+   "verification": 0.3961
+  },
+  {
+   "combined": 0.1801,
+   "electrical": 0.1033,
+   "pair": "G01-G03",
+   "physical": 0.0019,
+   "physics": 0.0768,
+   "verification": 0.5387
+  },
+  {
+   "combined": 0.1702,
+   "electrical": 0.3562,
+   "pair": "G04-G05",
+   "physical": 0.0093,
+   "physics": 0.0736,
+   "verification": 0.2416
+  },
+  {
+   "combined": 0.1509,
+   "electrical": 0.1551,
+   "pair": "G01-G02",
+   "physical": 0.0935,
+   "physics": 0.1194,
+   "verification": 0.2357
+  },
+  {
+   "combined": 0.1506,
+   "electrical": 0.013,
+   "pair": "G06-G08",
+   "physical": 0.1468,
+   "physics": 0.0473,
+   "verification": 0.3954
+  },
+  {
+   "combined": 0.1463,
+   "electrical": 0.0,
+   "pair": "G01-G05",
+   "physical": 0.1504,
+   "physics": 0.0683,
+   "verification": 0.3665
+  },
+  {
+   "combined": 0.1388,
+   "electrical": 0.0218,
+   "pair": "G06-G09",
+   "physical": 0.0368,
+   "physics": 0.113,
+   "verification": 0.3836
+  },
+  {
+   "combined": 0.1316,
+   "electrical": 0.0,
+   "pair": "G04-G08",
+   "physical": 0.0011,
+   "physics": 0.2183,
+   "verification": 0.3069
+  },
+  {
+   "combined": 0.1297,
+   "electrical": 0.0,
+   "pair": "G01-G04",
+   "physical": 0.0,
+   "physics": 0.0485,
+   "verification": 0.4703
+  },
+  {
+   "combined": 0.1244,
+   "electrical": 0.0856,
+   "pair": "G03-G06",
+   "physical": 0.0145,
+   "physics": 0.1458,
+   "verification": 0.2518
+  },
+  {
+   "combined": 0.1222,
+   "electrical": 0.1046,
+   "pair": "G03-G08",
+   "physical": 0.0492,
+   "physics": 0.1028,
+   "verification": 0.2323
+  },
+  {
+   "combined": 0.1189,
+   "electrical": 0.0183,
+   "pair": "G01-G08",
+   "physical": 0.1226,
+   "physics": 0.0062,
+   "verification": 0.3286
+  },
+  {
+   "combined": 0.1151,
+   "electrical": 0.1187,
+   "pair": "G03-G04",
+   "physical": 0.0024,
+   "physics": 0.0571,
+   "verification": 0.2822
+  },
+  {
+   "combined": 0.1119,
+   "electrical": 0.0376,
+   "pair": "G06-G10",
+   "physical": 0.0628,
+   "physics": 0.0338,
+   "verification": 0.3134
+  },
+  {
+   "combined": 0.0886,
+   "electrical": 0.0,
+   "pair": "G01-G07",
+   "physical": 0.0971,
+   "physics": 0.0363,
+   "verification": 0.2208
+  },
+  {
+   "combined": 0.0869,
+   "electrical": 0.0594,
+   "pair": "G04-G06",
+   "physical": 0.0289,
+   "physics": 0.0596,
+   "verification": 0.1996
+  },
+  {
+   "combined": 0.0828,
+   "electrical": 0.1551,
+   "pair": "G02-G08",
+   "physical": 0.0197,
+   "physics": 0.0036,
+   "verification": 0.153
+  },
+  {
+   "combined": 0.0797,
+   "electrical": 0.0856,
+   "pair": "G03-G07",
+   "physical": 0.0187,
+   "physics": 0.09,
+   "verification": 0.1245
+  },
+  {
+   "combined": 0.0748,
+   "electrical": 0.0,
+   "pair": "G04-G10",
+   "physical": 0.0011,
+   "physics": 0.0451,
+   "verification": 0.253
+  },
+  {
+   "combined": 0.0712,
+   "electrical": 0.0594,
+   "pair": "G04-G07",
+   "physical": 0.0105,
+   "physics": 0.051,
+   "verification": 0.1638
+  },
+  {
+   "combined": 0.0666,
+   "electrical": 0.0176,
+   "pair": "G03-G09",
+   "physical": 0.0066,
+   "physics": 0.082,
+   "verification": 0.1602
+  },
+  {
+   "combined": 0.0646,
+   "electrical": 0.0,
+   "pair": "G02-G09",
+   "physical": 0.1048,
+   "physics": 0.031,
+   "verification": 0.1228
+  },
+  {
+   "combined": 0.0538,
+   "electrical": 0.0,
+   "pair": "G02-G04",
+   "physical": 0.0,
+   "physics": 0.0034,
+   "verification": 0.2116
+  },
+  {
+   "combined": 0.0465,
+   "electrical": 0.0,
+   "pair": "G02-G06",
+   "physical": 0.033,
+   "physics": 0.0001,
+   "verification": 0.153
+  },
+  {
+   "combined": 0.0463,
+   "electrical": 0.0,
+   "pair": "G02-G05",
+   "physical": 0.0097,
+   "physics": 0.0322,
+   "verification": 0.1435
+  },
+  {
+   "combined": 0.0348,
+   "electrical": 0.0,
+   "pair": "G02-G10",
+   "physical": 0.0879,
+   "physics": 0.0,
+   "verification": 0.0514
+  },
+  {
+   "combined": 0.0287,
+   "electrical": 0.0,
+   "pair": "G02-G07",
+   "physical": 0.0053,
+   "physics": 0.0001,
+   "verification": 0.1095
+  },
+  {
+   "combined": 0.025,
+   "electrical": 0.0,
+   "pair": "G03-G10",
+   "physical": 0.0044,
+   "physics": 0.0338,
+   "verification": 0.062
+  }
+ ],
+ "six_layer_bound": {
+  "combined": {
+   "G01": {
+    "G01": 0.0,
+    "G02": 0.1427,
+    "G03": 0.1797,
+    "G04": 0.1297,
+    "G05": 0.1103,
+    "G06": 0.2059,
+    "G07": 0.065,
+    "G08": 0.0891,
+    "G09": 0.1381,
+    "G10": 0.1921
+   },
+   "G02": {
+    "G01": 0.1427,
+    "G02": 0.0,
+    "G03": 0.2869,
+    "G04": 0.0538,
+    "G05": 0.0451,
+    "G06": 0.0383,
+    "G07": 0.0277,
+    "G08": 0.0783,
+    "G09": 0.0604,
+    "G10": 0.0305
+   },
+   "G03": {
+    "G01": 0.1797,
+    "G02": 0.2869,
+    "G03": 0.0,
+    "G04": 0.1145,
+    "G05": 0.4319,
+    "G06": 0.1208,
+    "G07": 0.0758,
+    "G08": 0.1181,
+    "G09": 0.066,
+    "G10": 0.025
+   },
+   "G04": {
+    "G01": 0.1297,
+    "G02": 0.0538,
+    "G03": 0.1145,
+    "G04": 0.0,
+    "G05": 0.1681,
+    "G06": 0.0796,
+    "G07": 0.0688,
+    "G08": 0.0816,
+    "G09": 0.2088,
+    "G10": 0.0748
+   },
+   "G05": {
+    "G01": 0.1103,
+    "G02": 0.0451,
+    "G03": 0.4319,
+    "G04": 0.1681,
+    "G05": 0.0,
+    "G06": 0.3164,
+    "G07": 0.4024,
+    "G08": 0.3414,
+    "G09": 0.2237,
+    "G10": 0.3183
+   },
+   "G06": {
+    "G01": 0.2059,
+    "G02": 0.0383,
+    "G03": 0.1208,
+    "G04": 0.0796,
+    "G05": 0.3164,
+    "G06": 0.0,
+    "G07": 0.3278,
+    "G08": 0.1353,
+    "G09": 0.1359,
+    "G10": 0.1097
+   },
+   "G07": {
+    "G01": 0.065,
+    "G02": 0.0277,
+    "G03": 0.0758,
+    "G04": 0.0688,
+    "G05": 0.4024,
+    "G06": 0.3278,
+    "G07": 0.0,
+    "G08": 0.286,
+    "G09": 0.24,
+    "G10": 0.1533
+   },
+   "G08": {
+    "G01": 0.0891,
+    "G02": 0.0783,
+    "G03": 0.1181,
+    "G04": 0.0816,
+    "G05": 0.3414,
+    "G06": 0.1353,
+    "G07": 0.286,
+    "G08": 0.0,
+    "G09": 0.2168,
+    "G10": 0.2107
+   },
+   "G09": {
+    "G01": 0.1381,
+    "G02": 0.0604,
+    "G03": 0.066,
+    "G04": 0.2088,
+    "G05": 0.2237,
+    "G06": 0.1359,
+    "G07": 0.24,
+    "G08": 0.2168,
+    "G09": 0.0,
+    "G10": 0.3449
+   },
+   "G10": {
+    "G01": 0.1921,
+    "G02": 0.0305,
+    "G03": 0.025,
+    "G04": 0.0748,
+    "G05": 0.3183,
+    "G06": 0.1097,
+    "G07": 0.1533,
+    "G08": 0.2107,
+    "G09": 0.3449,
+    "G10": 0.0
+   }
+  },
+  "pair_cut": [
+   {
+    "combined_now": 0.4312,
+    "combined_six_layer_bound": 0.3183,
+    "cut": 0.1129,
+    "pair": "G05-G10"
+   },
+   {
+    "combined_now": 0.4478,
+    "combined_six_layer_bound": 0.3449,
+    "cut": 0.1029,
+    "pair": "G09-G10"
+   },
+   {
+    "combined_now": 0.4278,
+    "combined_six_layer_bound": 0.3278,
+    "cut": 0.1,
+    "pair": "G06-G07"
+   },
+   {
+    "combined_now": 0.4826,
+    "combined_six_layer_bound": 0.4024,
+    "cut": 0.0802,
+    "pair": "G05-G07"
+   },
+   {
+    "combined_now": 0.2945,
+    "combined_six_layer_bound": 0.2237,
+    "cut": 0.0708,
+    "pair": "G05-G09"
+   },
+   {
+    "combined_now": 0.4035,
+    "combined_six_layer_bound": 0.3414,
+    "cut": 0.0621,
+    "pair": "G05-G08"
+   },
+   {
+    "combined_now": 0.3466,
+    "combined_six_layer_bound": 0.286,
+    "cut": 0.0605,
+    "pair": "G07-G08"
+   },
+   {
+    "combined_now": 0.263,
+    "combined_six_layer_bound": 0.2107,
+    "cut": 0.0523,
+    "pair": "G08-G10"
+   },
+   {
+    "combined_now": 0.2688,
+    "combined_six_layer_bound": 0.2168,
+    "cut": 0.052,
+    "pair": "G08-G09"
+   },
+   {
+    "combined_now": 0.2423,
+    "combined_six_layer_bound": 0.1921,
+    "cut": 0.0502,
+    "pair": "G01-G10"
+   },
+   {
+    "combined_now": 0.1316,
+    "combined_six_layer_bound": 0.0816,
+    "cut": 0.05,
+    "pair": "G04-G08"
+   },
+   {
+    "combined_now": 0.2869,
+    "combined_six_layer_bound": 0.24,
+    "cut": 0.0469,
+    "pair": "G07-G09"
+   },
+   {
+    "combined_now": 0.1841,
+    "combined_six_layer_bound": 0.1381,
+    "cut": 0.046,
+    "pair": "G01-G09"
+   },
+   {
+    "combined_now": 0.1967,
+    "combined_six_layer_bound": 0.1533,
+    "cut": 0.0434,
+    "pair": "G07-G10"
+   },
+   {
+    "combined_now": 0.3542,
+    "combined_six_layer_bound": 0.3164,
+    "cut": 0.0379,
+    "pair": "G05-G06"
+   },
+   {
+    "combined_now": 0.1463,
+    "combined_six_layer_bound": 0.1103,
+    "cut": 0.036,
+    "pair": "G01-G05"
+   },
+   {
+    "combined_now": 0.1189,
+    "combined_six_layer_bound": 0.0891,
+    "cut": 0.0299,
+    "pair": "G01-G08"
+   },
+   {
+    "combined_now": 0.0886,
+    "combined_six_layer_bound": 0.065,
+    "cut": 0.0235,
+    "pair": "G01-G07"
+   },
+   {
+    "combined_now": 0.4513,
+    "combined_six_layer_bound": 0.4319,
+    "cut": 0.0193,
+    "pair": "G03-G05"
+   },
+   {
+    "combined_now": 0.1506,
+    "combined_six_layer_bound": 0.1353,
+    "cut": 0.0153,
+    "pair": "G06-G08"
+   },
+   {
+    "combined_now": 0.0465,
+    "combined_six_layer_bound": 0.0383,
+    "cut": 0.0083,
+    "pair": "G02-G06"
+   },
+   {
+    "combined_now": 0.1509,
+    "combined_six_layer_bound": 0.1427,
+    "cut": 0.0082,
+    "pair": "G01-G02"
+   },
+   {
+    "combined_now": 0.0869,
+    "combined_six_layer_bound": 0.0796,
+    "cut": 0.0072,
+    "pair": "G04-G06"
+   },
+   {
+    "combined_now": 0.2119,
+    "combined_six_layer_bound": 0.2059,
+    "cut": 0.006,
+    "pair": "G01-G06"
+   },
+   {
+    "combined_now": 0.0828,
+    "combined_six_layer_bound": 0.0783,
+    "cut": 0.0046,
+    "pair": "G02-G08"
+   },
+   {
+    "combined_now": 0.2133,
+    "combined_six_layer_bound": 0.2088,
+    "cut": 0.0046,
+    "pair": "G04-G09"
+   },
+   {
+    "combined_now": 0.2913,
+    "combined_six_layer_bound": 0.2869,
+    "cut": 0.0044,
+    "pair": "G02-G03"
+   },
+   {
+    "combined_now": 0.0646,
+    "combined_six_layer_bound": 0.0604,
+    "cut": 0.0043,
+    "pair": "G02-G09"
+   },
+   {
+    "combined_now": 0.0348,
+    "combined_six_layer_bound": 0.0305,
+    "cut": 0.0043,
+    "pair": "G02-G10"
+   },
+   {
+    "combined_now": 0.1222,
+    "combined_six_layer_bound": 0.1181,
+    "cut": 0.0041,
+    "pair": "G03-G08"
+   },
+   {
+    "combined_now": 0.0797,
+    "combined_six_layer_bound": 0.0758,
+    "cut": 0.0039,
+    "pair": "G03-G07"
+   },
+   {
+    "combined_now": 0.1244,
+    "combined_six_layer_bound": 0.1208,
+    "cut": 0.0036,
+    "pair": "G03-G06"
+   },
+   {
+    "combined_now": 0.1388,
+    "combined_six_layer_bound": 0.1359,
+    "cut": 0.0029,
+    "pair": "G06-G09"
+   },
+   {
+    "combined_now": 0.0712,
+    "combined_six_layer_bound": 0.0688,
+    "cut": 0.0024,
+    "pair": "G04-G07"
+   },
+   {
+    "combined_now": 0.1119,
+    "combined_six_layer_bound": 0.1097,
+    "cut": 0.0022,
+    "pair": "G06-G10"
+   },
+   {
+    "combined_now": 0.1702,
+    "combined_six_layer_bound": 0.1681,
+    "cut": 0.0021,
+    "pair": "G04-G05"
+   },
+   {
+    "combined_now": 0.0463,
+    "combined_six_layer_bound": 0.0451,
+    "cut": 0.0013,
+    "pair": "G02-G05"
+   },
+   {
+    "combined_now": 0.0287,
+    "combined_six_layer_bound": 0.0277,
+    "cut": 0.001,
+    "pair": "G02-G07"
+   },
+   {
+    "combined_now": 0.0666,
+    "combined_six_layer_bound": 0.066,
+    "cut": 0.0006,
+    "pair": "G03-G09"
+   },
+   {
+    "combined_now": 0.1151,
+    "combined_six_layer_bound": 0.1145,
+    "cut": 0.0006,
+    "pair": "G03-G04"
+   },
+   {
+    "combined_now": 0.1801,
+    "combined_six_layer_bound": 0.1797,
+    "cut": 0.0005,
+    "pair": "G01-G03"
+   },
+   {
+    "combined_now": 0.1297,
+    "combined_six_layer_bound": 0.1297,
+    "cut": 0.0,
+    "pair": "G01-G04"
+   },
+   {
+    "combined_now": 0.0538,
+    "combined_six_layer_bound": 0.0538,
+    "cut": 0.0,
+    "pair": "G02-G04"
+   },
+   {
+    "combined_now": 0.025,
+    "combined_six_layer_bound": 0.025,
+    "cut": 0.0,
+    "pair": "G03-G10"
+   },
+   {
+    "combined_now": 0.0748,
+    "combined_six_layer_bound": 0.0748,
+    "cut": 0.0,
+    "pair": "G04-G10"
+   }
+  ],
+  "workstreams": {
+   "edges": [
+    "G02-G03",
+    "G03-G05",
+    "G05-G06",
+    "G05-G07",
+    "G05-G08",
+    "G05-G10",
+    "G06-G07",
+    "G07-G08",
+    "G09-G10"
+   ],
+   "edges_removed_vs_now": [
+    "G05-G09",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10"
+   ],
+   "group_clusters": {
+    "1.0": {
+     "clusters": [
+      [
+       "G04",
+       "G05",
+       "G06",
+       "G07",
+       "G08",
+       "G09",
+       "G10"
+      ],
+      [
+       "G01",
+       "G02",
+       "G03"
+      ]
+     ],
+     "inter_edges_at_or_above_tau": [
+      "G03-G05"
+     ],
+     "max_inter": 0.4319,
+     "max_inter_pair": "G03-G05",
+     "mean_inter": 0.1055,
+     "mean_intra": 0.2106,
+     "n": 2
+    },
+    "1.5": {
+     "clusters": [
+      [
+       "G01",
+       "G02",
+       "G03"
+      ],
+      [
+       "G06",
+       "G07"
+      ],
+      [
+       "G09",
+       "G10"
+      ],
+      [
+       "G04"
+      ],
+      [
+       "G05"
+      ],
+      [
+       "G08"
+      ]
+     ],
+     "inter_edges_at_or_above_tau": [
+      "G03-G05",
+      "G05-G06",
+      "G05-G07",
+      "G05-G08",
+      "G05-G10",
+      "G07-G08"
+     ],
+     "max_inter": 0.4319,
+     "max_inter_pair": "G03-G05",
+     "mean_inter": 0.1497,
+     "mean_intra": 0.2564,
+     "n": 6
+    },
+    "2.0": {
+     "clusters": [
+      [
+       "G02",
+       "G03"
+      ],
+      [
+       "G09",
+       "G10"
+      ],
+      [
+       "G01"
+      ],
+      [
+       "G04"
+      ],
+      [
+       "G05"
+      ],
+      [
+       "G06"
+      ],
+      [
+       "G07"
+      ],
+      [
+       "G08"
+      ]
+     ],
+     "inter_edges_at_or_above_tau": [
+      "G03-G05",
+      "G05-G06",
+      "G05-G07",
+      "G05-G08",
+      "G05-G10",
+      "G06-G07",
+      "G07-G08"
+     ],
+     "max_inter": 0.4319,
+     "max_inter_pair": "G03-G05",
+     "mean_inter": 0.1544,
+     "mean_intra": 0.3159,
+     "n": 8
+    }
+   },
+   "max_concurrent_set": [
+    "G01",
+    "G03",
+    "G04",
+    "G06",
+    "G08",
+    "G10"
+   ],
+   "n_max_concurrent": 6,
+   "n_workstreams": 3,
+   "tau": 0.263,
+   "workstreams": [
+    [
+     "G02",
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    [
+     "G01"
+    ],
+    [
+     "G04"
+    ]
+   ]
+  }
+ },
+ "term_matrices_raw": {
+  "electrical": {
+   "cut_norm_all": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0627,
+     "G03": 0.0393,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0494,
+     "G07": 0.0,
+     "G08": 0.007,
+     "G09": 0.0494,
+     "G10": 0.0864
+    },
+    "G02": {
+     "G01": 0.0627,
+     "G02": 0.0,
+     "G03": 0.3533,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0627,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0393,
+     "G02": 0.3533,
+     "G03": 0.0,
+     "G04": 0.048,
+     "G05": 0.4043,
+     "G06": 0.0346,
+     "G07": 0.0346,
+     "G08": 0.0423,
+     "G09": 0.0071,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.048,
+     "G04": 0.0,
+     "G05": 0.144,
+     "G06": 0.024,
+     "G07": 0.024,
+     "G08": 0.0,
+     "G09": 0.05,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.4043,
+     "G04": 0.144,
+     "G05": 0.0,
+     "G06": 0.2166,
+     "G07": 0.1765,
+     "G08": 0.0433,
+     "G09": 0.1004,
+     "G10": 0.2627
+    },
+    "G06": {
+     "G01": 0.0494,
+     "G02": 0.0,
+     "G03": 0.0346,
+     "G04": 0.024,
+     "G05": 0.2166,
+     "G06": 0.0,
+     "G07": 0.1986,
+     "G08": 0.0087,
+     "G09": 0.0052,
+     "G10": 0.0108
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0346,
+     "G04": 0.024,
+     "G05": 0.1765,
+     "G06": 0.1986,
+     "G07": 0.0,
+     "G08": 0.0267,
+     "G09": 0.0689,
+     "G10": 0.0737
+    },
+    "G08": {
+     "G01": 0.007,
+     "G02": 0.0627,
+     "G03": 0.0423,
+     "G04": 0.0,
+     "G05": 0.0433,
+     "G06": 0.0087,
+     "G07": 0.0267,
+     "G08": 0.0,
+     "G09": 0.0545,
+     "G10": 0.1106
+    },
+    "G09": {
+     "G01": 0.0494,
+     "G02": 0.0,
+     "G03": 0.0071,
+     "G04": 0.05,
+     "G05": 0.1004,
+     "G06": 0.0052,
+     "G07": 0.0689,
+     "G08": 0.0545,
+     "G09": 0.0,
+     "G10": 0.2873
+    },
+    "G10": {
+     "G01": 0.0864,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.2627,
+     "G06": 0.0108,
+     "G07": 0.0737,
+     "G08": 0.1106,
+     "G09": 0.2873,
+     "G10": 0.0
+    }
+   },
+   "cut_norm_no_rails": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0627,
+     "G03": 0.0442,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0556,
+     "G07": 0.0,
+     "G08": 0.0078,
+     "G09": 0.0556,
+     "G10": 0.0784
+    },
+    "G02": {
+     "G01": 0.0627,
+     "G02": 0.0,
+     "G03": 0.3533,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0627,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0442,
+     "G02": 0.3533,
+     "G03": 0.0,
+     "G04": 0.048,
+     "G05": 0.4043,
+     "G06": 0.0346,
+     "G07": 0.0346,
+     "G08": 0.0423,
+     "G09": 0.0071,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.048,
+     "G04": 0.0,
+     "G05": 0.144,
+     "G06": 0.024,
+     "G07": 0.024,
+     "G08": 0.0,
+     "G09": 0.05,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.4043,
+     "G04": 0.144,
+     "G05": 0.0,
+     "G06": 0.1046,
+     "G07": 0.0424,
+     "G08": 0.0167,
+     "G09": 0.0118,
+     "G10": 0.2941
+    },
+    "G06": {
+     "G01": 0.0556,
+     "G02": 0.0,
+     "G03": 0.0346,
+     "G04": 0.024,
+     "G05": 0.1046,
+     "G06": 0.0,
+     "G07": 0.0139,
+     "G08": 0.0018,
+     "G09": 0.0124,
+     "G10": 0.0196
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0346,
+     "G04": 0.024,
+     "G05": 0.0424,
+     "G06": 0.0139,
+     "G07": 0.0,
+     "G08": 0.0014,
+     "G09": 0.002,
+     "G10": 0.0
+    },
+    "G08": {
+     "G01": 0.0078,
+     "G02": 0.0627,
+     "G03": 0.0423,
+     "G04": 0.0,
+     "G05": 0.0167,
+     "G06": 0.0018,
+     "G07": 0.0014,
+     "G08": 0.0,
+     "G09": 0.0222,
+     "G10": 0.1176
+    },
+    "G09": {
+     "G01": 0.0556,
+     "G02": 0.0,
+     "G03": 0.0071,
+     "G04": 0.05,
+     "G05": 0.0118,
+     "G06": 0.0124,
+     "G07": 0.002,
+     "G08": 0.0222,
+     "G09": 0.0,
+     "G10": 0.2549
+    },
+    "G10": {
+     "G01": 0.0784,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.2941,
+     "G06": 0.0196,
+     "G07": 0.0,
+     "G08": 0.1176,
+     "G09": 0.2549,
+     "G10": 0.0
+    }
+   }
+  },
+  "physical": {
+   "barrier_pairs_9mm": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.725,
+     "G06": 1.0,
+     "G07": 0.35,
+     "G08": 0.35,
+     "G09": 1.35,
+     "G10": 2.475
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.525,
+     "G06": 0.0,
+     "G07": 0.15,
+     "G08": 0.15,
+     "G09": 0.15,
+     "G10": 0.275
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.845,
+     "G06": 0.0,
+     "G07": 0.37,
+     "G08": 0.27,
+     "G09": 0.47,
+     "G10": 0.495
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.12,
+     "G06": 0.0,
+     "G07": 0.12,
+     "G08": 0.12,
+     "G09": 0.32,
+     "G10": 0.12
+    },
+    "G05": {
+     "G01": 0.725,
+     "G02": 0.525,
+     "G03": 0.845,
+     "G04": 0.12,
+     "G05": 0.0,
+     "G06": 15.1867,
+     "G07": 22.5733,
+     "G08": 9.545,
+     "G09": 4.6533,
+     "G10": 7.7867
+    },
+    "G06": {
+     "G01": 1.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 15.1867,
+     "G06": 0.0,
+     "G07": 4.5867,
+     "G08": 2.32,
+     "G09": 2.8533,
+     "G10": 6.0867
+    },
+    "G07": {
+     "G01": 0.35,
+     "G02": 0.15,
+     "G03": 0.37,
+     "G04": 0.12,
+     "G05": 22.5733,
+     "G06": 4.5867,
+     "G07": 0.0,
+     "G08": 9.47,
+     "G09": 6.3533,
+     "G10": 8.0867
+    },
+    "G08": {
+     "G01": 0.35,
+     "G02": 0.15,
+     "G03": 0.27,
+     "G04": 0.12,
+     "G05": 9.545,
+     "G06": 2.32,
+     "G07": 9.47,
+     "G08": 0.0,
+     "G09": 7.95,
+     "G10": 7.175
+    },
+    "G09": {
+     "G01": 1.35,
+     "G02": 0.15,
+     "G03": 0.47,
+     "G04": 0.32,
+     "G05": 4.6533,
+     "G06": 2.8533,
+     "G07": 6.3533,
+     "G08": 7.95,
+     "G09": 0.0,
+     "G10": 1.9
+    },
+    "G10": {
+     "G01": 2.475,
+     "G02": 0.275,
+     "G03": 0.495,
+     "G04": 0.12,
+     "G05": 7.7867,
+     "G06": 6.0867,
+     "G07": 8.0867,
+     "G08": 7.175,
+     "G09": 1.9,
+     "G10": 0.0
+    }
+   },
+   "corridor_tiles": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 9.0,
+     "G06": 0.0,
+     "G07": 6.0,
+     "G08": 8.0,
+     "G09": 11.0,
+     "G10": 12.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 9.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 4.0,
+     "G08": 8.0,
+     "G09": 11.0,
+     "G10": 12.0
+    },
+    "G06": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 6.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 4.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 5.0,
+     "G09": 6.0,
+     "G10": 6.0
+    },
+    "G08": {
+     "G01": 8.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 8.0,
+     "G06": 0.0,
+     "G07": 5.0,
+     "G08": 0.0,
+     "G09": 10.0,
+     "G10": 11.0
+    },
+    "G09": {
+     "G01": 11.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 11.0,
+     "G06": 0.0,
+     "G07": 6.0,
+     "G08": 10.0,
+     "G09": 0.0,
+     "G10": 14.0
+    },
+    "G10": {
+     "G01": 12.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 12.0,
+     "G06": 0.0,
+     "G07": 6.0,
+     "G08": 11.0,
+     "G09": 14.0,
+     "G10": 0.0
+    }
+   },
+   "courtyard_touch_2mm": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.1111,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0926,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G02": {
+     "G01": 0.1111,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.1579,
+     "G10": 0.125
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.25,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0556,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.25,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0149,
+     "G07": 0.0109,
+     "G08": 0.0373,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G06": {
+     "G01": 0.0926,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0149,
+     "G06": 0.0,
+     "G07": 0.3657,
+     "G08": 0.119,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0109,
+     "G06": 0.3657,
+     "G07": 0.0,
+     "G08": 0.1269,
+     "G09": 0.0726,
+     "G10": 0.0196
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0556,
+     "G04": 0.0,
+     "G05": 0.0373,
+     "G06": 0.119,
+     "G07": 0.1269,
+     "G08": 0.0,
+     "G09": 0.027,
+     "G10": 0.0
+    },
+    "G09": {
+     "G01": 0.0,
+     "G02": 0.1579,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0726,
+     "G08": 0.027,
+     "G09": 0.0,
+     "G10": 0.1429
+    },
+    "G10": {
+     "G01": 0.0,
+     "G02": 0.125,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0196,
+     "G08": 0.0,
+     "G09": 0.1429,
+     "G10": 0.0
+    }
+   },
+   "routed_adjacency": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.9375,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0625,
+     "G10": 0.7188
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.9375,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 1.4062,
+     "G08": 4.4375,
+     "G09": 4.7188,
+     "G10": 3.2812
+    },
+    "G06": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 16.9062,
+     "G08": 1.3438,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 1.4062,
+     "G06": 16.9062,
+     "G07": 0.0,
+     "G08": 5.5,
+     "G09": 3.5938,
+     "G10": 2.6875
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 4.4375,
+     "G06": 1.3438,
+     "G07": 5.5,
+     "G08": 0.0,
+     "G09": 1.6875,
+     "G10": 3.1562
+    },
+    "G09": {
+     "G01": 0.0625,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 4.7188,
+     "G06": 0.0,
+     "G07": 3.5938,
+     "G08": 1.6875,
+     "G09": 0.0,
+     "G10": 5.0
+    },
+    "G10": {
+     "G01": 0.7188,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 3.2812,
+     "G06": 0.0,
+     "G07": 2.6875,
+     "G08": 3.1562,
+     "G09": 5.0,
+     "G10": 0.0
+    }
+   },
+   "routed_interleave": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 22.3829,
+     "G03": 1.2812,
+     "G04": 0.0,
+     "G05": 2.9412,
+     "G06": 16.5365,
+     "G07": 5.6677,
+     "G08": 3.5532,
+     "G09": 17.7563,
+     "G10": 14.2564
+    },
+    "G02": {
+     "G01": 22.3829,
+     "G02": 0.0,
+     "G03": 11.9766,
+     "G04": 0.0,
+     "G05": 3.4453,
+     "G06": 22.5625,
+     "G07": 2.6875,
+     "G08": 12.5547,
+     "G09": 11.6875,
+     "G10": 11.6875
+    },
+    "G03": {
+     "G01": 1.2812,
+     "G02": 11.9766,
+     "G03": 0.0,
+     "G04": 1.625,
+     "G05": 52.9099,
+     "G06": 9.9459,
+     "G07": 10.5334,
+     "G08": 11.2032,
+     "G09": 1.6313,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 1.625,
+     "G04": 0.0,
+     "G05": 5.6083,
+     "G06": 19.7834,
+     "G07": 6.4396,
+     "G08": 0.0,
+     "G09": 12.4688,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 2.9412,
+     "G02": 3.4453,
+     "G03": 52.9099,
+     "G04": 5.6083,
+     "G05": 0.0,
+     "G06": 103.5302,
+     "G07": 123.2964,
+     "G08": 55.7682,
+     "G09": 17.6531,
+     "G10": 28.3938
+    },
+    "G06": {
+     "G01": 16.5365,
+     "G02": 22.5625,
+     "G03": 9.9459,
+     "G04": 19.7834,
+     "G05": 103.5302,
+     "G06": 0.0,
+     "G07": 136.737,
+     "G08": 30.9198,
+     "G09": 7.9,
+     "G10": 6.0313
+    },
+    "G07": {
+     "G01": 5.6677,
+     "G02": 2.6875,
+     "G03": 10.5334,
+     "G04": 6.4396,
+     "G05": 123.2964,
+     "G06": 136.737,
+     "G07": 0.0,
+     "G08": 57.0744,
+     "G09": 25.375,
+     "G10": 23.2031
+    },
+    "G08": {
+     "G01": 3.5532,
+     "G02": 12.5547,
+     "G03": 11.2032,
+     "G04": 0.0,
+     "G05": 55.7682,
+     "G06": 30.9198,
+     "G07": 57.0744,
+     "G08": 0.0,
+     "G09": 15.747,
+     "G10": 10.122
+    },
+    "G09": {
+     "G01": 17.7563,
+     "G02": 11.6875,
+     "G03": 1.6313,
+     "G04": 12.4688,
+     "G05": 17.6531,
+     "G06": 7.9,
+     "G07": 25.375,
+     "G08": 15.747,
+     "G09": 0.0,
+     "G10": 43.3845
+    },
+    "G10": {
+     "G01": 14.2564,
+     "G02": 11.6875,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 28.3938,
+     "G06": 6.0313,
+     "G07": 23.2031,
+     "G08": 10.122,
+     "G09": 43.3845,
+     "G10": 0.0
+    }
+   }
+  },
+  "physics": {
+   "coil_field": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.642,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G06": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.642,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G09": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G10": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    }
+   },
+   "dvdt_overlap": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 1.5051,
+     "G04": 0.9632,
+     "G05": 1.5051,
+     "G06": 1.5051,
+     "G07": 1.5051,
+     "G08": 0.0,
+     "G09": 0.542,
+     "G10": 0.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 1.5051,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 1.6245,
+     "G05": 3.5766,
+     "G06": 4.9689,
+     "G07": 2.4824,
+     "G08": 1.0415,
+     "G09": 2.8302,
+     "G10": 1.5051
+    },
+    "G04": {
+     "G01": 0.9632,
+     "G02": 0.0,
+     "G03": 1.6245,
+     "G04": 0.0,
+     "G05": 2.1097,
+     "G06": 2.5259,
+     "G07": 1.5351,
+     "G08": 0.0035,
+     "G09": 1.8204,
+     "G10": 0.9632
+    },
+    "G05": {
+     "G01": 1.5051,
+     "G02": 0.0,
+     "G03": 3.5766,
+     "G04": 2.1097,
+     "G05": 0.0,
+     "G06": 8.5878,
+     "G07": 7.5187,
+     "G08": 1.7967,
+     "G09": 3.8036,
+     "G10": 1.5051
+    },
+    "G06": {
+     "G01": 1.5051,
+     "G02": 0.0,
+     "G03": 4.9689,
+     "G04": 2.5259,
+     "G05": 8.5878,
+     "G06": 0.0,
+     "G07": 8.9016,
+     "G08": 1.6917,
+     "G09": 4.8552,
+     "G10": 1.5051
+    },
+    "G07": {
+     "G01": 1.5051,
+     "G02": 0.0,
+     "G03": 2.4824,
+     "G04": 1.5351,
+     "G05": 7.5187,
+     "G06": 8.9016,
+     "G07": 0.0,
+     "G08": 1.6917,
+     "G09": 3.3596,
+     "G10": 1.5051
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 1.0415,
+     "G04": 0.0035,
+     "G05": 1.7967,
+     "G06": 1.6917,
+     "G07": 1.6917,
+     "G08": 0.0,
+     "G09": 1.038,
+     "G10": 0.0
+    },
+    "G09": {
+     "G01": 0.542,
+     "G02": 0.0,
+     "G03": 2.8302,
+     "G04": 1.8204,
+     "G05": 3.8036,
+     "G06": 4.8552,
+     "G07": 3.3596,
+     "G08": 1.038,
+     "G09": 0.0,
+     "G10": 0.542
+    },
+    "G10": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 1.5051,
+     "G04": 0.9632,
+     "G05": 1.5051,
+     "G06": 1.5051,
+     "G07": 1.5051,
+     "G08": 0.0,
+     "G09": 0.542,
+     "G10": 0.0
+    }
+   },
+   "heat_within_5mm": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.4305,
+     "G03": 0.1549,
+     "G04": 0.0122,
+     "G05": 0.1244,
+     "G06": 0.0088,
+     "G07": 0.0088,
+     "G08": 0.0224,
+     "G09": 0.0084,
+     "G10": 0.0
+    },
+    "G02": {
+     "G01": 0.4305,
+     "G02": 0.0,
+     "G03": 0.137,
+     "G04": 0.0123,
+     "G05": 0.116,
+     "G06": 0.0004,
+     "G07": 0.0004,
+     "G08": 0.0129,
+     "G09": 0.1119,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.1549,
+     "G02": 0.137,
+     "G03": 0.0,
+     "G04": 0.0741,
+     "G05": 0.7208,
+     "G06": 0.1232,
+     "G07": 0.1232,
+     "G08": 0.2861,
+     "G09": 0.0664,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0122,
+     "G02": 0.0123,
+     "G03": 0.0741,
+     "G04": 0.0,
+     "G05": 0.0454,
+     "G06": 0.0103,
+     "G07": 0.0103,
+     "G08": 0.0165,
+     "G09": 0.0551,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.1244,
+     "G02": 0.116,
+     "G03": 0.7208,
+     "G04": 0.0454,
+     "G05": 0.0,
+     "G06": 0.0645,
+     "G07": 0.0645,
+     "G08": 0.5263,
+     "G09": 0.033,
+     "G10": 0.0
+    },
+    "G06": {
+     "G01": 0.0088,
+     "G02": 0.0004,
+     "G03": 0.1232,
+     "G04": 0.0103,
+     "G05": 0.0645,
+     "G06": 0.0,
+     "G07": 0.6986,
+     "G08": 0.0334,
+     "G09": 0.0141,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 0.0088,
+     "G02": 0.0004,
+     "G03": 0.1232,
+     "G04": 0.0103,
+     "G05": 0.0645,
+     "G06": 0.6986,
+     "G07": 0.0,
+     "G08": 0.0083,
+     "G09": 0.0141,
+     "G10": 0.0
+    },
+    "G08": {
+     "G01": 0.0224,
+     "G02": 0.0129,
+     "G03": 0.2861,
+     "G04": 0.0165,
+     "G05": 0.5263,
+     "G06": 0.0334,
+     "G07": 0.0083,
+     "G08": 0.0,
+     "G09": 0.0008,
+     "G10": 0.0
+    },
+    "G09": {
+     "G01": 0.0084,
+     "G02": 0.1119,
+     "G03": 0.0664,
+     "G04": 0.0551,
+     "G05": 0.033,
+     "G06": 0.0141,
+     "G07": 0.0141,
+     "G08": 0.0008,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G10": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    }
+   },
+   "res_a_creepage": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.1514,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.1514,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0881,
+     "G06": 0.0,
+     "G07": 0.0881,
+     "G08": 0.0881,
+     "G09": 1.2903,
+     "G10": 0.1514
+    },
+    "G05": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0881,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G06": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0881,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0881,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G09": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 1.2903,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G10": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.1514,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    }
+   },
+   "return_path_changes": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G02": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G03": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G04": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G05": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 1.5,
+     "G08": 0.0,
+     "G09": 1.0,
+     "G10": 4.5
+    },
+    "G06": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.0,
+     "G09": 0.0,
+     "G10": 0.0
+    },
+    "G07": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 1.5,
+     "G06": 0.0,
+     "G07": 0.0,
+     "G08": 0.5,
+     "G09": 0.5,
+     "G10": 0.5
+    },
+    "G08": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 0.0,
+     "G06": 0.0,
+     "G07": 0.5,
+     "G08": 0.0,
+     "G09": 0.5,
+     "G10": 0.0
+    },
+    "G09": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 1.0,
+     "G06": 0.0,
+     "G07": 0.5,
+     "G08": 0.5,
+     "G09": 0.0,
+     "G10": 2.0
+    },
+    "G10": {
+     "G01": 0.0,
+     "G02": 0.0,
+     "G03": 0.0,
+     "G04": 0.0,
+     "G05": 4.5,
+     "G06": 0.0,
+     "G07": 0.5,
+     "G08": 0.0,
+     "G09": 2.0,
+     "G10": 0.0
+    }
+   }
+  },
+  "verification": {
+   "shared_reads": {
+    "G01": {
+     "G01": 0.0,
+     "G02": 0.4386,
+     "G03": 1.0025,
+     "G04": 0.8752,
+     "G05": 0.6821,
+     "G06": 1.1129,
+     "G07": 0.411,
+     "G08": 0.6116,
+     "G09": 0.7372,
+     "G10": 1.0103
+    },
+    "G02": {
+     "G01": 0.4386,
+     "G02": 0.0,
+     "G03": 0.4386,
+     "G04": 0.3938,
+     "G05": 0.2671,
+     "G06": 0.2848,
+     "G07": 0.2038,
+     "G08": 0.2848,
+     "G09": 0.2285,
+     "G10": 0.0956
+    },
+    "G03": {
+     "G01": 1.0025,
+     "G02": 0.4386,
+     "G03": 0.0,
+     "G04": 0.5252,
+     "G05": 0.5643,
+     "G06": 0.4687,
+     "G07": 0.2317,
+     "G08": 0.4323,
+     "G09": 0.2982,
+     "G10": 0.1153
+    },
+    "G04": {
+     "G01": 0.8752,
+     "G02": 0.3938,
+     "G03": 0.5252,
+     "G04": 0.0,
+     "G05": 0.4497,
+     "G06": 0.3714,
+     "G07": 0.3049,
+     "G08": 0.5711,
+     "G09": 0.842,
+     "G10": 0.4708
+    },
+    "G05": {
+     "G01": 0.6821,
+     "G02": 0.2671,
+     "G03": 0.5643,
+     "G04": 0.4497,
+     "G05": 0.0,
+     "G06": 0.9579,
+     "G07": 1.7611,
+     "G08": 1.8611,
+     "G09": 1.1545,
+     "G10": 0.8963
+    },
+    "G06": {
+     "G01": 1.1129,
+     "G02": 0.2848,
+     "G03": 0.4687,
+     "G04": 0.3714,
+     "G05": 0.9579,
+     "G06": 0.0,
+     "G07": 0.7701,
+     "G08": 0.7359,
+     "G09": 0.714,
+     "G10": 0.5833
+    },
+    "G07": {
+     "G01": 0.411,
+     "G02": 0.2038,
+     "G03": 0.2317,
+     "G04": 0.3049,
+     "G05": 1.7611,
+     "G06": 0.7701,
+     "G07": 0.0,
+     "G08": 1.7042,
+     "G09": 1.2969,
+     "G10": 0.7556
+    },
+    "G08": {
+     "G01": 0.6116,
+     "G02": 0.2848,
+     "G03": 0.4323,
+     "G04": 0.5711,
+     "G05": 1.8611,
+     "G06": 0.7359,
+     "G07": 1.7042,
+     "G08": 0.0,
+     "G09": 1.2348,
+     "G10": 0.9249
+    },
+    "G09": {
+     "G01": 0.7372,
+     "G02": 0.2285,
+     "G03": 0.2982,
+     "G04": 0.842,
+     "G05": 1.1545,
+     "G06": 0.714,
+     "G07": 1.2969,
+     "G08": 1.2348,
+     "G09": 0.0,
+     "G10": 1.1201
+    },
+    "G10": {
+     "G01": 1.0103,
+     "G02": 0.0956,
+     "G03": 0.1153,
+     "G04": 0.4708,
+     "G05": 0.8963,
+     "G06": 0.5833,
+     "G07": 0.7556,
+     "G08": 0.9249,
+     "G09": 1.1201,
+     "G10": 0.0
+    }
+   }
+  }
+ },
+ "threshold_table": [
+  {
+   "false_alarm": 0.5714,
+   "max_concurrent_set": [
+    "G02",
+    "G04",
+    "G10"
+   ],
+   "n_max_concurrent": 3,
+   "n_workstreams": 1,
+   "recall": 0.7826,
+   "tau": 0.1
+  },
+  {
+   "false_alarm": 0.2381,
+   "max_concurrent_set": [
+    "G03",
+    "G04",
+    "G06",
+    "G10"
+   ],
+   "n_max_concurrent": 4,
+   "n_workstreams": 1,
+   "recall": 0.6957,
+   "tau": 0.15
+  },
+  {
+   "false_alarm": 0.1429,
+   "max_concurrent_set": [
+    "G03",
+    "G04",
+    "G07",
+    "G10"
+   ],
+   "n_max_concurrent": 4,
+   "n_workstreams": 1,
+   "recall": 0.5217,
+   "tau": 0.2
+  },
+  {
+   "false_alarm": 0.0,
+   "max_concurrent_set": [
+    "G01",
+    "G03",
+    "G04",
+    "G07",
+    "G10"
+   ],
+   "n_max_concurrent": 5,
+   "n_workstreams": 3,
+   "recall": 0.5217,
+   "tau": 0.25
+  },
+  {
+   "false_alarm": 0.0,
+   "max_concurrent_set": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G06",
+    "G08",
+    "G10"
+   ],
+   "n_max_concurrent": 7,
+   "n_workstreams": 4,
+   "recall": 0.3478,
+   "tau": 0.3
+  },
+  {
+   "false_alarm": 0.0,
+   "max_concurrent_set": [
+    "G01",
+    "G03",
+    "G04",
+    "G07",
+    "G10"
+   ],
+   "n_max_concurrent": 5,
+   "n_workstreams": 3,
+   "recall": 0.5217,
+   "tau": 0.263
+  },
+  {
+   "false_alarm": 0.0,
+   "max_concurrent_set": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G07",
+    "G08",
+    "G10"
+   ],
+   "n_max_concurrent": 7,
+   "n_workstreams": 4,
+   "recall": 0.3043,
+   "tau": 0.35
+  },
+  {
+   "false_alarm": 0.0,
+   "max_concurrent_set": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G07",
+    "G08",
+    "G10"
+   ],
+   "n_max_concurrent": 7,
+   "n_workstreams": 4,
+   "recall": 0.2609,
+   "tau": 0.4
+  },
+  {
+   "false_alarm": 0.0,
+   "max_concurrent_set": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "n_max_concurrent": 9,
+   "n_workstreams": 8,
+   "recall": 0.087,
+   "tau": 0.45
+  }
+ ],
+ "workstreams_now": {
+  "0.200": {
+   "edges": [
+    "G01-G06",
+    "G01-G10",
+    "G02-G03",
+    "G03-G05",
+    "G04-G09",
+    "G05-G06",
+    "G05-G07",
+    "G05-G08",
+    "G05-G09",
+    "G05-G10",
+    "G06-G07",
+    "G07-G08",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10",
+    "G09-G10"
+   ],
+   "max_concurrent_set": [
+    "G03",
+    "G04",
+    "G07",
+    "G10"
+   ],
+   "n_max_concurrent": 4,
+   "n_workstreams": 1,
+   "tau": 0.2,
+   "workstreams": [
+    [
+     "G01",
+     "G02",
+     "G03",
+     "G04",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ]
+   ]
+  },
+  "0.263": {
+   "edges": [
+    "G02-G03",
+    "G03-G05",
+    "G05-G06",
+    "G05-G07",
+    "G05-G08",
+    "G05-G09",
+    "G05-G10",
+    "G06-G07",
+    "G07-G08",
+    "G07-G09",
+    "G08-G09",
+    "G08-G10",
+    "G09-G10"
+   ],
+   "max_concurrent_set": [
+    "G01",
+    "G03",
+    "G04",
+    "G07",
+    "G10"
+   ],
+   "n_max_concurrent": 5,
+   "n_workstreams": 3,
+   "tau": 0.263,
+   "workstreams": [
+    [
+     "G02",
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    [
+     "G01"
+    ],
+    [
+     "G04"
+    ]
+   ]
+  },
+  "0.300": {
+   "edges": [
+    "G03-G05",
+    "G05-G06",
+    "G05-G07",
+    "G05-G08",
+    "G05-G10",
+    "G06-G07",
+    "G07-G08",
+    "G09-G10"
+   ],
+   "max_concurrent_set": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G06",
+    "G08",
+    "G10"
+   ],
+   "n_max_concurrent": 7,
+   "n_workstreams": 4,
+   "tau": 0.3,
+   "workstreams": [
+    [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    [
+     "G01"
+    ],
+    [
+     "G02"
+    ],
+    [
+     "G04"
+    ]
+   ]
+  },
+  "0.400": {
+   "edges": [
+    "G03-G05",
+    "G05-G07",
+    "G05-G08",
+    "G05-G10",
+    "G06-G07",
+    "G09-G10"
+   ],
+   "max_concurrent_set": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G07",
+    "G08",
+    "G10"
+   ],
+   "n_max_concurrent": 7,
+   "n_workstreams": 4,
+   "tau": 0.4,
+   "workstreams": [
+    [
+     "G03",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    [
+     "G01"
+    ],
+    [
+     "G02"
+    ],
+    [
+     "G04"
+    ]
+   ]
+  }
+ }
+}

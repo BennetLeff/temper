@@ -1,0 +1,1703 @@
+{
+ "controls": [
+  {
+   "control": "frozen combined.json is the committed stage-32 result (SHA256SUMS)",
+   "detail": "498d83973994",
+   "pass": true
+  },
+  {
+   "control": "frozen verification.json is the committed stage-32 result (SHA256SUMS)",
+   "detail": "d32e3b344b33",
+   "pass": true
+  },
+  {
+   "control": "frozen history.json is the committed stage-32 result (SHA256SUMS)",
+   "detail": "709a75a52a6f",
+   "pass": true
+  },
+  {
+   "control": "frozen model reproduces its own committed AUC on its own history",
+   "detail": "0.8084 on 104 cases",
+   "pass": true
+  },
+  {
+   "control": "s43_model: old + new cases are combine.json's cases",
+   "detail": "104 + 81",
+   "pass": true
+  }
+ ],
+ "frozen_dir": "results-s32",
+ "frozen_own_history_auc": 0.8084,
+ "method": "Out-of-sample check: does the coupling model written on stage 32 predict the ripple of the stages adopted after it?\n\n    python3 -I validation-results/13-coupling/scripts/oos.py [--stage TAG ...] [--frozen DIR]   (after combine.py)\n\nThe frozen model is the stage-32 run (--frozen, default 13-coupling/results-s32/: combined.json, verification.json,\nhistory.json, byte-identical to the stage-32 audit's committed SHA256SUMS). It was written before stages 35-43 existed.\nThe cases are combine.eval_cases on this run's history.json (adopted chain 19c -> TAG, every stage labelled with the\nsame rule: an (intended group, other group) pair is positive if the other group's territory took >= 2 changed routed\nitems or DECISIONS records a ripple between them). 'old' = stages up to 32 (the frozen model's own history, relabelled\non the audited stage's territories), 'new' = stages after 32. Stage 43 (the global cleanup pass) has no outside group,\nso it adds no case.\nFor the frozen model and for this run's model: ROC AUC per layer and combined on old / new / all cases and on distinct\npairs, a seeded bootstrap 95 % interval on the new cases (2000 resamples of cases), recall and false alarm at the frozen\nmodel's thresholds (tau 0.20 and its median-positive tau) on the new distinct pairs, the score and within-stage rank of\nevery new positive, the AUC's sensitivity to stage 38 and to the ripple threshold (5 / 10 items instead of 2), and the\nmetric check (moved scorecard metrics against the intended groups' read lists) with the frozen model's read lists.",
+ "metric_check_frozen": {
+  "moved": 8,
+  "predicted": 8,
+  "rows": [
+   {
+    "basis_change": [],
+    "intended": [
+     "G04"
+    ],
+    "moved_not_on_s32_card": [],
+    "moved_on_s32_card": [],
+    "not_predicted": [],
+    "predicted": [],
+    "stage": "native21s35"
+   },
+   {
+    "basis_change": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K"
+    ],
+    "intended": [
+     "G01",
+     "G06",
+     "G10"
+    ],
+    "moved_not_on_s32_card": [
+     "track_acute_corners",
+     "track_any_angle_mm",
+     "track_right_angle_corners"
+    ],
+    "moved_on_s32_card": [
+     "emi_min_margin_dB",
+     "leakage_touch_mA"
+    ],
+    "not_predicted": [],
+    "predicted": [
+     "emi_min_margin_dB",
+     "leakage_touch_mA"
+    ],
+    "stage": "native21s38"
+   },
+   {
+    "basis_change": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C"
+    ],
+    "intended": [
+     "G06",
+     "G07",
+     "G10"
+    ],
+    "moved_not_on_s32_card": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K",
+     "track_acute_corners",
+     "track_any_angle_mm",
+     "track_fold_backs",
+     "track_right_angle_corners"
+    ],
+    "moved_on_s32_card": [
+     "return_path_open_changes"
+    ],
+    "not_predicted": [],
+    "predicted": [
+     "return_path_open_changes"
+    ],
+    "stage": "native21s40"
+   },
+   {
+    "basis_change": [],
+    "intended": [
+     "G02",
+     "G03",
+     "G08"
+    ],
+    "moved_not_on_s32_card": [
+     "b3_laminate_margin_K"
+    ],
+    "moved_on_s32_card": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C"
+    ],
+    "not_predicted": [],
+    "predicted": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C"
+    ],
+    "stage": "native21s41"
+   },
+   {
+    "basis_change": [],
+    "intended": [
+     "G05"
+    ],
+    "moved_not_on_s32_card": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K",
+     "track_any_angle_mm",
+     "track_right_angle_corners"
+    ],
+    "moved_on_s32_card": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C"
+    ],
+    "not_predicted": [],
+    "predicted": [
+     "b3_c28_h25_peak_C",
+     "b3_nominal_h10_peak_C"
+    ],
+    "stage": "native21s42"
+   },
+   {
+    "basis_change": [],
+    "intended": [
+     "G01",
+     "G02",
+     "G03",
+     "G04",
+     "G05",
+     "G06",
+     "G07",
+     "G08",
+     "G09",
+     "G10"
+    ],
+    "moved_not_on_s32_card": [
+     "b3_laminate_margin_K",
+     "b3_rated_part_margin_K",
+     "b3_release_margin_K",
+     "track_acute_corners",
+     "track_any_angle_mm",
+     "track_fold_backs",
+     "track_right_angle_corners"
+    ],
+    "moved_on_s32_card": [
+     "b3_nominal_h10_peak_C"
+    ],
+    "not_predicted": [],
+    "predicted": [
+     "b3_nominal_h10_peak_C"
+    ],
+    "stage": "native21s43"
+   }
+  ]
+ },
+ "models": {
+  "frozen_s32_model": {
+   "all": {
+    "auc": {
+     "combined": 0.7658,
+     "electrical": 0.6644,
+     "physical": 0.821,
+     "physics": 0.6422,
+     "verification": 0.7419
+    },
+    "auc_distinct_pairs_combined": 0.7516,
+    "distinct": {
+     "G01-G02": {
+      "combined": 0.1427,
+      "positive": true
+     },
+     "G01-G03": {
+      "combined": 0.1908,
+      "positive": false
+     },
+     "G01-G04": {
+      "combined": 0.1277,
+      "positive": false
+     },
+     "G01-G05": {
+      "combined": 0.1282,
+      "positive": true
+     },
+     "G01-G06": {
+      "combined": 0.1663,
+      "positive": false
+     },
+     "G01-G07": {
+      "combined": 0.088,
+      "positive": true
+     },
+     "G01-G08": {
+      "combined": 0.1213,
+      "positive": false
+     },
+     "G01-G09": {
+      "combined": 0.1754,
+      "positive": true
+     },
+     "G01-G10": {
+      "combined": 0.3264,
+      "positive": false
+     },
+     "G02-G04": {
+      "combined": 0.0591,
+      "positive": false
+     },
+     "G02-G05": {
+      "combined": 0.0528,
+      "positive": false
+     },
+     "G02-G06": {
+      "combined": 0.0503,
+      "positive": true
+     },
+     "G02-G07": {
+      "combined": 0.0289,
+      "positive": true
+     },
+     "G02-G08": {
+      "combined": 0.0873,
+      "positive": false
+     },
+     "G02-G09": {
+      "combined": 0.0628,
+      "positive": false
+     },
+     "G02-G10": {
+      "combined": 0.0678,
+      "positive": true
+     },
+     "G03-G04": {
+      "combined": 0.1241,
+      "positive": false
+     },
+     "G03-G05": {
+      "combined": 0.4139,
+      "positive": true
+     },
+     "G03-G06": {
+      "combined": 0.1354,
+      "positive": false
+     },
+     "G03-G07": {
+      "combined": 0.087,
+      "positive": true
+     },
+     "G03-G08": {
+      "combined": 0.1407,
+      "positive": false
+     },
+     "G03-G09": {
+      "combined": 0.0691,
+      "positive": false
+     },
+     "G03-G10": {
+      "combined": 0.0353,
+      "positive": false
+     },
+     "G04-G05": {
+      "combined": 0.1629,
+      "positive": false
+     },
+     "G04-G06": {
+      "combined": 0.0928,
+      "positive": false
+     },
+     "G04-G07": {
+      "combined": 0.0713,
+      "positive": false
+     },
+     "G04-G08": {
+      "combined": 0.1347,
+      "positive": false
+     },
+     "G04-G09": {
+      "combined": 0.2038,
+      "positive": false
+     },
+     "G04-G10": {
+      "combined": 0.1181,
+      "positive": false
+     },
+     "G05-G06": {
+      "combined": 0.3372,
+      "positive": true
+     },
+     "G05-G07": {
+      "combined": 0.5104,
+      "positive": true
+     },
+     "G05-G08": {
+      "combined": 0.4334,
+      "positive": true
+     },
+     "G05-G09": {
+      "combined": 0.3193,
+      "positive": true
+     },
+     "G05-G10": {
+      "combined": 0.475,
+      "positive": true
+     },
+     "G06-G07": {
+      "combined": 0.4052,
+      "positive": true
+     },
+     "G06-G08": {
+      "combined": 0.1617,
+      "positive": true
+     },
+     "G06-G09": {
+      "combined": 0.1388,
+      "positive": true
+     },
+     "G06-G10": {
+      "combined": 0.1375,
+      "positive": false
+     },
+     "G07-G08": {
+      "combined": 0.3781,
+      "positive": true
+     },
+     "G07-G09": {
+      "combined": 0.3181,
+      "positive": true
+     },
+     "G07-G10": {
+      "combined": 0.2429,
+      "positive": true
+     },
+     "G08-G09": {
+      "combined": 0.2784,
+      "positive": true
+     },
+     "G08-G10": {
+      "combined": 0.2977,
+      "positive": true
+     },
+     "G09-G10": {
+      "combined": 0.5706,
+      "positive": true
+     }
+    },
+    "distinct_pairs": 44,
+    "distinct_positive": 23,
+    "n_cases": 185,
+    "n_positive": 50
+   },
+   "all_thresholds": [
+    {
+     "false_alarm": 0.0952,
+     "negatives": 21,
+     "positives": 23,
+     "recall": 0.5652,
+     "tau": 0.2
+    },
+    {
+     "false_alarm": 0.0476,
+     "negatives": 21,
+     "positives": 23,
+     "recall": 0.5217,
+     "tau": 0.263
+    },
+    {
+     "false_alarm": 0.0476,
+     "negatives": 21,
+     "positives": 23,
+     "recall": 0.4348,
+     "tau": 0.308
+    }
+   ],
+   "new": {
+    "auc": {
+     "combined": 0.6986,
+     "electrical": 0.6524,
+     "physical": 0.7832,
+     "physics": 0.551,
+     "verification": 0.6226
+    },
+    "auc_distinct_pairs_combined": 0.7325,
+    "distinct": {
+     "G01-G02": {
+      "combined": 0.1427,
+      "positive": true
+     },
+     "G01-G03": {
+      "combined": 0.1908,
+      "positive": false
+     },
+     "G01-G04": {
+      "combined": 0.1277,
+      "positive": false
+     },
+     "G01-G05": {
+      "combined": 0.1282,
+      "positive": false
+     },
+     "G01-G06": {
+      "combined": 0.1663,
+      "positive": false
+     },
+     "G01-G07": {
+      "combined": 0.088,
+      "positive": true
+     },
+     "G01-G08": {
+      "combined": 0.1213,
+      "positive": false
+     },
+     "G01-G09": {
+      "combined": 0.1754,
+      "positive": true
+     },
+     "G01-G10": {
+      "combined": 0.3264,
+      "positive": false
+     },
+     "G02-G04": {
+      "combined": 0.0591,
+      "positive": false
+     },
+     "G02-G05": {
+      "combined": 0.0528,
+      "positive": false
+     },
+     "G02-G06": {
+      "combined": 0.0503,
+      "positive": true
+     },
+     "G02-G07": {
+      "combined": 0.0289,
+      "positive": false
+     },
+     "G02-G09": {
+      "combined": 0.0628,
+      "positive": false
+     },
+     "G02-G10": {
+      "combined": 0.0678,
+      "positive": true
+     },
+     "G03-G04": {
+      "combined": 0.1241,
+      "positive": false
+     },
+     "G03-G05": {
+      "combined": 0.4139,
+      "positive": true
+     },
+     "G03-G06": {
+      "combined": 0.1354,
+      "positive": false
+     },
+     "G03-G07": {
+      "combined": 0.087,
+      "positive": false
+     },
+     "G03-G09": {
+      "combined": 0.0691,
+      "positive": false
+     },
+     "G03-G10": {
+      "combined": 0.0353,
+      "positive": false
+     },
+     "G04-G05": {
+      "combined": 0.1629,
+      "positive": false
+     },
+     "G04-G06": {
+      "combined": 0.0928,
+      "positive": false
+     },
+     "G04-G07": {
+      "combined": 0.0713,
+      "positive": false
+     },
+     "G04-G08": {
+      "combined": 0.1347,
+      "positive": false
+     },
+     "G04-G09": {
+      "combined": 0.2038,
+      "positive": false
+     },
+     "G04-G10": {
+      "combined": 0.1181,
+      "positive": false
+     },
+     "G05-G06": {
+      "combined": 0.3372,
+      "positive": true
+     },
+     "G05-G07": {
+      "combined": 0.5104,
+      "positive": true
+     },
+     "G05-G08": {
+      "combined": 0.4334,
+      "positive": false
+     },
+     "G05-G09": {
+      "combined": 0.3193,
+      "positive": false
+     },
+     "G05-G10": {
+      "combined": 0.475,
+      "positive": true
+     },
+     "G06-G07": {
+      "combined": 0.4052,
+      "positive": true
+     },
+     "G06-G08": {
+      "combined": 0.1617,
+      "positive": true
+     },
+     "G06-G09": {
+      "combined": 0.1388,
+      "positive": true
+     },
+     "G07-G08": {
+      "combined": 0.3781,
+      "positive": true
+     },
+     "G07-G09": {
+      "combined": 0.3181,
+      "positive": false
+     },
+     "G07-G10": {
+      "combined": 0.2429,
+      "positive": true
+     },
+     "G08-G09": {
+      "combined": 0.2784,
+      "positive": false
+     },
+     "G08-G10": {
+      "combined": 0.2977,
+      "positive": true
+     },
+     "G09-G10": {
+      "combined": 0.5706,
+      "positive": true
+     }
+    },
+    "distinct_pairs": 41,
+    "distinct_positive": 16,
+    "n_cases": 81,
+    "n_positive": 16
+   },
+   "new_bootstrap": {
+    "auc_combined_p2p5": 0.5384,
+    "auc_combined_p97p5": 0.836,
+    "resamples": 2000,
+    "share_above_0p5": 0.992
+   },
+   "new_cases_by_stage": {
+    "native21s35": {
+     "cases": 9,
+     "positive": 0
+    },
+    "native21s38": {
+     "cases": 21,
+     "positive": 9
+    },
+    "native21s40": {
+     "cases": 21,
+     "positive": 6
+    },
+    "native21s41": {
+     "cases": 21,
+     "positive": 0
+    },
+    "native21s42": {
+     "cases": 9,
+     "positive": 1
+    }
+   },
+   "new_positives": [
+    {
+     "combined": 0.5706,
+     "documented": false,
+     "electrical": 0.6137,
+     "from": "G10",
+     "observed": true,
+     "physical": 0.5557,
+     "physics": 0.113,
+     "rank_in_stage": 1,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G09",
+     "verification": 1.0
+    },
+    {
+     "combined": 0.4052,
+     "documented": false,
+     "electrical": 0.2576,
+     "from": "G06",
+     "observed": true,
+     "physical": 0.6476,
+     "physics": 0.2959,
+     "rank_in_stage": 3,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G07",
+     "verification": 0.42
+    },
+    {
+     "combined": 0.2429,
+     "documented": false,
+     "electrical": 0.0895,
+     "from": "G10",
+     "observed": true,
+     "physical": 0.2922,
+     "physics": 0.0861,
+     "rank_in_stage": 6,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G07",
+     "verification": 0.5036
+    },
+    {
+     "combined": 0.1754,
+     "documented": false,
+     "electrical": 0.1112,
+     "from": "G01",
+     "observed": true,
+     "physical": 0.1963,
+     "physics": 0.0168,
+     "rank_in_stage": 8,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G09",
+     "verification": 0.3773
+    },
+    {
+     "combined": 0.1427,
+     "documented": false,
+     "electrical": 0.1551,
+     "from": "G01",
+     "observed": true,
+     "physical": 0.1011,
+     "physics": 0.0578,
+     "rank_in_stage": 10,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G02",
+     "verification": 0.257
+    },
+    {
+     "combined": 0.1388,
+     "documented": false,
+     "electrical": 0.0193,
+     "from": "G06",
+     "observed": true,
+     "physical": 0.0345,
+     "physics": 0.1218,
+     "rank_in_stage": 11,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G09",
+     "verification": 0.3796
+    },
+    {
+     "combined": 0.088,
+     "documented": false,
+     "electrical": 0.0,
+     "from": "G01",
+     "observed": true,
+     "physical": 0.0982,
+     "physics": 0.04,
+     "rank_in_stage": 18,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G07",
+     "verification": 0.2138
+    },
+    {
+     "combined": 0.0678,
+     "documented": false,
+     "electrical": 0.0,
+     "from": "G10",
+     "observed": true,
+     "physical": 0.1687,
+     "physics": 0.0118,
+     "rank_in_stage": 19,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G02",
+     "verification": 0.0907
+    },
+    {
+     "combined": 0.0503,
+     "documented": false,
+     "electrical": 0.0,
+     "from": "G06",
+     "observed": true,
+     "physical": 0.0348,
+     "physics": 0.0002,
+     "rank_in_stage": 20,
+     "stage": "native21s38",
+     "stage_cases": 21,
+     "to": "G02",
+     "verification": 0.1662
+    },
+    {
+     "combined": 0.5104,
+     "documented": true,
+     "electrical": 0.2729,
+     "from": "G07",
+     "observed": true,
+     "physical": 0.4962,
+     "physics": 0.2776,
+     "rank_in_stage": 2,
+     "stage": "native21s40",
+     "stage_cases": 21,
+     "to": "G05",
+     "verification": 0.9947
+    },
+    {
+     "combined": 0.475,
+     "documented": false,
+     "electrical": 0.6106,
+     "from": "G10",
+     "observed": true,
+     "physical": 0.4508,
+     "physics": 0.2361,
+     "rank_in_stage": 3,
+     "stage": "native21s40",
+     "stage_cases": 21,
+     "to": "G05",
+     "verification": 0.6026
+    },
+    {
+     "combined": 0.3781,
+     "documented": false,
+     "electrical": 0.0378,
+     "from": "G07",
+     "observed": true,
+     "physical": 0.4957,
+     "physics": 0.0702,
+     "rank_in_stage": 4,
+     "stage": "native21s40",
+     "stage_cases": 21,
+     "to": "G08",
+     "verification": 0.9087
+    },
+    {
+     "combined": 0.3372,
+     "documented": false,
+     "electrical": 0.4001,
+     "from": "G06",
+     "observed": true,
+     "physical": 0.305,
+     "physics": 0.2288,
+     "rank_in_stage": 5,
+     "stage": "native21s40",
+     "stage_cases": 21,
+     "to": "G05",
+     "verification": 0.4151
+    },
+    {
+     "combined": 0.2977,
+     "documented": false,
+     "electrical": 0.2496,
+     "from": "G10",
+     "observed": true,
+     "physical": 0.3213,
+     "physics": 0.0,
+     "rank_in_stage": 8,
+     "stage": "native21s40",
+     "stage_cases": 21,
+     "to": "G08",
+     "verification": 0.6199
+    },
+    {
+     "combined": 0.1617,
+     "documented": false,
+     "electrical": 0.013,
+     "from": "G06",
+     "observed": true,
+     "physical": 0.1794,
+     "physics": 0.0497,
+     "rank_in_stage": 10,
+     "stage": "native21s40",
+     "stage_cases": 21,
+     "to": "G08",
+     "verification": 0.4047
+    },
+    {
+     "combined": 0.4139,
+     "documented": true,
+     "electrical": 1.0,
+     "from": "G05",
+     "observed": true,
+     "physical": 0.2059,
+     "physics": 0.284,
+     "rank_in_stage": 4,
+     "stage": "native21s42",
+     "stage_cases": 9,
+     "to": "G03",
+     "verification": 0.1656
+    }
+   ],
+   "new_sensitivity": {
+    "new_ripple_ge_10_items": {
+     "auc_combined": 0.9156,
+     "positives": 4
+    },
+    "new_ripple_ge_5_items": {
+     "auc_combined": 0.9156,
+     "positives": 4
+    },
+    "new_without_s38": 0.8558
+   },
+   "new_thresholds": [
+    {
+     "false_alarm": 0.24,
+     "negatives": 25,
+     "positives": 16,
+     "recall": 0.5625,
+     "tau": 0.2
+    },
+    {
+     "false_alarm": 0.2,
+     "negatives": 25,
+     "positives": 16,
+     "recall": 0.5,
+     "tau": 0.263
+    },
+    {
+     "false_alarm": 0.16,
+     "negatives": 25,
+     "positives": 16,
+     "recall": 0.4375,
+     "tau": 0.308
+    }
+   ],
+   "old": {
+    "auc": {
+     "combined": 0.8084,
+     "electrical": 0.671,
+     "physical": 0.8475,
+     "physics": 0.7002,
+     "verification": 0.8042
+    },
+    "auc_distinct_pairs_combined": 0.78,
+    "distinct": {
+     "G01-G02": {
+      "combined": 0.1427,
+      "positive": false
+     },
+     "G01-G03": {
+      "combined": 0.1908,
+      "positive": false
+     },
+     "G01-G04": {
+      "combined": 0.1277,
+      "positive": false
+     },
+     "G01-G05": {
+      "combined": 0.1282,
+      "positive": true
+     },
+     "G01-G06": {
+      "combined": 0.1663,
+      "positive": false
+     },
+     "G01-G07": {
+      "combined": 0.088,
+      "positive": true
+     },
+     "G01-G08": {
+      "combined": 0.1213,
+      "positive": false
+     },
+     "G01-G09": {
+      "combined": 0.1754,
+      "positive": false
+     },
+     "G01-G10": {
+      "combined": 0.3264,
+      "positive": false
+     },
+     "G02-G04": {
+      "combined": 0.0591,
+      "positive": false
+     },
+     "G02-G05": {
+      "combined": 0.0528,
+      "positive": false
+     },
+     "G02-G06": {
+      "combined": 0.0503,
+      "positive": false
+     },
+     "G02-G07": {
+      "combined": 0.0289,
+      "positive": true
+     },
+     "G02-G08": {
+      "combined": 0.0873,
+      "positive": false
+     },
+     "G02-G09": {
+      "combined": 0.0628,
+      "positive": false
+     },
+     "G02-G10": {
+      "combined": 0.0678,
+      "positive": false
+     },
+     "G03-G04": {
+      "combined": 0.1241,
+      "positive": false
+     },
+     "G03-G05": {
+      "combined": 0.4139,
+      "positive": false
+     },
+     "G03-G06": {
+      "combined": 0.1354,
+      "positive": false
+     },
+     "G03-G07": {
+      "combined": 0.087,
+      "positive": true
+     },
+     "G03-G08": {
+      "combined": 0.1407,
+      "positive": false
+     },
+     "G03-G09": {
+      "combined": 0.0691,
+      "positive": false
+     },
+     "G03-G10": {
+      "combined": 0.0353,
+      "positive": false
+     },
+     "G04-G05": {
+      "combined": 0.1629,
+      "positive": false
+     },
+     "G04-G07": {
+      "combined": 0.0713,
+      "positive": false
+     },
+     "G04-G08": {
+      "combined": 0.1347,
+      "positive": false
+     },
+     "G04-G09": {
+      "combined": 0.2038,
+      "positive": false
+     },
+     "G04-G10": {
+      "combined": 0.1181,
+      "positive": false
+     },
+     "G05-G06": {
+      "combined": 0.3372,
+      "positive": true
+     },
+     "G05-G07": {
+      "combined": 0.5104,
+      "positive": true
+     },
+     "G05-G08": {
+      "combined": 0.4334,
+      "positive": true
+     },
+     "G05-G09": {
+      "combined": 0.3193,
+      "positive": true
+     },
+     "G05-G10": {
+      "combined": 0.475,
+      "positive": true
+     },
+     "G06-G07": {
+      "combined": 0.4052,
+      "positive": true
+     },
+     "G06-G08": {
+      "combined": 0.1617,
+      "positive": true
+     },
+     "G06-G09": {
+      "combined": 0.1388,
+      "positive": true
+     },
+     "G06-G10": {
+      "combined": 0.1375,
+      "positive": false
+     },
+     "G07-G08": {
+      "combined": 0.3781,
+      "positive": true
+     },
+     "G07-G09": {
+      "combined": 0.3181,
+      "positive": true
+     },
+     "G07-G10": {
+      "combined": 0.2429,
+      "positive": true
+     },
+     "G08-G09": {
+      "combined": 0.2784,
+      "positive": true
+     },
+     "G08-G10": {
+      "combined": 0.2977,
+      "positive": true
+     },
+     "G09-G10": {
+      "combined": 0.5706,
+      "positive": true
+     }
+    },
+    "distinct_pairs": 43,
+    "distinct_positive": 18,
+    "n_cases": 104,
+    "n_positive": 34
+   }
+  },
+  "s43_model": {
+   "all": {
+    "auc": {
+     "combined": 0.7677,
+     "electrical": 0.6664,
+     "physical": 0.8233,
+     "physics": 0.6498,
+     "verification": 0.7277
+    },
+    "auc_distinct_pairs_combined": 0.7702,
+    "distinct": {
+     "G01-G02": {
+      "combined": 0.1509,
+      "positive": true
+     },
+     "G01-G03": {
+      "combined": 0.1801,
+      "positive": false
+     },
+     "G01-G04": {
+      "combined": 0.1297,
+      "positive": false
+     },
+     "G01-G05": {
+      "combined": 0.1463,
+      "positive": true
+     },
+     "G01-G06": {
+      "combined": 0.2119,
+      "positive": false
+     },
+     "G01-G07": {
+      "combined": 0.0886,
+      "positive": true
+     },
+     "G01-G08": {
+      "combined": 0.1189,
+      "positive": false
+     },
+     "G01-G09": {
+      "combined": 0.1841,
+      "positive": true
+     },
+     "G01-G10": {
+      "combined": 0.2423,
+      "positive": false
+     },
+     "G02-G04": {
+      "combined": 0.0538,
+      "positive": false
+     },
+     "G02-G05": {
+      "combined": 0.0463,
+      "positive": false
+     },
+     "G02-G06": {
+      "combined": 0.0465,
+      "positive": true
+     },
+     "G02-G07": {
+      "combined": 0.0287,
+      "positive": true
+     },
+     "G02-G08": {
+      "combined": 0.0828,
+      "positive": false
+     },
+     "G02-G09": {
+      "combined": 0.0646,
+      "positive": false
+     },
+     "G02-G10": {
+      "combined": 0.0348,
+      "positive": true
+     },
+     "G03-G04": {
+      "combined": 0.1151,
+      "positive": false
+     },
+     "G03-G05": {
+      "combined": 0.4513,
+      "positive": true
+     },
+     "G03-G06": {
+      "combined": 0.1244,
+      "positive": false
+     },
+     "G03-G07": {
+      "combined": 0.0797,
+      "positive": true
+     },
+     "G03-G08": {
+      "combined": 0.1222,
+      "positive": false
+     },
+     "G03-G09": {
+      "combined": 0.0666,
+      "positive": false
+     },
+     "G03-G10": {
+      "combined": 0.025,
+      "positive": false
+     },
+     "G04-G05": {
+      "combined": 0.1702,
+      "positive": false
+     },
+     "G04-G06": {
+      "combined": 0.0869,
+      "positive": false
+     },
+     "G04-G07": {
+      "combined": 0.0712,
+      "positive": false
+     },
+     "G04-G08": {
+      "combined": 0.1316,
+      "positive": false
+     },
+     "G04-G09": {
+      "combined": 0.2133,
+      "positive": false
+     },
+     "G04-G10": {
+      "combined": 0.0748,
+      "positive": false
+     },
+     "G05-G06": {
+      "combined": 0.3542,
+      "positive": true
+     },
+     "G05-G07": {
+      "combined": 0.4826,
+      "positive": true
+     },
+     "G05-G08": {
+      "combined": 0.4035,
+      "positive": true
+     },
+     "G05-G09": {
+      "combined": 0.2945,
+      "positive": true
+     },
+     "G05-G10": {
+      "combined": 0.4312,
+      "positive": true
+     },
+     "G06-G07": {
+      "combined": 0.4278,
+      "positive": true
+     },
+     "G06-G08": {
+      "combined": 0.1506,
+      "positive": true
+     },
+     "G06-G09": {
+      "combined": 0.1388,
+      "positive": true
+     },
+     "G06-G10": {
+      "combined": 0.1119,
+      "positive": false
+     },
+     "G07-G08": {
+      "combined": 0.3466,
+      "positive": true
+     },
+     "G07-G09": {
+      "combined": 0.2869,
+      "positive": true
+     },
+     "G07-G10": {
+      "combined": 0.1967,
+      "positive": true
+     },
+     "G08-G09": {
+      "combined": 0.2688,
+      "positive": true
+     },
+     "G08-G10": {
+      "combined": 0.263,
+      "positive": true
+     },
+     "G09-G10": {
+      "combined": 0.4478,
+      "positive": true
+     }
+    },
+    "distinct_pairs": 44,
+    "distinct_positive": 23,
+    "n_cases": 185,
+    "n_positive": 50
+   },
+   "all_thresholds": [
+    {
+     "false_alarm": 0.1429,
+     "negatives": 21,
+     "positives": 23,
+     "recall": 0.5217,
+     "tau": 0.2
+    },
+    {
+     "false_alarm": 0.0,
+     "negatives": 21,
+     "positives": 23,
+     "recall": 0.5217,
+     "tau": 0.263
+    },
+    {
+     "false_alarm": 0.0,
+     "negatives": 21,
+     "positives": 23,
+     "recall": 0.3478,
+     "tau": 0.308
+    }
+   ],
+   "new": {
+    "auc": {
+     "combined": 0.7034,
+     "electrical": 0.6553,
+     "physical": 0.7822,
+     "physics": 0.5702,
+     "verification": 0.6178
+    },
+    "auc_distinct_pairs_combined": 0.73,
+    "distinct": {
+     "G01-G02": {
+      "combined": 0.1509,
+      "positive": true
+     },
+     "G01-G03": {
+      "combined": 0.1801,
+      "positive": false
+     },
+     "G01-G04": {
+      "combined": 0.1297,
+      "positive": false
+     },
+     "G01-G05": {
+      "combined": 0.1463,
+      "positive": false
+     },
+     "G01-G06": {
+      "combined": 0.2119,
+      "positive": false
+     },
+     "G01-G07": {
+      "combined": 0.0886,
+      "positive": true
+     },
+     "G01-G08": {
+      "combined": 0.1189,
+      "positive": false
+     },
+     "G01-G09": {
+      "combined": 0.1841,
+      "positive": true
+     },
+     "G01-G10": {
+      "combined": 0.2423,
+      "positive": false
+     },
+     "G02-G04": {
+      "combined": 0.0538,
+      "positive": false
+     },
+     "G02-G05": {
+      "combined": 0.0463,
+      "positive": false
+     },
+     "G02-G06": {
+      "combined": 0.0465,
+      "positive": true
+     },
+     "G02-G07": {
+      "combined": 0.0287,
+      "positive": false
+     },
+     "G02-G09": {
+      "combined": 0.0646,
+      "positive": false
+     },
+     "G02-G10": {
+      "combined": 0.0348,
+      "positive": true
+     },
+     "G03-G04": {
+      "combined": 0.1151,
+      "positive": false
+     },
+     "G03-G05": {
+      "combined": 0.4513,
+      "positive": true
+     },
+     "G03-G06": {
+      "combined": 0.1244,
+      "positive": false
+     },
+     "G03-G07": {
+      "combined": 0.0797,
+      "positive": false
+     },
+     "G03-G09": {
+      "combined": 0.0666,
+      "positive": false
+     },
+     "G03-G10": {
+      "combined": 0.025,
+      "positive": false
+     },
+     "G04-G05": {
+      "combined": 0.1702,
+      "positive": false
+     },
+     "G04-G06": {
+      "combined": 0.0869,
+      "positive": false
+     },
+     "G04-G07": {
+      "combined": 0.0712,
+      "positive": false
+     },
+     "G04-G08": {
+      "combined": 0.1316,
+      "positive": false
+     },
+     "G04-G09": {
+      "combined": 0.2133,
+      "positive": false
+     },
+     "G04-G10": {
+      "combined": 0.0748,
+      "positive": false
+     },
+     "G05-G06": {
+      "combined": 0.3542,
+      "positive": true
+     },
+     "G05-G07": {
+      "combined": 0.4826,
+      "positive": true
+     },
+     "G05-G08": {
+      "combined": 0.4035,
+      "positive": false
+     },
+     "G05-G09": {
+      "combined": 0.2945,
+      "positive": false
+     },
+     "G05-G10": {
+      "combined": 0.4312,
+      "positive": true
+     },
+     "G06-G07": {
+      "combined": 0.4278,
+      "positive": true
+     },
+     "G06-G08": {
+      "combined": 0.1506,
+      "positive": true
+     },
+     "G06-G09": {
+      "combined": 0.1388,
+      "positive": true
+     },
+     "G07-G08": {
+      "combined": 0.3466,
+      "positive": true
+     },
+     "G07-G09": {
+      "combined": 0.2869,
+      "positive": false
+     },
+     "G07-G10": {
+      "combined": 0.1967,
+      "positive": true
+     },
+     "G08-G09": {
+      "combined": 0.2688,
+      "positive": false
+     },
+     "G08-G10": {
+      "combined": 0.263,
+      "positive": true
+     },
+     "G09-G10": {
+      "combined": 0.4478,
+      "positive": true
+     }
+    },
+    "distinct_pairs": 41,
+    "distinct_positive": 16,
+    "n_cases": 81,
+    "n_positive": 16
+   },
+   "new_bootstrap": {
+    "auc_combined_p2p5": 0.5472,
+    "auc_combined_p97p5": 0.8409,
+    "resamples": 2000,
+    "share_above_0p5": 0.993
+   },
+   "new_sensitivity": {
+    "new_ripple_ge_10_items": {
+     "auc_combined": 0.9448,
+     "positives": 4
+    },
+    "new_ripple_ge_5_items": {
+     "auc_combined": 0.9448,
+     "positives": 4
+    },
+    "new_without_s38": 0.8639
+   },
+   "new_thresholds": [
+    {
+     "false_alarm": 0.28,
+     "negatives": 25,
+     "positives": 16,
+     "recall": 0.5,
+     "tau": 0.2
+    },
+    {
+     "false_alarm": 0.16,
+     "negatives": 25,
+     "positives": 16,
+     "recall": 0.5,
+     "tau": 0.263
+    },
+    {
+     "false_alarm": 0.04,
+     "negatives": 25,
+     "positives": 16,
+     "recall": 0.4375,
+     "tau": 0.308
+    }
+   ],
+   "old": {
+    "auc": {
+     "combined": 0.8113,
+     "electrical": 0.6735,
+     "physical": 0.855,
+     "physics": 0.7078,
+     "verification": 0.7874
+    },
+    "auc_distinct_pairs_combined": 0.7933,
+    "distinct": {
+     "G01-G02": {
+      "combined": 0.1509,
+      "positive": false
+     },
+     "G01-G03": {
+      "combined": 0.1801,
+      "positive": false
+     },
+     "G01-G04": {
+      "combined": 0.1297,
+      "positive": false
+     },
+     "G01-G05": {
+      "combined": 0.1463,
+      "positive": true
+     },
+     "G01-G06": {
+      "combined": 0.2119,
+      "positive": false
+     },
+     "G01-G07": {
+      "combined": 0.0886,
+      "positive": true
+     },
+     "G01-G08": {
+      "combined": 0.1189,
+      "positive": false
+     },
+     "G01-G09": {
+      "combined": 0.1841,
+      "positive": false
+     },
+     "G01-G10": {
+      "combined": 0.2423,
+      "positive": false
+     },
+     "G02-G04": {
+      "combined": 0.0538,
+      "positive": false
+     },
+     "G02-G05": {
+      "combined": 0.0463,
+      "positive": false
+     },
+     "G02-G06": {
+      "combined": 0.0465,
+      "positive": false
+     },
+     "G02-G07": {
+      "combined": 0.0287,
+      "positive": true
+     },
+     "G02-G08": {
+      "combined": 0.0828,
+      "positive": false
+     },
+     "G02-G09": {
+      "combined": 0.0646,
+      "positive": false
+     },
+     "G02-G10": {
+      "combined": 0.0348,
+      "positive": false
+     },
+     "G03-G04": {
+      "combined": 0.1151,
+      "positive": false
+     },
+     "G03-G05": {
+      "combined": 0.4513,
+      "positive": false
+     },
+     "G03-G06": {
+      "combined": 0.1244,
+      "positive": false
+     },
+     "G03-G07": {
+      "combined": 0.0797,
+      "positive": true
+     },
+     "G03-G08": {
+      "combined": 0.1222,
+      "positive": false
+     },
+     "G03-G09": {
+      "combined": 0.0666,
+      "positive": false
+     },
+     "G03-G10": {
+      "combined": 0.025,
+      "positive": false
+     },
+     "G04-G05": {
+      "combined": 0.1702,
+      "positive": false
+     },
+     "G04-G07": {
+      "combined": 0.0712,
+      "positive": false
+     },
+     "G04-G08": {
+      "combined": 0.1316,
+      "positive": false
+     },
+     "G04-G09": {
+      "combined": 0.2133,
+      "positive": false
+     },
+     "G04-G10": {
+      "combined": 0.0748,
+      "positive": false
+     },
+     "G05-G06": {
+      "combined": 0.3542,
+      "positive": true
+     },
+     "G05-G07": {
+      "combined": 0.4826,
+      "positive": true
+     },
+     "G05-G08": {
+      "combined": 0.4035,
+      "positive": true
+     },
+     "G05-G09": {
+      "combined": 0.2945,
+      "positive": true
+     },
+     "G05-G10": {
+      "combined": 0.4312,
+      "positive": true
+     },
+     "G06-G07": {
+      "combined": 0.4278,
+      "positive": true
+     },
+     "G06-G08": {
+      "combined": 0.1506,
+      "positive": true
+     },
+     "G06-G09": {
+      "combined": 0.1388,
+      "positive": true
+     },
+     "G06-G10": {
+      "combined": 0.1119,
+      "positive": false
+     },
+     "G07-G08": {
+      "combined": 0.3466,
+      "positive": true
+     },
+     "G07-G09": {
+      "combined": 0.2869,
+      "positive": true
+     },
+     "G07-G10": {
+      "combined": 0.1967,
+      "positive": true
+     },
+     "G08-G09": {
+      "combined": 0.2688,
+      "positive": true
+     },
+     "G08-G10": {
+      "combined": 0.263,
+      "positive": true
+     },
+     "G09-G10": {
+      "combined": 0.4478,
+      "positive": true
+     }
+    },
+    "distinct_pairs": 43,
+    "distinct_positive": 18,
+    "n_cases": 104,
+    "n_positive": 34
+   }
+  }
+ },
+ "new_stages": [
+  "native21s35",
+  "native21s38",
+  "native21s40",
+  "native21s41",
+  "native21s42",
+  "native21s43"
+ ],
+ "not_adopted": {
+  "native21s33": "six layers, phase A; not adopted on price (DECISIONS 39, 40)",
+  "native21s37": "cleanup pass on s35; tool merged, board commit 5e81ba1c6 not merged (DECISIONS 48)"
+ },
+ "old_stages": [
+  "native21s19c",
+  "native21s20",
+  "native21s21",
+  "native21s21b",
+  "native21s22",
+  "native21s26",
+  "native21s27",
+  "native21s28",
+  "native21s29",
+  "native21s30",
+  "native21s31",
+  "native21s32"
+ ]
+}

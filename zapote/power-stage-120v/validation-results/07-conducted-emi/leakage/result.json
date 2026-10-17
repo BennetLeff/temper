@@ -1,0 +1,203 @@
+{
+  "V": 132.0,
+  "budget_mA": 0.25,
+  "f": 60.0,
+  "limit_mA": 0.5,
+  "max_total_C_per_line_nF_at_budget": 5.023830274365384,
+  "pass_fraction": 0.5,
+  "results": [
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.241225042138699,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato (cy1 / cy2 CapY1_2n2); parts.ato CapY1_2n2"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.048,
+          "name": "PS2 MPM-20-24 leakage",
+          "src": "MEAN WELL MPM-20-SPEC 2024-10-30 p.2 (Touch current <80uA/264VAC, Note 7)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.06,
+          "name": "PS3 MPM-65-15ST leakage",
+          "src": "MEAN WELL MPM-65-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"
+        }
+      ],
+      "label": "DESIGN (datasheet-max supplies)",
+      "limit_mA": 0.5,
+      "margin_mA": 0.008774957861301003,
+      "margin_pct_of_budget": 3.509983144520401,
+      "pct_of_limit": 48.2450084277398,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 0.482450084277398,
+        "open_N_PE_intact_PE_conductor_mA": 0.482450084277398,
+        "open_PE_touch_per_polarity_mA": 0.241225042138699
+      },
+      "verdict": "PASS",
+      "vs_iec_0p75_pct": 32.16333895182653
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.8383789737330468,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato (cy1 / cy2 CapY1_2n2); parts.ato CapY1_2n2"
+        },
+        {
+          "c_nom_nF": 10.0,
+          "mA": 0.5971539315943478,
+          "name": "CONTROL extra Y per line",
+          "src": "hypothetical"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.048,
+          "name": "PS2 MPM-20-24 leakage",
+          "src": "MEAN WELL MPM-20-SPEC 2024-10-30 p.2 (Touch current <80uA/264VAC, Note 7)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.06,
+          "name": "PS3 MPM-65-15ST leakage",
+          "src": "MEAN WELL MPM-65-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"
+        }
+      ],
+      "label": "CONTROL (+10 nF Y per line; must FAIL)",
+      "limit_mA": 0.5,
+      "margin_mA": -0.5883789737330468,
+      "margin_pct_of_budget": -235.35158949321874,
+      "pct_of_limit": 167.67579474660937,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 1.6767579474660936,
+        "open_N_PE_intact_PE_conductor_mA": 1.6767579474660936,
+        "open_PE_touch_per_polarity_mA": 0.8383789737330468
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 111.78386316440624
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.2531681207705859,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato (cy1 / cy2 CapY1_2n2); parts.ato CapY1_2n2"
+        },
+        {
+          "c_nom_nF": 0.2,
+          "mA": 0.011943078631886957,
+          "name": "CONTROL extra Y per line",
+          "src": "hypothetical"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.048,
+          "name": "PS2 MPM-20-24 leakage",
+          "src": "MEAN WELL MPM-20-SPEC 2024-10-30 p.2 (Touch current <80uA/264VAC, Note 7)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.06,
+          "name": "PS3 MPM-65-15ST leakage",
+          "src": "MEAN WELL MPM-65-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"
+        }
+      ],
+      "label": "CONTROL 2 (design + 0.2 nF Y per line; must FAIL)",
+      "limit_mA": 0.5,
+      "margin_mA": -0.003168120770585925,
+      "margin_pct_of_budget": -1.26724830823437,
+      "pct_of_limit": 50.633624154117186,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 0.5063362415411718,
+        "open_N_PE_intact_PE_conductor_mA": 0.5063362415411718,
+        "open_PE_touch_per_polarity_mA": 0.2531681207705859
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 33.755749436078126
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.9741421213647918,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato (cy1 / cy2 CapY1_2n2); parts.ato CapY1_2n2"
+        },
+        {
+          "c_nom_nF": 6.9,
+          "mA": 0.41203621280010005,
+          "name": "D-22 module Y (4.7+2.2 nF, +20 %)",
+          "src": "out-D22/PARTS.md Main/HF Y"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS1 IRM-20-15 leakage",
+          "src": "MEAN WELL IRM-20-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS2 IRM-20-24 leakage",
+          "src": "MEAN WELL IRM-20-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS3 IRM-60-15ST leakage",
+          "src": "MEAN WELL IRM-60-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"
+        }
+      ],
+      "label": "REFERENCE s35 (three IRM supplies, D-22 module Y; must reproduce 0.9741 mA and FAIL)",
+      "limit_mA": 0.5,
+      "margin_mA": -0.7241421213647918,
+      "margin_pct_of_budget": -289.6568485459167,
+      "pct_of_limit": 194.82842427295836,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 1.9482842427295837,
+        "open_N_PE_intact_PE_conductor_mA": 1.9482842427295837,
+        "open_PE_touch_per_polarity_mA": 0.9741421213647918
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 129.88561618197224
+    }
+  ],
+  "system": "stage 38: PS1 deleted, PS2 MPM-20-24, PS3 MPM-65-15ST, D-22 module Y removed (DECISIONS 47)"
+}

@@ -1,0 +1,8 @@
+28 A pan grid, line-cycle rms / pk to earth (V); Table 17 x 2 PD3 IIIa: <= 250 V rms -> 8.0 mm, >250-400 -> 12.6 mm
+net           L70 / C050 (design)     any L 70-90 uH
+res_a           297.0 /  655.5    314.1 /  690.4
+crbleed_1       242.5 /  541.1    255.1 /  567.3
+crbleed_2       189.6 /  426.7    197.7 /  444.2
+crbleed_3       140.0 /  312.4    143.7 /  321.1
+sw_b             99.0 /  198.0     99.0 /  198.0
+CONTROL PASS: RES_A 297.0 / 655.5 reproduced

@@ -1,0 +1,55 @@
+{
+ "record_mA": 0.241225042138699,
+ "budget_mA": 0.25,
+ "candidates": {
+  "DE1E3RA222MA4BP01F (fitted)": {
+   "C_max_nF": 2.6399999999999997,
+   "touch_mA": 0.241225042138699,
+   "margin_uA": 8.774957861301003,
+   "verdict": "PASS",
+   "src": "Murata EGD08G p.7: 2200 pF +/-20 %"
+  },
+  "DE1E3RA222MJ4BH01F": {
+   "C_max_nF": 2.6399999999999997,
+   "touch_mA": 0.241225042138699,
+   "margin_uA": 8.774957861301003,
+   "verdict": "PASS",
+   "src": "Murata RA H01F spec (Jun 2023) p.8: 2200 pF +/-20 %"
+  },
+  "DE1E3RA222MN4AP01F": {
+   "C_max_nF": 2.6399999999999997,
+   "touch_mA": 0.241225042138699,
+   "margin_uA": 8.774957861301003,
+   "verdict": "PASS",
+   "src": "Murata EGD08E (Jun 2019) part list: 2200 pF +/-20 %"
+  },
+  "DE1E3RA222MA4BQ01F": {
+   "C_max_nF": 2.6399999999999997,
+   "touch_mA": 0.241225042138699,
+   "margin_uA": 8.774957861301003,
+   "verdict": "PASS",
+   "src": "Murata EGD08E Q01F part list: 2200 pF +/-20 %"
+  },
+  "VY1222M47Y5UQ6TV0": {
+   "C_max_nF": 2.6399999999999997,
+   "touch_mA": 0.241225042138699,
+   "margin_uA": 8.774957861301003,
+   "verdict": "PASS",
+   "src": "Vishay VY1 doc 28537 p.2: 2200 pF, M = +/-20 %"
+  },
+  "CD45-E2GA222M-NKA": {
+   "C_max_nF": 2.6399999999999997,
+   "touch_mA": 0.241225042138699,
+   "margin_uA": 8.774957861301003,
+   "verdict": "PASS",
+   "src": "TDK CD series: 2200 pF, M = +/-20 %"
+  },
+  "CONTROL 2.2 nF +/-30 % (must FAIL)": {
+   "C_max_nF": 2.86,
+   "touch_mA": 0.2521728642179287,
+   "margin_uA": -2.172864217928727,
+   "verdict": "FAIL",
+   "src": "hypothetical"
+  }
+ }
+}

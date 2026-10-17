@@ -1,0 +1,3699 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 51,
+   "list": [
+    {
+     "componentId": 28272,
+     "componentLibraryType": "expand",
+     "stockCount": 27087,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_mdd-microdiode-semiconductor-gbj2510_C27523.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5008
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3915
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3377
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2855
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2724
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2643
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4824
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3771
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3253
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.275
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2624
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2546
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 26992,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "MDD_Microdiode_Semiconductor-GBJ2510/C27523",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.3359,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5008,
+     "componentCode": "C27523",
+     "componentBrandEn": "MDD(Microdiode Semiconductor)",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8619258314522595328",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407301038_MDD-Microdiode-Semiconductor-GBJ2510_C27523.pdf",
+     "dataManualFileAccessId": "8615261153551937536",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MDD(Microdiode Semiconductor) GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8619258315027808256",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ6",
+     "describe": "-55\u2103~+150\u2103@(Tj) 10uA@1kV 1V@12.5A 1kV 25A 350A Single-Phase Rectifier GBJ6 Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 124019,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_diyi-elec-tech-gbj2510_C122749.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.659
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5399
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.4339
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 539,
+       "productPrice": 0.3752
+      },
+      {
+       "startNumber": 540,
+       "endNumber": 1079,
+       "productPrice": 0.3393
+      },
+      {
+       "startNumber": 1080,
+       "endNumber": -1,
+       "productPrice": 0.3214
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 540,
+       "endNumber": 1079,
+       "productPrice": 0.3268
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 539,
+       "productPrice": 0.3614
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5201
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.418
+      },
+      {
+       "startNumber": 1080,
+       "endNumber": -1,
+       "productPrice": 0.3096
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6348
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "DIYI_ElecTech-GBJ2510/C122749",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 1.695,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.659,
+     "componentCode": "C122749",
+     "componentBrandEn": "DIYI Elec Tech",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8759319332130439168",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810010809_DIYI-Elec-Tech-GBJ2510_C122749.pdf",
+     "dataManualFileAccessId": "8588891222886375424",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "DIYI Elec Tech GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8759319333254107136",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1.05V@12.5A 1kV 25A 300A 5uA@1kV Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.05V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "300A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 543892,
+     "componentLibraryType": "expand",
+     "stockCount": 1557,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_goodwork-gbj2510_C525765.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.579
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4632
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.4143
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3523
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3262
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3083
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3143
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3991
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5578
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.297
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4463
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3394
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 1140,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "GOODWORK-GBJ2510/C525765",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.4,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.579,
+     "componentCode": "C525765",
+     "componentBrandEn": "GOODWORK",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8762238686858108928",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2111161530_GOODWORK-GBJ2510_C525765.pdf",
+     "dataManualFileAccessId": "8756398799583485952",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "GOODWORK GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8762238687906414592",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1.05V@3A 10uA 1kV 25A 350A GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.05V@3A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 544859,
+     "componentLibraryType": "expand",
+     "stockCount": 1589,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510-F",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_diodes-incorporated-gbj2510-f_C526644.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.176
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.964
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.8465
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.7144
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1004,
+       "productPrice": 0.6557
+      },
+      {
+       "startNumber": 1005,
+       "endNumber": -1,
+       "productPrice": 0.6296
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1328
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9286
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.8155
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.6882
+      },
+      {
+       "startNumber": 1005,
+       "endNumber": -1,
+       "productPrice": 0.6065
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1004,
+       "productPrice": 0.6316
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 1585,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "DiodesIncorporated-GBJ2510F/C526644",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 3.61859,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.176,
+     "componentCode": "C526644",
+     "componentBrandEn": "Diodes Incorporated",
+     "componentModelEn": "GBJ2510-F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583074858825887744",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2005181004_Diodes-Incorporated-GBJ2510-F_C526644.pdf",
+     "dataManualFileAccessId": "8588889329272176640",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "DIODES GBJ2510-F",
+     "minImage": "",
+     "minImageAccessId": "8583074859778265088",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-65\u2103~+150\u2103 1.05V@12.5A 10uA@1kV 1kV 25A 350A Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.05V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>-F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 733181,
+     "componentLibraryType": "expand",
+     "stockCount": 110,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yangzhou-yangjie-elec-tech-gbj2510a_C698439.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7601
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6329
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.5057
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.442
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1004,
+       "productPrice": 0.4045
+      },
+      {
+       "startNumber": 1005,
+       "endNumber": -1,
+       "productPrice": 0.385
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7322
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6096
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.4258
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1004,
+       "productPrice": 0.3897
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.4871
+      },
+      {
+       "startNumber": 1005,
+       "endNumber": -1,
+       "productPrice": 0.3708
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 110,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Yangzhou_Yangjie_ElecTech-GBJ2510A/C698439",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 1.8088,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.7601,
+     "componentCode": "C698439",
+     "componentBrandEn": "Yangzhou Yangjie Elec Tech",
+     "componentModelEn": "GBJ2510A",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583335159953297408",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Yangzhou-Yangjie-Elec-Tech-GBJ2510A_C698439.pdf",
+     "dataManualFileAccessId": "8588896962137899008",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YANGJIE GBJ2510A",
+     "minImage": "",
+     "minImageAccessId": "8583335160817594368",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "6KBJ",
+     "describe": "-55\u2103~+150\u2103 1V@12.5A 1kV 25A 350A 5uA@1kV Single-Phase Rectifier 6KBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>A",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 733182,
+     "componentLibraryType": "expand",
+     "stockCount": 6065,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yangzhou-yangjie-elec-tech-gbj2510_C698440.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5905
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.473
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.3899
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.3262
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1499,
+       "productPrice": 0.2985
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 0.2806
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 495,
+       "endNumber": 1499,
+       "productPrice": 0.2876
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5688
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4557
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 0.2703
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.3755
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.3143
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 5801,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Yangzhou_Yangjie_ElecTech-GBJ2510/C698440",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 1.4333,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5905,
+     "componentCode": "C698440",
+     "componentBrandEn": "Yangzhou Yangjie Elec Tech",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583335140311777280",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Yangzhou-Yangjie-Elec-Tech-GBJ2510_C698440.pdf",
+     "dataManualFileAccessId": "8588896962132758529",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YANGJIE GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8583335141275656192",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "6KBJ",
+     "describe": "-55\u2103~+150\u2103 1V@12.5A 1kV 25A 320A 5uA@1000V Single-Phase Rectifier 6KBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "320A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 992594,
+     "componentLibraryType": "expand",
+     "stockCount": 9243,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_baocheng-shandong-baocheng-elec-gbj2510_C917410.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5448
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4339
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3866
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3214
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2953
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2789
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5248
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3096
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.418
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3724
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2844
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2687
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 9242,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "992594-GBJ2510/C917410",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.34999,
+     "preMinPurchaseNum": 21,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5448,
+     "componentCode": "C917410",
+     "componentBrandEn": "baocheng(Shandong Baocheng Elec)",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583303268965486592",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2011270940_baocheng-Shandong-Baocheng-Elec-GBJ2510_C917410.pdf",
+     "dataManualFileAccessId": "8588896281532518400",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "baocheng GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8583303269816524800",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ-6",
+     "describe": "-55\u2103~+150\u2103 1.1V@12.5A 10uA@1kV 1kV 25A 350A Single-Phase Rectifier GBJ-6 Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3146053,
+     "componentLibraryType": "expand",
+     "stockCount": 19,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yfw-gbj2510_C2898525.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6378
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5252
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.4681
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.354
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3214
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3034
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.451
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.341
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6144
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3096
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2923
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.506
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 19,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "YFW-GBJ2510/C2898525",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.602,
+     "preMinPurchaseNum": 18,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.6378,
+     "componentCode": "C2898525",
+     "componentBrandEn": "YFW",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583887982881886208",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2110081830_YFW-GBJ2510_C2898525.pdf",
+     "dataManualFileAccessId": "8590197740815876096",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YFW GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8583887983766749184",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1V@12.5A 1kV 25A 300A 5uA@1kV Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "300A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3160611,
+     "componentLibraryType": "expand",
+     "stockCount": 1160,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_lge-gbj2510_C2903846.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4453
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3507
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3099
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2594
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2365
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2235
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.2986
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2153
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2499
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.429
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2279
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3378
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 1160,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "LGE-GBJ2510/C2903846",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.15,
+     "preMinPurchaseNum": 26,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4453,
+     "componentCode": "C2903846",
+     "componentBrandEn": "LGE",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583896391521746944",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2111080930_LGE-GBJ2510_C2903846.pdf",
+     "dataManualFileAccessId": "8590207647665319936",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LGE GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8583896392436105216",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1V@12.5A 1kV 25A 270A 5uA@1kV Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "270A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4442519,
+     "componentLibraryType": "expand",
+     "stockCount": 152,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "RGBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_baocheng-shandong-baocheng-elec-rgbj2510_C3874021.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4518
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.354
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3116
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2463
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2235
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2088
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3001
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2012
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2373
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4353
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2153
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.341
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 152,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "4442519-RGBJ2510/C3874021",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.2,
+     "preMinPurchaseNum": 26,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4518,
+     "componentCode": "C3874021",
+     "componentBrandEn": "baocheng(Shandong Baocheng Elec)",
+     "componentModelEn": "RGBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584848239552311296",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2207211800_baocheng-Shandong-Baocheng-Elec-RGBJ2510_C3874021.pdf",
+     "dataManualFileAccessId": "8590237873229635584",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "baocheng RGBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8584848240718057472",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1.3V@12.5A 10uA@1kV 1kV 25A 350A Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.3V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "R<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5321702,
+     "componentLibraryType": "expand",
+     "stockCount": 185,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_shandong-jingdao-microelectronics-gbj2510_C4749002.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5921
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4812
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4274
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.3719
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.3377
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3214
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.3253
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.3583
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5704
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3096
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4117
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4635
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 185,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "5321702-GBJ2510/C4749002",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 1.5718,
+     "preMinPurchaseNum": 19,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5921,
+     "componentCode": "C4749002",
+     "componentBrandEn": "Shandong Jingdao Microelectronics",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585524091369086976",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2208091800_Shandong-Jingdao-Microelectronics-GBJ2510_C4749002.pdf",
+     "dataManualFileAccessId": "8603031340140933120",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Jingdao Microelectronics GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8585524092354613248",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1V@12.5A 1kV 25A 270A 5uA@1000V Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "270A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5728351,
+     "componentLibraryType": "expand",
+     "stockCount": 440,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_sep-gbj2510_C5127106.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3887
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3106
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.2772
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2103
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1917
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1806
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.174
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2992
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3744
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1847
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2026
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.267
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 439,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SEP-GBJ2510/C5127106",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.9492,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3887,
+     "componentCode": "C5127106",
+     "componentBrandEn": "SEP",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584857777315721216",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2208100930_SEP-GBJ2510_C5127106.pdf",
+     "dataManualFileAccessId": "8590261062344863744",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SEP GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8584857778238197760",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103@(Tj) 1kV 25A 300A Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "300A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5748957,
+     "componentLibraryType": "expand",
+     "stockCount": 35,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_juxing-gbj2510_C5138254.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5921
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4877
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.4437
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3882
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3638
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3491
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.4274
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3363
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.374
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5704
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3504
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4698
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 35,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JUXING-GBJ2510/C5138254",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.265,
+     "preMinPurchaseNum": 19,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5921,
+     "componentCode": "C5138254",
+     "componentBrandEn": "JUXING",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584870946016124928",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2208161803_JUXING-GBJ2510_C5138254.pdf",
+     "dataManualFileAccessId": "8590286019326078976",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JUXING GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8584870946918576128",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-65\u2103~+150\u2103 1.1V 10uA 1kV 25A 300A Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "300A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6016584,
+     "componentLibraryType": "expand",
+     "stockCount": 145,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4469
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3523
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3132
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2626
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2398
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2251
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2169
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3017
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.253
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4305
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.231
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3394
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 145,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "XCH-GBJ2510/C5280545",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.15,
+     "preMinPurchaseNum": 26,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4469,
+     "componentCode": "C5280545",
+     "componentBrandEn": "XCH",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585551367368400897",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8603067818674450432",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "XCH GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8585551368371245056",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1V@12.5A 1kV 25A 350A 5uA Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6037091,
+     "componentLibraryType": "expand",
+     "stockCount": 632,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_jiangsu-changjing-electronics-technology-co-ltd-gbj2510_C5292681.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5562
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4372
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.385
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.3214
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1499,
+       "productPrice": 0.2936
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 0.2757
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.3708
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1499,
+       "productPrice": 0.2829
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5358
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.3096
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": -1,
+       "productPrice": 0.2656
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4211
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 632,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6037091-GBJ2510/C5292681",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 1.45,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5562,
+     "componentCode": "C5292681",
+     "componentBrandEn": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585843097284173824",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2212151330_Jiangsu-Changjing-Electronics-Technology-Co---Ltd--GBJ2510_C5292681.pdf",
+     "dataManualFileAccessId": "8603137728213643264",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JSCJ GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8585843101164716032",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "6GBJ",
+     "describe": "-55\u2103~+150\u2103 10uA@1000V 1V@12.5A 1kV 25A 350A Single-Phase Rectifier 6GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6319879,
+     "componentLibraryType": "expand",
+     "stockCount": 251,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_born-gbj2510_C5439988.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4535
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3638
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3246
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2545
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2333
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2202
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2122
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3127
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2451
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4368
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2247
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3504
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 251,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "BORN-GBJ2510/C5439988",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.1,
+     "preMinPurchaseNum": 25,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4535,
+     "componentCode": "C5439988",
+     "componentBrandEn": "BORN",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585854525185515520",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303301800_BORN-GBJ2510_C5439988.pdf",
+     "dataManualFileAccessId": "8603165514030608384",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BORN GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8585854526176182272",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1.1V@25A 1kV 25A 300A 5uA@1000V Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "300A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1000V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8454858,
+     "componentLibraryType": "expand",
+     "stockCount": 41,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "SGBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_yfw-sgbj2510_C7436470.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8031
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.9827
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.495
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 4.0025
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 3.7741
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.673
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 3.8556
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.3301
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.5901
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.5382
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 3.6356
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.7998
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 41,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YFW-SGBJ2510/C7436470",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 18.7599,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.8031,
+     "componentCode": "C7436470",
+     "componentBrandEn": "YFW",
+     "componentModelEn": "SGBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585538416465620992",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2307211750_YFW-SGBJ2510_C7436470.pdf",
+     "dataManualFileAccessId": "8778325730214871040",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YFW SGBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8585538417400274944",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SGBJ",
+     "describe": "-40\u2103~+150\u2103 1.18V@12.5A 1kV 25A 350A 3mA Single-Phase Rectifier SGBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.18V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "350A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "3mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "S<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8475107,
+     "componentLibraryType": "expand",
+     "stockCount": 38,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_langjie-gbj2510_C7450415.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4176
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3279
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.2904
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2414
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2202
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2072
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2122
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.2326
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4023
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.2797
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1996
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3158
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 38,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LangJie-GBJ2510/C7450415",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.089,
+     "preMinPurchaseNum": 28,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4176,
+     "componentCode": "C7450415",
+     "componentBrandEn": "LangJie",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585216837575852032",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2307211836_LangJie-GBJ2510_C7450415.pdf",
+     "dataManualFileAccessId": "8590906768283418624",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LangJie GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8585216838548119552",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103 1.1V@12.5A 1kV 25A 420A 5uA Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.1V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "420A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 115400,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "GBJ2510",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge rectifiers_guerte(zhejiang guchi elec)_gbj2510_C114160.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5366
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4241
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3752
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3148
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2871
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.2708
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.2675
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.2659
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.2561
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2766
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.517
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.3614
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.2609
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.2577
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4085
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.3033
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "GUERTE_Zhejiang_Guchi_Elec-GBJ2510/C114160",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 1.38,
+     "preMinPurchaseNum": 22,
+     "minPurchaseNum": 22,
+     "initialPrice": 0.4241,
+     "componentCode": "C114160",
+     "componentBrandEn": "GUERTE(Zhejiang Guchi Elec)",
+     "componentModelEn": "GBJ2510",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583057963875774464",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/1810272110_GUERTE-Zhejiang-Guchi-Elec-GBJ2510_C114160.pdf",
+     "dataManualFileAccessId": "8588887344069533696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "GUERTE(Zhejiang Guchi Elec) GBJ2510",
+     "minImage": "",
+     "minImageAccessId": "8583057964781744128",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-40\u2103~+150\u2103@(Tj) 1.05V@12.5A 1kV 25A 300A 5uA@1kV GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.05V@12.5A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "300A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-40\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "5uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>GBJ2510</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 256646,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Bridge Rectifiers",
+     "erpComponentName": "S-GBJ2510F-TU-LT",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/bridge-rectifiers_diodes-incorporated-s-gbj2510f-tu-lt_C266405.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8188
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6981
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.6459
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.5807
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1004,
+       "productPrice": 0.5513
+      },
+      {
+       "startNumber": 1005,
+       "endNumber": -1,
+       "productPrice": 0.535
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6725
+      },
+      {
+       "startNumber": 1005,
+       "endNumber": -1,
+       "productPrice": 0.5154
+      },
+      {
+       "startNumber": 105,
+       "endNumber": 494,
+       "productPrice": 0.5594
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 104,
+       "productPrice": 0.6222
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 1004,
+       "productPrice": 0.5311
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7888
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "a879a2687f1a4a6bb630092272b7d6bc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "DiodesIncorporated-S_GBJ2510F_TULT/C266405",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 15,
+     "shopCostPrice": 1.48,
+     "preMinPurchaseNum": 13,
+     "minPurchaseNum": 13,
+     "initialPrice": 0.6981,
+     "componentCode": "C266405",
+     "componentBrandEn": "Diodes Incorporated",
+     "componentModelEn": "S-GBJ2510F-TU-LT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583063261809938432",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912111437_Diodes-Incorporated-S-GBJ2510F-TU-LT_C266405.pdf",
+     "dataManualFileAccessId": "8588887964831125504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "DIODES S-GBJ2510F-TU-LT",
+     "minImage": "",
+     "minImageAccessId": "8583063262787751936",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "GBJ",
+     "describe": "-55\u2103~+150\u2103@(Tj) 1.05V@25A 10uA@1kV 1kV 25A 700A Single-Phase Rectifier GBJ Bridge Rectifiers ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.05V@25A"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Single-Phase Rectifier"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "700A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "10uA@1kV"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Bridge Rectifiers",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "S-<span class='lucene_highlight_class'>GBJ2510</span>F-TU-LT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 20,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 3,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "GBJ2510"
+ },
+ "message": null,
+ "_kw": "GBJ2510",
+ "_fetched_utc": "2026-10-13T20:34:49Z"
+}

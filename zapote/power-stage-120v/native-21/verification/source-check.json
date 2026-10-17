@@ -1,15 +1,16 @@
 {
-  "components": 347,
+  "components": 372,
   "source_hashes_match": true,
   "two_frozen_exports_identical": true,
   "native20_protection_parts_retained": true,
-  "no_RECOM_or_bootstrap": true,
-  "monitor_crossings_ISO7710": true,
+  "RECOM_only_hs_bias_modules": true,
+  "no_bootstrap": true,
+  "monitor_crossing_single_ISO7710_heartbeat": true,
   "source_sha256": {
-    "elec/src/f6_bias.ato": "6dd3e8fe50af9aef3ed8ba2b0c629234f7db6ebff7ac8241c0527790208f24f2",
-    "elec/src/f6_parts.ato": "c5bcbcc3dac89cfdd39b9c6f42c7ac6532658a1f389dcd04c7192e1a1e61b6c3",
-    "elec/src/parts.ato": "569663b652d7e40bd59cfc44a53533df5470724a934bbffc86f703a3eefa408a",
-    "elec/src/power_stage_120v.ato": "9bd0c0f015ae5b126d8106332c892e7dd0da82225d37001e4618e6449aa1fa04",
+    "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
+    "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
+    "elec/src/parts.ato": "197a2de797d1ef0fd5bca27fd89622f0140d83711a6da2776e6627770e624884",
+    "elec/src/power_stage_120v.ato": "66b5d4e945c098c2418ca7dd4e12ecb95bf664ad0c275c725f0bb1362dbe8283",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

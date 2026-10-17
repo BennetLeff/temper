@@ -16,9 +16,9 @@ from shapely.geometry import LineString, Point, Polygon, box
 from shapely.strtree import STRtree
 
 import rules21
+from layers21 import CU  # noqa: F401  (copper layers, top to bottom, from native-21/stackup.json)
 
 HERE = Path(__file__).resolve().parent
-CU = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
 EDGE = [(0, 0), (290, 0), (290, 140), (91, 140), (91, 190), (0, 190)]
 EDGE_CLEARANCE = 0.5
 EPS = 0.01
@@ -84,11 +84,12 @@ class Geometry:
             out.append(("edge", None))
         for lay in layers:
             tree, items = self._tree(lay)
-            for i in tree.query(geom.buffer(8.5)):
+            for i in tree.query(geom.buffer(rules21.RES_A_CREEPAGE + 0.1 if net in rules21.RES_A_NETS or
+                                            rules21.domain(net) in ("SELV", "PE") else 8.5)):
                 g, other = items[i]
                 if other == net or (via and id(g) in self.via_permeable):
                     continue
-                need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
+                need = 0.3 if other == "<npth>" else rules21.clearance_on(net, other, lay)
                 if g.distance(geom) < need + 0.03:
                     out.append((lay, other))
                     if len(out) >= limit:
@@ -112,7 +113,7 @@ class Geometry:
             raise KeyError(f"{ref_pad}: {len(hits)} pads")
         return hits[0]
 
-    def via_spot(self, ref_pad, size=0.85, width=0.4, reach=(0.6, 3.2), within=None, avoid_dirs=()):
+    def via_spot(self, ref_pad, size=0.6, width=0.4, reach=(0.6, 3.2), within=None, avoid_dirs=()):
         """Nearest legal via beside an SMD pad, joined by a short F.Cu stub.
 
         Tries 16 directions, preferring away from the part's centre, stepping outward from the

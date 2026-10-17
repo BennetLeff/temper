@@ -1,0 +1,134 @@
+{
+ "method": "Loop inductance added to a gate / sense loop by a board-to-board connector, computed (no vendor data found).",
+ "rows": [
+  {
+   "connector": "2.54 mm square-pin header/socket (0.64 sq), mated path 9 mm",
+   "pairs": 1,
+   "loop_conn_nH": 7.04,
+   "vias_nH": 2.4,
+   "stubs_nH": 5.02,
+   "total_added_nH": 14.46
+  },
+  {
+   "connector": "2.54 mm square-pin header/socket (0.64 sq), mated path 9 mm",
+   "pairs": 2,
+   "loop_conn_nH": 3.29,
+   "vias_nH": 1.2,
+   "stubs_nH": 2.51,
+   "total_added_nH": 7.0
+  },
+  {
+   "connector": "2.54 mm square-pin header/socket (0.64 sq), mated path 9 mm",
+   "pairs": 3,
+   "loop_conn_nH": 2.12,
+   "vias_nH": 0.8,
+   "stubs_nH": 1.67,
+   "total_added_nH": 4.6
+  },
+  {
+   "connector": "2.54 mm square-pin header/socket (0.64 sq), mated path 9 mm",
+   "pairs": 4,
+   "loop_conn_nH": 1.56,
+   "vias_nH": 0.6,
+   "stubs_nH": 1.25,
+   "total_added_nH": 3.42
+  },
+  {
+   "connector": "2.00 mm header (0.5 sq), 7 mm",
+   "pairs": 1,
+   "loop_conn_nH": 5.49,
+   "vias_nH": 2.35,
+   "stubs_nH": 5.02,
+   "total_added_nH": 12.86
+  },
+  {
+   "connector": "2.00 mm header (0.5 sq), 7 mm",
+   "pairs": 2,
+   "loop_conn_nH": 2.57,
+   "vias_nH": 1.18,
+   "stubs_nH": 2.51,
+   "total_added_nH": 6.25
+  },
+  {
+   "connector": "2.00 mm header (0.5 sq), 7 mm",
+   "pairs": 3,
+   "loop_conn_nH": 1.66,
+   "vias_nH": 0.78,
+   "stubs_nH": 1.67,
+   "total_added_nH": 4.12
+  },
+  {
+   "connector": "2.00 mm header (0.5 sq), 7 mm",
+   "pairs": 4,
+   "loop_conn_nH": 1.22,
+   "vias_nH": 0.59,
+   "stubs_nH": 1.25,
+   "total_added_nH": 3.06
+  },
+  {
+   "connector": "1.27 mm header (0.4 sq), 6 mm",
+   "pairs": 1,
+   "loop_conn_nH": 4.3,
+   "vias_nH": 2.23,
+   "stubs_nH": 5.02,
+   "total_added_nH": 11.55
+  },
+  {
+   "connector": "1.27 mm header (0.4 sq), 6 mm",
+   "pairs": 2,
+   "loop_conn_nH": 1.99,
+   "vias_nH": 1.12,
+   "stubs_nH": 2.51,
+   "total_added_nH": 5.62
+  },
+  {
+   "connector": "1.27 mm header (0.4 sq), 6 mm",
+   "pairs": 3,
+   "loop_conn_nH": 1.28,
+   "vias_nH": 0.74,
+   "stubs_nH": 1.67,
+   "total_added_nH": 3.69
+  },
+  {
+   "connector": "1.27 mm header (0.4 sq), 6 mm",
+   "pairs": 4,
+   "loop_conn_nH": 0.94,
+   "vias_nH": 0.56,
+   "stubs_nH": 1.25,
+   "total_added_nH": 2.75
+  },
+  {
+   "connector": "0.8 mm edge-rate class (contact 0.3x0.5), 5.97 mm stack",
+   "pairs": 1,
+   "loop_conn_nH": 3.34,
+   "vias_nH": 2.07,
+   "stubs_nH": 5.02,
+   "total_added_nH": 10.43
+  },
+  {
+   "connector": "0.8 mm edge-rate class (contact 0.3x0.5), 5.97 mm stack",
+   "pairs": 2,
+   "loop_conn_nH": 1.51,
+   "vias_nH": 1.04,
+   "stubs_nH": 2.51,
+   "total_added_nH": 5.05
+  },
+  {
+   "connector": "0.8 mm edge-rate class (contact 0.3x0.5), 5.97 mm stack",
+   "pairs": 3,
+   "loop_conn_nH": 0.95,
+   "vias_nH": 0.69,
+   "stubs_nH": 1.67,
+   "total_added_nH": 3.31
+  },
+  {
+   "connector": "0.8 mm edge-rate class (contact 0.3x0.5), 5.97 mm stack",
+   "pairs": 4,
+   "loop_conn_nH": 0.69,
+   "vias_nH": 0.52,
+   "stubs_nH": 1.25,
+   "total_added_nH": 2.46
+  }
+ ],
+ "stub_nH_per_mm_strip_1mm_over_0p2mm_plane": 0.251
+}
