@@ -40,15 +40,16 @@ FW = HERE.parent / "firmware"
 REPO = HERE.parents[2]
 sys.path.insert(0, str(FW))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cold_soak as CS  # noqa: E402
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
+import input_manifest as IM  # noqa: E402  (content-hash manifest of the study inputs)
 import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 import xcheck_cosim as X  # noqa: E402
 from ref import es  # noqa: E402
 
-# Source inputs: sensor-c1-integrate 68ef09729, the sources of the box (reference) evidence;
-# was 8a5b47a50 (Mac), 03c28e76b.
+# Information only: the commit whose sources produced the box (reference) evidence.
+# The input gate is the content-hash manifest in input_manifest.py (T2_INPUTS), not git.
 BASE = "68ef097296db106550b2f357c2fae8336784e5db"
 CAPS = (200, 210, 220, 230, 240, 250)
 OUT = HERE / "setpoint-cap.json"
@@ -361,39 +362,9 @@ def cap_result(sets, per_value):
 
 
 def apparatus(lib_path):
-    inputs = sorted(
-        set(FW.glob("*.py"))
-        | set(FW.glob("*.c"))
-        | {FW / "build_lib.sh"}
-        | set((REPO / "firmware/components/control").glob("*.[ch]"))
-        | set((REPO / "firmware/components/sensors").glob("*.c"))
-        | set((REPO / "firmware/components/sensors/include").glob("*.h"))
-        | set((REPO / "firmware/components/sensors").glob("*.h"))
-        | {
-            FW / "leak-checks.json",
-            FW / "rim-limit.json",
-            FW / "cold-soak.json",
-            HERE.parent / "cad/thermal-axisym.json",
-            HERE.parent / "screen.py",
-            HERE.parent / "contact_model.py",
-            HERE.parent.parent / "temper-sensor-r2/estimator_study.py",
-            REPO / "firmware/config.yaml",
-            REPO / "firmware/config.h",
-            REPO / "firmware/main/ui.c",
-            REPO / "firmware/main/state_machine.c",
-            REPO / "firmware/main/state_handlers.c",
-            REPO / "firmware/main/pan_control.c",
-        }
-    )
-    # Generated evidence inputs that differ from BASE only by the platform's float
-    # drift are not dirty (evidence_compare); any source byte change is.
-    dirty = EC.dirty_inputs(REPO, BASE, inputs)
     return {
-        "base_revision": BASE,
-        "source_inputs_dirty_against_base": dirty,
-        "input_sha256": {
-            str(p.relative_to(REPO)): hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs
-        },
+        "base_commit_info": BASE,
+        "input_sha256": IM.sha256_manifest(REPO, IM.T2_INPUTS),
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "library_sha256": hashlib.sha256(Path(lib_path).read_bytes()).hexdigest(),
         "python": platform.python_version(),
@@ -510,7 +481,8 @@ def run(jobs, lib_path, caps=CAPS):
         "all_caps_complete": set(result["caps"]) == {str(c) for c in caps}
         and len(result["combined_table"]) == len(caps),
         "control_250_matches": result["control_250"]["pass"],
-        "source_inputs_unchanged": not result["apparatus"]["source_inputs_dirty_against_base"],
+        # Re-verified after the sweep: every input hash recorded at start still matches.
+        "source_inputs_unchanged": IM.unchanged(result["apparatus"]["input_sha256"], REPO),
         "rim_constants_match": result["model"]["rim_constants"]["match"],
         "no_benign_false_latches": all(
             b["false_latches"] == 0 for c in result["caps"].values() for b in c["benign"].values()
@@ -737,7 +709,7 @@ def notes(result):
         "cd output/temper-sensor-r3/firmware && ./run.sh",
         "```",
         "",
-        "The script rebuilds the unchanged C cosimulation library on each invocation. `--check` reruns the sweep and compares the regenerated `setpoint-cap.json` and `setpoint-cap-rows.json.gz` with the committed files by content; it does not rewrite them. Only the toolchain strings in `TOOLCHAIN_KEYS` (interpreter and package versions, machine, compiler, library hash) are exempt; on the reference platform every count, temperature and source-input hash must match, and elsewhere floats follow `evidence_compare.py` (summary floats tight, per-run rows within 0.5 s / 0.5 K, listed outliers) while every count, flag and source hash stays exact. `--caps` restricts both the run and the comparison to the listed caps (250 always runs first, for the control). Relevant source-input drift against the fixed base is checked explicitly. `--jobs` affects throughput only. `T2 PASS` means evidence/control/benign gates pass, not that the every-hazard-before-bar requirement is met.",
+        "The script rebuilds the unchanged C cosimulation library on each invocation. `--check` reruns the sweep and compares the regenerated `setpoint-cap.json` and `setpoint-cap-rows.json.gz` with the committed files by content; it does not rewrite them. Only the toolchain strings in `TOOLCHAIN_KEYS` (interpreter and package versions, machine, compiler, library hash) are exempt; on the reference platform every count, temperature and source-input hash must match, and elsewhere floats follow `evidence_compare.py` (summary floats tight, per-run rows within 0.5 s / 0.5 K, listed outliers) while every count, flag and source hash stays exact. `--caps` restricts both the run and the comparison to the listed caps (250 always runs first, for the control). The input manifest (`apparatus.input_sha256`, leak-barrier/input_manifest.py `T2_INPUTS`) is re-verified after the sweep. `--jobs` affects throughput only. `T2 PASS` means evidence/control/benign gates pass, not that the every-hazard-before-bar requirement is met.",
         "",
         "## Review observations",
         "",
