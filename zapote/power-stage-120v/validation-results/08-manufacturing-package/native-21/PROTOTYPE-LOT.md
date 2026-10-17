@@ -39,6 +39,12 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
   3.35–4.35 mm: trim to ≤ 2.5 mm below the board.
 - **L1: TDK B82726S2243A020**, consigned / hand-assembled (JLC C7084710 holds 0 on 2026-10-16).
 
+**Hand-assembly note (owner decision 2026-10-16).** The owner's bench has through-hole soldering gear only. Of the 17 consigned
+designators, 15 are through-hole. The two SMD ones, **U41 / U42 (RECOM R24C2T25/R-R, SSOP-36, 0.65 mm pitch, ENIG pads)**, are
+hand-soldered with **hot-air (or similar) rework gear that still has to be obtained** before the first board is built. Plan:
+no JLC consignment request for them; check the 0.20 mm pad-to-pad gap (FAB-NOTE, first-article inspection) for bridges after
+soldering; run the bias checks (bench plan step 2) before anything else is powered.
+
 Hand-solder in house (heavy copper wants a hot iron or selective solder; trim every THT lead to ≤ 2.5 mm below the board,
 C1 / C2's 25 mm leads to 4 mm before insertion): TO-247s (Q2, Q3, Q5, Q6), BR1, the film caps, the bank, L1, J1, J3 / J11, F1
 with its two 01250003H clips (`fab/hand-assembly-extras.csv`; C223911), and any THT part JLC cannot place. Power pins stay
@@ -68,7 +74,7 @@ stock-gate rules (buildable = the larger of JLC library stock and one authorised
 | J2, J5 | 7466004R | 40 | 0 | DigiKey 8,856 | Distributor buy; JLC places it from consign |
 | J3, J11 | B2P3-VH(LF)(SN) | 40 | 983 | DigiKey 42,437 | Hand-assemble; mate VHR-3M |
 | D3, D17 | 30KPA150CA | 40 | 0 | distributor 1,750 | Consign |
-| U41, U42 | R24C2T25/R-R | 40 | 0 | distributor 1,185 | Consign or hand-assemble |
+| U41, U42 | R24C2T25/R-R | 40 | 0 | distributor 1,185 | **Hand-solder with hot air** (owner decision 2026-10-16): SMD, SSOP-36 at 0.65 mm pitch, so buy and keep them; JLC does not place them |
 | T1 | CST3015-200ED | 20 | 64 | JLC | Coilcraft direct has no distributor listing; JLC covers the lot |
 | U5 | LM4050AEM3-2.5/NOPB | 20 | 50 | JLC | Covers the lot; 500 boards need the owner pre-order |
 
