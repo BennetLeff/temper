@@ -42,6 +42,7 @@
   "bank_ratio_tdk_28A_35k": 0.985,
   "bank_ratio_tdk_28A_40k": 0.935,
   "bank_air_ratio_28A_35k": 1.006,
+  "ocp_pickup_stack_pan60_A": 4.17,
   "ledger_violations": 0,
   "ledger_unaudited_safety_power": 0,
   "track_acute_corners": 22,
@@ -75,7 +76,6 @@
    "1704004",
    "3403.0279.23",
    "B32643H8104J000",
-   "IPW65R018CFD7",
    "PMEG6030EP,115",
    "R24C2T25/R-R"
   ],
@@ -103,8 +103,8 @@
   ],
   "price_tiers_5": {
    "P1": 84,
-   "P2": 5,
-   "P3": 6,
+   "P2": 6,
+   "P3": 5,
    "P4": 0,
    "P5": 0,
    "none": 0
@@ -1369,6 +1369,7 @@
   "bank": "11-candidates/bank28-air/results/bank_air_metric.json B32643H8104J000 vendor curve (TDK B3264*H p.19 6.155 / 6.481 A at 35 / 40 kHz, 85 C, 20 K; c51-bank-source/results/b32643h.json)",
   "bank_35k": "11-candidates/bank28-air/results/bank_air_metric.json B32643H8104J000 vendor curve (TDK B3264*H p.19 6.155 / 6.481 A at 35 / 40 kHz, 85 C, 20 K; c51-bank-source/results/b32643h.json)",
   "bank_air": "11-candidates/bank28-air/results/bank_air_metric.json B32643H8104J000 (declared flow; pads from B3 runs on board 82af7bd9)",
+  "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s53.json",
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 92, 'UNAUDITED': 0, 'VERIFIED': 3, 'VIOLATION': 0}",
   "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
   "bom_pricing": "gates/bom_pricing.py bom_pricing-v1 over the 2026-10-15 JLC / DigiKey / Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/); the stock gate takes a dated read (STOCK-2026-10-16.csv, ...) over the snapshot row when newer",
