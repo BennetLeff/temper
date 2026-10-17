@@ -1,0 +1,12 @@
+board hole | kind  | world (x, y)      | nearest R43 standoff | planar offset
+H1         | metal | (  144.0, 101.0) | H1                   |    0.00 mm
+H2         | metal | (   82.0, 101.0) | H7                   |   29.43 mm  NO STANDOFF
+H3         | nylon | ( -135.0,  56.0) | H2                   |    0.00 mm
+H4         | nylon | (  -55.0,  56.0) | H3                   |    0.00 mm
+H5         | nylon | ( -117.0, 162.0) | H4                   |    0.00 mm
+H6         | nylon | (  -53.0, 136.0) | H5                   |    0.00 mm
+H7         | nylon | (  -13.0, 182.0) | H6                   |    0.00 mm
+H8         | nylon | (   53.0, 106.0) | H7                   |    0.00 mm
+H9         | nylon | (    1.0, 232.0) | H6                   |   51.92 mm  NO STANDOFF
+H10        | nylon | (   11.0, 114.0) | H7                   |   42.76 mm  NO STANDOFF
+10 board holes, 7 R43 standoffs; holes with no standoff within 0.5 mm: ['H2', 'H9', 'H10']
