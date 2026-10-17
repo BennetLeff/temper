@@ -45,6 +45,12 @@ hand-soldered with **hot-air (or similar) rework gear that still has to be obtai
 no JLC consignment request for them; check the 0.20 mm pad-to-pad gap (FAB-NOTE, first-article inspection) for bridges after
 soldering; run the bias checks (bench plan step 2) before anything else is powered.
 
+**RV1 (TMOV20RP175E): deselect it in JLC's BOM and hand-solder it** (decision 2026-10-17, from the JLC viewer check). JLC's part
+page for C1527834 lists it as wave-soldered and its EasyEDA package has an 8.5 mm lead pitch with a 21 x 9 mm body; our footprint
+(Littelfuse TMOV/iTMOV datasheet rev GD, FOOTPRINTS.md F4) is 7.5 mm pitch, and the bulk leads are offset (e1 1.5-4.0 mm) and must
+be formed. Nothing shows JLC's part matches the drawing, and the viewer's model did not obviously match our pads. Buy the
+datasheet part, form lead 2 into line and fit it by hand (through-hole); the JLC order then has one fewer THT line.
+
 Hand-solder in house (heavy copper wants a hot iron or selective solder; trim every THT lead to ≤ 2.5 mm below the board,
 C1 / C2's 25 mm leads to 4 mm before insertion): TO-247s (Q2, Q3, Q5, Q6), BR1, the film caps, the bank, L1, J1, J3 / J11, F1
 with its two 01250003H clips (`fab/hand-assembly-extras.csv`; C223911), and any THT part JLC cannot place. Power pins stay

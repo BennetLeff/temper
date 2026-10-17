@@ -36,3 +36,9 @@ JLC's quote for 5 boards on the page defaults: total **$644.58** (PCB $60.05, "E
 extended-component fee $132.33, setup $8.24, stencil $1.55, SMT $8.48, hand-soldering labour $3.61, manual assembly $4.16, nitrogen
 reflow $0.91), weight 3.86 kg. **The PCB tab was still on JLC's defaults** (two-ounce outer / inner copper, ENIG and the
 KB6164 laminate were not set), so the PCB price is not for our spec. Set the board options before any real order.
+
+## RV1 (TMOV20RP175E, LCSC C1527834): resolved by taking it out of JLC's hands
+JLC part page (read 2026-10-17): package "Plugin", assembly type "Wave Soldering", no lead pitch given; its EasyEDA package is
+RES-TH_L21.0-W9.0-P8.50 (8.5 mm pitch). Our footprint is 7.5 mm pitch from the Littelfuse datasheet (FOOTPRINTS.md F4,
+PROVISIONAL: bulk leads offset e1 1.5-4.0 mm, form lead 2 into line). The two disagree by 1 mm and nothing establishes that JLC's part
+is the drawn one. Decision: deselect RV1 in JLC's BOM and hand-solder it (PROTOTYPE-LOT.md); not a BOM-generator change.
