@@ -1,23 +1,26 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 51, the board of record (DECISIONS.md item 73: the resonant bank C21–C23 / C151 / C152 on KNSCHA
-MMK104J3DF1KN208G2 (JLC C528962, 4,952 in stock on 2026-10-16) on the dual-pitch footprint
-`temper:Bank_Film_DualPitch_P22.5_P27.5_Radial` (pad 1 at x 163.0; pad-2 holes at x 185.5 for the TDK B32643B8104J000
-28 A alternate and x 190.5 for KNSCHA, both on sw_b; 1.2 mm drills, 0.6 mm rings); a sourcing override that caps the
-commissioned ladder at 22 A strict / 24 A with the bench gap credit; item 71: U46.A (hsb_good) driven from PERMIT
+Board: native-21 stage 52, the board of record (DECISIONS.md item 74: the prototype bank C21–C23 / C151 / C152 is TDK
+B32643H8104J000 (24 A strict ladder; DigiKey 306 on the 2026-10-16 read), consigned into the 22.5 mm holes; L1 is
+B82726S2243A020, consigned / hand-assembled (JLC C7084710 holds 0); C3 / C4 are Murata DE1E3RA222MJ4BH01F. Item 73:
+the dual-pitch footprint
+`temper:Bank_Film_DualPitch_P22.5_P27.5_Radial` (pad 1 at x 163.0; pad-2 holes at x 185.5 for the TDK B32643H / B32643B parts and x 190.5 for the KNSCHA fallback,
+both on sw_b; 1.2 mm drills, 0.6 mm rings); a sourcing override: the H bank caps the commissioned ladder at 24 A
+strict (B32643B8104J000, 28 A, fits the same holes later; KNSCHA stops at 22 A); item 71: U46.A (hsb_good) driven from PERMIT
 through R135 100 k, so BIAS_GOOD = bias_ok AND PERMIT and TP19 reads low while PERMIT is low; item 70: S23's B′-1.02 V
 OCP divider, R33 7.5 k / R34 16 k / R35 11 k, and the bank-area re-cut for a 2000 V bank; item 67: the four TPS70950
 ENs on 100 k / 27 k dividers and on the 125 °C TPS70950QDBVRQ1, the REF25 watchdog on U14's second channel, BIAS_GOOD
 read back on J4.1 through R146, end-of-line test pads; item 63: U5 (REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62:
 the rail-monitor ICs on their 125 °C grades; item 60: the S16 rail-monitor values; the stage history is DECISIONS.md
-items 12–73). Built by `sh native-21/layout/gates/chain.sh native21s51 …`; SHA-256
-`0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a` (the integration build; it differs from the lane build
-9afc509b only by KiCad zone-fill jitter, same copper key 3a4c616e7870; geometry identical by
-`c45-s16-monitor/scripts/geom_diff45.py`). Plated holes 876 (the five unused 22.5 mm holes are plated and stay open at
-assembly: KNSCHA fills the 27.5 mm holes). U5 is sourced and consigned (JLC stock 50 against 500; owner pre-order,
+items 12–74). Built by `sh native-21/layout/gates/chain.sh native21s52 …`; SHA-256
+`5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34` (the integration build; same copper key 3a4c616e7870 as
+the lane build 32665572, geometry identical by `s52-proto-bom/results/geom-s52-lane-int.json`). Plated holes 876: the
+bank is consigned into the 22.5 mm holes (pad 2 at x 185.5); the five x 190.5 holes are plated and stay open at assembly.
+The silk bank-variant fit mark ("BANK FIT, TICK ONE") carries H = B32643H8104J000 24 A MAX and B = B32643B8104J000
+28 A: tick H on the prototype boards. U5 is sourced and consigned (JLC stock 50 against 500; owner pre-order,
 OPEN-ITEMS owner action 7); U3 / U37–U39 TPS70950QDBVRQ1 (C485909) are JLC Extended, 11,607 in stock.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`6c9a3daaf4df6dd02b4d13768eee8e7b90d9ef5265fb9b335112467a2265ac60`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`ad585c16167e33a8cdd87b8bc9f2e1ca718432fd8fa09390f0c9849fe43797e2`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
@@ -25,7 +28,7 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 **Before ordering the bench prototype lot** (run on an isolated, current-limited supply):
 - the native-21 FEM correction matrices (leg A/B `a21corr` / `b21corr`) land and F6 re-runs on them. A failure would mean a copper change;
 - M11 (heatsink HOT↔PE stack) is approved (DECISIONS.md 2026-10-08). Its parts still need sourcing: AlN tiles (quote), non-conductive compound, gap pad, spreader bar, comb spring, FR-4 strip (`../owner-items/m11/`);
-- procurement of the no-stock parts in `../owner-items/order/ORDER-PACKAGE.md`, incl. T1, the RECOM R24C2T25/R-R bias modules U41/U42, the 30KPA150CA clamp pair D3/D17, C5/C6. The resonant bank (KNSCHA MMK104J3DF1KN208G2) is in stock at JLC; TDK B32643B8104J000 is ordered only for the 28 A route (DECISIONS.md item 73, OPEN-ITEMS S28).
+- procurement of the no-stock parts in `../owner-items/order/ORDER-PACKAGE.md`, incl. T1, the RECOM R24C2T25/R-R bias modules U41/U42, the 30KPA150CA clamp pair D3/D17, C5/C6. The prototype resonant bank (TDK B32643H8104J000, DigiKey) and L1 (B82726S2243A020, Mouser / DigiKey) are consigned; TDK B32643B8104J000 is ordered only for the 28 A route (DECISIONS.md items 73 and 74, OPEN-ITEMS S28).
 
 **Before mains-connected or unattended operation, and before product release:**
 - insulation and thermal qualification (PD3, IEC 60664-4, hipot, partial discharge);
@@ -60,8 +63,8 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Result: **PASS**. 765 vias (stage 44), 94 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
-- **LCSC numbers:** stage 43: 93 BOM lines, 87 JLC-assembled (19 Basic, 68 Extended) and 6 consigned or hand-assembled (`../PROTOTYPE-LOT.md`); the earlier census: 84 of 94 source lines map to a checked LCSC part (48 exact from the survey, 35 changed or added since, most of them the 2026-10-09 Basic swaps, the stage-14 bias parts, stage 17's R5 CSS2H-2512R-1L00F (C4175647, JLC Extended) and the stage-30 heartbeat parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Ten are consigned or hand-assembled: F1 fuse, F2 (Schurter UMT-H 3403.0279.23, 1.5 kA, blower-supply tap; LCSC C3163739 carries no stock, so consign it from Digi-Key), C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering. U9 / U32 / U44 (Chipanalog CA-IS3720HW C428883 / CA-IS3720LW C2890049, stage 31): JLC had 1,640 / 2,542 on 2026-10-14. U1/U2 (Infineon 2EDR8259XXUMA1, LCSC C17455725, stage 29) are now JLC-assembled; Digi-Key holds the volume stock. R130 (Vishay AC05 0.15 ohm, LCSC C1382388, stage 28) is THT and mounted upright: body seated on pad 1 (square), the top lead bent down into pad 2.
-- **Lead trim (insulation):** trim every THT lead to ≤ 2.5 mm below the board bottom after soldering (ASSEMBLY.md); trim C1/C2's 25 mm leads to 4 mm before insertion.
+- **LCSC numbers:** stage 43: 93 BOM lines, 87 JLC-assembled (19 Basic, 68 Extended) and 6 consigned or hand-assembled (`../PROTOTYPE-LOT.md`); the earlier census: 84 of 94 source lines map to a checked LCSC part (48 exact from the survey, 35 changed or added since, most of them the 2026-10-09 Basic swaps, the stage-14 bias parts, stage 17's R5 CSS2H-2512R-1L00F (C4175647, JLC Extended) and the stage-30 heartbeat parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Ten are consigned or hand-assembled: F1 fuse, F2 (Schurter UMT-H 3403.0279.23, 1.5 kA, blower-supply tap; LCSC C3163739 carries no stock, so consign it from Digi-Key), C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), T1, the resonant bank C21–C23/C151/C152 (TDK B32643H8104J000, tick H on the fit mark), L1 (TDK B82726S2243A020), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering. U9 / U32 / U44 (Chipanalog CA-IS3720HW C428883 / CA-IS3720LW C2890049, stage 31): JLC had 1,640 / 2,542 on 2026-10-14. U1/U2 (Infineon 2EDR8259XXUMA1, LCSC C17455725, stage 29) are now JLC-assembled; Digi-Key holds the volume stock. R130 (Vishay AC05 0.15 ohm, LCSC C1382388, stage 28) is THT and mounted upright: body seated on pad 1 (square), the top lead bent down into pad 2.
+- **Lead trim (insulation):** trim every THT lead to ≤ 2.5 mm below the board bottom after soldering (ASSEMBLY.md); the bank's leads protrude 3.35–4.35 mm and are trimmed to this rule too; trim C1/C2's 25 mm leads to 4 mm before insertion.
 - **Hand assembly:**
   - F1-CLIP (2 × Littelfuse 01250003H, 10 × 38 / Class CC clips, 30 A), soldered into the plated slots. Listed in `hand-assembly-extras.csv`, not in the JLC BOM: it has no CPL row, and JLC rejects a BOM designator without one;
   - the F1 cartridge, inserted after cleaning;
