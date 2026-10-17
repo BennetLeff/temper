@@ -3000,6 +3000,12 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 
     **Not in this stage.** The R5 hardware average-current trip, the inlet relay provision and the F1 wire-out tabs
     (S53-SCOPE items 2–4) are not built here. S10's four residuals stay open.
+    **R5 trip: deferred (owner, 2026-10-16).** The prototypes are bench units behind an external mains cut and the firmware
+    regulates line current; the backstop only answers a lab "defeat the firmware" test. Design kept in
+    `11-candidates/c53-r5-trip/DESIGN.md` (OPA333 averager + open-collector LMV331 on HOT5_UV_RAW; trip 13.88 A RMS-equivalent;
+    window +1.6 % to +3.2 % over the highest regulated hold, so it needs bench calibration). **Revisit when** the lab asks
+    for a hardware line-current limit, or the bench mean(R5) / true-RMS line-current ratio is known (if the spread exceeds
+    about ±3 % the RMS-converter option replaces the averager). It needs a "not fitted" mechanism in the BOM flow first.
 
     **Reverses if** the R43 catalogue changes (re-snapshot with `r43_catalog_snapshot.py`) or the lab reads
     return-path opens as a requirement (then hand-shape the four patches).
