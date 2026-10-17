@@ -40,7 +40,7 @@ import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 from ref import es  # noqa: E402
 
-BASE_REVISION = "ebf8a777b50ecb81040fc0c56fa8bde706720638"
+BASE_REVISION = "558f6e8360d823b575bdfdd2b30b6ff347408e18"
 CAPS = (250, 230)
 EXPECTED_RUNS = 132
 # Recorded baseline ceiling; reductions pass, increases do not.

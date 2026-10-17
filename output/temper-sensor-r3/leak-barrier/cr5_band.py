@@ -41,7 +41,7 @@ import rim_limit as RL  # noqa: E402
 
 X, cosim, es = LC.X, LC.cosim, LC.es
 # Study inputs must match this revision: the peak hazard rule's evidence.
-BASE = "03c28e76bd893a716c1b080bd34ccbfffd42993e"
+BASE = "558f6e8360d823b575bdfdd2b30b6ff347408e18"
 TOOLCHAIN_KEYS = ("python", "numpy", "scipy", "compiler", "machine")
 # Benign runs with a D1 LOST (a non-latching contact-loss power cut, not a
 # fault) per cap, as recorded on the Mac at the port. The rim-limit

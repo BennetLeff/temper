@@ -1,7 +1,7 @@
 {
  "scope": "T3: CR-5 true-glass band, setpoint caps, and passive C1 latch coverage.\n\nReuse the unmodified leak_checks and rim_limit apparatus. No board values or\nfirmware thresholds change. Written by a Codex cloud agent on Linux (2aea71687,\nsteady hazard rule); ported to the owner's peak hazard rule (2026-10-16:\n`leak_checks.hazardous()`, the untripped T_c crosses 300 degC at any time) and\nregenerated on the Mac.\n\n    python3 cr5_band.py [--check] [--caps 250,200] [--jobs 5]\n\n--check rebuilds the C library, regenerates every result and compares it with\nthe committed JSON by content; only the toolchain strings in TOOLCHAIN_KEYS\nare exempt. --caps runs a subset (250 always runs first: it is the control\nand sets the margin), for --check only. NOTES-t3.md is regenerated with the\nJSON.",
  "apparatus": {
-  "base_commit": "03c28e76bd893a716c1b080bd34ccbfffd42993e",
+  "base_commit": "558f6e8360d823b575bdfdd2b30b6ff347408e18",
   "input_tree_dirty": false,
   "input_sha256": {
    "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
@@ -14,8 +14,8 @@
    "firmware/components/control/current_sense_check.h": "5e8c512d7770a8d5724cc6935ae6d5812808f59af3f21c9c6c39e974fef6c923",
    "firmware/components/control/low_temp_control.c": "1bccb736d7dc4f081fafa3e12c3fa32e2bd53ae5594d01acc69dfd3db1ab1456",
    "firmware/components/control/low_temp_control.h": "eadfa0d35da050173113d67a7eea3c9a27bdfc04f0e128a604aa333ab77062b1",
-   "firmware/components/control/pan_cold_soak.c": "5ed59bc2e2c2dabebb948d543b0df0c7f5fdfaf14e1d254714dca11b6a10991c",
-   "firmware/components/control/pan_cold_soak.h": "58005bd4664806349f9a54ced4cd9d7e21d5ca6b1310ad18aa365cb09c9bc477",
+   "firmware/components/control/pan_cold_soak.c": "c621956447e1ee92b7a1c9f35ffd24172251d8b6ae8627a6409b3afd888a5990",
+   "firmware/components/control/pan_cold_soak.h": "1455f3ca2181eaf16d2ddfc924cfa0d9b66a40edb130cf5bc1662efb54ee4c5a",
    "firmware/components/control/pan_detect.c": "6f108a7b581abb937e67e49373ac45f30cff45010723a45b9e8fff0da25f728d",
    "firmware/components/control/pan_detect.h": "873bb95f20ec04fb76d3aa975432c1fbaeb7831fecef3795f029fa09ca1f14b4",
    "firmware/components/control/pan_leak_check.c": "2a6c23739057becf2975ed093eeec91e8668cb2a9e7d3ef78cfe149b2df64472",
@@ -70,7 +70,7 @@
    "output/temper-sensor-r3/contact_model.py": "7f2c9e8c915a0bde558f6b654eab89902ccd382d895a33b2b0590ac8fa251caa",
    "output/temper-sensor-r3/firmware/build_lib.sh": "44b55f7147aec7811f95dfe187a8635262236ed075276e9ccb6f0f16a12d7cfd",
    "output/temper-sensor-r3/firmware/cosim.py": "026d0f655d0f4e75db710660fe4cb6da84e9af6a70a1a5047d115091d34fe588",
-   "output/temper-sensor-r3/firmware/cosim_shim.c": "455e1abc0cb626bddf5cc8a23cf107b83eb8bdb8c20d21122f98637bfba74bea",
+   "output/temper-sensor-r3/firmware/cosim_shim.c": "4a8ad32a876f24f3b934c47c905e78a7eb33760cf37ecb67573c47143929a5f6",
    "output/temper-sensor-r3/firmware/leak-checks.json": "40bc8da17e1c5edacb906ae058baaf3b81725b0d1ff926924782bf2ee9e91020",
    "output/temper-sensor-r3/firmware/leak_checks.py": "d3d372797b22275cda93997ecec35fe8a9550ceabb33a04b4cb78b24afd09429",
    "output/temper-sensor-r3/firmware/ref.py": "534ed3410630e26a75466746e0bf359727aac0c37c7d6dca84e5c675d755caee",
@@ -81,7 +81,7 @@
    "output/temper-sensor-r3/robustness/shift_kf.py": "065be41ed425c3365c7a04a1eeab0d7aa13b6217b47aebdfddbfb7e75c87cf6e",
    "output/temper-sensor-r3/screen.py": "1dbfcbf158f92af1d551bfb29a97a733c65aaf102165068e33e51b52c3dd5118"
   },
-  "script_sha256": "7364da8763502e58f3c579fc52b3e392c3ade5cbca80981de913d970b0c85643",
+  "script_sha256": "99e88094c47445581f7d788f658aeb8b6cc1b176b119d6ba1253ecbd2139043f",
   "python": "3.12.12",
   "numpy": "2.4.6",
   "scipy": "1.18.0",
