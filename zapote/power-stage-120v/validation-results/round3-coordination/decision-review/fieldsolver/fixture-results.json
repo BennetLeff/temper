@@ -1,0 +1,22 @@
+{
+  "straight_wire_4": {
+    "returncode": 0,
+    "z": "Row 1:  n1  to  n2\nImpedance matrix for frequency = 1e+07 1 x 1\n    2.7155e-06      +2.65851j \n",
+    "lastlog": "eal nodes:         9\nfilling M...\nfilling R and L...\nTotal Memory allocated: 243 kilobytes\nFrequency = 1e+07\nForming sparse matrix preconditioner..\nconductor 0 from node n1\nCalling gmres...\n1 2 3 4 \n\nAll impedance matrices dumped to file Zc.mat\n\nTimes:  Read geometry   6.1e-05\n        Multipole setup 0.000684\n        Scanning graph  2e-06\n        Form A M and Z  4e-06\n        form M'ZM       1e-06\n        Form precond    0.000178\n        GMRES time      0.000282\n   Total:               0.001212\n"
+  },
+  "straight_wire_8": {
+    "returncode": 0,
+    "z": "Row 1:  n1  to  n2\nImpedance matrix for frequency = 1e+07 1 x 1\n   1.23907e-05      +2.61534j \n",
+    "lastlog": "of real nodes:         9\nfilling M...\nfilling R and L...\nTotal Memory allocated: 1654 kilobytes\nFrequency = 1e+07\nForming sparse matrix preconditioner..\nconductor 0 from node n1\nCalling gmres...\n1 2 3 4 \n\nAll impedance matrices dumped to file Zc.mat\n\nTimes:  Read geometry   5e-05\n        Multipole setup 0.011792\n        Scanning graph  2e-06\n        Form A M and Z  1.2e-05\n        form M'ZM       0\n        Form precond    0.015152\n        GMRES time      0.00397\n   Total:               0.030978\n"
+  },
+  "plane_pair_20": {
+    "returncode": 0,
+    "z": "Row 1:  n1s  to  n2s\nImpedance matrix for frequency = 1e+07 1 x 1\n   2.91912e-06     +0.172831j \n",
+    "lastlog": "illing M...\nfilling R and L...\nTotal Memory allocated: 3351 kilobytes\nFrequency = 1e+07\nForming sparse matrix preconditioner..\nconductor 0 from node ng120_5\nCalling gmres...\n1 2 3 4 5 6 7 8 9 10 \n\nAll impedance matrices dumped to file Zc.mat\n\nTimes:  Read geometry   0.000241\n        Multipole setup 0.009534\n        Scanning graph  6e-06\n        Form A M and Z  3.3e-05\n        form M'ZM       1e-06\n        Form precond    0.007222\n        GMRES time      0.009726\n   Total:               0.026763\n"
+  },
+  "plane_pair_40": {
+    "returncode": 0,
+    "z": "Row 1:  n1s  to  n2s\nImpedance matrix for frequency = 1e+07 1 x 1\n   3.24343e-06      +0.18522j \n",
+    "lastlog": "g R and L...\nTotal Memory allocated: 16939 kilobytes\nFrequency = 1e+07\nForming sparse matrix preconditioner..\nconductor 0 from node ng140_10\nCalling gmres...\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 \n\nAll impedance matrices dumped to file Zc.mat\n\nTimes:  Read geometry   0.00074\n        Multipole setup 0.047772\n        Scanning graph  2.5e-05\n        Form A M and Z  0.000157\n        form M'ZM       0\n        Form precond    0.096689\n        GMRES time      0.090172\n   Total:               0.235555\n"
+  }
+}

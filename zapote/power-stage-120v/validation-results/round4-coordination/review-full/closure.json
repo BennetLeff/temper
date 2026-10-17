@@ -1,0 +1,41 @@
+{
+  "reviewed_scope": "Six unstaged repairs against the staged Round 4 snapshot; bounded source and saved-proof inspection only",
+  "findings": [
+    {
+      "#": 1,
+      "status": "closed",
+      "evidence": "build_waveform_catalog.py:38,216-240 pins C1 c2-waveform-sha256.csv and verifies every selected wave before output; sha256 of pin is a0b501... and cmp confirms 1226-row pin equals frozen C2 raw map; /tmp/ps-r4-c2-fixed-catalog.log reports PASS 1226, and replay catalog cmp=0.",
+      "residual_caveat": "The C1 pin is currently untracked and must be included in the final staged packet; no fresh full-wave scan was run in this review."
+    },
+    {
+      "#": 2,
+      "status": "closed",
+      "evidence": "run_c1.py:328-353 load_progress rejects missing/mismatched C1 runner source hash, duplicate/unexpected IDs, changed spec and deadtime before reuse; current runner SHA equals source_hashes.json; /tmp/ps-r4-final-qa-notes.txt records 140 accepted and timing/duplicate/source mutations rejected.",
+      "residual_caveat": "The mutation fixture was recorded by the coordinator; this read-only pass inspected the guard and current source hash but did not rerun the sweep."
+    },
+    {
+      "#": 3,
+      "status": "closed",
+      "evidence": "compare_corners.py:78-100 pins the A case CSV and requires the exact 810 case/corner keys before comparison; /tmp/ps-r4-missing-pair-proof.txt shows old 809 PASS, while the fixed 811-line comparison CSV is byte-identical to the staged 810-pair output.",
+      "residual_caveat": "The corrected missing-pair rejection was inspected in code and reported by the coordinator; this pass did not rerun the write-producing CLI."
+    },
+    {
+      "#": 4,
+      "status": "closed",
+      "evidence": "run_check.py:137-178 checks cached source waveform SHA, frozen onset and ngspice version (including legacy selected_cases.json), then writes current selected_cases.json only after all cases pass at lines 329-337; coordinator reports 20 cache/mutation checks passed.",
+      "residual_caveat": "The 20 targeted checks were reported by the coordinator; this pass inspected code but did not resimulate the 20 cases."
+    },
+    {
+      "#": 5,
+      "status": "closed",
+      "evidence": "check_numerics.py:23-69 pins halfstep/quarterstep decks, options, runner, vendor model and ngspice-45.2 and validates saved deck/params/result before cache reuse at line 134; check_quarterstep.py:48-50 calls the same guard; local ngspice -v matches 45.2 and coordinator reports 314 halfstep/133 quarterstep checks passed.",
+      "residual_caveat": "Source pins make intentional future simulator or deck revisions require explicit repinning; this pass did not rerun either refinement grid."
+    },
+    {
+      "#": 6,
+      "status": "closed",
+      "evidence": "find_freq.py:235-245 reads cached gzip to EOF for trailer/CRC validation; lines 309-333 compress to a temporary sibling, verify, atomically replace, and only then write case.json; coordinator reports an interrupted/truncated-gzip rejection fixture passed.",
+      "residual_caveat": "CRC validates saved gzip integrity but does not independently compare its contents with a raw-wave point-count oracle."
+    }
+  ]
+}

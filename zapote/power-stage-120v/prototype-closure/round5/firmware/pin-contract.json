@@ -1,0 +1,589 @@
+{
+  "schema": "temper.round5.firmware.pin-contract.v1",
+  "status": "UNRELEASED_BENCH_TARGETS",
+  "stm32_authority": {
+    "path": "zapote/power-stage-120v/prototype-closure/round4/supervisor/generated/pins.tsv",
+    "sha256": "3163e9b3f6eccd77f064acfa12f8fe2d4f7c4fde69b0c42236372bae5785c0d2"
+  },
+  "stm32": [
+    {
+      "package_pin": 1,
+      "pad": "PC11",
+      "net": "CTRL_RAIL_OK_LOCAL",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 2,
+      "pad": "PC12",
+      "net": "CTRL_FAULT_LOCAL",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 3,
+      "pad": "PC13",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 4,
+      "pad": "PC14",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 5,
+      "pad": "PC15",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 6,
+      "pad": "VBAT",
+      "net": "POD_3V3",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 7,
+      "pad": "VREF+",
+      "net": "POD_3V3",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 8,
+      "pad": "VDD",
+      "net": "POD_3V3",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 9,
+      "pad": "VSS",
+      "net": "AUX_0V",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 10,
+      "pad": "NRST",
+      "net": "WD_RESET_N",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 11,
+      "pad": "PF0",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 12,
+      "pad": "PF1",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 13,
+      "pad": "PC0",
+      "net": "POD_START",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 14,
+      "pad": "PC1",
+      "net": "POD_RESET",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 15,
+      "pad": "PC2",
+      "net": "POD_STOP",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 16,
+      "pad": "PC3",
+      "net": "MCU_WDI",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 17,
+      "pad": "PA0",
+      "net": "ADC_DRDY_N",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 18,
+      "pad": "PA1",
+      "net": "ADC_RESET_N",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 19,
+      "pad": "PA2",
+      "net": "RP1_TEMP_ADC",
+      "direction": "analog_input",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 20,
+      "pad": "PA3",
+      "net": "RP2_TEMP_ADC",
+      "direction": "analog_input",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 21,
+      "pad": "PA4",
+      "net": "ADC_CS_N",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 22,
+      "pad": "PA5",
+      "net": "ADC_SCLK",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 23,
+      "pad": "PA6",
+      "net": "ADC_DOUT",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 24,
+      "pad": "PA7",
+      "net": "ADC_DIN",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 25,
+      "pad": "PC4",
+      "net": "CMD_K1",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 26,
+      "pad": "PC5",
+      "net": "CMD_K2",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 27,
+      "pad": "PB0",
+      "net": "CMD_KB",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 28,
+      "pad": "PB1",
+      "net": "CMD_KT",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 29,
+      "pad": "PB2",
+      "net": "MCU_HEALTHY",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 30,
+      "pad": "PB10",
+      "net": "MCU_POST_OK",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 31,
+      "pad": "PB11",
+      "net": "MCU_RESET_OK",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 32,
+      "pad": "PB12",
+      "net": "MCU_PRECHARGE_DONE",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 33,
+      "pad": "PB13",
+      "net": "MCU_BYPASS_PROVEN",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 34,
+      "pad": "PB14",
+      "net": "MCU_RUN",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 35,
+      "pad": "PB15",
+      "net": "MCU_STOP_DONE",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 36,
+      "pad": "PA8",
+      "net": "ADC_CLKIN",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 37,
+      "pad": "PA9",
+      "net": "MCU_UART_TX",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 38,
+      "pad": "PC6",
+      "net": "START_RELEASED",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 39,
+      "pad": "PC7",
+      "net": "K1_MIRROR",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 40,
+      "pad": "PD8",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 41,
+      "pad": "PD9",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 42,
+      "pad": "PA10",
+      "net": "MCU_UART_RX",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 43,
+      "pad": "PA11",
+      "net": "CTRL_INTERLOCK_OK_LOCAL",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 44,
+      "pad": "PA12",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 45,
+      "pad": "PA13",
+      "net": "SWDIO",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 46,
+      "pad": "PA14",
+      "net": "SWCLK",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 47,
+      "pad": "PA15",
+      "net": "NC",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 48,
+      "pad": "PC8",
+      "net": "K2_MIRROR",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 49,
+      "pad": "PC9",
+      "net": "KB_MIRROR",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 50,
+      "pad": "PD0",
+      "net": "K1_FB_EXC",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 51,
+      "pad": "PD1",
+      "net": "K2_FB_EXC",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 52,
+      "pad": "PD2",
+      "net": "KB_FB_EXC",
+      "direction": "output",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 53,
+      "pad": "PD3",
+      "net": "CTRL_HEARTBEAT_LOCAL",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 54,
+      "pad": "PD4",
+      "net": "CTRL_HEARTBEAT_OK",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 55,
+      "pad": "PD5",
+      "net": "K1_ST_N",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 56,
+      "pad": "PD6",
+      "net": "K2_ST_N",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 57,
+      "pad": "PB3",
+      "net": "LATCH_OK",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 58,
+      "pad": "PB4",
+      "net": "ATTEMPT",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 59,
+      "pad": "PB5",
+      "net": "BYPASS_PROVEN",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 60,
+      "pad": "PB6",
+      "net": "TOTAL_WINDOW",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 61,
+      "pad": "PB7",
+      "net": "START_WINDOW",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 62,
+      "pad": "PB8",
+      "net": "PROOF_WINDOW",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 63,
+      "pad": "PB9",
+      "net": "BASIC_HEALTHY",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    },
+    {
+      "package_pin": 64,
+      "pad": "PC10",
+      "net": "CTRL_PWM_REQUEST_LOCAL",
+      "direction": "input_or_special",
+      "domain": "AUX_0V/POD_3V3"
+    }
+  ],
+  "esp32": {
+    "eco": "R5-CTRL-01",
+    "part": "ESP32-S3-WROOM-1-N8",
+    "hardware_status": "PROPOSED_NEW_CARRIER_NOT_ROUTED",
+    "legacy_controller_compatible": false,
+    "reason": "Legacy controller has no four-output/JCTRL/fast-capture connector allocation; do not reuse its fan, sensor, RTD or UI pins.",
+    "native4_pwm": {
+      "J4.5": 4,
+      "J4.6": 5,
+      "J4.7": 15,
+      "J4.8": 16
+    },
+    "JCTRL": [
+      {
+        "pin": 1,
+        "net": "CTRL_3V3",
+        "gpio": null,
+        "direction": "power_output"
+      },
+      {
+        "pin": 2,
+        "net": "CTRL_GND",
+        "gpio": null,
+        "direction": "reference"
+      },
+      {
+        "pin": 3,
+        "net": "SUP_RUN_OK",
+        "gpio": 37,
+        "direction": "input"
+      },
+      {
+        "pin": 4,
+        "net": "CTRL_PWM_REQUEST",
+        "gpio": 17,
+        "direction": "output"
+      },
+      {
+        "pin": 5,
+        "net": "CTRL_HEARTBEAT",
+        "gpio": 18,
+        "direction": "output"
+      },
+      {
+        "pin": 6,
+        "net": "CTRL_FAULT_HIGH",
+        "gpio": 21,
+        "direction": "output"
+      },
+      {
+        "pin": 7,
+        "net": "CTRL_TX",
+        "gpio": 8,
+        "direction": "output"
+      },
+      {
+        "pin": 8,
+        "net": "CTRL_RX",
+        "gpio": 9,
+        "direction": "input"
+      },
+      {
+        "pin": 9,
+        "net": "CTRL_RAIL_OK",
+        "gpio": 35,
+        "direction": "output"
+      },
+      {
+        "pin": 10,
+        "net": "CTRL_INTERLOCK_OK",
+        "gpio": 36,
+        "direction": "output"
+      }
+    ],
+    "JFAST": {
+      "CS_N": 10,
+      "SCLK": 11,
+      "MISO": 12,
+      "MOSI": 13,
+      "domain": "CTRL_GND/3V3",
+      "mode": 0,
+      "clock_hz": 10000000
+    },
+    "reserved_gpio": [
+      0,
+      3,
+      19,
+      20,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "gpio_package_pads": {
+      "4": 4,
+      "5": 5,
+      "15": 8,
+      "16": 9,
+      "17": 10,
+      "18": 11,
+      "21": 23,
+      "35": 28,
+      "36": 29,
+      "37": 30,
+      "8": 12,
+      "9": 17,
+      "10": 18,
+      "11": 19,
+      "12": 20,
+      "13": 21
+    }
+  },
+  "release": {
+    "commissioned": false,
+    "stm32_coil_outputs": "disabled",
+    "esp32_request": "disabled",
+    "esp32_pwm_pads": "GPIO matrix disconnected and held low"
+  }
+}

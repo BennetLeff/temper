@@ -1,0 +1,30 @@
+{
+  "tag": "recovery-27C-0.2n",
+  "params": {
+    "RG": "730",
+    "TJ": "27",
+    "STEP": "0.2n"
+  },
+  "meas": {
+    "peak": 12.29093
+  },
+  "aborted": false,
+  "returncode": 0,
+  "raw_returncode": 0,
+  "final_time_s": 1.2e-05,
+  "zero_s": 6.794637812867859e-06,
+  "peak_s": 6.964447220331123e-06,
+  "end_s": 7.004799770545156e-06,
+  "Irrm_A": 12.29092724553569,
+  "Qrr_uC": 1.7383548557039987,
+  "trr_ns": 210.16195767729778,
+  "ta_ns": 169.80940746326473,
+  "tb10_ns": 40.35255021403305,
+  "softness_tb10_over_ta": 0.23763436205831298,
+  "slew_A_per_us": 100.28835962901944,
+  "forward_A": 58.19999611526479,
+  "terminal_v_final": 395.9628167519367,
+  "body_branch_peak_A": 4.459855817257827,
+  "body_branch_Q_same_window_uC": 0.12185072129659927,
+  "gate_node_peak_V": 0.8013843535293903
+}

@@ -35,8 +35,6 @@
 #include "state_machine.h"
 #include "pan_control.h"
 #include "hs_ntc.h"
-#include "hal.h"
-#include "power_gate.h"
 
 static const char *TAG = "board";
 
@@ -158,55 +156,18 @@ void button_set_enabled(button_id_t button, bool enabled)
 }
 
 /* ============================================================================
- * Power stage (TODO(hardware)): no native-21 gate generator is wired (the
- * power stage's full-bridge driver lives on codex/power-stage-integration).
- * board_power_init() holds the four gate commands low as GPIO outputs, so a
- * zero command is the hardware state and every non-zero command is refused.
+ * Power stage: pwm_set_duty_cycle(), pwm_disable_all(), power_set_level(),
+ * power_enable() and test_pwm_generation() belong to the power owner,
+ * components/power/power_service.c. Until a reviewed full-bridge binding is
+ * installed it stays inhibited: power_enable() grants nothing, every gate
+ * command is refused, and test_pwm_generation() fails.
  *
- * RUN_EN (GPIO14, zapote C23) goes through power_gate.c only, which raises it
- * only while the gate PWM is idle (C39):
- *   power_enable()          PREHEAT entry: raise RUN_EN (refused unless idle)
- *   pwm_set_duty_cycle(0)   IDLE / COOLDOWN entry: RUN_EN low
- *   pwm_disable_all()       FAULT / RUNAWAY entry, trigger_hardware_shutdown()
- *                           and every latched fault: gate PWM forced low,
- *                           then RUN_EN low
- * power_set_level(0) leaves RUN_EN alone: the C1 loop commands 0 W inside
- * PREHEAT/HEATING many times.
+ * RUN_EN (GPIO14, zapote C23) is held low by board_power_init() through
+ * power_gate.c, and nothing raises it: power_gate_enable() (which refuses
+ * unless the gate PWM is idle, C39) is the checked path the future binding
+ * must use. trigger_hardware_shutdown() (safety.c) drops it again on every
+ * FAULT / RUNAWAY entry and latched fault.
  * ============================================================================ */
-
-void pwm_set_duty_cycle(uint8_t duty)
-{
-    if (duty != 0u) {
-        TODO_HW_ONCE("pwm_set_duty_cycle (non-zero refused, coil off)");
-        return;
-    }
-    power_gate_disable();
-}
-
-void pwm_disable_all(void)
-{
-    /* Force any hal_pwm gate channel low first, then drop RUN_EN. */
-    if (hal_pwm != NULL) {
-        (void)hal_pwm->emergency_stop();
-    }
-    power_gate_disable();
-}
-
-void power_set_level(uint8_t level)
-{
-    if (level != 0u) {
-        TODO_HW_ONCE("power_set_level (non-zero refused, coil off)");
-    }
-}
-
-void power_enable(void)
-{
-    const hal_status_t st = power_gate_enable();
-    if (st != HAL_OK) {
-        ESP_LOGE(TAG, "RUN_EN refused (%d): gate PWM not idle or gate not initialised",
-                 (int)st);
-    }
-}
 
 /* ============================================================================
  * Fan (TODO(hardware)): reads stopped, so any fan check faults.
@@ -313,12 +274,6 @@ float read_dc_bus_current(void)
 bool test_adc_calibration(void)
 {
     TODO_HW_ONCE("test_adc_calibration (fails)");
-    return false;
-}
-
-bool test_pwm_generation(void)
-{
-    TODO_HW_ONCE("test_pwm_generation (fails)");
     return false;
 }
 

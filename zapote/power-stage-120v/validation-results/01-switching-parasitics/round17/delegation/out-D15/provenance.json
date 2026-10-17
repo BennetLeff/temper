@@ -1,0 +1,16 @@
+{
+  "inputs": {
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D15/run.py": "e8cba4aaf18d6a9a37f83d5b263f0b41790ed0e909130dd906530a318e23b0ae",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D15/losses.cir": "3d9c37725299b4866be9ec076f74b948b11b1331b5320b54bd28ffb091facabb",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/grid.py": "dd36cd630cedd9ba8956275c5678980ece530376c065e3fcd4de450e8f20c319",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "source_revision": "a5eddd2bec65d0dd026bdd47087947b0b22cbfd6"
+}

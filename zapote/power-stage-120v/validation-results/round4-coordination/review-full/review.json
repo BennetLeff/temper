@@ -1,0 +1,531 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "base:829ee9debc08ce239bc2dffe0938c4fec2429545",
+    "branch": "codex/ps-r4-integration",
+    "head_sha": "829ee9debc08ce239bc2dffe0938c4fec2429545",
+    "pr_url": null,
+    "files_changed": 139
+  },
+  "intent": "Deliver a reproducible Round 4 validation evidence packet for the 120 V power stage: a current-limited 270-case tank model, six-corner reference-inductance ZVS and conditional dead-time loss analysis, and an honest diagnostic replay of the 724 V event. The field-solved board matrix is blocked by extraction defects, so dependent C1/D2 grid and physical acceptance remain open; no board, firmware, component, or held shunt-protection change is authorized.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "adversarial",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "learnings",
+    "performance",
+    "reliability"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/build_waveform_catalog.py:238:             raw_rows.append({\"relative_path\": row[\"waveform\"], \"sha256\": sha256(wave_path)})",
+        "Trigger: copy a different, parseable C1 raw wave to an existing selected waveform path while leaving the pinned waveform_metrics.csv unchanged. build_waveform_catalog.py:236 analyzes that wave first and lines 241-250 then generate a new raw manifest from it.",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/deadtime_losses.py:472-475 compares the generated catalog and raw-manifest hashes only to hashes stored in the same generated manifest, while FROZEN_INPUT_SHA256 pins waveform_metrics but no selected raw-wave hash.",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/audit_c1.py:46-48 checks the raw waveform's presence, not its identity. A changed voltage vector can alter residual Eoss without changing the diode-charge cross-check."
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/build_waveform_catalog.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/build_waveform_catalog.py:238:             raw_rows.append({\"relative_path\": row[\"waveform\"], \"sha256\": sha256(wave_path)})",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 238,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Freeze a selected C1 raw-wave SHA map as an independent input produced at the C1 handoff, and verify each path against that map before analyze_one. Pin the map's SHA in C2's frozen inputs; generate a new map only as an explicit new evidence revision.",
+      "title": "C2 can self-pin a mismatched C1 waveform",
+      "why_it_matters": "A mixed C1 handback can pass the C2 pipeline while changing the conditional diode or Eoss loss calculation. The builder verifies the frozen waveform-metrics CSV, but reads each ignored waveform and creates its SHA manifest only after using it; the downstream join checks that newly created manifest against itself. A valid but different waveform at the same path can therefore become 'verified' rather than being rejected as different from the frozen C1 run.",
+      "validation_status": "confirmed",
+      "validation_reason": "A parseable replacement selected C1 wave can change C2 energy terms because build_waveform_catalog.py:236 analyzes it before hashing it at line 238, while the frozen inputs pin only metrics and curves and deadtime_losses.py:472-475 checks the newly generated manifest against itself; replacement incidence was not measured."
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py:345 -- futures = {pool.submit(search, a1, spec): spec for spec in specs if identity(*spec) not in rows_by_id}",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py:76-77 -- def identity(ohm, corner, bus, direction, scale): / return f\"r{ohm}_{corner}_v{bus}_d{direction}_l{scale:g}\"",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/audit_c1.py:23-34 -- the row audit checks unique keys and bracket widths, not deadtime against the current timing calculation"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py:345 -- futures = {pool.submit(search, a1, spec): spec for spec in specs if identity(*spec) not in rows_by_id}",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 345,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Include deadtime_ns and the relevant deck/search-source hashes in each progress row, validate them before reusing a row, and rerun or fail closed on mismatch. Add a focused stale-progress case that keeps the same textual ID while changing its timing input.",
+      "title": "C1 sweep resume accepts stale timing results",
+      "why_it_matters": "A rerun after changing a driver timing value or threshold-search implementation skips every case whose textual ID already exists in progress.jsonl. The ID omits deadtime, and export then regenerates source hashes around the old numerical rows. This can make a newly edited C1 packet look rerun and source-verified while retaining old ZVS thresholds; audit_c1 only checks count, bracket width and source-file hashes, not each row against the current timing inputs.",
+      "validation_status": "confirmed",
+      "validation_reason": "With an existing progress.jsonl and a changed TIMINGS_NS value, run_c1.py:76-77 and 341-356 reuse rows by an ID lacking deadtime and export current timing and source hashes around those old rows; incidence was not measured."
+    },
+    {
+      "#": 3,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:88-91:     for key, pair in sorted(grouped.items()):\n        if set(pair) != {39, 51}:\n            raise ValueError(f\"missing RDT pair {key}\")\n        comparisons.append(compare_row(pair[39], pair[51]))",
+        "Trigger: remove both rows for one accepted A case at one timing corner. The key is absent from grouped, so the loop never checks it; lines 93-96 write the reduced output and line 130 prints C2 comparison PASS.",
+        "The intended grid is 270 accepted A cases times three timing corners (810 pairs); deadtime_losses.py:478 validates the A case count, but compare_corners.py does not verify its input row or pair count.",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:130 -- print(f\"C2 comparison PASS: {len(comparisons)} case/corner pairs\")",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:87-91 -- only present grouped keys are checked for their 39/51 pair; no expected 810-key coverage check",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/deadtime_losses.py:592-607 -- producer writes deadtime_losses.csv before loss-manifest.json; manifest contains output_rows but no CSV digest"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:88-91:     for key, pair in sorted(grouped.items()):\n        if set(pair) != {39, 51}:\n            raise ValueError(f\"missing RDT pair {key}\")\n        comparisons.append(compare_row(pair[39], pair[51]))",
+      "independent_reviewers": [
+        "adversarial",
+        "reliability"
+      ],
+      "line": 88,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial",
+        "reliability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Compare the 39/51 kΩ loss-row keys with the frozen accepted A-case keys times all three timing corners before writing output; require 810 unique complete pairs and test removal of both rows for one case/corner.",
+      "title": "C2 comparison accepts missing complete loss pairs",
+      "why_it_matters": "A truncated or filtered deadtime_losses.csv that removes both 39 and 51 kΩ rows for one case and timing corner still produces a successful comparison and a smaller case count. The paired-row check only validates keys that remain, so the reported 'PASS' does not establish the intended 270 cases times three timing corners. This can silently omit a difficult case from the 51-versus-39 tally if the comparison is rerun from a partial file.",
+      "validation_status": "confirmed",
+      "validation_reason": "Removing both 39 and 51 kΩ rows for one accepted case and timing corner leaves no grouped key for compare_corners.py:88-91 to inspect, and the bounded reproduction printed 'C2 comparison PASS: 809 case/corner pairs' instead of the required 810."
+    },
+    {
+      "#": 4,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "run_check.py:143-157: `if result_path.exists():` checks `cached[\"source_case_sha256\"] == selected[\"source_case_sha256\"]`, the probe deck, cached raw, and cached log, then `return cached`; it does not compare the selected waveform hash, source onset, or simulator version.",
+        "run_check.py:113-115 computes `source_waveform_sha256` for each selected C1 case; lines 245-246 and 251 record it and the frozen onset in a fresh result, but the cache branch does not validate either.",
+        "run_check.py:292-303 writes the current C1 catalog hash and ngspice version into selected_cases.json before returning cached case results; the case result stores no ngspice version."
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/snubber-voltage-check/run_check.py",
+      "first_evidence": "run_check.py:143-157: `if result_path.exists():` checks `cached[\"source_case_sha256\"] == selected[\"source_case_sha256\"]`, the probe deck, cached raw, and cached log, then `return cached`; it does not compare the selected waveform hash, source onset, or simulator version.",
+      "independent_reviewers": [
+        "maintainability"
+      ],
+      "line": 143,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "maintainability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Make the cached-case identity include selected source_waveform_sha256, source_onset_s, C1 catalog hash, and the ngspice version used to produce the raw data. Store those fields per case and compare them before reuse; either rerun a mismatch or fail closed. Add a targeted cache replay test that changes one dependency while leaving case.json and the saved raw intact.",
+      "title": "Snubber cache key omits frozen waveform and simulator",
+      "why_it_matters": "A later replay with a revised C1 waveform/onset or ngspice installation returns the old case result while selected_cases.json records the current waveform hash, onset, and simulator version. The resulting packet can present incompatible provenance as one reproduction, and the onset comparison at lines 203-205 is skipped for cached cases.",
+      "validation_status": "confirmed",
+      "validation_reason": "With the same source case but a changed selected C1 wave or onset, or a new ngspice version, run_check.py:143-157 returns cached results after checking only case, deck, raw, and log digests while lines 284-305 publish current provenance; incidence was not measured."
+    },
+    {
+      "#": 5,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_quarterstep.py:47-50 -- if saved.is_file(): / result = json.loads(saved.read_text()) / if result[\"params\"] != params: / raise RuntimeError(f\"stale 12.5 ns result {folder}\")",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_numerics.py:85-90 -- the 25 ns cache also checks only result[\"params\"] before reuse",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/README.md:14 -- smallest reported 12.5 ns margins are 0.04783 A and 0.04210 A"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_quarterstep.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_quarterstep.py:47-50 -- if saved.is_file(): / result = json.loads(saved.read_text()) / if result[\"params\"] != params: / raise RuntimeError(f\"stale 12.5 ns result {folder}\")",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 47,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Store and validate the quarterstep/halfstep deck SHA-256 and vendor-model SHA-256 in each cached result before reuse; otherwise rerun. Add a focused cache test in which the parameters stay fixed while the deck changes and assert that the cache is rejected.",
+      "title": "A refinement caches ignore simulation deck revisions",
+      "why_it_matters": "The 12.5 ns acceptance check, including the narrowest 0.0421 A ceiling margin, reuses a saved result whenever only its parameter dictionary matches. A corrected quarterstep deck or vendor model can therefore be bypassed by the cached results, and the check can report the old ceiling margin as if it were a fresh refinement. The 25 ns checker uses the same cache rule.",
+      "validation_status": "confirmed",
+      "validation_reason": "With unchanged params and a revised quarterstep deck or vendor model, check_quarterstep.py:47-54 reuses result.json without source identity checks, and check_numerics.py:85-92 repeats that rule for halfstep; incidence was not measured."
+    },
+    {
+      "#": 6,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:299 -- with (directory / \"waves.raw\").open(\"rb\") as source, gzip.open(directory / \"waves.raw.gz\", \"wb\", compresslevel=3) as target:",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:293-295 -- result.json and case.json are written before line 299",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:225-230 -- accepted cases require waves.raw.gz but the retry guard applies only path.is_file()",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:247 -- if verify_cached_case(baseline, ceiling, directory): return"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:299 -- with (directory / \"waves.raw\").open(\"rb\") as source, gzip.open(directory / \"waves.raw.gz\", \"wb\", compresslevel=3) as target:",
+      "independent_reviewers": [
+        "reliability"
+      ],
+      "line": 299,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "reliability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Compress to a temporary sibling, verify gzip integrity and expected raw point/vector counts, atomically rename it to waves.raw.gz, then write case.json as the last completion marker. Make verify_cached_case revalidate the compressed wave rather than is_file alone; exercise an interrupted/truncated gzip fixture.",
+      "title": "A accepts an interrupted raw-wave compression as complete",
+      "why_it_matters": "The case completion marker is written before the saved raw wave is compressed. An interruption during gzip leaves an existing but truncated waves.raw.gz. On retry, verify_cached_case checks only that the file exists, returns true, and skips the case. The 270-case aggregate can then be published while the raw evidence needed for independent waveform review is unreadable or incomplete. A later hash manifest would faithfully hash that damaged file, not prove its contents are a complete ngspice wave.",
+      "validation_status": "confirmed",
+      "validation_reason": "If compression is interrupted after find_freq.py:293-296 writes case.json, lines 299-301 can leave a truncated waves.raw.gz that verify_cached_case at lines 225-230 accepts by existence alone on retry, losing complete raw evidence; interruption incidence was not measured.",
+      "protected_subject": "data-loss"
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/build_waveform_catalog.py:238:             raw_rows.append({\"relative_path\": row[\"waveform\"], \"sha256\": sha256(wave_path)})",
+        "Trigger: copy a different, parseable C1 raw wave to an existing selected waveform path while leaving the pinned waveform_metrics.csv unchanged. build_waveform_catalog.py:236 analyzes that wave first and lines 241-250 then generate a new raw manifest from it.",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/deadtime_losses.py:472-475 compares the generated catalog and raw-manifest hashes only to hashes stored in the same generated manifest, while FROZEN_INPUT_SHA256 pins waveform_metrics but no selected raw-wave hash.",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/audit_c1.py:46-48 checks the raw waveform's presence, not its identity. A changed voltage vector can alter residual Eoss without changing the diode-charge cross-check."
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/build_waveform_catalog.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/build_waveform_catalog.py:238:             raw_rows.append({\"relative_path\": row[\"waveform\"], \"sha256\": sha256(wave_path)})",
+      "independent_reviewers": [
+        "adversarial"
+      ],
+      "line": 238,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Freeze a selected C1 raw-wave SHA map as an independent input produced at the C1 handoff, and verify each path against that map before analyze_one. Pin the map's SHA in C2's frozen inputs; generate a new map only as an explicit new evidence revision.",
+      "title": "C2 can self-pin a mismatched C1 waveform",
+      "why_it_matters": "A mixed C1 handback can pass the C2 pipeline while changing the conditional diode or Eoss loss calculation. The builder verifies the frozen waveform-metrics CSV, but reads each ignored waveform and creates its SHA manifest only after using it; the downstream join checks that newly created manifest against itself. A valid but different waveform at the same path can therefore become 'verified' rather than being rejected as different from the frozen C1 run.",
+      "validation_status": "confirmed",
+      "validation_reason": "A parseable replacement selected C1 wave can change C2 energy terms because build_waveform_catalog.py:236 analyzes it before hashing it at line 238, while the frozen inputs pin only metrics and curves and deadtime_losses.py:472-475 checks the newly generated manifest against itself; replacement incidence was not measured."
+    },
+    {
+      "#": 2,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py:345 -- futures = {pool.submit(search, a1, spec): spec for spec in specs if identity(*spec) not in rows_by_id}",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py:76-77 -- def identity(ohm, corner, bus, direction, scale): / return f\"r{ohm}_{corner}_v{bus}_d{direction}_l{scale:g}\"",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/audit_c1.py:23-34 -- the row audit checks unique keys and bracket widths, not deadtime against the current timing calculation"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/run_c1.py:345 -- futures = {pool.submit(search, a1, spec): spec for spec in specs if identity(*spec) not in rows_by_id}",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 345,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Include deadtime_ns and the relevant deck/search-source hashes in each progress row, validate them before reusing a row, and rerun or fail closed on mismatch. Add a focused stale-progress case that keeps the same textual ID while changing its timing input.",
+      "title": "C1 sweep resume accepts stale timing results",
+      "why_it_matters": "A rerun after changing a driver timing value or threshold-search implementation skips every case whose textual ID already exists in progress.jsonl. The ID omits deadtime, and export then regenerates source hashes around the old numerical rows. This can make a newly edited C1 packet look rerun and source-verified while retaining old ZVS thresholds; audit_c1 only checks count, bracket width and source-file hashes, not each row against the current timing inputs.",
+      "validation_status": "confirmed",
+      "validation_reason": "With an existing progress.jsonl and a changed TIMINGS_NS value, run_c1.py:76-77 and 341-356 reuse rows by an ID lacking deadtime and export current timing and source hashes around those old rows; incidence was not measured."
+    },
+    {
+      "#": 3,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:88-91:     for key, pair in sorted(grouped.items()):\n        if set(pair) != {39, 51}:\n            raise ValueError(f\"missing RDT pair {key}\")\n        comparisons.append(compare_row(pair[39], pair[51]))",
+        "Trigger: remove both rows for one accepted A case at one timing corner. The key is absent from grouped, so the loop never checks it; lines 93-96 write the reduced output and line 130 prints C2 comparison PASS.",
+        "The intended grid is 270 accepted A cases times three timing corners (810 pairs); deadtime_losses.py:478 validates the A case count, but compare_corners.py does not verify its input row or pair count.",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:130 -- print(f\"C2 comparison PASS: {len(comparisons)} case/corner pairs\")",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:87-91 -- only present grouped keys are checked for their 39/51 pair; no expected 810-key coverage check",
+        "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/deadtime_losses.py:592-607 -- producer writes deadtime_losses.csv before loss-manifest.json; manifest contains output_rows but no CSV digest"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c2-losses/compare_corners.py:88-91:     for key, pair in sorted(grouped.items()):\n        if set(pair) != {39, 51}:\n            raise ValueError(f\"missing RDT pair {key}\")\n        comparisons.append(compare_row(pair[39], pair[51]))",
+      "independent_reviewers": [
+        "adversarial",
+        "reliability"
+      ],
+      "line": 88,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "adversarial",
+        "reliability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Compare the 39/51 kΩ loss-row keys with the frozen accepted A-case keys times all three timing corners before writing output; require 810 unique complete pairs and test removal of both rows for one case/corner.",
+      "title": "C2 comparison accepts missing complete loss pairs",
+      "why_it_matters": "A truncated or filtered deadtime_losses.csv that removes both 39 and 51 kΩ rows for one case and timing corner still produces a successful comparison and a smaller case count. The paired-row check only validates keys that remain, so the reported 'PASS' does not establish the intended 270 cases times three timing corners. This can silently omit a difficult case from the 51-versus-39 tally if the comparison is rerun from a partial file.",
+      "validation_status": "confirmed",
+      "validation_reason": "Removing both 39 and 51 kΩ rows for one accepted case and timing corner leaves no grouped key for compare_corners.py:88-91 to inspect, and the bounded reproduction printed 'C2 comparison PASS: 809 case/corner pairs' instead of the required 810."
+    },
+    {
+      "#": 4,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "run_check.py:143-157: `if result_path.exists():` checks `cached[\"source_case_sha256\"] == selected[\"source_case_sha256\"]`, the probe deck, cached raw, and cached log, then `return cached`; it does not compare the selected waveform hash, source onset, or simulator version.",
+        "run_check.py:113-115 computes `source_waveform_sha256` for each selected C1 case; lines 245-246 and 251 record it and the frozen onset in a fresh result, but the cache branch does not validate either.",
+        "run_check.py:292-303 writes the current C1 catalog hash and ngspice version into selected_cases.json before returning cached case results; the case result stores no ngspice version."
+      ],
+      "file": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/snubber-voltage-check/run_check.py",
+      "first_evidence": "run_check.py:143-157: `if result_path.exists():` checks `cached[\"source_case_sha256\"] == selected[\"source_case_sha256\"]`, the probe deck, cached raw, and cached log, then `return cached`; it does not compare the selected waveform hash, source onset, or simulator version.",
+      "independent_reviewers": [
+        "maintainability"
+      ],
+      "line": 143,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "maintainability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Make the cached-case identity include selected source_waveform_sha256, source_onset_s, C1 catalog hash, and the ngspice version used to produce the raw data. Store those fields per case and compare them before reuse; either rerun a mismatch or fail closed. Add a targeted cache replay test that changes one dependency while leaving case.json and the saved raw intact.",
+      "title": "Snubber cache key omits frozen waveform and simulator",
+      "why_it_matters": "A later replay with a revised C1 waveform/onset or ngspice installation returns the old case result while selected_cases.json records the current waveform hash, onset, and simulator version. The resulting packet can present incompatible provenance as one reproduction, and the onset comparison at lines 203-205 is skipped for cached cases.",
+      "validation_status": "confirmed",
+      "validation_reason": "With the same source case but a changed selected C1 wave or onset, or a new ngspice version, run_check.py:143-157 returns cached results after checking only case, deck, raw, and log digests while lines 284-305 publish current provenance; incidence was not measured."
+    },
+    {
+      "#": 5,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_quarterstep.py:47-50 -- if saved.is_file(): / result = json.loads(saved.read_text()) / if result[\"params\"] != params: / raise RuntimeError(f\"stale 12.5 ns result {folder}\")",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_numerics.py:85-90 -- the 25 ns cache also checks only result[\"params\"] before reuse",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/README.md:14 -- smallest reported 12.5 ns margins are 0.04783 A and 0.04210 A"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_quarterstep.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/check_quarterstep.py:47-50 -- if saved.is_file(): / result = json.loads(saved.read_text()) / if result[\"params\"] != params: / raise RuntimeError(f\"stale 12.5 ns result {folder}\")",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 47,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Store and validate the quarterstep/halfstep deck SHA-256 and vendor-model SHA-256 in each cached result before reuse; otherwise rerun. Add a focused cache test in which the parameters stay fixed while the deck changes and assert that the cache is rejected.",
+      "title": "A refinement caches ignore simulation deck revisions",
+      "why_it_matters": "The 12.5 ns acceptance check, including the narrowest 0.0421 A ceiling margin, reuses a saved result whenever only its parameter dictionary matches. A corrected quarterstep deck or vendor model can therefore be bypassed by the cached results, and the check can report the old ceiling margin as if it were a fresh refinement. The 25 ns checker uses the same cache rule.",
+      "validation_status": "confirmed",
+      "validation_reason": "With unchanged params and a revised quarterstep deck or vendor model, check_quarterstep.py:47-54 reuses result.json without source identity checks, and check_numerics.py:85-92 repeats that rule for halfstep; incidence was not measured."
+    },
+    {
+      "#": 6,
+      "autofix_class": "gated_auto",
+      "confidence": 75,
+      "evidence": [
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:299 -- with (directory / \"waves.raw\").open(\"rb\") as source, gzip.open(directory / \"waves.raw.gz\", \"wb\", compresslevel=3) as target:",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:293-295 -- result.json and case.json are written before line 299",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:225-230 -- accepted cases require waves.raw.gz but the retry guard applies only path.is_file()",
+        "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:247 -- if verify_cached_case(baseline, ceiling, directory): return"
+      ],
+      "file": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py",
+      "first_evidence": "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round4/a-derated/scripts/find_freq.py:299 -- with (directory / \"waves.raw\").open(\"rb\") as source, gzip.open(directory / \"waves.raw.gz\", \"wb\", compresslevel=3) as target:",
+      "independent_reviewers": [
+        "reliability"
+      ],
+      "line": 299,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "reliability"
+      ],
+      "severity": "P2",
+      "suggested_fix": "Compress to a temporary sibling, verify gzip integrity and expected raw point/vector counts, atomically rename it to waves.raw.gz, then write case.json as the last completion marker. Make verify_cached_case revalidate the compressed wave rather than is_file alone; exercise an interrupted/truncated gzip fixture.",
+      "title": "A accepts an interrupted raw-wave compression as complete",
+      "why_it_matters": "The case completion marker is written before the saved raw wave is compressed. An interruption during gzip leaves an existing but truncated waves.raw.gz. On retry, verify_cached_case checks only that the file exists, returns true, and skips the case. The 270-case aggregate can then be published while the raw evidence needed for independent waveform review is unreadable or incomplete. A later hash manifest would faithfully hash that damaged file, not prove its contents are a complete ngspice wave.",
+      "validation_status": "confirmed",
+      "validation_reason": "If compression is interrupted after find_freq.py:293-296 writes case.json, lines 299-301 can leave a truncated waves.raw.gz that verify_cached_case at lines 225-230 accepts by existence alone on retry, losing complete raw evidence; interruption incidence was not measured.",
+      "protected_subject": "data-loss"
+    }
+  ],
+  "triage_groups": [
+    {
+      "title": "C2 input integrity",
+      "findings": [
+        1,
+        3
+      ],
+      "context": "Catalog and comparison can accept substituted or incomplete inputs.",
+      "preferred_resolution": "Bind C1 raw hashes before catalog construction, then require the full A case/corner pair set.",
+      "why": "The reported comparison must use the frozen intended inputs."
+    },
+    {
+      "title": "Replay cache identity",
+      "findings": [
+        2,
+        4,
+        5,
+        6
+      ],
+      "context": "Cached results can survive changed inputs or interrupted compression.",
+      "preferred_resolution": "Bind each completion marker to all inputs, finalize gzip atomically, and test stale/interrupted replay.",
+      "why": "Resumed runs must reject mismatched or incomplete results."
+    }
+  ],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan_path": "zapote/power-stage-120v/validation-plan/ROUND-4.md",
+    "plan_source": "explicit",
+    "requirements": [
+      {
+        "id": "R1",
+        "requirement": "A: two-ceiling 135-case current-limited operating grid, 60 kHz unresolved labeling, switching events, R5 and trip-band screen",
+        "status": "met",
+        "note": "270 two-ceiling cases, derated events, shunt and trip screens are present; safety qualification remains separate."
+      },
+      {
+        "id": "R2",
+        "requirement": "D1: coupled board power/gate extraction with FastHenry fixtures, copper geometry, two-mesh convergence, 1/10/30 MHz matrix; blocked status permitted by master §2.9",
+        "status": "partially addressed",
+        "note": "Native copper and solver fixtures are documented; the field-solved matrix is explicitly blocked by failed extraction acceptance, as the master stop rule permits."
+      },
+      {
+        "id": "R3",
+        "requirement": "D2: faithful legacy 724 V replay, current/waveform causality, counterfactuals; board-matrix grid remains dependent on D1",
+        "status": "partially addressed",
+        "note": "Legacy diagnostic replay and counterfactuals are present; extracted-matrix board grid waits on D1."
+      },
+      {
+        "id": "R4",
+        "requirement": "C1: six dead-time corners across bus/direction with threshold brackets and sensitivity; board-matrix rerun dependent on D1",
+        "status": "partially addressed",
+        "note": "Reference-inductance thresholds and sensitivity are present; board-matrix rerun waits on D1."
+      },
+      {
+        "id": "R5",
+        "requirement": "C2: paired 39/51 kΩ loss comparison at all A cases and corners, physical-model assumptions and conditional recommendation",
+        "status": "met with findings",
+        "note": "The paired conditional comparison exists, but findings #1 and #3 weaken input identity and complete-case verification."
+      },
+      {
+        "id": "R6",
+        "requirement": "Every item: frozen inputs, raw-output provenance, reproducible scripts, result README with evidence class and limitations; master §5 status truthful",
+        "status": "partially addressed",
+        "note": "Reports and master status state limits; final raw verification receipt is missing after five source additions, and cache/provenance findings remain."
+      }
+    ],
+    "implementation_units": [],
+    "unrequested_behavior_rules": []
+  },
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "State measurement conventions",
+      "citation": "docs/solutions/best-practices/measurement-convention-must-be-stated-2026-07-28.md",
+      "note": "C2 distinguishes precommand ZVS from residual energy at channel onset; preserve those labels in downstream decisions."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Audit the true geometry",
+      "citation": "docs/solutions/design-patterns/proxy-audit-must-rerun-truth-validator-aligned-audit-2026-08-02.md",
+      "note": "D1 correctly uses KiCad FlashLayer and blocks acceptance of its incomplete mesh."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Model checks are not physical qualification",
+      "citation": "docs/solutions/best-practices/invariants-verify-model-not-reality-2026-07-09.md",
+      "note": "The packet keeps reference-inductance and physical-board verdicts separate."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Silent measurement failures need status checks",
+      "citation": "docs/solutions/best-practices/three-silent-failures-measurement-pipeline-2026-07-07.md",
+      "note": "D2 checks completed finite waves; A and C2 still have partial-output paths identified in findings #3 and #6."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Bind qualification exports to source replay",
+      "citation": "docs/solutions/best-practices/qualification-exports-require-clean-build-replay-2026-09-01.md",
+      "note": "Committed summaries alone are not clean-machine replayable without the ignored raw handback; findings #1, #2, #4 and #5 identify source-binding gaps."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "D1 remains BLOCKED without an accepted board inductance matrix or SPICE include; dependent C1 and D2 board-grid qualification cannot be made.",
+    "C2 covers about 77% of A events with reference inductance and typical/cold device curves; the conditional subtotal cannot approve hot total loss or a 51 kΩ hardware change."
+  ],
+  "testing_gaps": [
+    "D1 two-mesh, 1/10/30 MHz, crop, passivity, and package-separation qualifications remain unperformed.",
+    "C1 audit checks row count and bracket widths but not the full Cartesian timing/bus/direction/L grid or endpoint fail/pass signs.",
+    "QUALITY.md says 12,011-file raw verification preceded five source additions; the final 12,016-file manifest lacks a recorded verifier receipt."
+  ],
+  "coverage": {
+    "peer_outcome": "in-process-fallback",
+    "peer_coverage": "Cross-model adversarial pass was not run because the user selected Sol-only agents; an in-process Sol adversarial reviewer completed.",
+    "coverage_notes": [
+      "Three governing instruction files (root AGENTS.md, root CLAUDE.md, zapote/AGENTS.md) were mapped to all changed paths; no CODING_STANDARDS.md exists.",
+      "No untracked files were excluded from the frozen staged review.",
+      "D1 board matrix was explicitly blocked, so physical board-grid acceptance and dependent C1/D2 reruns were not in this packet.",
+      "Reviewers excluded their own implementation areas when reused from earlier worker tasks.",
+      "Generated event CSV and raw manifest were reviewed through scripts, summaries, hashes and bounded representative checks, not a manual read of every row."
+    ],
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "first_evidence_backfilled": 0,
+    "suppressed_by_confidence": {},
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "mode_aware_demotions": 0,
+    "semantic_duplicates_merged": 1,
+    "validator_shortcut_skipped": 0,
+    "depth": "full",
+    "validator": {
+      "outcome": "verdicts",
+      "selected": 6,
+      "confirmed": 6,
+      "rejected": 0,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "protected_subjects": {
+        "data-loss": [
+          6
+        ]
+      },
+      "protected_reclassifications": 0
+    },
+    "validation_note": "All six verdicts landed in one batch. Findings #1, #2, #4, #5 and #6 are code-permitted failures whose incidence was not measured; the validator reproduced #3 with 809 pairs and a PASS message."
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260928-002920-7c489fec",
+  "run_id": "20260928-002920-7c489fec"
+}

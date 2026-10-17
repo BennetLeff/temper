@@ -1,0 +1,76 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * dt-c1-r20000-gap200: datasheet sluse89c fixture
+
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vc                                         3.3
+vd                                          12
+a                                            0
+b                                            0
+dis                                          0
+xu.one                                       1
+xu.la                              9.99999e-07
+xu.lb                              9.99999e-07
+xu.ld                              9.99999e-07
+xu.aa                                        0
+xu.ab                                        0
+xu.ad                                        0
+xu.ha                                        0
+xu.hb                                        0
+xu.ca                                        0
+xu.cb                                        0
+xu.ofa                                       0
+xu.ofb                                       0
+xu.oa                                        0
+xu.ob                                        0
+xu.vc                                 0.999999
+xu.vh                                 0.999999
+xu.vl                                 0.999999
+xu.uc                                        1
+xu.uh                                        1
+xu.ul                                        1
+xu.ena                                       0
+xu.enb                                       0
+xu.ba                                        0
+xu.bb                                        0
+oa                                           0
+ob                                           0
+b.xu.benb#branch                             0
+b.xu.bena#branch                             0
+b.xu.bcb#branch                              0
+b.xu.bca#branch                              0
+v.xu.vone#branch                        -3e-06
+vdis#branch                        3.66667e-05
+vb#branch                                    0
+va#branch                                    0
+vdd#branch                                   0
+vcc#branch                        -3.66667e-05
+a.xu.ao#branch_1_0                           0
+a.xu.ao#branch_1_1                           0
+a.xu.aboost#branch_1_0                       0
+a.xu.aboost#branch_1_1                       0
+a.xu.aue#branch_1_0                          0
+a.xu.aue#branch_1_1                          0
+a.xu.aue#branch_1_2                          0
+a.xu.aofast#branch_1_0                       0
+a.xu.aofast#branch_1_1                       0
+a.xu.ahold#branch_1_0                        0
+a.xu.ahold#branch_1_1                        0
+a.xu.adac#branch_1_0                         0
+a.xu.adac#branch_1_1                         0
+a.xu.adac#branch_1_2                         0
+
+ Reference value :  1.96783e-06
+No. of Data Rows : 28103
+ngspice-45.2 done

@@ -1,0 +1,722 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "nominal_run_id": "cast_iron-high-120v-1710w",
+  "parts": [
+    {
+      "board_fraction": 0.0,
+      "footprint_anchor_mm": [
+        16.3,
+        4.6
+      ],
+      "has_unquantified_loss": true,
+      "part": "GBJ2510-F",
+      "ref": "BR1",
+      "sink_fraction": 1.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 28.35996396,
+      "watts_worst": 28.35996396,
+      "x_mm": 28.799999999999997,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 4.6
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        52.75,
+        127.5
+      ],
+      "has_unquantified_loss": true,
+      "part": "R463N410000N1M",
+      "ref": "C1",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 64.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 127.5
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        158.73,
+        9.7
+      ],
+      "has_unquantified_loss": true,
+      "part": "GRM31A5C3A102JW01D",
+      "ref": "C12",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 158.73000000000002,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 9.7
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        140.73,
+        9.7
+      ],
+      "has_unquantified_loss": true,
+      "part": "GRM31A5C3A102JW01D",
+      "ref": "C13",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 140.73000000000002,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 9.7
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        100.73,
+        9.7
+      ],
+      "has_unquantified_loss": true,
+      "part": "GRM31A5C3A102JW01D",
+      "ref": "C19",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 100.72999999999999,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 9.7
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        30.0,
+        34.85
+      ],
+      "has_unquantified_loss": true,
+      "part": "R463N410000N1M",
+      "ref": "C2",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 30.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 23.6
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        118.73,
+        9.7
+      ],
+      "has_unquantified_loss": true,
+      "part": "GRM31A5C3A102JW01D",
+      "ref": "C20",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 118.72999999999999,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 9.7
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        234.25,
+        97.0
+      ],
+      "has_unquantified_loss": false,
+      "part": "942C12P22K-F",
+      "ref": "C21",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.45900407,
+      "watts_worst": 1.98949349,
+      "x_mm": 213.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 97.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        234.25,
+        125.5
+      ],
+      "has_unquantified_loss": false,
+      "part": "942C12P22K-F",
+      "ref": "C22",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.45900407,
+      "watts_worst": 1.98949349,
+      "x_mm": 213.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 125.5
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        212.5,
+        53.25
+      ],
+      "has_unquantified_loss": false,
+      "part": "942C12P1K-F",
+      "ref": "C23",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.07902963,
+      "watts_worst": 0.34254364,
+      "x_mm": 212.5,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 32.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        144.0,
+        22.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "B32652A0104K000",
+      "ref": "C38",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 136.5,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 22.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        164.6,
+        22.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "B32652A0104K000",
+      "ref": "C39",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 157.1,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 22.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        109.0,
+        22.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "B32652A0104K000",
+      "ref": "C40",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 116.5,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 22.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        88.4,
+        22.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "B32652A0104K000",
+      "ref": "C41",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 95.9,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 22.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        13.0,
+        43.95
+      ],
+      "has_unquantified_loss": true,
+      "part": "B32656G0275J000",
+      "ref": "C5",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 31.75,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 54.1
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        174.35,
+        50.75
+      ],
+      "has_unquantified_loss": true,
+      "part": "B32656G0275J000",
+      "ref": "C6",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 184.5,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 32.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        58.0,
+        64.95
+      ],
+      "has_unquantified_loss": true,
+      "part": "MRT130KP295CV",
+      "ref": "D3",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 58.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 54.95
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        29.0,
+        135.5
+      ],
+      "has_unquantified_loss": false,
+      "part": "B82726S2203A020",
+      "ref": "L1",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 2.025,
+      "watts_worst": 2.025,
+      "x_mm": 24.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 123.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        76.0,
+        116.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "IRM-20-15",
+      "ref": "PS1",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 86.4,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 93.5
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        5.0,
+        84.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "IRM-05-15",
+      "ref": "PS2",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 24.25,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 89.375
+    },
+    {
+      "board_fraction": 0.0,
+      "footprint_anchor_mm": [
+        150.55,
+        4.215
+      ],
+      "has_unquantified_loss": true,
+      "part": "IPW65R018CFD7",
+      "ref": "Q2",
+      "sink_fraction": 1.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 7.03142898,
+      "watts_worst": 29.42534208,
+      "x_mm": 156.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 4.215
+    },
+    {
+      "board_fraction": 0.0,
+      "footprint_anchor_mm": [
+        132.55,
+        4.215
+      ],
+      "has_unquantified_loss": true,
+      "part": "IPW65R018CFD7",
+      "ref": "Q3",
+      "sink_fraction": 1.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 7.10446937,
+      "watts_worst": 29.4421241,
+      "x_mm": 138.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 4.215
+    },
+    {
+      "board_fraction": 0.0,
+      "footprint_anchor_mm": [
+        92.55,
+        4.215
+      ],
+      "has_unquantified_loss": true,
+      "part": "IPW65R018CFD7",
+      "ref": "Q5",
+      "sink_fraction": 1.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 7.03142898,
+      "watts_worst": 29.42534208,
+      "x_mm": 98.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 4.215
+    },
+    {
+      "board_fraction": 0.0,
+      "footprint_anchor_mm": [
+        110.55,
+        4.215
+      ],
+      "has_unquantified_loss": true,
+      "part": "IPW65R018CFD7",
+      "ref": "Q6",
+      "sink_fraction": 1.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 7.10446937,
+      "watts_worst": 29.4421241,
+      "x_mm": 116.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 4.215
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        150.55,
+        12.6
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-073R9L",
+      "ref": "R10",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 150.55,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 12.6
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        132.55,
+        12.6
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-073R9L",
+      "ref": "R12",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 132.55,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 12.6
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        92.55,
+        12.6
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-073R9L",
+      "ref": "R18",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 92.55,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 12.6
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        110.55,
+        12.6
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-073R9L",
+      "ref": "R20",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 110.55,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 12.6
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        190.0,
+        145.0
+      ],
+      "has_unquantified_loss": false,
+      "part": "RC1206FR-07470KL",
+      "ref": "R22",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.00494435,
+      "watts_worst": 0.02263045,
+      "x_mm": 190.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 145.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        197.0,
+        145.0
+      ],
+      "has_unquantified_loss": false,
+      "part": "RC1206FR-07470KL",
+      "ref": "R23",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.00494435,
+      "watts_worst": 0.02263045,
+      "x_mm": 197.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 145.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        204.0,
+        145.0
+      ],
+      "has_unquantified_loss": false,
+      "part": "RC1206FR-07470KL",
+      "ref": "R24",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.00494435,
+      "watts_worst": 0.02263045,
+      "x_mm": 204.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 145.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        210.3,
+        145.0
+      ],
+      "has_unquantified_loss": false,
+      "part": "RC1206FR-07470KL",
+      "ref": "R25",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.00494435,
+      "watts_worst": 0.02263045,
+      "x_mm": 210.3,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 145.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        52.0,
+        76.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-07470KL",
+      "ref": "R26",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 52.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 76.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        52.0,
+        80.7
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-07470KL",
+      "ref": "R27",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 52.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 80.69999999999999
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        52.0,
+        85.4
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-07470KL",
+      "ref": "R28",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 52.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 85.4
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        52.0,
+        90.1
+      ],
+      "has_unquantified_loss": true,
+      "part": "RC1206FR-07470KL",
+      "ref": "R29",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 52.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 90.1
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        177.0,
+        70.5
+      ],
+      "has_unquantified_loss": false,
+      "part": "RC1206FR-071R5L",
+      "ref": "R39",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.06913512,
+      "watts_worst": 0.29965718,
+      "x_mm": 177.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 70.5
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        126.5,
+        12.6
+      ],
+      "has_unquantified_loss": false,
+      "part": "WSK2512R0010FEA",
+      "ref": "R5",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.46089935,
+      "watts_worst": 2.04290563,
+      "x_mm": 126.5,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 12.600000000000001
+    },
+    {
+      "board_fraction": null,
+      "footprint_anchor_mm": [
+        195.0,
+        70.5
+      ],
+      "has_unquantified_loss": true,
+      "part": "CST3015-100ED",
+      "ref": "T1",
+      "sink_fraction": null,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 193.9,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 70.5
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        148.0,
+        46.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "UCC21550BDWKR",
+      "ref": "U1",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 148.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 46.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        104.0,
+        46.0
+      ],
+      "has_unquantified_loss": true,
+      "part": "UCC21550BDWKR",
+      "ref": "U2",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": null,
+      "watts_worst": null,
+      "x_mm": 104.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 46.0
+    },
+    {
+      "board_fraction": 1.0,
+      "footprint_anchor_mm": [
+        62.0,
+        17.7
+      ],
+      "has_unquantified_loss": true,
+      "part": "MC78L05ACHT1G",
+      "ref": "U3",
+      "sink_fraction": 0.0,
+      "use_as_complete_b3_heat_source": false,
+      "watts_nominal": 0.057,
+      "watts_worst": 0.057,
+      "x_mm": 62.0,
+      "xy_method": "midpoint of pad-centre bounding box; body thermal centroid unverified",
+      "y_mm": 19.60625
+    }
+  ],
+  "status": "partial conditional heat map; not a complete B3 input",
+  "worst_run_id": "offset_or_small_pan-low-108v-1710w"
+}

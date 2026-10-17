@@ -1,0 +1,555 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "copper_export_sha256": "fd0b8e6dd5e003543099d6e445e269fa8d73863291409a35828c9b85f17b369d",
+  "port_source_sha256": "ffd2c5f8fa69b1682d896ea0dab6bf307a7ad2d5bbca8e366a1f6f6d6b569586",
+  "direction": "positive current from first_ref to second_ref",
+  "external_components_not_shortened": true,
+  "legs": {
+    "A": [
+      {
+        "name": "P_BUS_C38",
+        "from_ref": "C38.1",
+        "to_ref": "Q2.2",
+        "net": "bus_p",
+        "from_xy_mm": [
+          144.0,
+          22.0
+        ],
+        "to_xy_mm": [
+          156.0,
+          4.215
+        ],
+        "from_layers": [
+          "In2.Cu"
+        ],
+        "to_layers": [
+          "F.Cu",
+          "In2.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_BUS_C39",
+        "from_ref": "C39.1",
+        "to_ref": "Q2.2",
+        "net": "bus_p",
+        "from_xy_mm": [
+          164.6,
+          22.0
+        ],
+        "to_xy_mm": [
+          156.0,
+          4.215
+        ],
+        "from_layers": [
+          "In2.Cu"
+        ],
+        "to_layers": [
+          "F.Cu",
+          "In2.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q2.3",
+        "to_ref": "Q3.2",
+        "net": "sw_a",
+        "from_xy_mm": [
+          161.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          138.0,
+          4.215
+        ],
+        "from_layers": [
+          "F.Cu",
+          "B.Cu"
+        ],
+        "to_layers": [
+          "F.Cu",
+          "B.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q3.3",
+        "to_ref": "R5.1",
+        "net": "leg_ret",
+        "from_xy_mm": [
+          143.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          127.135,
+          9.615
+        ],
+        "from_layers": [
+          "F.Cu",
+          "In1.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_RETURN_C38",
+        "from_ref": "R5.4",
+        "to_ref": "C38.2",
+        "net": "hv_ret",
+        "from_xy_mm": [
+          125.865,
+          15.585
+        ],
+        "to_xy_mm": [
+          129.0,
+          22.0
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "In1.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_RETURN_C39",
+        "from_ref": "R5.4",
+        "to_ref": "C39.2",
+        "net": "hv_ret",
+        "from_xy_mm": [
+          125.865,
+          15.585
+        ],
+        "to_xy_mm": [
+          149.6,
+          22.0
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "In1.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U1.15",
+        "to_ref": "R10.1",
+        "net": "leg_a-out_h",
+        "from_xy_mm": [
+          144.825,
+          41.125
+        ],
+        "to_xy_mm": [
+          150.55,
+          14.0625
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R10.2",
+        "to_ref": "Q2.1",
+        "net": "leg_a-gate_h",
+        "from_xy_mm": [
+          150.55,
+          11.1375
+        ],
+        "to_xy_mm": [
+          150.55,
+          4.215
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q2.3",
+        "to_ref": "U1.14",
+        "net": "sw_a",
+        "from_xy_mm": [
+          161.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          146.095,
+          41.125
+        ],
+        "from_layers": [
+          "F.Cu",
+          "B.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U1.10",
+        "to_ref": "R12.1",
+        "net": "leg_a-out_l",
+        "from_xy_mm": [
+          151.175,
+          41.125
+        ],
+        "to_xy_mm": [
+          132.55,
+          14.0625
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R12.2",
+        "to_ref": "Q3.1",
+        "net": "leg_a-gate_l",
+        "from_xy_mm": [
+          132.55,
+          11.1375
+        ],
+        "to_xy_mm": [
+          132.55,
+          4.215
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q3.3",
+        "to_ref": "U1.9",
+        "net": "leg_ret",
+        "from_xy_mm": [
+          143.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          152.445,
+          41.125
+        ],
+        "from_layers": [
+          "F.Cu",
+          "In1.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      }
+    ],
+    "B": [
+      {
+        "name": "P_BUS_C40",
+        "from_ref": "C40.1",
+        "to_ref": "Q5.2",
+        "net": "bus_p",
+        "from_xy_mm": [
+          109.0,
+          22.0
+        ],
+        "to_xy_mm": [
+          98.0,
+          4.215
+        ],
+        "from_layers": [
+          "In2.Cu"
+        ],
+        "to_layers": [
+          "F.Cu",
+          "In2.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_BUS_C41",
+        "from_ref": "C41.1",
+        "to_ref": "Q5.2",
+        "net": "bus_p",
+        "from_xy_mm": [
+          88.4,
+          22.0
+        ],
+        "to_xy_mm": [
+          98.0,
+          4.215
+        ],
+        "from_layers": [
+          "In2.Cu"
+        ],
+        "to_layers": [
+          "F.Cu",
+          "In2.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_SW",
+        "from_ref": "Q5.3",
+        "to_ref": "Q6.2",
+        "net": "sw_b",
+        "from_xy_mm": [
+          103.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          116.0,
+          4.215
+        ],
+        "from_layers": [
+          "F.Cu",
+          "B.Cu"
+        ],
+        "to_layers": [
+          "F.Cu",
+          "B.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_SOURCE",
+        "from_ref": "Q6.3",
+        "to_ref": "R5.1",
+        "net": "leg_ret",
+        "from_xy_mm": [
+          121.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          127.135,
+          9.615
+        ],
+        "from_layers": [
+          "F.Cu",
+          "In1.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_RETURN_C40",
+        "from_ref": "R5.4",
+        "to_ref": "C40.2",
+        "net": "hv_ret",
+        "from_xy_mm": [
+          125.865,
+          15.585
+        ],
+        "to_xy_mm": [
+          124.0,
+          22.0
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "In1.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "P_RETURN_C41",
+        "from_ref": "R5.4",
+        "to_ref": "C41.2",
+        "net": "hv_ret",
+        "from_xy_mm": [
+          125.865,
+          15.585
+        ],
+        "to_xy_mm": [
+          103.4,
+          22.0
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "In1.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GH_OUT",
+        "from_ref": "U2.15",
+        "to_ref": "R18.1",
+        "net": "leg_b-out_h",
+        "from_xy_mm": [
+          100.825,
+          41.125
+        ],
+        "to_xy_mm": [
+          92.55,
+          14.0625
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GH_GATE",
+        "from_ref": "R18.2",
+        "to_ref": "Q5.1",
+        "net": "leg_b-gate_h",
+        "from_xy_mm": [
+          92.55,
+          11.1375
+        ],
+        "to_xy_mm": [
+          92.55,
+          4.215
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GH_RETURN",
+        "from_ref": "Q5.3",
+        "to_ref": "U2.14",
+        "net": "sw_b",
+        "from_xy_mm": [
+          103.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          102.095,
+          41.125
+        ],
+        "from_layers": [
+          "F.Cu",
+          "B.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GL_OUT",
+        "from_ref": "U2.10",
+        "to_ref": "R20.1",
+        "net": "leg_b-out_l",
+        "from_xy_mm": [
+          107.175,
+          41.125
+        ],
+        "to_xy_mm": [
+          110.55,
+          14.0625
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GL_GATE",
+        "from_ref": "R20.2",
+        "to_ref": "Q6.1",
+        "net": "leg_b-gate_l",
+        "from_xy_mm": [
+          110.55,
+          11.1375
+        ],
+        "to_xy_mm": [
+          110.55,
+          4.215
+        ],
+        "from_layers": [
+          "F.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      },
+      {
+        "name": "GL_RETURN",
+        "from_ref": "Q6.3",
+        "to_ref": "U2.9",
+        "net": "leg_ret",
+        "from_xy_mm": [
+          121.45,
+          4.215
+        ],
+        "to_xy_mm": [
+          108.445,
+          41.125
+        ],
+        "from_layers": [
+          "F.Cu",
+          "In1.Cu"
+        ],
+        "to_layers": [
+          "F.Cu"
+        ],
+        "from_terminal_layer": "F.Cu",
+        "to_terminal_layer": "F.Cu"
+      }
+    ]
+  }
+}

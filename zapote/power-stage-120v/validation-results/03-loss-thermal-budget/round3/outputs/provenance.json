@@ -1,0 +1,22 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "input_sha256": {
+    "inputs/a3-thresholds.json": "ae11cac0cc3abb2f5d85bfe07a80fd7b2eaf8f4a1bc1d914ac54806610291195",
+    "inputs/board-parts.json": "6e4c324c0c210fe86fc817b5cf10b1a863f2bdec33e7e88fc25aee7213e67949",
+    "inputs/cases.csv": "4f445631f5a810dd0c6a86d2786540ca89cbaea0a7f7f1a2da759920125af433",
+    "inputs/shunt-grid.csv": "098903dbe0d995cfffd0f827f785ac2fa4d65aa472904c186a2ae566da9894a4",
+    "inputs/switching-events.csv": "60ec2fcc3929b54157a660dde6dbc7ddb257a983186d898aee4ebfb534df9d81",
+    "inputs/tdk-source.json": "b08948d9e4a7e0ccf0f13574124b8bd3ee41e0fe466ca3ab30fc72d6aeba2c97",
+    "inputs/turnoff_energy.csv": "a6c9de11b47481fc44668c47f19cccd51ab395038dfa376d3de396b1f0e8a3f8",
+    "sources/942C.pdf": "f99395446ba25a0adcef85862ff9eaee90bac68fae6664decccab1ebea3e4310",
+    "sources/aavid-63730.pdf": "529bcd302a25385f436a034c4b5633568df9adc13f1515c8d26c44126ad87c97",
+    "sources/gbj2510.pdf": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02",
+    "sources/henkel-tim-guide.pdf": "6a739a3ee70ba1be1a08d71953e6eda79b58cf5426e7fa101ac40e3f6e80c502",
+    "sources/ipw65r018cfd7.pdf": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2",
+    "sources/irm05.pdf": "8e13f9373a39d8e0d92d540082cb97a9f3172111ea749b807af96db9e27d878a",
+    "sources/irm20.pdf": "aa1afdbcdf0bf6db796710e26bd5e258f4857ffb1c14bd1ac3d94af86f3b8789",
+    "sources/mc78l00a.pdf": "2e3acd62796195fd26fdf71845a6b71156302b648d8bbb50d05ed352ee3e9bc5",
+    "sources/wsk2512.pdf": "2ee8a9067539bd2cabb08845219bac55d506b1ca892a2dbaeed343dd1ed10cff"
+  },
+  "source_commit": "44417ae1489fd00e2d652fd3b2c1582b76d17630"
+}

@@ -1,0 +1,37 @@
+{
+  "classification": "comparison of recorded field outputs, not physical qualification",
+  "maximum_B_difference_T": 0.0,
+  "relative_to_peak_B": 0.0,
+  "gate_relative": 1e-09,
+  "passed": true,
+  "partitions": [
+    {
+      "baseline": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p10/mesh/case_4np1_t0001.vtu",
+      "baseline_sha256": "91bfb15d8de936b528e9c7337b79cc2f8671716e57ce7455933d2753825a85f3",
+      "candidate": "output/temper-prototype-closure/round4/fields/A-e4-h1-elemental-p10/mesh/case_4np1_t0001.vtu",
+      "candidate_sha256": "8b2a05d9bea58efeb832153cc38ed497c4eb42f1a7abde9452fdec6f019b3dde",
+      "maximum_B_difference_T": 0.0
+    },
+    {
+      "baseline": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p10/mesh/case_4np2_t0001.vtu",
+      "baseline_sha256": "27baff9c0941e7f67604bfad0701861c1a02a831a970957d4a8a465272b0cf57",
+      "candidate": "output/temper-prototype-closure/round4/fields/A-e4-h1-elemental-p10/mesh/case_4np2_t0001.vtu",
+      "candidate_sha256": "27baff9c0941e7f67604bfad0701861c1a02a831a970957d4a8a465272b0cf57",
+      "maximum_B_difference_T": 0.0
+    },
+    {
+      "baseline": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p10/mesh/case_4np3_t0001.vtu",
+      "baseline_sha256": "ac51a353ffdec24a336e3131bc3b7cbbb142a906fb762b79120ecf0d04c947cf",
+      "candidate": "output/temper-prototype-closure/round4/fields/A-e4-h1-elemental-p10/mesh/case_4np3_t0001.vtu",
+      "candidate_sha256": "ac51a353ffdec24a336e3131bc3b7cbbb142a906fb762b79120ecf0d04c947cf",
+      "maximum_B_difference_T": 0.0
+    },
+    {
+      "baseline": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p10/mesh/case_4np4_t0001.vtu",
+      "baseline_sha256": "68344a30bdfa473dbd9efb2fb0aacd2baa6690a9a8ab5815408b695df2ba5650",
+      "candidate": "output/temper-prototype-closure/round4/fields/A-e4-h1-elemental-p10/mesh/case_4np4_t0001.vtu",
+      "candidate_sha256": "68344a30bdfa473dbd9efb2fb0aacd2baa6690a9a8ab5815408b695df2ba5650",
+      "maximum_B_difference_T": 0.0
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+ "identity": {
+  "legA-h0-best-n19.matrix.txt": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+  "legB-h0-prov-n19.matrix.txt": "6cff8b64e82156f07544066d74647daf2c3fcab8f3b5481c23ec93c85198da82",
+  "F6.cir": "7eb6d35a045f5304673469ca8b23e36993c3ee5eb14d9587080040980902d422",
+  "f6_legs.py": "3fda378afcfcac60b47bc4163759474862782c6eeca4eee92d9c86d8e5dcb65d",
+  "run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+  "PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983"
+ },
+ "diode": "pmeg",
+ "model_screen_V": {
+  "25": 3.5624339999999997,
+  "27": 3.545527,
+  "100": 2.924901,
+  "150": 2.48794
+ },
+ "groups": {
+  "A_T27_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": -0.324,
+   "max_vds_V": 386.3
+  },
+  "A_T100_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": -0.361,
+   "max_vds_V": 386.0
+  },
+  "A_T150_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": -0.347,
+   "max_vds_V": 389.6
+  },
+  "B_T27_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": 0.024,
+   "max_vds_V": 420.8
+  },
+  "B_T100_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": -0.061,
+   "max_vds_V": 418.1
+  },
+  "B_T150_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": -0.07,
+   "max_vds_V": 418.7
+  }
+ }
+}

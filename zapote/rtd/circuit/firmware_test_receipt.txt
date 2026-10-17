@@ -1,0 +1,73 @@
+Firmware MAX31865 contract-test receipt
+
+The source correction was applied to the isolated temporary source tree
+`/tmp/rtd-source-after` and built in `/tmp/rtd-build7` from the host CMake
+test target. The final executable was run with:
+
+    /tmp/rtd-build7/firmware/test/build/test_max31865_only
+
+Result:
+
+    12 Tests 0 Failures 0 Ignored
+    OK
+
+The 12 passing tests cover threshold words, BIAS-only initialization,
+one-time automatic fault cycle followed by continuous conversion, RTD data
+read and right alignment, high/low/non-threshold fault mapping, no fault-cycle
+re-arm, read/write failure fail-closed behavior, deferred DRDY service,
+bootstrap failure, repeated DRDY reads, and the silent-DRDY terminal bound.
+
+Patch hashes used:
+
+    source_patch_proposal.patch  4e0413cf7811d5320023a962d0c31585a12a2ace96325956b45ba5362b4dde20
+    threshold_formula_patch_proposal.patch  1e597498eb600eb65ca19bf3f36704b05503eacc546126c3d8da19a02a9ed749
+    source_component_patch_proposals.patch  226150d7e58a94e4d8af3c7bd18acd6c3a90d6eb19920be6c31e0aa0ce637b64
+
+The component and formula proposals passed `git apply --check -p0` against
+temporary pre-integration copies of the authoritative WIP files. The latest
+authoritative WIP already contains the component proposal hunks (1 MΩ/1 nF,
+shared reference identity, and 698 kΩ guard), so reapplying that component
+proposal to the latest WIP is expected to report context/already-applied
+failures. No canonical source or board file was modified by this audit.
+
+Circuit recheck on 2026-09-10:
+
+    ngspice -b zapote/rtd/circuit/rtd_window_bounded.cir
+    ngspice -b zapote/rtd/circuit/rtd_sense_open_rc.cir
+    ngspice -b zapote/rtd/circuit/rtd_sense_minus_open_rc.cir
+    ngspice -b zapote/rtd/circuit/rtd_diagnostic_loading.cir
+
+All four exited successfully with ngspice 45.2; JSON syntax also passed with
+`python3 -m json.tool zapote/rtd/circuit/rtd_contract.json`.
+
+TPS3890 source proposal check (2026-09-10)
+--------------------------------------------
+The exact source patch `rail_monitor_tps3890.patch` was generated against the
+authoritative WIP files in
+`/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan`.
+A clean temporary copy accepted:
+
+    patch -p0 --dry-run < zapote/rtd/circuit/rail_monitor_tps3890.patch
+
+with both `elec/src/components.ato` and `elec/src/modules.ato` reporting
+`patching file` and no rejects. The patch updates the downstream fault NAND
+connection from `rail_monitor.OUTA` to `rail_monitor.RESET` as well as the
+supervisor declaration and divider; no canonical source was edited here.
+The earlier MAX31865 driver-only executable remains `/tmp/rtd-build7/firmware/test/build/test_max31865_only` (12 passed, 0 failed); this follow-up does not alter that binary.
+
+Final recheck command (2026-09-10):
+
+    for f in zapote/rtd/circuit/*.cir; do ngspice -b "$f" >/tmp/$(basename "$f").out 2>&1; done
+    /tmp/rtd-build7/firmware/test/build/test_max31865_only
+
+All four ngspice decks exited 0. The MAX31865 executable reported 12 Tests,
+0 Failures, 0 Ignored, OK.
+
+Phase-model recheck command (Python 3, no external packages):
+
+    T=17.6; h3(x)=(x^3-3*max(x-1,0)^3+3*max(x-2,0)^3-max(x-3,0)^3)/6
+
+Bisection output: SENSE+ 100 ohm crossing 28.9116217905 ms; SENSE+ 194.1
+ohm crossing 25.1988132841 ms; SENSE- 194.1 ohm to clipped low-code crossing
+40.8997914395 ms; total with 17.6 ms sample + 10 ms poll/jitter + 5 ms sink
++ 13.8889078125 ms RC accounting = 87.3886992520 ms.

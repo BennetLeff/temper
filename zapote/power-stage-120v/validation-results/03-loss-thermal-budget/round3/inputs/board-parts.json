@@ -1,0 +1,4582 @@
+{
+  "board": "native-15/section.kicad_pcb",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "kicad_version": "10.0.4",
+  "parts": {
+    "BR1": {
+      "part": "GBJ2510-F",
+      "centre_mm": [
+        16.3,
+        4.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            16.3,
+            4.6
+          ],
+          "net": "rect_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            26.3,
+            4.6
+          ],
+          "net": "l_filt"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            33.8,
+            4.6
+          ],
+          "net": "n_filt"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            41.3,
+            4.6
+          ],
+          "net": "rect_n"
+        }
+      ]
+    },
+    "C1": {
+      "part": "R463N410000N1M",
+      "centre_mm": [
+        52.75,
+        127.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            52.75,
+            127.5
+          ],
+          "net": "l_f"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            75.25,
+            127.5
+          ],
+          "net": "ac_n_in"
+        }
+      ]
+    },
+    "C10": {
+      "part": "GRM32ER71H106KA12L",
+      "centre_mm": [
+        138.0,
+        39.3
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            136.525,
+            39.3
+          ],
+          "net": "leg_a-boot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            139.475,
+            39.3
+          ],
+          "net": "sw_a"
+        }
+      ]
+    },
+    "C11": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        141.4,
+        38.8
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            141.4,
+            39.575
+          ],
+          "net": "leg_a-boot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            141.4,
+            38.025
+          ],
+          "net": "sw_a"
+        }
+      ]
+    },
+    "C12": {
+      "part": "GRM31A5C3A102JW01D",
+      "centre_mm": [
+        158.73,
+        9.7
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            157.255,
+            9.7
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            160.205,
+            9.7
+          ],
+          "net": "sw_a"
+        }
+      ]
+    },
+    "C13": {
+      "part": "GRM31A5C3A102JW01D",
+      "centre_mm": [
+        140.73,
+        9.7
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            139.255,
+            9.7
+          ],
+          "net": "sw_a"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            142.205,
+            9.7
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C14": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        96.5,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            95.725,
+            56.5
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            97.275,
+            56.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C15": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        111.5,
+        39.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            110.725,
+            39.6
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            112.275,
+            39.6
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C16": {
+      "part": "GRM32ER71H106KA12L",
+      "centre_mm": [
+        111.5,
+        35.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            110.025,
+            35.6
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            112.975,
+            35.6
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C17": {
+      "part": "GRM32ER71H106KA12L",
+      "centre_mm": [
+        94.0,
+        39.3
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            92.525,
+            39.3
+          ],
+          "net": "leg_b-boot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            95.475,
+            39.3
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "C18": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        97.4,
+        38.8
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            97.4,
+            39.575
+          ],
+          "net": "leg_b-boot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            97.4,
+            38.025
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "C19": {
+      "part": "GRM31A5C3A102JW01D",
+      "centre_mm": [
+        100.73,
+        9.7
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            99.255,
+            9.7
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            102.205,
+            9.7
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "C2": {
+      "part": "R463N410000N1M",
+      "centre_mm": [
+        30.0,
+        34.85
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            30.0,
+            34.85
+          ],
+          "net": "l_filt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            30.0,
+            12.35
+          ],
+          "net": "n_filt"
+        }
+      ]
+    },
+    "C20": {
+      "part": "GRM31A5C3A102JW01D",
+      "centre_mm": [
+        118.73,
+        9.7
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            117.255,
+            9.7
+          ],
+          "net": "sw_b"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            120.205,
+            9.7
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C21": {
+      "part": "942C12P22K-F",
+      "centre_mm": [
+        234.25,
+        97.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            234.25,
+            97.0
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            191.75,
+            97.0
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "C22": {
+      "part": "942C12P22K-F",
+      "centre_mm": [
+        234.25,
+        125.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            234.25,
+            125.5
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            191.75,
+            125.5
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "C23": {
+      "part": "942C12P1K-F",
+      "centre_mm": [
+        212.5,
+        53.25
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            212.5,
+            53.25
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            212.5,
+            10.75
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "C24": {
+      "part": "GRM32ER71H106KA12L",
+      "centre_mm": [
+        66.5,
+        18.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            66.5,
+            19.475
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            66.5,
+            16.525
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C25": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        62.0,
+        13.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            61.225,
+            13.5
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            62.775,
+            13.5
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C26": {
+      "part": "GRM32ER71H106KA12L",
+      "centre_mm": [
+        57.5,
+        18.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            57.5,
+            19.475
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            57.5,
+            16.525
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C27": {
+      "part": "C0603C102J5GACTU",
+      "centre_mm": [
+        57.0,
+        92.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            57.0,
+            92.775
+          ],
+          "net": "vsense_in"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            57.0,
+            91.225
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C28": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        57.0,
+        82.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            57.0,
+            82.775
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            57.0,
+            81.225
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C29": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        70.0,
+        77.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            70.0,
+            77.775
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            70.0,
+            76.225
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C3": {
+      "part": "DE1E3RA222MA4BP01F",
+      "centre_mm": [
+        138.5,
+        93.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            138.5,
+            93.0
+          ],
+          "net": "l_filt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            138.5,
+            83.0
+          ],
+          "net": "pe"
+        }
+      ]
+    },
+    "C30": {
+      "part": "C0603C101J5GACTU",
+      "centre_mm": [
+        78.0,
+        19.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            78.0,
+            19.775
+          ],
+          "net": "ocp_node"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            78.0,
+            18.225
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C31": {
+      "part": "C0603C102J5GACTU",
+      "centre_mm": [
+        83.0,
+        25.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            83.0,
+            26.275
+          ],
+          "net": "ocp_thresh"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            83.0,
+            24.725
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C32": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        72.0,
+        23.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            71.225,
+            23.0
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            72.775,
+            23.0
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C33": {
+      "part": "C0603C102J5GACTU",
+      "centre_mm": [
+        64.0,
+        99.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            64.0,
+            99.775
+          ],
+          "net": "ovp_thresh"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            64.0,
+            98.225
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C34": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        66.5,
+        95.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            65.725,
+            95.0
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            67.275,
+            95.0
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C35": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        74.8,
+        34.8
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            74.025,
+            34.8
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            75.575,
+            34.8
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C36": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        83.0,
+        37.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            82.225,
+            37.5
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            83.775,
+            37.5
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C37": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        83.0,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            82.225,
+            56.5
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            83.775,
+            56.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C38": {
+      "part": "B32652A0104K000",
+      "centre_mm": [
+        144.0,
+        22.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            144.0,
+            22.0
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            129.0,
+            22.0
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "C39": {
+      "part": "B32652A0104K000",
+      "centre_mm": [
+        164.6,
+        22.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            164.6,
+            22.0
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            149.6,
+            22.0
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "C4": {
+      "part": "DE1E3RA222MA4BP01F",
+      "centre_mm": [
+        145.5,
+        93.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            145.5,
+            93.0
+          ],
+          "net": "n_filt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            145.5,
+            83.0
+          ],
+          "net": "pe"
+        }
+      ]
+    },
+    "C40": {
+      "part": "B32652A0104K000",
+      "centre_mm": [
+        109.0,
+        22.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            109.0,
+            22.0
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            124.0,
+            22.0
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "C41": {
+      "part": "B32652A0104K000",
+      "centre_mm": [
+        88.4,
+        22.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            88.4,
+            22.0
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            103.4,
+            22.0
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "C42": {
+      "part": "GRM31C5C1H104JA01L",
+      "centre_mm": [
+        174.5,
+        70.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            174.5,
+            69.025
+          ],
+          "net": "ct_s1"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            174.5,
+            71.975
+          ],
+          "net": "ct_s2"
+        }
+      ]
+    },
+    "C43": {
+      "part": "GRM31C5C1H104JA01L",
+      "centre_mm": [
+        176.0,
+        84.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            174.525,
+            84.0
+          ],
+          "net": "ct_s2"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            177.475,
+            84.0
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C44": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        167.9,
+        75.4
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            167.125,
+            75.4
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            168.675,
+            75.4
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C45": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        167.9,
+        69.4
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            167.125,
+            69.4
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            168.675,
+            69.4
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C46": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        167.9,
+        81.4
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            167.125,
+            81.4
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            168.675,
+            81.4
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C47": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        102.2,
+        70.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            102.2,
+            71.275
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            102.2,
+            69.725
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C5": {
+      "part": "B32656G0275J000",
+      "centre_mm": [
+        13.0,
+        43.95
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            13.0,
+            43.95
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            13.0,
+            64.25
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            50.5,
+            43.95
+          ],
+          "net": "hv_ret"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            50.5,
+            64.25
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "C6": {
+      "part": "B32656G0275J000",
+      "centre_mm": [
+        174.35,
+        50.75
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            174.35,
+            50.75
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            194.65,
+            50.75
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            174.35,
+            13.25
+          ],
+          "net": "hv_ret"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            194.65,
+            13.25
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "C7": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        140.5,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            139.725,
+            56.5
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            141.275,
+            56.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "C8": {
+      "part": "C0603C104K5RACTU",
+      "centre_mm": [
+        155.5,
+        39.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            154.725,
+            39.6
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            156.275,
+            39.6
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "C9": {
+      "part": "GRM32ER71H106KA12L",
+      "centre_mm": [
+        155.5,
+        35.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            154.025,
+            35.6
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            156.975,
+            35.6
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "D1": {
+      "part": "UF4007-E3/54",
+      "centre_mm": [
+        131.5,
+        40.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            131.5,
+            40.0
+          ],
+          "net": "leg_a-boot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            121.34,
+            40.0
+          ],
+          "net": "v15_ls"
+        }
+      ]
+    },
+    "D2": {
+      "part": "UF4007-E3/54",
+      "centre_mm": [
+        98.58,
+        34.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            98.58,
+            34.0
+          ],
+          "net": "leg_b-boot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            88.42,
+            34.0
+          ],
+          "net": "v15_ls"
+        }
+      ]
+    },
+    "D3": {
+      "part": "MRT130KP295CV",
+      "centre_mm": [
+        58.0,
+        64.95
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            58.0,
+            64.95
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            58.0,
+            44.95
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "D4": {
+      "part": "BAS116H,115",
+      "centre_mm": [
+        166.0,
+        64.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            164.6,
+            64.0
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            167.4,
+            64.0
+          ],
+          "net": "ct_sense_mon"
+        }
+      ]
+    },
+    "D5": {
+      "part": "BAS116H,115",
+      "centre_mm": [
+        166.0,
+        67.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            164.6,
+            67.0
+          ],
+          "net": "ct_sense_mon"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            167.4,
+            67.0
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "F1": {
+      "part": "0326020.MXP",
+      "centre_mm": [
+        19.15,
+        153.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            19.15,
+            153.0
+          ],
+          "net": "ac_l_in"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            26.75,
+            153.0
+          ],
+          "net": "ac_l_in"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            46.25,
+            153.0
+          ],
+          "net": "l_f"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            53.85,
+            153.0
+          ],
+          "net": "l_f"
+        }
+      ]
+    },
+    "J1": {
+      "part": "1711725",
+      "centre_mm": [
+        6.7,
+        150.455
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            6.7,
+            150.455
+          ],
+          "net": "ac_l_in"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            6.7,
+            155.535
+          ],
+          "net": "ac_n_in"
+        }
+      ]
+    },
+    "J10": {
+      "part": "74650074",
+      "centre_mm": [
+        47.0,
+        30.5
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            44.065,
+            27.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            44.065,
+            33.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            47.0,
+            30.5
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            49.935,
+            27.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            49.935,
+            33.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            44.065,
+            27.565
+          ],
+          "net": "hv_ret"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            44.065,
+            33.435
+          ],
+          "net": "hv_ret"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            49.935,
+            27.565
+          ],
+          "net": "hv_ret"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            49.935,
+            33.435
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "J2": {
+      "part": "74650074",
+      "centre_mm": [
+        231.0,
+        70.5
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            228.065,
+            67.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            228.065,
+            73.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            231.0,
+            70.5
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            233.935,
+            67.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            233.935,
+            73.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            228.065,
+            67.565
+          ],
+          "net": "coil_feed"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            228.065,
+            73.435
+          ],
+          "net": "coil_feed"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            233.935,
+            67.565
+          ],
+          "net": "coil_feed"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            233.935,
+            73.435
+          ],
+          "net": "coil_feed"
+        }
+      ]
+    },
+    "J3": {
+      "part": "B2P-VH(LF)(SN)",
+      "centre_mm": [
+        36.45,
+        105.28
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            36.45,
+            105.28
+          ],
+          "net": "l_filt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            36.45,
+            101.32
+          ],
+          "net": "tco_l"
+        }
+      ]
+    },
+    "J4": {
+      "part": "0430451612",
+      "centre_mm": [
+        112.5,
+        64.08
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            109.5,
+            68.02
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            136.5,
+            68.02
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            112.5,
+            64.08
+          ],
+          "net": "v15_selv"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            115.5,
+            64.08
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            118.5,
+            64.08
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            121.5,
+            64.08
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            124.5,
+            64.08
+          ],
+          "net": "pwm_ha"
+        },
+        {
+          "number": "6",
+          "centre_mm": [
+            127.5,
+            64.08
+          ],
+          "net": "pwm_la"
+        },
+        {
+          "number": "7",
+          "centre_mm": [
+            130.5,
+            64.08
+          ],
+          "net": "pwm_hb"
+        },
+        {
+          "number": "8",
+          "centre_mm": [
+            133.5,
+            64.08
+          ],
+          "net": "pwm_lb"
+        },
+        {
+          "number": "9",
+          "centre_mm": [
+            112.5,
+            67.08
+          ],
+          "net": "permit"
+        },
+        {
+          "number": "10",
+          "centre_mm": [
+            115.5,
+            67.08
+          ],
+          "net": "bus_fault"
+        },
+        {
+          "number": "11",
+          "centre_mm": [
+            118.5,
+            67.08
+          ],
+          "net": "vbus_p"
+        },
+        {
+          "number": "12",
+          "centre_mm": [
+            121.5,
+            67.08
+          ],
+          "net": "vbus_n"
+        },
+        {
+          "number": "13",
+          "centre_mm": [
+            124.5,
+            67.08
+          ],
+          "net": "ct_zc"
+        },
+        {
+          "number": "14",
+          "centre_mm": [
+            127.5,
+            67.08
+          ],
+          "net": "ct_mon"
+        },
+        {
+          "number": "15",
+          "centre_mm": [
+            130.5,
+            67.08
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "16",
+          "centre_mm": [
+            133.5,
+            67.08
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "J5": {
+      "part": "74650074",
+      "centre_mm": [
+        225.0,
+        151.0
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            222.065,
+            148.065
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            222.065,
+            153.935
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            225.0,
+            151.0
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            227.935,
+            148.065
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            227.935,
+            153.935
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            222.065,
+            148.065
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            222.065,
+            153.935
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            227.935,
+            148.065
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            227.935,
+            153.935
+          ],
+          "net": "res_a"
+        }
+      ]
+    },
+    "J6": {
+      "part": "1704004",
+      "centre_mm": [
+        110.6,
+        79.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            110.6,
+            79.5
+          ],
+          "net": "pe"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            125.84,
+            79.5
+          ],
+          "net": "pe"
+        }
+      ]
+    },
+    "J7": {
+      "part": "74650074",
+      "centre_mm": [
+        13.0,
+        17.5
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            10.065,
+            14.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            10.065,
+            20.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            13.0,
+            17.5
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            15.935,
+            14.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            15.935,
+            20.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            10.065,
+            14.565
+          ],
+          "net": "rect_p"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            10.065,
+            20.435
+          ],
+          "net": "rect_p"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            15.935,
+            14.565
+          ],
+          "net": "rect_p"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            15.935,
+            20.435
+          ],
+          "net": "rect_p"
+        }
+      ]
+    },
+    "J8": {
+      "part": "74650074",
+      "centre_mm": [
+        13.0,
+        30.5
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            10.065,
+            27.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            10.065,
+            33.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            13.0,
+            30.5
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            15.935,
+            27.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            15.935,
+            33.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            10.065,
+            27.565
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            10.065,
+            33.435
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            15.935,
+            27.565
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            15.935,
+            33.435
+          ],
+          "net": "bus_p"
+        }
+      ]
+    },
+    "J9": {
+      "part": "74650074",
+      "centre_mm": [
+        47.0,
+        17.5
+      ],
+      "pads": [
+        {
+          "number": "",
+          "centre_mm": [
+            44.065,
+            14.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            44.065,
+            20.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            47.0,
+            17.5
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            49.935,
+            14.565
+          ],
+          "net": ""
+        },
+        {
+          "number": "",
+          "centre_mm": [
+            49.935,
+            20.435
+          ],
+          "net": ""
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            44.065,
+            14.565
+          ],
+          "net": "rect_n"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            44.065,
+            20.435
+          ],
+          "net": "rect_n"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            49.935,
+            14.565
+          ],
+          "net": "rect_n"
+        },
+        {
+          "number": "1",
+          "centre_mm": [
+            49.935,
+            20.435
+          ],
+          "net": "rect_n"
+        }
+      ]
+    },
+    "L1": {
+      "part": "B82726S2203A020",
+      "centre_mm": [
+        29.0,
+        135.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            29.0,
+            135.5
+          ],
+          "net": "l_f"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            19.0,
+            135.5
+          ],
+          "net": "ac_n_in"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            19.0,
+            110.5
+          ],
+          "net": "n_filt"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            29.0,
+            110.5
+          ],
+          "net": "l_filt"
+        }
+      ]
+    },
+    "PS1": {
+      "part": "IRM-20-15",
+      "centre_mm": [
+        76.0,
+        116.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            76.0,
+            116.0
+          ],
+          "net": "l_filt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            96.8,
+            116.0
+          ],
+          "net": "n_filt"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            96.8,
+            71.0
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            88.8,
+            71.0
+          ],
+          "net": "v15_selv"
+        }
+      ]
+    },
+    "PS2": {
+      "part": "IRM-05-15",
+      "centre_mm": [
+        5.0,
+        84.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            5.0,
+            84.0
+          ],
+          "net": "n_filt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            5.0,
+            94.75
+          ],
+          "net": "tco_l"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            43.5,
+            94.75
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            43.5,
+            86.75
+          ],
+          "net": "v15_ls"
+        }
+      ]
+    },
+    "Q1": {
+      "part": "AO3400A",
+      "centre_mm": [
+        145.5,
+        57.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            144.5625,
+            56.05
+          ],
+          "net": "leg_a-permit_gate"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            144.5625,
+            57.95
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            146.4375,
+            57.0
+          ],
+          "net": "leg_a-dis"
+        }
+      ]
+    },
+    "Q2": {
+      "part": "IPW65R018CFD7",
+      "centre_mm": [
+        150.55,
+        4.215
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            150.55,
+            4.215
+          ],
+          "net": "leg_a-gate_h"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            156.0,
+            4.215
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            161.45,
+            4.215
+          ],
+          "net": "sw_a"
+        }
+      ]
+    },
+    "Q3": {
+      "part": "IPW65R018CFD7",
+      "centre_mm": [
+        132.55,
+        4.215
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            132.55,
+            4.215
+          ],
+          "net": "leg_a-gate_l"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            138.0,
+            4.215
+          ],
+          "net": "sw_a"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            143.45,
+            4.215
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "Q4": {
+      "part": "AO3400A",
+      "centre_mm": [
+        101.5,
+        57.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            100.5625,
+            56.05
+          ],
+          "net": "leg_b-permit_gate"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            100.5625,
+            57.95
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            102.4375,
+            57.0
+          ],
+          "net": "leg_b-dis"
+        }
+      ]
+    },
+    "Q5": {
+      "part": "IPW65R018CFD7",
+      "centre_mm": [
+        92.55,
+        4.215
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            92.55,
+            4.215
+          ],
+          "net": "leg_b-gate_h"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            98.0,
+            4.215
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            103.45,
+            4.215
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "Q6": {
+      "part": "IPW65R018CFD7",
+      "centre_mm": [
+        110.55,
+        4.215
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            110.55,
+            4.215
+          ],
+          "net": "leg_b-gate_l"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            116.0,
+            4.215
+          ],
+          "net": "sw_b"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            121.45,
+            4.215
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "R1": {
+      "part": "RC1206FR-07120KL",
+      "centre_mm": [
+        82.0,
+        124.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            82.0,
+            122.5375
+          ],
+          "net": "l_f"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            82.0,
+            125.4625
+          ],
+          "net": "xbleed_mid"
+        }
+      ]
+    },
+    "R10": {
+      "part": "RC1206FR-073R9L",
+      "centre_mm": [
+        150.55,
+        12.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            150.55,
+            14.0625
+          ],
+          "net": "leg_a-out_h"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            150.55,
+            11.1375
+          ],
+          "net": "leg_a-gate_h"
+        }
+      ]
+    },
+    "R11": {
+      "part": "RC0603FR-0710KL",
+      "centre_mm": [
+        147.75,
+        12.1
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            147.75,
+            12.925
+          ],
+          "net": "leg_a-gate_h"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            147.75,
+            11.275
+          ],
+          "net": "sw_a"
+        }
+      ]
+    },
+    "R12": {
+      "part": "RC1206FR-073R9L",
+      "centre_mm": [
+        132.55,
+        12.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            132.55,
+            14.0625
+          ],
+          "net": "leg_a-out_l"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            132.55,
+            11.1375
+          ],
+          "net": "leg_a-gate_l"
+        }
+      ]
+    },
+    "R13": {
+      "part": "RC0603FR-0710KL",
+      "centre_mm": [
+        129.75,
+        12.1
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            129.75,
+            12.925
+          ],
+          "net": "leg_a-gate_l"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            129.75,
+            11.275
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "R14": {
+      "part": "RC0603FR-07100RL",
+      "centre_mm": [
+        106.5,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            105.675,
+            56.5
+          ],
+          "net": "permit"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            107.325,
+            56.5
+          ],
+          "net": "leg_b-permit_gate"
+        }
+      ]
+    },
+    "R15": {
+      "part": "RC0603FR-07100KL",
+      "centre_mm": [
+        106.5,
+        59.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            105.675,
+            59.5
+          ],
+          "net": "leg_b-permit_gate"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            107.325,
+            59.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R16": {
+      "part": "RC0603FR-071KL",
+      "centre_mm": [
+        110.5,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            109.675,
+            56.5
+          ],
+          "net": "leg_b-dis"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            111.325,
+            56.5
+          ],
+          "net": "v3v3"
+        }
+      ]
+    },
+    "R17": {
+      "part": "RC0603FR-0739KL",
+      "centre_mm": [
+        110.5,
+        59.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            109.675,
+            59.5
+          ],
+          "net": "leg_b.driver-dt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            111.325,
+            59.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R18": {
+      "part": "RC1206FR-073R9L",
+      "centre_mm": [
+        92.55,
+        12.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            92.55,
+            14.0625
+          ],
+          "net": "leg_b-out_h"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            92.55,
+            11.1375
+          ],
+          "net": "leg_b-gate_h"
+        }
+      ]
+    },
+    "R19": {
+      "part": "RC0603FR-0710KL",
+      "centre_mm": [
+        89.75,
+        12.1
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            89.75,
+            12.925
+          ],
+          "net": "leg_b-gate_h"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            89.75,
+            11.275
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "R2": {
+      "part": "RC1206FR-07120KL",
+      "centre_mm": [
+        82.0,
+        129.2
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            82.0,
+            127.7375
+          ],
+          "net": "xbleed_mid"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            82.0,
+            130.6625
+          ],
+          "net": "ac_n_in"
+        }
+      ]
+    },
+    "R20": {
+      "part": "RC1206FR-073R9L",
+      "centre_mm": [
+        110.55,
+        12.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            110.55,
+            14.0625
+          ],
+          "net": "leg_b-out_l"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            110.55,
+            11.1375
+          ],
+          "net": "leg_b-gate_l"
+        }
+      ]
+    },
+    "R21": {
+      "part": "RC0603FR-0710KL",
+      "centre_mm": [
+        107.75,
+        12.1
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            107.75,
+            12.925
+          ],
+          "net": "leg_b-gate_l"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            107.75,
+            11.275
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "R22": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        190.0,
+        145.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            188.5375,
+            145.0
+          ],
+          "net": "res_a"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            191.4625,
+            145.0
+          ],
+          "net": "crbleed_1"
+        }
+      ]
+    },
+    "R23": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        197.0,
+        145.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            195.5375,
+            145.0
+          ],
+          "net": "crbleed_1"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            198.4625,
+            145.0
+          ],
+          "net": "crbleed_2"
+        }
+      ]
+    },
+    "R24": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        204.0,
+        145.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            202.5375,
+            145.0
+          ],
+          "net": "crbleed_2"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            205.4625,
+            145.0
+          ],
+          "net": "crbleed_3"
+        }
+      ]
+    },
+    "R25": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        210.3,
+        145.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            208.8375,
+            145.0
+          ],
+          "net": "crbleed_3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            211.7625,
+            145.0
+          ],
+          "net": "sw_b"
+        }
+      ]
+    },
+    "R26": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        52.0,
+        76.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            52.0,
+            74.5375
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            52.0,
+            77.4625
+          ],
+          "net": "vdiv_1"
+        }
+      ]
+    },
+    "R27": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        52.0,
+        80.7
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            52.0,
+            79.2375
+          ],
+          "net": "vdiv_1"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            52.0,
+            82.1625
+          ],
+          "net": "vdiv_2"
+        }
+      ]
+    },
+    "R28": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        52.0,
+        85.4
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            52.0,
+            83.9375
+          ],
+          "net": "vdiv_2"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            52.0,
+            86.8625
+          ],
+          "net": "vdiv_3"
+        }
+      ]
+    },
+    "R29": {
+      "part": "RC1206FR-07470KL",
+      "centre_mm": [
+        52.0,
+        90.1
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            52.0,
+            88.6375
+          ],
+          "net": "vdiv_3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            52.0,
+            91.5625
+          ],
+          "net": "vsense_in"
+        }
+      ]
+    },
+    "R3": {
+      "part": "RC1206FR-07220KL",
+      "centre_mm": [
+        63.5,
+        61.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            63.5,
+            62.9625
+          ],
+          "net": "bus_p"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            63.5,
+            60.0375
+          ],
+          "net": "busbleed_mid"
+        }
+      ]
+    },
+    "R30": {
+      "part": "RT0603BRD0715K8L",
+      "centre_mm": [
+        57.0,
+        88.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            57.0,
+            88.825
+          ],
+          "net": "vsense_in"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            57.0,
+            87.175
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "R31": {
+      "part": "RC0603FR-075K6L",
+      "centre_mm": [
+        82.0,
+        22.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            81.175,
+            22.0
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            82.825,
+            22.0
+          ],
+          "net": "ref25"
+        }
+      ]
+    },
+    "R32": {
+      "part": "RT0603BRD0710KL",
+      "centre_mm": [
+        75.5,
+        23.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            75.5,
+            24.325
+          ],
+          "net": "ref25"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            75.5,
+            22.675
+          ],
+          "net": "ocp_node"
+        }
+      ]
+    },
+    "R33": {
+      "part": "RT0603BRD0710KL",
+      "centre_mm": [
+        75.5,
+        19.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            75.5,
+            19.825
+          ],
+          "net": "ocp_node"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            75.5,
+            18.175
+          ],
+          "net": "ocp_kelvin_n"
+        }
+      ]
+    },
+    "R34": {
+      "part": "RT0603BRD0710K5L",
+      "centre_mm": [
+        78.0,
+        23.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            78.0,
+            24.325
+          ],
+          "net": "ref25"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            78.0,
+            22.675
+          ],
+          "net": "ocp_thresh"
+        }
+      ]
+    },
+    "R35": {
+      "part": "RT0603BRD0710KL",
+      "centre_mm": [
+        80.5,
+        25.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            80.5,
+            26.325
+          ],
+          "net": "ocp_thresh"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            80.5,
+            24.675
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "R36": {
+      "part": "RT0603BRD0710KL",
+      "centre_mm": [
+        58.0,
+        99.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            58.0,
+            99.825
+          ],
+          "net": "ref25"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            58.0,
+            98.175
+          ],
+          "net": "ovp_thresh"
+        }
+      ]
+    },
+    "R37": {
+      "part": "RT0603BRD07140KL",
+      "centre_mm": [
+        61.0,
+        99.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            61.0,
+            99.825
+          ],
+          "net": "ovp_thresh"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            61.0,
+            98.175
+          ],
+          "net": "leg_ret"
+        }
+      ]
+    },
+    "R38": {
+      "part": "RC0603JR-070RL",
+      "centre_mm": [
+        103.5,
+        79.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            102.675,
+            79.0
+          ],
+          "net": "pe"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            104.325,
+            79.0
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R39": {
+      "part": "RC1206FR-071R5L",
+      "centre_mm": [
+        177.0,
+        70.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            177.0,
+            69.0375
+          ],
+          "net": "ct_s1"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            177.0,
+            71.9625
+          ],
+          "net": "ct_s2"
+        }
+      ]
+    },
+    "R4": {
+      "part": "RC1206FR-07220KL",
+      "centre_mm": [
+        63.5,
+        48.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            63.5,
+            49.9625
+          ],
+          "net": "busbleed_mid"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            63.5,
+            47.0375
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "R40": {
+      "part": "RT0603BRD071KL",
+      "centre_mm": [
+        174.5,
+        80.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            174.5,
+            80.825
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            174.5,
+            79.175
+          ],
+          "net": "ct_s2"
+        }
+      ]
+    },
+    "R41": {
+      "part": "RT0603BRD071KL",
+      "centre_mm": [
+        177.5,
+        80.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            177.5,
+            79.175
+          ],
+          "net": "ct_s2"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            177.5,
+            80.825
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R42": {
+      "part": "RC1206FR-071KL",
+      "centre_mm": [
+        171.0,
+        65.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            172.4625,
+            65.5
+          ],
+          "net": "ct_s1"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            169.5375,
+            65.5
+          ],
+          "net": "ct_sense_mon"
+        }
+      ]
+    },
+    "R43": {
+      "part": "RT0603BRD073K32L",
+      "centre_mm": [
+        169.7,
+        77.35
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            170.525,
+            77.35
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            168.875,
+            77.35
+          ],
+          "net": "ct_ref_hi"
+        }
+      ]
+    },
+    "R44": {
+      "part": "RT0603BRD0710KL",
+      "centre_mm": [
+        169.7,
+        78.95
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            168.875,
+            78.95
+          ],
+          "net": "ct_ref_hi"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            170.525,
+            78.95
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R45": {
+      "part": "RT0603BRD0710KL",
+      "centre_mm": [
+        161.0,
+        74.45
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            160.175,
+            74.45
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            161.825,
+            74.45
+          ],
+          "net": "ct_ref_lo"
+        }
+      ]
+    },
+    "R46": {
+      "part": "RT0603BRD073K32L",
+      "centre_mm": [
+        161.0,
+        72.95
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            161.825,
+            72.95
+          ],
+          "net": "ct_ref_lo"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            160.175,
+            72.95
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R47": {
+      "part": "RC0603FR-071KL",
+      "centre_mm": [
+        161.0,
+        85.8
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            161.825,
+            85.8
+          ],
+          "net": "ct_sense_mon"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            160.175,
+            85.8
+          ],
+          "net": "ct_mon"
+        }
+      ]
+    },
+    "R5": {
+      "part": "WSK2512R0010FEA",
+      "centre_mm": [
+        126.5,
+        12.6
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            127.135,
+            9.615
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            125.23,
+            9.17
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            127.77,
+            16.03
+          ],
+          "net": "ocp_kelvin_n"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            125.865,
+            15.585
+          ],
+          "net": "hv_ret"
+        }
+      ]
+    },
+    "R6": {
+      "part": "RC0603FR-07100RL",
+      "centre_mm": [
+        150.5,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            149.675,
+            56.5
+          ],
+          "net": "permit"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            151.325,
+            56.5
+          ],
+          "net": "leg_a-permit_gate"
+        }
+      ]
+    },
+    "R7": {
+      "part": "RC0603FR-07100KL",
+      "centre_mm": [
+        150.5,
+        59.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            149.675,
+            59.5
+          ],
+          "net": "leg_a-permit_gate"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            151.325,
+            59.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "R8": {
+      "part": "RC0603FR-071KL",
+      "centre_mm": [
+        154.5,
+        56.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            153.675,
+            56.5
+          ],
+          "net": "leg_a-dis"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            155.325,
+            56.5
+          ],
+          "net": "v3v3"
+        }
+      ]
+    },
+    "R9": {
+      "part": "RC0603FR-0739KL",
+      "centre_mm": [
+        154.5,
+        59.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            153.675,
+            59.5
+          ],
+          "net": "leg_a.driver-dt"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            155.325,
+            59.5
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    },
+    "RV1": {
+      "part": "TMOV20RP175E",
+      "centre_mm": [
+        64.451,
+        147.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            64.451,
+            147.0
+          ],
+          "net": "l_f"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            71.951,
+            147.0
+          ],
+          "net": "ac_n_in"
+        }
+      ]
+    },
+    "T1": {
+      "part": "CST3015-100ED",
+      "centre_mm": [
+        195.0,
+        70.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            206.55,
+            76.08
+          ],
+          "net": "sw_a"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            206.55,
+            64.92
+          ],
+          "net": "coil_feed"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            181.25,
+            63.62
+          ],
+          "net": "ct_s1"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            181.25,
+            77.38
+          ],
+          "net": "ct_s2"
+        }
+      ]
+    },
+    "U1": {
+      "part": "UCC21550BDWKR",
+      "centre_mm": [
+        148.0,
+        46.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            143.555,
+            50.875
+          ],
+          "net": "pwm_ha"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            144.825,
+            50.875
+          ],
+          "net": "pwm_la"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            146.095,
+            50.875
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            147.365,
+            50.875
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            148.635,
+            50.875
+          ],
+          "net": "leg_a-dis"
+        },
+        {
+          "number": "6",
+          "centre_mm": [
+            149.905,
+            50.875
+          ],
+          "net": "leg_a.driver-dt"
+        },
+        {
+          "number": "7",
+          "centre_mm": [
+            151.175,
+            50.875
+          ],
+          "net": "leg_a.driver-nc_7"
+        },
+        {
+          "number": "8",
+          "centre_mm": [
+            152.445,
+            50.875
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "9",
+          "centre_mm": [
+            152.445,
+            41.125
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "10",
+          "centre_mm": [
+            151.175,
+            41.125
+          ],
+          "net": "leg_a-out_l"
+        },
+        {
+          "number": "11",
+          "centre_mm": [
+            149.905,
+            41.125
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "14",
+          "centre_mm": [
+            146.095,
+            41.125
+          ],
+          "net": "sw_a"
+        },
+        {
+          "number": "15",
+          "centre_mm": [
+            144.825,
+            41.125
+          ],
+          "net": "leg_a-out_h"
+        },
+        {
+          "number": "16",
+          "centre_mm": [
+            143.555,
+            41.125
+          ],
+          "net": "leg_a-boot"
+        }
+      ]
+    },
+    "U10": {
+      "part": "TLV3201AIDBVR",
+      "centre_mm": [
+        166.0,
+        78.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            164.8625,
+            77.05
+          ],
+          "net": "ct_oc_pos"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            164.8625,
+            78.0
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            164.8625,
+            78.95
+          ],
+          "net": "ct_sense_mon"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            167.1375,
+            78.95
+          ],
+          "net": "ct_ref_hi"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            167.1375,
+            77.05
+          ],
+          "net": "v3v3"
+        }
+      ]
+    },
+    "U11": {
+      "part": "TLV3201AIDBVR",
+      "centre_mm": [
+        166.0,
+        72.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            164.8625,
+            71.05
+          ],
+          "net": "ct_oc_neg"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            164.8625,
+            72.0
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            164.8625,
+            72.95
+          ],
+          "net": "ct_ref_lo"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            167.1375,
+            72.95
+          ],
+          "net": "ct_sense_mon"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            167.1375,
+            71.05
+          ],
+          "net": "v3v3"
+        }
+      ]
+    },
+    "U12": {
+      "part": "TLV3201AIDBVR",
+      "centre_mm": [
+        166.0,
+        84.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            164.8625,
+            83.05
+          ],
+          "net": "ct_zc"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            164.8625,
+            84.0
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            164.8625,
+            84.95
+          ],
+          "net": "ct_sense_mon"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            167.1375,
+            84.95
+          ],
+          "net": "ct_s2"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            167.1375,
+            83.05
+          ],
+          "net": "v3v3"
+        }
+      ]
+    },
+    "U13": {
+      "part": "SN74LVC1G332DBVR",
+      "centre_mm": [
+        105.6,
+        70.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            104.4625,
+            69.55
+          ],
+          "net": "bus_fault_iso"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            104.4625,
+            70.5
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            104.4625,
+            71.45
+          ],
+          "net": "ct_oc_pos"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            106.7375,
+            71.45
+          ],
+          "net": "bus_fault"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            106.7375,
+            70.5
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "6",
+          "centre_mm": [
+            106.7375,
+            69.55
+          ],
+          "net": "ct_oc_neg"
+        }
+      ]
+    },
+    "U2": {
+      "part": "UCC21550BDWKR",
+      "centre_mm": [
+        104.0,
+        46.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            99.555,
+            50.875
+          ],
+          "net": "pwm_hb"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            100.825,
+            50.875
+          ],
+          "net": "pwm_lb"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            102.095,
+            50.875
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            103.365,
+            50.875
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            104.635,
+            50.875
+          ],
+          "net": "leg_b-dis"
+        },
+        {
+          "number": "6",
+          "centre_mm": [
+            105.905,
+            50.875
+          ],
+          "net": "leg_b.driver-dt"
+        },
+        {
+          "number": "7",
+          "centre_mm": [
+            107.175,
+            50.875
+          ],
+          "net": "leg_b.driver-nc_7"
+        },
+        {
+          "number": "8",
+          "centre_mm": [
+            108.445,
+            50.875
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "9",
+          "centre_mm": [
+            108.445,
+            41.125
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "10",
+          "centre_mm": [
+            107.175,
+            41.125
+          ],
+          "net": "leg_b-out_l"
+        },
+        {
+          "number": "11",
+          "centre_mm": [
+            105.905,
+            41.125
+          ],
+          "net": "v15_ls"
+        },
+        {
+          "number": "14",
+          "centre_mm": [
+            102.095,
+            41.125
+          ],
+          "net": "sw_b"
+        },
+        {
+          "number": "15",
+          "centre_mm": [
+            100.825,
+            41.125
+          ],
+          "net": "leg_b-out_h"
+        },
+        {
+          "number": "16",
+          "centre_mm": [
+            99.555,
+            41.125
+          ],
+          "net": "leg_b-boot"
+        }
+      ]
+    },
+    "U3": {
+      "part": "MC78L05ACHT1G",
+      "centre_mm": [
+        62.0,
+        17.7
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            60.5,
+            19.65
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            62.0,
+            19.5625
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            63.5,
+            19.65
+          ],
+          "net": "v15_ls"
+        }
+      ]
+    },
+    "U4": {
+      "part": "AMC1311BDWVR",
+      "centre_mm": [
+        65.5,
+        84.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            60.175,
+            82.095
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            60.175,
+            83.365
+          ],
+          "net": "vsense_in"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            60.175,
+            84.635
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            60.175,
+            85.905
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            70.825,
+            85.905
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "6",
+          "centre_mm": [
+            70.825,
+            84.635
+          ],
+          "net": "vbus_n"
+        },
+        {
+          "number": "7",
+          "centre_mm": [
+            70.825,
+            83.365
+          ],
+          "net": "vbus_p"
+        },
+        {
+          "number": "8",
+          "centre_mm": [
+            70.825,
+            82.095
+          ],
+          "net": "v3v3"
+        }
+      ]
+    },
+    "U5": {
+      "part": "LM4040A25IDBZR",
+      "centre_mm": [
+        82.0,
+        18.5
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            81.0625,
+            17.55
+          ],
+          "net": "ref25"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            81.0625,
+            19.45
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            82.9375,
+            18.5
+          ],
+          "net": "nc"
+        }
+      ]
+    },
+    "U6": {
+      "part": "TLV3201AIDBVR",
+      "centre_mm": [
+        72.0,
+        19.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            70.8625,
+            18.05
+          ],
+          "net": "ocp_ok_hot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            70.8625,
+            19.0
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            70.8625,
+            19.95
+          ],
+          "net": "ocp_node"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            73.1375,
+            19.95
+          ],
+          "net": "ocp_thresh"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            73.1375,
+            18.05
+          ],
+          "net": "hot5"
+        }
+      ]
+    },
+    "U7": {
+      "part": "TLV3201AIDBVR",
+      "centre_mm": [
+        62.0,
+        95.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            60.8625,
+            94.05
+          ],
+          "net": "ovp_ok_hot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            60.8625,
+            95.0
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            60.8625,
+            95.95
+          ],
+          "net": "ovp_thresh"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            63.1375,
+            95.95
+          ],
+          "net": "vsense_in"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            63.1375,
+            94.05
+          ],
+          "net": "hot5"
+        }
+      ]
+    },
+    "U8": {
+      "part": "SN74LVC1G00DBVR",
+      "centre_mm": [
+        74.8,
+        38.8
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            73.6625,
+            37.85
+          ],
+          "net": "ocp_ok_hot"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            73.6625,
+            38.8
+          ],
+          "net": "ovp_ok_hot"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            73.6625,
+            39.75
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            75.9375,
+            39.75
+          ],
+          "net": "bus_fault_hot"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            75.9375,
+            37.85
+          ],
+          "net": "hot5"
+        }
+      ]
+    },
+    "U9": {
+      "part": "ISO7710DWR",
+      "centre_mm": [
+        83.0,
+        46.0
+      ],
+      "pads": [
+        {
+          "number": "1",
+          "centre_mm": [
+            87.445,
+            41.125
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "2",
+          "centre_mm": [
+            86.175,
+            41.125
+          ],
+          "net": "nc2"
+        },
+        {
+          "number": "3",
+          "centre_mm": [
+            84.905,
+            41.125
+          ],
+          "net": "hot5"
+        },
+        {
+          "number": "4",
+          "centre_mm": [
+            83.635,
+            41.125
+          ],
+          "net": "bus_fault_hot"
+        },
+        {
+          "number": "5",
+          "centre_mm": [
+            82.365,
+            41.125
+          ],
+          "net": "nc5"
+        },
+        {
+          "number": "6",
+          "centre_mm": [
+            81.095,
+            41.125
+          ],
+          "net": "nc6"
+        },
+        {
+          "number": "7",
+          "centre_mm": [
+            79.825,
+            41.125
+          ],
+          "net": "leg_ret"
+        },
+        {
+          "number": "8",
+          "centre_mm": [
+            78.555,
+            41.125
+          ],
+          "net": "nc8"
+        },
+        {
+          "number": "9",
+          "centre_mm": [
+            78.555,
+            50.875
+          ],
+          "net": "selv_gnd"
+        },
+        {
+          "number": "10",
+          "centre_mm": [
+            79.825,
+            50.875
+          ],
+          "net": "nc10"
+        },
+        {
+          "number": "11",
+          "centre_mm": [
+            81.095,
+            50.875
+          ],
+          "net": "nc11"
+        },
+        {
+          "number": "12",
+          "centre_mm": [
+            82.365,
+            50.875
+          ],
+          "net": "nc12"
+        },
+        {
+          "number": "13",
+          "centre_mm": [
+            83.635,
+            50.875
+          ],
+          "net": "bus_fault_iso"
+        },
+        {
+          "number": "14",
+          "centre_mm": [
+            84.905,
+            50.875
+          ],
+          "net": "v3v3"
+        },
+        {
+          "number": "15",
+          "centre_mm": [
+            86.175,
+            50.875
+          ],
+          "net": "nc15"
+        },
+        {
+          "number": "16",
+          "centre_mm": [
+            87.445,
+            50.875
+          ],
+          "net": "selv_gnd"
+        }
+      ]
+    }
+  }
+}

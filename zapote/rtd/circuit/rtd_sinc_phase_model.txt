@@ -1,0 +1,90 @@
+# MAX31865 continuous-filter phase model (bounded assumption)
+
+## Vendor facts and model boundary
+
+The MAX31865 datasheet identifies a `50/60Hz DIGITAL SINC FILTER` in the block
+diagram and specifies continuous-conversion timing of 16.7..17.6 ms for the
+60 Hz notch. It specifies the first conversion after enabling continuous mode
+as the single-conversion time, 52..55 ms for the 60 Hz notch. It does **not**
+publish the filter order, step response, phase reset, or an acceptance rule for
+a sample taken during a transition. Those statements are vendor facts from the
+MAX31865 Rev 3 datasheet (pp. 3, 9); they are not evidence for the response
+model below.
+
+For a bounded engineering calculation only, I model the continuous path as a
+causal three-stage cascade of rectangular windows, each with worst period
+`T=17.6 ms`. This is the standard third-order boxcar/sinc interpretation used
+as an explicit assumption, not a claim that the datasheet guarantees a
+third-order implementation. For an input step from 0 to 1 at arbitrary phase,
+the normalized output is
+
+```
+h3(x) = (x_+^3 - 3(x-1)_+^3 + 3(x-2)_+^3 - (x-3)_+^3) / 6
+x = t / T
+```
+
+where `z_+=max(z,0)`. The response reaches exactly 1 in this ideal model at
+`3T=52.8 ms` for every input phase. This is a history-settling statement, not
+the first-conversion 55 ms number. The actual ADC's phase/sample timing and
+filter history remain unverified until vendor evidence or an instrumented
+runtime-break test is available.
+
+## Threshold crossings and conductor-specific expectations
+
+The MAX31865 ADC is ratiometric. During an isolated sense break the physical
+force/RREF path remains intact, so use `r=RRTD/RREF` for the healthy ADC input
+and `r=0..1` for a conservative fault step after clipping to the ADC's physical
+code range. The inclusive firmware thresholds are approximately `r_low=10/430`
+and `r_high=300/430` (the exact low register uses its strict-< formula). This
+avoids substituting a fixed 2 V reference for the actual REFIN differential.
+
+For SENSE+ open, use the slowest healthy starting point in the valid PT100 range,
+`r0=100/430=0.232558`, and clip the settled diagnostic-open result to full
+scale `r1=1`. The high threshold is `r_high=300/430=0.697674`, so the required
+normalized step fraction is
+`q=(r_high-r0)/(r1-r0)=0.606061`. The h3 model crosses at `x=1.642706`,
+which is 28.912 ms at T=17.6 ms. At the 194.1 ohm upper healthy point the
+starting ratio is 0.451395 and the crossing is earlier; 100 ohm is the
+conservative slow crossing for this range.
+
+For SENSE- open, use the largest permitted healthy starting point,
+`r0=194.1/430=0.451395`, and clip the settled negative result to `r1=0`.
+Using the low-code boundary `r_low=10/430=0.023256` gives
+`q=1-(r_low/r0)=0.948480`, crossed at `x=2.323852`, or 40.8998 ms. This
+is a separate low-code expectation from the SENSE+ high-code expectation; the
+REFIN-/ISENSOR window remains unchanged and cannot classify either isolated
+sense break. Input common-mode and exact ADC clipping still require acceptance.
+
+FORCE+ and FORCE- are separate expectations: the MAX Table 12 rows list each
+unconnected force conductor under D5 while the `Indeterminate` column describes
+resulting conversion data. The hardware REFIN-/ISENSOR window is the concrete
+fault detector for those force opens. It is not valid to treat that table word
+as missing fault indication or to merge the FORCE rows with sense-open rows.
+
+## Timing envelope
+
+Startup is tick aligned: BIAS enable at t=0, two 10 ms settle ticks, one
+10 ms tick covering the <=600 us automatic fault cycle, then 60 Hz continuous
+mode. The first continuous result is available by t<=85 ms (30+55), and the
+10 ms service tick accepts it by t<=90 ms. Readiness is false until the RTD
+register read and fault-status read both succeed, so no heat permission may be
+armed from this startup interval alone. The remaining sink/control allocation
+is 5 ms, keeping the startup envelope <=95 ms.
+
+For an arbitrary runtime break, use the slower SENSE- threshold crossing at
+40.8998 ms, then allow one complete continuous sample period (<=17.6 ms) before
+the control task observes DRDY. Add <=10 ms for the control poll including
+scheduler phase/jitter, <=5 ms for the fault sink, and <=14.4144 ms for the
+worst analog RC accounting. The conditional total is
+`40.8998+17.6+10+5+14.4144=87.9142 ms < 100 ms`. The 55 ms single-conversion
+value is reserved for startup only. This is a model envelope, not a
+vendor-guaranteed runtime fault-detection proof.
+
+Reproducible threshold calculation (Python 3, no external packages):
+
+```
+T=17.6
+q=(300/430-100/430)/(1-100/430)
+h=lambda x:(x**3-3*max(x-1,0)**3+3*max(x-2,0)**3-max(x-3,0)**3)/6
+# bisection on 0..3 gives x=1.6427057836, q=0.6060606061 (SENSE+); SENSE- q=0.9484801649 gives x=2.3238517863
+```

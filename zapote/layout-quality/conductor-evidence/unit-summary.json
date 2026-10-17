@@ -1,0 +1,19 @@
+{
+  "deferred_units": {
+    "buck": "legacy delegated owner; no Zapote unit suite",
+    "mcu": "not in maintained Zapote registry"
+  },
+  "manifest_sha256": "709dd8f9f1b3843634b61a9da5c15f0a53b449a07c3f9f613cf6c8c0c12fb3f1",
+  "output": "/private/tmp/layout-conductor-units",
+  "schema": "zapote.unit-run-summary.v1",
+  "status": "indeterminate",
+  "suite_changed_during_run": false,
+  "unit_count": 5,
+  "unit_statuses": [
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate",
+    "indeterminate"
+  ]
+}

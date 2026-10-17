@@ -1,0 +1,52 @@
+Running FastHenry 3.0.1 (28May12)
+Source code fixes and compilation by FastFieldSolvers, 2012
+  Date: Sun Sep 27 18:19:48 2026
+  Host: Bennets-MacBook-Pro-2.local
+Solution technique: ITERATIVE
+Matrix vector product method: MULTIPOLE
+  Order of expansion: 2
+Preconditioner: ON
+Error tolerance: 0.001
+Reading from file: /tmp/ps-r3-decision.5sy79t/fieldsolver/plane_pair_80/plane_pair_80.inp
+Title:
+* 10 x 50 mm finite copper plane pair, 0.5 mm dielectric gap
+
+all lengths multiplied by 0.001 to convert to meters
+Total number of filaments before multipole refine: 13040
+Total number of filaments after multipole refine: 13040
+
+Multipole Summary
+  Expansion order: 2
+  Number of partitioning levels: 6
+  Total number of filaments: 13040
+Percentage of multiplies done by multipole: 100%
+Scanning graph to find fundamental circuits...
+Number of Groundplanes : 2 
+Number of filaments:      13040
+Number of segments:       13040
+Number of nodes:           6642
+Number of meshes:          6401
+          ----from tree:                   1 
+          ----from planes: (before holes)  6400 
+Number of conductors:         1   (rows of matrix in Zc.mat) 
+Number of columns:            1   (columns of matrix in Zc.mat) 
+Number of real nodes:      6641
+filling M...
+filling R and L...
+Total Memory allocated: 76381 kilobytes
+Frequency = 1e+07
+Forming sparse matrix preconditioner..
+conductor 0 from node ng180_20
+Calling gmres...
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
+
+All impedance matrices dumped to file Zc.mat
+
+Times:  Read geometry   0.002755
+        Multipole setup 0.215229
+        Scanning graph  0.000106
+        Form A M and Z  0.000944
+        form M'ZM       0
+        Form precond    1.8332
+        GMRES time      0.833447
+   Total:               2.88568

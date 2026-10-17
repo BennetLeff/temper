@@ -1,0 +1,78 @@
+{
+  "module_mm": [
+    110,
+    80,
+    50
+  ],
+  "local_body_boxes_xywh_mm": {
+    "20 A choke": [
+      7,
+      7,
+      45,
+      25.5
+    ],
+    "2.2 \u00b5F X2": [
+      7,
+      42,
+      26.5,
+      14.5
+    ],
+    "4.7 \u00b5F X2": [
+      62,
+      5,
+      31.5,
+      21
+    ],
+    "4.7 \u00b5F damping X2": [
+      62,
+      31,
+      31.5,
+      21
+    ],
+    "Y 4.7 nF L": [
+      38,
+      42,
+      13,
+      5
+    ],
+    "Y 4.7 nF N": [
+      38,
+      51,
+      13,
+      5
+    ],
+    "Y 2.2 nF L": [
+      62,
+      61,
+      13,
+      4
+    ],
+    "Y 2.2 nF N": [
+      80,
+      61,
+      13,
+      4
+    ],
+    "damper allowance": [
+      7,
+      64,
+      20,
+      10
+    ],
+    "bleed pair allowance": [
+      32,
+      64,
+      25,
+      10
+    ]
+  },
+  "body_overlap_area_mm2": 0,
+  "maximum_part_height_mm": 41,
+  "height_allocation_mm": {
+    "choke": 41,
+    "carrier": 1.6,
+    "underside_standoff_and_pins": 3,
+    "cover_and_clearance_allowance": 4.4
+  },
+  "qualification": "packing reservation only; terminals, wiring, creepage, clearance, PE geometry and mounting still require final assembly design"
+}

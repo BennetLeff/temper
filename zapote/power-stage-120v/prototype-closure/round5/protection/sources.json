@@ -1,0 +1,21 @@
+{
+  "inspected_date": "2026-10-04",
+  "vendor_artwork_redistributed": false,
+  "local_raw_directory": "/private/tmp/temper-r5-protection",
+  "assets": [
+    {"url":"https://www.ohmite.com/hs/","local":"hs.html","sha256":"baede90224860ddf7d07d54fc6a394c03fc91acc446d5cbed550893d4b1080a7","inspection":"Primary text and linked drawing assets. Relative links require actualHTML base https://www.ohmite.com/, not /hs/."},
+    {"url":"https://www.ohmite.com/assets/images/content/screenshot-173.png","local":"pulse.png","sha256":"0aa267d980aaa7aedb1e3e04987c38f297b5ad75e6590e3881be3ef4bee89e93","inspection":"VISUALLY_INSPECTED blueHS400 curve over23.75–26.25ohm above2000J coarsefloor; no claimed precise digitization"},
+    {"url":"https://www.ohmite.com/assets/images/content/screenshot-171.png","local":"dimensions.png","sha256":"2eabe47e549334b8ecb5bcc4586e5a5c67de4b3ea490d76928ab5fd8f259308a","inspection":"VISUALLY_INSPECTED endview55.5maxflange30maxbody4.3base"},
+    {"url":"https://www.ohmite.com/assets/images/content/screenshot-172.png","local":"dimensions2.png","sha256":"6f36590f6b5fc5460763d91bfe83e18e19eb14de1ff7253b0fe746ea4283b4b7","inspection":"VISUALLY_INSPECTED L1/L2/L3 mounting;5.4holes8mmslots;300minimumflying leads1.5mm2"},
+    {"url":"https://www.ohmite.com/assets/images/content/screenshot-174.png","local":"derating.png","sha256":"ff4a65da7c16536c5a75d0f34d3d447befe1d4b80c4fe7831943f3b4fe77adb7","inspection":"VISUALLY_INSPECTED fullratingto25C thenlinearzero250C"}
+  ],
+  "primary_online_documents": [
+    {"url":"https://www.sensience.com/wp-content/uploads/2023/10/G4-MicroTemp-Product-Information.pdf","pages":[1,2],"inspection":"Primarydimensions/electricalrating/128Crow;Tm350conflicts2022catalog205"},
+    {"url":"https://www.sensience.com/wp-content/uploads/2022/12/Microtemp_Catalog.pdf","pages":[14,16,17,18],"inspection":"Temperaturetable/applicationguidance;conservative205overshootpendingpartconfirmation"},
+    {"url":"https://www.eaton.com/content/dam/eaton/products/electrical-circuit-protection/bussmann-iec-high-speed-semi-conductors-fuses/eaton-bussmann-series-high-speed-fuses-application-guide-br132015en-en-us.pdf","pages":[21],"inspection":"DC timeconstant and lowovercurrent limits; not a part-specific arc model"},
+    {"url":"https://www.te.com/en/product-32994.html","inspection":"ExactM4 uninsulatedterminal range geometry andinstructionlinks;instructionPDF403"},
+    {"url":"https://www.te.com/content/dam/te-com/documents/industrial-automation-and-control/global/1773464-2_QRG_SOLISTRAND_08-2013.pdf","inspection":"32994row and49935familytool selection"},
+    {"url":"https://www.mersen.com/en/products/ultrasafe-us14-modular-fuse-holders/z331153-us141","inspection":"Current exactproduct1000VDCUL;nominaldimensionsretained;rotation/hingenotestablished"},
+    {"url":"https://www.infineon.com/assets/row/public/documents/24/49/infineon-idw40g65c5-datasheet-en.pdf","pages":[4,8],"inspection":"Pulse/thermal/torque andlinearizationrestrictedbelow80A; directdownloadempty so noPDFhashclaimed"}
+  ]
+}

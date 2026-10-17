@@ -1,0 +1,13 @@
+./src/common/stdpbase.cpp(59): assert ""traits"" failed in Get(): create wxApp before calling this
+{
+  "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "bom_sha256": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+  "components": 135,
+  "copper_pads": 388,
+  "duplicate_copper_pads": 20,
+  "manifest_sha256": "d5c4936c641a00e167a12bb1257efeecefa15fcf0ee9418dd178d5be4e0f7df0",
+  "netlist_sha256": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+  "resolved_components_sha256": "839dadb30b1a0e4ea144a3d60d7417544d5b7a61e6032b6703b828324c882193",
+  "source_pins": 368,
+  "status": "PASS"
+}

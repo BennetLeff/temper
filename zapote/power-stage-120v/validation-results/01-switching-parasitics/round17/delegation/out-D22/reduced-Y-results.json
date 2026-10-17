@@ -1,0 +1,2810 @@
+[
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "proposed_nominal",
+    "AV_dB": 28.876154418000322,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "proposed_nominal",
+    "AV_dB": 40.90771196049472,
+    "Hz": 26040000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 40.9046758398068,
+    "Hz": 26040000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "proposed_nominal",
+    "AV_dB": 38.274754389771346,
+    "Hz": 26040000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 37.8817085807833,
+    "Hz": 29470000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "proposed_nominal",
+    "AV_dB": 28.87648840334033,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 28.87615441800031,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "proposed_nominal",
+    "AV_dB": 28.880324407649777,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 28.879918984202725,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 41.13225017537996,
+    "Hz": 26040000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 38.80616927765539,
+    "Hz": 26040000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 27.554808713522725,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 27.55839783279074,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "proposed_nominal",
+    "AV_dB": 39.539988909402936,
+    "Hz": 240000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 36.21169071815467,
+    "Hz": 26040000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 33.33358234568165,
+    "Hz": 29520000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 39.53998890940292,
+    "Hz": 240000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "proposed_nominal",
+    "AV_dB": 39.469196097265836,
+    "Hz": 240000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.392256162189128,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.39589092172561,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.395878176688406,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.395958700193134,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.395944711362354,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.392251211575683,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.39225616218912,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.391248778159934,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 16.391248213072323,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 15.071898488994492,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 15.071949569889455,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 15.067654657965946,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 15.06663124685086,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 12.561855300481014,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 12.55739470000674,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 12.55825390424274,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 12.561855300481014,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 12.562766689575575,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.3553754076771,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.359006796429888,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.358993820089914,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.359074899230222,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.359059620271907,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.35537364581335,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.3553754076771,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.35436921607802,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 16.354370166229238,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 15.03501341473362,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 15.035066864718189,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 15.030765920161265,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 15.029757303898279,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 12.525140097311215,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 12.520683646407484,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 12.521538726046224,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 12.525140097311215,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 12.526050295884872,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.59377767939781,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.59740943355954,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.59739583424497,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.597477225867216,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.59746336516826,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.59377322383252,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.593777679397803,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.592770535236248,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 16.59277016718208,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 15.273415771150852,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 15.273467893763296,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 15.269175039365223,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 15.268153887306525,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 12.761007302673164,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 12.756546276493872,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 12.757405170799558,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 12.761007302673164,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 12.761918516818682,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.5568976687252,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.560526018994203,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.56051218292695,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.56059414292791,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.560578962940014,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.556896473646432,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.5568976687252,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.555891744223118,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 16.555892925522166,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 15.236531386244287,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 15.236585931480583,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 15.232286864951824,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 15.23128084143054,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 12.724292700423703,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 12.719835917853615,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 12.72069059517628,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 12.724292700423703,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 12.72520269779831,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.24657708241103,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 23.02574627093407,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 23.025733883917773,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 23.02581332019169,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 23.025802134052338,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.24671038539867,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.246577082411022,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.248186299575444,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.248021469932898,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.70175594754906,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.701801871770094,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.92477915740652,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.926053431912557,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.15390081740935,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.14943204763778,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.150300143146133,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.15390081740935,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.154815068235706,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.007468060221818,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.01111081454637,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.01109795246046,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.01117868388496,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.01116430200513,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.007464011559012,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.00746806022181,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.00646109784934,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.006460965943766,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 21.687118108116955,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 21.68716990754224,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 21.682864122847903,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 21.681845069995084,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 19.139381653721955,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 19.134922583467095,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 19.135780515725983,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 19.139381653721955,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 19.140292771057418,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 20.83732790808682,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 23.22716901209666,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 23.22715577938714,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 23.227236058380328,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 23.2272250651973,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 20.837574879242766,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 20.837327908086813,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 20.840404170360117,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 20.84010128278174,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.903177507717764,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.903224354410625,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.515798330076237,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.518395795070937,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.352975209918014,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.348505825863477,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.34937381505093,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.352975209918014,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.3538893507571,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.208893680300292,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.212533640180315,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.212519921107077,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.212601525268184,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.21258726311111,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.208890145670395,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.208893680300292,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.207886967073158,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 23.207887041343,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 21.888539698285093,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 21.888592554787294,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 21.88428855506082,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 21.883271853836604,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 19.33845617943495,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 19.333996717041202,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 19.33485431231827,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 19.338456179434957,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.00112-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 19.33936711643092,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 21.25471498617643,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 24.026644013520926,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 24.026631711596078,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 24.026710915275675,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 24.02670030371894,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 21.254839157439562,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 21.254714986176424,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 21.256204846963406,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 21.256051322810844,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 22.702654118706057,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 22.70269898656415,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 19.93289527163465,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 19.934062367285442,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 20.08890268399516,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 20.084432288063553,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 20.085302091576132,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 20.088902683995165,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak9e-06",
+    "AV_dB": 20.089817462915498,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.98655365727847,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.99019798436585,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.99018514876848,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.99026580760041,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.99025160524891,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.98654915637788,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.986553657278463,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.985546536114125,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.985546189874576,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 22.66620541187568,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 22.66625688123348,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 22.661950830704328,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 22.66092970082515,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 20.05259422379917,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 20.048134645515432,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 20.048993111853,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 20.05259422379917,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-12-leak2.7e-05",
+    "AV_dB": 20.0535055064393,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.8731470995291,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 24.207749353815117,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 24.207736206286256,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 24.207816252247653,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 24.207805834936494,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.873377732622835,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.873147099529085,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.87601101309754,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.875728178124618,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 22.88375827900108,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 22.883804066954198,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 19.551578661187968,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 19.553985047816475,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.26918792826948,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.264716914875684,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.265586615945622,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.269187928269474,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak9e-06",
+    "AV_dB": 20.27010259859709,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.16766179848526,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.171303340290223,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.171289647720435,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.171371179185428,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.171357096880094,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.167657810755003,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.167661798485256,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.166654926221412,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.166654785751152,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 22.847309532586195,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 22.847362058424203,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 22.84305778604514,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 22.842039003950255,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 20.232879545653994,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 20.228419574481705,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 20.229277704800168,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 20.232879545653994,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.00112-coil5e-11-leak2.7e-05",
+    "AV_dB": 20.23379064831584,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.30000252264805,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 30.6389164475123,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 30.63890488979535,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 28.97403558368246,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 28.603018946041722,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.30007243726971,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.300002522648043,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.300786580412456,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 21.30070007879933,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 29.31493189441326,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 29.31496381723546,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.978059220090643,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 19.978592732698722,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 26.665613031097852,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 26.661123308071748,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 24.041668598916438,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 26.665613031097863,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak9e-06",
+    "AV_dB": 26.666535180042942,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.621322584491956,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.625004913815964,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.624992315488786,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 28.657263107231053,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 28.285488109054235,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.62131227822405,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.621322584491956,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.620313592876567,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 30.62031050437467,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 29.301014050196137,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 29.301061378866557,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 29.296733668795714,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 29.295686221495984,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 26.65178052060255,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 26.647314749103696,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 23.72497764341123,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 26.65178052060255,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-12-leak2.7e-05",
+    "AV_dB": 26.652694167719012,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.094871226818583,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 30.82001095930808,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 30.819998572129855,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 25.55942448232809,
+    "Hz": 29330000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 25.21212524882823,
+    "Hz": 29330000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.095000652443723,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.094871226818576,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.096426150587682,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 21.096267236823373,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 29.496025338166184,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 26.178687735234636,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.77307318258576,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 19.77430208436367,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 26.845889409423535,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 26.841398661922028,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 20.648314837067403,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 26.845889409423542,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak9e-06",
+    "AV_dB": 26.84681160299253,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.341126496595965,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.80609932327043,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.80608587311856,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 25.35403815308593,
+    "Hz": 29330000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 24.996962768670183,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.34149968242503,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.341126496595944,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.345864835656496,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 30.345406012838453,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 29.482107260257226,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 25.97085636657833,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 29.01993426144408,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 29.024028702180992,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 26.832056964593725,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 26.827590669767282,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 20.4319500899321,
+    "Hz": 29400000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 26.832056964593725,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "corner-old0.0024-new0.0024-coil5e-11-leak2.7e-05",
+    "AV_dB": 26.83297048089316,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "high_caps",
+    "AV_dB": 20.572729239592036,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "high_caps",
+    "AV_dB": 20.576356554334353,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 20.576342975205797,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "high_caps",
+    "AV_dB": 20.576424354083372,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 20.576410479195815,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "high_caps",
+    "AV_dB": 20.572724853024823,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 20.572729239592036,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "high_caps",
+    "AV_dB": 20.571722080060525,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 20.57172174255252,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 19.25236287396862,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 19.252415024213555,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 19.248126512234357,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 19.24710559565223,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "high_caps",
+    "AV_dB": 16.708520390446637,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 16.704059315933975,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 16.704918137137028,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 16.708520390446644,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "high_caps",
+    "AV_dB": 16.70943153709137,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.210781312143737,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.214412350680973,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.214398728275476,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.21448017822975,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.21446617858345,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.21077720272624,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.210781312143745,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.209774294126312,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 17.20977409037659,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 15.890418585466016,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 15.890470963356854,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 15.88617781234209,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 15.885158259528225,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "high_parasitics",
+    "AV_dB": 13.406960038422774,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 13.40249949256355,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 13.403357897788268,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 13.406960038422774,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "high_parasitics",
+    "AV_dB": 13.407871106937506,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.290765047711325,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.294397255048246,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.294383666752005,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.29446502969636,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.29445123829074,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.29076041877923,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.290765047711325,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.289757841264446,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 16.28975739096763,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 14.970403644073748,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 14.970455639343804,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 14.9661628364372,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 14.965140885239826,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "low_parasitics",
+    "AV_dB": 12.444185029253802,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 12.43972376965155,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 12.440582904081893,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 12.444185029253802,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "low_parasitics",
+    "AV_dB": 12.445096315813672,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "low_damping",
+    "AV_dB": 16.593696361610284,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "low_damping",
+    "AV_dB": 16.597335538067895,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 16.5973219295012,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "low_damping",
+    "AV_dB": 16.597403286280453,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 16.59738957637827,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "low_damping",
+    "AV_dB": 16.593691479159865,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 16.593696361610284,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "low_damping",
+    "AV_dB": 16.592689123545682,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 16.5926885562196,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 15.273341998585465,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 15.273393841767799,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 15.269094653952507,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 15.268071656421071,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "low_damping",
+    "AV_dB": 12.760934833703196,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 12.756473523992113,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 12.757332895252404,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 12.760934833703196,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "low_damping",
+    "AV_dB": 12.761846260254117,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.728148048820245,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.731792769044894,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.731779138161706,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.731860504229374,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.731846827042034,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.728143043442394,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.728148048820252,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.727140815834161,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 15.727140192872952,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 14.407799262950512,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 14.407851044101761,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 14.403546543015523,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 14.402523080096493,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "high_RF_loss",
+    "AV_dB": 11.838273813879681,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 11.833812583433065,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 11.834672015032865,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 11.838273813879681,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "high_RF_loss",
+    "AV_dB": 11.839185311134727,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.820667709945468,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.82428371656728,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.82427012458195,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.824351618323547,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.82433737387929,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.82066431650849,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.820667709945468,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.81966082506795,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 16.819660954215664,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 15.50028974670282,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 15.500342579279199,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 15.496062696876294,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 15.49504618924793,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "low_RF_loss",
+    "AV_dB": 13.004120842959423,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 12.99966062967939,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 13.000518311969387,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 13.004120842959423,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "low_RF_loss",
+    "AV_dB": 13.005031552527797,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.15095741113646,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.416311420219735,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.416298061176981,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.416378891665374,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.416366314206662,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.15119819249886,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.150957411136453,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.15393371172938,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 14.153639340911816,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 13.09231869833355,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 13.092368465212132,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 12.82937957274273,
+    "Hz": 210000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 12.831885850719807,
+    "Hz": 210000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "old_low_leakage",
+    "AV_dB": 10.608467601043536,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 10.604002369407532,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 10.60486538728513,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 10.608467601043536,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "old_low_leakage",
+    "AV_dB": 10.609379983745377,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.03077173949697,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.034403628455692,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.034390226429466,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.034471164819692,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.03445833113284,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.03076476513776,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.030771739496963,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.029763629601383,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 15.02976206335952,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 13.710410717121007,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 13.71046095472201,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 13.706175454925123,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 13.70514256739073,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 11.255564547718876,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 11.251100201203919,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 11.251962321140944,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 11.255564547718862,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "all_high_parasitics",
+    "AV_dB": 11.256476664289224,
+    "Hz": 180000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.59377697744639,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.597404823879828,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e1.06-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.597394019280955,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.25",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.597473584231913,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r100-e10-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.597455143416802,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.25",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.593780566309917,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e1.06-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.59377697744638,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.25",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.5927725652894,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v170-f35000-r2-e10-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 16.59277617314335,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e1.06-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 15.273413196278732,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r100-e10-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 15.27346850996689,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e1.06-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 15.269153882720616,
+    "Hz": 175000.0
+  },
+  {
+    "case": "envelope-v198-f35000-r2-e10-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 15.268170101267494,
+    "Hz": 175000.0
+  },
+  {
+    "case": "d19-v170-r2-e1.06-f60000-s0.5-c48",
+    "scenario": "tabs_reversed",
+    "AV_dB": 12.761006982302547,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e1.06-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 12.756560623754496,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r100-e10-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 12.75740778048496,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e1.06-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 12.761006982302547,
+    "Hz": 180000.0
+  },
+  {
+    "case": "envelope-v170-f60000-r2-e10-s0.5",
+    "scenario": "tabs_reversed",
+    "AV_dB": 12.761915098464527,
+    "Hz": 180000.0
+  }
+]

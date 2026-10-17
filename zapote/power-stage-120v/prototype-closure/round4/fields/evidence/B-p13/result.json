@@ -1,0 +1,38 @@
+{
+ "label": "B-e4-f4-h1",
+ "mesh": "output/temper-prototype-closure/round4/fields/B-e4-f4-h1.msh",
+ "exit_code": 0,
+ "mesh_sha256": "eea5352e81cc5b069f8a5db82afbecfa6d7d814853b6b7f21ce1d57c420c8e12",
+ "sif_sha256": "f64d570bcc09473830a815018876b3719d58add42e9236ac386c985a9fa4a254",
+ "elmer_solver_sha256": "b60ae75db18b3c1102ee4f2155dcff7f26310ede453697215360f08a4b50b7ed",
+ "maxit": 18000,
+ "all_done": true,
+ "energy_J": 1.448857e-08,
+ "inductance_nH": 28.97714,
+ "peak_memory_GB": 0.008258184,
+ "max_rss_GB": 2.171174912,
+ "wall_s": 781.13,
+ "np": 4,
+ "solver": "iterative Hypre GMRES(100) + AMS",
+ "tol": 1e-07,
+ "solver_lines": [
+  "HYPRE GmRes Dimension = Integer 200"
+ ],
+ "tree_gauge": false,
+ "last_iteration": 5978,
+ "last_residual": 9.96661e-08,
+ "converged": true,
+ "k_A_per_m": [
+  2500.0,
+  -0.0,
+  0.0
+ ],
+ "pec": [
+  2,
+  3
+ ],
+ "port": 13,
+ "port2": null,
+ "k2_A_per_m": null,
+ "scale_m": 0.001
+}

@@ -1,0 +1,20 @@
+* supplemental overlap CORNER=1
+.include "/Users/bennet/.codex/worktrees/ps-r17-d26-parametric/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D26/ucc21550_parametric.lib"
+Vcc vc 0 3.3
+Vdd vd 0 12
+Va a 0 3.3
+Vb b 0 PULSE(0 3.3 1u 1n 1n 500n 4u)
+Vdis dis 0 0
+XU a b dis vc 0 vd 0 oa vd 0 ob UCC21550 CORNER=1 RDT=50000 RTOL=0
+Ca oa 0 1f
+Cb ob 0 1f
+.tran 0.1n 3e-06
+.control
+set numdgt=15
+set wr_singlescale
+set wr_vecnames
+run
+wrdata wave.txt v(vc) v(vd) v(dis) v(a) v(b) v(oa) v(ob)
+quit
+.endc
+.end

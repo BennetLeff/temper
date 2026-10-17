@@ -1,0 +1,289 @@
+{
+  "schema": "temper.round5.firmware.evidence.v1",
+  "date": "2026-10-04",
+  "result": "INHIBITED_BENCH_TARGETS_COMPILED_NOT_COMMISSIONED",
+  "native19_changed": false,
+  "round4_core_changed_by_this_agent": false,
+  "pin_contract": "zapote/power-stage-120v/prototype-closure/round5/firmware/pin-contract.json",
+  "checks": {
+    "acquisition_sanitizers": "PASS; 240 single-bit corruptions plus recomputed-CRC status/clipping/gap faults",
+    "capture_sanitizers": "PASS; 736 single-bit corruptions plus wrong-clock/replay/latency",
+    "pin_contract": "PASS; 64 STM32 source pins and16 conflict-free proposed ESP32 GPIOs",
+    "existing_host_executables": "5/5 PASS",
+    "stm32_clang_arm_objects": "PASS using official hashed CMSIS headers",
+    "stm32_gnu_link": "PASS; Arm GNU13.2.1 + nano/newlib; 6280 text/4 data/236 BSS",
+    "esp_idf_link": "PASS; official v5.2.3 c9763f62dd00c887a1a8fafe388db868a7e44069; Xtensa13.2.0; ESP32-S3 N8 8MB",
+    "ruff": "PASS"
+  },
+  "target_behavior": {
+    "stm32_commissioned": false,
+    "esp32_request_can_assert": false,
+    "esp32_pwm_gpio_matrix": "disconnected and pads held low",
+    "flashed": false,
+    "hardware_measurements": false
+  },
+  "timing_allocations": {
+    "adc_clock_hz": 8000000,
+    "adc_osr": 1024,
+    "adc_nominal_sps": 3906.25,
+    "adc_spi_hz": 4000000,
+    "adc_frame_bytes": 30,
+    "adc_max_read_age_us": 200,
+    "adc_max_sample_age_us": 1000,
+    "stm32_step_ms": 1,
+    "uart_baud": 115200,
+    "uart_status_interval_ms": 5,
+    "fast_capture_clock_hz": 80000000,
+    "fast_capture_spi_hz": 10000000,
+    "fast_capture_frame_bytes": 92,
+    "fast_capture_source_age_max_us": 500,
+    "fast_capture_transaction_max_us": 200,
+    "esp_bench_poll_ms": 5,
+    "production_capture_max_us": 1000,
+    "production_capture_cadence_met_by_bench": false
+  },
+  "ecos": [
+    {
+      "id": "R5-CTRL-01",
+      "description": "New standalone ESP32-S3-WROOM-1-N8 prototype carrier pin proposal; not legacy pin reuse",
+      "implemented": "firmware and machine-readable mapping only; carrier routing missing"
+    },
+    {
+      "id": "R5-CAPTURE-01",
+      "description": "iCE40HX8K-B-EVN module + external80MHz common clock; TFC1 capture SPI contract and AD7380-4 analog candidate",
+      "implemented": "C receive-side/SPI driver and tests; module wiring, HDL, clock source and analog frontend missing"
+    }
+  ],
+  "digital_open": [
+    "Live atomic MCPWM phase commit and endpoint topology",
+    "Qualified power_binding composition/phase control and <=1ms acquisition task",
+    "ADC calibration/scaling and independent health boot admission",
+    "NTC conversion, mirror excitation, crest/proof classification and sensor injection diagnostics",
+    "Fresh per-boot POST service/physical confirmation and qualified bounds",
+    "Fast capture module HDL/timing/header/oscillator and isolated analog frontend",
+    "Option-byte/BOR/watchdog/stack/timing analysis",
+    "Exact final target-model correlation"
+  ],
+  "physical_open": [
+    "Target pin/timing and fault-injection qualification",
+    "Sensor calibration, tank/pan/probe and staged first-unit measurements"
+  ],
+  "sources": [
+    {
+      "path": "firmware/components/power/energy_link.c",
+      "sha256": "c6ac384e7fa26fa7717fd51cb4d1cf1081b46d5da143f4b13942f3f705707bba"
+    },
+    {
+      "path": "firmware/components/power/energy_supervisor.c",
+      "sha256": "6664014da008ebdcb9b8b86f4d3b792330d3b4a8b202795ed0ca7dc6ba1451cd"
+    },
+    {
+      "path": "firmware/components/power/fullbridge_adapter.c",
+      "sha256": "3b781f28dea7f776ddc558623171bb7a20b9206bac82be2ed714d6445b832f0c"
+    },
+    {
+      "path": "firmware/components/power/include/energy_link.h",
+      "sha256": "2ff181ad0dbe1eeaf62c551e2ed2bd5edfbae8b6fd15c13669dd2d4ba48c3c59"
+    },
+    {
+      "path": "firmware/components/power/include/energy_supervisor.h",
+      "sha256": "3d999575d48c7e8a6a6a6ef3a4a0eb4c123b4565ad9c181fb5c709c34f450c1e"
+    },
+    {
+      "path": "firmware/components/power/include/fullbridge_adapter.h",
+      "sha256": "32953c0a48388a0170446b3fe2901b63136d6d6179ef45218d78c8da8f849156"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/supervisor/generated/pins.tsv",
+      "sha256": "3163e9b3f6eccd77f064acfa12f8fe2d4f7c4fde69b0c42236372bae5785c0d2"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/README.md",
+      "sha256": "4bce6b3fab9060dfc2cce40d8407f76fe6338132d05bedd4d3feef7db6e628db"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/common/acquisition.c",
+      "sha256": "77cac4da01bbbe3d90d5af6b54b83e16d67f93ade24ec2c3b1b825f0cf644973"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/common/acquisition.h",
+      "sha256": "90e58844ee810cac6f6ab5be56e6f673790c5946911fbbdf4bfd62ecae130f20"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/common/fast_capture.c",
+      "sha256": "6c63e429a85a663469f9a37f985d4c1184fcd6f510ab85d5afc101549f4de1fb"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/common/fast_capture.h",
+      "sha256": "0e9868ca6e6b01eac27a403a10523e24d9a8d0e788f35220b9fa3aa8af58cbed"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/CMakeLists.txt",
+      "sha256": "4f118d5a42eba3d507e90738fb8ddd05be837cbb1567347b80f84b95262f3845"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/fast_spi.c",
+      "sha256": "fc4d7d4c863f0cbd936a0c69f120df15b038abbae7370138bbbc33cbe54e320d"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/fast_spi.h",
+      "sha256": "9631dfbf3f8f05f9e7492db2b1c10f77d53ed364fdfacfc137383caf2d880f7e"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/main/CMakeLists.txt",
+      "sha256": "7baee80f0964a99d03894e20a3911cea56f377a8037ca1b64ef9a2324626a954"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/main/main.c",
+      "sha256": "62d44655dae7537c8216402ca6a96eb08856a7f15c6b585ad8d787c5be0d18c5"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/mcpwm_target.c",
+      "sha256": "1d3f62b26e967f4c8a79cc604ad3aa6aa1c33a4637772101a2dc81ecfb6af952"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/mcpwm_target.h",
+      "sha256": "8749a640cff05e6d6f04131ade5def454715e1f95f7facc16f1211cd49624290"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/pins.h",
+      "sha256": "18f164ae2437158b621d9e22bd61284d15f42797b62d0eb888ccf2dd155443ee"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/esp32/sdkconfig.defaults",
+      "sha256": "f98570393eb9d574606fe62fc6f8aa2aa7e5027296aa4bf704352139f6612fc0"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/pin-contract.json",
+      "sha256": "36997a450bdaf9d1018f1e44f11877be91d5f5897dbf7a5006376b72d144bbcf"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/replay.sh",
+      "sha256": "7a9fb65a0d82fb0ce09129303d4ef9ad6260f8b7220c744ead19edcfe0ccbf5e"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/stm32/Makefile",
+      "sha256": "f3a15fd63bf6495a223cb105ec1c19ddce81757526738571cc9d0b859afb5795"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/stm32/linker.ld",
+      "sha256": "d1d7c43657f905c5f95ca0bf0717419265ac34501623575fb62897aa46d68224"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/stm32/platform.c",
+      "sha256": "c16033c77aacbb4bb766525ceb006d2ab7045d802ed5891f6af320b7d2156ccd"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/stm32/startup.c",
+      "sha256": "f17a7164a7d681bd6e7210b7fcdba5422421cbd8278efff4602e01ace6c96eaa"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/tests/check_contract.py",
+      "sha256": "495f93383acf60d05d2d5e72cc8758c1d313dec95749c60d771af85cde0f01a5"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/tests/test_acquisition.c",
+      "sha256": "da5c56065c36da20793995c45c3e4a8bd5543d654a557cd88b110601e7d5d5e6"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/tests/test_fast_capture.c",
+      "sha256": "d35ad3fabb884f5e49ee8bd9f55b9b384f190fc720aeb114f2dceb4f71dbfd21"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/firmware/vendor-inputs.json",
+      "sha256": "9d154d8fa38f533c0f7a9abb16e1db1c6ed5287e0bfe45a22073fdbe2151d55d"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/acquisition-tests.txt",
+      "sha256": "d88a155e6112fd42963169398fe45c995901b75eef87e9f88eb83bce4541a37f",
+      "bytes": 106
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/arm-object-check.txt",
+      "sha256": "09343cca3babd08b93892cb096a1ad7254aef8b27528ff24fdc31c4bfc6a7939",
+      "bytes": 242
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/compiler.txt",
+      "sha256": "55f7662ee66d47566d9f08f35a12158ac9588e4852f788eed57fa3bf625c9a5d",
+      "bytes": 159
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/controller-bench.bin",
+      "sha256": "d1c09ee8e9a754116f6d5c22ec7ce504b1761468153bfa6ab466af0e3cb1efde",
+      "bytes": 277440
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/controller-bench.elf",
+      "sha256": "000a44f571334ef5c77d1220c1b6823390f5619a3cacd891a709aa2773c59a75",
+      "bytes": 3940832
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/esp32-build.txt",
+      "sha256": "c5fbbd2ade416c1c8fd94457e7e1060178c1e25307ec67483cdc1bcac09ef561",
+      "bytes": 113891
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/esp32-sdkconfig.txt",
+      "sha256": "bd23554d3913dce716e2d4a893ab6d3de6b618cdf2c57a009db6ddd2040128ef",
+      "bytes": 62760
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/fast_capture-tests.txt",
+      "sha256": "a70d7160c2fe1efe27208a36f102e1b7af39f628385389ecf8b4406975c793c5",
+      "bytes": 83
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/legacy-build.txt",
+      "sha256": "57ae14d1044ae0d649c060e120dd945edf0b22cf5ad0c04d37665c077a0305fd",
+      "bytes": 4804
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/legacy-host-tests.txt",
+      "sha256": "fff0d0bff2a14965f427a3a40c6244c229fb37c7476270cd8a1298e02bd5a03b",
+      "bytes": 10466
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/pin-contract-check.txt",
+      "sha256": "d0329799cf4d8761bf52d37a152222ec9617c86f79232e972956ae9a4b3f36c1",
+      "bytes": 171
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/replay-status.txt",
+      "sha256": "a7fdddf0a228b7416ee0739179c851e9fc041a55dff4cced62f0c35a52b9a0e2",
+      "bytes": 22
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/stm32-build.txt",
+      "sha256": "2470c343b2ee50a5b187efdc06158cf7e6d8b2b61de8c866c70e74fff9f2097f",
+      "bytes": 886
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/stm32-elf.txt",
+      "sha256": "c5c8ff0b42981f95409dba5e80cfa70f9099c8b577f8757e4ac5e2410688d423",
+      "bytes": 972
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/stm32-size.txt",
+      "sha256": "9cc1a2fc8d52f4a5d384835e7958e777b32bed4c224febb11ecf817c892497ba",
+      "bytes": 158
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/supervisor-bench.elf",
+      "sha256": "c29a92fa907473d5e1e366a67f339356ad98ac8683a4bcae7bbd4d8972d386bb",
+      "bytes": 17428
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/supervisor-bench.map",
+      "sha256": "25852ccee221db7c769b862c98744002fea95f135958ecbae90fb70c76423499",
+      "bytes": 32385
+    },
+    {
+      "path": "output/temper-prototype-closure/round5/firmware/vendor-inputs.sha256",
+      "sha256": "38086d7cd11cd5a40ac6898cabe5097ef4f443bfbefdf3d377fa6e377d4fd0cb",
+      "bytes": 887
+    }
+  ]
+}

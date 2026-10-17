@@ -1,0 +1,16 @@
+* TI UCC21550B-Q1 unchanged model compatibility fixture
+.include ../../vendor/ucc21550-q1.lib
+Vcc vcc 0 3.3
+Vdda vdda 0 12
+Vddb vddb 0 12
+Va ina 0 PWL(0 0 1u 0 1.001u 3.3 2u 3.3 2.001u 0)
+Vb inb 0 PWL(0 0 2.2u 0 2.201u 3.3)
+Rdt dt 0 50k
+Xdrv ina inb vcc 0 0 dt vdda outa 0 vddb outb 0 UCC21550-Q1
+Ca outa 0 1.8n
+Cb outb 0 1.8n
+.options method=gear reltol=1e-3 abstol=1e-9 vntol=1e-6 itl1=500 itl4=200
+.tran 0.1n 4u 0 0.1n
+.meas tran t_end FIND time AT=4u
+.meas tran deadtime TRIG v(outa) VAL=10.8 FALL=1 TARG v(outb) VAL=1.2 RISE=1
+.end

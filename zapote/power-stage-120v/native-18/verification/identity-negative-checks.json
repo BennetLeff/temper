@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "checks": [
+    {
+      "mutation": "one intended board field left stale",
+      "rejected": true
+    },
+    {
+      "mutation": "fresh source r_dt value reverted to 39kohm",
+      "rejected": true
+    },
+    {
+      "mutation": "Python optimized assertions disabled",
+      "rejected": true
+    }
+  ]
+}

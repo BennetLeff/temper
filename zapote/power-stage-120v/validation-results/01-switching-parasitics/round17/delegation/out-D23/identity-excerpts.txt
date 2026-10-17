@@ -1,0 +1,57 @@
+    (comp (ref "U1")
+      (value "?")
+      (footprint "lib:SOIC16W_Isolated")
+      (libsource (lib "lib") (part "UCC21550BDWKR") (description "elec/src/parts.ato:UCC21550BDWK"))
+      (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.driver") (tstamps "4e4d3702-84d9-a3a4-f0be-7f47e619f58d"))
+      (tstamps "4e4d3702-84d9-a3a4-f0be-7f47e619f58d"))
+
+
+    (comp (ref "U2")
+      (value "?")
+      (footprint "lib:SOIC16W_Isolated")
+      (libsource (lib "lib") (part "UCC21550BDWKR") (description "elec/src/parts.ato:UCC21550BDWK"))
+      (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.driver") (tstamps "bfa7006b-e17c-df18-2ace-dc39c7a29b41"))
+      (tstamps "bfa7006b-e17c-df18-2ace-dc39c7a29b41"))
+
+
+    (comp (ref "R9")
+      (value "?")
+      (footprint "Resistor_SMD:R_0603_1608Metric")
+      (libsource (lib "lib") (part "RC0603FR-07100RL") (description "elec/src/parts.ato:R100R0603"))
+      (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dt") (tstamps "def9c9b4-fd10-db44-55f7-28e4b13d1b96"))
+      (tstamps "def9c9b4-fd10-db44-55f7-28e4b13d1b96"))
+
+
+    (comp (ref "R17")
+      (value "?")
+      (footprint "Resistor_SMD:R_0603_1608Metric")
+      (libsource (lib "lib") (part "RC0603FR-07100RL") (description "elec/src/parts.ato:R100R0603"))
+      (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dt") (tstamps "a42d57dc-d31b-cc14-a5cd-4e30f01bcb99"))
+      (tstamps "a42d57dc-d31b-cc14-a5cd-4e30f01bcb99"))
+
+
+(property "Reference" "U2"
+(property "Value" "UCC21550BDWKR"
+(property "SourceInstance" "leg_b.driver"
+(property "MPN" "UCC21550BDWKR"
+
+(property "Reference" "U1"
+(property "Value" "UCC21550BDWKR"
+(property "SourceInstance" "leg_a.driver"
+(property "MPN" "UCC21550BDWKR"
+
+(property "Reference" "R17"
+(property "Value" "RT0603BRD0749K9L"
+(property "SourceInstance" "leg_b.r_dt"
+(property "MPN" "RT0603BRD0749K9L"
+
+(property "Reference" "R9"
+(property "Value" "RT0603BRD0749K9L"
+(property "SourceInstance" "leg_a.r_dt"
+(property "MPN" "RT0603BRD0749K9L"
+
+UCC21550BDWKR,"U1,U2",lib:SOIC16W_Isolated,UCC21550BDWKR,0.00
+
+RT0603BRD0749K9L,"R9,R17",Resistor_SMD:R_0603_1608Metric,RT0603BRD0749K9L,0.00
+
+RC1206FR-073R9L,"R10,R12,R18,R20",Resistor_SMD:R_1206_3216Metric,RC1206FR-073R9L,0.00

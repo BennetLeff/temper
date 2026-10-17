@@ -1,0 +1,6 @@
+(fp_lib_table (version 7)
+(lib (name "Capacitor_SMD")(type "KiCad")(uri "${KIPRJMOD}/Capacitor_SMD.pretty")(options "")(descr "Vendored source footprint"))
+(lib (name "Connector_JST")(type "KiCad")(uri "${KIPRJMOD}/Connector_JST.pretty")(options "")(descr "Vendored source footprint"))
+(lib (name "Resistor_SMD")(type "KiCad")(uri "${KIPRJMOD}/Resistor_SMD.pretty")(options "")(descr "Vendored source footprint"))
+(lib (name "Round5")(type "KiCad")(uri "${KIPRJMOD}/Round5.pretty")(options "")(descr "Vendored source footprint"))
+)

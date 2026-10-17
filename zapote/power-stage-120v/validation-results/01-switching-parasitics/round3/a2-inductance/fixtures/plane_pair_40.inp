@@ -1,0 +1,13 @@
+* 10 x 50 mm finite copper plane pair, 0.5 mm dielectric gap
+.units mm
+.default sigma=5.8e7
+g1 x1=0 y1=0 z1=0 x2=50 y2=0 z2=0 x3=50 y3=10 z3=0
++ thick=0.061 seg1=40 seg2=20
++ n1s (0,5,0) n1e (50,5,0)
+g2 x1=0 y1=0 z1=0.5 x2=50 y2=0 z2=0.5 x3=50 y3=10 z3=0.5
++ thick=0.061 seg1=40 seg2=20
++ n2s (0,5,0.5) n2e (50,5,0.5)
+.equiv n1e n2e
+.external n1s n2s
+.freq fmin=1e7 fmax=1e7 ndec=1
+.end

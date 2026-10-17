@@ -1,0 +1,619 @@
+[
+  {
+    "unit": "current-sense",
+    "status": "indeterminate",
+    "population": {
+      "components": 21,
+      "connections": 64,
+      "connectivity_clusters": 14,
+      "traces": 88,
+      "vias": 28,
+      "zones": 2
+    },
+    "manufacturing_population": {
+      "evaluated": {
+        "DRC.P2.ANNULAR_RING": 68,
+        "DRC.P2.BODY_COLLISION": 190,
+        "DRC.P2.COPPER_OUTLINE": 217,
+        "DRC.P2.DRILL_CONFLICT": 561,
+        "DRC.P2.SUPPORTED_ANGLE": 20
+      },
+      "skipped": {
+        "DRC.P2.ANNULAR_RING": 58,
+        "DRC.P2.BODY_COLLISION": 0,
+        "DRC.P2.COPPER_OUTLINE": 0,
+        "DRC.P2.DRILL_CONFLICT": 0,
+        "DRC.P2.SUPPORTED_ANGLE": 0
+      }
+    },
+    "sections": {
+      "unit_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.BOARD.STACKUP",
+          "DRC.CURRENT_SENSE.CLEARANCE",
+          "DRC.CURRENT_SENSE.LOCALITY",
+          "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+          "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+          "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+          "ERC.CURRENT_SENSE.APPLICABILITY",
+          "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+          "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+          "ERC.CURRENT_SENSE.INPUT",
+          "ERC.CURRENT_SENSE.INTERFACES",
+          "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY"
+        ],
+        "findings_by_status": {
+          "indeterminate": 7,
+          "pass": 1
+        },
+        "nonpassing_messages": [
+          "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+          "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+          "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+          "hardware applicability is unsupported: NOT_RUN",
+          "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+          "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+          "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+        ]
+      },
+      "common_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "RUNNER.REQUIRED_CHECKS"
+        ],
+        "findings_by_status": {
+          "pass": 2
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "NATIVE.REPORT_CONTRACT",
+          "NATIVE.ERC",
+          "NATIVE.DRC",
+          "NATIVE.UNCONNECTED",
+          "NATIVE.SCHEMATIC_PARITY"
+        ],
+        "findings_by_status": {
+          "pass": 4
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P2.BODY_COLLISION",
+          "DRC.P2.ANNULAR_RING",
+          "DRC.P2.DRILL_CONFLICT",
+          "DRC.P2.COPPER_OUTLINE",
+          "DRC.P2.SUPPORTED_ANGLE"
+        ],
+        "findings_by_status": {
+          "indeterminate": 1
+        },
+        "nonpassing_messages": [
+          "mechanical findings use source-declared prototype limits; vendor/process qualification is pending"
+        ]
+      },
+      "operating_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P3.APPLICABILITY",
+          "ERC.P3.SHUTDOWN_TIMING_BOUND",
+          "ERC.P3.THERMAL_OPERATING_LIMIT"
+        ],
+        "findings_by_status": {
+          "indeterminate": 2,
+          "pass": 1
+        },
+        "nonpassing_messages": [
+          "device loss and thermal-path inputs are required",
+          "shutdown timing inputs are required"
+        ]
+      }
+    }
+  },
+  {
+    "unit": "gate-drive",
+    "status": "indeterminate",
+    "population": {
+      "components": 20,
+      "connections": 55,
+      "connectivity_clusters": 17,
+      "traces": 91,
+      "vias": 17,
+      "zones": 3
+    },
+    "manufacturing_population": {
+      "evaluated": {
+        "DRC.P2.ANNULAR_RING": 62,
+        "DRC.P2.BODY_COLLISION": 190,
+        "DRC.P2.COPPER_OUTLINE": 197,
+        "DRC.P2.DRILL_CONFLICT": 465,
+        "DRC.P2.SUPPORTED_ANGLE": 20
+      },
+      "skipped": {
+        "DRC.P2.ANNULAR_RING": 41,
+        "DRC.P2.BODY_COLLISION": 0,
+        "DRC.P2.COPPER_OUTLINE": 0,
+        "DRC.P2.DRILL_CONFLICT": 0,
+        "DRC.P2.SUPPORTED_ANGLE": 0
+      }
+    },
+    "sections": {
+      "unit_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "DRC.GATE_DRIVE.SAVED_BYTES",
+          "DRC.NATIVE.CLEARANCE",
+          "DRC.NATIVE.DOMAIN_SEPARATION",
+          "DRC.NATIVE.DOMAIN_SEPARATION",
+          "DRC.GATE_DRIVE.BYPASS_LOCALITY"
+        ],
+        "findings_by_status": {
+          "pass": 10
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "common_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "RUNNER.REQUIRED_CHECKS"
+        ],
+        "findings_by_status": {
+          "pass": 2
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "NATIVE.REPORT_CONTRACT",
+          "NATIVE.ERC",
+          "NATIVE.DRC",
+          "NATIVE.UNCONNECTED",
+          "NATIVE.SCHEMATIC_PARITY"
+        ],
+        "findings_by_status": {
+          "pass": 4
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "power_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+          "DRC.POWER.P1_SAVED_BOARD_IDENTITY",
+          "ERC.POWER.DOMAIN_PIN_CONTRACT",
+          "DRC.POWER.PATH_AMPACITY",
+          "DRC.POWER.PATH_AMPACITY",
+          "DRC.POWER.PATH_AMPACITY",
+          "DRC.POWER.ISOLATION_POPULATION"
+        ],
+        "findings_by_status": {
+          "pass": 2,
+          "indeterminate": 103
+        },
+        "nonpassing_messages": [
+          "actual trace geometry evaluated, but branch RMS current is unproven",
+          "via geometry is present but via current capacity is not modeled",
+          "pad geometry is present but pad/current-sharing capacity is not modeled",
+          "via waveform, plating, or current-density bound is unavailable",
+          "same-net pad/trace candidate; actual entry polygon, current and neck validation remain unimplemented",
+          "required barrier has no evidence record"
+        ]
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P2.BODY_COLLISION",
+          "DRC.P2.ANNULAR_RING",
+          "DRC.P2.DRILL_CONFLICT",
+          "DRC.P2.COPPER_OUTLINE",
+          "DRC.P2.SUPPORTED_ANGLE"
+        ],
+        "findings_by_status": {
+          "indeterminate": 1
+        },
+        "nonpassing_messages": [
+          "mechanical findings use source-declared prototype limits; vendor/process qualification is pending"
+        ]
+      },
+      "operating_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P3.AGGRESSOR_VICTIM_SPACING",
+          "DRC.P3.RETURN_PATH_CONTINUITY",
+          "DRC.P3.SWITCHING_LOOP_AREA",
+          "ERC.P3.SHUTDOWN_TIMING_BOUND",
+          "ERC.P3.THERMAL_OPERATING_LIMIT"
+        ],
+        "findings_by_status": {
+          "indeterminate": 8,
+          "pass": 2
+        },
+        "nonpassing_messages": [
+          "unscoped net extent bbox area=137.562 mm² for driver.15, gate_h.1 -> driver.14 (return); area is not a loop or inductance claim; requested bound None mm² cannot be evaluated",
+          "unscoped net extent bbox area=207.213 mm² for driver.10, gate_l.1 -> driver.9 (return); area is not a loop or inductance claim; requested bound None mm² cannot be evaluated",
+          "measured same-layer parallel overlap 0.000 mm; authored spacing/overlap limits are required",
+          "device loss and thermal-path inputs are required",
+          "shutdown timing inputs are required"
+        ]
+      }
+    }
+  },
+  {
+    "unit": "interlock",
+    "status": "indeterminate",
+    "population": {
+      "components": 25,
+      "connections": 110,
+      "connectivity_clusters": 32,
+      "traces": 212,
+      "vias": 135,
+      "zones": 2
+    },
+    "manufacturing_population": {
+      "evaluated": {
+        "DRC.P2.ANNULAR_RING": 302,
+        "DRC.P2.BODY_COLLISION": 300,
+        "DRC.P2.COPPER_OUTLINE": 611,
+        "DRC.P2.DRILL_CONFLICT": 11325,
+        "DRC.P2.SUPPORTED_ANGLE": 25
+      },
+      "skipped": {
+        "DRC.P2.ANNULAR_RING": 94,
+        "DRC.P2.BODY_COLLISION": 0,
+        "DRC.P2.COPPER_OUTLINE": 0,
+        "DRC.P2.DRILL_CONFLICT": 0,
+        "DRC.P2.SUPPORTED_ANGLE": 0
+      }
+    },
+    "sections": {
+      "unit_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "ERC.INTERLOCK.CONNECTIVITY",
+          "ERC.INTERLOCK.DIGITAL_MODEL",
+          "ERC.INTERLOCK.NATIVE_COMPONENTS",
+          "ERC.INTERLOCK.OPEN_MARGIN",
+          "ERC.INTERLOCK.PARTS",
+          "ERC.INTERLOCK.QUALIFICATION",
+          "ERC.INTERLOCK.SOURCE",
+          "ERC.INTERLOCK.STRICT_PIN_MAP",
+          "ERC.INTERLOCK.TOPOLOGY",
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "DRC.INTERLOCK.LOCALITY",
+          "DRC.NATIVE.CLEARANCE",
+          "ERC.INTERLOCK.INTERFACE_CONTRACT"
+        ],
+        "findings_by_status": {
+          "pass": 75,
+          "indeterminate": 5
+        },
+        "nonpassing_messages": [
+          "SENSOR_LIVE producer and remote power-off injection",
+          "AUX producer and downstream active-high PERMIT receiver",
+          "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal",
+          "HC30 threshold applicability at actual rail, harness transients and component failures",
+          "physical fault tests NOT RUN"
+        ]
+      },
+      "common_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "RUNNER.REQUIRED_CHECKS"
+        ],
+        "findings_by_status": {
+          "pass": 2
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "NATIVE.REPORT_CONTRACT",
+          "NATIVE.ERC",
+          "NATIVE.DRC",
+          "NATIVE.UNCONNECTED",
+          "NATIVE.SCHEMATIC_PARITY"
+        ],
+        "findings_by_status": {
+          "pass": 4
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P2.BODY_COLLISION",
+          "DRC.P2.ANNULAR_RING",
+          "DRC.P2.DRILL_CONFLICT",
+          "DRC.P2.COPPER_OUTLINE",
+          "DRC.P2.SUPPORTED_ANGLE"
+        ],
+        "findings_by_status": {
+          "indeterminate": 1
+        },
+        "nonpassing_messages": [
+          "mechanical findings use source-declared prototype limits; vendor/process qualification is pending"
+        ]
+      },
+      "operating_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P3.APPLICABILITY",
+          "ERC.P3.SHUTDOWN_TIMING_BOUND",
+          "ERC.P3.THERMAL_OPERATING_LIMIT"
+        ],
+        "findings_by_status": {
+          "indeterminate": 2,
+          "pass": 1
+        },
+        "nonpassing_messages": [
+          "device loss and thermal-path inputs are required",
+          "shutdown timing inputs are required"
+        ]
+      }
+    }
+  },
+  {
+    "unit": "rtd",
+    "status": "indeterminate",
+    "population": {
+      "components": 36,
+      "connections": 119,
+      "connectivity_clusters": 31,
+      "traces": 207,
+      "vias": 55,
+      "zones": 4
+    },
+    "manufacturing_population": {
+      "evaluated": {
+        "DRC.P2.ANNULAR_RING": 276,
+        "DRC.P2.BODY_COLLISION": 630,
+        "DRC.P2.COPPER_OUTLINE": 592,
+        "DRC.P2.DRILL_CONFLICT": 2346,
+        "DRC.P2.SUPPORTED_ANGLE": 36
+      },
+      "skipped": {
+        "DRC.P2.ANNULAR_RING": 105,
+        "DRC.P2.BODY_COLLISION": 0,
+        "DRC.P2.COPPER_OUTLINE": 0,
+        "DRC.P2.DRILL_CONFLICT": 0,
+        "DRC.P2.SUPPORTED_ANGLE": 0
+      }
+    },
+    "sections": {
+      "unit_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+          "DRC.RTD.FERRITE_SEMANTICS",
+          "DRC.RTD.LOCAL_DECOUPLING",
+          "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+          "DRC.RTD.NATIVE_GEOMETRY",
+          "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+          "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+          "ERC.RTD.ADC_PIN_NETS",
+          "ERC.RTD.BOARD_COMPONENT_BINDING",
+          "ERC.RTD.EXACT_COMPONENTS",
+          "ERC.RTD.FAULT_CORNERS",
+          "ERC.RTD.FAULT_OUTPUT",
+          "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+          "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+          "ERC.RTD.FORCE_SENSE_SEPARATION",
+          "ERC.RTD.FOUR_WIRE_PINOUT",
+          "ERC.RTD.MODEL_DEVICE_APPLICABILITY",
+          "ERC.RTD.MODEL_QUALIFICATION",
+          "ERC.RTD.NATIVE_CONNECTIVITY",
+          "ERC.RTD.RREF_IDENTITY",
+          "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+          "ERC.RTD.SHARED_REFERENCE",
+          "ERC.RTD.SPI_SERIES_PLACEMENT",
+          "ERC.RTD.UNIT_COMPONENT_MPN",
+          "ERC.RTD.UNIT_CONNECTIONS",
+          "ERC.RTD.UNIT_FIRMWARE",
+          "ERC.RTD.UNIT_INTERFACE",
+          "ERC.RTD.UNIT_MODEL",
+          "ERC.RTD.UNIT_SOURCE_BINDING"
+        ],
+        "findings_by_status": {
+          "pass": 5,
+          "indeterminate": 2
+        },
+        "nonpassing_messages": [
+          "passive network certificate is valid; comparator hysteresis, common-mode/input-capacitance conditions, MAX31865 force-path idealization, and brownout hardware applicability remain unqualified",
+          "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured"
+        ]
+      },
+      "common_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "RUNNER.REQUIRED_CHECKS"
+        ],
+        "findings_by_status": {
+          "pass": 2
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "NATIVE.REPORT_CONTRACT",
+          "NATIVE.ERC",
+          "NATIVE.DRC",
+          "NATIVE.UNCONNECTED",
+          "NATIVE.SCHEMATIC_PARITY"
+        ],
+        "findings_by_status": {
+          "pass": 4
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P2.BODY_COLLISION",
+          "DRC.P2.ANNULAR_RING",
+          "DRC.P2.DRILL_CONFLICT",
+          "DRC.P2.COPPER_OUTLINE",
+          "DRC.P2.SUPPORTED_ANGLE"
+        ],
+        "findings_by_status": {
+          "indeterminate": 1
+        },
+        "nonpassing_messages": [
+          "mechanical findings use source-declared prototype limits; vendor/process qualification is pending"
+        ]
+      }
+    }
+  },
+  {
+    "unit": "thermal-sense",
+    "status": "indeterminate",
+    "population": {
+      "components": 27,
+      "connections": 76,
+      "connectivity_clusters": 13,
+      "traces": 162,
+      "vias": 44,
+      "zones": 1
+    },
+    "manufacturing_population": {
+      "evaluated": {
+        "DRC.P2.ANNULAR_RING": 108,
+        "DRC.P2.BODY_COLLISION": 351,
+        "DRC.P2.COPPER_OUTLINE": 337,
+        "DRC.P2.DRILL_CONFLICT": 1431,
+        "DRC.P2.SUPPORTED_ANGLE": 27
+      },
+      "skipped": {
+        "DRC.P2.ANNULAR_RING": 66,
+        "DRC.P2.BODY_COLLISION": 0,
+        "DRC.P2.COPPER_OUTLINE": 0,
+        "DRC.P2.DRILL_CONFLICT": 0,
+        "DRC.P2.SUPPORTED_ANGLE": 0
+      }
+    },
+    "sections": {
+      "unit_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "ERC.THERMAL.ANALOG_FAULT_CASES",
+          "ERC.THERMAL.CONNECTIVITY",
+          "ERC.THERMAL.FAULT_CASES",
+          "ERC.THERMAL.FAULT_LOGIC",
+          "ERC.THERMAL.GATE_PIN_MAP",
+          "ERC.THERMAL.NATIVE_COMPONENTS",
+          "ERC.THERMAL.OPEN_CONTRACT",
+          "ERC.THERMAL.OPEN_MARGIN",
+          "ERC.THERMAL.OPEN_SETTLING",
+          "ERC.THERMAL.PARTS",
+          "ERC.THERMAL.QUALIFICATION",
+          "ERC.THERMAL.SENSOR_CONTRACT",
+          "ERC.THERMAL.SOURCE",
+          "ERC.THERMAL.STRICT_PIN_MAP",
+          "ERC.THERMAL.THRESHOLDS",
+          "ERC.THERMAL.THRESHOLD_CORNERS",
+          "ERC.THERMAL.TOPOLOGY",
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "DRC.THERMAL.LOCALITY",
+          "DRC.NATIVE.CLEARANCE"
+        ],
+        "findings_by_status": {
+          "pass": 97,
+          "indeterminate": 7
+        },
+        "nonpassing_messages": [
+          "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135–3.465 V monitor rail",
+          "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135–3.465 V monitor rail",
+          "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135–3.465 V monitor rail",
+          "beta extrapolation to coil 120°C and comparator hysteresis",
+          "external connector 85°C limit, mounting, thermal coupling, and self-heating",
+          "sensor harness open/short behavior and downstream latch integration",
+          "power-off behavior and system integration"
+        ]
+      },
+      "common_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "DRC.BOARD.STACKUP",
+          "DRC.NATIVE.DOCUMENT_BINDING",
+          "RUNNER.REQUIRED_CHECKS"
+        ],
+        "findings_by_status": {
+          "pass": 2
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "native_checks": {
+        "status": "pass",
+        "declared_rules": [
+          "NATIVE.REPORT_CONTRACT",
+          "NATIVE.ERC",
+          "NATIVE.DRC",
+          "NATIVE.UNCONNECTED",
+          "NATIVE.SCHEMATIC_PARITY"
+        ],
+        "findings_by_status": {
+          "pass": 4
+        },
+        "nonpassing_messages": [
+
+        ]
+      },
+      "manufacturing_checks": {
+        "status": "indeterminate",
+        "declared_rules": [
+          "DRC.P2.BODY_COLLISION",
+          "DRC.P2.ANNULAR_RING",
+          "DRC.P2.DRILL_CONFLICT",
+          "DRC.P2.COPPER_OUTLINE",
+          "DRC.P2.SUPPORTED_ANGLE"
+        ],
+        "findings_by_status": {
+          "indeterminate": 1
+        },
+        "nonpassing_messages": [
+          "mechanical findings use source-declared prototype limits; vendor/process qualification is pending"
+        ]
+      }
+    }
+  }
+]

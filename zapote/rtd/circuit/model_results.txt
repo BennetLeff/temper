@@ -1,0 +1,76 @@
+# Bounded RTD model receipt
+
+Commands (ngspice 45.2):
+
+    ngspice -b zapote/rtd/circuit/rtd_window_bounded.cir
+    ngspice -b zapote/rtd/circuit/rtd_sense_open_rc.cir
+    ngspice -b zapote/rtd/circuit/rtd_sense_minus_open_rc.cir
+    ngspice -b zapote/rtd/circuit/rtd_diagnostic_loading.cir
+
+Complete stdout is retained in [model_results_raw.txt](model_results_raw.txt).
+The decks are isolated passive/Boolean models. They are not vendor macro-models
+and do not establish PVT, EMC, common-mode, internal MAX switch, cable, or
+physical performance.
+
+The DC deck reports: 0/10 ohm fault, 100/194.1 ohm clear, 300 ohm/open
+approximation fault, and RTD_AVDD=0 fault. The hardware window is a local
+REFIN-/ISENSOR detector; it is not used to classify an isolated RTDIN sense
+open.
+
+The selected source values are paired 1 Mohm pullups (Yageo RC0603JR-071ML)
+and a 1 nF C0G differential capacitor (KEMET C0603C102J5GACTU). The RC deck
+sweeps 950k/1M/1.05M, 950p/1n/1.05n, 0/200pF added harness/PCB capacitance,
+and explicit MAX input-leakage corners of -14/+14 nA. At the slowest corner
+(1.05 Mohm, 1.05 nF + 200 pF, +14 nA), the positive SENSE+ deck measures
+1.607941 V and the matched SENSE- deck measures -1.607941 V at 30, 85, and
+95 ms. The 30 ms point is the earliest continuous-conversion launch after
+20 ms BIAS startup and the one-time automatic fault cycle.
+
+The worst temperature-adjusted RC is 1.322753 ms using +100 ppm/C pullup TCR,
++30 ppm/C C0G coefficient, +/-5% values, and <=200 pF parasitic. The MAX note
+requires 10.5 tau for 15-bit settling, giving 13.8889 ms. It is settled before
+the 30 ms startup launch; runtime classification uses the separate phase model
+and does not incorrectly substitute the endpoint voltage for a converter sample.
+The MAX gives 16.7..17.6 ms continuous periods and 52..55 ms first-continuous
+(single-conversion) time, labels the block a digital SINC filter, but publishes
+no order or step response. The phase model is therefore conditional.
+
+The paired healthy-load deck includes the 430 ohm RREF/RTD path, 1 ohm sense
+lead/contact resistance, 1 Mohm pullup corners, and independent +/-14 nA input
+leakage. At RTD=194.1 ohm its worst recorded differential error is 0.1845 mV,
+about 0.084 ohm using the local voltage slope (0.22 °C). This added network
+error is included in the normal 100 °C accuracy ledger; it is not excluded as
+a diagnostic-only term. The selected RREF is Susumu RG2012V-431-W-T1 (430 ohm,
+0.05%, 5 ppm/°C, 0805, 1/8 W). At the required steady-state 100 °C, the
+declared linear allocation is Class A probe 0.35 °C + MAX ADC 0.50 °C + RREF
+initial 0.18 °C + RREF drift over 60 °C 0.11 °C + network 0.22 °C +
+self-heating/contact 0.10 °C = 1.46 °C. The bounded extended 250 °C total is
+1.87 °C; that range is outside the product accuracy criterion. MAX gain/offset
+correlation, temperature correlation, connector effects, and EMC are outside
+this model and remain acceptance items.
+
+Deck SHA-256:
+
+    48ddf2774593f33cfd70b7fafbb1c69a786609a5e6f2e9fafebc70e2af996f73  rtd_window_bounded.cir
+    331c11f6a161409e999cd4824f32a43b71f3ed90c75da07ed28548bc85709831  rtd_sense_open_rc.cir
+    b530e0f41205a6afe018352cae1ecdef181d0a1224b978b0805933cccb2b8f60  rtd_sense_minus_open_rc.cir
+    f242cf86c830feafcf72e640e77066bea62e35bb48b6e8da0f3bc0213aea67ab  rtd_diagnostic_loading.cir
+
+## Phase-sampled continuous-filter model result
+
+The vendor facts are MAX31865 continuous 60 Hz period 16.7..17.6 ms, first
+continuous conversion 52..55 ms, and a block labeled digital SINC filter. The
+vendor does not state filter order, step response, phase reset, or transition
+sample acceptance. The companion `rtd_sinc_phase_model.txt` therefore applies a
+conditional causal third-order boxcar model with T=17.6 ms.
+
+The force/RREF path remains intact for an isolated sense break, so normalized
+ADC ratio `r=RRTD/RREF` is used, with conservative clipping to 0..1. SENSE+
+from 100 ohm (`r0=100/430`) to clipped full scale crosses 300 ohm (`r=300/430`)
+at 28.9116 ms. At 194.1 ohm the corresponding crossing is 25.1988 ms. SENSE-
+from 194.1 ohm (`r0=194.1/430`) to clipped code 0 crosses the 10 ohm low
+boundary at 40.8998 ms; the datasheet's negative-input code-0 rule is also
+applied. With one <=17.6 ms continuous sample phase, <=10 ms poll including
+scheduling jitter, <=5 ms sink, and 13.8889 ms RC accounting, the conditional
+runtime envelope is 87.3887 ms. This is a model result, not vendor-guaranteed
+timing or physical proof.

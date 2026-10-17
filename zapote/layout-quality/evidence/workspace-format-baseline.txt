@@ -1,0 +1,222 @@
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/src/lib.rs:2:
+
+ pub mod current_sense;
+ pub mod domain_clearance;
+-pub mod pad_escape;
+-pub mod power_barrier;
+ pub(crate) mod donor_clearance;
+ mod donor_geometry;
+ mod donor_sexpr;
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/src/lib.rs:10:
+ mod ipc;
+ pub mod native_binding;
++pub mod pad_escape;
++pub mod power_barrier;
+ pub mod stackup;
+
+ use zapote_core::{CheckReport, Finding, Pad, RunInput};
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/src/lib.rs:1970:
+
+ pub mod power_integrity;
+
+-pub mod switching;
+-pub mod power_contact;
+ pub mod power_branches;
++pub mod power_contact;
++pub mod switching;
+
+ /// Advisory electrical, geometric and assembly metrics for layout comparison.
+ pub mod layout_quality;
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/src/native_binding.rs:303:
+     use serde_json::{json, Value};
+     use zapote_core::Status;
+
+-    const ACTIVE_NATIVE: &str =
+-        include_str!("../tests/fixtures/active-rectifier-native.json");
++    const ACTIVE_NATIVE: &str = include_str!("../tests/fixtures/active-rectifier-native.json");
+
+     #[test]
+     fn active_board_empty_net_pads_bind_without_omitting_pad_identity() {
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/src/power_barrier.rs:106:
+ }
+
+ fn valid_point(point: [f64; 2]) -> bool {
+-    point.iter().all(|value| value.is_finite() && value.abs() <= 1.0e6)
++    point
++        .iter()
++        .all(|value| value.is_finite() && value.abs() <= 1.0e6)
+ }
+
+ fn core_bounds(core: &Core, radius: f64) -> [f64; 4] {
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/src/power_barrier.rs:281:
+         other => return Err(format!("unsupported copper item kinds: {other}")),
+     }
+     let bounds = core_bounds(&core, radius);
+-    if !bounds.iter().all(|value| value.is_finite() && value.abs() <= 1.0e6) {
++    if !bounds
++        .iter()
++        .all(|value| value.is_finite() && value.abs() <= 1.0e6)
++    {
+         return Err("copper bounds exceed the supported board-coordinate range".into());
+     }
+     Ok(Copper {
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc/tests/branch_cut_oracle.rs:1:
+ //! Brute-force edge deletion oracle, independent of production Tarjan/DFS.
+-use zapote_drc::power_branches::{Edge, Graph, Sample, analyze};
++use zapote_drc::power_branches::{analyze, Edge, Graph, Sample};
+
+ fn reachable(g: &Graph, start: usize, removed: Option<usize>) -> Vec<bool> {
+     let mut seen = vec![false; g.node_count];
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-erc/src/fault_loop.rs:136:
+     #[test]
+     fn a_three_terminal_device_qualifies_on_two_power_terminals() {
+         // U9's gate sits on q_boost-g, outside the loop
+-        assert!(loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U9", 1.0)])).is_empty());
++        assert!(
++            loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U9", 1.0)]))
++                .is_empty()
++        );
+     }
+
+     #[test]
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-erc/src/fault_loop.rs:143:
+     fn an_element_absent_from_the_netlist_is_rejected() {
+-        let failures = loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U99", 1.0)]));
++        let failures =
++            loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U99", 1.0)]));
+         assert!(failures.iter().any(|f| f.contains("U99")), "{failures:?}");
+     }
+
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-erc/src/fault_loop.rs:148:
+     #[test]
+     fn a_zero_assignment_is_ignored() {
+-        assert!(loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U12", 0.0)])).is_empty());
++        assert!(
++            loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U12", 0.0)]))
++                .is_empty()
++        );
+     }
+
+     #[test]
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-erc/src/fault_loop.rs:154:
+     fn a_device_outside_the_loop_is_rejected() {
+-        let failures = loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U1", 40.0)]));
++        let failures =
++            loop_inconsistencies(&evidence(), &loop_nets(), &assignments(&[("U1", 40.0)]));
+         assert_eq!(failures.len(), 1, "{failures:?}");
+     }
+ }
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-erc/src/lib.rs:881:
+     }
+ }
+
+-pub mod thermal_sense;
+ pub mod domain_contract;
++pub mod thermal_sense;
+
+-pub mod operating_limits;
+ pub mod fault_loop;
++pub mod operating_limits;
+
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness/src/bin/zapote-fault-loop.rs:40:
+         ),
+     };
+
+-    let evidence: NetlistEvidence = serde_json::from_str(
+-        &fs::read_to_string(&netlist).context("netlist evidence")?,
+-    )
+-    .context("parse netlist evidence")?;
+-    let assigned: BTreeMap<String, f64> = serde_json::from_str(
+-        &fs::read_to_string(&assignments).context("assignments")?,
+-    )
+-    .context("parse assignments")?;
++    let evidence: NetlistEvidence =
++        serde_json::from_str(&fs::read_to_string(&netlist).context("netlist evidence")?)
++            .context("parse netlist evidence")?;
++    let assigned: BTreeMap<String, f64> =
++        serde_json::from_str(&fs::read_to_string(&assignments).context("assignments")?)
++            .context("parse assignments")?;
+     let loop_nets: std::collections::BTreeSet<String> = loop_nets_raw
+         .split(',')
+         .map(str::trim)
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness/src/bin/zapote-unit-run.rs:152:
+         assert_eq!(u.board, Path::new("/run/board.kicad_pcb"));
+         assert_eq!(u.schematic, Path::new("/run/section.kicad_sch"));
+         assert_eq!(u.contract.as_deref(), Some(Path::new("/run/contract.json")));
+-        assert_eq!(u.composite.as_deref(), Some(Path::new("/run/composite.json")));
++        assert_eq!(
++            u.composite.as_deref(),
++            Some(Path::new("/run/composite.json"))
++        );
+     }
+ }
+
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness/src/lib.rs:529:
+     }
+ }
+
+-pub mod thermal_sense;
+ pub mod p1;
++pub mod thermal_sense;
+
+ pub mod p3;
+
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness/src/p1.rs:72:
+     r.findings.push(match &parsed {
+         Ok(Ok(c)) => match unit {
+             P1Unit::GateDrive => match c.bind_native(native) {
+-            Ok(()) => Finding::pass(
+-                "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
+-                "source circuit and native package-pin membership agree",
+-                *entry.as_ref().unwrap(),
+-            ),
+-            Err(e) => Finding::fail("ERC.POWER.P1_SOURCE_NATIVE_BINDING", e, *entry.as_ref().unwrap()),
++                Ok(()) => Finding::pass(
++                    "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
++                    "source circuit and native package-pin membership agree",
++                    *entry.as_ref().unwrap(),
++                ),
++                Err(e) => Finding::fail(
++                    "ERC.POWER.P1_SOURCE_NATIVE_BINDING",
++                    e,
++                    *entry.as_ref().unwrap(),
++                ),
+             },
+         },
+         Ok(Err(e)) => Finding::fail(
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness/src/runner.rs:454:
+         )),
+         _ => None,
+     };
+-    let operating_checks = match spec.unit {
+-        UnitKind::GateDrive
+-        | UnitKind::CurrentSense
+-        | UnitKind::Interlock => Some(crate::p3::run(
+-            spec.unit.name(),
+-            &source,
+-            &native_text,
+-            &board,
+-        )),
+-        _ => None,
+-    };
++    let operating_checks =
++        match spec.unit {
++            UnitKind::GateDrive | UnitKind::CurrentSense | UnitKind::Interlock => Some(
++                crate::p3::run(spec.unit.name(), &source, &native_text, &board),
++            ),
++            _ => None,
++        };
+     let (manufacturing_checks, manufacturing_receipt_sha256, manufacturing_population) =
+         manufacturing_run(spec, out, python, &native)?;
+     bound_manufacturing_bytes(
+Diff in /Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-harness/tests/board_cli.rs:39:
+
+ /// Remove the balanced `(stackup ...)` block from a saved KiCad board.
+ fn without_stackup(board: &str) -> String {
+-    let start = board.find("(stackup").expect("saved board declares a stackup");
++    let start = board
++        .find("(stackup")
++        .expect("saved board declares a stackup");
+     let mut depth = 0usize;
+     for (offset, ch) in board[start..].char_indices() {
+         match ch {

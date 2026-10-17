@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "tamper_detected_before_simulation": true,
+  "source_provenance_pin_enforced": true,
+  "stale_success_invalidated": true,
+  "optimized_python_invalidates_stale_success": true,
+  "wrong_head_invalidates_stale_success": true,
+  "foreign_output_rejected_without_writes": true,
+  "failure": "AssertionError: envelope-summary.json"
+}

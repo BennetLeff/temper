@@ -1,0 +1,658 @@
+{
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "task01_loop_analysis": {
+    "result": "identical JSON replay",
+    "replayed_output": {
+      "status": "PARTIAL_BLOCKED",
+      "evidence_class": "heuristic analytic estimates of sampled geometry only",
+      "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+      "input_sha256": {
+        "copper.json.gz": "6e8beebdbf82b38760e007148e40bb8a515828a86024a1d3b7701449ee920964",
+        "vias-and-pads.json": "126fe52f91157f35783da729936014cd78460a724734b1842c077654eaf1e350",
+        "stackup.json": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d"
+      },
+      "plane_pair_paths": {
+        "A_C38_bus_to_Q2": {
+          "from": "C38.1",
+          "to": "Q2.2",
+          "conductor_nets": [
+            "bus_p",
+            "hv_ret"
+          ],
+          "pad_centre_distance_mm": 21.454748308940843,
+          "sample_step_mm": 0.4989476350916475,
+          "covered_length_mm": 10.477900336924598,
+          "uncovered_length_mm": 10.976847972016245,
+          "minimum_covered_width_mm": 12.68333204196887,
+          "covered_inductance_nH": 0.4010101999949752,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "A_C39_bus_to_Q2": {
+          "from": "C39.1",
+          "to": "Q2.2",
+          "conductor_nets": [
+            "bus_p",
+            "hv_ret"
+          ],
+          "pad_centre_distance_mm": 19.755156921674907,
+          "sample_step_mm": 0.49387892304187264,
+          "covered_length_mm": 9.38369953779558,
+          "uncovered_length_mm": 10.371457383879326,
+          "minimum_covered_width_mm": 18.204440452046587,
+          "covered_inductance_nH": 0.299259715718959,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "A_Q3_source_to_R5": {
+          "from": "Q3.3",
+          "to": "R5.1",
+          "conductor_nets": [
+            "leg_ret",
+            "bus_p"
+          ],
+          "pad_centre_distance_mm": 17.185436421575083,
+          "sample_step_mm": 0.4910124691878595,
+          "covered_length_mm": 4.910124691878595,
+          "uncovered_length_mm": 12.275311729696488,
+          "minimum_covered_width_mm": 2.632853100565551,
+          "covered_inductance_nH": 1.1452472195507235,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "A_R5_to_C38_return": {
+          "from": "R5.4",
+          "to": "C38.2",
+          "conductor_nets": [
+            "hv_ret",
+            "bus_p"
+          ],
+          "pad_centre_distance_mm": 7.140059523561412,
+          "sample_step_mm": 0.47600396823742747,
+          "covered_length_mm": 0.0,
+          "uncovered_length_mm": 7.140059523561412,
+          "minimum_covered_width_mm": null,
+          "covered_inductance_nH": null,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "A_R5_to_C39_return": {
+          "from": "R5.4",
+          "to": "C39.2",
+          "conductor_nets": [
+            "hv_ret",
+            "bus_p"
+          ],
+          "pad_centre_distance_mm": 24.58663153016289,
+          "sample_step_mm": 0.4917326306032578,
+          "covered_length_mm": 1.9669305224130311,
+          "uncovered_length_mm": 22.619701007749857,
+          "minimum_covered_width_mm": 6.125420911272188,
+          "covered_inductance_nH": 0.12467547683518009,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "B_C40_bus_to_Q5": {
+          "from": "C40.1",
+          "to": "Q5.2",
+          "conductor_nets": [
+            "bus_p",
+            "hv_ret"
+          ],
+          "pad_centre_distance_mm": 20.911868041856042,
+          "sample_step_mm": 0.4979016200441915,
+          "covered_length_mm": 7.966425920707064,
+          "uncovered_length_mm": 12.945442121148979,
+          "minimum_covered_width_mm": 2.2993031666126824,
+          "covered_inductance_nH": 1.0828703963490933,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "B_C41_bus_to_Q5": {
+          "from": "C41.1",
+          "to": "Q5.2",
+          "conductor_nets": [
+            "bus_p",
+            "hv_ret"
+          ],
+          "pad_centre_distance_mm": 20.21054737012335,
+          "sample_step_mm": 0.4929401797591061,
+          "covered_length_mm": 7.887042876145697,
+          "uncovered_length_mm": 12.323504493977651,
+          "minimum_covered_width_mm": 3.100448827099347,
+          "covered_inductance_nH": 0.7103509381274755,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "B_Q6_source_to_R5": {
+          "from": "Q6.3",
+          "to": "R5.1",
+          "conductor_nets": [
+            "leg_ret",
+            "bus_p"
+          ],
+          "pad_centre_distance_mm": 7.8408688931775945,
+          "sample_step_mm": 0.49005430582359966,
+          "covered_length_mm": 2.450271529117998,
+          "uncovered_length_mm": 5.390597364059596,
+          "minimum_covered_width_mm": 3.4485541651190874,
+          "covered_inductance_nH": 0.4347383414072077,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "B_R5_to_C40_return": {
+          "from": "R5.4",
+          "to": "C40.2",
+          "conductor_nets": [
+            "hv_ret",
+            "bus_p"
+          ],
+          "pad_centre_distance_mm": 6.680602517737451,
+          "sample_step_mm": 0.4771858941241036,
+          "covered_length_mm": 0.0,
+          "uncovered_length_mm": 6.680602517737451,
+          "minimum_covered_width_mm": null,
+          "covered_inductance_nH": null,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        },
+        "B_R5_to_C41_return": {
+          "from": "R5.4",
+          "to": "C41.2",
+          "conductor_nets": [
+            "hv_ret",
+            "bus_p"
+          ],
+          "pad_centre_distance_mm": 23.36297177158761,
+          "sample_step_mm": 0.4970845057784598,
+          "covered_length_mm": 0.0,
+          "uncovered_length_mm": 23.36297177158761,
+          "minimum_covered_width_mm": null,
+          "covered_inductance_nH": null,
+          "total_inductance_nH": null,
+          "source": "native-13 filled zones and stackup.json; L=mu0*d*length/overlap_width",
+          "limitation": "Centreline approximation; filled polygon holes are not subtracted. Uncovered length is unmodelled, not zero inductance."
+        }
+      },
+      "gate_paths": {
+        "Q2": {
+          "driver": "U1.15",
+          "series_resistor": [
+            "R10.1",
+            "R10.2"
+          ],
+          "gate": "Q2.1",
+          "driver_return": "U1.14",
+          "source": "Q2.3",
+          "geometry_source": "native-13 authored tracks and native pad positions in copper.json.gz/vias-and-pads.json",
+          "driver_to_resistor_track_length_mm": 38.232588846997324,
+          "resistor_to_gate_net_track_length_mm": 10.244420566479587,
+          "driver_to_resistor_track_widths_mm": [
+            0.8
+          ],
+          "return_chord_mm": 39.976544685602825,
+          "LG_nH": null,
+          "reason_LG_unresolved": "A source-return conductor paired continuously with each gate-track section has not been established; total gate-net tracks also include hold-off branches."
+        },
+        "Q3": {
+          "driver": "U1.10",
+          "series_resistor": [
+            "R12.1",
+            "R12.2"
+          ],
+          "gate": "Q3.1",
+          "driver_return": "U1.9",
+          "source": "Q3.3",
+          "geometry_source": "native-13 authored tracks and native pad positions in copper.json.gz/vias-and-pads.json",
+          "driver_to_resistor_track_length_mm": 43.26842143315831,
+          "resistor_to_gate_net_track_length_mm": 10.244420566479587,
+          "driver_to_resistor_track_widths_mm": [
+            0.5,
+            0.6
+          ],
+          "return_chord_mm": 37.990237232741784,
+          "LG_nH": null,
+          "reason_LG_unresolved": "A source-return conductor paired continuously with each gate-track section has not been established; total gate-net tracks also include hold-off branches."
+        },
+        "Q5": {
+          "driver": "U2.15",
+          "series_resistor": [
+            "R18.1",
+            "R18.2"
+          ],
+          "gate": "Q5.1",
+          "driver_return": "U2.14",
+          "source": "Q5.3",
+          "geometry_source": "native-13 authored tracks and native pad positions in copper.json.gz/vias-and-pads.json",
+          "driver_to_resistor_track_length_mm": 30.797630887600015,
+          "resistor_to_gate_net_track_length_mm": 10.244420566479576,
+          "driver_to_resistor_track_widths_mm": [
+            0.8
+          ],
+          "return_chord_mm": 36.93486327306492,
+          "LG_nH": null,
+          "reason_LG_unresolved": "A source-return conductor paired continuously with each gate-track section has not been established; total gate-net tracks also include hold-off branches."
+        },
+        "Q6": {
+          "driver": "U2.10",
+          "series_resistor": [
+            "R20.1",
+            "R20.2"
+          ],
+          "gate": "Q6.1",
+          "driver_return": "U2.9",
+          "source": "Q6.3",
+          "geometry_source": "native-13 authored tracks and native pad positions in copper.json.gz/vias-and-pads.json",
+          "driver_to_resistor_track_length_mm": 35.413304220185516,
+          "resistor_to_gate_net_track_length_mm": 10.244420566479576,
+          "driver_to_resistor_track_widths_mm": [
+            0.5
+          ],
+          "return_chord_mm": 39.13410437201802,
+          "LG_nH": null,
+          "reason_LG_unresolved": "A source-return conductor paired continuously with each gate-track section has not been established; total gate-net tracks also include hold-off branches."
+        }
+      },
+      "via_terms": {
+        "formula": "mu0*h/(2*pi)*(ln(4*h/drill)+1)",
+        "source": "native-13 via drills/positions in vias-and-pads.json; F.Cu-to-In1 dielectric from stackup.json; formula from SIMULATION-RUNBOOK.md section 3",
+        "transition": "F.Cu to In1.Cu",
+        "h_mm": 0.4355,
+        "drill_mm": 0.8,
+        "single_via_nH": 0.15487925413074774,
+        "power_via_centres": [
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              58.5,
+              2.5
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              58.5,
+              4.5
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              58.5,
+              6.5
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              67.2,
+              32.2
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              67.2,
+              34.0
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              68.5,
+              47.0
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              68.5,
+              48.8
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              68.5,
+              53.0
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              68.5,
+              54.8
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              68.5,
+              56.6
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              68.5,
+              58.4
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              81.5,
+              2.5
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              81.5,
+              4.5
+            ]
+          },
+          {
+            "net": "bus_p",
+            "centre_mm": [
+              81.5,
+              6.5
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              83.5,
+              28.6
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              83.5,
+              30.4
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              85.3,
+              29.5
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              90.0,
+              28.6
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              90.0,
+              30.4
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              91.5,
+              29.5
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              122.6,
+              18.2
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              124.4,
+              18.2
+            ]
+          },
+          {
+            "net": "hv_ret",
+            "centre_mm": [
+              126.2,
+              18.6
+            ]
+          },
+          {
+            "net": "leg_ret",
+            "centre_mm": [
+              126.9,
+              4.3
+            ]
+          },
+          {
+            "net": "leg_ret",
+            "centre_mm": [
+              128.4,
+              4.3
+            ]
+          },
+          {
+            "net": "leg_ret",
+            "centre_mm": [
+              129.9,
+              4.3
+            ]
+          },
+          {
+            "net": "sw_a",
+            "centre_mm": [
+              198.5,
+              72.0
+            ]
+          },
+          {
+            "net": "sw_a",
+            "centre_mm": [
+              201.5,
+              22.0
+            ]
+          }
+        ],
+        "parallel_bank_equivalent_nH": null,
+        "reason": "Current distribution across each bank has not been validated."
+      },
+      "deck_parameters_nH": {
+        "LD_HS": null,
+        "LS_HS": null,
+        "LD_LS": null,
+        "LS_LS": null,
+        "LCAP": null,
+        "LCS": null,
+        "LG": null,
+        "LBULK": null
+      },
+      "leg_total_nH": {
+        "A": {
+          "low": null,
+          "nominal": null,
+          "high": null
+        },
+        "B": {
+          "low": null,
+          "nominal": null,
+          "high": null
+        }
+      },
+      "missing_inputs": [
+        "B32652A0104K000 capacitor ESL or measured self-resonance; TDK June 2026 series datasheet has no numeric value",
+        "continuous paired-current geometry and current division needed to map plane/via terms to LD_HS, LS_HS, LD_LS, LS_LS and LCS",
+        "source-return path geometry needed to assign LG"
+      ],
+      "note": "The Infineon L1 subcircuit already contains package inductance; it must not be added to these board parameters. No placeholder defaults are substituted."
+    }
+  },
+  "task04_solver_audit": {
+    "result": "four failures independently reproduced; JSON equal excluding checkout path",
+    "replayed_output": {
+      "four_layer_via": {
+        "kit_ohm": 0.001743310868097037,
+        "analytic_ohm": 0.0005811036226990141,
+        "ratio": 2.9999999999999907,
+        "current_edges_a": [
+          0.9999999999999991,
+          0.9999999999999972,
+          0.9999999999999946
+        ]
+      },
+      "unequal_sources": {
+        "kit_ohm": 0.003501961524227167,
+        "power_equivalent_ohm": 0.0028996410161514796,
+        "ratio": 1.2077224403712952,
+        "source_volts": [
+          0.007003923048454334,
+          0.004594641016151584
+        ]
+      },
+      "outside_copper_snap": {
+        "point_mm": [
+          1.1,
+          0.25
+        ],
+        "covered_by_polygon": false,
+        "accepted_node": 2
+      },
+      "disconnected_region": {
+        "resistance_ohm": "NaN",
+        "matrix_rank_warnings": [
+          "Matrix is exactly singular"
+        ]
+      },
+      "audit_reproduced": true
+    }
+  },
+  "task07_pitch": {
+    "result": "identical JSON replay; exact ordering code independently checked against manufacturer PDF",
+    "replayed_output": {
+      "board": "native-13/section.kicad_pcb",
+      "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+      "capacitors": [
+        {
+          "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+          "outside_manufacturer_tolerance": true,
+          "pad_center_pitch_mm": 22.5,
+          "pad_nets": {
+            "1": "l_f",
+            "2": "ac_n_in"
+          },
+          "pitch_shortfall_mm": 5.0,
+          "reference": "C1"
+        },
+        {
+          "footprint": "Capacitor_THT:C_Rect_L26.5mm_W10.5mm_P22.50mm_MKS4",
+          "outside_manufacturer_tolerance": true,
+          "pad_center_pitch_mm": 22.5,
+          "pad_nets": {
+            "1": "l_filt",
+            "2": "n_filt"
+          },
+          "pitch_shortfall_mm": 5.0,
+          "reference": "C2"
+        }
+      ],
+      "manufacturer_part": "R463R410000M1M",
+      "manufacturer_pitch_mm": 27.5,
+      "manufacturer_pitch_tolerance_mm": 0.4,
+      "mosfet_drain_tab_nets": {
+        "Q2": "bus_p",
+        "Q3": "sw_a",
+        "Q5": "bus_p",
+        "Q6": "sw_b"
+      },
+      "source": "sources/KEM_F3095_R46_X2_310_110C.pdf",
+      "source_sha256": "5a3131ce8de7445130b777cab1a5e1a17e6b5f3343faddfe19735221db205094"
+    }
+  },
+  "task02_representative_frontends": [
+    {
+      "kind": "ct",
+      "params": {
+        "FREQ": "33000",
+        "I0": "37",
+        "SLOPE": "1000000.0",
+        "VOS": "-0.004",
+        "TPD": "4.5e-08"
+      },
+      "meas": {
+        "t_ip_trip": 3.45497e-05,
+        "t_in_trip": 2.11713e-05,
+        "t_pos_trip": 3.47195e-05,
+        "t_or": 2.12743e-05,
+        "t_ip_zero": 9.09091e-05,
+        "t_zc": 9.10794e-05,
+        "sense_max": 3.794703
+      },
+      "exact_match": true
+    },
+    {
+      "kind": "ocp",
+      "params": {
+        "SLOPE": "1000000.0",
+        "VOS": "-0.004",
+        "TPD": "55e-9"
+      },
+      "meas": {
+        "t_i_trip": 6.1e-05,
+        "t_ok_low": 6.95306e-05
+      },
+      "exact_match": true
+    }
+  ],
+  "task05_representative_tank": {
+    "params": {
+      "VRMS": "108",
+      "FREQ": "34607.4721469573",
+      "LLOAD": "5.179999999999999e-05",
+      "RPAN40": "2.52",
+      "RCOIL": "0.105"
+    },
+    "result": {
+      "deck": "/Users/bennet/Desktop/temper/worktrees/ps-sim-validation/zapote/power-stage-120v/validation-plan/sim-kit/05-tank/tank.cir",
+      "params": {
+        "VRMS": "108",
+        "FREQ": "34607.4721469573",
+        "LLOAD": "5.179999999999999e-05",
+        "RPAN40": "2.52",
+        "RCOIL": "0.105"
+      },
+      "run_dir": "/var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/ps-sim05-replay-le_7bbt5",
+      "aborted": false,
+      "meas": {
+        "i_rms": 26.4368,
+        "i_pk": 51.46897,
+        "vc_pk": 452.0684,
+        "vc_rms": 224.961,
+        "p_avg": 1711.491
+      },
+      "failed": [],
+      "log_tail": [
+        "",
+        "Total DRAM available = 32768.000 MB.",
+        "DRAM currently available =  247.859 MB.",
+        "Maximum ngspice program size =   21.766 MB.",
+        "Current ngspice program size =   21.766 MB.",
+        ""
+      ]
+    },
+    "peak_match": true
+  },
+  "scope_check": "Only validation-results and master plan differ from 36ba41f24; board/source/shared kit unchanged."
+}

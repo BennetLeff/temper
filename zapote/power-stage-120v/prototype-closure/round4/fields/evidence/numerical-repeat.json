@@ -1,0 +1,12 @@
+{
+  "status": "SIMULATED_SAME_MESH_NUMERICAL_REPEAT",
+  "serial_nH": 27.817975,
+  "four_rank_nH": 27.818028,
+  "absolute_difference_nH": 5.300000000119098e-05,
+  "relative_difference": 1.905242923008989e-06,
+  "limit": "This changes both rank count and restart; it is not mesh convergence or physical accuracy.",
+  "inputs": {
+    "A-serial-diagonal.json": "d08e6b7cd45f506edd4b2a9b64a249bca3075d701f29e95a675ac21e1e869e03",
+    "A-parallel-diagonal.json": "4337ae98bd0718896bbe025141a127cd696026a260c76e9ebe605c8c1fa6dcec"
+  }
+}

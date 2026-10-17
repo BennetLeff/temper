@@ -1,0 +1,52 @@
+Running FastHenry 3.0.1 (28May12)
+Source code fixes and compilation by FastFieldSolvers, 2012
+  Date: Sun Sep 27 18:19:37 2026
+  Host: Bennets-MacBook-Pro-2.local
+Solution technique: ITERATIVE
+Matrix vector product method: MULTIPOLE
+  Order of expansion: 2
+Preconditioner: ON
+Error tolerance: 0.001
+Reading from file: /Users/bennet/Desktop/temper/worktrees/ps-r3-integration/zapote/power-stage-120v/validation-results/01-switching-parasitics/round3/a2-inductance/fixtures/straight_wire_8.inp
+Title:
+* 50 mm x 1 mm square straight conductor; partial self L
+
+all lengths multiplied by 0.001 to convert to meters
+Total number of filaments before multipole refine: 64
+Total number of filaments after multipole refine: 512
+
+Multipole Summary
+  Expansion order: 2
+  Number of partitioning levels: 3
+  Total number of filaments: 512
+Percentage of multiplies done by multipole: 100%
+Scanning graph to find fundamental circuits...
+Number of Groundplanes : 0 
+Number of filaments:        512
+Number of segments:           8
+Number of nodes:              9
+Number of meshes:           505
+          ----from tree:                   1 
+          ----from planes: (before holes)  0 
+Number of conductors:         1   (rows of matrix in Zc.mat) 
+Number of columns:            1   (columns of matrix in Zc.mat) 
+Number of real nodes:         9
+filling M...
+filling R and L...
+Total Memory allocated: 1654 kilobytes
+Frequency = 1e+07
+Forming sparse matrix preconditioner..
+conductor 0 from node n1
+Calling gmres...
+1 2 3 4 
+
+All impedance matrices dumped to file Zc.mat
+
+Times:  Read geometry   5e-05
+        Multipole setup 0.011792
+        Scanning graph  2e-06
+        Form A M and Z  1.2e-05
+        form M'ZM       0
+        Form precond    0.015152
+        GMRES time      0.00397
+   Total:               0.030978

@@ -1,0 +1,27 @@
+{
+  "original_inputs_verified": 14,
+  "raw_records_reparsed": 1770,
+  "retained_incomplete_records": 101,
+  "abort_nonzero_missing_and_truncated_mutations_rejected": true,
+  "qualification": {
+    "rows": 246,
+    "all_complete": true,
+    "identity_inventory_matches": true
+  },
+  "convergence": {
+    "rows": 600,
+    "all_complete": true,
+    "identity_inventory_matches": true
+  },
+  "boundary_probe": {
+    "rows": 1,
+    "all_complete": true,
+    "identity_inventory_matches": true
+  },
+  "same_step_all_printed_measurements_identical": 221,
+  "original_aborts_recovered": 25,
+  "fine_interval_pairs": 200,
+  "fine_interval_outside_tolerance": 0,
+  "fine_interval_classification_changes": 1,
+  "decision_fine_interval_tolerance_and_verdict_passes": 192
+}

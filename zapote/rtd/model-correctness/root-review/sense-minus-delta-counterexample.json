@@ -1,0 +1,18 @@
+{
+  "source": "zapote/rtd/circuit/rtdin_transient_model.py",
+  "source_sha256": "1cab91630f8d1b4229b5f15a34ffd1b88a4a0d04e07299c4811b76e18db7429f",
+  "cases": [
+    {
+      "rtd_ohm": 100.0,
+      "lead_ohm_each": 50,
+      "delta_rtdin_p_v": 0.000651215502281588,
+      "rejected_draft_limit_v": 0.00025
+    },
+    {
+      "rtd_ohm": 194.1,
+      "lead_ohm_each": 50,
+      "delta_rtdin_p_v": 0.0005770774689676239,
+      "rejected_draft_limit_v": 0.00025
+    }
+  ]
+}

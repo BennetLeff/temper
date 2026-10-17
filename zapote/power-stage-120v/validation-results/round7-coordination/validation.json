@@ -1,0 +1,21 @@
+{
+  "raw_manifest_files_verified": 358,
+  "raw_bytes": 417368869,
+  "licensed_raw_files": 0,
+  "python_syntax_files": 13,
+  "zsh_syntax_files": 4,
+  "summary_regeneration": "byte-identical coax and plates",
+  "plate_logs_and_1A_sources": "independently matched summary",
+  "native17_sha256": "unchanged",
+  "local_links": "pass",
+  "mutation_checks_passed": 22,
+  "scoped_ruff": "pass",
+  "import_boundary_gate": "5 kept, 0 broken",
+  "make_regen": "pass; no generated diff",
+  "make_regen_check": "pass",
+  "code_review": {
+    "status": "complete",
+    "run_id": "20260928-152038-748b39ca",
+    "remaining_findings": 0
+  }
+}

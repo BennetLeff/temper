@@ -1,0 +1,141 @@
+{
+  "cases": [
+    {
+      "name": "best_S3_v280_i5_d1_dt250_esl20",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "280",
+        "IL": "5",
+        "DIR": "1",
+        "DT": "250n",
+        "LESL": "20n",
+        "LSHUNT": "2n",
+        "TRMAX": "0.2n"
+      },
+      "deck": "d2/leg_matrix.cir",
+      "group": "grid-abort"
+    },
+    {
+      "name": "best_S3_v280_i5_d1_dt307_esl20",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "280",
+        "IL": "5",
+        "DIR": "1",
+        "DT": "307n",
+        "LESL": "20n",
+        "LSHUNT": "2n",
+        "TRMAX": "0.2n"
+      },
+      "deck": "d2/leg_matrix.cir",
+      "group": "grid-abort"
+    },
+    {
+      "name": "best_S3_v280_i10_d1_dt250_esl1.06",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "280",
+        "IL": "10",
+        "DIR": "1",
+        "DT": "250n",
+        "LESL": "1.06n",
+        "LSHUNT": "2n",
+        "TRMAX": "0.2n"
+      },
+      "deck": "d2/leg_matrix.cir",
+      "group": "grid-abort"
+    },
+    {
+      "name": "d6_lin_baseline_S1_v280_i37_d1_dt307",
+      "params": {
+        "LP1": "26.5944n",
+        "LP2": "25.9745n",
+        "LP3": "25.9394n",
+        "LP4": "36.2982n",
+        "K12": "0.61234757",
+        "K13": "0.134853193",
+        "K14": "0.163596468",
+        "K23": "0.126952541",
+        "K24": "0.172340472",
+        "K34": "-0.00695459601",
+        "VBUS": "280",
+        "IL": "37",
+        "DIR": "1",
+        "DT": "307n",
+        "LESL": "10n",
+        "LSHUNT": "2n",
+        "TRMAX": "0.1n"
+      },
+      "deck": "delegation/out-D6/decks/baseline.cir",
+      "group": "refine"
+    },
+    {
+      "name": "d6_quad_off1_c1_neg2_S2_v280_i71_d1_dt348",
+      "params": {
+        "LP1": "24.8781n",
+        "LP2": "24.1373n",
+        "LP3": "24.5359n",
+        "LP4": "35.7635n",
+        "K12": "0.630159662",
+        "K13": "0.161484424",
+        "K14": "0.182729107",
+        "K23": "0.156662305",
+        "K24": "0.193877987",
+        "K34": "-0.00880750859",
+        "VBUS": "280",
+        "IL": "71",
+        "DIR": "1",
+        "DT": "348n",
+        "LESL": "10n",
+        "LSHUNT": "2n",
+        "TRMAX": "0.1n"
+      },
+      "deck": "delegation/out-D6/decks/off1_c1_neg2.cir",
+      "group": "refine"
+    }
+  ],
+  "options": {
+    "old": "",
+    "itl4": ".options itl4=1000",
+    "tight": ".options reltol=1e-4",
+    "gmin12": ".options gmin=1e-12",
+    "abstol8": ".options abstol=1e-8",
+    "vntol5": ".options vntol=1e-5",
+    "trap": ".options method=trap",
+    "trtol1": ".options trtol=1",
+    "noopiter": ".options noopiter",
+    "chgtol18": ".options chgtol=1e-18"
+  },
+  "jobs": 50,
+  "source_revision": "a5eddd2bec65d0dd026bdd47087947b0b22cbfd6",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "script_sha256": "1436724bd2fc08bde0d7c25dda3b407942f4d749ab410b40a199260d4e592b47"
+}

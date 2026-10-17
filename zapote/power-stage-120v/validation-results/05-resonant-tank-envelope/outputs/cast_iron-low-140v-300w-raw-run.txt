@@ -1,0 +1,51 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 05: series-resonant tank over one rectified-line half-cycle.
+
+ASCII raw file "verified.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 14  
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+drv                                          0
+a                                            0
+b                                            0
+c                                            0
+pa_00                                        0
+pa_01                                        0
+pa_02                                        0
+bpa_02#branch                                0
+vim#branch                                   0
+bpa_01#branch                                0
+bpa_00#branch                                0
+bdrv#branch                                  0
+lt#branch                                    0
+
+ Reference value :  1.84443e-03
+ Reference value :  3.66068e-03
+ Reference value :  5.48613e-03
+ Reference value :  7.29198e-03
+No. of Data Rows : 166683
+
+Total analysis time (seconds) = 1.14428
+
+Total elapsed time (seconds) = 1.150 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  569.797 MB.
+Maximum ngspice program size =   10.203 MB.
+Current ngspice program size =   10.203 MB.
+
+
+No .measure possible in batch mode (-b) with -r rawfile set!
+Remove rawfile and use .print or .plot or
+select interactive mode (optionally with .control section) instead.
+

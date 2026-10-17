@@ -1,0 +1,329 @@
+[
+  {
+    "label": "plates-box0p25-far12-m20",
+    "tetrahedra": 226819,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.25,
+    "far_size_mm": 12.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.18082637730181922,
+      "0.5": 0.24999999999999645,
+      "0.9": 0.25000008506202753,
+      "0.99": 0.2816161402976538,
+      "1": 0.32479518687599357
+    },
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 264897,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.401314e-09,
+    "inductance_nH": 2.802628,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-box0p3-far12-m20",
+    "tetrahedra": 155974,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.3,
+    "far_size_mm": 12.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 182338,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.396591e-09,
+    "inductance_nH": 2.793182,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-box0p3-far4-m10",
+    "tetrahedra": 177542,
+    "air_margin_mm": 10.0,
+    "gap_size_mm": 0.3,
+    "far_size_mm": 4.0,
+    "status": "generated_only"
+  },
+  {
+    "label": "plates-box0p3-far4-m20",
+    "tetrahedra": 276566,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.3,
+    "far_size_mm": 4.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.2024407708698462,
+      "0.5": 0.29902546291670096,
+      "0.9": 0.30109961887035835,
+      "0.99": 0.3318251692622828,
+      "1": 0.38681822084040357
+    },
+    "status": "generated_only"
+  },
+  {
+    "label": "plates-box0p3-far8-m10",
+    "tetrahedra": 134217,
+    "air_margin_mm": 10.0,
+    "gap_size_mm": 0.3,
+    "far_size_mm": 8.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.2024407708698462,
+      "0.5": 0.29902546291670096,
+      "0.9": 0.30109961887035835,
+      "0.99": 0.3318251692622828,
+      "1": 0.38681822084040357
+    },
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 157275,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.384952e-09,
+    "inductance_nH": 2.7699040000000004,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-box0p3-far8-m20",
+    "tetrahedra": 176933,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.3,
+    "far_size_mm": 8.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.2024407708698462,
+      "0.5": 0.29902546291670096,
+      "0.9": 0.30109961887035835,
+      "0.99": 0.3318251692622828,
+      "1": 0.38681822084040357
+    },
+    "status": "generated_only"
+  },
+  {
+    "label": "plates-box0p4-far12-m20",
+    "tetrahedra": 80041,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 12.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 93773,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.379973e-09,
+    "inductance_nH": 2.7599460000000002,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-box0p4-far4-m10",
+    "tetrahedra": 94792,
+    "air_margin_mm": 10.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 4.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.285347156717329,
+      "0.5": 0.3999999999999986,
+      "0.9": 0.4000000012153975,
+      "0.99": 0.45761814545188034,
+      "1": 0.5003094565251932
+    },
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 111432,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.385492e-09,
+    "inductance_nH": 2.770984,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-box0p4-far4-m20",
+    "tetrahedra": 165394,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 4.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.285347156717329,
+      "0.5": 0.3999999999999986,
+      "0.9": 0.4000000012153975,
+      "0.99": 0.45761814545188034,
+      "1": 0.5003094565251932
+    },
+    "exit_code": 1,
+    "all_done": false,
+    "edge_unknowns": 194565,
+    "status": "umfpack_out_of_memory"
+  },
+  {
+    "label": "plates-box0p4-far8-m10",
+    "tetrahedra": 67013,
+    "air_margin_mm": 10.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 8.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 78701,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.364309e-09,
+    "inductance_nH": 2.728618,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-box0p4-far8-m20",
+    "tetrahedra": 93712,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 8.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.285347156717329,
+      "0.5": 0.3999999999999986,
+      "0.9": 0.4000000012153975,
+      "0.99": 0.45761814545188034,
+      "1": 0.5003094565251932
+    },
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 109870,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.390342e-09,
+    "inductance_nH": 2.780684,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-half-box0p3-far12-m20",
+    "tetrahedra": 74913,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.3,
+    "far_size_mm": 12.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 94838,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 6.600745e-10,
+    "inductance_nH": 2.640298,
+    "status": "rejected_half_symmetry"
+  },
+  {
+    "label": "plates-half-box0p4-far12-m20",
+    "tetrahedra": 43921,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 12.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 55691,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 6.497146e-10,
+    "inductance_nH": 2.5988584,
+    "status": "rejected_half_symmetry"
+  },
+  {
+    "label": "plates-half-natural-box0p4-far12-m20",
+    "tetrahedra": 43921,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.4,
+    "far_size_mm": 12.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 55691,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 8.140952e-08,
+    "inductance_nH": 325.63808,
+    "status": "rejected_half_symmetry"
+  },
+  {
+    "label": "plates-near0p10-far3-m20",
+    "tetrahedra": 516640,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.1,
+    "far_size_mm": 3.0,
+    "status": "generated_only"
+  },
+  {
+    "label": "plates-near0p13-far4-m10",
+    "tetrahedra": 78921,
+    "air_margin_mm": 10.0,
+    "gap_size_mm": 0.13,
+    "far_size_mm": 4.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.09798430539892614,
+      "0.5": 0.3479181953270343,
+      "0.9": 0.6941073984359503,
+      "0.99": 0.998346080248432,
+      "1": 1.1739476236277
+    },
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 93022,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.350843e-09,
+    "inductance_nH": 2.701686,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-near0p13-far4-m20",
+    "tetrahedra": 133109,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.13,
+    "far_size_mm": 4.0,
+    "plate_edge_mm_quantiles": {
+      "0": 0.09798430539892614,
+      "0.5": 0.3479181953270343,
+      "0.9": 0.6941073984359503,
+      "0.99": 0.998346080248432,
+      "1": 1.1739476236277
+    },
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 157163,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.360305e-09,
+    "inductance_nH": 2.72061,
+    "status": "solved_outside_band"
+  },
+  {
+    "label": "plates-near0p15-far4-m20",
+    "tetrahedra": 118127,
+    "air_margin_mm": 20.0,
+    "gap_size_mm": 0.15,
+    "far_size_mm": 4.0,
+    "exit_code": 0,
+    "all_done": true,
+    "edge_unknowns": 139754,
+    "source_current_sampled_range_A": [
+      1.0,
+      1.0
+    ],
+    "energy_J": 1.35741e-09,
+    "inductance_nH": 2.71482,
+    "status": "solved_outside_band"
+  }
+]

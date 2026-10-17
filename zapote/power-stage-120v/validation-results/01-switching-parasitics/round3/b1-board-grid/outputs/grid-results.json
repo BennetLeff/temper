@@ -1,0 +1,48 @@
+{
+  "status": "STOPPED_FIRST_FAILED_CRITERION",
+  "evidence_class": "A2 heuristic scenario stress; min/max not physical bounds; no board qualification",
+  "source_revision": "44417ae1489fd00e2d652fd3b2c1582b76d17630",
+  "input_sha256": {
+    "/Users/bennet/Desktop/temper/worktrees/ps-r3-a2/zapote/power-stage-120v/validation-results/01-switching-parasitics/round3/a2-inductance/outputs/loop_inductance_fallback_heuristic.json": "4365536d40dfdc2580e01ac10657874f72f4ce873e331d0248581c061bf49b35",
+    "/Users/bennet/Desktop/temper/worktrees/ps-r3-a2/zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "/Users/bennet/Desktop/temper/worktrees/ps-r3-a2/zapote/power-stage-120v/native-15/section.kicad_pcb": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155"
+  },
+  "deck_sha256": "bc3c4e72d174694c9637906c7af18f010cdd5da938054f84a3196a842a5d830c",
+  "runtime": "ngspice 45.2; Python 3.12; Infineon L1 CFD7",
+  "selected_grid_rows": 1512,
+  "completed_grid_rows": 1,
+  "not_run_grid_rows": 1511,
+  "first_failure": {
+    "coarse": "A_min_v170_i37_d0_s0.2",
+    "fine": "A_min_v170_i37_d0_s0.1",
+    "peak_change_fraction": {
+      "peak_die_vds_ls_v": 5.122636334930587e-07,
+      "peak_die_vds_hs_v": 2.74449697482148e-06
+    },
+    "failures": [
+      "normal die VDS 723.918 V > 520 V",
+      "off-device die VGS exceeds Vth,min 3.5 V minus 0.5 V"
+    ]
+  },
+  "rows": [
+    {
+      "coarse": "A_min_v170_i37_d0_s0.2",
+      "fine": "A_min_v170_i37_d0_s0.1",
+      "peak_change_fraction": {
+        "peak_die_vds_ls_v": 5.122636334930587e-07,
+        "peak_die_vds_hs_v": 2.74449697482148e-06
+      },
+      "failures": [
+        "normal die VDS 723.918 V > 520 V",
+        "off-device die VGS exceeds Vth,min 3.5 V minus 0.5 V"
+      ]
+    }
+  ],
+  "limitations": [
+    "A2 FastHenry builds failed twice and qualified parameters are null",
+    "A2 0.25 mm routes are complete, but Q3 return route lacks 0.5 mm convergence",
+    "min/max are heuristic scenarios, not physical inductance bounds",
+    "LBULK is copper-only and omits unknown bulk-capacitor internal ESL",
+    "constant-current load, driver output approximation, 27 C model"
+  ]
+}

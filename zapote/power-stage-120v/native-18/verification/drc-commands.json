@@ -1,0 +1,83 @@
+[
+  {
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "pcb",
+      "drc",
+      "--severity-all",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--format",
+      "json",
+      "--output",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/drc-fill.json",
+      "--refill-zones",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0,
+    "counts": {
+      "lib_footprint_mismatch": 36,
+      "silk_overlap": 3
+    }
+  },
+  {
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "pcb",
+      "drc",
+      "--severity-all",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--format",
+      "json",
+      "--output",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/drc-1.json",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0,
+    "counts": {
+      "lib_footprint_mismatch": 36,
+      "silk_overlap": 3
+    }
+  },
+  {
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "pcb",
+      "drc",
+      "--severity-all",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--format",
+      "json",
+      "--output",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/drc-2.json",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0,
+    "counts": {
+      "lib_footprint_mismatch": 36,
+      "silk_overlap": 3
+    }
+  },
+  {
+    "argv": [
+      "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "pcb",
+      "drc",
+      "--severity-all",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--format",
+      "json",
+      "--output",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/verification/drc-3.json",
+      "/Users/bennet/.codex/worktrees/ps-r17-d16/temper/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    ],
+    "returncode": 0,
+    "counts": {
+      "lib_footprint_mismatch": 36,
+      "silk_overlap": 3
+    }
+  }
+]

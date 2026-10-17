@@ -1,0 +1,151 @@
+* Round4 joined diagnostic. Every parameter token is supplied by runner.rs.
+.param VRMS=@VRMS@ PH=@PH@ LS=20u RS=.1 LDM=18u RDAMP=@RDAMP@
+.param RP=@RP@ RUN=135m STOP=@STOP@ OPEN=@OPEN@ BOPEN=@BOPEN@ DELAY=@DELAY@
+.param LC=@LC@ RT=@RT@ CT=540n CC=@CC@ VI=@VI@ CR=@CR@ CL=@CL@
+.param DT=@DT@ FS=50k PSET=@PSET@ SHORT=@SHORT@ DS=@DS@ FO=@FO@ CAPSHORT=@CAPSHORT@
+* Start time is after two valid OFF line cycles. All storage zero except charged-catch probes.
+Bline src 0 V=sqrt(2)*VRMS*sin(2*pi*60*time+PH*pi/180)*min(time/10u,1)
+Rsrc src sp {RS}
+Lsrc sp k {LS}
+* Each source switch folded into loop: open at OPEN, includes finite drop delay.
+Rsourcecontacts k pr R={.02+1e9*(VI>30)+1e6*min(1,max(0,(time-OPEN)/100u)+max(0,(v(timer)-@CONTACTDELAY@)/100u))}
+Ccontact k pr 100p
+Bcontactarc k pr I=max(v(k,pr)-400,0)/.5+min(v(k,pr)+400,0)/.5
+Bcrest crest 0 V=(abs(v(src))>sqrt(2)*VRMS*.999)
+Bqual 0 qual I=(time>36.6667m)*(time<70m)*v(crest)*(v(bp,bn)>.95*sqrt(2)*VRMS)*(abs(v(pr,li))<5)*(abs(v(pr,li)/RP)<.5)*(v(catch,bn)>.9*v(bp,bn))
+Cqual qual 0 1
+Rqual qual 0 1e12
+Bbypass byp 0 V=(time>70m)*(v(qual)>.8m)*(time<BOPEN)
+Rpre pr li R={1u+RP*(1-v(byp))}
+* Upstream AUX load bypasses RP. Typical 30A/115V datum does not specify waveform;
+* this explicit 1ms halfsine is a stress sensitivity only, separate from guaranteed bound.
+Baux k 0 I=25*v(k)/(VRMS*VRMS)+@AUXPEAK@*sin(pi*time/1m)*(time<1m)
+Rxin li xi .035
+Cxin xi 0 2.2u
+Rnew li nn .009
+Lnew nn mid {LDM}
+Rxo mid xo .035
+Cxo xo 0 4.7u
+Rdamp mid da {RDAMP}
+Cdamp da 0 4.7u
+Rbleed mid 0 30k
+Rx1 mid x1 .035
+Cx1 x1 0 1u
+Rold mid oo .009
+Lold oo rect {LDM}
+Rx2 rect x2 .035
+Cx2 x2 0 1u
+Roldbleed mid 0 240k
+* Actual proof branch present before filter only75..125ms; gates remain off.
+Rproof li 0 R={220+1e9*((time<75m)+(time>125m)+(v(byp)<.5))}
+D1 rect bp DR
+D2 0 bp DR
+D3 bn rect DR
+D4 bn 0 DR
+.model DR D(Is=1n N=1.5 Rs=.005 Cjo=85p BV=1000)
+Rbulk bp cb .02
+Cbulk cb bn 5.4u
+Rlocal bp cbl .01
+Clocal cbl bn 400n
+Rdcbleed bp bn 440k
+Rbusshort bp bn R={1e9*(1-@BUSSHORT@*(time>2m))+.01}
+Rfloat bn 0 1g
+* Requested conductance: 2Hz upward pole on2000W/s request. Study pan map
+* is fundamental series-RLC inverse, NOT characterized production map.
+@CONTROL@
+* Finite whole-input RMS estimator (one-cycle time constant, NOT exact cycle window).
+Bisq isq 0 V=i(Lsrc)^2
+Rrms isq rms 16666.6667
+Crms rms 0 1u
+Bg g 0 V=max(0,v(gf))*min(1,182.25/max(v(rms),182.25))
+* phi/2=asin(sqrt(G*(R²+X²)/R*pi²/8)); limited tohalfperiod.
+Bphase phase 0 V=2*asin(min(.98,sqrt(max(0,v(g))*(RT*RT+(2*pi*FS*LC-1/(2*pi*FS*CT))^2)/RT*pi*pi/8)))
+* Trip latch integrates fault predicate; no automatic reset. 230/250V provisional.
+Btrip 0 trip I=1e6*(min(1,max(0,v(bp,bn)-230))+min(1,max(0,v(catch,bn)-250))+min(1,max(0,abs(i(Lcoil))-85))+min(1,max(0,(time-STOP)/1u))+(time>RUN)*(v(qual)>.8m)*min(1,max(0,abs(v(pr,li))-10)))
+Ctrip trip 0 1
+Rtrip trip 0 1e12
+Btimer 0 timer I=min(1,max(0,v(trip)/1m))
+Ctimer timer 0 1
+Rtimer timer 0 1e12
+Ballow allow 0 V=(v(qual)>.8m)*min(1,max(0,(time-RUN)/1u))*min(1,max(0,(DELAY+100n-v(timer))/100n))
+* Rising-edge deadtime: sine threshold advances off and delays on symmetrically.
+Bga ga 0 V=v(allow)*.5*(1+tanh((sin(2*pi*FS*time)-sin(pi*FS*DT))/.002))
+Bgal gal 0 V=v(allow)*.5*(1+tanh((-sin(2*pi*FS*time)-sin(pi*FS*DT))/.002))
+Bgb gb 0 V=v(allow)*.5*(1+tanh((sin(2*pi*FS*time-v(phase))-sin(pi*FS*DT))/.002))
+Bgbl gbl 0 V=v(allow)*.5*(1+tanh((-sin(2*pi*FS*time-v(phase))-sin(pi*FS*DT))/.002))
+Bsa bp a I=v(bp,a)*(1e-10+v(ga)/.018+SHORT*(time>STOP)/.001)
+Bsal a bn I=v(a,bn)*(1e-10+v(gal)/.018)
+Bsb bp b I=v(bp,b)*(1e-10+v(gb)/.018)
+Bsbl b bn I=v(b,bn)*(1e-10+v(gbl)/.018)
+Dah a bp DB
+Dal bn a DB
+Dbh b bp DB
+Dbl bn b DB
+.model DB D(Is=1n N=1.5 Rs=.02)
+Rsn1 bp sa 47
+Csn1 sa a 1n
+Rsn2 a sb 47
+Csn2 sb bn 1n
+Rsn3 bp sc 47
+Csn3 sc b 1n
+Rsn4 b sd 47
+Csn4 sd bn 1n
+Lcoil a lr {LC}
+Rtank lr ct {RT}
+Ctank ct b {CT}
+Rtb ct b 1.88meg
+* Catch diode forward fit manufacturer typical25C intercept/slope approximation;
+* line fuse/catch fuse are conductors unless explicit open case. No invented fuse curve.
+Rfcatch bp df R={.002+FO*1e9}
+.if (FO > .5)
+* Numerical anchor of disconnected diode input: downstream1meg, upstream1gig.
+Rdf df bn 1meg
+.endif
+Dcatch df cd DCATCH
+.model DCATCH D(Is=1n N=1 Rs=.02 Cjo=150p)
+Rdshort df cd R={.02+(1-DS)*1e9}
+Rcd df cd 1g
+Lcatch cd rc {CL}
+Rcatch rc catch {CR}
+Ccatch catch bn {CC} IC={VI}
+Rcb catch bn 200k
+Rcs catch bn R={1e9*(1-CAPSHORT*(time>STOP))+.01}
+Bvcap vcabs 0 V=abs(v(ct,b))
+Bic ia 0 V=sqrt(i(Lcoil)^2+1e-12)
+Bcb vc 0 V=v(catch,bn)
+Bbus vb 0 V=v(bp,bn)
+Bcatchabs icabs 0 V=sqrt(i(Lcatch)^2+1e-12)
+Bprepower pp 0 V=(v(pr,li)/(1u+RP*(1-v(byp))))^2*RP*(1-v(byp))
+Bdamper pd 0 V=(v(mid,da))^2/RDAMP
+Bbridge2 b2 0 V=(i(D1)+i(D2))^2
+Bcatch2 c2 0 V=i(Lcatch)^2
+Btotal2 t2 0 V=i(Lsrc)^2
+Bcoil2 l2 0 V=i(Lcoil)^2
+.save v(vb) v(vcabs) v(ia) v(vc) v(icabs) v(c2) v(b2) v(t2) v(pp) v(pd) v(l2) v(trip)
+.options method=gear reltol=1e-4 abstol=1e-8 vntol=1e-6 itl4=200
+.tran @STEP@ @END@ 0 @STEP@ UIC
+Bpreabs vpreabs 0 V=abs(v(pr,li))
+Bproof2 pf2 0 V=(v(li)/(220+1e9*((time<75m)+(time>125m)+(v(byp)<.5))))^2
+.save v(vpreabs) v(pf2)
+.meas tran precharge_bus MAX v(vb) FROM=36.6667m TO=70m
+.meas tran precharge_drop MAX v(vpreabs) FROM=36.6667m TO=70m
+.meas tran proof_i2t INTEG v(pf2) FROM=75m TO=125m
+Bprecrest vprecrest 0 V=abs(v(pr,li))*v(crest)
+.save v(qual) v(vprecrest)
+.meas tran qualification FIND v(qual) AT=70m
+.meas tran precharge_crest_drop MAX v(vprecrest) FROM=36.6667m TO=70m
+.meas tran bus_pk MAX v(vb)
+.meas tran tank_pk MAX v(vcabs)
+.meas tran tank_current_pk MAX v(ia)
+.meas tran catch_pk MAX v(vc)
+.meas tran catch_i_pk MAX v(icabs)
+.meas tran catch_i2t INTEG v(c2)
+.meas tran bridge_i2t INTEG v(b2)
+.meas tran inlet_i2t INTEG v(t2)
+.meas tran precharge_j INTEG v(pp)
+.meas tran damper_j INTEG v(pd)
+.meas tran tank_i2t INTEG v(l2)
+.meas tran bus_end FIND v(vb) AT=@END@
+.meas tran catch_end FIND v(vc) AT=@END@
+.meas tran trip_end FIND v(trip) AT=@END@
+.end

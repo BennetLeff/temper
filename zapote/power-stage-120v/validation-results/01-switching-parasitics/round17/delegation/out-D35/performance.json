@@ -1,0 +1,200 @@
+[
+  {
+    "kind": "sine",
+    "hz": 0.5,
+    "depth_pct": 2.453,
+    "quantity": "Pinst_max",
+    "value": 0.9998170611720636,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "sine",
+    "hz": 1.5,
+    "depth_pct": 1.126,
+    "quantity": "Pinst_max",
+    "value": 1.0004184845404038,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "sine",
+    "hz": 8.8,
+    "depth_pct": 0.321,
+    "quantity": "Pinst_max",
+    "value": 1.0004161377652265,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "sine",
+    "hz": 20,
+    "depth_pct": 0.977,
+    "quantity": "Pinst_max",
+    "value": 0.9992324459948534,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "sine",
+    "hz": 33.333333333333336,
+    "depth_pct": 2.57,
+    "quantity": "Pinst_max",
+    "value": 0.9999110417770243,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "sine",
+    "hz": 40,
+    "depth_pct": 4.393,
+    "quantity": "Pinst_max",
+    "value": 0.9993655676471613,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 0.5,
+    "depth_pct": 0.598,
+    "quantity": "Pinst_max",
+    "value": 1.0005018946022068,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 3.5,
+    "depth_pct": 0.408,
+    "quantity": "Pinst_max",
+    "value": 0.9996533894868712,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 8.8,
+    "depth_pct": 0.252,
+    "quantity": "Pinst_max",
+    "value": 1.0036290016273222,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 18,
+    "depth_pct": 0.626,
+    "quantity": "Pinst_max",
+    "value": 0.9977541979955828,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 22,
+    "depth_pct": 0.851,
+    "quantity": "Pinst_max",
+    "value": 1.0048476234895733,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 25.5,
+    "depth_pct": 1.072,
+    "quantity": "Pinst_max",
+    "value": 0.9960755806783188,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 33.333333333333336,
+    "depth_pct": 1.823,
+    "quantity": "Pinst_max",
+    "value": 1.012809209230055,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 37,
+    "depth_pct": 1.304,
+    "quantity": "Pinst_max",
+    "value": 1.0169928331268059,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "square",
+    "hz": 40,
+    "depth_pct": 3.451,
+    "quantity": "Pinst_max",
+    "value": 1.0387500991430685,
+    "tolerance": 0.08,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 1,
+    "depth_pct": 3.181,
+    "quantity": "Pst",
+    "value": 0.9722651306427589,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 2,
+    "depth_pct": 2.564,
+    "quantity": "Pst",
+    "value": 0.9849842886994531,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 7,
+    "depth_pct": 1.694,
+    "quantity": "Pst",
+    "value": 0.9949288755381053,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 39,
+    "depth_pct": 1.04,
+    "quantity": "Pst",
+    "value": 0.9949135097585128,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 110,
+    "depth_pct": 0.844,
+    "quantity": "Pst",
+    "value": 1.0000644985549805,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 1620,
+    "depth_pct": 0.548,
+    "quantity": "Pst",
+    "value": 1.0006930683789546,
+    "tolerance": 0.05,
+    "pass": true
+  },
+  {
+    "kind": "classifier",
+    "cpm": 4800,
+    "depth_pct": 4.837,
+    "quantity": "Pst",
+    "value": 1.017786883412391,
+    "tolerance": 0.05,
+    "pass": true
+  }
+]

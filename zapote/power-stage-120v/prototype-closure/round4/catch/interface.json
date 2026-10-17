@@ -1,0 +1,159 @@
+{
+  "status": "ENGINEERING_DESIGN_NOT_RELEASED",
+  "native19_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "baseline_step": "output/temper-prototype-closure/round3/packaging/r4-catch-alternative-design-only.step",
+  "baseline_step_sha256": "44800fe207b7de12a2b993bff371fece61790fc0f37a4a427e982b05e11d9de5",
+  "bleed_card": {
+    "size_mm": [
+      80,
+      34,
+      1.6
+    ],
+    "world_origin_mm": [
+      25,
+      369,
+      81
+    ],
+    "resistor_mpn": "VR37000001003JA100",
+    "resistor_ohm": 100000,
+    "resistor_body_max_mm": [
+      9,
+      4
+    ],
+    "resistor_coated_length_max_mm": 12,
+    "resistor_lead_diameter_max_mm": 0.73,
+    "pitch_mm": 15,
+    "pad_diameter_mm": 2.4,
+    "drill_mm": 1.0,
+    "copper_um": 35,
+    "track_mm": 0.6,
+    "resistor_x_mm": [
+      4,
+      22.5,
+      41,
+      59.5
+    ],
+    "row_y_mm": [
+      8,
+      26
+    ],
+    "npth_mm": [
+      [
+        4,
+        17,
+        3.2
+      ],
+      [
+        74.5,
+        17,
+        3.2
+      ]
+    ],
+    "wire_terminals": {
+      "J1": [
+        4,
+        3,
+        "CATCH_P_A"
+      ],
+      "J2": [
+        74.5,
+        3,
+        "HV_RET_A"
+      ],
+      "J3": [
+        4,
+        31,
+        "CATCH_P_B"
+      ],
+      "J4": [
+        74.5,
+        31,
+        "HV_RET_B"
+      ]
+    },
+    "design_copper_clearance_mm": 8,
+    "clearance_basis": "Deliberate internal design screen only, not an appliance insulation determination. All nodes are hazardous live; no SELV or PE copper exists on this card.",
+    "connections": "J1-R1-R2-R3-R4-J2 and J3-R5-R6-R7-R8-J4. Each branch has its own two wires to capacitor terminals; no intermediate tap used for sensing."
+  },
+  "sense_card": {
+    "owner": "round4/supervisor",
+    "origin_mm": [
+      103,
+      348,
+      43
+    ],
+    "plane": "long axis +Y, short axis +Z; components +X",
+    "max_size_mm": [
+      14,
+      60,
+      35
+    ],
+    "input": "CATCH_P to HV_RET; never LEG_RET or shunt Kelvin pads",
+    "allocation_only_until_owner_layout_imported": true,
+    "selv_connector_pins": {
+      "1": "POD_3V3",
+      "2": "AUX_0V",
+      "3": "VCATCH_P",
+      "4": "VCATCH_N",
+      "5": "VCATCH_DIAG_N",
+      "6": "AUX_0V"
+    },
+    "selv_connector_candidate": "Amphenol20021121-00006T4LF; mating cable and footprint unresolved"
+  },
+  "wire": {
+    "manufacturer": "Alpha Wire",
+    "series": "3080",
+    "gauge_awg": 12,
+    "copper_area_mm2": 3.29,
+    "stranding": "65/30",
+    "od_nominal_mm": 3.8354,
+    "od_max_mm": 3.937,
+    "minimum_bend_radius_mm": 19.685,
+    "design_bend_radius_mm": 22,
+    "nominal_dcr_ohm_m_20c": 0.005741469816272966,
+    "insulation": "PVC AWM1015 105C 600Vrms; installed temperature and DC fault application remain to be qualified",
+    "lug_candidate": "TE160163-2, M4,12\u201310AWG; exact crimp tool/height/pull and stud-stack loading remain unqualified"
+  },
+  "catch_circuit": {
+    "power_path": [
+      "native19.J8 BUS_P",
+      "FC1 US141/FWP-10A14F",
+      "DC1 IDW40G65C5 anode",
+      "DC1 cathode",
+      "CC1 positive terminals",
+      "CC1 negative terminals",
+      "native19.J10 HV_RET"
+    ],
+    "capacitor": {
+      "mpn": "B32778H8476K000",
+      "farad": 4.7e-05,
+      "body_max_mm": [
+        57.5,
+        45,
+        30
+      ],
+      "origin_mm": [
+        25,
+        355,
+        45
+      ],
+      "pin_pitch_mm": [
+        52.5,
+        20.3
+      ],
+      "pin_diameter_mm": 1.2,
+      "pin_length_mm": [
+        5,
+        6
+      ]
+    },
+    "bleeds": "2 independent400k\u03a9 branches across CC1, retained locally if external supervisor cable unplugged",
+    "sensor_load_ohm": 1994490,
+    "native19_power_board_unmodified": true,
+    "holder_translation_from_round3_mm": [
+      0,
+      -6,
+      0
+    ]
+  }
+}

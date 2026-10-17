@@ -1,0 +1,266 @@
+{
+  "date": "2026-10-02",
+  "model_provider": "GPT-6 Astra/OpenAI",
+  "runtime": "3.12.12",
+  "source_revision": "a5eddd2bec65d0dd026bdd47087947b0b22cbfd6",
+  "inputs": {
+    "zapote/power-stage-120v/frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "zapote/power-stage-120v/frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "zapote/power-stage-120v/native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "datasheets/ucc21550.pdf": "f600571197e32da4b915f986da003d95d73294dd8e428d7a4e6dcc89bbe29207",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/results/grid-best-longdt/results.jsonl": "127d24443a30607564d89299c6a4a920851d72db89fdbd14d76e1c24046ebcde",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D1/dead_time.py": "eb4399b8b882c14677dab8621cf2e4af69b119cf1dc8e978df2c021483c420a5",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/scripts/leg_region_diff.py": "0453d937b2d982361ae3774bb7efaaaffd65b7963d332a56cd0ccc1903aaf784",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/scripts/mesh25d_hybrid.py": "60f3c94cac7a869bb59870587d6cae1d3a3adc941fc8edba1f511147314a52be",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12/prices.csv": "2d8f6d0e5f03c7dc36ec1050a7c8dfe7c64b20493dc3664ec467a9bbab1c98f0"
+  },
+  "channels": [
+    {
+      "fet": "Q2",
+      "output_pin": "U1.15",
+      "output_net": "leg_a-out_h",
+      "gate_net": "leg_a-gate_h",
+      "source_net": "sw_a",
+      "series_resistor": "R10",
+      "holdoff_resistor": "R11",
+      "new_shift_net": "D12_Q2_shift",
+      "new_discharge_net": "D12_Q2_discharge"
+    },
+    {
+      "fet": "Q3",
+      "output_pin": "U1.10",
+      "output_net": "leg_a-out_l",
+      "gate_net": "leg_a-gate_l",
+      "source_net": "leg_ret",
+      "series_resistor": "R12",
+      "holdoff_resistor": "R13",
+      "new_shift_net": "D12_Q3_shift",
+      "new_discharge_net": "D12_Q3_discharge"
+    },
+    {
+      "fet": "Q5",
+      "output_pin": "U2.15",
+      "output_net": "leg_b-out_h",
+      "gate_net": "leg_b-gate_h",
+      "source_net": "sw_b",
+      "series_resistor": "R18",
+      "holdoff_resistor": "R19",
+      "new_shift_net": "D12_Q5_shift",
+      "new_discharge_net": "D12_Q5_discharge"
+    },
+    {
+      "fet": "Q6",
+      "output_pin": "U2.10",
+      "output_net": "leg_b-out_l",
+      "gate_net": "leg_b-gate_l",
+      "source_net": "leg_ret",
+      "series_resistor": "R20",
+      "holdoff_resistor": "R21",
+      "new_shift_net": "D12_Q6_shift",
+      "new_discharge_net": "D12_Q6_discharge"
+    }
+  ],
+  "cost_estimate_USD": {
+    "F6_2V": {
+      "lines": [
+        {
+          "part": "BZT52C2V0-7-F",
+          "added_qty": 4,
+          "unit_usd": "0.21",
+          "extended_usd": "0.84"
+        },
+        {
+          "part": "PMEG6030EP,115",
+          "added_qty": 4,
+          "unit_usd": "0.76",
+          "extended_usd": "3.04"
+        },
+        {
+          "part": "RC1206FR-071RL",
+          "added_qty": 4,
+          "unit_usd": "0.15",
+          "extended_usd": "0.60"
+        },
+        {
+          "part": "C0603C102J5GACTU",
+          "added_qty": 4,
+          "unit_usd": "0.14",
+          "extended_usd": "0.56"
+        },
+        {
+          "part": "UMK325AB7106KM-T",
+          "added_qty": 4,
+          "unit_usd": "0.89",
+          "extended_usd": "3.56"
+        }
+      ],
+      "added_parts": 20,
+      "delta_usd": "8.60"
+    },
+    "F6_4V_class": {
+      "lines": [
+        {
+          "part": "BZT52C3V9-7-F",
+          "added_qty": 4,
+          "unit_usd": "0.22",
+          "extended_usd": "0.88"
+        },
+        {
+          "part": "C0603C102J5GACTU",
+          "added_qty": 4,
+          "unit_usd": "0.14",
+          "extended_usd": "0.56"
+        },
+        {
+          "part": "UMK325AB7106KM-T",
+          "added_qty": 4,
+          "unit_usd": "0.89",
+          "extended_usd": "3.56"
+        }
+      ],
+      "added_parts": 12,
+      "delta_usd": "5.00"
+    },
+    "F7": {
+      "replace_qty": 2,
+      "new_parts_purchase_usd": "0.20",
+      "incremental_new_build_usd": "-0.02"
+    }
+  },
+  "layout": {
+    "A": {
+      "bounds_mm": [
+        105.865,
+        -15.785,
+        184.6,
+        61.125
+      ],
+      "F7_value_only": "UNCHANGED",
+      "gate_parts_in_region": [
+        "Q2",
+        "Q3",
+        "Q6",
+        "R10",
+        "R12",
+        "R20"
+      ]
+    },
+    "B": {
+      "bounds_mm": [
+        68.4,
+        -15.785,
+        147.135,
+        61.125
+      ],
+      "F7_value_only": "UNCHANGED",
+      "gate_parts_in_region": [
+        "Q3",
+        "Q5",
+        "Q6",
+        "R12",
+        "R18",
+        "R20"
+      ]
+    }
+  },
+  "longdt_grid": {
+    "391": {
+      "S1": {
+        "count": 24,
+        "aborted": 0,
+        "hot_pass": 24,
+        "zvs": 24
+      },
+      "S2": {
+        "count": 16,
+        "aborted": 0,
+        "hot_pass": 16,
+        "zvs": 16
+      },
+      "S3": {
+        "count": 72,
+        "aborted": 2,
+        "hot_pass": 46,
+        "zvs": 0
+      },
+      "S4": {
+        "count": 24,
+        "aborted": 0,
+        "hot_pass": 0,
+        "zvs": 0
+      }
+    },
+    "443": {
+      "S1": {
+        "count": 24,
+        "aborted": 0,
+        "hot_pass": 24,
+        "zvs": 24
+      },
+      "S2": {
+        "count": 16,
+        "aborted": 0,
+        "hot_pass": 16,
+        "zvs": 16
+      },
+      "S3": {
+        "count": 72,
+        "aborted": 2,
+        "hot_pass": 48,
+        "zvs": 0
+      },
+      "S4": {
+        "count": 24,
+        "aborted": 0,
+        "hot_pass": 0,
+        "zvs": 0
+      }
+    },
+    "498": {
+      "S1": {
+        "count": 24,
+        "aborted": 0,
+        "hot_pass": 24,
+        "zvs": 24
+      },
+      "S2": {
+        "count": 16,
+        "aborted": 0,
+        "hot_pass": 16,
+        "zvs": 16
+      },
+      "S3": {
+        "count": 72,
+        "aborted": 2,
+        "hot_pass": 66,
+        "zvs": 23
+      },
+      "S4": {
+        "count": 24,
+        "aborted": 0,
+        "hot_pass": 0,
+        "zvs": 0
+      }
+    }
+  },
+  "gate_copper_sizing_assumptions": {
+    "F6_2V_added_track_length_per_gate_mm": [
+      12,
+      25
+    ],
+    "F6_4V_added_track_length_per_gate_mm": [
+      6,
+      12
+    ],
+    "trace_width_mm": 0.5,
+    "F6_2V_added_trace_area_per_bridge_mm2": [
+      24,
+      50
+    ],
+    "F6_4V_added_trace_area_per_bridge_mm2": [
+      12,
+      24
+    ],
+    "status": "routing planning allowances, no placed/routed candidate; excludes pads and planes"
+  }
+}

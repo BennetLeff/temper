@@ -1,0 +1,28 @@
+[
+  {
+    "label": "tight-v170-f35000-r2-e10-s0.5",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.5,
+      "cycles": 24,
+      "timeout": 5000,
+      "options": "reltol=1e-5 abstol=1e-11 vntol=1e-8 trtol=1"
+    }
+  },
+  {
+    "label": "tight-v170-f35000-r2-e10-s0.25",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.25,
+      "cycles": 24,
+      "timeout": 5000,
+      "options": "reltol=1e-5 abstol=1e-11 vntol=1e-8 trtol=1"
+    }
+  }
+]

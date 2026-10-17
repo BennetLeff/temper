@@ -1,0 +1,312 @@
+{
+  "atopile_version": "0.2.69",
+  "build_sha256": {
+    "build/default.csv": "8a43163f06a9cf8545791623f1735ba74960d60d60cdbd774ce15bdc561fe611",
+    "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "build/default.net": "fc4ce8928595157470d027fbf9aa318e46a95d7f621a81ecf856ffe561f74ced",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
+  },
+  "components": [
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::heatsink_probe",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "manufacturer": "JST",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_probe",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+        "manufacturer": "JST",
+        "mpn": "B2B-XH-A(LF)(SN)"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::host",
+      "attributes": {
+        "designator_prefix": "J",
+        "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+        "manufacturer": "JST",
+        "mpn": "B6B-XH-A(LF)(SN)"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_comp",
+      "attributes": {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV3201AIDBVR",
+        "t_pd": "40ns",
+        "v_supply_max": "5.5V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_fixed",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-079K09L",
+        "power_rating": null,
+        "value": "9.09kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0711K5L",
+        "power_rating": null,
+        "value": "11.5kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_hyst",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0734K8L",
+        "power_rating": null,
+        "value": "34.8kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_fixed",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0710KL",
+        "power_rating": null,
+        "value": "10kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0720KL",
+        "power_rating": null,
+        "value": "20kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-078K06L",
+        "power_rating": null,
+        "value": "8.06kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_hyst",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-0742K2L",
+        "power_rating": null,
+        "value": "42.2kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_filter",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_filter",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_open_comp",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv9031.pdf",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV9031DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_open_comp",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/tlv9031.pdf",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TLV9031DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_or",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G32DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_or",
+      "attributes": {
+        "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G32DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::open_top",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-071K21L",
+        "power_rating": null,
+        "value": "1.21kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::open_bottom",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "mpn": "RC0603FR-07100KL",
+        "power_rating": null,
+        "value": "100kohm +/- 1%",
+        "voltage_rating": null
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_open_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_open_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::hs_or_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit::coil_or_bypass",
+      "attributes": {
+        "designator_prefix": "C",
+        "dielectric": null,
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF +/- 10%",
+        "voltage_rating": "50V"
+      }
+    }
+  ],
+  "entry": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/zapote/thermal-sense/source-build-02/elec/src/thermal_sense_unit.ato:ThermalSenseUnit",
+  "schema": "temper.circuit-export.v1",
+  "source_sha256": {
+    "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+    "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
+    "elec/src/current_sense_unit.ato": "973de56249de1b18c779650e1506605ce9db574102df9f86846662519ae79898",
+    "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
+    "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
+    "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
+    "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
+    "elec/src/main.ato": "492faf4b04351003c859512332b91d207e234274a4b7344f86c3674477626461",
+    "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
+    "elec/src/rtd_unit.ato": "521d46ea86f55ecefe0e0d38e6303623dabb1e1648e5d1cd3cebd51c9d05f673",
+    "elec/src/thermal_sense_unit.ato": "0597bd4a07f31d20fb0c15961a6b907ac772c87bdd592f6d24d1be48a5fce6cd",
+    "elec/src/voltage_sense_unit.ato": "5aca80ff589ff7156cae128a66f09111730d2a59439f59cccdfbb336a1577de5"
+  }
+}

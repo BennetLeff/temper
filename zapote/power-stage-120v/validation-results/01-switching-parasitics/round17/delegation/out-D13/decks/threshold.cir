@@ -1,0 +1,12 @@
+* D6 typical-model threshold, VDS=VGS, ID=2.91mA; not a silicon bound
+.include IFX_CFD7_650V.lib
+.include ../common/options.inc
+.param DV=0 TJ=25
+.include params.inc
+.temp {TJ}
+Vg g 0 0
+Vd d g 0
+XQ d g 0 IPW65R018CFD7_L1 dVth={DV}
+.dc Vg 1 5 .001
+.meas dc vth FIND v(g) WHEN i(Vd)=-2.91m
+.end

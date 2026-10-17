@@ -1,0 +1,127 @@
+* Round 17 D2: complementary half-bridge leg with the FEM board inductance
+* matrix as four coupled inductors (one per FEM port), one transition.
+* Built from round 3's complementary_leg.cir (same driver approximation,
+* Infineon L1 models, snubbers, shunt, load, solver options).
+*
+* Board copper: the 4x4 FEM matrix (h -> 0) maps onto
+*   L_P1  in series with C38's branch   (port P1: C38.1 bus_p -> C38.2 hv_ret)
+*   L_P2  in series with C39's branch   (port P2: C39.1 bus_p -> C39.2 hv_ret)
+*   L_P3  in the high-side gate path    (port P3: driver out_h -> sw, i.e. +
+*         is gate-discharge current, gate -> driver)
+*   L_P4  in the low-side gate path     (port P4: driver out_l -> leg_ret)
+* coupled by K (k_ij = L_ij/sqrt(L_ii L_jj)). Each inductor's first node is
+* the end where FEM port current enters (the port's 'a' side), so the K
+* signs carry over. The FEM shorted the FETs, gate resistors and shunt at
+* their pads (closures), so those parts sit in the SPICE loops at the same
+* places; the FEM ports were at the capacitors and the driver pins.
+* The common-source effect is the P1/P2-to-P3/P4 coupling (no separate LCS).
+*
+* NOT from the FEM: LBULK (bulk-capacitor path, round-3 heuristic copper
+* value), capacitor ESL LESL (TDK bound <= ~20 nH, PACKAGE-INDUCTANCE.md),
+* shunt inductance LSHUNT (Vishay 0.5-5 nH). The Infineon L1 subcircuit
+* already contains the TO-247 leads (Ld 1.88, Ls 2.82, Lg 8.32 nH) and
+* Rg,int 2.7 ohm: do not add package L again.
+
+.include IFX_CFD7_650V.lib
+.include ../common/options.inc
+
+* ---- defaults; params.inc (written by the runner) overrides them
+.param VBUS=170 IL=37 DIR=0 T1=2u DT=348n TRMAX=0.2n
+.param LP1=26n LP2=26n LP3=20n LP4=20n K12=0.6 K13=0.1 K14=0.15 K23=0.1 K24=0.15 K34=0
+.param LESL=10n LSHUNT=2n LBULK=21.519n RG=3.9 ROL=0.55 ROH=5 VDRV=15 CSNUB=1n
+.param C38=0.1u C39=0.1u CBULK=5.4u
+.include params.inc
+.options itl4=100000
+.temp {TJ}
+.param GL0={VDRV*(1-DIR)} GL1={VDRV*DIR}
+.param GH0={VDRV*DIR} GH1={VDRV*(1-DIR)}
+.param TLS={T1+DIR*DT} THS={T1+(1-DIR)*DT}
+.param ILOAD_SIGNED={IL*(1-2*DIR)}
+
+* ---- DC bus: bulk path (not FEM) and the two local film capacitors
+Vbus src 0 {VBUS}
+Rsrc src bulk 10m
+Cbulk bulk 0 {CBULK}
+Lbulk bulk bus {LBULK}
+L_P1 bus c38a {LP1}
+Lesl38 c38a c38b {LESL}
+Rc38 c38b c38c 5m
+Cc38 c38c 0 {C38}
+L_P2 bus c39a {LP2}
+Lesl39 c39a c39b {LESL}
+Rc39 c39b c39c 5m
+Cc39 c39c 0 {C39}
+
+* ---- power path: bus -> HS -> sw -> LS -> shunt -> 0 (board L is in L_P1/L_P2)
+XQH bus g_hs sw IPW65R018CFD7_L1
+Vids sw d_ls 0
+XQL d_ls g_ls s_ls IPW65R018CFD7_L1
+Lshunt s_ls shunt {LSHUNT}
+Rshunt shunt 0 1m
+Csnh bus sw {CSNUB}
+Csnl d_ls s_ls {CSNUB}
+
+* ---- load (ramped from 0 for a consistent operating point)
+Iload bus sw PWL(0 0 1u {ILOAD_SIGNED})
+
+* ---- drivers: output-resistance approximation (round 3), then the gate
+* resistor, then the board gate-loop inductor (first node at the gate)
+Vgl_cmd gl_cmd s_ls PULSE({GL0} {GL1} {TLS} 5n 5n 10u 20u)
+Bgl gdl s_ls I={(v(gdl,s_ls)-(-2))*(1-v(gl_cmd,s_ls)/VDRV)/ROL+(v(gdl,s_ls)-VDRV)*v(gl_cmd,s_ls)/(VDRV*ROH)}
+Rgl gdl gdl3 {RG}
+L_P4 g_ls gdl3 {LP4}
+Rholdl g_ls s_ls 10k
+Vgh_cmd gh_cmd sw PULSE({GH0} {GH1} {THS} 5n 5n 10u 20u)
+Bgh gdh sw I={(v(gdh,sw)-(-2))*(1-v(gh_cmd,sw)/VDRV)/ROL+(v(gdh,sw)-VDRV)*v(gh_cmd,sw)/(VDRV*ROH)}
+Rgh gdh gdh3 {RG}
+L_P3 g_hs gdh3 {LP3}
+Rholdh g_hs sw 10k
+
+* ---- FEM couplings
+K12 L_P1 L_P2 {K12}
+K13 L_P1 L_P3 {K13}
+K14 L_P1 L_P4 {K14}
+K23 L_P2 L_P3 {K23}
+K24 L_P2 L_P4 {K24}
+K34 L_P3 L_P4 {K34}
+
+.tran {TRMAX} {T1+DT+0.8u} 0 {TRMAX}
+.save v(sw) v(bus) v(xql.dd) v(xql.g) v(xql.s) v(xqh.dd) v(xqh.g) v(xqh.s) v(gl_cmd) v(gh_cmd) i(vids)
+
+.meas tran vds_ls_die_pk MAX par('v(xql.dd)-v(xql.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vds_hs_die_pk MAX par('v(xqh.dd)-v(xqh.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_ls_die_max MAX par('v(xql.g)-v(xql.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_ls_die_min MIN par('v(xql.g)-v(xql.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_hs_die_max MAX par('v(xqh.g)-v(xqh.s)') from={T1} to={T1+DT+0.75u}
+.meas tran vgs_hs_die_min MIN par('v(xqh.g)-v(xqh.s)') from={T1} to={T1+DT+0.75u}
+* Off-device gate during the partner's turn-on (false turn-on check): the
+* device turned off at T1 (LS for DIR=0, HS for DIR=1), from the partner's
+* on command to the end of the window.
+.meas tran vgs_ls_off_max MAX par('v(xql.g)-v(xql.s)') from={T1+DT} to={T1+DT+0.75u}
+.meas tran vgs_hs_off_max MAX par('v(xqh.g)-v(xqh.s)') from={T1+DT} to={T1+DT+0.75u}
+* Incoming device's die VDS at its own on command (ZVS check: ~0 V means
+* the load current already discharged it): HS at THS for DIR=0, LS at TLS for
+* DIR=1 (each measured for both directions; the runner picks the right one).
+.meas tran vds_hs_at_on FIND par('v(xqh.dd)-v(xqh.s)') AT={THS}
+.meas tran vds_ls_at_on FIND par('v(xql.dd)-v(xql.s)') AT={TLS}
+* Turned-off device's die VGS at the partner's on command (T1+DT): above
+* threshold there means the dead time was too short (shoot-through risk), as
+* opposed to a later rebound (false turn-on).
+.meas tran vgs_ls_at_partner FIND par('v(xql.g)-v(xql.s)') AT={T1+DT}
+.meas tran vgs_hs_at_partner FIND par('v(xqh.g)-v(xqh.s)') AT={T1+DT}
+* D6 off1_c1_neg2: generic proposed remedy; no layout added.
+.include /Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/PMEG6030EP.txt
+XDoffl gdl3 offl PMEG6030EP
+Roffl offl gdl 1.34482758621
+XDoffh gdh3 offh PMEG6030EP
+Roffh offh gdh 1.34482758621
+Cgsl g_ls s_ls 1n
+Cgsh g_hs sw 1n
+.meas tran e_l_pre INTEG par('max(0,(v(xql.dd)-v(xql.s))*(v(xql.ldrd)-v(xql.dd))/7.44e-5)') from={T1} to={T1+DT}
+.meas tran e_l_post INTEG par('max(0,(v(xql.dd)-v(xql.s))*(v(xql.ldrd)-v(xql.dd))/7.44e-5)') from={T1+DT} to={T1+DT+0.75u}
+.meas tran e_h_pre INTEG par('max(0,(v(xqh.dd)-v(xqh.s))*(v(xqh.ldrd)-v(xqh.dd))/7.44e-5)') from={T1} to={T1+DT}
+.meas tran e_h_post INTEG par('max(0,(v(xqh.dd)-v(xqh.s))*(v(xqh.ldrd)-v(xqh.dd))/7.44e-5)') from={T1+DT} to={T1+DT+0.75u}
+
+.meas tran id_ls_pk MAX par('(v(xql.ldrd)-v(xql.dd))/7.44e-5') from={T1+DT} to={T1+DT+0.75u}
+.meas tran id_hs_pk MAX par('(v(xqh.ldrd)-v(xqh.dd))/7.44e-5') from={T1+DT} to={T1+DT+0.75u}
+.end

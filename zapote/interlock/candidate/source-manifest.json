@@ -1,0 +1,3205 @@
+{
+  "board": {
+    "footprints": 25,
+    "layers": [
+      "F.Cu",
+      "In3.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "nets": 32,
+    "outline_mm": [
+      0.0,
+      0.0,
+      100.0,
+      65.0
+    ]
+  },
+  "board_sha256": "805a649318c92d0082e43ac7307275b22869e1d768bc31a64e93c36ebf015f2f",
+  "bridge": {
+    "components": [
+      {
+        "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+        "instance_path": "faults",
+        "reference": "J1",
+        "tstamp": "b5d9a3e9-1205-d083-ba98-664a26327f2c"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+        "instance_path": "host",
+        "reference": "J2",
+        "tstamp": "40bcdc6f-6bef-dede-7813-e6017ef8354f"
+      },
+      {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "instance_path": "fault_inv",
+        "reference": "U1",
+        "tstamp": "25140662-393d-8a42-98e3-21057ecaa73c"
+      },
+      {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "instance_path": "control_inv",
+        "reference": "U2",
+        "tstamp": "89070b9f-5700-82c2-a767-add6c53a604d"
+      },
+      {
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "instance_path": "aggregate",
+        "reference": "U3",
+        "tstamp": "fe468c75-b6dd-8a2a-2f1c-2fc846ad2808"
+      },
+      {
+        "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+        "instance_path": "latch",
+        "reference": "U4",
+        "tstamp": "717e683a-42f3-2285-59a4-38d9d82dc628"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "watchdog",
+        "reference": "U5",
+        "tstamp": "bded27d2-d324-41dc-9a12-648d8caecdc3"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "common",
+        "reference": "U6",
+        "tstamp": "dfed086d-0810-2c8d-9a0d-7ab9557db35a"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "ocp_pullup",
+        "reference": "R1",
+        "tstamp": "2e1a468d-f3fb-00e0-be12-cc10bc1e12ed"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "ovp_pullup",
+        "reference": "R2",
+        "tstamp": "dde40cd8-a4d8-c950-aed3-2f0a2f5a6606"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_pullup",
+        "reference": "R3",
+        "tstamp": "dd6d06f1-3853-4d2b-787f-45889c64602f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_pullup",
+        "reference": "R4",
+        "tstamp": "7325b7f8-646d-28ab-321e-2a5654934803"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "rtd_pullup",
+        "reference": "R5",
+        "tstamp": "72b3a3a9-6086-9379-b379-c4d2b4a6d305"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "runaway_pullup",
+        "reference": "R6",
+        "tstamp": "f5e3c0e3-b669-10de-f8d3-4bee36e8b270"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "aux_pullup",
+        "reference": "R7",
+        "tstamp": "dff39cdf-6657-fade-78d2-c3b41c1f50aa"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "reset_pullup",
+        "reference": "R8",
+        "tstamp": "13911016-b80f-9d3b-2d3c-2e339820ac18"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "wdi_pulldown",
+        "reference": "R9",
+        "tstamp": "29f40bd3-7364-4f86-3592-c112ce87bfcc"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "live_pulldown",
+        "reference": "R10",
+        "tstamp": "3fabdfb7-d7f9-20c4-2ba2-f8d21f62d3b5"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "permit_pulldown",
+        "reference": "R11",
+        "tstamp": "ba4f6f49-8c7d-e5d5-9a81-0178917045dd"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "fault_inv_bypass",
+        "reference": "C1",
+        "tstamp": "94d4aa0a-9531-21d8-85e9-56ecfa576dbe"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "control_inv_bypass",
+        "reference": "C2",
+        "tstamp": "0216ad32-224a-c87e-fbcf-cf718f83ecba"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "aggregate_bypass",
+        "reference": "C3",
+        "tstamp": "ad1480f1-d797-0721-de76-739b120244e9"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "latch_bypass",
+        "reference": "C4",
+        "tstamp": "f3108017-f01e-a25f-7561-092512eb46b1"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "watchdog_bypass",
+        "reference": "C5",
+        "tstamp": "d80ca3d0-348b-16ac-15b3-788e82cf48b4"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "common_bypass",
+        "reference": "C6",
+        "tstamp": "c699a17e-28ed-1289-87ee-0fd2d36da5be"
+      }
+    ],
+    "nets": [
+      {
+        "name": "vcc",
+        "nodes": [
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "U5",
+            "3"
+          ],
+          [
+            "U4",
+            "7"
+          ],
+          [
+            "U4",
+            "2"
+          ],
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "U6",
+            "5"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "U5",
+            "5"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "U4",
+            "8"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "U3",
+            "14"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "U2",
+            "14"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "14"
+          ],
+          [
+            "C1",
+            "1"
+          ],
+          [
+            "J2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "U2",
+            "13"
+          ],
+          [
+            "R11",
+            "2"
+          ],
+          [
+            "R10",
+            "2"
+          ],
+          [
+            "R9",
+            "2"
+          ],
+          [
+            "U6",
+            "3"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "U5",
+            "2"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "U4",
+            "4"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "U3",
+            "7"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "U2",
+            "7"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "U1",
+            "7"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "J1",
+            "1"
+          ],
+          [
+            "J2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ocp_fault",
+        "nodes": [
+          [
+            "R1",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ],
+          [
+            "J1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ocp_healthy",
+        "nodes": [
+          [
+            "U3",
+            "1"
+          ],
+          [
+            "U1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ovp_fault",
+        "nodes": [
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "U1",
+            "3"
+          ],
+          [
+            "J1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "ovp_healthy",
+        "nodes": [
+          [
+            "U3",
+            "2"
+          ],
+          [
+            "U1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "hs_fault",
+        "nodes": [
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "J1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "hs_healthy",
+        "nodes": [
+          [
+            "U3",
+            "3"
+          ],
+          [
+            "U1",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "coil_fault",
+        "nodes": [
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "U1",
+            "9"
+          ],
+          [
+            "J1",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "coil_healthy",
+        "nodes": [
+          [
+            "U3",
+            "4"
+          ],
+          [
+            "U1",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_fault",
+        "nodes": [
+          [
+            "R5",
+            "2"
+          ],
+          [
+            "U1",
+            "11"
+          ],
+          [
+            "J1",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_healthy",
+        "nodes": [
+          [
+            "U3",
+            "5"
+          ],
+          [
+            "U1",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "runaway_fault",
+        "nodes": [
+          [
+            "R6",
+            "2"
+          ],
+          [
+            "U1",
+            "13"
+          ],
+          [
+            "J1",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "runaway_healthy",
+        "nodes": [
+          [
+            "U3",
+            "6"
+          ],
+          [
+            "U1",
+            "12"
+          ]
+        ]
+      },
+      {
+        "name": "aux_fault",
+        "nodes": [
+          [
+            "R7",
+            "2"
+          ],
+          [
+            "U2",
+            "1"
+          ],
+          [
+            "J1",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "aux_healthy",
+        "nodes": [
+          [
+            "U3",
+            "11"
+          ],
+          [
+            "U2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "reset_n",
+        "nodes": [
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "J2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "reset_clock",
+        "nodes": [
+          [
+            "U4",
+            "1"
+          ],
+          [
+            "U2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "sensor_live",
+        "nodes": [
+          [
+            "U2",
+            "9"
+          ],
+          [
+            "R10",
+            "1"
+          ],
+          [
+            "J2",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "live_n",
+        "nodes": [
+          [
+            "U2",
+            "11"
+          ],
+          [
+            "U2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "live_buf",
+        "nodes": [
+          [
+            "U6",
+            "2"
+          ],
+          [
+            "U2",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "wdt_good",
+        "nodes": [
+          [
+            "U6",
+            "1"
+          ],
+          [
+            "U5",
+            "1"
+          ],
+          [
+            "J2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "wdi",
+        "nodes": [
+          [
+            "R9",
+            "1"
+          ],
+          [
+            "U5",
+            "4"
+          ],
+          [
+            "J2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "common_good",
+        "nodes": [
+          [
+            "U3",
+            "12"
+          ],
+          [
+            "U6",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "any_fault",
+        "nodes": [
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "U3",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "all_good",
+        "nodes": [
+          [
+            "U4",
+            "6"
+          ],
+          [
+            "U2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "permit",
+        "nodes": [
+          [
+            "R11",
+            "1"
+          ],
+          [
+            "U4",
+            "5"
+          ],
+          [
+            "J2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "latched_fault",
+        "nodes": [
+          [
+            "U4",
+            "3"
+          ],
+          [
+            "J2",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "y6",
+        "nodes": [
+          [
+            "U2",
+            "12"
+          ]
+        ]
+      },
+      {
+        "name": "nc9",
+        "nodes": [
+          [
+            "U3",
+            "9"
+          ]
+        ]
+      },
+      {
+        "name": "nc10",
+        "nodes": [
+          [
+            "U3",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "nc13",
+        "nodes": [
+          [
+            "U3",
+            "13"
+          ]
+        ]
+      }
+    ]
+  },
+  "component_scope": "all components in the standalone entry",
+  "components": [
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "fault_inv_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C1",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "control_inv_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C2",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "aggregate_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C3",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "latch_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C4",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "watchdog_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C5",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "common_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "C6",
+      "value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+      "instance_path": "faults",
+      "mpn": "B8B-XH-A(LF)(SN)",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J1",
+      "value": null
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+      "instance_path": "host",
+      "mpn": "B8B-XH-A(LF)(SN)",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "J2",
+      "value": null
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "ocp_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R1",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "live_pulldown",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R10",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "permit_pulldown",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R11",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "ovp_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R2",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R3",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R4",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "rtd_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R5",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "runaway_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R6",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "aux_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R7",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "reset_pullup",
+      "mpn": "RC0603FR-0710KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R8",
+      "value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "wdi_pulldown",
+      "mpn": "RC0603FR-071KL",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist",
+        "value": "resolved-attr"
+      },
+      "reference": "R9",
+      "value": "1kohm +/- 1%"
+    },
+    {
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "instance_path": "fault_inv",
+      "mpn": "SN74LVC14ADR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U1",
+      "value": null
+    },
+    {
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "instance_path": "control_inv",
+      "mpn": "SN74LVC14ADR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U2",
+      "value": null
+    },
+    {
+      "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+      "instance_path": "aggregate",
+      "mpn": "CD74HC30PWR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U3",
+      "value": null
+    },
+    {
+      "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+      "instance_path": "latch",
+      "mpn": "SN74LVC1G74DCUR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U4",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "watchdog",
+      "mpn": "TPS3823-33DBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U5",
+      "value": null
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "common",
+      "mpn": "SN74LVC1G08DBVR",
+      "origins": {
+        "footprint": "resolved-attr",
+        "mpn": "resolved-attr+csv",
+        "reference": "netlist"
+      },
+      "reference": "U6",
+      "value": null
+    }
+  ],
+  "entry": "elec/src/interlock_unit.ato:InterlockUnit",
+  "footprint_census": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405"
+    },
+    "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "sha256": "a766bce948da6d215573b8741a08d46c00842315a00e4fd5f18374bd6158a7e9"
+    },
+    "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "sha256": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc"
+    },
+    "Package_SO:TSSOP-14_4.4x5mm_P0.65mm": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "sha256": "e4bf82cea6d3b3259ddf42469b1407628ad1181a28ae6f3f340190c0cca31ccd"
+    },
+    "Package_SO:VSSOP-8_2.3x2mm_P0.5mm": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "sha256": "dca72da69de3263affb64fd1abd218db3cf30ff727c784b3f02c8c588a2875a8"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "pads": [
+        "1",
+        "2"
+      ],
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23"
+    }
+  },
+  "full_bridge": {
+    "components": [
+      {
+        "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+        "instance_path": "faults",
+        "reference": "J1",
+        "tstamp": "b5d9a3e9-1205-d083-ba98-664a26327f2c"
+      },
+      {
+        "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+        "instance_path": "host",
+        "reference": "J2",
+        "tstamp": "40bcdc6f-6bef-dede-7813-e6017ef8354f"
+      },
+      {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "instance_path": "fault_inv",
+        "reference": "U1",
+        "tstamp": "25140662-393d-8a42-98e3-21057ecaa73c"
+      },
+      {
+        "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+        "instance_path": "control_inv",
+        "reference": "U2",
+        "tstamp": "89070b9f-5700-82c2-a767-add6c53a604d"
+      },
+      {
+        "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+        "instance_path": "aggregate",
+        "reference": "U3",
+        "tstamp": "fe468c75-b6dd-8a2a-2f1c-2fc846ad2808"
+      },
+      {
+        "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+        "instance_path": "latch",
+        "reference": "U4",
+        "tstamp": "717e683a-42f3-2285-59a4-38d9d82dc628"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "watchdog",
+        "reference": "U5",
+        "tstamp": "bded27d2-d324-41dc-9a12-648d8caecdc3"
+      },
+      {
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "instance_path": "common",
+        "reference": "U6",
+        "tstamp": "dfed086d-0810-2c8d-9a0d-7ab9557db35a"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "ocp_pullup",
+        "reference": "R1",
+        "tstamp": "2e1a468d-f3fb-00e0-be12-cc10bc1e12ed"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "ovp_pullup",
+        "reference": "R2",
+        "tstamp": "dde40cd8-a4d8-c950-aed3-2f0a2f5a6606"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "hs_pullup",
+        "reference": "R3",
+        "tstamp": "dd6d06f1-3853-4d2b-787f-45889c64602f"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "coil_pullup",
+        "reference": "R4",
+        "tstamp": "7325b7f8-646d-28ab-321e-2a5654934803"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "rtd_pullup",
+        "reference": "R5",
+        "tstamp": "72b3a3a9-6086-9379-b379-c4d2b4a6d305"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "runaway_pullup",
+        "reference": "R6",
+        "tstamp": "f5e3c0e3-b669-10de-f8d3-4bee36e8b270"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "aux_pullup",
+        "reference": "R7",
+        "tstamp": "dff39cdf-6657-fade-78d2-c3b41c1f50aa"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "reset_pullup",
+        "reference": "R8",
+        "tstamp": "13911016-b80f-9d3b-2d3c-2e339820ac18"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "wdi_pulldown",
+        "reference": "R9",
+        "tstamp": "29f40bd3-7364-4f86-3592-c112ce87bfcc"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "live_pulldown",
+        "reference": "R10",
+        "tstamp": "3fabdfb7-d7f9-20c4-2ba2-f8d21f62d3b5"
+      },
+      {
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "instance_path": "permit_pulldown",
+        "reference": "R11",
+        "tstamp": "ba4f6f49-8c7d-e5d5-9a81-0178917045dd"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "fault_inv_bypass",
+        "reference": "C1",
+        "tstamp": "94d4aa0a-9531-21d8-85e9-56ecfa576dbe"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "control_inv_bypass",
+        "reference": "C2",
+        "tstamp": "0216ad32-224a-c87e-fbcf-cf718f83ecba"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "aggregate_bypass",
+        "reference": "C3",
+        "tstamp": "ad1480f1-d797-0721-de76-739b120244e9"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "latch_bypass",
+        "reference": "C4",
+        "tstamp": "f3108017-f01e-a25f-7561-092512eb46b1"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "watchdog_bypass",
+        "reference": "C5",
+        "tstamp": "d80ca3d0-348b-16ac-15b3-788e82cf48b4"
+      },
+      {
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "instance_path": "common_bypass",
+        "reference": "C6",
+        "tstamp": "c699a17e-28ed-1289-87ee-0fd2d36da5be"
+      }
+    ],
+    "nets": [
+      {
+        "name": "vcc",
+        "nodes": [
+          [
+            "R8",
+            "1"
+          ],
+          [
+            "U5",
+            "3"
+          ],
+          [
+            "U4",
+            "7"
+          ],
+          [
+            "U4",
+            "2"
+          ],
+          [
+            "R7",
+            "1"
+          ],
+          [
+            "R6",
+            "1"
+          ],
+          [
+            "R5",
+            "1"
+          ],
+          [
+            "R4",
+            "1"
+          ],
+          [
+            "R3",
+            "1"
+          ],
+          [
+            "R2",
+            "1"
+          ],
+          [
+            "R1",
+            "1"
+          ],
+          [
+            "U6",
+            "5"
+          ],
+          [
+            "C6",
+            "1"
+          ],
+          [
+            "U5",
+            "5"
+          ],
+          [
+            "C5",
+            "1"
+          ],
+          [
+            "U4",
+            "8"
+          ],
+          [
+            "C4",
+            "1"
+          ],
+          [
+            "U3",
+            "14"
+          ],
+          [
+            "C3",
+            "1"
+          ],
+          [
+            "U2",
+            "14"
+          ],
+          [
+            "C2",
+            "1"
+          ],
+          [
+            "U1",
+            "14"
+          ],
+          [
+            "C1",
+            "1"
+          ],
+          [
+            "J2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "name": "gnd",
+        "nodes": [
+          [
+            "U2",
+            "13"
+          ],
+          [
+            "R11",
+            "2"
+          ],
+          [
+            "R10",
+            "2"
+          ],
+          [
+            "R9",
+            "2"
+          ],
+          [
+            "U6",
+            "3"
+          ],
+          [
+            "C6",
+            "2"
+          ],
+          [
+            "U5",
+            "2"
+          ],
+          [
+            "C5",
+            "2"
+          ],
+          [
+            "U4",
+            "4"
+          ],
+          [
+            "C4",
+            "2"
+          ],
+          [
+            "U3",
+            "7"
+          ],
+          [
+            "C3",
+            "2"
+          ],
+          [
+            "U2",
+            "7"
+          ],
+          [
+            "C2",
+            "2"
+          ],
+          [
+            "U1",
+            "7"
+          ],
+          [
+            "C1",
+            "2"
+          ],
+          [
+            "J1",
+            "1"
+          ],
+          [
+            "J2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ocp_fault",
+        "nodes": [
+          [
+            "R1",
+            "2"
+          ],
+          [
+            "U1",
+            "1"
+          ],
+          [
+            "J1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ocp_healthy",
+        "nodes": [
+          [
+            "U3",
+            "1"
+          ],
+          [
+            "U1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "ovp_fault",
+        "nodes": [
+          [
+            "R2",
+            "2"
+          ],
+          [
+            "U1",
+            "3"
+          ],
+          [
+            "J1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "ovp_healthy",
+        "nodes": [
+          [
+            "U3",
+            "2"
+          ],
+          [
+            "U1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "hs_fault",
+        "nodes": [
+          [
+            "R3",
+            "2"
+          ],
+          [
+            "U1",
+            "5"
+          ],
+          [
+            "J1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "hs_healthy",
+        "nodes": [
+          [
+            "U3",
+            "3"
+          ],
+          [
+            "U1",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "coil_fault",
+        "nodes": [
+          [
+            "R4",
+            "2"
+          ],
+          [
+            "U1",
+            "9"
+          ],
+          [
+            "J1",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "coil_healthy",
+        "nodes": [
+          [
+            "U3",
+            "4"
+          ],
+          [
+            "U1",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_fault",
+        "nodes": [
+          [
+            "R5",
+            "2"
+          ],
+          [
+            "U1",
+            "11"
+          ],
+          [
+            "J1",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "rtd_healthy",
+        "nodes": [
+          [
+            "U3",
+            "5"
+          ],
+          [
+            "U1",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "runaway_fault",
+        "nodes": [
+          [
+            "R6",
+            "2"
+          ],
+          [
+            "U1",
+            "13"
+          ],
+          [
+            "J1",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "runaway_healthy",
+        "nodes": [
+          [
+            "U3",
+            "6"
+          ],
+          [
+            "U1",
+            "12"
+          ]
+        ]
+      },
+      {
+        "name": "aux_fault",
+        "nodes": [
+          [
+            "R7",
+            "2"
+          ],
+          [
+            "U2",
+            "1"
+          ],
+          [
+            "J1",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "aux_healthy",
+        "nodes": [
+          [
+            "U3",
+            "11"
+          ],
+          [
+            "U2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "name": "reset_n",
+        "nodes": [
+          [
+            "U2",
+            "5"
+          ],
+          [
+            "R8",
+            "2"
+          ],
+          [
+            "J2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "reset_clock",
+        "nodes": [
+          [
+            "U4",
+            "1"
+          ],
+          [
+            "U2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "sensor_live",
+        "nodes": [
+          [
+            "U2",
+            "9"
+          ],
+          [
+            "R10",
+            "1"
+          ],
+          [
+            "J2",
+            "5"
+          ]
+        ]
+      },
+      {
+        "name": "live_n",
+        "nodes": [
+          [
+            "U2",
+            "11"
+          ],
+          [
+            "U2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "live_buf",
+        "nodes": [
+          [
+            "U6",
+            "2"
+          ],
+          [
+            "U2",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "wdt_good",
+        "nodes": [
+          [
+            "U6",
+            "1"
+          ],
+          [
+            "U5",
+            "1"
+          ],
+          [
+            "J2",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "wdi",
+        "nodes": [
+          [
+            "R9",
+            "1"
+          ],
+          [
+            "U5",
+            "4"
+          ],
+          [
+            "J2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "name": "common_good",
+        "nodes": [
+          [
+            "U3",
+            "12"
+          ],
+          [
+            "U6",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "any_fault",
+        "nodes": [
+          [
+            "U2",
+            "3"
+          ],
+          [
+            "U3",
+            "8"
+          ]
+        ]
+      },
+      {
+        "name": "all_good",
+        "nodes": [
+          [
+            "U4",
+            "6"
+          ],
+          [
+            "U2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "name": "permit",
+        "nodes": [
+          [
+            "R11",
+            "1"
+          ],
+          [
+            "U4",
+            "5"
+          ],
+          [
+            "J2",
+            "6"
+          ]
+        ]
+      },
+      {
+        "name": "latched_fault",
+        "nodes": [
+          [
+            "U4",
+            "3"
+          ],
+          [
+            "J2",
+            "7"
+          ]
+        ]
+      },
+      {
+        "name": "y6",
+        "nodes": [
+          [
+            "U2",
+            "12"
+          ]
+        ]
+      },
+      {
+        "name": "nc9",
+        "nodes": [
+          [
+            "U3",
+            "9"
+          ]
+        ]
+      },
+      {
+        "name": "nc10",
+        "nodes": [
+          [
+            "U3",
+            "10"
+          ]
+        ]
+      },
+      {
+        "name": "nc13",
+        "nodes": [
+          [
+            "U3",
+            "13"
+          ]
+        ]
+      }
+    ]
+  },
+  "input_hashes": {
+    "default.csv": "3fc525c6c6b9f86d36a51937c9840bef381841763a437daaf4c6cfda508b78f5",
+    "default.net": "25fb96c7da83921cb33ec57c3a4ac8ddae4f2a3fb59ec5c0ac542440dee4fc37",
+    "outline.json": "97669a55f059e7fb2401c6042a707ddedd1cd557ec04bad460ea0aa2c92f3220",
+    "poses.json": "4c838205f6ef6972cdb401d58ab02f76900b664ac873e615c3dc737f40cc4d7e",
+    "resolved-components.json": "f15b56ba256c9af6a3b5d58f6d59aed5437f661d249d2d22cac3d724cd705d45"
+  },
+  "libraries": {
+    "Capacitor_SMD:C_0603_1608Metric": {
+      "sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_0603_1608Metric.kicad_mod"
+    },
+    "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical": {
+      "sha256": "a766bce948da6d215573b8741a08d46c00842315a00e4fd5f18374bd6158a7e9",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Connector_JST.pretty/JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical.kicad_mod"
+    },
+    "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm": {
+      "sha256": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_SO.pretty/SOIC-14_3.9x8.7mm_P1.27mm.kicad_mod"
+    },
+    "Package_SO:TSSOP-14_4.4x5mm_P0.65mm": {
+      "sha256": "e4bf82cea6d3b3259ddf42469b1407628ad1181a28ae6f3f340190c0cca31ccd",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_SO.pretty/TSSOP-14_4.4x5mm_P0.65mm.kicad_mod"
+    },
+    "Package_SO:VSSOP-8_2.3x2mm_P0.5mm": {
+      "sha256": "dca72da69de3263affb64fd1abd218db3cf30ff727c784b3f02c8c588a2875a8",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_SO.pretty/VSSOP-8_2.3x2mm_P0.5mm.kicad_mod"
+    },
+    "Package_TO_SOT_SMD:SOT-23-5": {
+      "sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod"
+    },
+    "Resistor_SMD:R_0603_1608Metric": {
+      "sha256": "7190ac4a00125b807e54129ef0d87d87f2a658eeb74d025a7028203419b09f23",
+      "source": "kicad-stock:/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Resistor_SMD.pretty/R_0603_1608Metric.kicad_mod"
+    }
+  },
+  "module_prefixes": [
+    "InterlockUnit"
+  ],
+  "outline_mm": [
+    0.0,
+    0.0,
+    100.0,
+    65.0
+  ],
+  "poses": {
+    "aggregate": [
+      49.0,
+      25.0,
+      0.0
+    ],
+    "aggregate_bypass": [
+      55.0,
+      23.05,
+      0.0
+    ],
+    "aux_pullup": [
+      18.0,
+      41.0,
+      0.0
+    ],
+    "coil_pullup": [
+      18.0,
+      29.0,
+      0.0
+    ],
+    "common": [
+      49.0,
+      43.0,
+      0.0
+    ],
+    "common_bypass": [
+      53.0,
+      42.05,
+      0.0
+    ],
+    "control_inv": [
+      31.0,
+      43.0,
+      0.0
+    ],
+    "control_inv_bypass": [
+      36.5,
+      39.2,
+      0.0
+    ],
+    "fault_inv": [
+      31.0,
+      25.0,
+      0.0
+    ],
+    "fault_inv_bypass": [
+      36.5,
+      21.2,
+      0.0
+    ],
+    "faults": [
+      8.0,
+      32.0,
+      90.0
+    ],
+    "host": [
+      92.0,
+      32.0,
+      270.0
+    ],
+    "hs_pullup": [
+      18.0,
+      25.0,
+      0.0
+    ],
+    "latch": [
+      66.0,
+      43.0,
+      0.0
+    ],
+    "latch_bypass": [
+      64.6,
+      47.0,
+      0.0
+    ],
+    "live_pulldown": [
+      43.0,
+      51.0,
+      90.0
+    ],
+    "ocp_pullup": [
+      18.0,
+      17.0,
+      0.0
+    ],
+    "ovp_pullup": [
+      18.0,
+      21.0,
+      0.0
+    ],
+    "permit_pulldown": [
+      76.0,
+      43.0,
+      90.0
+    ],
+    "reset_pullup": [
+      40.0,
+      51.0,
+      90.0
+    ],
+    "rtd_pullup": [
+      18.0,
+      33.0,
+      0.0
+    ],
+    "runaway_pullup": [
+      18.0,
+      37.0,
+      0.0
+    ],
+    "watchdog": [
+      66.0,
+      16.0,
+      0.0
+    ],
+    "watchdog_bypass": [
+      69.0,
+      17.0,
+      0.0
+    ],
+    "wdi_pulldown": [
+      58.0,
+      10.0,
+      90.0
+    ]
+  },
+  "schema": "zapote.current-sense.native-source-manifest.v1",
+  "schematic_files": [
+    "section.kicad_sch"
+  ],
+  "source": "/private/tmp/temper-interlock-native-20260912/zapote/interlock/source-build-02",
+  "source_attributes": {
+    "aggregate": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/cd74hc30.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "CD74HC30PWR"
+    },
+    "aggregate_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "aux_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "coil_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "common": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G08DBVR"
+    },
+    "common_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "control_inv": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc14a.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC14ADR"
+    },
+    "control_inv_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "fault_inv": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc14a.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC14ADR"
+    },
+    "fault_inv_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "faults": {
+      "datasheet": "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+      "manufacturer": "JST",
+      "mpn": "B8B-XH-A(LF)(SN)"
+    },
+    "host": {
+      "datasheet": "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+      "designator_prefix": "J",
+      "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+      "manufacturer": "JST",
+      "mpn": "B8B-XH-A(LF)(SN)"
+    },
+    "hs_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "latch": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+      "manufacturer": "Texas Instruments",
+      "mpn": "SN74LVC1G74DCUR"
+    },
+    "latch_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "live_pulldown": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "ocp_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "ovp_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "permit_pulldown": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "reset_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "rtd_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "runaway_pullup": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-0710KL",
+      "power_rating": null,
+      "value": "10kohm +/- 1%",
+      "voltage_rating": null
+    },
+    "watchdog": {
+      "datasheet": "https://www.ti.com/lit/ds/symlink/tps3823.pdf",
+      "designator_prefix": "U",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "manufacturer": "Texas Instruments",
+      "mpn": "TPS3823-33DBVR"
+    },
+    "watchdog_bypass": {
+      "designator_prefix": "C",
+      "dielectric": null,
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "C0603C104K5RACTU",
+      "value": "100nF +/- 10%",
+      "voltage_rating": "50V"
+    },
+    "wdi_pulldown": {
+      "designator_prefix": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RC0603FR-071KL",
+      "power_rating": null,
+      "value": "1kohm +/- 1%",
+      "voltage_rating": null
+    }
+  },
+  "strict_bridge_extension": {
+    "detail": "temper_design_bundle_python: /Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so (built 2026-09-10T16:55:48) is fresh (no build stamp; mtime comparison)",
+    "freshness_method": "mtime",
+    "path": "/Users/bennet/Desktop/temper/.worktrees/codex/buck-harness-experiment-plan/.venv/lib/python3.12/site-packages/temper_design_bundle_python/temper_design_bundle_python.cpython-312-darwin.so",
+    "sha256": "cf484372789b29926beadcc9a45d93254caa3a9941d333c3d370f2f6deca8fd7"
+  },
+  "strict_pin_map": [
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common_bypass",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common_bypass",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "C6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "7",
+      "pin": "7",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "faults",
+      "pad": "8",
+      "pin": "8",
+      "positional": false,
+      "reference": "J1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "7",
+      "pin": "7",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "host",
+      "pad": "8",
+      "pin": "8",
+      "positional": false,
+      "reference": "J2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "ocp_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "ocp_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "live_pulldown",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R10"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "live_pulldown",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R10"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "permit_pulldown",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R11"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "permit_pulldown",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R11"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "ovp_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "ovp_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "hs_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "coil_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "rtd_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "rtd_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "runaway_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "runaway_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aux_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aux_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R7"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reset_pullup",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "reset_pullup",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R8"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "wdi_pulldown",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "R9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "wdi_pulldown",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "R9"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "10",
+      "pin": "10",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "11",
+      "pin": "11",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "12",
+      "pin": "12",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "13",
+      "pin": "13",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "14",
+      "pin": "14",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "7",
+      "pin": "7",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "8",
+      "pin": "8",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "fault_inv",
+      "pad": "9",
+      "pin": "9",
+      "positional": false,
+      "reference": "U1"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "10",
+      "pin": "10",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "11",
+      "pin": "11",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "12",
+      "pin": "12",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "13",
+      "pin": "13",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "14",
+      "pin": "14",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "7",
+      "pin": "7",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "8",
+      "pin": "8",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "control_inv",
+      "pad": "9",
+      "pin": "9",
+      "positional": false,
+      "reference": "U2"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "10",
+      "pin": "10",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "11",
+      "pin": "11",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "12",
+      "pin": "12",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "13",
+      "pin": "13",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "14",
+      "pin": "14",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "7",
+      "pin": "7",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "8",
+      "pin": "8",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "aggregate",
+      "pad": "9",
+      "pin": "9",
+      "positional": false,
+      "reference": "U3"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "6",
+      "pin": "6",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "7",
+      "pin": "7",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "latch",
+      "pad": "8",
+      "pin": "8",
+      "positional": false,
+      "reference": "U4"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "watchdog",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U5"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common",
+      "pad": "1",
+      "pin": "1",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common",
+      "pad": "2",
+      "pin": "2",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common",
+      "pad": "3",
+      "pin": "3",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common",
+      "pad": "4",
+      "pin": "4",
+      "positional": false,
+      "reference": "U6"
+    },
+    {
+      "alias_note": "",
+      "instance_path": "common",
+      "pad": "5",
+      "pin": "5",
+      "positional": false,
+      "reference": "U6"
+    }
+  ],
+  "unconnected_pads": []
+}

@@ -1,0 +1,74 @@
+Central board pin capture emitted; external rows retained separately
+Rendered 436 source components in 42 typed sheets
+Audited 9 boards, 1777 pins, 40 harness conductors, 5 declared external supply/return endpoints; 0 findings
+central checked
+catch checked
+bus checked
+line checked
+pre checked
+out checked
+tank checked
+iproof checked
+iline checked
+Hashed 325 artifacts; release remains HOLD
+{
+  "central": {
+    "pins": 1411,
+    "connector_pins": 98,
+    "power_in_pins": 253,
+    "audit_rows": 349
+  },
+  "catch": {
+    "pins": 60,
+    "connector_pins": 8,
+    "power_in_pins": 5,
+    "audit_rows": 13
+  },
+  "bus": {
+    "pins": 60,
+    "connector_pins": 8,
+    "power_in_pins": 5,
+    "audit_rows": 13
+  },
+  "line": {
+    "pins": 52,
+    "connector_pins": 8,
+    "power_in_pins": 5,
+    "audit_rows": 13
+  },
+  "pre": {
+    "pins": 52,
+    "connector_pins": 8,
+    "power_in_pins": 5,
+    "audit_rows": 13
+  },
+  "out": {
+    "pins": 52,
+    "connector_pins": 8,
+    "power_in_pins": 5,
+    "audit_rows": 13
+  },
+  "tank": {
+    "pins": 68,
+    "connector_pins": 8,
+    "power_in_pins": 5,
+    "audit_rows": 13
+  },
+  "iproof": {
+    "pins": 11,
+    "connector_pins": 2,
+    "power_in_pins": 0,
+    "audit_rows": 2
+  },
+  "iline": {
+    "pins": 11,
+    "connector_pins": 2,
+    "power_in_pins": 0,
+    "audit_rows": 2
+  }
+}
+Audited 9 boards, 1777 pins, 40 harness conductors, 5 declared external supply/return endpoints; 4 findings
+boundary_direction /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T//temper-d30-reproduce.xDHVOl/baseline/central/generated/pins.tsv:1129 central:J9.1: expected power_in, found power_out
+boundary_direction /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T//temper-d30-reproduce.xDHVOl/baseline/central/generated/pins.tsv:1130 central:J9.2: expected passive, found power_out
+connector_without_onboard_source /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T//temper-d30-reproduce.xDHVOl/baseline/central/generated/pins.tsv:1129 central:J9.1 CTRL_3V3 power_out
+connector_without_onboard_source /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T//temper-d30-reproduce.xDHVOl/baseline/central/generated/pins.tsv:1130 central:J9.2 CTRL_GND power_out

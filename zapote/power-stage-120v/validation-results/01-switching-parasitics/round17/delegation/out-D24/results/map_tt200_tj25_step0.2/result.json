@@ -1,0 +1,41 @@
+{
+  "tag": "map_tt200_tj25_step0.2",
+  "identity": {
+    "deck_sha256": "34175551ca3cfbc32e80e600fdd62e42a2b88034e63271ee35ffd9a49c5a8273",
+    "vendor_sha256": "7f3b5c5c2a4fe6ae95f94d12194486731541d78f9e92853bd109c057146a2456",
+    "params": {
+      "RG": "730",
+      "TJ": "25",
+      "STEP": "0.2n"
+    },
+    "kind": "recovery",
+    "tt_ns": 200.0,
+    "step_ns": 0.2,
+    "runner_sha256": "ea083ce1d74205935ffdbcd38eb5329677e20a95cb7aa05771866094714c5dae",
+    "kit_runner_sha256": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0"
+  },
+  "aborted": false,
+  "returncode": 0,
+  "raw_returncode": 0,
+  "failed_measures": [],
+  "meas": {
+    "peak": 21.0257
+  },
+  "final_time_s": 1.2e-05,
+  "status": "COMPLETE",
+  "zero_s": 6.803142283176213e-06,
+  "peak_s": 7.022976207156589e-06,
+  "end_s": 7.069440429408902e-06,
+  "Irrm_A": 21.02569617625556,
+  "Qrr_uC": 3.4159742487466476,
+  "trr_ns": 266.2981462326894,
+  "ta_ns": 219.8339239803766,
+  "tb10_ns": 46.46422225231282,
+  "softness_tb10_over_ta": 0.2113605644252633,
+  "slew_A_per_us": 100.72326319548299,
+  "forward_A": 58.199996059546876,
+  "terminal_v_final": 395.9490475236924,
+  "body_branch_peak_A": 19.14312013505631,
+  "body_branch_Q_same_window_uC": 1.7885731473035615,
+  "gate_node_peak_V": 0.5970390076500444
+}

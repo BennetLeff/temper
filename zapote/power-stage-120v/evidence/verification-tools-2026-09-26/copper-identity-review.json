@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "review_type": "bounded independent guard review",
+  "verdict": "no actionable findings",
+  "head_at_review": "49eb100b0cc434ce28994758ae6e7e5334be73de",
+  "reviewed_files_sha256": {
+    "zapote/rtd/apply_routes.py": "237f8a4ed998cbb83cfa853add49a52885a4349e2bbcbeed784be264ea9371a9",
+    "zapote/power-stage-120v/tools/check_copper_identity.py": "2d45ffc3594174ffdd1950aa6f89836cc5f2253bc034759892b54bb63b4211d2",
+    "zapote/packages/zapote-harness/src/bin/zapote-power-copper-identity.rs": "e67c70eab3e24afefa96e26e08416672428eedf0ecea8d4e7e75de0a8b8544eb",
+    "zapote/power-stage-120v/tests/test_copper_identity.py": "eacf2076a0a4073b7d91b60453867db375d922cf118319f389ce2075464de174"
+  },
+  "reviewed_file_set_sha256": "4622990018c5cc7824dd5669a7c0b47a7c890bc73e2b3187c970ed2041bae477",
+  "findings": [],
+  "verification": {
+    "rust_unit_tests": "5 passed",
+    "real_saved_board_via_net_mutation": "1 passed; baseline accepted then saved KiCad via net changed before extraction and checker rejected it",
+    "ruff_new_python": "passed",
+    "tracked_diff_whitespace": "passed"
+  },
+  "coverage": [
+    "Receipt net comes from authored operation and is checked against current route-file digest, rather than learned from saved copper.",
+    "Rust rejects stale route-file/receipt hashes, broken board-hash chain, missing/duplicate/extra UUIDs, kind/census differences, and saved net reassignment.",
+    "Saved-board extraction rejects unsupported track kinds and board changes during extraction/check."
+  ],
+  "limit": "The checker must be invoked after the final KiCad save/refill; route_board.py does not call it automatically, and this review does not claim routing or electrical qualification."
+}

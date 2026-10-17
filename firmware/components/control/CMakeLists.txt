@@ -9,6 +9,9 @@
 #   (safety.c's ZVS check). The host suites link the same set
 #   (firmware/test/CMakeLists.txt C1_RUNTIME_SOURCES).
 #
+# pll_control and pan_detect write gate frequency and pulses only through the
+# power owner (components/power power_service.h), hence REQUIRES power.
+#
 # Not registered: cascade_pid.c and low_temp_control.c (host-test-only; the
 # target state machine does not call them).
 
@@ -38,4 +41,5 @@ idf_component_register(
     REQUIRES
         esp_driver_mcpwm
         esp_timer
+        power
 )

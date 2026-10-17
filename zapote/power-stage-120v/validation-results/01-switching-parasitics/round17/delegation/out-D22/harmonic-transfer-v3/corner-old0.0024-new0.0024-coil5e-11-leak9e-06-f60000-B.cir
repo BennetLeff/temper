@@ -1,0 +1,130 @@
+* Native-15 conducted EMI transfer topology. AC unit sources, NOT an emission prediction.
+* Run from this directory: ngspice -b -r OUTPUT.raw emi_topology.cir
+* EXC_A/B are independent switch-node AC amplitudes relative to floating bus_n.
+* EXC_DM is an independent bus ripple-current drive in amperes.
+.param EXC_A=0 EXC_B=1 EXC_DM=0
+.param LCM=0.0024 LDM=18u RCH=0.006 CCH=11.078p RLOSSCH=12.691k
+.param CX=1u ESLX=12.2n ESRX=35m CY=2.2n CMOV=1.4n
+.param CBRJ=85p CBRP=10p CBRN=10p
+.param CBULK=5.4u CLOCAL=0.4u LBULK=20n LLOCAL=5n RBULK=20m RLOCAL=10m
+.param CTABA=5.04e-11 CTABB=3.36e-11 CTABH=42p CCOILA=5e-11 CCOILB=5e-11
+.param LPE=100n RPE=10m
+
+* The 50-uH series impedance and 50-ohm measurement termination are explicit
+* on each line. Supply sources are RF-quiet. PE is connected only through
+* the bond path below; no DC-bus node is aliased to earth.
+VsupL mains_l 0 0
+VsupN mains_n 0 0
+LlisnL mains_l line_in 50u
+LlisnN mains_n neut_in 50u
+CsenseL line_in lisn_l 0.1u
+CsenseN neut_in lisn_n 0.1u
+RsenseL lisn_l pe 50
+RsenseN lisn_n pe 50
+Rbond pe pe_l {RPE}
+Lbond pe_l 0 {LPE}
+
+
+* Proposed additional stage: uncoupled inductors, one in each mains conductor.
+.param LNEW=0 RNEW=8m CPNEW=30p CXNEW=4.23e-06 CDAMP=4.23e-06 RDAMP=4.095
+.param ESLC=20n ESRC=35m
+LnewX line_mid new_xa {ESLC}
+RnewX new_xa new_xb {ESRC}
+CnewX new_xb neut_mid {CXNEW}
+Ldamp line_mid damp_a {ESLC}
+.param LRDAMP=5e-07
+Lrdamp damp_a damp_r {LRDAMP}
+Rdamp damp_r damp_b {RDAMP}
+Cdamp damp_b neut_mid {CDAMP}
+Rbleed line_mid neut_mid 30000
+.param LCMADD=0.0024 LDMADD=9e-06 RCMADD=0.006 CCMADD=11.078p RLCMADD=12.691k
+RcmAddL line_in cm_la {RCMADD}
+RcmAddN neut_in cm_na {RCMADD}
+LcmAddL cm_la line_mid {LCMADD}
+LcmAddN cm_na neut_mid {LCMADD}
+KcmAdd LcmAddL LcmAddN {1-LDMADD/(2*LCMADD)}
+CcmAddL line_in line_mid {CCMADD}
+CcmAddN neut_in neut_mid {CCMADD}
+RcmLossL line_in line_mid {RLCMADD}
+RcmLossN neut_in neut_mid {RLCMADD}
+.param CXIN=1.98e-06
+Lxin line_in xin_a {ESLC}
+Rxin xin_a xin_b {ESRC}
+Cxin xin_b neut_in {CXIN}
+.param CYADD=3.76e-09
+.param ESLYADD=1.5e-08 ESRYADD=0.1
+LyaddL line_mid cy_la {ESLYADD}
+RyaddL cy_la cy_lb {ESRYADD}
+CyaddL cy_lb pe {CYADD}
+LyaddN neut_mid cy_na {ESLYADD}
+RyaddN cy_na cy_nb {ESRYADD}
+CyaddN cy_nb pe {CYADD}
+.param CYHF=1.76e-09 ESLYHF=1e-08 ESRYHF=.1
+LyhfL line_mid yhf_la {ESLYHF}
+Ryhfl yhf_la yhf_lb {ESRYHF}
+CyhfL yhf_lb pe {CYHF}
+LyhfN neut_mid yhf_na {ESLYHF}
+Ryhfn yhf_na yhf_nb {ESRYHF}
+CyhfN yhf_nb pe {CYHF}
+* Input X capacitor, MOV, coupled choke, output X/Y capacitors.
+Lx1 line_mid c1a {ESLX}
+Rx1 c1a c1b {ESRX}
+Cx1 c1b neut_mid {CX}
+Cmov line_mid neut_mid {CMOV}
+RchL line_mid ch_l {RCH}
+RchN neut_mid ch_n {RCH}
+LchL ch_l line_f {LCM}
+LchN ch_n neut_f {LCM}
+Kch LchL LchN {1-LDM/(2*LCM)}
+CchL line_mid line_f {CCH}
+CchN neut_mid neut_f {CCH}
+RlossChL line_mid line_f {RLOSSCH}
+RlossChN neut_mid neut_f {RLOSSCH}
+Lx2 line_f c2a {ESLX}
+Rx2 c2a c2b {ESRX}
+Cx2 c2b neut_f {CX}
+CyL line_f pe {CY}
+CyN neut_f pe {CY}
+
+* One rectifier conducting pair at the 170-V mains crest. Four junction
+* capacitors are shown; 85 pF is the manufacturer's 1-MHz/4-V point, not
+* a qualified 170-V value. Case coupling through molded plastic is assumed.
+RbrLH line_f bus_p 0.05
+RbrNL neut_f bus_n 0.05
+CbrLH line_f bus_p {CBRJ}
+CbrLL line_f bus_n {CBRJ}
+CbrNH neut_f bus_p {CBRJ}
+CbrNL neut_f bus_n {CBRJ}
+CbrCaseP bus_p pe {CBRP}
+CbrCaseN bus_n pe {CBRN}
+
+* Board's bulk and local DC link groups, explicit scenario ESR and ESL.
+Lbulk bus_p bulk_a {LBULK}
+Rbulk bulk_a bulk_b {RBULK}
+Cbulk bulk_b bus_n {CBULK}
+Llocal bus_p local_a {LLOCAL}
+Rlocal local_a local_b {RLOCAL}
+Clocal local_b bus_n {CLOCAL}
+Idm bus_p bus_n AC {EXC_DM}
+
+* High-side drains Q2/Q5 are on BUS_P. Low-side drains Q3/Q6 are SW_A/B.
+* Each tab couples to the PE-bonded heatsink through an insulating pad.
+VlegA sw_a bus_n DC 0 AC {EXC_A}
+VlegB sw_b bus_n DC 0 AC {EXC_B}
+CtabQ2 bus_p pe {CTABH}
+CtabQ5 bus_p pe {CTABH}
+CtabQ3 sw_a tab_a {CTABA}
+VtabSenseA tab_a pe 0
+CtabQ6 sw_b tab_b {CTABB}
+VtabSenseB tab_b pe 0
+Rpan sw_a tank_a 2
+Lcoil tank_a tank_b 70u
+Cres tank_b sw_b 0.54u
+* Coil-to-pan/earth split between both leg ends; 10-100 pF total assumed.
+CcoilA sw_a pe {CCOILA}
+CcoilB sw_b pe {CCOILB}
+
+.save v(lisn_l) v(lisn_n) v(pe) v(bus_p) v(bus_n) v(sw_a) v(sw_b) i(vtabsensea) i(vtabsenseb)
+.save i(ldamp) i(lnewx) i(lxin) i(lcmaddl) i(lcmaddn) i(lyaddl) i(lyaddn) v(line_mid) v(neut_mid)
+.ac lin 500 60000 30000000
+.end

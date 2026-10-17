@@ -1,0 +1,19 @@
+{
+  "part": "R463R410000M1M",
+  "manufacturer": "KEMET",
+  "lead_spacing_mm": 27.5,
+  "lead_spacing_tolerance_mm": 0.4,
+  "body_length_mm": 32.0,
+  "body_width_mm": 11.0,
+  "body_height_mm": 20.0,
+  "source": "sources/KEM_F3095_R46_X2_310_110C.pdf",
+  "source_sha256": "5a3131ce8de7445130b777cab1a5e1a17e6b5f3343faddfe19735221db205094",
+  "source_revision": "F3095_R46_X2_310_110C (2026-05-13)",
+  "source_pages": {
+    "ordering_code": 1,
+    "lead_options": 2,
+    "mechanical_dimensions": 3,
+    "part_table": 10
+  },
+  "interpretation": "R means 27.5 mm nominal pitch; R463R4100(1)M1(2) has (1)=00 short-lead packaging and (2)=M tolerance."
+}

@@ -1,0 +1,643 @@
+{
+ "qualified": "I1: BiCGStabl (degree 4) + ILU1, tol 1e-10, Abort Not Converged, no tree gauge",
+ "I1_mutual_nH": 1.8849562000000004,
+ "I1_mutual_exact_nH": 1.8849555921538759,
+ "I1_memory_exponent": 0.9010354835358042,
+ "I1_estimated_board_peak_GB_by_tets": {
+  "3193717": 8.7,
+  "5167468": 13.5,
+  "9535144": 23.4
+ },
+ "negative_control": {
+  "label": "negative-control-50its",
+  "exit_code": 1,
+  "all_done": false,
+  "energy_J": null,
+  "inductance_nH": null,
+  "peak_memory_GB": 0.360383184,
+  "max_rss_GB": 0.416530432,
+  "wall_s": 2.98,
+  "solver": "iterative BiCGStabl + ILU1",
+  "tol": 1e-10,
+  "last_iteration": 50,
+  "last_residual": 0.1044,
+  "converged": false,
+  "k_A_per_m": [
+   0.0,
+   0.0,
+   100.0
+  ],
+  "pec": [
+   2
+  ],
+  "port": 4,
+  "port2": null,
+  "k2_A_per_m": null,
+  "scale_m": 0.001
+ },
+ "runs": [
+  {
+   "label": "I1-sect-boundary",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.369754832,
+   "max_rss_GB": 0.427114496,
+   "wall_s": 13.87,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 560,
+   "last_residual": 2.69e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.4135801525152298e-16,
+   "vs_exact": -2.0804409274737692e-07
+  },
+  {
+   "label": "I1-sect-interior",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.384893648,
+   "max_rss_GB": 0.442073088,
+   "wall_s": 16.11,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 590,
+   "last_residual": 1.21e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.4135801525152298e-16,
+   "vs_exact": -2.0804409274737692e-07
+  },
+  {
+   "label": "I1-sect2-L11",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.363037392,
+   "max_rss_GB": 0.419643392,
+   "wall_s": 12.5,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 450,
+   "last_residual": 5.719e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.4135801525152298e-16,
+   "vs_exact": -2.0804409274737692e-07
+  },
+  {
+   "label": "I1-sect2-L22",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 9.424778e-10,
+   "inductance_nH": 1.8849555999999998,
+   "peak_memory_GB": 0.3671006,
+   "max_rss_GB": 0.423952384,
+   "wall_s": 13.18,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 480,
+   "last_residual": 2.921e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 5,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.1779832104535052e-16,
+   "vs_exact": 4.162498047919008e-09
+  },
+  {
+   "label": "I1-sect2-both",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 4.39823e-09,
+   "inductance_nH": 8.79646,
+   "peak_memory_GB": 0.370885352,
+   "max_rss_GB": 0.42770432,
+   "wall_s": 14.17,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 530,
+   "last_residual": 3.044e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": 5,
+   "k2_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "scale_m": 0.001,
+   "vs_direct": 0.0,
+   "vs_exact": 6.47929526113457e-08
+  },
+  {
+   "label": "I1-thick-h0p5",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.392547e-09,
+   "inductance_nH": 2.785094,
+   "peak_memory_GB": 0.567984968,
+   "max_rss_GB": 0.625491968,
+   "wall_s": 12.15,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 250,
+   "last_residual": 8.019e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": 0.0
+  },
+  {
+   "label": "I1-thick-h0p35",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.404494e-09,
+   "inductance_nH": 2.808988,
+   "peak_memory_GB": 1.352713752,
+   "max_rss_GB": 1.594392576,
+   "wall_s": 52.52,
+   "solver": "iterative BiCGStabl + ILU1",
+   "tol": 1e-10,
+   "last_iteration": 470,
+   "last_residual": 1.885e-10,
+   "converged": true,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": 0.0
+  },
+  {
+   "label": "I2-sect-boundary",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 0.563331936,
+   "max_rss_GB": 0.619593728,
+   "wall_s": 78.75,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  {
+   "label": "I2-sect-interior",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 0.582075232,
+   "max_rss_GB": 0.6381568,
+   "wall_s": 79.1,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  {
+   "label": "I2-sect2-L11",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 0.560628552,
+   "max_rss_GB": 0.6168576,
+   "wall_s": 75.08,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  {
+   "label": "I2-sect2-L22",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 0.560235336,
+   "max_rss_GB": 0.617447424,
+   "wall_s": 74.86,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 5,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  {
+   "label": "I2-sect2-both",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 0.562496304,
+   "max_rss_GB": 0.618840064,
+   "wall_s": 75.94,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": 5,
+   "k2_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "scale_m": 0.001
+  },
+  {
+   "label": "I2-thick-h0p5",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 0.854164488,
+   "max_rss_GB": 0.910917632,
+   "wall_s": 110.45,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  {
+   "label": "I2-thick-h0p35",
+   "exit_code": 1,
+   "all_done": false,
+   "energy_J": null,
+   "inductance_nH": null,
+   "peak_memory_GB": 2.084030528,
+   "max_rss_GB": 2.32873984,
+   "wall_s": 285.31,
+   "solver": "iterative GCR + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001
+  },
+  {
+   "label": "I3-sect-boundary",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.361808544,
+   "max_rss_GB": 0.419446784,
+   "wall_s": 10.73,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.4135801525152298e-16,
+   "vs_exact": -2.0804409274737692e-07
+  },
+  {
+   "label": "I3-sect-interior",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.381403856,
+   "max_rss_GB": 0.437829632,
+   "wall_s": 10.9,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.4135801525152298e-16,
+   "vs_exact": -2.0804409274737692e-07
+  },
+  {
+   "label": "I3-sect2-L11",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.362365624,
+   "max_rss_GB": 0.418922496,
+   "wall_s": 10.83,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.4135801525152298e-16,
+   "vs_exact": -2.0804409274737692e-07
+  },
+  {
+   "label": "I3-sect2-L22",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 9.424778e-10,
+   "inductance_nH": 1.8849555999999998,
+   "peak_memory_GB": 0.361104056,
+   "max_rss_GB": 0.418545664,
+   "wall_s": 10.67,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 5,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": -1.1779832104535052e-16,
+   "vs_exact": 4.162498047919008e-09
+  },
+  {
+   "label": "I3-sect2-both",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 4.39823e-09,
+   "inductance_nH": 8.79646,
+   "peak_memory_GB": 0.360678072,
+   "max_rss_GB": 0.417759232,
+   "wall_s": 10.71,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": 5,
+   "k2_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "scale_m": 0.001,
+   "vs_direct": 0.0,
+   "vs_exact": 6.47929526113457e-08
+  },
+  {
+   "label": "I3-thick-h0p5",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.392547e-09,
+   "inductance_nH": 2.785094,
+   "peak_memory_GB": 0.56190648,
+   "max_rss_GB": 0.62103552,
+   "wall_s": 11.11,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": 0.0
+  },
+  {
+   "label": "I3-thick-h0p35",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.404494e-09,
+   "inductance_nH": 2.808988,
+   "peak_memory_GB": 1.33496988,
+   "max_rss_GB": 1.579384832,
+   "wall_s": 44.04,
+   "solver": "iterative BiCGStab + ILU2",
+   "tol": 1e-10,
+   "last_iteration": null,
+   "last_residual": null,
+   "converged": false,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "vs_direct": 0.0
+  }
+ ]
+}

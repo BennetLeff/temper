@@ -1,0 +1,10 @@
+* D2: output-stage surrogate alone at TI SLUSE89C p10 load condition.
+.param VDRV=12 ROH=5 ROL=0.55 TCMD=5n
+.include params.inc
+Vcmd cmd 0 PULSE(0 {VDRV} 100n {TCMD} {TCMD} 200n 1u)
+Bdriver out 0 I={v(out)*(1-v(cmd)/VDRV)/ROL+(v(out)-VDRV)*v(cmd)/(VDRV*ROH)}
+Cload out 0 1.8n
+.tran 0.05n 500n 0 0.05n
+.meas tran rise_20_80 TRIG v(out) VAL={0.2*VDRV} RISE=1 TARG v(out) VAL={0.8*VDRV} RISE=1
+.meas tran fall_90_10 TRIG v(out) VAL={0.9*VDRV} FALL=1 TARG v(out) VAL={0.1*VDRV} FALL=1
+.end

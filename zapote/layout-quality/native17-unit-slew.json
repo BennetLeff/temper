@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "source_revision": "f11ca939f73e869e6745d33badcf6cc1acc818b2",
+  "required_checks": ["gate_coupling", "kelvin_sense", "switch_coupling", "decoupling", "return_path", "copper_distribution", "emi_bypass", "thermal_influence", "assembly_margin"],
+  "cases": [
+    {
+      "id": "leg-A-high-gate-unit-slew",
+      "basis": "native-17; round17/d2/legA-h0-lin12-m20corr.matrix.txt L0_nH[P1,P3] and [P2,P3]. Unit-current-slew sensitivity only.",
+      "assumptions": ["1 A/ns on each oriented power port simultaneously is a sensitivity probe, not a measured operating point.", "No bulk port, package/Miller/driver circuit, leg B, or physical qualification is represented. Matrix retains the extraction's documented mesh/crop assumptions."],
+      "scenario": {"kind": "gate_coupling", "parameters": [
+        {"object": "P1_C38->P3_gate_high", "mutual_nh": 3.5419, "slew_a_per_ns": 1.0},
+        {"object": "P2_C39->P3_gate_high", "mutual_nh": 3.2953, "slew_a_per_ns": 1.0}
+      ]},
+      "budgets": []
+    }
+  ]
+}

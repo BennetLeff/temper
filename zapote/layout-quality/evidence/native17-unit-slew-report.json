@@ -1,0 +1,51 @@
+{
+  "board_binding": "verified_bytes",
+  "input_sha256": "4b7ab47cfedbbd447892f29ca00cef857f2acc402cde27828a69379e5876a29e",
+  "purpose": "advisory_layout_comparison_not_board_qualification",
+  "report": {
+    "board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "cases": [
+      {
+        "assumptions": [
+          "1 A/ns on each oriented power port simultaneously is a sensitivity probe, not a measured operating point.",
+          "No bulk port, package/Miller/driver circuit, leg B, or physical qualification is represented. Matrix retains the extraction's documented mesh/crop assumptions."
+        ],
+        "basis": "native-17; round17/d2/legA-h0-lin12-m20corr.matrix.txt L0_nH[P1,P3] and [P2,P3]. Unit-current-slew sensitivity only.",
+        "details": {
+          "dominant_object": "P1_C38->P3_gate_high",
+          "dominant_v": 3.5419,
+          "independent_sign_bound_v": 6.8372,
+          "signed_v": 6.8372
+        },
+        "error": null,
+        "family": "gate_coupling",
+        "id": "leg-A-high-gate-unit-slew",
+        "metrics": [
+          {
+            "margin": null,
+            "name": "pickup_magnitude_v",
+            "value": 6.8372
+          },
+          {
+            "margin": null,
+            "name": "independent_sign_bound_v",
+            "value": 6.8372
+          }
+        ],
+        "status": "unscored"
+      }
+    ],
+    "missing_checks": [
+      "kelvin_sense",
+      "switch_coupling",
+      "decoupling",
+      "return_path",
+      "copper_distribution",
+      "emi_bypass",
+      "thermal_influence",
+      "assembly_margin"
+    ],
+    "schema_version": 1,
+    "source_revision": "f11ca939f73e869e6745d33badcf6cc1acc818b2"
+  }
+}

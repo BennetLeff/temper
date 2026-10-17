@@ -1,0 +1,40 @@
+Source base: 67aec36f8c876a7026c07ce3752105ab34d3ce46
+Runtime: Python 3.14.7; model/provider: GPT-6 Astra/OpenAI
+SHA256 08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67  zapote/power-stage-120v/frozen/default.csv
+SHA256 32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f  zapote/power-stage-120v/frozen/default.net
+SHA256 16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162  zapote/power-stage-120v/native-17/section.kicad_pcb
+SHA256 f600571197e32da4b915f986da003d95d73294dd8e428d7a4e6dcc89bbe29207  datasheets/ucc21550.pdf
+SHA256 b9125d13b57fb0232f8f4a723938f12836cb917f5fd00f719bef725f9f2b64c4  docs/hardware/power-section-120v/POWER-SECTION.md
+SHA256 b37900e764512921dfb6a064a53f14827e1bfad9331ce7db413f3b2e18f08932  zapote/power-stage-120v/validation-plan/06-controller-interface.md
+SHA256 b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607  zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir
+
+leg_a.driver-dt: R9.1, U1.6; board/netlist agree
+R9: RC0603FR-0739KL, 39 kohm +/-1%, +/-100 ppm/C; pin 2 SELV_GND
+U1.1: pwm_ha: J4.5, U1.1
+U1.2: pwm_la: J4.6, U1.2
+U1.5: leg_a-dis: Q1.3, R8.1, U1.5
+
+leg_b.driver-dt: R17.1, U2.6; board/netlist agree
+R17: RC0603FR-0739KL, 39 kohm +/-1%, +/-100 ppm/C; pin 2 SELV_GND
+U2.1: pwm_hb: J4.7, U2.1
+U2.2: pwm_lb: J4.8, U2.2
+U2.5: leg_b-dis: Q4.3, R16.1, U2.5
+
+TI p10 guaranteed test-point rows: R[kohm] min/typ/max[ns]
+10 86 99 112
+20 167 185 203
+50 399 443 487
+
+ESTIMATES ONLY: linear interpolation between TI 20/50-kohm limit rows.
+Resistor temperature assumed equal to labelled T; reference 25 C.
+T[C] Rmin[kohm] Rmax[kohm] DTmin_est[ns] DTnom_fit[ns] DTmax_est[ns]
+ -40 38.359035 39.646035 308.977 348.400 388.982
+  25 38.610000 39.390000 310.917 348.400 386.559
+ 150 38.127375 39.882375 307.185 348.400 391.220
+
+Input-dominated conditional opposite-edge skew bound:
+-40..-10 C: tDM+tPWD = 6.5+5 = 11.5 ns
+-10..150 C: tDM+tPWD = 5+5 = 10 ns
+These are not extra deductions from measured DTS output limits.
+Guaranteed 39-kohm board minimum: NOT ESTABLISHED.
+250 ns unreachable: NOT PROVEN; retain existing stress corner.

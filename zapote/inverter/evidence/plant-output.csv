@@ -1,0 +1,14 @@
+id,status,v1_rms_v,tank_i_rms_a,tank_i_peak_sine_a,phase_deg,f_res_khz,cap_ac_rms_v,cap_dc_bias_v,cap_abs_peak_v,coil_loss_w,pan_reflected_loss_w,cap_esr_loss_w,nominal_vce_headroom_v
+legacy_midpoint_340,SCREEN_ONLY,153.05,21.36,30.21,63.01,37.56,241.15,0.00,341.04,155.19,1328.21,0.61,860.00
+rev38_direct_390,SCREEN_ONLY,175.56,24.51,34.66,63.01,37.56,276.61,195.00,586.19,204.18,1747.58,0.80,810.00
+synthetic_midpoint_390,SCREEN_ONLY,175.56,24.51,34.66,63.01,37.56,276.61,0.00,391.19,204.18,1747.58,0.80,810.00
+full_bridge_390,SCREEN_ONLY,351.12,49.01,69.31,63.01,37.56,553.23,0.00,782.38,816.74,6990.32,3.20,810.00
+low_loaded_l_low_c_44k,SCREEN_ONLY,175.56,49.74,70.34,22.91,41.90,666.30,195.00,1137.30,841.04,7198.31,3.30,810.00
+high_loaded_l_high_c_50k,SCREEN_ONLY,175.56,15.27,21.60,73.57,34.15,147.31,195.00,403.33,79.30,678.75,0.31,810.00
+no_pan_47k,SCREEN_ONLY,175.56,11.94,16.89,88.67,30.98,134.77,195.00,385.60,48.47,0.00,0.19,810.00
+weak_coupling_47k,SCREEN_ONLY,175.56,18.63,26.35,84.88,34.73,210.33,195.00,492.45,118.05,173.61,0.46,810.00
+bus_450_rating_probe,SCREEN_ONLY,202.57,28.28,39.99,63.01,37.56,319.17,225.00,676.37,271.84,2326.66,1.07,750.00
+permit_lost,INHIBITED,,,,,,,,,,,,
+gate_15v_lost,INHIBITED,,,,,,,,,,,,
+invalid_zero_l,REJECT:loaded_l_uh must be positive and finite,,,,,,,,,,,,
+invalid_bus_over_igbt,REJECT:bus alone reaches or exceeds historical IGBT VCE rating,,,,,,,,,,,,

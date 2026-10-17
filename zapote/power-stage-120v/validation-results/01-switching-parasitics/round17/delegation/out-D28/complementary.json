@@ -1,0 +1,192 @@
+[
+  {
+    "label": "anchor-original-170-35k-repeat",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 35000,
+    "phase": 180,
+    "step": 0.5,
+    "cycles": 24,
+    "original": true
+  },
+  {
+    "label": "complementary-v170-r2-p0-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 0,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p30-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 30,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p60-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 60,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p90-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 90,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p120-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 120,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p150-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 150,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r2-p180-s1",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 180,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r100-p30-s1",
+    "bus": 170,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 30,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r100-p90-s1",
+    "bus": 170,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 90,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v170-r100-p180-s1",
+    "bus": 170,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 180,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p0-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 0,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p30-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 30,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p60-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 60,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p90-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 90,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p120-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 120,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p150-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 150,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r2-p180-s1",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 180,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r100-p30-s1",
+    "bus": 198,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 30,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r100-p90-s1",
+    "bus": 198,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 90,
+    "step": 1,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r100-p180-s1",
+    "bus": 198,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 180,
+    "step": 1,
+    "cycles": 40
+  }
+]

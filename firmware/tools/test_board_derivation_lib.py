@@ -2,7 +2,7 @@
 
 Pins the SHARED derivation arithmetic -- the formula library used by BOTH
 ``scripts/check_pll_range_consistency.py`` and
-``scripts/check_firmware_board_contract.py`` -- to hand-computed reference
+``scripts/check_firmware_board_contract.py (archived 2026-10-08)`` -- to hand-computed reference
 vectors, so a bug in the formula cannot make both consumers agree with it.
 
 Reference vectors (hand-derived, from the committed declarations):

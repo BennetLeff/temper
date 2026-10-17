@@ -1,0 +1,119 @@
+D12 local verification, 2026-10-02; base a5eddd2bec65d0dd026bdd47087947b0b22cbfd6
+No simulation, hardware edits or Rust/native builds.
+PASS /Users/bennet/Miniforge3/bin/python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12/dt_resistor.py
+RC0603FR-0739KL min/nom/max estimate ns: 307.185 348.400 391.220
+RC0603FR-0749K9L min/nom/max estimate ns: 389.592 442.140 496.741
+RC0603FR-0751KL min/nom/max estimate ns: 397.909 451.600 507.390
+RT0603BRD0749K9L min/nom/max estimate ns: 396.636 442.140 488.003
+
+PASS /Users/bennet/Miniforge3/bin/python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12/bias_network.py
+PASS /Users/bennet/Miniforge3/bin/python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12/evidence.py
+PASS: four gate-channel net mappings; BOM quantities; value-only FEM test both legs
+{
+  "F6_2V": {
+    "lines": [
+      {
+        "part": "BZT52C2V0-7-F",
+        "added_qty": 4,
+        "unit_usd": "0.21",
+        "extended_usd": "0.84"
+      },
+      {
+        "part": "PMEG6030EP,115",
+        "added_qty": 4,
+        "unit_usd": "0.76",
+        "extended_usd": "3.04"
+      },
+      {
+        "part": "RC1206FR-071RL",
+        "added_qty": 4,
+        "unit_usd": "0.15",
+        "extended_usd": "0.60"
+      },
+      {
+        "part": "C0603C102J5GACTU",
+        "added_qty": 4,
+        "unit_usd": "0.14",
+        "extended_usd": "0.56"
+      },
+      {
+        "part": "UMK325AB7106KM-T",
+        "added_qty": 4,
+        "unit_usd": "0.89",
+        "extended_usd": "3.56"
+      }
+    ],
+    "added_parts": 20,
+    "delta_usd": "8.60"
+  },
+  "F6_4V_class": {
+    "lines": [
+      {
+        "part": "BZT52C3V9-7-F",
+        "added_qty": 4,
+        "unit_usd": "0.22",
+        "extended_usd": "0.88"
+      },
+      {
+        "part": "C0603C102J5GACTU",
+        "added_qty": 4,
+        "unit_usd": "0.14",
+        "extended_usd": "0.56"
+      },
+      {
+        "part": "UMK325AB7106KM-T",
+        "added_qty": 4,
+        "unit_usd": "0.89",
+        "extended_usd": "3.56"
+      }
+    ],
+    "added_parts": 12,
+    "delta_usd": "5.00"
+  },
+  "F7": {
+    "replace_qty": 2,
+    "new_parts_purchase_usd": "0.20",
+    "incremental_new_build_usd": "-0.02"
+  }
+}
+
+PASS second rerun byte-identical for all three JSON outputs
+PASS timing formulas reproduce both TI table endpoints and D1 production39k worst estimate
+PASS independent grid recount:408 cases,6 aborted; S1 hot24/24 and S4 hot0/24 at each long DT
+PASS actual leg_region_diff logic returns UNCHANGED for both regions on temporary value-only fixture; frozen board unchanged
+PASS /private/tmp/temper-d12-d15-tools/bin/ruff check --no-cache zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12
+All checks passed!
+
+PASS /private/tmp/temper-d12-d15-tools/bin/ruff format --check --no-cache zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12
+5 files already formatted
+
+PASS git diff --check
+
+Published source checks: TI Fig8-4 visually inspected in local PDF; datasheet source register and distributor pricing verified. Taiyo linked PDF404; manufacturer Specifications HTML used explicitly.
+Outstanding technical limits: guaranteed min DT not specified; proposed passive bias circuit not transient/startup-qualified; post-layout FEM not performed (proposal-only). D15 was pending at this earlier checkpoint; the final report now incorporates its completed map and refinement results.
+PASS README/SOURCES local links, source revision and reproduction path verified after final prose spacing cleanup
+
+FINAL verification, 2026-10-02: independent-supply proposal included.
+PASS regeneration 1: dt_resistor.py
+PASS regeneration 1: bias_network.py
+PASS regeneration 1: evidence.py
+PASS regeneration 1: isolated_bias.py
+PASS regeneration 2: dt_resistor.py
+PASS regeneration 2: bias_network.py
+PASS regeneration 2: evidence.py
+PASS regeneration 2: isolated_bias.py
+PASS all FOUR JSON outputs byte-identical on second regeneration
+PASS /private/tmp/temper-d12-d15-tools/bin/ruff check --no-cache /Users/bennet/.codex/worktrees/ps-r17-d12/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12
+All checks passed!
+PASS /private/tmp/temper-d12-d15-tools/bin/ruff format --check --no-cache /Users/bennet/.codex/worktrees/ps-r17-d12/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D12
+7 files already formatted
+PASS git diff --check
+
+PASS all local Markdown links resolve
+PASS 2V: material $118.60; 215 purchased parts; LDO headroom 3.856276 V; driver span 17.022581 V
+PASS 4V: material $114.96; 207 purchased parts; LDO headroom 1.836915 V; driver span 18.988853 V
+PASS cited new manufacturer PDFs opened: RECOM, TPS7A30, IRM-20, LM339, TL431, VO617A, SN74LVC32A, MMBT3904, 1N4148W, Kemet X7R/C0G. Resistor-family price estimates are explicitly labeled.
+D15 completed map/refinement incorporated; companion PR link remains parent publishing responsibility. No new transient, FEM or hardware qualification is claimed.
+Scientific limitations: timing minima remain estimates; independent F6 startup/monitor/thermal behavior requires simulation and hardware qualification; capacitor DC-bias and sourcing risks remain. 35% efficiency scenario does not establish 80 kHz module thermal feasibility.
+
+REVIEW FIX: 1N4148W-7-F price URL corrected to direct Mouser USD listing (accessed2026-10-02): quantity1 $0.18; stock shown. isolated_bias.py rerun; material estimates unchanged.

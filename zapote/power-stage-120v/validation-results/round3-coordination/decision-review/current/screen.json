@@ -1,0 +1,153 @@
+{
+  "source": "/Users/bennet/Desktop/temper/worktrees/ps-r3-integration/zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round3/outputs/cases.csv",
+  "total": 135,
+  "limits": {
+    "37": {
+      "pass_count": 57,
+      "fail_count": 78,
+      "power_counts": {
+        "300": 42,
+        "855": 15
+      },
+      "line_counts": {
+        "108": 20,
+        "120": 19,
+        "140": 18
+      },
+      "pan_counts": {
+        "carbon_or_430_steel": 15,
+        "cast_iron": 17,
+        "low_R_silargan_like": 9,
+        "offset_or_small_pan": 6,
+        "triply_clad_GUESS": 10
+      },
+      "corner_counts": {
+        "high": 22,
+        "low": 14,
+        "mid": 21
+      },
+      "line_power_counts": {
+        "108": {
+          "300": 14,
+          "855": 6,
+          "1710": 0
+        },
+        "120": {
+          "300": 14,
+          "855": 5,
+          "1710": 0
+        },
+        "140": {
+          "300": 14,
+          "855": 4,
+          "1710": 0
+        }
+      },
+      "max_retained_power_w": 855.0,
+      "full_power_pass_cases": 0,
+      "full_power_pass_pans": {},
+      "max_retained_rms_a": 18.3463,
+      "max_retained_c21_rms_a": 7.474418518518518,
+      "max_retained_cap_voltage_v": 300.9261
+    },
+    "40": {
+      "pass_count": 66,
+      "fail_count": 69,
+      "power_counts": {
+        "300": 45,
+        "855": 21
+      },
+      "line_counts": {
+        "108": 22,
+        "120": 22,
+        "140": 22
+      },
+      "pan_counts": {
+        "carbon_or_430_steel": 15,
+        "cast_iron": 18,
+        "low_R_silargan_like": 12,
+        "offset_or_small_pan": 9,
+        "triply_clad_GUESS": 12
+      },
+      "corner_counts": {
+        "high": 27,
+        "low": 18,
+        "mid": 21
+      },
+      "line_power_counts": {
+        "108": {
+          "300": 15,
+          "855": 7,
+          "1710": 0
+        },
+        "120": {
+          "300": 15,
+          "855": 7,
+          "1710": 0
+        },
+        "140": {
+          "300": 15,
+          "855": 7,
+          "1710": 0
+        }
+      },
+      "max_retained_power_w": 855.0,
+      "full_power_pass_cases": 0,
+      "full_power_pass_pans": {},
+      "max_retained_rms_a": 18.6979,
+      "max_retained_c21_rms_a": 7.617662962962963,
+      "max_retained_cap_voltage_v": 300.9261
+    },
+    "42": {
+      "pass_count": 73,
+      "fail_count": 62,
+      "power_counts": {
+        "1710": 3,
+        "300": 45,
+        "855": 25
+      },
+      "line_counts": {
+        "108": 25,
+        "120": 24,
+        "140": 24
+      },
+      "pan_counts": {
+        "carbon_or_430_steel": 18,
+        "cast_iron": 21,
+        "low_R_silargan_like": 13,
+        "offset_or_small_pan": 9,
+        "triply_clad_GUESS": 12
+      },
+      "corner_counts": {
+        "high": 30,
+        "low": 21,
+        "mid": 22
+      },
+      "line_power_counts": {
+        "108": {
+          "300": 15,
+          "855": 9,
+          "1710": 1
+        },
+        "120": {
+          "300": 15,
+          "855": 8,
+          "1710": 1
+        },
+        "140": {
+          "300": 15,
+          "855": 8,
+          "1710": 1
+        }
+      },
+      "max_retained_power_w": 1710.0,
+      "full_power_pass_cases": 3,
+      "full_power_pass_pans": {
+        "cast_iron": 3
+      },
+      "max_retained_rms_a": 21.6289,
+      "max_retained_c21_rms_a": 8.811774074074075,
+      "max_retained_cap_voltage_v": 408.2801
+    }
+  }
+}

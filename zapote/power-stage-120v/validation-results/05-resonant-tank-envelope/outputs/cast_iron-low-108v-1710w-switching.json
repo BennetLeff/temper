@@ -1,0 +1,17 @@
+{
+  "run_id": "cast_iron-low-108v-1710w",
+  "params": {
+    "VRMS": "108",
+    "FREQ": "34607.4721469573",
+    "LLOAD": "5.179999999999999e-05",
+    "RPAN40": "2.52",
+    "RCOIL": "0.105"
+  },
+  "raw_end_s": 0.0083333,
+  "raw_points": 166682,
+  "crossing_count": 576,
+  "qualifying_count": 503,
+  "inductive_sign_count": 503,
+  "abs_current_min_a": 8.217772897376527,
+  "abs_current_max_a": 43.44416135918946
+}

@@ -1,0 +1,8 @@
+{
+  "nonfinite_tolerance_rejected": true,
+  "error_marker_rejected": true,
+  "plausible_energy_high_residual_rejected": true,
+  "missing_residual_history_rejected": true,
+  "final_nan_energy_after_valid_energy_rejected": true,
+  "final_nan_residual_after_valid_residual_rejected": true
+}

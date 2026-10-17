@@ -1,0 +1,24 @@
+* Loaded PERMIT sensitivity. Cg, Cd, cable and output resistance are assumptions.
+.param Cg=@CG@ Cd=@CD@ Cc=@CC@ Ro=@RO@ Vr=@VR@ Vth=@VTH@ STOP=@STOP@
+Vrail rail 0 {Vr}
+Vcommand cmd 0 PULSE({Vr} 0 1u 1n 1n 1m 2m)
+Routput cmd permit {Ro}
+Ccable permit 0 {Cc}
+Rga permit ga 100
+Rgb permit gb 100
+Rpa ga 0 100k
+Rpb gb 0 100k
+Cga ga 0 {Cg}
+Cgb gb 0 {Cg}
+Rda rail da 1k
+Rdb rail db 1k
+Cda da 0 {Cd}
+Cdb db 0 {Cd}
+* Smooth illustrative MOS channel, not vendor transfer/Qgd model.
+Bqa da 0 I={v(da)*(1+tanh((v(ga)-Vth)/0.02))/0.096}
+Bqb db 0 I={v(db)*(1+tanh((v(gb)-Vth)/0.02))/0.096}
+.options reltol=1e-5 method=gear
+.tran 1n {STOP} 0 10n
+.meas tran dis_2p3 WHEN v(da)=2.3 RISE=1
+.meas tran receiver_ns PARAM='(dis_2p3-1u)*1e9'
+.end

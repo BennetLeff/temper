@@ -1,0 +1,20 @@
+* pulse-3: datasheet SLUSE89C fixture
+.include "/Users/bennet/.codex/worktrees/ps-r17-d26-parametric/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D26/ucc21550_parametric.lib"
+Vcc vc 0 3.3
+Vdd vd 0 12
+Va a 0 PULSE(0 3.3 1u 1n 1n 3n 2u)
+Vb b 0 PULSE(0 3.3 1204n 1n 1n 500n 4u)
+Vdis dis 0 PULSE(0 0.0 1.7u 1n 1n 2u 5u)
+XU a b dis vc 0 vd 0 oa vd 0 ob UCC21550 CORNER=0 RDT=50000 RTOL=0 DTEN=0
+Ca oa 0 1e-06n
+Cb ob 0 1e-06n
+.tran 0.1n 2.8u
+.control
+set numdgt=15
+set wr_singlescale
+set wr_vecnames
+run
+wrdata wave.txt v(a) v(b) v(dis) v(oa) v(ob)
+quit
+.endc
+.end

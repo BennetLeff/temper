@@ -1,0 +1,136 @@
+{
+  "authority": "TI SLUSE89C pp10,25; D1 README; resistor datasheets in SOURCES.md",
+  "status": "estimated only; no guaranteed minimum established",
+  "required_minimum_ns": 391,
+  "D1_stack_required_nominal_kohm": 50.08619587406143,
+  "candidates": {
+    "RC0603FR-0739KL": [
+      {
+        "resistor_temperature_C": -40,
+        "Rmin_kohm": 38.359035,
+        "Rmax_kohm": 39.646035,
+        "DTmin_est_ns": 308.97653733333334,
+        "DTnom_fit_ns": 348.4,
+        "DTmax_est_ns": 388.9824646666666,
+        "extrapolates_above_50k": false,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 25,
+        "Rmin_kohm": 38.61,
+        "Rmax_kohm": 39.39,
+        "DTmin_est_ns": 310.9173333333333,
+        "DTnom_fit_ns": 348.4,
+        "DTmax_est_ns": 386.5586666666667,
+        "extrapolates_above_50k": false,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 150,
+        "Rmin_kohm": 38.127375,
+        "Rmax_kohm": 39.882374999999996,
+        "DTmin_est_ns": 307.1850333333333,
+        "DTnom_fit_ns": 348.4,
+        "DTmax_est_ns": 391.21981666666665,
+        "extrapolates_above_50k": false,
+        "guaranteed_minimum_ns": null
+      }
+    ],
+    "RC0603FR-0749K9L": [
+      {
+        "resistor_temperature_C": -40,
+        "Rmin_kohm": 49.0798935,
+        "Rmax_kohm": 50.7265935,
+        "DTmin_est_ns": 391.8845097333333,
+        "DTnom_fit_ns": 442.14,
+        "DTmax_est_ns": 493.87841846666663,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 25,
+        "Rmin_kohm": 49.400999999999996,
+        "Rmax_kohm": 50.399,
+        "DTmin_est_ns": 394.3677333333333,
+        "DTnom_fit_ns": 442.14,
+        "DTmax_est_ns": 490.77720000000005,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 150,
+        "Rmin_kohm": 48.7834875,
+        "Rmax_kohm": 51.0289875,
+        "DTmin_est_ns": 389.59230333333335,
+        "DTnom_fit_ns": 442.14,
+        "DTmax_est_ns": 496.7410816666667,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      }
+    ],
+    "RC0603FR-0751KL": [
+      {
+        "resistor_temperature_C": -40,
+        "Rmin_kohm": 50.161815000000004,
+        "Rmax_kohm": 51.844815,
+        "DTmin_est_ns": 400.2513693333334,
+        "DTnom_fit_ns": 451.59999999999997,
+        "DTmax_est_ns": 504.4642486666666,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 25,
+        "Rmin_kohm": 50.49,
+        "Rmax_kohm": 51.51,
+        "DTmin_est_ns": 402.78933333333333,
+        "DTnom_fit_ns": 451.59999999999997,
+        "DTmax_est_ns": 501.29466666666667,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 150,
+        "Rmin_kohm": 49.858875000000005,
+        "Rmax_kohm": 52.15387499999999,
+        "DTmin_est_ns": 397.90863333333334,
+        "DTnom_fit_ns": 451.59999999999997,
+        "DTmax_est_ns": 507.39001666666655,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      }
+    ],
+    "RT0603BRD0749K9L": [
+      {
+        "resistor_temperature_C": -40,
+        "Rmin_kohm": 49.769093587499995,
+        "Rmax_kohm": 50.031068587499995,
+        "DTmin_est_ns": 397.2143237433333,
+        "DTnom_fit_ns": 442.14,
+        "DTmax_est_ns": 487.2941159616666,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 25,
+        "Rmin_kohm": 49.8501,
+        "Rmax_kohm": 49.94989999999999,
+        "DTmin_est_ns": 397.84077333333335,
+        "DTnom_fit_ns": 442.14,
+        "DTmax_est_ns": 486.5257199999999,
+        "extrapolates_above_50k": false,
+        "guaranteed_minimum_ns": null
+      },
+      {
+        "resistor_temperature_C": 150,
+        "Rmin_kohm": 49.694318437499994,
+        "Rmax_kohm": 50.1059934375,
+        "DTmin_est_ns": 396.6360625833333,
+        "DTnom_fit_ns": 442.14,
+        "DTmax_est_ns": 488.00340454166667,
+        "extrapolates_above_50k": true,
+        "guaranteed_minimum_ns": null
+      }
+    ]
+  }
+}

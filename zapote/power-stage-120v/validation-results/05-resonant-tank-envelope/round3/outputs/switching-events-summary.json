@@ -1,0 +1,1356 @@
+{
+  "source": "ideal full-bridge deck; A1 ZVS threshold not applied",
+  "case_count": 135,
+  "cases": [
+    {
+      "run_id": "cast_iron-low-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 576,
+      "events_above_20pct_line": 503,
+      "inductive_sign_above_20pct_count": 503,
+      "min_abs_current_above_20pct_a": 8.217772897376527,
+      "max_abs_current_above_20pct_a": 43.44416135918946
+    },
+    {
+      "run_id": "cast_iron-low-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 635,
+      "events_above_20pct_line": 554,
+      "inductive_sign_above_20pct_count": 554,
+      "min_abs_current_above_20pct_a": 6.9787862760025305,
+      "max_abs_current_above_20pct_a": 35.561040035707016
+    },
+    {
+      "run_id": "cast_iron-low-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 783,
+      "events_above_20pct_line": 683,
+      "inductive_sign_above_20pct_count": 683,
+      "min_abs_current_above_20pct_a": 4.523233124176041,
+      "max_abs_current_above_20pct_a": 22.44877341618212
+    },
+    {
+      "run_id": "cast_iron-low-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 592,
+      "events_above_20pct_line": 517,
+      "inductive_sign_above_20pct_count": 517,
+      "min_abs_current_above_20pct_a": 8.842886417676608,
+      "max_abs_current_above_20pct_a": 46.21323468341897
+    },
+    {
+      "run_id": "cast_iron-low-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 657,
+      "events_above_20pct_line": 573,
+      "inductive_sign_above_20pct_count": 573,
+      "min_abs_current_above_20pct_a": 7.274127834007393,
+      "max_abs_current_above_20pct_a": 36.377794429913365
+    },
+    {
+      "run_id": "cast_iron-low-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 828,
+      "events_above_20pct_line": 722,
+      "inductive_sign_above_20pct_count": 722,
+      "min_abs_current_above_20pct_a": 4.54672531280242,
+      "max_abs_current_above_20pct_a": 22.501235168379736
+    },
+    {
+      "run_id": "cast_iron-low-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 618,
+      "events_above_20pct_line": 540,
+      "inductive_sign_above_20pct_count": 540,
+      "min_abs_current_above_20pct_a": 9.593795418972425,
+      "max_abs_current_above_20pct_a": 49.06879408882874
+    },
+    {
+      "run_id": "cast_iron-low-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 696,
+      "events_above_20pct_line": 607,
+      "inductive_sign_above_20pct_count": 607,
+      "min_abs_current_above_20pct_a": 7.400673325357042,
+      "max_abs_current_above_20pct_a": 37.221655661428585
+    },
+    {
+      "run_id": "cast_iron-low-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 910,
+      "events_above_20pct_line": 794,
+      "inductive_sign_above_20pct_count": 794,
+      "min_abs_current_above_20pct_a": 4.4954171603087065,
+      "max_abs_current_above_20pct_a": 22.361308917256466
+    },
+    {
+      "run_id": "cast_iron-mid-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 551,
+      "events_above_20pct_line": 481,
+      "inductive_sign_above_20pct_count": 481,
+      "min_abs_current_above_20pct_a": 6.790046793721582,
+      "max_abs_current_above_20pct_a": 35.4104961229531
+    },
+    {
+      "run_id": "cast_iron-mid-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 616,
+      "events_above_20pct_line": 537,
+      "inductive_sign_above_20pct_count": 537,
+      "min_abs_current_above_20pct_a": 6.071344807351763,
+      "max_abs_current_above_20pct_a": 30.805174022049172
+    },
+    {
+      "run_id": "cast_iron-mid-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 775,
+      "events_above_20pct_line": 676,
+      "inductive_sign_above_20pct_count": 676,
+      "min_abs_current_above_20pct_a": 3.961663764598351,
+      "max_abs_current_above_20pct_a": 19.856983944692427
+    },
+    {
+      "run_id": "cast_iron-mid-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 569,
+      "events_above_20pct_line": 497,
+      "inductive_sign_above_20pct_count": 497,
+      "min_abs_current_above_20pct_a": 7.489841069844802,
+      "max_abs_current_above_20pct_a": 38.74656218235535
+    },
+    {
+      "run_id": "cast_iron-mid-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 640,
+      "events_above_20pct_line": 558,
+      "inductive_sign_above_20pct_count": 558,
+      "min_abs_current_above_20pct_a": 6.371803996209721,
+      "max_abs_current_above_20pct_a": 31.782850469743682
+    },
+    {
+      "run_id": "cast_iron-mid-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 824,
+      "events_above_20pct_line": 719,
+      "inductive_sign_above_20pct_count": 719,
+      "min_abs_current_above_20pct_a": 3.9680602867511894,
+      "max_abs_current_above_20pct_a": 19.90215329465621
+    },
+    {
+      "run_id": "cast_iron-mid-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 598,
+      "events_above_20pct_line": 521,
+      "inductive_sign_above_20pct_count": 521,
+      "min_abs_current_above_20pct_a": 8.303062388924683,
+      "max_abs_current_above_20pct_a": 42.18731016476766
+    },
+    {
+      "run_id": "cast_iron-mid-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 681,
+      "events_above_20pct_line": 594,
+      "inductive_sign_above_20pct_count": 594,
+      "min_abs_current_above_20pct_a": 6.49588770803942,
+      "max_abs_current_above_20pct_a": 32.727372718846276
+    },
+    {
+      "run_id": "cast_iron-mid-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 911,
+      "events_above_20pct_line": 794,
+      "inductive_sign_above_20pct_count": 794,
+      "min_abs_current_above_20pct_a": 3.9886678852454818,
+      "max_abs_current_above_20pct_a": 19.819432557403797
+    },
+    {
+      "run_id": "cast_iron-high-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 526,
+      "events_above_20pct_line": 459,
+      "inductive_sign_above_20pct_count": 459,
+      "min_abs_current_above_20pct_a": 5.476480079801352,
+      "max_abs_current_above_20pct_a": 28.986431195078886
+    },
+    {
+      "run_id": "cast_iron-high-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 595,
+      "events_above_20pct_line": 519,
+      "inductive_sign_above_20pct_count": 519,
+      "min_abs_current_above_20pct_a": 5.4173913366645055,
+      "max_abs_current_above_20pct_a": 27.296184615695267
+    },
+    {
+      "run_id": "cast_iron-high-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 761,
+      "events_above_20pct_line": 665,
+      "inductive_sign_above_20pct_count": 665,
+      "min_abs_current_above_20pct_a": 3.584123813971598,
+      "max_abs_current_above_20pct_a": 18.01687077958482
+    },
+    {
+      "run_id": "cast_iron-high-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 546,
+      "events_above_20pct_line": 476,
+      "inductive_sign_above_20pct_count": 476,
+      "min_abs_current_above_20pct_a": 6.459160822664556,
+      "max_abs_current_above_20pct_a": 33.00316228470899
+    },
+    {
+      "run_id": "cast_iron-high-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 621,
+      "events_above_20pct_line": 542,
+      "inductive_sign_above_20pct_count": 542,
+      "min_abs_current_above_20pct_a": 5.566634723447116,
+      "max_abs_current_above_20pct_a": 28.34767485485458
+    },
+    {
+      "run_id": "cast_iron-high-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 812,
+      "events_above_20pct_line": 707,
+      "inductive_sign_above_20pct_count": 707,
+      "min_abs_current_above_20pct_a": 3.660062750175627,
+      "max_abs_current_above_20pct_a": 18.0953921339069
+    },
+    {
+      "run_id": "cast_iron-high-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 577,
+      "events_above_20pct_line": 504,
+      "inductive_sign_above_20pct_count": 504,
+      "min_abs_current_above_20pct_a": 7.140379461775918,
+      "max_abs_current_above_20pct_a": 36.97848917187819
+    },
+    {
+      "run_id": "cast_iron-high-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 664,
+      "events_above_20pct_line": 580,
+      "inductive_sign_above_20pct_count": 580,
+      "min_abs_current_above_20pct_a": 5.848778170758378,
+      "max_abs_current_above_20pct_a": 29.430824906802467
+    },
+    {
+      "run_id": "cast_iron-high-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 903,
+      "events_above_20pct_line": 788,
+      "inductive_sign_above_20pct_count": 788,
+      "min_abs_current_above_20pct_a": 3.5857291808806675,
+      "max_abs_current_above_20pct_a": 17.99835850102938
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 613,
+      "events_above_20pct_line": 535,
+      "inductive_sign_above_20pct_count": 535,
+      "min_abs_current_above_20pct_a": 9.677028040942975,
+      "max_abs_current_above_20pct_a": 50.00168418056747
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 671,
+      "events_above_20pct_line": 585,
+      "inductive_sign_above_20pct_count": 585,
+      "min_abs_current_above_20pct_a": 7.934476181456842,
+      "max_abs_current_above_20pct_a": 39.69100462417943
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 820,
+      "events_above_20pct_line": 715,
+      "inductive_sign_above_20pct_count": 715,
+      "min_abs_current_above_20pct_a": 4.952073537619837,
+      "max_abs_current_above_20pct_a": 24.74664242618672
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 628,
+      "events_above_20pct_line": 548,
+      "inductive_sign_above_20pct_count": 548,
+      "min_abs_current_above_20pct_a": 10.250858764002388,
+      "max_abs_current_above_20pct_a": 52.416065596104104
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 693,
+      "events_above_20pct_line": 605,
+      "inductive_sign_above_20pct_count": 605,
+      "min_abs_current_above_20pct_a": 8.03825301614702,
+      "max_abs_current_above_20pct_a": 40.43197973778749
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 866,
+      "events_above_20pct_line": 755,
+      "inductive_sign_above_20pct_count": 755,
+      "min_abs_current_above_20pct_a": 4.964900881482862,
+      "max_abs_current_above_20pct_a": 24.744299176701805
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 654,
+      "events_above_20pct_line": 571,
+      "inductive_sign_above_20pct_count": 571,
+      "min_abs_current_above_20pct_a": 10.70553031497962,
+      "max_abs_current_above_20pct_a": 55.008654318747794
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 732,
+      "events_above_20pct_line": 639,
+      "inductive_sign_above_20pct_count": 639,
+      "min_abs_current_above_20pct_a": 8.135990628863564,
+      "max_abs_current_above_20pct_a": 41.14911991970629
+    },
+    {
+      "run_id": "carbon_or_430_steel-low-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 948,
+      "events_above_20pct_line": 827,
+      "inductive_sign_above_20pct_count": 827,
+      "min_abs_current_above_20pct_a": 4.912544597832098,
+      "max_abs_current_above_20pct_a": 24.58474591205877
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 581,
+      "events_above_20pct_line": 507,
+      "inductive_sign_above_20pct_count": 507,
+      "min_abs_current_above_20pct_a": 8.10956113253049,
+      "max_abs_current_above_20pct_a": 42.02733221488264
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 642,
+      "events_above_20pct_line": 560,
+      "inductive_sign_above_20pct_count": 560,
+      "min_abs_current_above_20pct_a": 6.912657398942194,
+      "max_abs_current_above_20pct_a": 34.76091266307775
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 796,
+      "events_above_20pct_line": 694,
+      "inductive_sign_above_20pct_count": 694,
+      "min_abs_current_above_20pct_a": 4.456723440210338,
+      "max_abs_current_above_20pct_a": 22.054541726776304
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 598,
+      "events_above_20pct_line": 521,
+      "inductive_sign_above_20pct_count": 521,
+      "min_abs_current_above_20pct_a": 8.742707398990126,
+      "max_abs_current_above_20pct_a": 44.88828079398018
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 665,
+      "events_above_20pct_line": 581,
+      "inductive_sign_above_20pct_count": 581,
+      "min_abs_current_above_20pct_a": 7.0367153736328625,
+      "max_abs_current_above_20pct_a": 35.620352500662726
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 845,
+      "events_above_20pct_line": 737,
+      "inductive_sign_above_20pct_count": 737,
+      "min_abs_current_above_20pct_a": 4.440269822387384,
+      "max_abs_current_above_20pct_a": 22.028594212822124
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 625,
+      "events_above_20pct_line": 545,
+      "inductive_sign_above_20pct_count": 545,
+      "min_abs_current_above_20pct_a": 9.509371905635787,
+      "max_abs_current_above_20pct_a": 47.90996297968852
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 706,
+      "events_above_20pct_line": 615,
+      "inductive_sign_above_20pct_count": 615,
+      "min_abs_current_above_20pct_a": 7.317093507681935,
+      "max_abs_current_above_20pct_a": 36.47863163434171
+    },
+    {
+      "run_id": "carbon_or_430_steel-mid-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 926,
+      "events_above_20pct_line": 808,
+      "inductive_sign_above_20pct_count": 808,
+      "min_abs_current_above_20pct_a": 4.4362728501267865,
+      "max_abs_current_above_20pct_a": 22.055627346668835
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 552,
+      "events_above_20pct_line": 481,
+      "inductive_sign_above_20pct_count": 481,
+      "min_abs_current_above_20pct_a": 6.861482653008312,
+      "max_abs_current_above_20pct_a": 35.80482572978782
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 615,
+      "events_above_20pct_line": 536,
+      "inductive_sign_above_20pct_count": 536,
+      "min_abs_current_above_20pct_a": 6.1429007738551835,
+      "max_abs_current_above_20pct_a": 31.122121315835184
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 773,
+      "events_above_20pct_line": 674,
+      "inductive_sign_above_20pct_count": 674,
+      "min_abs_current_above_20pct_a": 4.005115969054933,
+      "max_abs_current_above_20pct_a": 20.023931832416952
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 569,
+      "events_above_20pct_line": 497,
+      "inductive_sign_above_20pct_count": 497,
+      "min_abs_current_above_20pct_a": 7.566701445954403,
+      "max_abs_current_above_20pct_a": 39.13677212019087
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 639,
+      "events_above_20pct_line": 558,
+      "inductive_sign_above_20pct_count": 558,
+      "min_abs_current_above_20pct_a": 6.285406393237466,
+      "max_abs_current_above_20pct_a": 32.08212611758131
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 820,
+      "events_above_20pct_line": 715,
+      "inductive_sign_above_20pct_count": 715,
+      "min_abs_current_above_20pct_a": 4.033087011711869,
+      "max_abs_current_above_20pct_a": 20.13384899866113
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 597,
+      "events_above_20pct_line": 521,
+      "inductive_sign_above_20pct_count": 521,
+      "min_abs_current_above_20pct_a": 8.388787657274111,
+      "max_abs_current_above_20pct_a": 42.58276100035908
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 680,
+      "events_above_20pct_line": 593,
+      "inductive_sign_above_20pct_count": 593,
+      "min_abs_current_above_20pct_a": 6.572664702290219,
+      "max_abs_current_above_20pct_a": 33.04157719528311
+    },
+    {
+      "run_id": "carbon_or_430_steel-high-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 902,
+      "events_above_20pct_line": 788,
+      "inductive_sign_above_20pct_count": 788,
+      "min_abs_current_above_20pct_a": 4.020932876245706,
+      "max_abs_current_above_20pct_a": 20.15133673834872
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 602,
+      "events_above_20pct_line": 526,
+      "inductive_sign_above_20pct_count": 526,
+      "min_abs_current_above_20pct_a": 12.954266569979147,
+      "max_abs_current_above_20pct_a": 67.60555986750002
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 644,
+      "events_above_20pct_line": 562,
+      "inductive_sign_above_20pct_count": 562,
+      "min_abs_current_above_20pct_a": 10.168175566437311,
+      "max_abs_current_above_20pct_a": 51.25240152262124
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 752,
+      "events_above_20pct_line": 656,
+      "inductive_sign_above_20pct_count": 656,
+      "min_abs_current_above_20pct_a": 6.361428687129618,
+      "max_abs_current_above_20pct_a": 31.554213264988892
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 613,
+      "events_above_20pct_line": 535,
+      "inductive_sign_above_20pct_count": 535,
+      "min_abs_current_above_20pct_a": 13.553737481374668,
+      "max_abs_current_above_20pct_a": 69.4808699254821
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 661,
+      "events_above_20pct_line": 577,
+      "inductive_sign_above_20pct_count": 577,
+      "min_abs_current_above_20pct_a": 10.322950614569695,
+      "max_abs_current_above_20pct_a": 51.85945148952571
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 785,
+      "events_above_20pct_line": 685,
+      "inductive_sign_above_20pct_count": 685,
+      "min_abs_current_above_20pct_a": 6.35271652768069,
+      "max_abs_current_above_20pct_a": 31.55681075942654
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 632,
+      "events_above_20pct_line": 552,
+      "inductive_sign_above_20pct_count": 552,
+      "min_abs_current_above_20pct_a": 14.05389694946155,
+      "max_abs_current_above_20pct_a": 71.57672669205121
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 689,
+      "events_above_20pct_line": 601,
+      "inductive_sign_above_20pct_count": 601,
+      "min_abs_current_above_20pct_a": 10.560565391554345,
+      "max_abs_current_above_20pct_a": 52.56443711130837
+    },
+    {
+      "run_id": "triply_clad_GUESS-low-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 842,
+      "events_above_20pct_line": 735,
+      "inductive_sign_above_20pct_count": 735,
+      "min_abs_current_above_20pct_a": 6.287454306629238,
+      "max_abs_current_above_20pct_a": 31.567406987783404
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 573,
+      "events_above_20pct_line": 500,
+      "inductive_sign_above_20pct_count": 500,
+      "min_abs_current_above_20pct_a": 10.065164850855389,
+      "max_abs_current_above_20pct_a": 52.934075873257015
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 621,
+      "events_above_20pct_line": 542,
+      "inductive_sign_above_20pct_count": 542,
+      "min_abs_current_above_20pct_a": 8.153547152249327,
+      "max_abs_current_above_20pct_a": 41.65926870133633
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 743,
+      "events_above_20pct_line": 648,
+      "inductive_sign_above_20pct_count": 648,
+      "min_abs_current_above_20pct_a": 5.203204698979348,
+      "max_abs_current_above_20pct_a": 26.025526132211
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 586,
+      "events_above_20pct_line": 511,
+      "inductive_sign_above_20pct_count": 511,
+      "min_abs_current_above_20pct_a": 10.687397353659241,
+      "max_abs_current_above_20pct_a": 55.27587325279044
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 639,
+      "events_above_20pct_line": 558,
+      "inductive_sign_above_20pct_count": 558,
+      "min_abs_current_above_20pct_a": 8.308857120398867,
+      "max_abs_current_above_20pct_a": 42.41176801802029
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 779,
+      "events_above_20pct_line": 681,
+      "inductive_sign_above_20pct_count": 681,
+      "min_abs_current_above_20pct_a": 5.180128468176471,
+      "max_abs_current_above_20pct_a": 26.063174671216103
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 607,
+      "events_above_20pct_line": 530,
+      "inductive_sign_above_20pct_count": 530,
+      "min_abs_current_above_20pct_a": 11.21290524472731,
+      "max_abs_current_above_20pct_a": 57.80879051642061
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 671,
+      "events_above_20pct_line": 585,
+      "inductive_sign_above_20pct_count": 585,
+      "min_abs_current_above_20pct_a": 8.701639661298815,
+      "max_abs_current_above_20pct_a": 43.183362043805964
+    },
+    {
+      "run_id": "triply_clad_GUESS-mid-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 844,
+      "events_above_20pct_line": 736,
+      "inductive_sign_above_20pct_count": 736,
+      "min_abs_current_above_20pct_a": 5.249865748567453,
+      "max_abs_current_above_20pct_a": 26.07779077933431
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 544,
+      "events_above_20pct_line": 475,
+      "inductive_sign_above_20pct_count": 475,
+      "min_abs_current_above_20pct_a": 8.164252421923322,
+      "max_abs_current_above_20pct_a": 43.349214035012054
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 596,
+      "events_above_20pct_line": 519,
+      "inductive_sign_above_20pct_count": 519,
+      "min_abs_current_above_20pct_a": 7.074564187430146,
+      "max_abs_current_above_20pct_a": 35.65703121116463
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 725,
+      "events_above_20pct_line": 633,
+      "inductive_sign_above_20pct_count": 633,
+      "min_abs_current_above_20pct_a": 4.537777340242353,
+      "max_abs_current_above_20pct_a": 22.660271406885457
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 558,
+      "events_above_20pct_line": 487,
+      "inductive_sign_above_20pct_count": 487,
+      "min_abs_current_above_20pct_a": 8.838294814337896,
+      "max_abs_current_above_20pct_a": 46.17797679607666
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 615,
+      "events_above_20pct_line": 537,
+      "inductive_sign_above_20pct_count": 537,
+      "min_abs_current_above_20pct_a": 7.250061675146578,
+      "max_abs_current_above_20pct_a": 36.5682868018401
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 764,
+      "events_above_20pct_line": 666,
+      "inductive_sign_above_20pct_count": 666,
+      "min_abs_current_above_20pct_a": 4.607564869590044,
+      "max_abs_current_above_20pct_a": 22.746301620569103
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 581,
+      "events_above_20pct_line": 507,
+      "inductive_sign_above_20pct_count": 507,
+      "min_abs_current_above_20pct_a": 9.691364260130225,
+      "max_abs_current_above_20pct_a": 49.19135703439952
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 649,
+      "events_above_20pct_line": 566,
+      "inductive_sign_above_20pct_count": 566,
+      "min_abs_current_above_20pct_a": 7.4475292203589705,
+      "max_abs_current_above_20pct_a": 37.48221626574609
+    },
+    {
+      "run_id": "triply_clad_GUESS-high-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 832,
+      "events_above_20pct_line": 725,
+      "inductive_sign_above_20pct_count": 725,
+      "min_abs_current_above_20pct_a": 4.59517375757203,
+      "max_abs_current_above_20pct_a": 22.812319911754454
+    },
+    {
+      "run_id": "low_R_silargan_like-low-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 652,
+      "events_above_20pct_line": 569,
+      "inductive_sign_above_20pct_count": 569,
+      "min_abs_current_above_20pct_a": 11.990159310813791,
+      "max_abs_current_above_20pct_a": 62.43438052076107
+    },
+    {
+      "run_id": "low_R_silargan_like-low-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 705,
+      "events_above_20pct_line": 615,
+      "inductive_sign_above_20pct_count": 615,
+      "min_abs_current_above_20pct_a": 9.525476812821488,
+      "max_abs_current_above_20pct_a": 47.782913408812114
+    },
+    {
+      "run_id": "low_R_silargan_like-low-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 844,
+      "events_above_20pct_line": 736,
+      "inductive_sign_above_20pct_count": 736,
+      "min_abs_current_above_20pct_a": 5.9132783704265055,
+      "max_abs_current_above_20pct_a": 29.33411765890975
+    },
+    {
+      "run_id": "low_R_silargan_like-low-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 666,
+      "events_above_20pct_line": 581,
+      "inductive_sign_above_20pct_count": 581,
+      "min_abs_current_above_20pct_a": 12.518803503529288,
+      "max_abs_current_above_20pct_a": 64.41206456950643
+    },
+    {
+      "run_id": "low_R_silargan_like-low-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 726,
+      "events_above_20pct_line": 633,
+      "inductive_sign_above_20pct_count": 633,
+      "min_abs_current_above_20pct_a": 9.601176293570173,
+      "max_abs_current_above_20pct_a": 48.34973170725579
+    },
+    {
+      "run_id": "low_R_silargan_like-low-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 884,
+      "events_above_20pct_line": 772,
+      "inductive_sign_above_20pct_count": 772,
+      "min_abs_current_above_20pct_a": 5.8868548573360275,
+      "max_abs_current_above_20pct_a": 29.44214721596472
+    },
+    {
+      "run_id": "low_R_silargan_like-low-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 690,
+      "events_above_20pct_line": 601,
+      "inductive_sign_above_20pct_count": 601,
+      "min_abs_current_above_20pct_a": 13.216941984290123,
+      "max_abs_current_above_20pct_a": 66.60759872681486
+    },
+    {
+      "run_id": "low_R_silargan_like-low-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 762,
+      "events_above_20pct_line": 665,
+      "inductive_sign_above_20pct_count": 665,
+      "min_abs_current_above_20pct_a": 9.733596852825931,
+      "max_abs_current_above_20pct_a": 49.07226881405475
+    },
+    {
+      "run_id": "low_R_silargan_like-low-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 959,
+      "events_above_20pct_line": 836,
+      "inductive_sign_above_20pct_count": 836,
+      "min_abs_current_above_20pct_a": 5.890150319653057,
+      "max_abs_current_above_20pct_a": 29.321739081890097
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 628,
+      "events_above_20pct_line": 548,
+      "inductive_sign_above_20pct_count": 548,
+      "min_abs_current_above_20pct_a": 10.156376851536825,
+      "max_abs_current_above_20pct_a": 52.351929523666485
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 686,
+      "events_above_20pct_line": 598,
+      "inductive_sign_above_20pct_count": 598,
+      "min_abs_current_above_20pct_a": 8.258535918715628,
+      "max_abs_current_above_20pct_a": 41.28003660331367
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 835,
+      "events_above_20pct_line": 729,
+      "inductive_sign_above_20pct_count": 729,
+      "min_abs_current_above_20pct_a": 5.150317876156101,
+      "max_abs_current_above_20pct_a": 25.7316170876676
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 644,
+      "events_above_20pct_line": 562,
+      "inductive_sign_above_20pct_count": 562,
+      "min_abs_current_above_20pct_a": 10.713956731215243,
+      "max_abs_current_above_20pct_a": 54.7070432854994
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 709,
+      "events_above_20pct_line": 618,
+      "inductive_sign_above_20pct_count": 618,
+      "min_abs_current_above_20pct_a": 8.351347838061148,
+      "max_abs_current_above_20pct_a": 41.98913326447389
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 882,
+      "events_above_20pct_line": 769,
+      "inductive_sign_above_20pct_count": 769,
+      "min_abs_current_above_20pct_a": 5.155510458022111,
+      "max_abs_current_above_20pct_a": 25.70258587648358
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 670,
+      "events_above_20pct_line": 585,
+      "inductive_sign_above_20pct_count": 585,
+      "min_abs_current_above_20pct_a": 11.159900767633934,
+      "max_abs_current_above_20pct_a": 57.26382340706326
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 747,
+      "events_above_20pct_line": 652,
+      "inductive_sign_above_20pct_count": 652,
+      "min_abs_current_above_20pct_a": 8.473370629093225,
+      "max_abs_current_above_20pct_a": 42.82415528741591
+    },
+    {
+      "run_id": "low_R_silargan_like-mid-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 960,
+      "events_above_20pct_line": 838,
+      "inductive_sign_above_20pct_count": 838,
+      "min_abs_current_above_20pct_a": 5.160488303107359,
+      "max_abs_current_above_20pct_a": 25.725030933318546
+    },
+    {
+      "run_id": "low_R_silargan_like-high-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 604,
+      "events_above_20pct_line": 528,
+      "inductive_sign_above_20pct_count": 528,
+      "min_abs_current_above_20pct_a": 8.59843981349161,
+      "max_abs_current_above_20pct_a": 45.0036042685803
+    },
+    {
+      "run_id": "low_R_silargan_like-high-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 666,
+      "events_above_20pct_line": 581,
+      "inductive_sign_above_20pct_count": 581,
+      "min_abs_current_above_20pct_a": 7.213565836849569,
+      "max_abs_current_above_20pct_a": 36.68091802089606
+    },
+    {
+      "run_id": "low_R_silargan_like-high-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 823,
+      "events_above_20pct_line": 718,
+      "inductive_sign_above_20pct_count": 718,
+      "min_abs_current_above_20pct_a": 4.627620697141081,
+      "max_abs_current_above_20pct_a": 23.197618315599122
+    },
+    {
+      "run_id": "low_R_silargan_like-high-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 621,
+      "events_above_20pct_line": 542,
+      "inductive_sign_above_20pct_count": 542,
+      "min_abs_current_above_20pct_a": 9.198832072988981,
+      "max_abs_current_above_20pct_a": 47.7183790422391
+    },
+    {
+      "run_id": "low_R_silargan_like-high-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 690,
+      "events_above_20pct_line": 602,
+      "inductive_sign_above_20pct_count": 602,
+      "min_abs_current_above_20pct_a": 7.491253194940704,
+      "max_abs_current_above_20pct_a": 37.514738197980506
+    },
+    {
+      "run_id": "low_R_silargan_like-high-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 869,
+      "events_above_20pct_line": 758,
+      "inductive_sign_above_20pct_count": 758,
+      "min_abs_current_above_20pct_a": 4.651739664487083,
+      "max_abs_current_above_20pct_a": 23.287959344207113
+    },
+    {
+      "run_id": "low_R_silargan_like-high-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 649,
+      "events_above_20pct_line": 566,
+      "inductive_sign_above_20pct_count": 566,
+      "min_abs_current_above_20pct_a": 9.925464650321603,
+      "max_abs_current_above_20pct_a": 50.599516454127354
+    },
+    {
+      "run_id": "low_R_silargan_like-high-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 730,
+      "events_above_20pct_line": 638,
+      "inductive_sign_above_20pct_count": 638,
+      "min_abs_current_above_20pct_a": 7.606384724547597,
+      "max_abs_current_above_20pct_a": 38.40074811513231
+    },
+    {
+      "run_id": "low_R_silargan_like-high-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 955,
+      "events_above_20pct_line": 833,
+      "inductive_sign_above_20pct_count": 833,
+      "min_abs_current_above_20pct_a": 4.65475864887637,
+      "max_abs_current_above_20pct_a": 23.173591546794338
+    },
+    {
+      "run_id": "offset_or_small_pan-low-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 532,
+      "events_above_20pct_line": 463,
+      "inductive_sign_above_20pct_count": 463,
+      "min_abs_current_above_20pct_a": 16.575734614071926,
+      "max_abs_current_above_20pct_a": 86.22175227235549
+    },
+    {
+      "run_id": "offset_or_small_pan-low-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 558,
+      "events_above_20pct_line": 487,
+      "inductive_sign_above_20pct_count": 487,
+      "min_abs_current_above_20pct_a": 12.443615017681692,
+      "max_abs_current_above_20pct_a": 63.83437711446357
+    },
+    {
+      "run_id": "offset_or_small_pan-low-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 623,
+      "events_above_20pct_line": 544,
+      "inductive_sign_above_20pct_count": 544,
+      "min_abs_current_above_20pct_a": 7.730520007457724,
+      "max_abs_current_above_20pct_a": 39.01594301388499
+    },
+    {
+      "run_id": "offset_or_small_pan-low-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 539,
+      "events_above_20pct_line": 470,
+      "inductive_sign_above_20pct_count": 470,
+      "min_abs_current_above_20pct_a": 16.889480526081034,
+      "max_abs_current_above_20pct_a": 87.75662963605298
+    },
+    {
+      "run_id": "offset_or_small_pan-low-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 568,
+      "events_above_20pct_line": 495,
+      "inductive_sign_above_20pct_count": 495,
+      "min_abs_current_above_20pct_a": 12.778912471740572,
+      "max_abs_current_above_20pct_a": 64.4204053789943
+    },
+    {
+      "run_id": "offset_or_small_pan-low-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 643,
+      "events_above_20pct_line": 560,
+      "inductive_sign_above_20pct_count": 560,
+      "min_abs_current_above_20pct_a": 7.913833107349598,
+      "max_abs_current_above_20pct_a": 39.15615361013027
+    },
+    {
+      "run_id": "offset_or_small_pan-low-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 550,
+      "events_above_20pct_line": 480,
+      "inductive_sign_above_20pct_count": 480,
+      "min_abs_current_above_20pct_a": 17.58476826757952,
+      "max_abs_current_above_20pct_a": 89.55143863814372
+    },
+    {
+      "run_id": "offset_or_small_pan-low-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 585,
+      "events_above_20pct_line": 510,
+      "inductive_sign_above_20pct_count": 510,
+      "min_abs_current_above_20pct_a": 12.954839522625472,
+      "max_abs_current_above_20pct_a": 65.12996145238023
+    },
+    {
+      "run_id": "offset_or_small_pan-low-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 677,
+      "events_above_20pct_line": 591,
+      "inductive_sign_above_20pct_count": 591,
+      "min_abs_current_above_20pct_a": 7.882695240974255,
+      "max_abs_current_above_20pct_a": 39.116356012335004
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 523,
+      "events_above_20pct_line": 456,
+      "inductive_sign_above_20pct_count": 456,
+      "min_abs_current_above_20pct_a": 12.625203165097458,
+      "max_abs_current_above_20pct_a": 66.72808304517706
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 555,
+      "events_above_20pct_line": 484,
+      "inductive_sign_above_20pct_count": 484,
+      "min_abs_current_above_20pct_a": 9.948771954692099,
+      "max_abs_current_above_20pct_a": 50.79332090833607
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 636,
+      "events_above_20pct_line": 555,
+      "inductive_sign_above_20pct_count": 555,
+      "min_abs_current_above_20pct_a": 6.2619089373299905,
+      "max_abs_current_above_20pct_a": 31.446420680425312
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 532,
+      "events_above_20pct_line": 463,
+      "inductive_sign_above_20pct_count": 463,
+      "min_abs_current_above_20pct_a": 13.356742432825765,
+      "max_abs_current_above_20pct_a": 68.68100411619753
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 568,
+      "events_above_20pct_line": 495,
+      "inductive_sign_above_20pct_count": 495,
+      "min_abs_current_above_20pct_a": 10.19950217385127,
+      "max_abs_current_above_20pct_a": 51.457325884474045
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 660,
+      "events_above_20pct_line": 575,
+      "inductive_sign_above_20pct_count": 575,
+      "min_abs_current_above_20pct_a": 6.363860992076611,
+      "max_abs_current_above_20pct_a": 31.5596362756404
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 546,
+      "events_above_20pct_line": 476,
+      "inductive_sign_above_20pct_count": 476,
+      "min_abs_current_above_20pct_a": 14.008560128263678,
+      "max_abs_current_above_20pct_a": 70.80782279078342
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 589,
+      "events_above_20pct_line": 514,
+      "inductive_sign_above_20pct_count": 514,
+      "min_abs_current_above_20pct_a": 10.336239232980025,
+      "max_abs_current_above_20pct_a": 52.274487439372244
+    },
+    {
+      "run_id": "offset_or_small_pan-mid-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 702,
+      "events_above_20pct_line": 612,
+      "inductive_sign_above_20pct_count": 612,
+      "min_abs_current_above_20pct_a": 6.408393930733414,
+      "max_abs_current_above_20pct_a": 31.557301181017753
+    },
+    {
+      "run_id": "offset_or_small_pan-high-108v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 512,
+      "events_above_20pct_line": 447,
+      "inductive_sign_above_20pct_count": 447,
+      "min_abs_current_above_20pct_a": 10.278505521266306,
+      "max_abs_current_above_20pct_a": 54.98242252254078
+    },
+    {
+      "run_id": "offset_or_small_pan-high-108v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 549,
+      "events_above_20pct_line": 479,
+      "inductive_sign_above_20pct_count": 479,
+      "min_abs_current_above_20pct_a": 8.522406613360689,
+      "max_abs_current_above_20pct_a": 43.05963980982139
+    },
+    {
+      "run_id": "offset_or_small_pan-high-108v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 641,
+      "events_above_20pct_line": 559,
+      "inductive_sign_above_20pct_count": 559,
+      "min_abs_current_above_20pct_a": 5.470535863115318,
+      "max_abs_current_above_20pct_a": 27.041635771536082
+    },
+    {
+      "run_id": "offset_or_small_pan-high-120v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 522,
+      "events_above_20pct_line": 455,
+      "inductive_sign_above_20pct_count": 455,
+      "min_abs_current_above_20pct_a": 10.993520461860824,
+      "max_abs_current_above_20pct_a": 57.27784489931044
+    },
+    {
+      "run_id": "offset_or_small_pan-high-120v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 563,
+      "events_above_20pct_line": 491,
+      "inductive_sign_above_20pct_count": 491,
+      "min_abs_current_above_20pct_a": 8.75498597108618,
+      "max_abs_current_above_20pct_a": 43.84589428058717
+    },
+    {
+      "run_id": "offset_or_small_pan-high-120v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 667,
+      "events_above_20pct_line": 582,
+      "inductive_sign_above_20pct_count": 582,
+      "min_abs_current_above_20pct_a": 5.4262353259532246,
+      "max_abs_current_above_20pct_a": 27.22394447234766
+    },
+    {
+      "run_id": "offset_or_small_pan-high-140v-1710w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 538,
+      "events_above_20pct_line": 470,
+      "inductive_sign_above_20pct_count": 470,
+      "min_abs_current_above_20pct_a": 11.655342328736873,
+      "max_abs_current_above_20pct_a": 59.84341207362321
+    },
+    {
+      "run_id": "offset_or_small_pan-high-140v-855w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166682,
+      "event_count": 587,
+      "events_above_20pct_line": 512,
+      "inductive_sign_above_20pct_count": 512,
+      "min_abs_current_above_20pct_a": 8.867596228233808,
+      "max_abs_current_above_20pct_a": 44.74253833493209
+    },
+    {
+      "run_id": "offset_or_small_pan-high-140v-300w",
+      "raw_end_s": 0.0083333,
+      "raw_points": 166683,
+      "event_count": 716,
+      "events_above_20pct_line": 625,
+      "inductive_sign_above_20pct_count": 625,
+      "min_abs_current_above_20pct_a": 5.416537949965591,
+      "max_abs_current_above_20pct_a": 27.203533034901703
+    }
+  ]
+}

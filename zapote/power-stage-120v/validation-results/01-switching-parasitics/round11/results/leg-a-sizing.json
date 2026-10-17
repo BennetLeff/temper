@@ -1,0 +1,136 @@
+{
+ "board": "native-17 (export: round4/reextract-b3/inputs/native17-all-copper.json.gz)",
+ "leg": "A",
+ "memory_model": {
+  "source": "round10 thick plates, Elmer Big Umfpack",
+  "peak_GB_at_402587": 9.93361052,
+  "exponent": 1.2652085285420622
+ },
+ "geometry_attempts": [
+  {
+   "attempt": "STEP route, 0.5 mm, Frontal-Delaunay",
+   "log": "legA-h0p5.log"
+  },
+  {
+   "attempt": "STEP route, MeshAdapt",
+   "copper_volumes": 25,
+   "copper_surfaces": 1854,
+   "error": "Invalid boundary mesh (overlapping facets) on surface 3980 surface 3980",
+   "log": "legA-h0p5-a1.log"
+  },
+  {
+   "attempt": "STEP route, filled vias",
+   "copper_volumes": 25,
+   "copper_surfaces": 1840,
+   "error": "PLC Error:  A segment and a facet intersect at point",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point",
+   "log": "legA-h0p5-filled.log"
+  },
+  {
+   "attempt": "STEP route, filled vias + min-distance 0.02",
+   "copper_volumes": 25,
+   "copper_surfaces": 1840,
+   "error": "PLC Error:  A segment and a facet intersect at point",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point",
+   "log": "legA-md.log"
+  },
+  {
+   "attempt": "STEP route, HXT",
+   "copper_volumes": 25,
+   "copper_surfaces": 1840,
+   "error": "HXT 3D mesh failed",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point (149.102,-21.7533,0.9965).",
+   "log": "legA-hxt.log"
+  },
+  {
+   "attempt": "polygon route, uniform 0.5 mm",
+   "copper_volumes": 37,
+   "copper_surfaces": 4590,
+   "barrels": 31,
+   "error": "PLC Error:  A segment and a facet intersect at point",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point",
+   "log": "legA-poly-h0p5.log"
+  },
+  {
+   "attempt": "polygon route, edges 0.15 / faces 0.4",
+   "copper_volumes": 37,
+   "copper_surfaces": 4590,
+   "barrels": 31,
+   "error": "PLC Error:  A segment and a facet intersect at point",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point",
+   "log": "legA-poly-e0p15.log"
+  },
+  {
+   "attempt": "polygon route, HXT",
+   "copper_volumes": 37,
+   "copper_surfaces": 4590,
+   "barrels": 31,
+   "error": "HXT 3D mesh failed",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point (126.596,-18.5766,0.9965).",
+   "log": "legA-poly-hxt.log"
+  },
+  {
+   "attempt": "polygon route, 16-gon barrels",
+   "copper_volumes": 37,
+   "copper_surfaces": 5430,
+   "barrels": 31,
+   "error": "HXT 3D mesh failed",
+   "plc_detail": "PLC Error:  A segment and a facet intersect at point (173.76,-12.5823,0.9965).",
+   "log": "legA-poly16-hxt.log"
+  },
+  {
+   "attempt": "polygon route, stacked barrels",
+   "copper_volumes": 51,
+   "copper_surfaces": 5788,
+   "barrels": 31,
+   "error": "HXT 3D mesh failed",
+   "log": "legA-stack-hxt.log"
+  },
+  {
+   "attempt": "polygon route, fragment",
+   "copper_volumes": 204,
+   "copper_surfaces": 5819,
+   "barrels": 31,
+   "error": "HXT 3D mesh failed",
+   "log": "legA-frag.log"
+  },
+  {
+   "attempt": "polygon route, crop-edge barrels dropped",
+   "copper_volumes": 191,
+   "copper_surfaces": 5680,
+   "barrels": 28,
+   "error": "HXT 3D mesh failed",
+   "plc_detail": "PLC Error:  Two segments intersect at point (124.339,-22.3359,1.0575).",
+   "log": "legA-e0p15.log"
+  }
+ ],
+ "sizing": [
+  {
+   "edge_face_mm": "0.15/0.4",
+   "tets": 9535144,
+   "triangles": 833260,
+   "mesh_s": 32.8,
+   "mesher_peak_memory_GB": 2.312834552,
+   "estimated_direct_solve_peak_GB": 545,
+   "barrels_included": false
+  },
+  {
+   "edge_face_mm": "0.2/0.5",
+   "tets": 5167468,
+   "triangles": 541966,
+   "mesh_s": 20.2,
+   "mesher_peak_memory_GB": null,
+   "estimated_direct_solve_peak_GB": 251,
+   "barrels_included": false
+  },
+  {
+   "edge_face_mm": "0.25/0.6",
+   "tets": 3193717,
+   "triangles": 402252,
+   "mesh_s": 17.4,
+   "mesher_peak_memory_GB": null,
+   "estimated_direct_solve_peak_GB": 136,
+   "barrels_included": false
+  }
+ ]
+}

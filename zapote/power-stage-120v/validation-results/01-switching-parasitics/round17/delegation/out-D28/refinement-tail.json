@@ -1,0 +1,20 @@
+[
+  {
+    "label": "complementary-v198-r2-p180-s0.5",
+    "bus": 198,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 180,
+    "step": 0.5,
+    "cycles": 40
+  },
+  {
+    "label": "complementary-v198-r100-p90-s0.5",
+    "bus": 198,
+    "resistance": 100,
+    "freq": 50000,
+    "phase": 90,
+    "step": 0.5,
+    "cycles": 40
+  }
+]

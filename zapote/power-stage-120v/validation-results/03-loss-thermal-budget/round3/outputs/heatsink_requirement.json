@@ -1,0 +1,165 @@
+{
+  "aavid_63730_reference": {
+    "forced_curve_status": "present but not digitized/qualified as numerical input",
+    "length_required_mm": 153,
+    "natural_c_per_w_catalog": 1.88,
+    "profile_height_mm": 57.15,
+    "profile_width_mm": 76.2,
+    "warning": "curve is for 10W, centered 25.4mm source; not validated at approximately 50-150W, 153mm cut length, enclosure or distributed package placement"
+  },
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "cases": [
+    {
+      "ambient_c": 50,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": true,
+      "pad": "SIL_PAD_400_0p229mm",
+      "rtheta_sa_required_c_per_w": 0.3984717106439495,
+      "scenario": "nominal_example",
+      "sink_power_included_w": 56.6317606757982,
+      "sink_temperature_max_bridge_c": 72.56615455326406,
+      "sink_temperature_max_c": 72.56615455326406,
+      "sink_temperature_max_mos_c": 79.04872982180467,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 65,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": true,
+      "pad": "SIL_PAD_400_0p229mm",
+      "rtheta_sa_required_c_per_w": 0.1336026721220674,
+      "scenario": "nominal_example",
+      "sink_power_included_w": 56.6317606757982,
+      "sink_temperature_max_bridge_c": 72.56615455326406,
+      "sink_temperature_max_c": 72.56615455326406,
+      "sink_temperature_max_mos_c": 79.04872982180467,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 50,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": true,
+      "pad": "SIL_PAD_K10_0p152mm",
+      "rtheta_sa_required_c_per_w": 0.9727517317114193,
+      "scenario": "nominal_example",
+      "sink_power_included_w": 56.6317606757982,
+      "sink_temperature_max_bridge_c": 105.08864326724935,
+      "sink_temperature_max_c": 105.08864326724935,
+      "sink_temperature_max_mos_c": 110.58010878917403,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 65,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": true,
+      "pad": "SIL_PAD_K10_0p152mm",
+      "rtheta_sa_required_c_per_w": 0.7078826931895372,
+      "scenario": "nominal_example",
+      "sink_power_included_w": 56.6317606757982,
+      "sink_temperature_max_bridge_c": 105.08864326724935,
+      "sink_temperature_max_c": 105.08864326724935,
+      "sink_temperature_max_mos_c": 110.58010878917403,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 50,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": false,
+      "pad": "SIL_PAD_400_0p229mm",
+      "rtheta_sa_required_c_per_w": -0.7901018274591946,
+      "scenario": "high_current_unprotected_stress",
+      "sink_power_included_w": 146.09489634209655,
+      "sink_temperature_max_bridge_c": 72.56615455326406,
+      "sink_temperature_max_c": -65.42984458235208,
+      "sink_temperature_max_mos_c": -65.42984458235208,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 65,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": false,
+      "pad": "SIL_PAD_400_0p229mm",
+      "rtheta_sa_required_c_per_w": -0.8927748186147235,
+      "scenario": "high_current_unprotected_stress",
+      "sink_power_included_w": 146.09489634209655,
+      "sink_temperature_max_bridge_c": 72.56615455326406,
+      "sink_temperature_max_c": -65.42984458235208,
+      "sink_temperature_max_mos_c": -65.42984458235208,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 50,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": true,
+      "pad": "SIL_PAD_K10_0p152mm",
+      "rtheta_sa_required_c_per_w": 0.10432622543761909,
+      "scenario": "high_current_unprotected_stress",
+      "sink_power_included_w": 146.09489634209655,
+      "sink_temperature_max_bridge_c": 105.08864326724935,
+      "sink_temperature_max_c": 65.24152909107116,
+      "sink_temperature_max_mos_c": 65.24152909107116,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    },
+    {
+      "ambient_c": 65,
+      "exclusions": [
+        "uncovered switching events",
+        "lost ZVS/diode heat",
+        "bridge waveform/hot VF",
+        "interface pressure/contact",
+        "package thermal asymmetry"
+      ],
+      "feasible_with_ideal_sink": true,
+      "pad": "SIL_PAD_K10_0p152mm",
+      "rtheta_sa_required_c_per_w": 0.0016532342820901277,
+      "scenario": "high_current_unprotected_stress",
+      "sink_power_included_w": 146.09489634209655,
+      "sink_temperature_max_bridge_c": 105.08864326724935,
+      "sink_temperature_max_c": 65.24152909107116,
+      "sink_temperature_max_mos_c": 65.24152909107116,
+      "status": "CONDITIONAL_SCREEN_ONLY"
+    }
+  ]
+}

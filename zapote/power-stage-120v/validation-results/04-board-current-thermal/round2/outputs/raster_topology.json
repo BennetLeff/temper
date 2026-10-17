@@ -1,0 +1,1225 @@
+{
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "pitch_mm": 0.25,
+  "generic_probe": {
+    "physical_gap_mm": 0.2,
+    "pitch_mm": 0.25,
+    "solver_accepted": true,
+    "false_resistance_ohm": 0.0001307142857142858
+  },
+  "native13": {
+    "bus_p/B.Cu": {
+      "grid_nodes": 9217,
+      "adjacent_pairs": 17449,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "bus_p/F.Cu": {
+      "grid_nodes": 1817,
+      "adjacent_pairs": 2669,
+      "proven_void_crossing_edges": 4,
+      "physical_component_crossing_edges": 2,
+      "examples": [
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              67.594932,
+              32.075000000000024
+            ],
+            [
+              67.594932,
+              32.325000000000024
+            ]
+          ],
+          "midpoint_mm": [
+            67.594932,
+            32.200000000000024
+          ],
+          "physical_component_ids": [
+            12,
+            12
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              67.594932,
+              33.82500000000003
+            ],
+            [
+              67.594932,
+              34.07500000000003
+            ]
+          ],
+          "midpoint_mm": [
+            67.594932,
+            33.95000000000003
+          ],
+          "physical_component_ids": [
+            13,
+            13
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              68.344932,
+              55.575000000000045
+            ],
+            [
+              68.344932,
+              55.825000000000045
+            ]
+          ],
+          "midpoint_mm": [
+            68.344932,
+            55.700000000000045
+          ],
+          "physical_component_ids": [
+            17,
+            18
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              68.594932,
+              55.575000000000045
+            ],
+            [
+              68.594932,
+              55.825000000000045
+            ]
+          ],
+          "midpoint_mm": [
+            68.594932,
+            55.700000000000045
+          ],
+          "physical_component_ids": [
+            17,
+            18
+          ]
+        }
+      ]
+    },
+    "bus_p/In1.Cu": {
+      "grid_nodes": 1471,
+      "adjacent_pairs": 2144,
+      "proven_void_crossing_edges": 4,
+      "physical_component_crossing_edges": 2,
+      "examples": [
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              67.594932,
+              32.075000000000024
+            ],
+            [
+              67.594932,
+              32.325000000000024
+            ]
+          ],
+          "midpoint_mm": [
+            67.594932,
+            32.200000000000024
+          ],
+          "physical_component_ids": [
+            5,
+            5
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              67.594932,
+              33.82500000000003
+            ],
+            [
+              67.594932,
+              34.07500000000003
+            ]
+          ],
+          "midpoint_mm": [
+            67.594932,
+            33.95000000000003
+          ],
+          "physical_component_ids": [
+            8,
+            8
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              68.344932,
+              55.575000000000045
+            ],
+            [
+              68.344932,
+              55.825000000000045
+            ]
+          ],
+          "midpoint_mm": [
+            68.344932,
+            55.700000000000045
+          ],
+          "physical_component_ids": [
+            12,
+            27
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              68.594932,
+              55.575000000000045
+            ],
+            [
+              68.594932,
+              55.825000000000045
+            ]
+          ],
+          "midpoint_mm": [
+            68.594932,
+            55.700000000000045
+          ],
+          "physical_component_ids": [
+            12,
+            27
+          ]
+        }
+      ]
+    },
+    "bus_p/In2.Cu": {
+      "grid_nodes": 75737,
+      "adjacent_pairs": 148933,
+      "proven_void_crossing_edges": 2,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              97.875,
+              3.475
+            ],
+            [
+              98.125,
+              3.475
+            ]
+          ],
+          "midpoint_mm": [
+            98.0,
+            3.475
+          ],
+          "physical_component_ids": [
+            1,
+            1
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              155.875,
+              3.475
+            ],
+            [
+              156.125,
+              3.475
+            ]
+          ],
+          "midpoint_mm": [
+            156.0,
+            3.475
+          ],
+          "physical_component_ids": [
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "coil_feed/B.Cu": {
+      "grid_nodes": 342,
+      "adjacent_pairs": 520,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "coil_feed/F.Cu": {
+      "grid_nodes": 5076,
+      "adjacent_pairs": 9850,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "coil_feed/In1.Cu": {
+      "grid_nodes": 342,
+      "adjacent_pairs": 520,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "coil_feed/In2.Cu": {
+      "grid_nodes": 342,
+      "adjacent_pairs": 520,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "hv_ret/B.Cu": {
+      "grid_nodes": 1098,
+      "adjacent_pairs": 1563,
+      "proven_void_crossing_edges": 1,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              126.594932,
+              18.479316
+            ],
+            [
+              126.594932,
+              18.729316
+            ]
+          ],
+          "midpoint_mm": [
+            126.594932,
+            18.604316
+          ],
+          "physical_component_ids": [
+            15,
+            15
+          ]
+        }
+      ]
+    },
+    "hv_ret/F.Cu": {
+      "grid_nodes": 2009,
+      "adjacent_pairs": 3357,
+      "proven_void_crossing_edges": 1,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              126.594932,
+              18.479316
+            ],
+            [
+              126.594932,
+              18.729316
+            ]
+          ],
+          "midpoint_mm": [
+            126.594932,
+            18.604316
+          ],
+          "physical_component_ids": [
+            10,
+            10
+          ]
+        }
+      ]
+    },
+    "hv_ret/In1.Cu": {
+      "grid_nodes": 59383,
+      "adjacent_pairs": 115430,
+      "proven_void_crossing_edges": 10,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              73.875,
+              16.625
+            ],
+            [
+              74.125,
+              16.625
+            ]
+          ],
+          "midpoint_mm": [
+            74.0,
+            16.625
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              99.875,
+              15.375
+            ],
+            [
+              100.125,
+              15.375
+            ]
+          ],
+          "midpoint_mm": [
+            100.0,
+            15.375
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              99.875,
+              26.625
+            ],
+            [
+              100.125,
+              26.625
+            ]
+          ],
+          "midpoint_mm": [
+            100.0,
+            26.625
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              99.875,
+              29.875
+            ],
+            [
+              100.125,
+              29.875
+            ]
+          ],
+          "midpoint_mm": [
+            100.0,
+            29.875
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              109.375,
+              38.875
+            ],
+            [
+              109.625,
+              38.875
+            ]
+          ],
+          "midpoint_mm": [
+            109.5,
+            38.875
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              135.875,
+              17.875
+            ],
+            [
+              136.125,
+              17.875
+            ]
+          ],
+          "midpoint_mm": [
+            136.0,
+            17.875
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "hv_ret/In2.Cu": {
+      "grid_nodes": 1098,
+      "adjacent_pairs": 1563,
+      "proven_void_crossing_edges": 1,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              126.594932,
+              18.479316
+            ],
+            [
+              126.594932,
+              18.729316
+            ]
+          ],
+          "midpoint_mm": [
+            126.594932,
+            18.604316
+          ],
+          "physical_component_ids": [
+            15,
+            15
+          ]
+        }
+      ]
+    },
+    "leg_ret/B.Cu": {
+      "grid_nodes": 1534,
+      "adjacent_pairs": 2051,
+      "proven_void_crossing_edges": 4,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              59.175,
+              95.093853
+            ],
+            [
+              59.425,
+              95.093853
+            ]
+          ],
+          "midpoint_mm": [
+            59.3,
+            95.093853
+          ],
+          "physical_component_ids": [
+            5,
+            5
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              59.175,
+              94.843853
+            ],
+            [
+              59.175,
+              95.093853
+            ]
+          ],
+          "midpoint_mm": [
+            59.175,
+            94.968853
+          ],
+          "physical_component_ids": [
+            5,
+            5
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              59.425,
+              94.843853
+            ],
+            [
+              59.425,
+              95.093853
+            ]
+          ],
+          "midpoint_mm": [
+            59.425,
+            94.968853
+          ],
+          "physical_component_ids": [
+            5,
+            5
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              73.925,
+              24.593853
+            ],
+            [
+              73.925,
+              24.843853
+            ]
+          ],
+          "midpoint_mm": [
+            73.925,
+            24.718853
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "leg_ret/F.Cu": {
+      "grid_nodes": 2697,
+      "adjacent_pairs": 4227,
+      "proven_void_crossing_edges": 18,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              62.379624,
+              98.093853
+            ],
+            [
+              62.629624,
+              98.093853
+            ]
+          ],
+          "midpoint_mm": [
+            62.504624,
+            98.093853
+          ],
+          "physical_component_ids": [
+            7,
+            7
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              62.379624,
+              98.343853
+            ],
+            [
+              62.629624,
+              98.343853
+            ]
+          ],
+          "midpoint_mm": [
+            62.504624,
+            98.343853
+          ],
+          "physical_component_ids": [
+            7,
+            7
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              68.379624,
+              17.093853
+            ],
+            [
+              68.629624,
+              17.093853
+            ]
+          ],
+          "midpoint_mm": [
+            68.504624,
+            17.093853
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              73.379624,
+              41.593853
+            ],
+            [
+              73.629624,
+              41.593853
+            ]
+          ],
+          "midpoint_mm": [
+            73.504624,
+            41.593853
+          ],
+          "physical_component_ids": [
+            13,
+            13
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              73.379624,
+              41.843853
+            ],
+            [
+              73.629624,
+              41.843853
+            ]
+          ],
+          "midpoint_mm": [
+            73.504624,
+            41.843853
+          ],
+          "physical_component_ids": [
+            13,
+            13
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              78.379624,
+              18.593853
+            ],
+            [
+              78.629624,
+              18.593853
+            ]
+          ],
+          "midpoint_mm": [
+            78.504624,
+            18.593853
+          ],
+          "physical_component_ids": [
+            8,
+            8
+          ]
+        }
+      ]
+    },
+    "leg_ret/In1.Cu": {
+      "grid_nodes": 14612,
+      "adjacent_pairs": 27799,
+      "proven_void_crossing_edges": 8,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              53.375,
+              96.725
+            ],
+            [
+              53.625,
+              96.725
+            ]
+          ],
+          "midpoint_mm": [
+            53.5,
+            96.725
+          ],
+          "physical_component_ids": [
+            3,
+            3
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              135.875,
+              18.475
+            ],
+            [
+              136.125,
+              18.475
+            ]
+          ],
+          "midpoint_mm": [
+            136.0,
+            18.475
+          ],
+          "physical_component_ids": [
+            9,
+            9
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              135.875,
+              18.725
+            ],
+            [
+              136.125,
+              18.725
+            ]
+          ],
+          "midpoint_mm": [
+            136.0,
+            18.725
+          ],
+          "physical_component_ids": [
+            9,
+            9
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              57.125,
+              99.725
+            ],
+            [
+              57.125,
+              99.975
+            ]
+          ],
+          "midpoint_mm": [
+            57.125,
+            99.85
+          ],
+          "physical_component_ids": [
+            3,
+            3
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              57.875,
+              83.225
+            ],
+            [
+              57.875,
+              83.475
+            ]
+          ],
+          "midpoint_mm": [
+            57.875,
+            83.35
+          ],
+          "physical_component_ids": [
+            3,
+            3
+          ]
+        },
+        {
+          "axis": "y",
+          "endpoints_mm": [
+            [
+              59.125,
+              89.475
+            ],
+            [
+              59.125,
+              89.725
+            ]
+          ],
+          "midpoint_mm": [
+            59.125,
+            89.6
+          ],
+          "physical_component_ids": [
+            3,
+            3
+          ]
+        }
+      ]
+    },
+    "leg_ret/In2.Cu": {
+      "grid_nodes": 612,
+      "adjacent_pairs": 856,
+      "proven_void_crossing_edges": 14,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              62.379624,
+              98.093853
+            ],
+            [
+              62.629624,
+              98.093853
+            ]
+          ],
+          "midpoint_mm": [
+            62.504624,
+            98.093853
+          ],
+          "physical_component_ids": [
+            14,
+            14
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              62.379624,
+              98.343853
+            ],
+            [
+              62.629624,
+              98.343853
+            ]
+          ],
+          "midpoint_mm": [
+            62.504624,
+            98.343853
+          ],
+          "physical_component_ids": [
+            14,
+            14
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              68.379624,
+              17.093853
+            ],
+            [
+              68.629624,
+              17.093853
+            ]
+          ],
+          "midpoint_mm": [
+            68.504624,
+            17.093853
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              73.379624,
+              41.593853
+            ],
+            [
+              73.629624,
+              41.593853
+            ]
+          ],
+          "midpoint_mm": [
+            73.504624,
+            41.593853
+          ],
+          "physical_component_ids": [
+            6,
+            6
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              73.379624,
+              41.843853
+            ],
+            [
+              73.629624,
+              41.843853
+            ]
+          ],
+          "midpoint_mm": [
+            73.504624,
+            41.843853
+          ],
+          "physical_component_ids": [
+            6,
+            6
+          ]
+        },
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              78.879624,
+              31.093853
+            ],
+            [
+              79.129624,
+              31.093853
+            ]
+          ],
+          "midpoint_mm": [
+            79.004624,
+            31.093853
+          ],
+          "physical_component_ids": [
+            4,
+            4
+          ]
+        }
+      ]
+    },
+    "res_a/B.Cu": {
+      "grid_nodes": 8572,
+      "adjacent_pairs": 16660,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "res_a/F.Cu": {
+      "grid_nodes": 21981,
+      "adjacent_pairs": 43216,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "res_a/In1.Cu": {
+      "grid_nodes": 748,
+      "adjacent_pairs": 1168,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "res_a/In2.Cu": {
+      "grid_nodes": 748,
+      "adjacent_pairs": 1168,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "sw_a/B.Cu": {
+      "grid_nodes": 6846,
+      "adjacent_pairs": 13312,
+      "proven_void_crossing_edges": 1,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              161.325,
+              3.475
+            ],
+            [
+              161.575,
+              3.475
+            ]
+          ],
+          "midpoint_mm": [
+            161.45,
+            3.475
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "sw_a/F.Cu": {
+      "grid_nodes": 15346,
+      "adjacent_pairs": 29479,
+      "proven_void_crossing_edges": 1,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              161.325,
+              3.475
+            ],
+            [
+              161.575,
+              3.475
+            ]
+          ],
+          "midpoint_mm": [
+            161.45,
+            3.475
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "sw_a/In1.Cu": {
+      "grid_nodes": 2827,
+      "adjacent_pairs": 5324,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "sw_a/In2.Cu": {
+      "grid_nodes": 308,
+      "adjacent_pairs": 498,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "sw_b/B.Cu": {
+      "grid_nodes": 46252,
+      "adjacent_pairs": 90577,
+      "proven_void_crossing_edges": 1,
+      "physical_component_crossing_edges": 0,
+      "examples": [
+        {
+          "axis": "x",
+          "endpoints_mm": [
+            [
+              115.875,
+              3.475
+            ],
+            [
+              116.125,
+              3.475
+            ]
+          ],
+          "midpoint_mm": [
+            116.0,
+            3.475
+          ],
+          "physical_component_ids": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "sw_b/F.Cu": {
+      "grid_nodes": 997,
+      "adjacent_pairs": 1596,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "sw_b/In1.Cu": {
+      "grid_nodes": 566,
+      "adjacent_pairs": 906,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    },
+    "sw_b/In2.Cu": {
+      "grid_nodes": 566,
+      "adjacent_pairs": 906,
+      "proven_void_crossing_edges": 0,
+      "physical_component_crossing_edges": 0,
+      "examples": []
+    }
+  },
+  "drilled_contact_centres": [
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "pad",
+      "ref": "Q5.2",
+      "centre_mm": [
+        98.0,
+        4.215
+      ],
+      "centre_is_copper": false
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "pad",
+      "ref": "C39.1",
+      "centre_mm": [
+        164.6,
+        22.0
+      ],
+      "centre_is_copper": false
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "pad",
+      "ref": "C40.1",
+      "centre_mm": [
+        109.0,
+        22.0
+      ],
+      "centre_is_copper": false
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "pad",
+      "ref": "C38.1",
+      "centre_mm": [
+        144.0,
+        22.0
+      ],
+      "centre_is_copper": false
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "pad",
+      "ref": "Q2.2",
+      "centre_mm": [
+        156.0,
+        4.215
+      ],
+      "centre_is_copper": false
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "pad",
+      "ref": "C41.1",
+      "centre_mm": [
+        88.4,
+        22.0
+      ],
+      "centre_is_copper": false
+    },
+    {
+      "net": "bus_p",
+      "layer": "F.Cu",
+      "kind": "via",
+      "ref": null,
+      "centre_mm": [
+        68.5,
+        54.8
+      ],
+      "centre_is_copper": false
+    }
+  ]
+}

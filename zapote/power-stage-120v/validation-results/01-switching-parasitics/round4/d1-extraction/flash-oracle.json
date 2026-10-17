@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "export_sha256": "fd0b8e6dd5e003543099d6e445e269fa8d73863291409a35828c9b85f17b369d",
+  "kicad_version": "10.0.4",
+  "pad_cases": [
+    {
+      "ref": "Q3.1",
+      "layer": "In1.Cu",
+      "is_on_layer": true,
+      "remove_unconnected": true,
+      "flashed": false,
+      "exported": false
+    },
+    {
+      "ref": "Q3.3",
+      "layer": "In1.Cu",
+      "is_on_layer": true,
+      "remove_unconnected": true,
+      "flashed": true,
+      "exported": true
+    },
+    {
+      "ref": "C38.1",
+      "layer": "F.Cu",
+      "is_on_layer": true,
+      "remove_unconnected": true,
+      "flashed": false,
+      "exported": false
+    },
+    {
+      "ref": "C38.1",
+      "layer": "In2.Cu",
+      "is_on_layer": true,
+      "remove_unconnected": true,
+      "flashed": true,
+      "exported": true
+    }
+  ],
+  "sample_via_flash_layers": {
+    "F.Cu": true,
+    "In1.Cu": true,
+    "In2.Cu": true,
+    "B.Cu": true
+  },
+  "suppressed_pad_layer_count": 258,
+  "suppressed_via_layer_count": 0
+}

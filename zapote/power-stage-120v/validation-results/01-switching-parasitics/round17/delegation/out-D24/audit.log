@@ -1,0 +1,184 @@
+{
+  "checked_complete": 105,
+  "indeterminate": 1,
+  "baseline_comparisons": [
+    {
+      "tag": "s4_tt50_v198_d0_esl1.06_tj150_step0.2",
+      "source": "D13",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d0_esl1.06_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d0_esl1.06_tj27_step0.2",
+      "source": "D13",
+      "delta_vds_V": 9.999999997489795e-05,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d0_esl10_tj150_step0.2",
+      "source": "D13",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d0_esl10_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d0_esl10_tj27_step0.2",
+      "source": "D13",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d1_esl1.06_tj150_step0.2",
+      "source": "D13",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d1_esl1.06_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d1_esl1.06_tj27_step0.2",
+      "source": "D13",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d1_esl10_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v198_d1_esl10_tj27_step0.2",
+      "source": "D13",
+      "delta_vds_V": 0.0006000000000199179,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v280_d0_esl1.06_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v280_d0_esl10_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v280_d1_esl1.06_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    },
+    {
+      "tag": "s4_tt50_v280_d1_esl10_tj27_step0.2",
+      "source": "grid-best-longdt",
+      "delta_vds_V": 0.0,
+      "delta_gate_V": 0.0
+    }
+  ],
+  "s4_summary": [
+    {
+      "tt_ns": 0.0,
+      "attempted": 16,
+      "complete": 16,
+      "pass": 0,
+      "vds_min_V": 395.9556,
+      "vds_max_V": 464.3684,
+      "off_min_V": 2.942232,
+      "off_max_V": 3.468751
+    },
+    {
+      "tt_ns": 50.0,
+      "attempted": 16,
+      "complete": 16,
+      "pass": 0,
+      "vds_min_V": 441.6644,
+      "vds_max_V": 513.0911,
+      "off_min_V": 3.473475,
+      "off_max_V": 4.182724
+    },
+    {
+      "tt_ns": 125.0,
+      "attempted": 16,
+      "complete": 16,
+      "pass": 0,
+      "vds_min_V": 555.139,
+      "vds_max_V": 600.2673,
+      "off_min_V": 4.319732,
+      "off_max_V": 5.39877
+    },
+    {
+      "tt_ns": 200.0,
+      "attempted": 16,
+      "complete": 16,
+      "pass": 0,
+      "vds_min_V": 608.2592,
+      "vds_max_V": 793.5515,
+      "off_min_V": 4.754352,
+      "off_max_V": 6.056712
+    },
+    {
+      "tt_ns": 260.0,
+      "attempted": 16,
+      "complete": 16,
+      "pass": 0,
+      "vds_min_V": 653.5084,
+      "vds_max_V": 809.457,
+      "off_min_V": 4.924955,
+      "off_max_V": 6.262266
+    },
+    {
+      "tt_ns": 400.0,
+      "attempted": 2,
+      "complete": 2,
+      "pass": 0,
+      "vds_min_V": 723.7448,
+      "vds_max_V": 810.831,
+      "off_min_V": 6.195741,
+      "off_max_V": 6.418255
+    }
+  ],
+  "refinement": [
+    {
+      "tag": "s4_tt0_v280_d1_esl10_tj150_step0.1",
+      "delta_vds_V": -2.239399999999989,
+      "delta_off_V": -0.0007740000000002745,
+      "same_verdict": true
+    },
+    {
+      "tag": "s4_tt125_v198_d0_esl1.06_tj27_step0.1",
+      "delta_vds_V": -2.0352000000000317,
+      "delta_off_V": -0.004178999999999711,
+      "same_verdict": true
+    },
+    {
+      "tag": "s4_tt260_v198_d0_esl1.06_tj150_step0.1",
+      "delta_vds_V": 0.06470000000001619,
+      "delta_off_V": 0.0034420000000006112,
+      "same_verdict": true
+    },
+    {
+      "tag": "s4_tt50_v198_d0_esl10_tj150_step0.1",
+      "delta_vds_V": -1.3836999999999762,
+      "delta_off_V": -0.003950999999999816,
+      "same_verdict": true
+    }
+  ]
+}

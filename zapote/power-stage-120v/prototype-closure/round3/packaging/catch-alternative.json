@@ -1,0 +1,138 @@
+{
+  "status": "CONDITIONAL_ROTATED_CATCH_CARRIER_NOT_RELEASED",
+  "reason": "US141 does not fit original80x60x60 allocation; evaluate a wider low carrier using vacated fuse bay",
+  "parts": [
+    {
+      "id": "US141_ROTATED",
+      "min": [
+        17,
+        348,
+        12
+      ],
+      "size": [
+        107,
+        76.5,
+        26.5
+      ],
+      "basis": "Primary drawing: body height107 rotated across X, width26.5 vertical. Supplier approval of this installation orientation is open."
+    },
+    {
+      "id": "CATCH_CAP_ROTATED",
+      "min": [
+        25,
+        355,
+        45
+      ],
+      "size": [
+        57.5,
+        45,
+        30
+      ],
+      "basis": "Energy-team candidate TDK B32778H8476K000 body57.5x30x45 rotated onto its side; leads, mount and retention not modeled."
+    },
+    {
+      "id": "CATCH_DIODE_RESERVATION",
+      "min": [
+        25,
+        335,
+        45
+      ],
+      "size": [
+        25,
+        12,
+        25
+      ],
+      "basis": "IDW40G65C5 TO247 and local carrier reservation; lead forming and thermal path not qualified."
+    },
+    {
+      "id": "CATCH_BLEED_SENSE_CARD_RESERVATION",
+      "min": [
+        45,
+        404,
+        45
+      ],
+      "size": [
+        36,
+        20,
+        10
+      ],
+      "basis": "Small allocation only; full bleed and isolated-sense circuit must prove fit or move to a separately reviewed local card. Shifted right to avoid left exhaust duct."
+    }
+  ],
+  "service_door": {
+    "min": [
+      17,
+      330.5,
+      12
+    ],
+    "size": [
+      107,
+      94,
+      26.5
+    ],
+    "basis": "Conservative filled projection, not exact hinge sweep; front cover removed; PCB hood rear at327 leaves3.5mm nominal gap."
+  },
+  "unfiltered_channel_replacement": {
+    "min": [
+      -140,
+      428,
+      25
+    ],
+    "size": [
+      282,
+      5,
+      14
+    ],
+    "basis": "Replaces Y416 route for this variant only;5mm-wide corridor avoids historical adapter fasteners. No swept wire or minimum bend-radius qualification."
+  },
+  "enclosure": {
+    "lower_min": [
+      15.5,
+      328.5,
+      10
+    ],
+    "lower_size": [
+      111,
+      99,
+      31.5
+    ],
+    "wall": 1.5,
+    "cap_hat_min": [
+      22,
+      352,
+      41.5
+    ],
+    "cap_hat_size": [
+      64,
+      51,
+      36.5
+    ],
+    "diode_hat_min": [
+      22,
+      332,
+      41.5
+    ],
+    "diode_hat_size": [
+      31,
+      18,
+      31.5
+    ],
+    "sense_hat_min": [
+      42,
+      401,
+      41.5
+    ],
+    "sense_hat_size": [
+      42,
+      26,
+      17
+    ]
+  },
+  "limits": [
+    "Supplier approval of rotated holder and vertical DIN rail is open.",
+    "Actual capacitor leads, fuse-wire boots, bleed/sense parts, bus pair, standoffs and DIN rail are not modeled.",
+    "Carrier mounting and service access require a cold mockup.",
+    "No insulation distance declared safe; no electrical or containment rating.",
+    "This variant uses rear harness space; all harness routing must be checked."
+  ]
+}

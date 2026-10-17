@@ -1,0 +1,3 @@
+leg A: CHANGED - footprints (5/5 old/new), pads (3/3 old/new), tracks (6/8 old/new), vias (1/1 old/new), zone_fills (1) -> rerun this leg's FEM
+leg B: CHANGED - footprints (5/5 old/new), pads (17/18 old/new), tracks (43/56 old/new), vias (11/13 old/new), zone_fills (3) -> rerun this leg's FEM
+RESULT {"stackup_changed": false, "fet_flags": [], "rerun_needed": true, "legs": {"A": "CHANGED", "B": "CHANGED"}}

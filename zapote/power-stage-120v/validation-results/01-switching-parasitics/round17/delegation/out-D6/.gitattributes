@@ -1,0 +1,2 @@
+# Preserve verbatim ngspice output, including its trailing spaces.
+raw/**/run.log -whitespace

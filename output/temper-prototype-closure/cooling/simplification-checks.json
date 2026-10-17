@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "changes": [
+    "Shared local fixture dimensions between geometry and receipt",
+    "Plot board annotations and section datum derived from geometry report"
+  ],
+  "fixture_bounds_mm": [
+    -20.0,
+    -15.0,
+    0.0,
+    20.0,
+    15.0,
+    5.0
+  ],
+  "fixture_volume_before_mm3": 5812.71395395624,
+  "fixture_volume_after_mm3": 5812.71395395624,
+  "fixture_receipt_geometry_unchanged": true,
+  "fixture_valid_solid_count": 1,
+  "plot_png_byte_identical": true,
+  "preserved_hashes": {
+    "zapote/power-stage-120v/prototype-closure/cooling/build_study.py": "1fa6ef4cb56f3bcd02ec7cf316a98c7aad449121aa3b18ddbe607291cb98a4aa",
+    "zapote/power-stage-120v/prototype-closure/cooling/interface.json": "df385e6f263cd4ff721f23ebf2ad469a49f2902f297e54d50bd22d8d38048b0b",
+    "output/temper-prototype-closure/cooling/checks.json": "a126a8f301f34230d166bcdf3616c62cc52caa4abf99f53131498e0da2c3866c",
+    "output/temper-prototype-closure/cooling/contact-bearing-cold-study.step": "674705250ad24a4f0e0cbe05864d11848d1e13c5815b4217e8836df85b54eeb5",
+    "output/temper-prototype-closure/cooling/contact-study.png": "e97919aa67accf5359c8f818f61d8ba43fb02d2a33c8eea31a126ded56c3d586"
+  },
+  "refreshed_hashes": {
+    "zapote/power-stage-120v/prototype-closure/cooling/build_control_coupon.py": "8415b50fe16ff36dee184404055b09881b0a66189c205a9453dd71cc4aca996c",
+    "zapote/power-stage-120v/prototype-closure/cooling/plot_study.py": "b885ec25ba5bbb2ce27b27147bbc3b0c2c12164e8495b67469e971996769a573",
+    "output/temper-prototype-closure/cooling/click-cartridge-cold-fixture.step": "860ef46fb092429721e29a371b8782d0dbe5bb592559f4225838b9fc0fa3fdc6",
+    "output/temper-prototype-closure/cooling/click-fixture-checks.json": "e29e111f173fbcdd39712de2657866cc532a49c80aa8484cdc62f9324d80f4d8",
+    "output/temper-prototype-closure/cooling/contact-study.svg": "c61ddd4f5b6918299ca2fc9061dd7f7c355bb53cda2c17e711e01566926f0d0a"
+  },
+  "ruff": "PASS",
+  "whole_cooling_replay": "Not required; build_study.py, interface.json, checks.json and assembly STEP byte-identical",
+  "native19_integration": "Still absent; native18 135-model study unchanged"
+}

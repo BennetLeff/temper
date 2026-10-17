@@ -1,0 +1,57 @@
+# 07 Conducted EMI — round-3 A7 model result
+
+- **Board:** `native-15/section.kicad_pcb`, SHA-256 `a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155`.
+- **Source revision:** `44417ae1489fd00e2d652fd3b2c1582b76d17630` (PR 1615 baseline); 2026-09-27. Operator: Codex (GPT-6). Runtime: ngspice 45.2, Miniforge Python/NumPy/SciPy.
+- **Evidence class:** datasheet and vendor-simulator inputs, digitized typical curve, and simulation/model-based topology fixtures. No physical EMI measurement.
+- **Verdict:** **PARTIAL / BLOCKED for B5-C1 margin.** The A7 topology and its fixtures are complete. A regulatory margin cannot be assigned from this source model.
+- **Master-plan status line:** `07 | partial; A7 deck and component scenarios complete, B5/C1 blocked on qualified switching edges, bus-ripple source and physical parasitics | round3/README.md | no EMI compliance verdict`.
+
+## Summary
+
+The revised [ngspice deck](scripts/emi_topology.cir) drives two opposed switch nodes relative to a **floating** DC return. Q3 and Q6 drain tabs couple SW_A/SW_B to the PE-bonded heatsink; Q2 and Q5 drain tabs couple BUS_P to PE. The LISN 50 Ω terminations and PE bond are explicit. The [fixture](outputs/topology_fixture.json) confirms both linear superposition and the intended cancellation: at 150 kHz a 1 V single-leg source gives 210 µV terminal CM, equal opposed sources give less than 2×10⁻¹⁹ V, and ±20% low-side-tab mismatch gives 52.8 µV. The lone Q3 tab current matches `jωC(V_SW_A−V_PE)` to better than 2×10⁻¹⁶ relative at four frequencies. Exact cancellation is a deliberately ideal fixture, not a board prediction.
+
+The related-series KEMET K-SIM export gives **12.20 nH ESL** fitted above self-resonance and a frequency-dependent ESR. A TDK-authored impedance plot, digitized from an older page image, gives a **heuristic** 0.80–0.90 MHz self-resonance sensitivity range for the choke. Both have important source limits below. The [35/60 kHz plotted scenarios](outputs/assumed_cm_peak_lines.png) are peak harmonic lines under **assumed** 170 V, 5 V/ns edges, tab asymmetry and coil-to-PE capacitance. They exclude unknown bridge bus-ripple DM current and are **not** quasi-peak results or compliance margins.
+
+## Method and inputs
+
+| Component/path | Deck value and basis | Qualification limit |
+| --- | --- | --- |
+| C1/C2 | 1 µF; 12.20 nH high-frequency ESL fit; 35 mΩ constant deck ESR scenario. [Full K-SIM fit](outputs/xcap_fit.json) gives `R(f)=0.003485+0.027490√(f/1 MHz)+0.006113/√(f/1 MHz)` Ω, 150 kHz–10 MHz, with 0.89 mΩ RMS error. At 10 kHz its 26.66 mΩ CKT resistance is **not** broadband. | [Raw K-SIM 3.0.7.15 CSV](sources/Imp-ESR_R46KN4100JHP1M.csv) is for `R46KN4100JHP1M`, same R46 1-µF/22.5-mm family but a **different voltage code** from board `R463N410000N1M`. It is a scenario, not exact-part data. CSV SHA-256 `80dbc3a5a53bec13e559cf949e25d95e98e48a18c0552749f15476fd9b905f0a`. The deck's constant 35 mΩ is an intentionally coarse approximation; the fit file retains the real frequency dependence. Both R/L values beyond the CSV's 10 MHz ceiling are extrapolated in the 30 MHz scenario. |
+| L1 | [May 2026 TDK datasheet](https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s22x3.pdf) p. 4: 1.6 mH per winding, −30/+50%, 18 µH typical stray, 4.5 mΩ typical per-winding DC resistance. Coupling `k=1−L_DM/(2L_CM)=0.994375`. [Digitized-curve fit](outputs/tdk_choke_fit.json): 11.08 pF and 12.69 kΩ damping per winding, equivalent parallel-winding C 22.16 pF and R 6.35 kΩ; nominal first resonance 847 kHz, fit RMS error 0.35 dB. | Curve image is a TDK/EPCOS **10/08** archive of plot `IND0783-T`; May 2026 prints the same plot identifier but revises listed stray L from 15 to 18 µH. The [21 traced pixels](sources/tdk-curve-pixels.csv) and [fit script](scripts/fit_choke.py) retain calibration, source URL and image SHA. ±2-pixel trace sensitivity moves equivalent C 19.73–24.88 pF and resonance 799–897 kHz; that is **digitization sensitivity**, not part tolerance. The official TDK model library has the exact code but its download is behind a license-acceptance screen. No model was fetched or license accepted. TDK says expected model accuracy is below the first resonance; the 30 MHz fit extrapolation is unqualified. |
+| RV1 | 1.4 nF typical at 1 MHz for exact `TMOV20RP175E`, from [Littelfuse TMOV datasheet](https://www.littelfuse.com/assetdocs/varistors-tmov-datasheet?assetguid=bd475732-1071-4352-b8aa-f78b0007eb05). | Typical single-frequency value; voltage dependence unmeasured. |
+| BR1 | Four junction capacitances at 85 pF each, from [Diodes GBJ2510 datasheet](https://www.diodes.com/part/view/GBJ2510); fixed conducting-pair crest scenario. Case-to-PE coupling 10 pF per bus rail **ASSUMED**. | The 85 pF is specified at 1 MHz and **4 V reverse bias**, not at 170 V. GBJ is molded plastic with 2500 V RMS case dielectric strength and has no exposed electrically tied tab. A pad-only area formula would omit the package dielectric; actual case capacitance needs measurement. |
+| Q2/Q3/Q5/Q6 pads | 42 pF per tab scenario. A6's [copied pad result](sources/pad_options_from_a6.json) gives 32.15–51.06 pF for SIL-PAD 400 and 32.58–51.75 pF for SIL-PAD K10 using tab area, thickness and **1 kHz** dielectric constant. Source SHA-256 `10d7f30265457429c33ec737dea979975ecd002336bfd7ad7bf9b3989eab272d`. | No pad has been selected. RF dielectric constant, overlap, compression and heatsink geometry are unknown. ±20% mismatch is tested; 42 pF is not a measured installed value. |
+| Bus/coil/PE | Explicit 5.4 µF bulk and 0.4 µF local bus groups with **ASSUMED** ESL 20/5 nH, ESR 20/10 mΩ. Coil-to-PE split between the two ends, 10–100 pF total **ASSUMED**. PE bond 100 nH/10 mΩ **ASSUMED**. | Requires impedance or installed-assembly measurements. The coil split is a lumped approximation to a distributed winding and pan. |
+
+The source details and missing conditions are machine-readable in [component-inputs.json](sources/component-inputs.json). The K-SIM [10-kHz-center CKT](sources/R46KN4100JHP1M_SPICE_Model.CKT) is retained for provenance; the broadband CSV, not that center-frequency resistance, drives the fit. [fit_xcap.py](scripts/fit_xcap.py) regenerates its output.
+
+The rectifier is frozen at one mains-crest conduction pair for the AC calculation. This is not a 60 Hz cyclostationary simulation. The [frozen netlist](../../../frozen/default.net) (SHA-256 `32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f`) lists Q2.2/Q5.2 on BUS_P and Q3.2/Q6.2 on SW_A/SW_B, respectively; these are the drain/tab nodes. The separate `EXC_DM` source is **bus ripple current in amperes** and remains zero in the switch-tab scenarios because the bus-current waveform is not yet qualified. The tank connects SW_A and SW_B, but ideal voltage sources referenced to BUS_N do not synthesize the real full-bridge current drawn from BUS_P. Thus the near-zero DM in the opposed-leg fixture proves no DM emission level. The high-side capacitances are present, but bus ripple must excite them through `EXC_DM` before their emission contribution can be judged.
+
+## Results and sensitivity
+
+[check_topology.py](scripts/check_topology.py) runs 30,000-point AC sweeps from 150 kHz to 30 MHz and checks every-frequency superposition to 6.64×10⁻¹³ V absolute. Its one-leg current law is independent of the terminal transfer and matches the solved capacitor current. The ±20% mismatch fixture returns about one quarter of the single-leg terminal CM voltage at 150 kHz and 1 MHz; this follows the 16.8 pF tab-capacitance difference versus 67 pF tab-plus-coil single-leg path in the current scenario. It is a circuit fixture, not physical symmetry evidence.
+
+[assumed_spectrum.py](scripts/assumed_spectrum.py) combines the two complex AC responses with exact Fourier coefficients for opposed 0–170 V, 50%-duty linear-edge trapezoids. A 262,144-point numerical FFT checks three peak phasors to 1.04×10⁻⁵ relative ([check](outputs/fourier_fft_check.json)). The [CSV](outputs/assumed_peak_lines.csv) includes each line and neutral peak, CM `(V_L+V_N)/2`, and the small DM term caused by the tab-only source. Values are **peak line dBµV, not QP or average**. In the combined ±20% tab/edge-mismatch, 5 V/ns, 50 pF coil-PE scenario, its largest modeled CM line is 60.0 dBµV at 175 kHz for 35 kHz switching and 64.2 dBµV at 180 kHz for 60 kHz switching. These are **assumed-source scenario outputs, not a margin**; the FCC limits are not applied to an incomplete total spectrum.
+
+The [scenario summary](outputs/assumed_spectrum_summary.json) shows the local effect of parameter changes at each scenario's worst modeled line: L1 −30% adds about **3.5 dB**; changing total coil-PE from 10 to 100 pF moves it by under **0.2 dB** in this *symmetrically split* topology; 1–20 V/ns edges barely change the low-order 175/180 kHz peak but materially move higher-frequency lines. The exact-balanced scenario tends numerically to zero, which is why it cannot anchor a nominal board verdict. Above approximately 847 kHz, the vendor-curve-based choke model is a structural illustration only.
+
+## Open items and physical confirmation
+
+**B5/C1 remains blocked.** Task 01/B1 must supply qualified 35/60 kHz leg edge waveforms or verified rise/fall times across relevant current and line conditions; its current non-ZVS edge sensitivity has not passed. Task 05 plus switch timing must supply the **bus-ripple current spectrum** that excites BUS_P/BUS_N and establishes total DM. The owner must choose the insulating pad and heatsink, then measure or bound installed RF tab-to-heatsink and coil/pan-to-PE capacitance. Obtain exact C1/C2 impedance data, the TDK licensed model or an impedance sweep, GBJ junction capacitance at actual reverse bias, and bus-cap ESL/ESR. A calibrated LISN pre-scan with the applicable detectors is the physical confirmation. The saved [47 CFR 18.307 table](../sources/ecfr-47cfr18.307-table.json) is available for that later comparison; no `margins.csv` is issued now.
+
+The cheapest next model step is to feed B1's validated edge waveform and a task-05 bus-current waveform into the retained transfer deck, then use the selected pad and measured PE/coil parasitics. A lab impedance sweep of the exact choke and C1/C2 resolves the most consequential high-frequency model uncertainty.
+
+## Reproduce
+
+From the worktree root, with the ignored Infineon vendor model present in the sim-kit at SHA-256 `02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b` (ZIP `5a6341084202debb0f8f230b8809c090434ea9526c8e0defe3d2e07a832ff48d`):
+
+```sh
+P=zapote/power-stage-120v/validation-results/07-conducted-emi/round3
+/Users/bennet/Miniforge3/bin/python3 "$P/scripts/fit_xcap.py"
+/Users/bennet/Miniforge3/bin/python3 "$P/scripts/fit_choke.py"
+/Users/bennet/Miniforge3/bin/python3 "$P/scripts/check_topology.py"
+MPLCONFIGDIR=/private/tmp/temper-a7-mpl /Users/bennet/Miniforge3/bin/python3 "$P/scripts/assumed_spectrum.py"
+/Users/bennet/Miniforge3/bin/python3 zapote/power-stage-120v/validation-plan/sim-kit/smoke_test.py
+```
+
+The saved [smoke output](outputs/smoke_test.txt) ends `SMOKE PASS`. All scripts and outputs are inside this round-3 directory. The TDK page bitmap is not redistributed; `fit_choke.py` consumes the committed traced coordinates and records their source URL/hash in its result. No board, master-plan, or shared kit source was edited.

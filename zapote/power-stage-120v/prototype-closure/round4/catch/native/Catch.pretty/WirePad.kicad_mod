@@ -1,0 +1,4 @@
+(footprint "WirePad" (version 20241229) (generator "temper_catch") (layer "F.Cu") (attr through_hole)
+      (property "Reference" "J" (at 0 2 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+      (property "Value" "22AWG_SOLDER" (at 0 3 0) (layer "F.Fab") (effects (font (size 1 1) (thickness 0.15))))
+      (pad "1" thru_hole circle (at 0 0) (size 2.8 2.8) (drill 1.3) (layers "*.Cu" "*.Mask")))

@@ -1,0 +1,50 @@
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:gate_channel_remains_rejected:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:successful_deinit_reasserts_gpio_after_generator_reset:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:programmed_ticks_and_waveform:PASS
+Failure injection: 33 initialization API calls
+init failure=1 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=2 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=3 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=4 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=5 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=6 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=7 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=8 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=9 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=10 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=11 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=12 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=13 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=14 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=15 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=16 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=17 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=18 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=19 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=20 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=21 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=22 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=23 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=24 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=25 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=26 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=27 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=28 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=29 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=30 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=31 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=32 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+init failure=33 mode=1,1 pullup=0,0 pulldown=1,1 safe=1
+Init failures: 0 unsafe GPIO states; 0 disabled-output states
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:every_init_failure_is_off:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:partial_delay_update_invalidates:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:start_and_stop_failures_are_off:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:invalid_inputs_and_period_failure:PASS
+Failure injection: 35 running deinit API calls
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:every_deinit_failure_is_reported_and_retryable:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:operation_failures_finish_with_gpio_cleanup:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:persistent_gpio_failure_does_not_claim_safe_or_forget_config:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:155:persistent_gpio_failure_after_resource_deletion_is_retryable:PASS
+-----------------------
+11 Tests 0 Failures 0 Ignored
+OK

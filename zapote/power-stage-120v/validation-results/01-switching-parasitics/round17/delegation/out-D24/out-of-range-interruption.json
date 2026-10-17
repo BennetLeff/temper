@@ -1,0 +1,44 @@
+{
+  "status": "INDETERMINATE",
+  "reason": "Stopped out-of-datasheet-range TT400 diagnostic after completed TT0/50/200 grid; no partial waveform accepted",
+  "process": "/Users/bennet/miniforge3/bin/python3 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D24/run.py sweep --tt 0,50,200,400,800",
+  "child_processes": [
+    "ngspice -b -r waves.raw s4.cir"
+  ],
+  "retained_cache": [
+    {
+      "path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D24/cache/run-5fqvicdi",
+      "params": ".param LP1=24.5969n\n.param LP2=23.8522n\n.param LP3=24.2606n\n.param LP4=35.6765n\n.param K12=0.632482752\n.param K13=0.165300953\n.param K14=0.185415768\n.param K23=0.160678209\n.param K24=0.196916347\n.param K34=-0.00889872432\n.param VBUS=198\n.param IL=-20\n.param DIR=0\n.param DT=443n\n.param LESL=10n\n.param LSHUNT=2n\n.param TJ=27\n.param TRMAX=0.2n\n",
+      "files": [
+        {
+          "name": "waves.raw",
+          "bytes": 3830236
+        },
+        {
+          "name": "params.inc",
+          "bytes": 343
+        },
+        {
+          "name": "IFX_CFD7_650V.lib",
+          "bytes": 148961
+        },
+        {
+          "name": ".spiceinit",
+          "bytes": 38
+        },
+        {
+          "name": "s4.cir",
+          "bytes": 5406
+        }
+      ]
+    }
+  ],
+  "tt_ns": 400,
+  "tag": "s4_tt400_v198_d0_esl10_tj27_step0.2",
+  "vendor_sha256": "92d58c635ae0095391a0795c10784b70de6293c87db6201f8833cd77c7c582b9",
+  "out_of_range_planned": 32,
+  "out_of_range_completed": 2,
+  "out_of_range_interrupted": 1,
+  "out_of_range_not_run": 29,
+  "partial_waveform_sha256": "f80d3fff9faf15eb1fa94e08b26fafeebe5ac6f3715fbc7d7f5a4a9c69cbf8d2"
+}

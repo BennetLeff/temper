@@ -1,0 +1,158 @@
+# Standalone half-bus voltage monitor and OVP. Not galvanically isolated.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import TLV3201 from "components.ato"
+import REF2025 from "components.ato"
+import JST_XH_B4B_XH_A from "components.ato"
+
+component VoltageInput:
+    designator_prefix = "J"
+    footprint = "lib:VoltageInput_691253500002"
+    mpn = "691253500002"
+    manufacturer = "Wurth Elektronik"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+module VoltageSenseUnit:
+    """170V nominal positive half-bus; 0-250V monitor envelope.
+    BUS_RETURN is also host ground. This is not an isolated interface.
+    Host must hold +3V3 at 3.3V +/-5%; power-off behavior is not qualified.
+    """
+    signal bus
+    signal gnd
+    signal vcc
+    signal ovp_sense
+    signal vref
+    signal fault
+    signal monitor
+    signal ovp_mid1
+    signal ovp_mid2
+    signal adc_mid1
+    signal adc_mid2
+
+    input = new VoltageInput
+    host = new JST_XH_B4B_XH_A
+    comp = new TLV3201
+    reference = new REF2025
+
+    r_ovp_top1 = new Resistor
+    r_ovp_top1.value = 430kohm +/- 1%
+    r_ovp_top1.mpn = "RC1206FR-07430KL"
+    r_ovp_top1.power_rating = 0.25W
+    r_ovp_top1.voltage_rating = 200V
+    r_ovp_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_ovp_top2 = new Resistor
+    r_ovp_top2.value = 430kohm +/- 1%
+    r_ovp_top2.mpn = "RC1206FR-07430KL"
+    r_ovp_top2.power_rating = 0.25W
+    r_ovp_top2.voltage_rating = 200V
+    r_ovp_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_ovp_top3 = new Resistor
+    r_ovp_top3.value = 430kohm +/- 1%
+    r_ovp_top3.mpn = "RC1206FR-07430KL"
+    r_ovp_top3.power_rating = 0.25W
+    r_ovp_top3.voltage_rating = 200V
+    r_ovp_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_ovp_bottom = new Resistor
+    r_ovp_bottom.value = 16.9kohm +/- 0.1%
+    r_ovp_bottom.mpn = "RT0603BRD0716K9L"
+    r_hyst = new Resistor
+    r_hyst.value = 487kohm +/- 0.1%
+    r_hyst.mpn = "RT0603BRD07487KL"
+
+    # 270k also leaves too little tolerance headroom at 250V; use 300k.
+    r_adc_top1 = new Resistor
+    r_adc_top1.value = 300kohm +/- 1%
+    r_adc_top1.mpn = "RC1206FR-07300KL"
+    r_adc_top1.power_rating = 0.25W
+    r_adc_top1.voltage_rating = 200V
+    r_adc_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_adc_top2 = new Resistor
+    r_adc_top2.value = 300kohm +/- 1%
+    r_adc_top2.mpn = "RC1206FR-07300KL"
+    r_adc_top2.power_rating = 0.25W
+    r_adc_top2.voltage_rating = 200V
+    r_adc_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_adc_top3 = new Resistor
+    r_adc_top3.value = 300kohm +/- 1%
+    r_adc_top3.mpn = "RC1206FR-07300KL"
+    r_adc_top3.power_rating = 0.25W
+    r_adc_top3.voltage_rating = 200V
+    r_adc_top3.footprint = "Resistor_SMD:R_1206_3216Metric"
+    r_adc_bottom = new Resistor
+    r_adc_bottom.value = 10kohm +/- 1%
+    r_adc_bottom.mpn = "RC0603FR-0710KL"
+
+    c_adc = new Capacitor
+    c_adc.value = 100nF +/- 10%
+    c_adc.mpn = "C0603C104K5RACTU"
+    c_adc.voltage_rating = 50V
+    c_comp = new Capacitor
+    c_comp.value = 100nF +/- 10%
+    c_comp.mpn = "C0603C104K5RACTU"
+    c_comp.voltage_rating = 50V
+    c_ref_in = new Capacitor
+    c_ref_in.value = 100nF +/- 10%
+    c_ref_in.mpn = "C0603C104K5RACTU"
+    c_ref_in.voltage_rating = 50V
+    c_ref_out = new Capacitor
+    c_ref_out.value = 100nF +/- 10%
+    c_ref_out.mpn = "C0603C104K5RACTU"
+    c_ref_out.voltage_rating = 50V
+
+    input.p1 ~ bus
+    input.p2 ~ gnd
+    host.p1 ~ vcc
+    host.p2 ~ gnd
+    host.p3 ~ fault
+    host.p4 ~ monitor
+    bus ~ r_ovp_top1.p1
+    r_ovp_top1.p2 ~ ovp_mid1
+    ovp_mid1 ~ r_ovp_top2.p1
+    r_ovp_top2.p2 ~ ovp_mid2
+    ovp_mid2 ~ r_ovp_top3.p1
+    r_ovp_top3.p2 ~ ovp_sense
+    ovp_sense ~ r_ovp_bottom.p1
+    r_ovp_bottom.p2 ~ gnd
+    ovp_sense ~ r_hyst.p1
+    r_hyst.p2 ~ fault
+    comp.INP ~ ovp_sense
+    comp.INN ~ vref
+    comp.OUT ~ fault
+    comp.VCC ~ vcc
+    comp.GND ~ gnd
+    reference.VIN ~ vcc
+    reference.EN ~ vcc
+    reference.GND ~ gnd
+    reference.VREF ~ vref
+    # REF2025 VBIAS is intentionally unconnected.
+    c_comp.p1 ~ vcc
+    c_comp.p2 ~ gnd
+    c_ref_in.p1 ~ vcc
+    c_ref_in.p2 ~ gnd
+    c_ref_out.p1 ~ vref
+    c_ref_out.p2 ~ gnd
+    bus ~ r_adc_top1.p1
+    r_adc_top1.p2 ~ adc_mid1
+    adc_mid1 ~ r_adc_top2.p1
+    r_adc_top2.p2 ~ adc_mid2
+    adc_mid2 ~ r_adc_top3.p1
+    r_adc_top3.p2 ~ monitor
+    monitor ~ r_adc_bottom.p1
+    r_adc_bottom.p2 ~ gnd
+    c_adc.p1 ~ monitor
+    c_adc.p2 ~ gnd
+
+    bus.override_net_name = "BUS_PLUS"
+    gnd.override_net_name = "BUS_RETURN"
+    vcc.override_net_name = "+3V3"
+    ovp_sense.override_net_name = "OVP_SENSE"
+    vref.override_net_name = "VREF_2V5"
+    fault.override_net_name = "OVP_FAULT"
+    monitor.override_net_name = "BUS_MON"
+    ovp_mid1.override_net_name = "OVP_MID1"
+    ovp_mid2.override_net_name = "OVP_MID2"
+    adc_mid1.override_net_name = "ADC_MID1"
+    adc_mid2.override_net_name = "ADC_MID2"

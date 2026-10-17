@@ -1,0 +1,30 @@
+[
+  {
+    "case": "changed_upstream_exporter",
+    "exit": 1,
+    "expected_error": "upstream identity mismatch",
+    "pass": true
+  },
+  {
+    "case": "changed_file",
+    "exit": 1,
+    "expected_error": "extraction input changed",
+    "pass": true
+  },
+  {
+    "case": "wrong_board",
+    "exit": 1,
+    "expected_error": "not the reviewed native19",
+    "pass": true
+  },
+  {
+    "case": "printed_bad_topology_with_successful_diagnostic_exit",
+    "exit": 1,
+    "pass": true
+  },
+  {
+    "case": "missing_diagnostic_RESULT",
+    "exit": 1,
+    "pass": true
+  }
+]

@@ -1,0 +1,297 @@
+Note: Starting dynamic gmin stepping
+Note: Dynamic gmin stepping completed
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * d19 periodic source scenario; two identical leg-a matrices, series rlc load.
+
+binary raw file "waves.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 7  
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+src                                        170
+bulk                                       170
+bus                                        170
+xla.c38a                                   170
+xla.c38b                                   170
+xla.c38c                                   170
+xla.c39a                                   170
+xla.c39b                                   170
+xla.c39c                                   170
+xla.inverter                               170
+xla.xqh.x1.d1                              170
+xla.xqh.x1.ox                          1.79856
+xla.xqh.x1.e_edg1_int1                 168.201
+xla.xqh.g                          1.61981e-08
+xla.xqh.x1.ox2                         26.1913
+xla.xqh.x1.e_edg2_int1                 143.809
+xla.xqh.s                          1.65532e-08
+xla.xqh.x1.edep1                       6409.37
+xla.xqh.x1.e_eds1_int1                -6239.37
+xla.xqh.x1.edep2                       28.2733
+xla.xqh.x1.e_eds2_int1                 141.727
+xla.xqh.x1.d                               170
+xla.xqh.x1.g_chan_int1             1.01892e-15
+xla.xqh.tj                                  27
+xla.xqh.dd                                 170
+xla.xqh.x1.d2                              170
+xla.xqh.x1.g_g_rd_int1             3.39998e-07
+xla.xqh.x1.dio                             170
+xla.xqh.x1.dio2                            170
+xla.xqh.x1.g_rdio_int1             -3.5818e-07
+xla.xqh.x1.g_g_ptot_channel_int1               0
+xla.xqh.x1.g_g_ptot_epi_int1                 0
+xla.xqh.ldrd                               170
+swa                                1.61981e-08
+xla.xqh.lsrs                       1.61981e-08
+xla.g_hs                           1.61981e-08
+xla.xqh.lgrg                       1.61981e-08
+xla.xqh.w                                    0
+xla.xqh.e1_int1                             27
+xla.d_ls                           1.61981e-08
+xla.xql.x1.d1                      1.81999e-09
+xla.xql.x1.ox                      1.81999e-09
+xla.xql.x1.e_edg1_int1                       0
+xla.xql.g                              14.9867
+xla.xql.x1.ox2                     1.81999e-09
+xla.xql.x1.e_edg2_int1            -8.75836e-19
+xla.xql.s                          1.39837e-09
+xla.xql.x1.edep1                   4.28162e-07
+xla.xql.x1.e_eds1_int1            -4.26342e-07
+xla.xql.x1.edep2                   1.81999e-09
+xla.xql.x1.e_eds2_int1            -8.23021e-33
+xla.xql.x1.d                       1.81999e-09
+xla.xql.x1.g_chan_int1             1.03818e-06
+xla.xql.tj                                  27
+xla.xql.dd                         1.61209e-08
+xla.xql.x1.d2                      1.61209e-08
+xla.xql.x1.g_g_rd_int1             1.03818e-06
+xla.xql.x1.dio                     1.61209e-08
+xla.xql.x1.dio2                    1.61209e-08
+xla.xql.x1.g_rdio_int1            -6.08047e-16
+xla.xql.x1.g_g_ptot_channel_int1               0
+xla.xql.x1.g_g_ptot_epi_int1                 0
+xla.xql.ldrd                       1.61981e-08
+xla.s_ls                           1.03818e-09
+xla.xql.lsrs                       1.03818e-09
+xla.g_ls                               14.9867
+xla.xql.lgrg                           14.9867
+xla.xql.w                                    0
+xla.xql.e1_int1                             27
+xla.shunt                          1.03818e-09
+xla.gl_cmd                                  15
+xla.gdl                                14.9925
+xla.gdl3                               14.9867
+xla.gh_cmd                         1.61981e-08
+xla.gdh                            1.61981e-08
+xla.gdh3                           1.61981e-08
+xlb.c38a                                   170
+xlb.c38b                                   170
+xlb.c38c                                   170
+xlb.c39a                                   170
+xlb.c39b                                   170
+xlb.c39c                                   170
+xlb.inverter                               170
+xlb.xqh.x1.d1                              170
+xlb.xqh.x1.ox                              170
+xlb.xqh.x1.e_edg1_int1                       0
+xlb.xqh.g                              184.987
+xlb.xqh.x1.ox2                             170
+xlb.xqh.x1.e_edg2_int1             1.76574e-15
+xlb.xqh.s                                  170
+xlb.xqh.x1.edep1                           170
+xlb.xqh.x1.e_eds1_int1                       0
+xlb.xqh.x1.edep2                           170
+xlb.xqh.x1.e_eds2_int1             1.87712e-23
+xlb.xqh.x1.d                               170
+xlb.xqh.x1.g_chan_int1             1.03914e-06
+xlb.xqh.tj                                  27
+xlb.xqh.dd                                 170
+xlb.xqh.x1.d2                              170
+xlb.xqh.x1.g_g_rd_int1             1.03912e-06
+xlb.xqh.x1.dio                             170
+xlb.xqh.x1.dio2                            170
+xlb.xqh.x1.g_rdio_int1             1.07289e-12
+xlb.xqh.x1.g_g_ptot_channel_int1               0
+xlb.xqh.x1.g_g_ptot_epi_int1                 0
+xlb.xqh.ldrd                               170
+swb                                        170
+xlb.xqh.lsrs                               170
+xlb.g_hs                               184.987
+xlb.xqh.lgrg                           184.987
+xlb.xqh.w                                    0
+xlb.xqh.e1_int1                             27
+xlb.d_ls                                   170
+xlb.xql.x1.d1                              170
+xlb.xql.x1.ox                          1.79856
+xlb.xql.x1.e_edg1_int1                 168.201
+xlb.xql.g                          1.03818e-09
+xlb.xql.x1.ox2                         26.1913
+xlb.xql.x1.e_edg2_int1                 143.809
+xlb.xql.s                          1.39324e-09
+xlb.xql.x1.edep1                       6409.37
+xlb.xql.x1.e_eds1_int1                -6239.37
+xlb.xql.x1.edep2                       28.2733
+xlb.xql.x1.e_eds2_int1                 141.727
+xlb.xql.x1.d                               170
+xlb.xql.x1.g_chan_int1             1.01892e-15
+xlb.xql.tj                                  27
+xlb.xql.dd                                 170
+xlb.xql.x1.d2                              170
+xlb.xql.x1.g_g_rd_int1             3.39999e-07
+xlb.xql.x1.dio                             170
+xlb.xql.x1.dio2                            170
+xlb.xql.x1.g_rdio_int1            -3.58183e-07
+xlb.xql.x1.g_g_ptot_channel_int1               0
+xlb.xql.x1.g_g_ptot_epi_int1                 0
+xlb.xql.ldrd                               170
+xlb.s_ls                           1.03818e-09
+xlb.xql.lsrs                       1.03818e-09
+xlb.g_ls                           1.03818e-09
+xlb.xql.lgrg                       1.03818e-09
+xlb.xql.w                                    0
+xlb.xql.e1_int1                             27
+xlb.shunt                          1.03818e-09
+xlb.gl_cmd                         1.03818e-09
+xlb.gdl                            1.03818e-09
+xlb.gdl3                           1.03818e-09
+xlb.gh_cmd                                 185
+xlb.gdh                                184.993
+xlb.gdh3                               184.987
+tank1                              1.61981e-08
+tank2                              1.61981e-08
+b.xlb.xql.be1#branch                         0
+b.xlb.xql.x1.bg_g_ptot_epi#branch               0
+v.xlb.xql.x1.v_iepi#branch         6.79998e-07
+v.xlb.xql.x1.v_sense2#branch       3.58183e-07
+b.xlb.xql.x1.bg_g_ptot_channel#branch               0
+v.xlb.xql.x1.v_ichannel#branch     3.39999e-07
+b.xlb.xql.x1.bg_rdio#branch                  0
+b.xlb.xql.x1.bg_g_rd#branch                  0
+b.xlb.xql.x1.bg_chan#branch                  0
+b.xlb.xql.x1.be_eds2#branch                  0
+b.xlb.xql.x1.be_eds1#branch                  0
+b.xlb.xql.x1.be_edg2#branch                  0
+b.xlb.xql.x1.be_edg1#branch                  0
+b.xlb.xqh.be1#branch                         0
+b.xlb.xqh.x1.bg_g_ptot_epi#branch               0
+v.xlb.xqh.x1.v_iepi#branch         1.03912e-06
+v.xlb.xqh.x1.v_sense2#branch      -1.07289e-12
+b.xlb.xqh.x1.bg_g_ptot_channel#branch               0
+v.xlb.xqh.x1.v_ichannel#branch     1.03912e-06
+b.xlb.xqh.x1.bg_rdio#branch                  0
+b.xlb.xqh.x1.bg_g_rd#branch                  0
+b.xlb.xqh.x1.bg_chan#branch                  0
+b.xlb.xqh.x1.be_eds2#branch                  0
+b.xlb.xqh.x1.be_eds1#branch                  0
+b.xlb.xqh.x1.be_edg2#branch                  0
+b.xlb.xqh.x1.be_edg1#branch                  0
+b.xla.xql.be1#branch                         0
+b.xla.xql.x1.bg_g_ptot_epi#branch               0
+v.xla.xql.x1.v_iepi#branch         1.03818e-06
+v.xla.xql.x1.v_sense2#branch       6.08047e-16
+b.xla.xql.x1.bg_g_ptot_channel#branch               0
+v.xla.xql.x1.v_ichannel#branch     1.03818e-06
+b.xla.xql.x1.bg_rdio#branch                  0
+b.xla.xql.x1.bg_g_rd#branch                  0
+b.xla.xql.x1.bg_chan#branch                  0
+b.xla.xql.x1.be_eds2#branch                  0
+b.xla.xql.x1.be_eds1#branch                  0
+b.xla.xql.x1.be_edg2#branch                  0
+b.xla.xql.x1.be_edg1#branch                  0
+b.xla.xqh.be1#branch                         0
+b.xla.xqh.x1.bg_g_ptot_epi#branch               0
+v.xla.xqh.x1.v_iepi#branch         6.79998e-07
+v.xla.xqh.x1.v_sense2#branch        3.5818e-07
+b.xla.xqh.x1.bg_g_ptot_channel#branch               0
+v.xla.xqh.x1.v_ichannel#branch     3.39998e-07
+b.xla.xqh.x1.bg_rdio#branch                  0
+b.xla.xqh.x1.bg_g_rd#branch                  0
+b.xla.xqh.x1.bg_chan#branch                  0
+b.xla.xqh.x1.be_eds2#branch                  0
+b.xla.xqh.x1.be_eds1#branch                  0
+b.xla.xqh.x1.be_edg2#branch                  0
+b.xla.xqh.x1.be_edg1#branch                  0
+ltank#branch                      -2.83194e-27
+l.xlb.l_p3#branch                  -0.00149868
+l.xlb.l_p4#branch                  3.54901e-19
+l.xlb.lshunt#branch                1.03818e-06
+l.xlb.xql.l_lg#branch             -3.55058e-19
+l.xlb.xql.l_ls#branch             -1.03818e-06
+l.xlb.xql.l_ld#branch              1.03816e-06
+l.xlb.xqh.l_lg#branch              1.49867e-08
+l.xlb.xqh.l_ls#branch             -1.05314e-06
+l.xlb.xqh.l_ld#branch              1.03911e-06
+l.xlb.lesl39#branch                4.57607e-29
+l.xlb.l_p2#branch                  4.57607e-29
+l.xlb.lesl38#branch                4.57615e-29
+l.xlb.l_p1#branch                  4.57615e-29
+l.xla.l_p3#branch                  3.54901e-19
+l.xla.l_p4#branch                  -0.00149868
+l.xla.lshunt#branch                1.03818e-06
+l.xla.xql.l_lg#branch              1.49867e-08
+l.xla.xql.l_ls#branch             -1.05317e-06
+l.xla.xql.l_ld#branch              1.03818e-06
+l.xla.xqh.l_lg#branch             -3.55059e-19
+l.xla.xqh.l_ls#branch             -1.03818e-06
+l.xla.xqh.l_ld#branch              1.03816e-06
+l.xla.lesl39#branch                4.57615e-29
+l.xla.l_p2#branch                  4.57615e-29
+l.xla.lesl38#branch               -5.68168e-13
+l.xla.l_p1#branch                 -5.68168e-13
+lbulk#branch                       2.07727e-06
+e.xlb.xql.e1#branch                          0
+e.xlb.xql.x1.e_eds2#branch                   0
+e.xlb.xql.x1.e_eds1#branch                   0
+e.xlb.xql.x1.e_edg2#branch                   0
+e.xlb.xql.x1.e_edg1#branch                   0
+e.xlb.xqh.e1#branch                          0
+e.xlb.xqh.x1.e_eds2#branch                   0
+e.xlb.xqh.x1.e_eds1#branch                   0
+e.xlb.xqh.x1.e_edg2#branch                   0
+e.xlb.xqh.x1.e_edg1#branch                   0
+e.xla.xql.e1#branch                          0
+e.xla.xql.x1.e_eds2#branch                   0
+e.xla.xql.x1.e_eds1#branch                   0
+e.xla.xql.x1.e_edg2#branch                   0
+e.xla.xql.x1.e_edg1#branch                   0
+e.xla.xqh.e1#branch                          0
+e.xla.xqh.x1.e_eds2#branch                   0
+e.xla.xqh.x1.e_eds1#branch                   0
+e.xla.xqh.x1.e_edg2#branch                   0
+e.xla.xqh.x1.e_edg1#branch                   0
+v.xlb.vgh_cmd#branch                         0
+v.xlb.vgl_cmd#branch                         0
+v.xlb.vids#branch                  1.03816e-06
+v.xlb.vfeed#branch                 1.03911e-06
+v.xla.vgh_cmd#branch                         0
+v.xla.vgl_cmd#branch                         0
+v.xla.vids#branch                  1.03818e-06
+v.xla.vfeed#branch                 1.03816e-06
+vbus#branch                       -2.07727e-06
+
+ Reference value :  7.68667e-04 Reference value :  7.68716e-04 Reference value :  7.68768e-04 Reference value :  7.68829e-04 Reference value :  7.68887e-04 Reference value :  7.68948e-04 Reference value :  7.69007e-04 Reference value :  7.69065e-04 Reference value :  7.69123e-04 Reference value :  7.69171e-04 Reference value :  7.69218e-04 Reference value :  7.69254e-04 Reference value :  7.69289e-04 Reference value :  7.69328e-04 Reference value :  7.69373e-04 Reference value :  7.69419e-04 Reference value :  7.69465e-04 Reference value :  7.69512e-04 Reference value :  7.69558e-04 Reference value :  7.69607e-04 Reference value :  7.69656e-04 Reference value :  7.69704e-04 Reference value :  7.69748e-04 Reference value :  7.69800e-04 Reference value :  7.69853e-04 Reference value :  7.69909e-04 Reference value :  7.69963e-04 Reference value :  7.70023e-04 Reference value :  7.70085e-04 Reference value :  7.70144e-04 Reference value :  7.70212e-04 Reference value :  7.70280e-04 Reference value :  7.70350e-04 Reference value :  7.70418e-04 Reference value :  7.70485e-04 Reference value :  7.70549e-04 Reference value :  7.70614e-04 Reference value :  7.70682e-04 Reference value :  7.70751e-04 Reference value :  7.70816e-04 Reference value :  7.70884e-04 Reference value :  7.70948e-04 Reference value :  7.71018e-04 Reference value :  7.71087e-04 Reference value :  7.71156e-04 Reference value :  7.71222e-04 Reference value :  7.71285e-04 Reference value :  7.71350e-04 Reference value :  7.71418e-04 Reference value :  7.71485e-04 Reference value :  7.71547e-04 Reference value :  7.71610e-04 Reference value :  7.71675e-04 Reference value :  7.71740e-04 Reference value :  7.71803e-04 Reference value :  7.71871e-04 Reference value :  7.71938e-04 Reference value :  7.72008e-04 Reference value :  7.72078e-04 Reference value :  7.72147e-04 Reference value :  7.72216e-04 Reference value :  7.72286e-04 Reference value :  7.72355e-04 Reference value :  7.72425e-04 Reference value :  7.72495e-04 Reference value :  7.72563e-04 Reference value :  7.72631e-04 Reference value :  7.72701e-04 Reference value :  7.72770e-04 Reference value :  7.72839e-04 Reference value :  7.72908e-04 Reference value :  7.72978e-04 Reference value :  7.73048e-04 Reference value :  7.73117e-04 Reference value :  7.73187e-04 Reference value :  7.73256e-04 Reference value :  7.73325e-04 Reference value :  7.73395e-04 Reference value :  7.73464e-04 Reference value :  7.73533e-04 Reference value :  7.73602e-04 Reference value :  7.73671e-04 Reference value :  7.73736e-04 Reference value :  7.73797e-04 Reference value :  7.73863e-04 Reference value :  7.73929e-04 Reference value :  7.73998e-04 Reference value :  7.74066e-04 Reference value :  7.74136e-04 Reference value :  7.74205e-04 Reference value :  7.74274e-04 Reference value :  7.74339e-04 Reference value :  7.74400e-04 Reference value :  7.74466e-04 Reference value :  7.74532e-04 Reference value :  7.74600e-04 Reference value :  7.74665e-04 Reference value :  7.74726e-04 Reference value :  7.74791e-04 Reference value :  7.74859e-04 Reference value :  7.74925e-04 Reference value :  7.74992e-04 Reference value :  7.75057e-04 Reference value :  7.75125e-04 Reference value :  7.75194e-04 Reference value :  7.75263e-04 Reference value :  7.75332e-04 Reference value :  7.75401e-04 Reference value :  7.75470e-04 Reference value :  7.75539e-04 Reference value :  7.75604e-04 Reference value :  7.75667e-04 Reference value :  7.75734e-04 Reference value :  7.75803e-04 Reference value :  7.75873e-04 Reference value :  7.75942e-04 Reference value :  7.76010e-04 Reference value :  7.76080e-04 Reference value :  7.76149e-04 Reference value :  7.76219e-04 Reference value :  7.76288e-04 Reference value :  7.76358e-04 Reference value :  7.76427e-04 Reference value :  7.76494e-04 Reference value :  7.76559e-04 Reference value :  7.76621e-04 Reference value :  7.76690e-04 Reference value :  7.76755e-04 Reference value :  7.76821e-04 Reference value :  7.76890e-04 Reference value :  7.76959e-04 Reference value :  7.77023e-04 Reference value :  7.77075e-04 Reference value :  7.77134e-04 Reference value :  7.77201e-04 Reference value :  7.77266e-04 Reference value :  7.77332e-04 Reference value :  7.77395e-04 Reference value :  7.77457e-04 Reference value :  7.77508e-04 Reference value :  7.77558e-04 Reference value :  7.77593e-04 Reference value :  7.77629e-04 Reference value :  7.77673e-04 Reference value :  7.77720e-04 Reference value :  7.77765e-04 Reference value :  7.77807e-04 Reference value :  7.77847e-04 Reference value :  7.77889e-04 Reference value :  7.77938e-04 Reference value :  7.77986e-04 Reference value :  7.78036e-04 Reference value :  7.78083e-04 Reference value :  7.78134e-04 Reference value :  7.78187e-04 Reference value :  7.78244e-04 Reference value :  7.78300e-04 Reference value :  7.78364e-04 Reference value :  7.78426e-04 Reference value :  7.78492e-04 Reference value :  7.78561e-04 Reference value :  7.78630e-04 Reference value :  7.78700e-04 Reference value :  7.78769e-04 Reference value :  7.78839e-04 Reference value :  7.78909e-04 Reference value :  7.78978e-04 Reference value :  7.79048e-04 Reference value :  7.79117e-04 Reference value :  7.79186e-04 Reference value :  7.79256e-04 Reference value :  7.79325e-04 Reference value :  7.79390e-04 Reference value :  7.79453e-04 Reference value :  7.79521e-04 Reference value :  7.79589e-04 Reference value :  7.79655e-04 Reference value :  7.79724e-04 Reference value :  7.79792e-04 Reference value :  7.79860e-04 Reference value :  7.79927e-04 Reference value :  7.79996e-04 Reference value :  7.80065e-04 Reference value :  7.80133e-04 Reference value :  7.80203e-04 Reference value :  7.80272e-04 Reference value :  7.80341e-04 Reference value :  7.80406e-04 Reference value :  7.80473e-04 Reference value :  7.80543e-04 Reference value :  7.80613e-04 Reference value :  7.80682e-04 Reference value :  7.80752e-04 Reference value :  7.80821e-04 Reference value :  7.80891e-04 Reference value :  7.80960e-04 Reference value :  7.81030e-04 Reference value :  7.81099e-04 Reference value :  7.81169e-04 Reference value :  7.81238e-04 Reference value :  7.81307e-04 Reference value :  7.81376e-04 Reference value :  7.81445e-04 Reference value :  7.81514e-04 Reference value :  7.81584e-04 Reference value :  7.81653e-04 Reference value :  7.81723e-04 Reference value :  7.81792e-04 Reference value :  7.81861e-04 Reference value :  7.81931e-04 Reference value :  7.82001e-04 Reference value :  7.82069e-04 Reference value :  7.82139e-04 Reference value :  7.82208e-04 Reference value :  7.82278e-04 Reference value :  7.82347e-04 Reference value :  7.82416e-04 Reference value :  7.82486e-04 Reference value :  7.82553e-04 Reference value :  7.82622e-04 Reference value :  7.82692e-04 Reference value :  7.82757e-04 Reference value :  7.82820e-04 Reference value :  7.82886e-04 Reference value :  7.82950e-04 Reference value :  7.83011e-04 Reference value :  7.83075e-04 Reference value :  7.83142e-04 Reference value :  7.83207e-04 Reference value :  7.83274e-04 Reference value :  7.83338e-04 Reference value :  7.83403e-04 Reference value :  7.83472e-04 Reference value :  7.83541e-04 Reference value :  7.83610e-04 Reference value :  7.83680e-04 Reference value :  7.83750e-04 Reference value :  7.83819e-04 Reference value :  7.83889e-04 Reference value :  7.83959e-04 Reference value :  7.84029e-04 Reference value :  7.84099e-04 Reference value :  7.84168e-04 Reference value :  7.84238e-04 Reference value :  7.84308e-04 Reference value :  7.84378e-04 Reference value :  7.84448e-04 Reference value :  7.84518e-04 Reference value :  7.84588e-04 Reference value :  7.84657e-04 Reference value :  7.84727e-04 Reference value :  7.84797e-04 Reference value :  7.84866e-04 Reference value :  7.84936e-04 Reference value :  7.85005e-04 Reference value :  7.85075e-04 Reference value :  7.85145e-04 Reference value :  7.85214e-04 Reference value :  7.85284e-04 Reference value :  7.85350e-04 Reference value :  7.85402e-04 Reference value :  7.85460e-04 Reference value :  7.85526e-04 Reference value :  7.85592e-04 Reference value :  7.85657e-04 Reference value :  7.85720e-04 Reference value :  7.85779e-04 Reference value :  7.85827e-04 Reference value :  7.85874e-04 Reference value :  7.85911e-04 Reference value :  7.85951e-04 Reference value :  7.85997e-04 Reference value :  7.86041e-04 Reference value :  7.86088e-04 Reference value :  7.86132e-04 Reference value :  7.86175e-04 Reference value :  7.86219e-04 Reference value :  7.86268e-04 Reference value :  7.86315e-04 Reference value :  7.86364e-04 Reference value :  7.86411e-04 Reference value :  7.86463e-04 Reference value :  7.86516e-04 Reference value :  7.86570e-04 Reference value :  7.86627e-04 Reference value :  7.86690e-04 Reference value :  7.86752e-04 Reference value :  7.86816e-04 Reference value :  7.86886e-04 Reference value :  7.86955e-04 Reference value :  7.87025e-04 Reference value :  7.87095e-04 Reference value :  7.87164e-04 Reference value :  7.87230e-04 Reference value :  7.87295e-04 Reference value :  7.87362e-04 Reference value :  7.87431e-04 Reference value :  7.87498e-04 Reference value :  7.87566e-04 Reference value :  7.87631e-04 Reference value :  7.87697e-04 Reference value :  7.87763e-04 Reference value :  7.87828e-04 Reference value :  7.87893e-04 Reference value :  7.87959e-04 Reference value :  7.88025e-04 Reference value :  7.88092e-04 Reference value :  7.88161e-04 Reference value :  7.88230e-04 Reference value :  7.88298e-04 Reference value :  7.88367e-04 Reference value :  7.88437e-04 Reference value :  7.88506e-04 Reference value :  7.88576e-04 Reference value :  7.88645e-04 Reference value :  7.88715e-04 Reference value :  7.88785e-04 Reference value :  7.88854e-04 Reference value :  7.88924e-04 Reference value :  7.88994e-04 Reference value :  7.89059e-04 Reference value :  7.89127e-04 Reference value :  7.89192e-04 Reference value :  7.89257e-04 Reference value :  7.89324e-04 Reference value :  7.89393e-04 Reference value :  7.89462e-04 Reference value :  7.89531e-04 Reference value :  7.89600e-04 Reference value :  7.89667e-04 Reference value :  7.89733e-04 Reference value :  7.89797e-04 Reference value :  7.89865e-04 Reference value :  7.89930e-04 Reference value :  7.89996e-04 Reference value :  7.90062e-04 Reference value :  7.90126e-04 Reference value :  7.90193e-04 Reference value :  7.90261e-04 Reference value :  7.90331e-04 Reference value :  7.90397e-04 Reference value :  7.90464e-04 Reference value :  7.90529e-04 Reference value :  7.90592e-04 Reference value :  7.90660e-04 Reference value :  7.90728e-04 Reference value :  7.90797e-04 Reference value :  7.90867e-04 Reference value :  7.90936e-04 Reference value :  7.91005e-04 Reference value :  7.91075e-04 Reference value :  7.91144e-04 Reference value :  7.91214e-04 Reference value :  7.91284e-04 Reference value :  7.91353e-04 Reference value :  7.91423e-04 Reference value :  7.91492e-04 Reference value :  7.91562e-04 Reference value :  7.91631e-04 Reference value :  7.91701e-04 Reference value :  7.91770e-04 Reference value :  7.91838e-04 Reference value :  7.91901e-04 Reference value :  7.91967e-04 Reference value :  7.92034e-04 Reference value :  7.92101e-04 Reference value :  7.92169e-04 Reference value :  7.92239e-04 Reference value :  7.92308e-04 Reference value :  7.92378e-04 Reference value :  7.92447e-04 Reference value :  7.92517e-04 Reference value :  7.92587e-04 Reference value :  7.92657e-04 Reference value :  7.92727e-04 Reference value :  7.92796e-04 Reference value :  7.92866e-04 Reference value :  7.92935e-04 Reference value :  7.93005e-04 Reference value :  7.93072e-04 Reference value :  7.93142e-04 Reference value :  7.93211e-04 Reference value :  7.93280e-04 Reference value :  7.93349e-04 Reference value :  7.93419e-04 Reference value :  7.93488e-04 Reference value :  7.93557e-04 Reference value :  7.93627e-04 Reference value :  7.93691e-04 Reference value :  7.93743e-04 Reference value :  7.93802e-04 Reference value :  7.93869e-04 Reference value :  7.93934e-04 Reference value :  7.94000e-04 Reference value :  7.94063e-04 Reference value :  7.94124e-04 Reference value :  7.94174e-04 Reference value :  7.94225e-04 Reference value :  7.94261e-04 Reference value :  7.94300e-04 Reference value :  7.94346e-04 Reference value :  7.94393e-04 Reference value :  7.94434e-04 Reference value :  7.94472e-04 Reference value :  7.94518e-04 Reference value :  7.94565e-04 Reference value :  7.94611e-04 Reference value :  7.94660e-04 Reference value :  7.94701e-04 Reference value :  7.94746e-04 Reference value :  7.94792e-04 Reference value :  7.94843e-04 Reference value :  7.94887e-04 Reference value :  7.94933e-04 Reference value :  7.94983e-04 Reference value :  7.95037e-04 Reference value :  7.95093e-04 Reference value :  7.95143e-04 Reference value :  7.95204e-04 Reference value :  7.95269e-04 Reference value :  7.95337e-04 Reference value :  7.95406e-04 Reference value :  7.95473e-04 Reference value :  7.95543e-04 Reference value :  7.95613e-04 Reference value :  7.95682e-04 Reference value :  7.95751e-04 Reference value :  7.95820e-04 Reference value :  7.95885e-04 Reference value :  7.95954e-04 Reference value :  7.96023e-04 Reference value :  7.96092e-04 Reference value :  7.96161e-04 Reference value :  7.96231e-04 Reference value :  7.96300e-04 Reference value :  7.96369e-04 Reference value :  7.96438e-04 Reference value :  7.96506e-04 Reference value :  7.96570e-04 Reference value :  7.96636e-04 Reference value :  7.96703e-04 Reference value :  7.96771e-04 Reference value :  7.96837e-04 Reference value :  7.96904e-04 Reference value :  7.96973e-04 Reference value :  7.97041e-04 Reference value :  7.97106e-04 Reference value :  7.97175e-04 Reference value :  7.97244e-04 Reference value :  7.97313e-04 Reference value :  7.97382e-04 Reference value :  7.97451e-04 Reference value :  7.97520e-04 Reference value :  7.97590e-04 Reference value :  7.97659e-04 Reference value :  7.97729e-04 Reference value :  7.97798e-04 Reference value :  7.97867e-04 Reference value :  7.97934e-04 Reference value :  7.97997e-04 Reference value :  7.98060e-04 Reference value :  7.98127e-04 Reference value :  7.98196e-04 Reference value :  7.98261e-04 Reference value :  7.98329e-04 Reference value :  7.98398e-04 Reference value :  7.98466e-04 Reference value :  7.98529e-04 Reference value :  7.98593e-04 Reference value :  7.98650e-04 Reference value :  7.98710e-04 Reference value :  7.98770e-04 Reference value :  7.98838e-04 Reference value :  7.98903e-04 Reference value :  7.98971e-04 Reference value :  7.99038e-04 Reference value :  7.99107e-04 Reference value :  7.99177e-04 Reference value :  7.99247e-04 Reference value :  7.99316e-04 Reference value :  7.99386e-04 Reference value :  7.99456e-04 Reference value :  7.99525e-04 Reference value :  7.99595e-04 Reference value :  7.99665e-04 Reference value :  7.99732e-04 Reference value :  7.99796e-04 Reference value :  7.99849e-04 Reference value :  7.99911e-04 Reference value :  7.99975e-04 Reference value :  8.00036e-04 Reference value :  8.00099e-04 Reference value :  8.00167e-04 Reference value :  8.00235e-04 Reference value :  8.00304e-04 Reference value :  8.00374e-04 Reference value :  8.00443e-04 Reference value :  8.00513e-04 Reference value :  8.00583e-04 Reference value :  8.00653e-04 Reference value :  8.00723e-04 Reference value :  8.00792e-04 Reference value :  8.00861e-04 Reference value :  8.00930e-04 Reference value :  8.00999e-04 Reference value :  8.01068e-04 Reference value :  8.01137e-04 Reference value :  8.01206e-04 Reference value :  8.01275e-04 Reference value :  8.01344e-04 Reference value :  8.01414e-04 Reference value :  8.01484e-04 Reference value :  8.01553e-04 Reference value :  8.01623e-04 Reference value :  8.01692e-04 Reference value :  8.01762e-04 Reference value :  8.01831e-04 Reference value :  8.01900e-04 Reference value :  8.01970e-04
+No .measure possible in batch mode (-b) with -r rawfile set!
+Remove rawfile and use .print or .plot or
+select interactive mode (optionally with .control section) instead.
+
+
+No. of Data Rows : 268811
+
+Total analysis time (seconds) = 3279.45
+
+Total elapsed time (seconds) = 3279.477 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  277.891 MB.
+Maximum ngspice program size =   13.500 MB.
+Current ngspice program size =   10.203 MB.
+

@@ -1,0 +1,131 @@
+{
+  "component_count": 17,
+  "input_board_sha256": "bda70ca5bdd6c409ba85ac99ec8ec68e6da58b434461ee5d4e72dd12bc502f13",
+  "kicad_version": "10.0.4",
+  "manifest_sha256": "29a57968e0c4c3db74068d30f776969e6009fd9455da4f3441bd26a0d2f071df",
+  "operations": [
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "hs_filter",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C1",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "hs_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C2",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "coil_filter",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C3",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "instance_path": "coil_bypass",
+      "mpn": "C0603C104K5RACTU",
+      "reference": "C4",
+      "source_value": "100nF +/- 10%"
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "instance_path": "heatsink_probe",
+      "mpn": "B2B-XH-A(LF)(SN)",
+      "reference": "J1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "instance_path": "coil_probe",
+      "mpn": "B2B-XH-A(LF)(SN)",
+      "reference": "J2",
+      "source_value": ""
+    },
+    {
+      "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+      "instance_path": "host",
+      "mpn": "B6B-XH-A(LF)(SN)",
+      "reference": "J3",
+      "source_value": ""
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_fixed",
+      "mpn": "RC0603FR-0710KL",
+      "reference": "R1",
+      "source_value": "10kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_top",
+      "mpn": "RC0603FR-079K09L",
+      "reference": "R2",
+      "source_value": "9.09kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_bottom",
+      "mpn": "RC0603FR-0711K5L",
+      "reference": "R3",
+      "source_value": "11.5kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "hs_hyst",
+      "mpn": "RC0603FR-0734K8L",
+      "reference": "R4",
+      "source_value": "34.8kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_fixed",
+      "mpn": "RC0603FR-073K32L",
+      "reference": "R5",
+      "source_value": "3.32kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_top",
+      "mpn": "RC0603FR-073K16L",
+      "reference": "R6",
+      "source_value": "3.16kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_bottom",
+      "mpn": "RC0603FR-074K42L",
+      "reference": "R7",
+      "source_value": "4.42kohm +/- 1%"
+    },
+    {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "instance_path": "coil_hyst",
+      "mpn": "RC0603FR-0711K5L",
+      "reference": "R8",
+      "source_value": "11.5kohm +/- 1%"
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "hs_comp",
+      "mpn": "TLV3201AIDBVR",
+      "reference": "U1",
+      "source_value": ""
+    },
+    {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "instance_path": "coil_comp",
+      "mpn": "TLV3201AIDBVR",
+      "reference": "U2",
+      "source_value": ""
+    }
+  ],
+  "output_board_sha256": "f3e3a31a4f47ea33514a07169d692c155f0a4baf0b6c6b4c900bbe78502faf38",
+  "physical_tests": "NOT RUN",
+  "schema": "zapote.current-sense.source-property-sync-receipt.v1",
+  "status": "source-properties-synchronized"
+}

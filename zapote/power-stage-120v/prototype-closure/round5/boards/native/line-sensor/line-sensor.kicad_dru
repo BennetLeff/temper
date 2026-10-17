@@ -1,0 +1,3 @@
+(version 1)
+(rule "Baseline" (constraint clearance (min 0.2mm)))
+(rule "HV to SELV provisional 8mm" (condition "A.NetName != '' && B.NetName != '' && ((A.NetName == 'L_AUX' || A.NetName == 'N_AUX' || A.NetName == 'VLINE_TAP' || A.NetName == 'VLINE_DCDC_H' || A.NetName == 'VLINE_HLDO' || A.NetName == 'VLINE_DIV0' || A.NetName == 'VLINE_DIV1' || A.NetName == 'VLINE_DIV2' || A.NetName == 'unconnected-(U1-NC-Pad4)') != (B.NetName == 'L_AUX' || B.NetName == 'N_AUX' || B.NetName == 'VLINE_TAP' || B.NetName == 'VLINE_DCDC_H' || B.NetName == 'VLINE_HLDO' || B.NetName == 'VLINE_DIV0' || B.NetName == 'VLINE_DIV1' || B.NetName == 'VLINE_DIV2' || B.NetName == 'unconnected-(U1-NC-Pad4)'))") (constraint clearance (min 8mm)) (constraint creepage (min 8mm)))

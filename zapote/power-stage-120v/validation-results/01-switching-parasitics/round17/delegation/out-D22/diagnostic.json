@@ -1,0 +1,106 @@
+[
+  {
+    "label": "diagnostic-v198-r2-e1.06-step05",
+    "config": {
+      "bus": 198,
+      "resistance": 2,
+      "esl": 1.06,
+      "freq": 35000,
+      "step": 0.5,
+      "cycles": 3,
+      "options": "",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v198-r2-e1.06-step025",
+    "config": {
+      "bus": 198,
+      "resistance": 2,
+      "esl": 1.06,
+      "freq": 35000,
+      "step": 0.25,
+      "cycles": 3,
+      "options": "",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v198-r2-e1.06-tight",
+    "config": {
+      "bus": 198,
+      "resistance": 2,
+      "esl": 1.06,
+      "freq": 35000,
+      "step": 2,
+      "cycles": 3,
+      "options": "reltol=1e-4 trtol=1",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v198-r2-e1.06-iterations",
+    "config": {
+      "bus": 198,
+      "resistance": 2,
+      "esl": 1.06,
+      "freq": 35000,
+      "step": 2,
+      "cycles": 3,
+      "options": "itl4=1000000",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v170-r100-e10-step05",
+    "config": {
+      "bus": 170,
+      "resistance": 100,
+      "esl": 10,
+      "freq": 35000,
+      "step": 0.5,
+      "cycles": 3,
+      "options": "",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v170-r100-e10-step025",
+    "config": {
+      "bus": 170,
+      "resistance": 100,
+      "esl": 10,
+      "freq": 35000,
+      "step": 0.25,
+      "cycles": 3,
+      "options": "",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v170-r100-e10-tight",
+    "config": {
+      "bus": 170,
+      "resistance": 100,
+      "esl": 10,
+      "freq": 35000,
+      "step": 2,
+      "cycles": 3,
+      "options": "reltol=1e-4 trtol=1",
+      "timeout": 600
+    }
+  },
+  {
+    "label": "diagnostic-v170-r100-e10-iterations",
+    "config": {
+      "bus": 170,
+      "resistance": 100,
+      "esl": 10,
+      "freq": 35000,
+      "step": 2,
+      "cycles": 3,
+      "options": "itl4=1000000",
+      "timeout": 600
+    }
+  }
+]

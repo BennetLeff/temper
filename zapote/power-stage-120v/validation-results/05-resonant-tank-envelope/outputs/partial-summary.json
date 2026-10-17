@@ -1,0 +1,34 @@
+{
+  "retained_case_count": 9,
+  "maximum_tank_peak_current": {
+    "run_id": "cast_iron-low-140v-1710w",
+    "ampere": 51.52031,
+    "ct_88a_margin_a": 36.47969
+  },
+  "maximum_capacitor_peak_voltage": {
+    "run_id": "cast_iron-low-108v-1710w",
+    "volt": 452.0684,
+    "energy_j": 0.0551787763352112,
+    "each_bleed_resistor_peak_v": 113.0171
+  },
+  "maximum_c21_c22_rms_current": {
+    "run_id": "cast_iron-low-108v-1710w",
+    "ampere": 10.77054814814815,
+    "manufacturer_reference_a_at_70c_100khz": 10.3,
+    "actual_frequency_rating": null
+  },
+  "maximum_bleed_resistor_power": {
+    "run_id": "cast_iron-low-108v-1710w",
+    "watt": 0.0067297142980053196,
+    "half_yageo_70c_rating_w": 0.125
+  },
+  "bleed_only": {
+    "initial_voltage_v": 452.0684,
+    "threshold_voltage_v": 60,
+    "nominal_tau_s": 1.0152,
+    "nominal_time_to_60v_s": 2.0501851653855607,
+    "high_r_high_c_tau_s": 1.1278872000000002,
+    "high_r_high_c_time_to_60v_s": 2.277755718743358,
+    "scope": "isolated capacitor through R22-R25 only; no coil/diode ring-down"
+  }
+}

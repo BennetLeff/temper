@@ -1,0 +1,443 @@
+{
+  "schema": 1,
+  "evidence_class": "conditional simulation; not complete D17",
+  "source_commit": "fda5ab9ece24ef1ee6f2317604c5ca73367d5201",
+  "board_scope": "native-18 configuration, qualified native-17 leg-A copper only; native-19 reuse requires region check",
+  "baseline_historical_dt_ns": 348,
+  "baseline_result": {
+    "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/prototype-closure/power/leg_matrix_baseline.cir",
+    "params": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "170",
+      "IL": "37",
+      "DIR": "0",
+      "DT": "348n",
+      "TRMAX": "0.2n",
+      "LESL": "1.06n"
+    },
+    "run_dir": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/baseline",
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": null,
+    "meas": {
+      "vds_ls_die_pk": 203.6704,
+      "vds_hs_die_pk": 170.4592,
+      "vgs_ls_die_max": 14.9473,
+      "vgs_ls_die_min": -0.8891509,
+      "vgs_hs_die_max": 14.06914,
+      "vgs_hs_die_min": -0.8016494,
+      "vgs_ls_off_max": 2.234341,
+      "vgs_hs_off_max": 14.06914,
+      "vds_hs_at_on": -0.8774283,
+      "vds_ls_at_on": 0.5256269,
+      "vgs_ls_at_partner": 2.234341,
+      "vgs_hs_at_partner": -0.555143
+    },
+    "failed": [],
+    "log_tail": [
+      "DRAM currently available =  424.219 MB.",
+      "Maximum ngspice program size =   15.656 MB.",
+      "Current ngspice program size =   15.656 MB.",
+      "",
+      "Note: Starting dynamic gmin stepping",
+      "Note: Dynamic gmin stepping completed"
+    ]
+  },
+  "main_cases": 72,
+  "refinement_cases": 3,
+  "temperature_probe_cases": 6,
+  "aborts": 0,
+  "missing_measures": 0,
+  "first_gate_crossing_delay_ns_range": [
+    352.6600000000002,
+    393.48999999999984
+  ],
+  "refinements": [
+    {
+      "case": "shunt_low_v280_esl10_td0",
+      "step_0p2ns": {
+        "gate_first_1p9": 2.3566e-06,
+        "imposed_current_at_first_1p9": 42.0041,
+        "vds_ls_die_pk": 365.0461,
+        "vds_hs_die_pk": 280.3684,
+        "vgs_hs_off_max": 2.133611,
+        "vgs_ls_late_max": 0.8606761,
+        "vgs_ls_min": -0.7979188
+      },
+      "step_0p1ns": {
+        "gate_first_1p9": 2.35656e-06,
+        "imposed_current_at_first_1p9": 42.0038,
+        "vds_ls_die_pk": 365.7641,
+        "vds_hs_die_pk": 280.3693,
+        "vgs_hs_off_max": 2.13084,
+        "vgs_ls_late_max": 0.8624964,
+        "vgs_ls_min": -0.7977028
+      },
+      "absolute_delta": {
+        "gate_first_1p9": 3.99999999998336e-11,
+        "imposed_current_at_first_1p9": 0.00030000000000285354,
+        "vds_ls_die_pk": 0.7179999999999609,
+        "vds_hs_die_pk": 0.0009000000000014552,
+        "vgs_hs_off_max": 0.002771000000000079,
+        "vgs_ls_late_max": 0.001820299999999997,
+        "vgs_ls_min": 0.00021599999999999397
+      }
+    },
+    {
+      "case": "shunt_high_v198_esl1.06_td1",
+      "step_0p2ns": {
+        "gate_first_1p9": 3.38409e-06,
+        "imposed_current_at_first_1p9": 99.3919,
+        "vds_ls_die_pk": 295.3576,
+        "vds_hs_die_pk": 197.7243,
+        "vgs_hs_off_max": 2.185808,
+        "vgs_ls_late_max": 2.021735,
+        "vgs_ls_min": -1.93923
+      },
+      "step_0p1ns": {
+        "gate_first_1p9": 3.38428e-06,
+        "imposed_current_at_first_1p9": 99.3938,
+        "vds_ls_die_pk": 296.0147,
+        "vds_hs_die_pk": 197.7254,
+        "vgs_hs_off_max": 2.186614,
+        "vgs_ls_late_max": 2.020867,
+        "vgs_ls_min": -1.939696
+      },
+      "absolute_delta": {
+        "gate_first_1p9": 1.89999999999739e-10,
+        "imposed_current_at_first_1p9": 0.0018999999999920192,
+        "vds_ls_die_pk": 0.657100000000014,
+        "vds_hs_die_pk": 0.0011000000000080945,
+        "vgs_hs_off_max": 0.0008059999999998624,
+        "vgs_ls_late_max": 0.0008680000000000909,
+        "vgs_ls_min": 0.00046600000000007746
+      }
+    },
+    {
+      "case": "shunt_high_v170_esl1.06_td5",
+      "step_0p2ns": {
+        "gate_first_1p9": 7.39334e-06,
+        "imposed_current_at_first_1p9": 139.484,
+        "vds_ls_die_pk": 290.7037,
+        "vds_hs_die_pk": 168.4276,
+        "vgs_hs_off_max": 2.010765,
+        "vgs_ls_late_max": 2.73526,
+        "vgs_ls_min": -2.486926
+      },
+      "step_0p1ns": {
+        "gate_first_1p9": 7.3934e-06,
+        "imposed_current_at_first_1p9": 139.485,
+        "vds_ls_die_pk": 291.3088,
+        "vds_hs_die_pk": 168.4286,
+        "vgs_hs_off_max": 2.01133,
+        "vgs_ls_late_max": 2.733666,
+        "vgs_ls_min": -2.488448
+      },
+      "absolute_delta": {
+        "gate_first_1p9": 5.999999999996216e-11,
+        "imposed_current_at_first_1p9": 0.0010000000000047748,
+        "vds_ls_die_pk": 0.6050999999999931,
+        "vds_hs_die_pk": 0.0009999999999763531,
+        "vgs_hs_off_max": 0.0005649999999999267,
+        "vgs_ls_late_max": 0.0015939999999998733,
+        "vgs_ls_min": 0.0015220000000000233
+      }
+    }
+  ],
+  "temperature_probes": [
+    {
+      "case": "shunt_low_v280_esl10_td0",
+      "temperature_C": 100,
+      "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/conditional-100C.cir",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "280",
+        "ITRIP": "38.438184",
+        "LESL": "10n",
+        "TD": "0u",
+        "SLOPE": "10e6",
+        "DT": "443n",
+        "TRMAX": "0.1n"
+      },
+      "run_dir": "output/temper-prototype-closure/power/shunt_low_v280_esl10_td0_100C",
+      "aborted": false,
+      "returncode": 0,
+      "raw_returncode": null,
+      "meas": {
+        "gate_first_1p9": 2.36622e-06,
+        "imposed_current_at_first_1p9": 42.1004,
+        "vds_ls_die_pk": 354.5633,
+        "vds_hs_die_pk": 280.0268,
+        "vgs_hs_off_max": 1.983381,
+        "vgs_ls_late_max": 0.8216474,
+        "vgs_ls_min": -0.8004859
+      },
+      "failed": [],
+      "log_tail": [
+        "DRAM currently available =  745.688 MB.",
+        "Maximum ngspice program size =   14.141 MB.",
+        "Current ngspice program size =   14.141 MB.",
+        "",
+        "Note: Starting dynamic gmin stepping",
+        "Note: Dynamic gmin stepping completed"
+      ]
+    },
+    {
+      "case": "shunt_high_v198_esl1.06_td1",
+      "temperature_C": 100,
+      "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/conditional-100C.cir",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "ITRIP": "85.551033",
+        "LESL": "1.06n",
+        "TD": "1u",
+        "SLOPE": "10e6",
+        "DT": "443n",
+        "TRMAX": "0.1n"
+      },
+      "run_dir": "output/temper-prototype-closure/power/shunt_high_v198_esl1.06_td1_100C",
+      "aborted": false,
+      "returncode": 0,
+      "raw_returncode": null,
+      "meas": {
+        "gate_first_1p9": 3.39444e-06,
+        "imposed_current_at_first_1p9": 99.4954,
+        "vds_ls_die_pk": 296.0234,
+        "vds_hs_die_pk": 196.8596,
+        "vgs_hs_off_max": 2.154081,
+        "vgs_ls_late_max": 1.963879,
+        "vgs_ls_min": -1.965345
+      },
+      "failed": [],
+      "log_tail": [
+        "DRAM currently available =  198.703 MB.",
+        "Maximum ngspice program size =   14.750 MB.",
+        "Current ngspice program size =   14.750 MB.",
+        "",
+        "Note: Starting dynamic gmin stepping",
+        "Note: Dynamic gmin stepping completed"
+      ]
+    },
+    {
+      "case": "shunt_high_v170_esl1.06_td5",
+      "temperature_C": 100,
+      "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/conditional-100C.cir",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "ITRIP": "85.551033",
+        "LESL": "1.06n",
+        "TD": "5u",
+        "SLOPE": "10e6",
+        "DT": "443n",
+        "TRMAX": "0.1n"
+      },
+      "run_dir": "output/temper-prototype-closure/power/shunt_high_v170_esl1.06_td5_100C",
+      "aborted": false,
+      "returncode": 0,
+      "raw_returncode": null,
+      "meas": {
+        "gate_first_1p9": 7.40222e-06,
+        "imposed_current_at_first_1p9": 139.573,
+        "vds_ls_die_pk": 282.661,
+        "vds_hs_die_pk": 167.1778,
+        "vgs_hs_off_max": 1.964979,
+        "vgs_ls_late_max": 2.631555,
+        "vgs_ls_min": -2.502552
+      },
+      "failed": [],
+      "log_tail": [
+        "DRAM currently available =  916.562 MB.",
+        "Maximum ngspice program size =   16.844 MB.",
+        "Current ngspice program size =   16.844 MB.",
+        "",
+        "Note: Starting dynamic gmin stepping",
+        "Note: Dynamic gmin stepping completed"
+      ]
+    },
+    {
+      "case": "shunt_low_v280_esl10_td0",
+      "temperature_C": 150,
+      "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/conditional-150C.cir",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "280",
+        "ITRIP": "38.438184",
+        "LESL": "10n",
+        "TD": "0u",
+        "SLOPE": "10e6",
+        "DT": "443n",
+        "TRMAX": "0.1n"
+      },
+      "run_dir": "output/temper-prototype-closure/power/shunt_low_v280_esl10_td0_150C",
+      "aborted": false,
+      "returncode": 0,
+      "raw_returncode": null,
+      "meas": {
+        "gate_first_1p9": 2.37335e-06,
+        "imposed_current_at_first_1p9": 42.1717,
+        "vds_ls_die_pk": 347.652,
+        "vds_hs_die_pk": 279.6958,
+        "vgs_hs_off_max": 1.873165,
+        "vgs_ls_late_max": 1.180413,
+        "vgs_ls_min": -0.7995476
+      },
+      "failed": [],
+      "log_tail": [
+        "",
+        "Total DRAM available = 32768.000 MB.",
+        "DRAM currently available =  911.500 MB.",
+        "Maximum ngspice program size =   14.094 MB.",
+        "Current ngspice program size =   14.094 MB.",
+        ""
+      ]
+    },
+    {
+      "case": "shunt_high_v198_esl1.06_td1",
+      "temperature_C": 150,
+      "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/conditional-150C.cir",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "198",
+        "ITRIP": "85.551033",
+        "LESL": "1.06n",
+        "TD": "1u",
+        "SLOPE": "10e6",
+        "DT": "443n",
+        "TRMAX": "0.1n"
+      },
+      "run_dir": "output/temper-prototype-closure/power/shunt_high_v198_esl1.06_td1_150C",
+      "aborted": false,
+      "returncode": 0,
+      "raw_returncode": null,
+      "meas": {
+        "gate_first_1p9": 3.40096e-06,
+        "imposed_current_at_first_1p9": 99.5607,
+        "vds_ls_die_pk": 295.0224,
+        "vds_hs_die_pk": 196.0144,
+        "vgs_hs_off_max": 2.118935,
+        "vgs_ls_late_max": 1.978282,
+        "vgs_ls_min": -1.980312
+      },
+      "failed": [],
+      "log_tail": [
+        "",
+        "Total DRAM available = 32768.000 MB.",
+        "DRAM currently available =  886.344 MB.",
+        "Maximum ngspice program size =   14.719 MB.",
+        "Current ngspice program size =   14.719 MB.",
+        ""
+      ]
+    },
+    {
+      "case": "shunt_high_v170_esl1.06_td5",
+      "temperature_C": 150,
+      "deck": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/power/conditional-150C.cir",
+      "params": {
+        "LP1": "24.5969n",
+        "LP2": "23.8522n",
+        "LP3": "24.2606n",
+        "LP4": "35.6765n",
+        "K12": "0.632482752",
+        "K13": "0.165300953",
+        "K14": "0.185415768",
+        "K23": "0.160678209",
+        "K24": "0.196916347",
+        "K34": "-0.00889872432",
+        "VBUS": "170",
+        "ITRIP": "85.551033",
+        "LESL": "1.06n",
+        "TD": "5u",
+        "SLOPE": "10e6",
+        "DT": "443n",
+        "TRMAX": "0.1n"
+      },
+      "run_dir": "output/temper-prototype-closure/power/shunt_high_v170_esl1.06_td5_150C",
+      "aborted": false,
+      "returncode": 0,
+      "raw_returncode": null,
+      "meas": {
+        "gate_first_1p9": 7.40781e-06,
+        "imposed_current_at_first_1p9": 139.629,
+        "vds_ls_die_pk": 277.3667,
+        "vds_hs_die_pk": 165.9444,
+        "vgs_hs_off_max": 1.931167,
+        "vgs_ls_late_max": 2.50705,
+        "vgs_ls_min": -2.493606
+      },
+      "failed": [],
+      "log_tail": [
+        "",
+        "Total DRAM available = 32768.000 MB.",
+        "DRAM currently available =  947.906 MB.",
+        "Maximum ngspice program size =   16.859 MB.",
+        "Current ngspice program size =   16.859 MB.",
+        ""
+      ]
+    }
+  ],
+  "not_established": [
+    "actual sensing-to-current-extinction latency",
+    "physical short circuit or shoot-through response",
+    "finite tank/bus returned energy",
+    "device SOA and energy survival",
+    "process corners and hot driver impedance",
+    "leg B or native-19 geometry qualification",
+    "safe current or delivered power envelope"
+  ]
+}

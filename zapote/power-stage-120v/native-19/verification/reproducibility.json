@@ -1,0 +1,9 @@
+{
+  "baseline_board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "two_consecutive_pre_refill_builds_identical": true,
+  "canonicalization": "Deterministic UUID5 identifiers, KiCad reserialization then canonical top-level track/via ordering; KiCad10 net-code iteration changes ordering otherwise.",
+  "source_frozen_copies_equal": true,
+  "board_sha256_final": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "note": "Later R5 model-only substitution preserves copper; final DRC3 checks saved final board. Fills are regenerated separately from authored copper.",
+  "physical": "NOT_RUN"
+}

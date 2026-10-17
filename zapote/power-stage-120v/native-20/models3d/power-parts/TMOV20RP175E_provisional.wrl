@@ -1,0 +1,8 @@
+#VRML V2.0 utf8
+# Provisional Littelfuse TMOV20RP175E visualization. Formed-lead orientation and exact case shape unverified.
+# Coordinates in mm; set KiCad model scale to 0.3937008 on all axes.
+WorldInfo { title "Littelfuse TMOV20RP175E (provisional)" }
+Transform { translation 3.75 0 16.5  children [ Shape { appearance Appearance { material Material { diffuseColor 0.1 0.25 0.5 } } geometry Cylinder { radius 11.5 height 9 } } ] }
+Transform { translation 3.75 0 26.5 children [ Shape { appearance Appearance { material Material { diffuseColor 0.17 0.19 0.2 } } geometry Box { size 7 9.2 1 } } ] }
+Transform { translation 0 0 2.5 rotation 1 0 0 1.5707963 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Cylinder { radius 0.6 height 5 } } ] }
+Transform { translation 7.5 0 2.5 rotation 1 0 0 1.5707963 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Cylinder { radius 0.6 height 5 } } ] }

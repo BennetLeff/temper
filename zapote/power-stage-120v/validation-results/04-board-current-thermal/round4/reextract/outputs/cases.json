@@ -1,0 +1,601 @@
+{
+  "cases": [
+    {
+      "name": "bus_dc_q2-p0125-pl18",
+      "net": "bus_p",
+      "description": "15 A west replenishment",
+      "sources": [
+        "J8.1:15"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q2.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_dc_q2-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_dc_q2-p0125-pl12",
+      "net": "bus_p",
+      "description": "15 A west replenishment",
+      "sources": [
+        "J8.1:15"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q2.2"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_dc_q2-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_dc_q5-p0125-pl18",
+      "net": "bus_p",
+      "description": "15 A west replenishment, opposite leg",
+      "sources": [
+        "J8.1:15"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q5.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_dc_q5-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_hf_q2-p0125-pl18",
+      "net": "bus_p",
+      "description": "19 A local HF share, equally split capacitors",
+      "sources": [
+        "C38.1:9.5",
+        "C39.1:9.5"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q2.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_hf_q2-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_hf_q5-p0125-pl18",
+      "net": "bus_p",
+      "description": "19 A local HF share, equally split capacitors",
+      "sources": [
+        "C40.1:9.5",
+        "C41.1:9.5"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q5.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_hf_q5-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_mixed_q2-p0125-pl18",
+      "net": "bus_p",
+      "description": "15+19 A coherent DC/HF experiment",
+      "sources": [
+        "J8.1:15",
+        "C38.1:9.5",
+        "C39.1:9.5"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q2.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_mixed_q2-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_mixed_q2-p0125-pl12",
+      "net": "bus_p",
+      "description": "15+19 A coherent DC/HF experiment",
+      "sources": [
+        "J8.1:15",
+        "C38.1:9.5",
+        "C39.1:9.5"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q2.2"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_mixed_q2-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_mixed_q5-p0125-pl18",
+      "net": "bus_p",
+      "description": "15+19 A coherent DC/HF experiment, opposite leg",
+      "sources": [
+        "J8.1:15",
+        "C40.1:9.5",
+        "C41.1:9.5"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q5.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_mixed_q5-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "bus_mixed_q5-p0125-pl12",
+      "net": "bus_p",
+      "description": "15+19 A coherent DC/HF experiment, opposite leg",
+      "sources": [
+        "J8.1:15",
+        "C40.1:9.5",
+        "C41.1:9.5"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q5.2"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/bus_mixed_q5-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_dc-p0125-pl18",
+      "net": "hv_ret",
+      "description": "15 A shunt-to-west return",
+      "sources": [
+        "R5.4:15"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "J10.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_dc-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_dc-p0125-pl12",
+      "net": "hv_ret",
+      "description": "15 A shunt-to-west return",
+      "sources": [
+        "R5.4:15"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "J10.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_dc-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_hf_a-p0125-pl18",
+      "net": "hv_ret",
+      "description": "19 A return to A local capacitor pair, equipotential sinks",
+      "sources": [
+        "R5.4:19"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "C38.2",
+        "C39.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_hf_a-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_hf_b-p0125-pl18",
+      "net": "hv_ret",
+      "description": "19 A return to B local capacitor pair, equipotential sinks",
+      "sources": [
+        "R5.4:19"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "C40.2",
+        "C41.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_hf_b-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_mixed_a-p0125-pl18",
+      "net": "hv_ret",
+      "description": "15 A west and 19 A local A return, coherent",
+      "sources": [
+        "R5.4:34"
+      ],
+      "explicit_draws": [
+        "C38.2:9.5",
+        "C39.2:9.5"
+      ],
+      "reference_sinks": [
+        "J10.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_mixed_a-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_mixed_a-p0125-pl12",
+      "net": "hv_ret",
+      "description": "15 A west and 19 A local A return, coherent",
+      "sources": [
+        "R5.4:34"
+      ],
+      "explicit_draws": [
+        "C38.2:9.5",
+        "C39.2:9.5"
+      ],
+      "reference_sinks": [
+        "J10.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_mixed_a-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_mixed_b-p0125-pl18",
+      "net": "hv_ret",
+      "description": "15 A west and 19 A local B return, coherent",
+      "sources": [
+        "R5.4:34"
+      ],
+      "explicit_draws": [
+        "C40.2:9.5",
+        "C41.2:9.5"
+      ],
+      "reference_sinks": [
+        "J10.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_mixed_b-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "hv_mixed_b-p0125-pl12",
+      "net": "hv_ret",
+      "description": "15 A west and 19 A local B return, coherent",
+      "sources": [
+        "R5.4:34"
+      ],
+      "explicit_draws": [
+        "C40.2:9.5",
+        "C41.2:9.5"
+      ],
+      "reference_sinks": [
+        "J10.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/hv_mixed_b-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_a_18p7-p0125-pl18",
+      "net": "leg_ret",
+      "description": "18.7 A low-side A path",
+      "sources": [
+        "Q3.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_a_18p7-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_a_18p7-p0125-pl12",
+      "net": "leg_ret",
+      "description": "18.7 A low-side A path",
+      "sources": [
+        "Q3.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_a_18p7-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_b_18p7-p0125-pl18",
+      "net": "leg_ret",
+      "description": "18.7 A low-side B path",
+      "sources": [
+        "Q6.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_b_18p7-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_b_18p7-p0125-pl12",
+      "net": "leg_ret",
+      "description": "18.7 A low-side B path",
+      "sources": [
+        "Q6.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_b_18p7-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_a_15-p0125-pl18",
+      "net": "leg_ret",
+      "description": "15 A leg A DC component experiment",
+      "sources": [
+        "Q3.3:15"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_a_15-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_a_19-p0125-pl18",
+      "net": "leg_ret",
+      "description": "19 A leg A HF component experiment",
+      "sources": [
+        "Q3.3:19"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_a_19-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_a_34-p0125-pl18",
+      "net": "leg_ret",
+      "description": "34 A coherent leg A experiment",
+      "sources": [
+        "Q3.3:34"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_a_34-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "leg_b_34-p0125-pl18",
+      "net": "leg_ret",
+      "description": "34 A coherent leg B experiment",
+      "sources": [
+        "Q6.3:34"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "R5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/leg_b_34-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "sw_a-p0125-pl18",
+      "net": "sw_a",
+      "description": "18.7 A tank path, A high-side state",
+      "sources": [
+        "Q2.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "T1.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/sw_a-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "sw_a-p0125-pl12",
+      "net": "sw_a",
+      "description": "18.7 A tank path, A high-side state",
+      "sources": [
+        "Q2.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "T1.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/sw_a-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "sw_b_high-p0125-pl18",
+      "net": "sw_b",
+      "description": "18.7 A tank path, B high-side state; capacitor sink equipotential",
+      "sources": [
+        "Q5.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "C21.2",
+        "C22.2",
+        "C23.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/sw_b_high-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "sw_b_high-p0125-pl12",
+      "net": "sw_b",
+      "description": "18.7 A tank path, B high-side state; capacitor sink equipotential",
+      "sources": [
+        "Q5.3:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "C21.2",
+        "C22.2",
+        "C23.2"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/sw_b_high-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "sw_b_low-p0125-pl18",
+      "net": "sw_b",
+      "description": "18.7 A tank path, B low-side state; equal capacitor sources",
+      "sources": [
+        "C21.2:6.233333333333333",
+        "C22.2:6.233333333333333",
+        "C23.2:6.233333333333333"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q6.2"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/sw_b_low-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "sw_b_low-p0125-pl12",
+      "net": "sw_b",
+      "description": "18.7 A tank path, B low-side state; equal capacitor sources",
+      "sources": [
+        "C21.2:6.233333333333333",
+        "C22.2:6.233333333333333",
+        "C23.2:6.233333333333333"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "Q6.2"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/sw_b_low-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "res_a-p0125-pl18",
+      "net": "res_a",
+      "description": "18.7 A bank-to-J5 path; equal capacitor sources",
+      "sources": [
+        "C21.1:6.233333333333333",
+        "C22.1:6.233333333333333",
+        "C23.1:6.233333333333333"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "J5.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/res_a-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "res_a-p0125-pl12",
+      "net": "res_a",
+      "description": "18.7 A bank-to-J5 path; equal capacitor sources",
+      "sources": [
+        "C21.1:6.233333333333333",
+        "C22.1:6.233333333333333",
+        "C23.1:6.233333333333333"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "J5.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/res_a-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "coil_feed-p0125-pl18",
+      "net": "coil_feed",
+      "description": "18.7 A T1-to-J2 path",
+      "sources": [
+        "T1.2:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "J2.1"
+      ],
+      "plating_um": 18,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/coil_feed-p0125-pl18.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    },
+    {
+      "name": "coil_feed-p0125-pl12",
+      "net": "coil_feed",
+      "description": "18.7 A T1-to-J2 path",
+      "sources": [
+        "T1.2:18.7"
+      ],
+      "explicit_draws": [],
+      "reference_sinks": [
+        "J2.1"
+      ],
+      "plating_um": 12,
+      "exit_code": 0,
+      "stdout": "{\"output\": \"validation-results/04-board-current-thermal/round4/reextract/outputs/coil_feed-p0125-pl12.json\", \"status\": \"conditional DC experiment\", \"reason\": null, \"uncovered_contacts\": 0}",
+      "stderr": ""
+    }
+  ],
+  "failed": []
+}

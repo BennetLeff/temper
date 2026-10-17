@@ -1,0 +1,134 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "verdict_reason": "The final packet is an honest blocked-result handback under the explicit D1 stop rule. The D2/C1/C2 omissions are intentional dependencies, and no current primary code-review finding remains. This verdict accepts the evidence packet for review, not the board model, bench, assembly, fabrication, or energization.",
+  "scope": {
+    "base": "base:91888bb29e318eef09c0a292245de88b9016d250",
+    "branch": "codex/ps-r5-integration",
+    "head_sha": "91888bb29e318eef09c0a292245de88b9016d250",
+    "pr_url": null,
+    "files_changed": 52
+  },
+  "intent": "Deliver a reproducible Round 5 120 V power-stage evidence packet: native-17 D1 geometry and port diagnostics with a candid BLOCKED matrix verdict, a bench procedure only, related-board outer-land checks, sourcing candidates, and public round-3/round-4 raw-evidence releases. Preserve the D1 stop rule and hold D2/C1/C2 board-grid claims until an accepted extracted matrix exists. Review archive integrity, evidence provenance, and safety claims against the staged packet and ROUND-5.md.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "project-standards",
+    "testing",
+    "maintainability",
+    "security",
+    "reliability",
+    "adversarial",
+    "learnings-researcher"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": [
+    {
+      "id": "R5-D1",
+      "status": "partially addressed, blocked by stated stop rule",
+      "evidence": "Native-17 geometry, port diagnostics, solver fixtures, negative control, and convergence diagnostics are in the packet. No accepted no-drop mesh, board matrix, SPICE include, or loop fallback is claimed."
+    },
+    {
+      "id": "R5-D2",
+      "status": "intentionally deferred",
+      "evidence": "The 724 V diagnosis and switching grid require an accepted D1 input; the packet holds them."
+    },
+    {
+      "id": "R5-C1",
+      "status": "intentionally deferred",
+      "evidence": "The both-leg ZVS and low-bus reruns require an accepted D1 input; the packet holds them."
+    },
+    {
+      "id": "R5-C2",
+      "status": "intentionally deferred",
+      "evidence": "The hot diode and switching-loss comparison depends on D1/C1; the packet holds it."
+    },
+    {
+      "id": "R5-B",
+      "status": "met as a procedure",
+      "evidence": "The no-mains double-pulse procedure covers both leg-A switches, staged bus/current points, synchronized measurements, discharge and stop conditions. No bench run is claimed."
+    },
+    {
+      "id": "OWNER",
+      "status": "met for this handback",
+      "evidence": "The packet records sourcing candidates, related-board outer-land checks, and round-3/round-4 raw-evidence publication without assembly or fabrication approval."
+    },
+    {
+      "id": "HANDBACK",
+      "status": "met as a blocked-result handback",
+      "evidence": "The packet states the evidence class, native-17 board hash, ignored local raw manifest and replay instructions, blocker, and cheapest next diagnostic step."
+    }
+  ],
+  "learnings": [
+    {
+      "type": "known_pattern",
+      "title": "Qualification exports require clean-build replay",
+      "citation": "docs/solutions/best-practices/qualification-exports-require-clean-build-replay-2026-09-01.md",
+      "note": "Keep the ignored D1 raw handback and published round-3/round-4 archive tied to exact source and artifact bytes; archive identity alone is not electrical qualification."
+    },
+    {
+      "type": "known_pattern",
+      "title": "A measurement carries its commit",
+      "citation": "docs/solutions/best-practices/a-measurement-carries-its-commit-2026-07-26.md",
+      "note": "The packet records board, source, solver, and manifest identities while retaining the D1 blocked verdict."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Safety closure claims carry evidence and owner decisions",
+      "citation": "docs/solutions/workflow-issues/compound-engineering-safety-closure-evidence-2026-07-30.md",
+      "note": "Fixture and geometry checks remain separate from board-matrix and powered-bench qualification."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Assert input preconditions",
+      "citation": "docs/solutions/best-practices/assert-input-preconditions-not-just-output-metrics.md",
+      "note": "The negative outer-land control and explicit topology denominators support the stop rule."
+    },
+    {
+      "type": "known_pattern",
+      "title": "Gate subset blindness",
+      "citation": "docs/solutions/best-practices/gate-subset-blindness-2026-07-27.md",
+      "note": "Future matrix acceptance must cover the full power and gate port universe; current grid diagnostics do not claim that coverage."
+    }
+  ],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [
+    "No independent synthetic narrow-neck native polygon fixture exercises the D1 candidate-grid 20 um containment predicate and resulting component count (audit_candidate_links.py:107-125). This is an advisory diagnostic coverage gap, not evidence against the BLOCKED verdict."
+  ],
+  "coverage": {
+    "depth": "full",
+    "files_changed": 52,
+    "standards": "AGENTS.md, CLAUDE.md, and zapote/AGENTS.md governed the 52 changed paths by fallback; no CODING_STANDARDS.md exists.",
+    "cross_model": "Cross-model pass was not run because the user required Sol-only agents; the in-process Sol adversarial reviewer completed.",
+    "validator": {
+      "outcome": "empty-batch",
+      "reason": "No primary findings survived final staged-tree triage.",
+      "selected": 0,
+      "confirmed": 0,
+      "rejected": 0,
+      "unresolved": 0,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0
+    },
+    "reviewer_outcome": "Eight initial compact findings across four themes were checked against the final staged diff. Solver-path selection and restore post-extraction rechecks were corrected before this receipt; their original line evidence is stale. The Rust-port suggestion is not a current standards defect under zapote/AGENTS.md section 2.7, and local D1 raw handback follows ROUND-5.md.",
+    "initial_fixes_verified": "Final staged diff includes --solver/FASTHENRY handling with binary hash comparison and destination rechecks after extraction, including changed/deleted-file tests.",
+    "first_evidence_backfilled": 0,
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "suppressed_by_confidence": {},
+    "mode_aware_demotion_count": 0,
+    "failed_reviewers": [],
+    "bound_exceeded": [],
+    "untracked_excluded": [],
+    "evidence_limits": "D1 has no accepted board matrix or SPICE include; D2/C1/C2 board-grid work remains held. The bench item is a procedure, not a performed test. Round-5 ignored raw remains a local handback; coordinator verified public round-3/round-4 raw releases.",
+    "testing_gap": "No independent synthetic narrow-neck polygon fixture exercises the 20 um containment predicate and component count in audit_candidate_links.py; advisory diagnostic coverage only."
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20260928-104217-9c5bef11",
+  "run_id": "20260928-104217-9c5bef11"
+}

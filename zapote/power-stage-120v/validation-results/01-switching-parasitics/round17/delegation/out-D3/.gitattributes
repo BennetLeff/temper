@@ -1,0 +1,2 @@
+# Preserve simulator stdout/stderr verbatim, including its trailing spaces.
+*.log -whitespace

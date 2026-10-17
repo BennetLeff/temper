@@ -1,0 +1,522 @@
+[
+  {
+    "name": "baseline_T27_S1_v280_i37_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 0.0018090000000001716,
+    "vds_delta_V": 0.11820000000000164,
+    "energy_delta_percent": -0.1381616412457487,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S1_v280_i37_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T27_S1_v280_i37_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0001998999999999196,
+    "vds_delta_V": 0.11820000000000164,
+    "energy_delta_percent": -0.13915738758959462,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S1_v280_i37_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T27_S2_v280_i71_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 0.002419000000000171,
+    "vds_delta_V": -1.054399999999987,
+    "energy_delta_percent": -0.07682038824371462,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S2_v280_i71_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 0.0010479999999999379,
+    "vds_delta_V": -1.2192999999999756,
+    "energy_delta_percent": -0.0897984532281626,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S2_v280_i71_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0002590000000000092,
+    "vds_delta_V": -1.054399999999987,
+    "energy_delta_percent": -0.07945924213867972,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S2_v280_i71_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 0.00014650000000004937,
+    "vds_delta_V": -1.2192999999999756,
+    "energy_delta_percent": -0.09039862212804062,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S4_v198_i-20_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.003867000000000509,
+    "vds_delta_V": -1.226600000000019,
+    "energy_delta_percent": -0.09850142783612847,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S4_v198_i-20_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0029440000000002797,
+    "vds_delta_V": -1.1818999999999846,
+    "energy_delta_percent": -0.06712760968795584,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S4_v198_i-20_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.004322000000000159,
+    "vds_delta_V": -1.5625,
+    "energy_delta_percent": -0.09237885994427542,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T27_S4_v198_i-20_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0030400000000003757,
+    "vds_delta_V": -1.3423999999999978,
+    "energy_delta_percent": -0.06706313731265068,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S1_v280_i37_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 0.0015460000000002694,
+    "vds_delta_V": 0.3487999999999829,
+    "energy_delta_percent": -0.12542214161753718,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S1_v280_i37_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T100_S1_v280_i37_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0001781999999999062,
+    "vds_delta_V": 0.3487999999999829,
+    "energy_delta_percent": -0.13066191770398916,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S1_v280_i37_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T100_S2_v280_i71_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0005950000000001232,
+    "vds_delta_V": -1.1650999999999954,
+    "energy_delta_percent": -0.05478628994572965,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S2_v280_i71_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T100_S2_v280_i71_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00027900000000014025,
+    "vds_delta_V": -1.1650999999999954,
+    "energy_delta_percent": -0.05622532934795865,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S2_v280_i71_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T100_S4_v198_i-20_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.003911000000000442,
+    "vds_delta_V": -1.68810000000002,
+    "energy_delta_percent": -0.0503103312038955,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S4_v198_i-20_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0028129999999997324,
+    "vds_delta_V": -1.204999999999984,
+    "energy_delta_percent": -0.07356008417510607,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S4_v198_i-20_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.004213000000000022,
+    "vds_delta_V": -1.3704000000000178,
+    "energy_delta_percent": -0.10001793134707393,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T100_S4_v198_i-20_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0031280000000002417,
+    "vds_delta_V": -1.5803000000000225,
+    "energy_delta_percent": -0.06393394435778577,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S1_v280_i37_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0029959999999999987,
+    "vds_delta_V": 0.47680000000002565,
+    "energy_delta_percent": -0.11311950617800548,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S1_v280_i37_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T150_S1_v280_i37_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00016240000000000698,
+    "vds_delta_V": 0.47680000000002565,
+    "energy_delta_percent": -0.10976271315288333,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S1_v280_i37_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T150_S2_v280_i71_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.001735000000000042,
+    "vds_delta_V": -1.1648999999999887,
+    "energy_delta_percent": -0.052799460866193026,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S2_v280_i71_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T150_S2_v280_i71_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00029300000000009874,
+    "vds_delta_V": -1.1648999999999887,
+    "energy_delta_percent": -0.05059656386884326,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S2_v280_i71_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "baseline_T150_S4_v198_i-20_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.002677999999999514,
+    "vds_delta_V": -1.512299999999982,
+    "energy_delta_percent": -0.11327384069999002,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S4_v198_i-20_d1_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "complete"
+  },
+  {
+    "name": "baseline_T150_S4_v198_i-20_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.003950999999999816,
+    "vds_delta_V": -1.3836999999999762,
+    "energy_delta_percent": -0.10635050407477031,
+    "verdicts_agree": true
+  },
+  {
+    "name": "baseline_T150_S4_v198_i-20_d1_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "complete"
+  },
+  {
+    "name": "F6_T27_S1_v280_i37_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0001689999999998637,
+    "vds_delta_V": 0.14350000000001728,
+    "energy_delta_percent": -0.009424446667616326,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S1_v280_i37_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T27_S1_v280_i37_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00020799999999998597,
+    "vds_delta_V": 0.14350000000001728,
+    "energy_delta_percent": -0.013379728221174503,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S1_v280_i37_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T27_S2_v280_i71_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 9.069999999999911e-05,
+    "vds_delta_V": 0.9029999999999632,
+    "energy_delta_percent": 0.18393182655846996,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S2_v280_i71_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T27_S2_v280_i71_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": 3.269999999999662e-05,
+    "vds_delta_V": 0.9029999999999632,
+    "energy_delta_percent": 0.17862969595192624,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S2_v280_i71_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T27_S4_v198_i-20_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.0031731000000000398,
+    "vds_delta_V": -2.1584000000000287,
+    "energy_delta_percent": -0.07032294213831225,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S4_v198_i-20_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.010943519999999998,
+    "vds_delta_V": -1.7436999999999898,
+    "energy_delta_percent": -0.06574917776293043,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S4_v198_i-20_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.004182099999999966,
+    "vds_delta_V": -2.1048000000000116,
+    "energy_delta_percent": -0.08309322484076898,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T27_S4_v198_i-20_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.010421799999999995,
+    "vds_delta_V": -1.6890999999999963,
+    "energy_delta_percent": -0.07972243824213576,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S1_v280_i37_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00010099999999990672,
+    "vds_delta_V": 0.13819999999998345,
+    "energy_delta_percent": 0.009384375087528873,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S1_v280_i37_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T100_S1_v280_i37_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -3.300000000017178e-05,
+    "vds_delta_V": 0.13819999999998345,
+    "energy_delta_percent": 0.0006227580709339264,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S1_v280_i37_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T100_S2_v280_i71_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00017159999999993847,
+    "vds_delta_V": 0.8087000000000444,
+    "energy_delta_percent": 0.15341495887040146,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S2_v280_i71_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T100_S2_v280_i71_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.00027290000000002035,
+    "vds_delta_V": 0.8087000000000444,
+    "energy_delta_percent": 0.15314162427420008,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S2_v280_i71_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T100_S4_v198_i-20_d0_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.002328700000000017,
+    "vds_delta_V": -2.0086000000000013,
+    "energy_delta_percent": -0.05831369956210697,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S4_v198_i-20_d1_dt348_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.007682300000000003,
+    "vds_delta_V": -1.6380000000000337,
+    "energy_delta_percent": -0.08926122717427543,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S4_v198_i-20_d0_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.002776799999999968,
+    "vds_delta_V": -2.0131999999999834,
+    "energy_delta_percent": -0.05844343903532723,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T100_S4_v198_i-20_d1_dt443_esl10_step0.1",
+    "main_status": "complete",
+    "refine_status": "complete",
+    "off_delta_V": -0.008398299999999997,
+    "vds_delta_V": -1.4671999999999912,
+    "energy_delta_percent": -0.07999582134049499,
+    "verdicts_agree": true
+  },
+  {
+    "name": "F6_T150_S1_v280_i37_d0_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S1_v280_i37_d1_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S1_v280_i37_d0_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S1_v280_i37_d1_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S2_v280_i71_d0_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S2_v280_i71_d1_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S2_v280_i71_d0_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S2_v280_i71_d1_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S4_v198_i-20_d0_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S4_v198_i-20_d1_dt348_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S4_v198_i-20_d0_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  },
+  {
+    "name": "F6_T150_S4_v198_i-20_d1_dt443_esl10_step0.1",
+    "main_status": "indeterminate",
+    "refine_status": "indeterminate"
+  }
+]

@@ -1,0 +1,1302 @@
+[
+  {
+    "case_id": "v120_d0_dt348.4_i4.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 0,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 4.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "2542314ef4dc1c895a431b7f974a927df339543bd9a0bb3f5d0797e34b107703",
+    "source_waveform_sha256": "fd8f8c4509c37f31c9c31f49979392a8dac5990ca76e60d055769afc853d665d",
+    "params": {
+      "VBUS": "120",
+      "IL": "4",
+      "DIR": "0",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "815da6127fc280f60aacf11d6596c0d6bbeeacaded19ec8c785b6911eda5fed5",
+    "frozen_channel_onset_s": 2.4055e-06,
+    "probe_channel_onset_s": 2.405500000000004e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 108.90663457228268,
+    "incoming_die_vds_at_onset_v": 108.3304025876878,
+    "external_cap_energy_at_onset_j": 5.930327526930359e-06,
+    "die_vds_proxy_energy_at_onset_j": 5.867738062405258e-06,
+    "proxy_minus_external_energy_j": -6.258946452510108e-08,
+    "proxy_over_external_ratio": 0.9894458671564303,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 399.1306744048713,
+        "probe": 399.1306744048713,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 121.2897898257658,
+        "probe": 121.2897898257658,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 8.192078840616309e-08,
+        "probe": 8.192078840616309e-08,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "4a82541accdf6d4984c96c5c447efbebfa3c592883e4e9699f8f999382dee2c7"
+  },
+  {
+    "case_id": "v120_d0_dt348.4_i20.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 0,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 20.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "b389261d788f842363f5c0d7891ae42a7175900d02655fe6e7794e2250ec77f1",
+    "source_waveform_sha256": "98defc4a24704019d221dea0e212f6142133e2ef65b58af8d591dd132c92e822",
+    "params": {
+      "VBUS": "120",
+      "IL": "20",
+      "DIR": "0",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "1bf58dd98fd68d1eea2740c33a4749adc046ab2280450024b340a3a9500d92e6",
+    "frozen_channel_onset_s": 2.46872654704e-06,
+    "probe_channel_onset_s": 2.468726547041981e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -4.36767493954664,
+    "incoming_die_vds_at_onset_v": -0.7737496307694093,
+    "external_cap_energy_at_onset_j": 9.538292188771871e-09,
+    "die_vds_proxy_energy_at_onset_j": 2.993442455578986e-10,
+    "proxy_minus_external_energy_j": -9.238947943213972e-09,
+    "proxy_over_external_ratio": 0.031383421647564504,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 143.92185849174933,
+        "probe": 143.92185849174933,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 121.2265076113272,
+        "probe": 121.2265076113272,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 4.9576101365703235e-06,
+        "probe": 4.9576101365703235e-06,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "60d0ce6d9c1c2f25d275ee0f7b994ded5f8e2a4845b03ed3bf6ad1b8cf51ff30"
+  },
+  {
+    "case_id": "v120_d0_dt348.4_i40.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 0,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "bd13116992f139213d52e6d47b8016f3cddb8f6d0475917aee78a1e59f3c47cf",
+    "source_waveform_sha256": "0c31fac8ffa62c7e4ef1eb2a1b013b28764a6ee1e33743eca24f8c70a90f2268",
+    "params": {
+      "VBUS": "120",
+      "IL": "40",
+      "DIR": "0",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "7460c22a944bdadbcdb14b8eaec4dadeba0d4a4ef8fce28c1285730e44d1b67d",
+    "frozen_channel_onset_s": 2.4615e-06,
+    "probe_channel_onset_s": 2.461500000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 2.821048846353085,
+    "incoming_die_vds_at_onset_v": -0.8510511498516548,
+    "external_cap_energy_at_onset_j": 3.979158296755037e-09,
+    "die_vds_proxy_energy_at_onset_j": 3.6214402983191185e-10,
+    "proxy_minus_external_energy_j": -3.617014266923125e-09,
+    "proxy_over_external_ratio": 0.09101020940213327,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 227.11419453070346,
+        "probe": 227.11419453070346,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 121.30513281408908,
+        "probe": 121.30513281408908,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 3.7593410696783376e-05,
+        "probe": 3.7593410696783376e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025000000000003e-06,
+        "probe": 2.0025000000000003e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "ef27fc3b89c2da0b5fa57e36fa57a82a6f8abee440010425f2d345f64ee2bcdd"
+  },
+  {
+    "case_id": "v120_d0_dt451.59999999999997_i8.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 0,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 8.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "f3ece0b85a27075240691553224a6077de7e925c5156e32a57f038e5f1504395",
+    "source_waveform_sha256": "bb3908768de066f06a8385343eac35d7d10ce00ee79ab9487f3b141914dc2121",
+    "params": {
+      "VBUS": "120",
+      "IL": "8",
+      "DIR": "0",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "b67cabcef1b03d12058ab23bc2f99d1e54d58c60685a90ec41dd9d787505644f",
+    "frozen_channel_onset_s": 2.5347e-06,
+    "probe_channel_onset_s": 2.534700000000006e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 5.686209139920271,
+    "incoming_die_vds_at_onset_v": 4.533237332495109,
+    "external_cap_energy_at_onset_j": 1.6166487191456413e-08,
+    "die_vds_proxy_energy_at_onset_j": 1.027512035636369e-08,
+    "proxy_minus_external_energy_j": -5.891366835092723e-09,
+    "proxy_over_external_ratio": 0.6355815109787014,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 138.35546493087898,
+        "probe": 138.35546493087898,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 121.27388115798355,
+        "probe": 121.27388115798355,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 3.9775712343896236e-07,
+        "probe": 3.9775712343896236e-07,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025000000000003e-06,
+        "probe": 2.0025000000000003e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "2b04756bb2d2473ab577a5275a4b2d9426fc0e21781cfc19d720edea866919f6"
+  },
+  {
+    "case_id": "v120_d0_dt451.59999999999997_i40.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 0,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "e7b977e235d048713c75d4c249a0073d1039f4c54c8ea30458eeadf75ca5ff77",
+    "source_waveform_sha256": "aa1853b6533bcfc688aa29b4dc3f066d0ec96a516b8fc0d8dae5d68b6f49e30a",
+    "params": {
+      "VBUS": "120",
+      "IL": "40",
+      "DIR": "0",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "1a873ecd19458c8e2721f851cd928e40628b2b67897a0a7017eb091c99f49a8f",
+    "frozen_channel_onset_s": 2.5577e-06,
+    "probe_channel_onset_s": 2.557700000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 3.603790478800635,
+    "incoming_die_vds_at_onset_v": -0.8927906500181669,
+    "external_cap_energy_at_onset_j": 6.4936529075470564e-09,
+    "die_vds_proxy_energy_at_onset_j": 3.9853757237993054e-10,
+    "proxy_minus_external_energy_j": -6.095115335167126e-09,
+    "proxy_over_external_ratio": 0.06137340231362567,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 227.11419453070346,
+        "probe": 227.11419453070346,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 121.30513281408908,
+        "probe": 121.30513281408908,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 3.759543334153034e-05,
+        "probe": 3.759543334153034e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025000000000003e-06,
+        "probe": 2.0025000000000003e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "6965c0ff2b848ae0448acb3176450488f7c9248a416c346e4b4c41b420442eb4"
+  },
+  {
+    "case_id": "v120_d1_dt348.4_i4.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 1,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 4.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "9e3c98d99e83657c6d0f89e5cbffe8b0122be96dfcf0d94f27aee4c6720a57c7",
+    "source_waveform_sha256": "7a64deb61ad50ec274a7401ecd4fde3718cc759417ea67d28245fc776cd9a0be",
+    "params": {
+      "VBUS": "120",
+      "IL": "4",
+      "DIR": "1",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "49f14df24b64715ff7291b41f9aad27e410446328669579dac0d242eda76d97a",
+    "frozen_channel_onset_s": 2.4057e-06,
+    "probe_channel_onset_s": 2.405700000000004e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 109.01129102749317,
+    "incoming_die_vds_at_onset_v": 108.38732614687005,
+    "external_cap_energy_at_onset_j": 5.941730785740407e-06,
+    "die_vds_proxy_energy_at_onset_j": 5.873906234633991e-06,
+    "proxy_minus_external_energy_j": -6.782455110641637e-08,
+    "proxy_over_external_ratio": 0.9885850514686413,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 120.97806599752123,
+        "probe": 120.97806599752123,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 358.8222209727998,
+        "probe": 358.8222209727998,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 8.193739454314004e-08,
+        "probe": 8.193739454314004e-08,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "b8bcc9239a9cb85683585525ed3cdfdda3994f601516ebc8623c8a3932874dd1"
+  },
+  {
+    "case_id": "v120_d1_dt348.4_i24.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 1,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 24.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "b59ae45d77ecb8374adff960b9881f6bf4ba5a3a546f86cae9152021bb3da30b",
+    "source_waveform_sha256": "2a34bba44e03a17899cb036b859dc3cf8d223fe7a2fedd918a3d7de679c750d3",
+    "params": {
+      "VBUS": "120",
+      "IL": "24",
+      "DIR": "1",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "dd21a02f0f264215006fd3c22a517d416db9af45e743c00400b0610f2a5ca51e",
+    "frozen_channel_onset_s": 2.4649e-06,
+    "probe_channel_onset_s": 2.464900000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -4.954009819352482,
+    "incoming_die_vds_at_onset_v": -0.823429312673316,
+    "external_cap_energy_at_onset_j": 1.2271106645120405e-08,
+    "die_vds_proxy_energy_at_onset_j": 3.3901791648482477e-10,
+    "proxy_minus_external_energy_j": -1.193208872863558e-08,
+    "proxy_over_external_ratio": 0.027627330304364598,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 120.66154330049476,
+        "probe": 120.66154330049476,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 162.46870280238795,
+        "probe": 162.46870280238795,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 6.976900808991418e-06,
+        "probe": 6.976900808991418e-06,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025000000000003e-06,
+        "probe": 2.0025000000000003e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3509e-06,
+        "probe": 2.3509e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "45b74e11a65bdcf3d864f9eaccc2a0e2332b000791e38d59efef9440bb10523f"
+  },
+  {
+    "case_id": "v120_d1_dt348.4_i40.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 1,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "f5eab6f11db9bca3c3fa141a4427b7f274aad78100da4dd834d3f9a471bb997a",
+    "source_waveform_sha256": "e0074a0eb99f358648ab423d65dd49322da5c4f49c083c4e7a7e83266172a7f1",
+    "params": {
+      "VBUS": "120",
+      "IL": "40",
+      "DIR": "1",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "f9f7fefafc41e7e3d6e6ab25077958b6ac2c487eb2d751fff61fa45f6a205899",
+    "frozen_channel_onset_s": 2.4543e-06,
+    "probe_channel_onset_s": 2.454300000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 6.852707419046912,
+    "incoming_die_vds_at_onset_v": -0.9138185573026867,
+    "external_cap_energy_at_onset_j": 2.3479799485530298e-08,
+    "die_vds_proxy_energy_at_onset_j": 4.1753217783538186e-10,
+    "proxy_minus_external_energy_j": -2.3062267307694916e-08,
+    "proxy_over_external_ratio": 0.01778261258545632,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 120.40880757169197,
+        "probe": 120.40880757169197,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 236.25635863393148,
+        "probe": 236.25635863393148,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 2.6658686102917296e-05,
+        "probe": 2.6658686102917296e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "7c04e8519048bd0b8aa59678a48fd40b148265a1aa0e582d63d8861fb3e4aa65"
+  },
+  {
+    "case_id": "v120_d1_dt451.59999999999997_i12.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 1,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 12.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "258b0807daf27f2b9b51a7881981756e35be4c17c45bc13d21a67b76ac765852",
+    "source_waveform_sha256": "0a300e914e813e6fc0355a23b816177456a8519356bbecf361faa9bfaa3d2785",
+    "params": {
+      "VBUS": "120",
+      "IL": "12",
+      "DIR": "1",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "556c0ea10c3ed62e173665e9cfac06df300fc020c0074981f17cea864ab6fe08",
+    "frozen_channel_onset_s": 2.5681872356e-06,
+    "probe_channel_onset_s": 2.568187235600528e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 0.30541577421606275,
+    "incoming_die_vds_at_onset_v": -0.7389796166188854,
+    "external_cap_energy_at_onset_j": 4.6639397569998516e-11,
+    "die_vds_proxy_energy_at_onset_j": 2.7304543688909744e-10,
+    "proxy_minus_external_energy_j": 2.2640603931909892e-10,
+    "proxy_over_external_ratio": 5.854394591596054,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 120.85137144886014,
+        "probe": 120.85137144886014,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 133.2073452956435,
+        "probe": 133.2073452956435,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 1.5583604926086567e-06,
+        "probe": 1.5583604926086567e-06,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "77c403ac59bc10ba0112a9cae15aa2a32097ca288923f2322694b8ed2e61d8ef"
+  },
+  {
+    "case_id": "v120_d1_dt451.59999999999997_i40.00000_l1_s0.2",
+    "bus_v": 120,
+    "direction": 1,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "c835ef7cf2c7b7d6c8f09a2ac677ae31aff80fd4ec25724119cf521d5d6ad587",
+    "source_waveform_sha256": "85abb92d693bb3bc5888ea16c00b89705d2169b247fd5f65825dfe8128a21172",
+    "params": {
+      "VBUS": "120",
+      "IL": "40",
+      "DIR": "1",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "5542ff4800709f87ce43b906848459901cd00cc26a2f2358a07b597eb96fd463",
+    "frozen_channel_onset_s": 2.5545e-06,
+    "probe_channel_onset_s": 2.554500000000007e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -1.2288722074507177,
+    "incoming_die_vds_at_onset_v": -0.9213755467638939,
+    "external_cap_energy_at_onset_j": 7.550634511223999e-10,
+    "die_vds_proxy_energy_at_onset_j": 4.2446644908723224e-10,
+    "proxy_minus_external_energy_j": -3.305970020351676e-10,
+    "proxy_over_external_ratio": 0.5621599727231718,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 120.40880757169197,
+        "probe": 120.40880757169197,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 236.25635863393148,
+        "probe": 236.25635863393148,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 2.666363039445242e-05,
+        "probe": 2.666363039445242e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "83382fc06101046f06005b8150536fc42e77ef3d3f69689458c9e2b7546cf97d"
+  },
+  {
+    "case_id": "v198_d0_dt348.4_i4.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 0,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 4.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "b1a6a9f90afa1c1c7a5cd57f3968850e62e4521a41dde38ba9504fe7590536b5",
+    "source_waveform_sha256": "a30823943b189b76aa40a88da81d93fcc3639e000ab996e9b976594192fea9a8",
+    "params": {
+      "VBUS": "198",
+      "IL": "4",
+      "DIR": "0",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "55c3e4e84d1bc66d91539a94ff573f925b3634b536c2299f2c9080d09b75ffe7",
+    "frozen_channel_onset_s": 2.4057e-06,
+    "probe_channel_onset_s": 2.405700000000004e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 186.4854382168623,
+    "incoming_die_vds_at_onset_v": 185.82664078807656,
+    "external_cap_energy_at_onset_j": 1.7388409333467583e-05,
+    "die_vds_proxy_energy_at_onset_j": 1.7265770213290422e-05,
+    "proxy_minus_external_energy_j": -1.226391201771611e-07,
+    "proxy_over_external_ratio": 0.9929470765367182,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 424.810658818385,
+        "probe": 424.810658818385,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 199.31098398003107,
+        "probe": 199.31098398003107,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 8.199965751078258e-08,
+        "probe": 8.199965751078258e-08,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3509e-06,
+        "probe": 2.3509e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "3710c89db0b0f0d4ce2d417d530343750718afae9ea7df768658d3b0cc0e430a"
+  },
+  {
+    "case_id": "v198_d0_dt348.4_i20.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 0,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 20.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "a29c5fe3093c6c2bd9c4de1d2deb488182b8160b1e2b205ffe0e9de00b25f1f1",
+    "source_waveform_sha256": "141b0b044e77deb8e6c4c5976bca0f2872a610bd8d5dcc62a0ca146f408718f3",
+    "params": {
+      "VBUS": "198",
+      "IL": "20",
+      "DIR": "0",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "39e9af698bcbd6ef4833a85a6f5cf5cdead9759d599be33385d3cae7407e10a8",
+    "frozen_channel_onset_s": 2.4686330502e-06,
+    "probe_channel_onset_s": 2.468633050198652e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 6.633922416405986,
+    "incoming_die_vds_at_onset_v": -0.7641817062925431,
+    "external_cap_energy_at_onset_j": 2.200446331344692e-08,
+    "die_vds_proxy_energy_at_onset_j": 2.9198684011609136e-10,
+    "proxy_minus_external_energy_j": -2.1712476473330828e-08,
+    "proxy_over_external_ratio": 0.013269437020881954,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 245.3307478267348,
+        "probe": 245.3307478267348,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 199.2818168910755,
+        "probe": 199.2818168910755,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 4.955908534601832e-06,
+        "probe": 4.955908534601832e-06,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "dc5ef2e5d97298cde2966ba2c4e06606269d2103b6be2c4dd607f003006f4a86"
+  },
+  {
+    "case_id": "v198_d0_dt348.4_i40.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 0,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "ec765a4b64e7da0e6459572a855912ffca9ce0389441d94a67b8812712116f4f",
+    "source_waveform_sha256": "ad2a14a46a755a4e05865fd22ab3478eb68aa3027f582b832683ab6e72f21a56",
+    "params": {
+      "VBUS": "198",
+      "IL": "40",
+      "DIR": "0",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "eea33286e67435c0b6adedb52ecfba888b62914df266d2d805dc0444bdae58ef",
+    "frozen_channel_onset_s": 2.4603e-06,
+    "probe_channel_onset_s": 2.460300000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -0.7568886260001884,
+    "incoming_die_vds_at_onset_v": -0.902593343900447,
+    "external_cap_energy_at_onset_j": 2.864401960842265e-10,
+    "die_vds_proxy_energy_at_onset_j": 4.0733737222669533e-10,
+    "proxy_minus_external_energy_j": 1.2089717614246882e-10,
+    "proxy_over_external_ratio": 1.4220677746880173,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 234.31245960901828,
+        "probe": 234.31245960901828,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 199.3852471830273,
+        "probe": 199.3852471830273,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 3.873431066887127e-05,
+        "probe": 3.873431066887127e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025000000000003e-06,
+        "probe": 2.0025000000000003e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "2d394d602ffea7a79f93c74de7d2b6d8fccc3df56bf5f4ac2bfd8105d8eb9c01"
+  },
+  {
+    "case_id": "v198_d0_dt451.59999999999997_i8.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 0,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 8.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "3d9091be4a6ad3183e7db67cf07266e7e5123d5fbc31de446a5cb547c037457e",
+    "source_waveform_sha256": "af7376ed326654bcfea31abced792ea623542edd279dc68eb7966388a0adf217",
+    "params": {
+      "VBUS": "198",
+      "IL": "8",
+      "DIR": "0",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "518e236f9f1d7325f4b36499ee74976e9bd0bb863bd7b30355ccf749922e1638",
+    "frozen_channel_onset_s": 2.5163e-06,
+    "probe_channel_onset_s": 2.516300000000005e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 12.98678378534922,
+    "incoming_die_vds_at_onset_v": 8.827098652743215,
+    "external_cap_energy_at_onset_j": 8.432827654370471e-08,
+    "die_vds_proxy_energy_at_onset_j": 3.8958835312630545e-08,
+    "proxy_minus_external_energy_j": -4.536944123107417e-08,
+    "proxy_over_external_ratio": 0.46199017588648805,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 217.54409999340606,
+        "probe": 217.54409999340606,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 199.30376503555644,
+        "probe": 199.30376503555644,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 3.98414035837849e-07,
+        "probe": 3.98414035837849e-07,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "82b5a5d709138d2420e34a73e81fbb7869c0b5a57c1706af491b801fabcb9ae3"
+  },
+  {
+    "case_id": "v198_d0_dt451.59999999999997_i40.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 0,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "975036aa7ec58f645ca64fb37bd37fc22b97bca51734481639163f6c873f91b3",
+    "source_waveform_sha256": "77f177b473e712d0b5ad5fa0bec87673350ffaa6f1cc9ae2f9f64b2af88a364c",
+    "params": {
+      "VBUS": "198",
+      "IL": "40",
+      "DIR": "0",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "9e4c7df5ea35ccd2a36f6c128dc31d3daed805ef297aedc3e1656c49c574f71f",
+    "frozen_channel_onset_s": 2.5591e-06,
+    "probe_channel_onset_s": 2.559100000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -3.9658070684952462,
+    "incoming_die_vds_at_onset_v": -0.8938382616953413,
+    "external_cap_energy_at_onset_j": 7.86381285226343e-09,
+    "die_vds_proxy_energy_at_onset_j": 3.9947341903527476e-10,
+    "proxy_minus_external_energy_j": -7.464339433228155e-09,
+    "proxy_over_external_ratio": 0.0507989478564835,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 234.27212236980012,
+        "probe": 234.27212236980012,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 199.3852471830273,
+        "probe": 199.3852471830273,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 3.873551961606082e-05,
+        "probe": 3.873551961606082e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025000000000003e-06,
+        "probe": 2.0025000000000003e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "ad558e4a09d27bb9486ec3f56c9ccba6b62991602da2b8c82505a864d6690f77"
+  },
+  {
+    "case_id": "v198_d1_dt348.4_i4.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 1,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 4.0,
+    "zvs_20ns_5pct": false,
+    "source_case_sha256": "c46e339a67addad8617ca1cbdc0f8a3ccad436a984810b27608993ad53d34c8e",
+    "source_waveform_sha256": "2f52f03373269af5938e294ed0716c111fc32568639ce5af38c79be067e7c1ee",
+    "params": {
+      "VBUS": "198",
+      "IL": "4",
+      "DIR": "1",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "909bb4c9a39de4f3ca6d9fbe1f64ec03c6e3de3ced8ebcc3d9b70d553c83fdb9",
+    "frozen_channel_onset_s": 2.4057e-06,
+    "probe_channel_onset_s": 2.405700000000004e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 186.72032272717607,
+    "incoming_die_vds_at_onset_v": 186.0830248561595,
+    "external_cap_energy_at_onset_j": 1.7432239459670393e-05,
+    "die_vds_proxy_energy_at_onset_j": 1.7313446069809042e-05,
+    "proxy_minus_external_energy_j": -1.1879338986135128e-07,
+    "proxy_over_external_ratio": 0.9931854200295848,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 198.99821658427342,
+        "probe": 198.99821658427342,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 351.9937917154953,
+        "probe": 351.9937917154953,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 8.201009401326889e-08,
+        "probe": 8.201009401326889e-08,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "412c91d7a1357effdb5b3cce21d459f44dd8ce5d3e6b8a2e8329714a2fcabe97"
+  },
+  {
+    "case_id": "v198_d1_dt348.4_i24.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 1,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 24.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "773528485871cf2315f38081a3e32bdaaf63dd93148ee2985d79cf308777cc76",
+    "source_waveform_sha256": "db465001e43ff799b3e00c09cfb4c9593a74982f365e18c7a62efccc83795e11",
+    "params": {
+      "VBUS": "198",
+      "IL": "24",
+      "DIR": "1",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "d1ff524c5f0f94581bf791d830969665d742d0e8636532358b02457f3f314d9d",
+    "frozen_channel_onset_s": 2.46696727023e-06,
+    "probe_channel_onset_s": 2.466967270231227e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -2.776066599774579,
+    "incoming_die_vds_at_onset_v": -0.7757249520916843,
+    "external_cap_energy_at_onset_j": 3.853272883191997e-09,
+    "die_vds_proxy_energy_at_onset_j": 3.00874600648823e-10,
+    "proxy_minus_external_energy_j": -3.552398282543174e-09,
+    "proxy_over_external_ratio": 0.07808286871174894,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 198.71821840351473,
+        "probe": 198.71821840351473,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 233.28998451207502,
+        "probe": 233.28998451207502,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 6.9742009583151136e-06,
+        "probe": 6.9742009583151136e-06,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "5a2437c514f83a3b049201d03aed939e96a2c3bd7112b57f904c817c2de8867a"
+  },
+  {
+    "case_id": "v198_d1_dt348.4_i40.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 1,
+    "rdt_kohm": 39,
+    "deadtime_ns": 348.4,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "3f732bbc27c8cf7c4818f461ff16304c553dba6a1ea97fd3526dfb998660d37a",
+    "source_waveform_sha256": "f69e2b6d61755b15c5c1098ce4630154b42644349169f3b64fd726d31b8668cc",
+    "params": {
+      "VBUS": "198",
+      "IL": "40",
+      "DIR": "1",
+      "DT": "348.4n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "613f6a40c0c82a8a254dd73c94153040fbd8931a03a257a113fb4a87cb44a5ec",
+    "frozen_channel_onset_s": 2.4577e-06,
+    "probe_channel_onset_s": 2.457700000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 1.1652816231526024,
+    "incoming_die_vds_at_onset_v": -0.8945453956677822,
+    "external_cap_energy_at_onset_j": 6.789406306285819e-10,
+    "die_vds_proxy_energy_at_onset_j": 4.0010573245521457e-10,
+    "proxy_minus_external_energy_j": -2.7883489817336737e-10,
+    "proxy_over_external_ratio": 0.5893088650251873,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 198.49408198055386,
+        "probe": 198.49408198055386,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 236.45014240774506,
+        "probe": 236.45014240774506,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 2.7538168870461126e-05,
+        "probe": 2.7538168870461126e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.3508999999999994e-06,
+        "probe": 2.3508999999999994e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "3e9dc2dbaf99a2b6473b39a224fd30e437be3388090e6f5e9e7c6664be1ade83"
+  },
+  {
+    "case_id": "v198_d1_dt451.59999999999997_i12.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 1,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 12.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "bacd2e0f4f9407079a9c460e4c128d51e6cb7144381ada76e1189c9acc29ae14",
+    "source_waveform_sha256": "74a51be400106342ce6b577223aa9e453ffd163db3280473e8b1d238b0fbf7e0",
+    "params": {
+      "VBUS": "198",
+      "IL": "12",
+      "DIR": "1",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "ea1143ae45378a022d32b8241da95f3c23bc550c963632a79e5e4ea0b0b5e619",
+    "frozen_channel_onset_s": 2.57012633514e-06,
+    "probe_channel_onset_s": 2.570126335135741e-06,
+    "incoming_external_snubber_voltage_at_onset_v": 0.3351979157131644,
+    "incoming_die_vds_at_onset_v": -0.7397829177474744,
+    "external_cap_energy_at_onset_j": 5.617882134922483e-11,
+    "die_vds_proxy_energy_at_onset_j": 2.7363938269548324e-10,
+    "proxy_minus_external_energy_j": 2.1746056134625842e-10,
+    "proxy_over_external_ratio": 4.8708637191666355,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 198.88617118060134,
+        "probe": 198.88617118060134,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 213.8037366337627,
+        "probe": 213.8037366337627,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 1.559343201947437e-06,
+        "probe": 1.559343201947437e-06,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0025e-06,
+        "probe": 2.0025e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "ee8e915c24265408cfd6591a092e62ccf48399d5b620da8121d96830d5e9b276"
+  },
+  {
+    "case_id": "v198_d1_dt451.59999999999997_i40.00000_l1_s0.2",
+    "bus_v": 198,
+    "direction": 1,
+    "rdt_kohm": 51,
+    "deadtime_ns": 451.59999999999997,
+    "current_a": 40.0,
+    "zvs_20ns_5pct": true,
+    "source_case_sha256": "fb9586dcc488335cc2b2998a156fa2e287a32dcdc7f281ab281ff3cbcb2214b7",
+    "source_waveform_sha256": "8cb349c3586235b768b2a83b88ddf382b0b1bdca8d5344814117f5ecd7d60f54",
+    "params": {
+      "VBUS": "198",
+      "IL": "40",
+      "DIR": "1",
+      "DT": "451.59999999999997n",
+      "TRMAX": "0.2n",
+      "LD_HS": "4n",
+      "LS_HS": "4n",
+      "LD_LS": "4n",
+      "LS_LS": "4n",
+      "LCAP": "3n",
+      "LBULK": "30n",
+      "LCS": "1n",
+      "LG": "20n"
+    },
+    "probe_deck_sha256": "0489a5d37bf901bb422d45619f13c242e0fc4d8a8d7e47466f571ce1a19fb6ae",
+    "raw_sha256_gzip": "e3249f136df1eef7b113888667782256c097257b396626b15d7c4a3ddc40e0c7",
+    "frozen_channel_onset_s": 2.5571e-06,
+    "probe_channel_onset_s": 2.557100000000008e-06,
+    "incoming_external_snubber_voltage_at_onset_v": -1.5000457392298863,
+    "incoming_die_vds_at_onset_v": -0.8957365503203958,
+    "external_cap_energy_at_onset_j": 1.1250686098908681e-09,
+    "die_vds_proxy_energy_at_onset_j": 4.011719837899415e-10,
+    "proxy_minus_external_energy_j": -7.238966261009266e-10,
+    "proxy_over_external_ratio": 0.3565755726033946,
+    "probe_comparisons": {
+      "peak_die_vds_l_v": {
+        "frozen": 198.49408198055386,
+        "probe": 198.49408198055386,
+        "delta": 0.0
+      },
+      "peak_die_vds_h_v": {
+        "frozen": 236.45014240774506,
+        "probe": 236.45014240774506,
+        "delta": 0.0
+      },
+      "turnoff_model_dissipative_sum_j": {
+        "frozen": 2.7539103822832315e-05,
+        "probe": 2.7539103822832315e-05,
+        "delta": 0.0
+      },
+      "command_off_s": {
+        "frozen": 2.0024999999999995e-06,
+        "probe": 2.0024999999999995e-06,
+        "delta": 0.0
+      },
+      "command_on_s": {
+        "frozen": 2.4540999999999995e-06,
+        "probe": 2.4540999999999995e-06,
+        "delta": 0.0
+      }
+    },
+    "ngspice_returncode": 0,
+    "ngspice_log_sha256_gzip": "ab3f92b3e50ab7e688c79281b4aa669febeda4c9cf4f599984b3721494e23d1b"
+  }
+]

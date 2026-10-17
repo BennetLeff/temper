@@ -1,0 +1,30 @@
+* Task 02: DC-bus shunt OCP front end (U6), analog timing.
+* Leg-return current ramps linearly at SLOPE (A/s) from 0.
+* Run: python3 ../common/run_ngspice.py ocp_frontend.cir SLOPE=1e8
+*
+* Network (frozen/default.net): OCP_NODE = midpoint of R32 (10 k, from REF25)
+* and R33 (10 k, from OCP_KELVIN_N = -I x 1 mohm), C30 100 pF to LEG_RET.
+* OCP_THRESH = 2.5 V x 10/(10.5+10) = 1.2195 V with C31 1 nF.
+* U6: IN+ = OCP_NODE, IN- = OCP_THRESH; output high = healthy.
+
+.include ../common/options.inc
+.param SLOPE=1e8 ITRIP=61 VREF=2.5 VOS=0 TPD=55n TSTOP={2*ITRIP/SLOPE+2u}
+.include params.inc
+
+Bi ileg 0 V={SLOPE*time}
+Bk kelvin 0 V={-1m*v(ileg)}
+Vref ref25 0 {VREF}
+R32 ref25 ocp_node 10k
+R33 kelvin ocp_node 10k
+C30 ocp_node 0 100p
+R34 ref25 thresh 10.5k
+R35 thresh 0 10k
+C31 thresh 0 1n
+Bu6 ok_i 0 V={5*(0.5+0.5*tanh((v(ocp_node)-v(thresh)-VOS)/1m))}
+Tu6 ok_i 0 ok_d 0 Z0=50 TD={TPD}
+Ru6 ok_d 0 50
+
+.tran 2n {TSTOP} 0 2n
+.meas tran t_i_trip WHEN v(ileg)={ITRIP} RISE=1
+.meas tran t_ok_low WHEN v(ok_d)=2.5 FALL=1
+.end

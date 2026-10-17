@@ -1,0 +1,19 @@
+WARN markupsafe==3.0.4 needs to be downloaded from a registry
+WARN markupsafe needs to be downloaded from a registry
+WARN markupsafe needs to be downloaded from a registry
+WARN markupsafe needs to be downloaded from a registry
+WARN markupsafe needs to be downloaded from a registry
+WARN markupsafe needs to be downloaded from a registry
+[bold]Implicit Declaration Future Deprecation Warning[/]
+/Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:925:4
+    Field 'designator' not declared for /Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_mains. Declaring implicitly for now, but in the future this may become an error...
+[bold]Implicit Declaration Future Deprecation Warning[/]
+/Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:926:4
+    Field 'designator' not declared for /Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f1. Declaring implicitly for now, but in the future this may become an error...
+[bold]Implicit Declaration Future Deprecation Warning[/]
+/Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:927:4
+    Field 'designator' not declared for /Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rv1. Declaring implicitly for now, but in the future this may become an error...
+[bold]Implicit Declaration Future Deprecation Warning[/]
+/Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:928:4
+    Field 'designator' not declared for /Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx1. Declaring implicitly for now, but in the future this may become an error...
+... forgoing more "Implicit Declaration Future Deprecation Warning" errors of

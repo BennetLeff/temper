@@ -1,0 +1,20 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.84s
+     Running unittests src/lib.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/zapote_drc-a741a1579fcd9116)
+
+running 1 test
+
+thread 'power_contact::tests::unrepresentable_geometry_is_an_error_and_zero_is_never_full_width' (37889362) panicked at packages/zapote-drc/src/power_contact.rs:268:9:
+assertion failed: entry(&[rect(-1e308, -1., -1e307, 1.)], None, [1e308, 0.],
+        [1e308 - 1e292, 0.], 0.2).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test power_contact::tests::unrepresentable_geometry_is_an_error_and_zero_is_never_full_width ... FAILED
+
+failures:
+
+failures:
+    power_contact::tests::unrepresentable_geometry_is_an_error_and_zero_is_never_full_width
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 109 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p zapote-drc --lib`

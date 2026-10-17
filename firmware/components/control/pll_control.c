@@ -27,6 +27,7 @@
 #ifdef ESP_PLATFORM
 #include "driver/mcpwm_prelude.h"
 #include "esp_attr.h"
+#include "../power/include/power_service.h"
 #include "esp_timer.h"
 #include "esp_log.h"
 static const char *TAG = "pll_control";
@@ -223,12 +224,16 @@ static bool IRAM_ATTR zcd_edge_cb(mcpwm_cap_channel_handle_t cap_chan,
     return false;
 }
 
-/* Write a frequency to the gate timer, if one is attached. */
-static void pll_apply_timer_frequency(float freq_hz) {
-    if (pll_timer != NULL && pll_timer_resolution_hz != 0u && freq_hz > 0.0f) {
-        const uint32_t period = (uint32_t)((float)pll_timer_resolution_hz / freq_hz);
-        mcpwm_timer_set_period(pll_timer, period);
+/* Ask the power owner for a frequency, if a gate timer is attached. No raw
+ * timer edits (power_service.c): the full-bridge adapter plans the period
+ * from its own timer_hz, which also retires the old hard-coded 160 MHz
+ * period (hal_pwm runs at 80 MHz, so 47 kHz would have become 23.5 kHz).
+ * False when the owner refuses; the caller must not record the frequency. */
+static bool pll_apply_timer_frequency(float freq_hz) {
+    if (pll_timer == NULL) {
+        return true;
     }
+    return freq_hz > 0.0f && power_service_frequency((uint32_t)freq_hz);
 }
 #endif
 
@@ -349,7 +354,13 @@ void pll_enable(void) {
     out_of_range_count = 0;
     
 #ifdef ESP_PLATFORM
-    pll_apply_timer_frequency(f_start);
+    if (!pll_apply_timer_frequency(f_start)) {
+        /* Owner refused the start frequency: do not track a frequency the
+         * bridge is not running. */
+        pll_enabled = false;
+        ESP_LOGE(TAG, "PLL not enabled: power owner refused %.0f Hz", f_start);
+        return;
+    }
     phase_measurement_ready = false;
     pwm_edge_seen = false;
     last_update_time_us = esp_timer_get_time();
@@ -423,11 +434,9 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
     /* Apply to hardware with hysteresis to avoid jitter */
     if (fabsf(new_freq - pll_ctx.current_freq) > FREQ_HYSTERESIS_HZ) {
 #ifdef ESP_PLATFORM
-        /* Period from the timer's own tick rate. This used a hard-coded
-         * 160 MHz while hal_pwm runs its timer at 80 MHz, which would have
-         * written half the frequency: 47 kHz -> 23.5 kHz, far below
-         * resonance. */
-        pll_apply_timer_frequency(new_freq);
+        if (!pll_apply_timer_frequency(new_freq)) {
+            return;
+        }
 #endif
         pll_ctx.current_freq = new_freq;
     }
@@ -549,7 +558,11 @@ void pll_reset(void) {
     pll_ctx.current_freq = f_start;
 
 #ifdef ESP_PLATFORM
-    pll_apply_timer_frequency(f_start);
+    if (!pll_apply_timer_frequency(f_start)) {
+        pll_enabled = false;
+        ESP_LOGE(TAG, "PLL reset: power owner refused %.0f Hz; disabled", f_start);
+        return;
+    }
     ESP_LOGI(TAG, "PLL reset to burst-start frequency %.0f Hz", f_start);
 #endif
 }

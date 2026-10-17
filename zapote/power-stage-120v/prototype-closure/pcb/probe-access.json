@@ -1,0 +1,158 @@
+{
+  "state": "First-unit service fixture: lid/coil carrier removed, board restrained in an insulating fixture, underside accessible. Attach all probes with mains isolated and both DC buses measured discharged. No hand-held live probing.",
+  "contact_diameter_mm": 0.2,
+  "signals": [
+    {
+      "name": "HOT5",
+      "pad": "C26.1",
+      "reference": "C26.2",
+      "side": "F",
+      "method": "paired microprobes at exposed capacitor pad toes",
+      "power_state": "isolated low-voltage gate-supply injection first"
+    },
+    {
+      "name": "V15 gate supply",
+      "pad": "C24.1",
+      "reference": "C24.2",
+      "side": "F",
+      "method": "paired microprobes at exposed capacitor pad toes",
+      "power_state": "isolated low-voltage injection; reference is LEG_RET"
+    },
+    {
+      "name": "HOT5 divider",
+      "pad": "R49.1",
+      "reference": "R49.2",
+      "side": "F",
+      "method": "high-impedance microprobe; characterize probe loading on divider",
+      "power_state": "low-voltage injection; vary HOT5 independently of V15"
+    },
+    {
+      "name": "HOT5 open-drain raw",
+      "pad": "R50.2",
+      "reference": "C49.2",
+      "side": "F",
+      "method": "high-impedance microprobe",
+      "power_state": "low-voltage injection"
+    },
+    {
+      "name": "HOT5_OK",
+      "pad": "U8.6",
+      "reference": "C49.2",
+      "side": "F",
+      "method": "0.2mm fixture microprobe on outward SOT23 pad toe; no clip lead",
+      "power_state": "low-voltage injection"
+    },
+    {
+      "name": "BUS_FAULT_HOT",
+      "pad": "U8.4",
+      "reference": "C49.2",
+      "side": "F",
+      "method": "0.2mm fixture microprobe on outward SOT23 pad toe",
+      "power_state": "low-voltage injection"
+    },
+    {
+      "name": "BUS_FAULT",
+      "pad": "J4.10",
+      "reference": "J4.2",
+      "side": "B",
+      "method": "mating breakout connector preferred; underside annulus is fixture alternative",
+      "power_state": "controller SELV supply, then isolated gate supply"
+    },
+    {
+      "name": "PERMIT",
+      "pad": "J4.9",
+      "reference": "J4.2",
+      "side": "B",
+      "method": "mating breakout connector preferred; assert only under interlocked test sequence",
+      "power_state": "controller SELV supply"
+    },
+    {
+      "name": "DIS_A",
+      "pad": "U1.5",
+      "reference": "C7.2",
+      "side": "F",
+      "method": "fixture microprobe at lead toe",
+      "power_state": "controller SELV supply"
+    },
+    {
+      "name": "DIS_B",
+      "pad": "U2.5",
+      "reference": "C14.2",
+      "side": "F",
+      "method": "fixture microprobe at lead toe",
+      "power_state": "controller SELV supply"
+    },
+    {
+      "name": "CT positive trip",
+      "pad": "U10.1",
+      "reference": "C44.2",
+      "side": "F",
+      "method": "fixture microprobe; injected isolated CT stimulus",
+      "power_state": "controller SELV supply"
+    },
+    {
+      "name": "CT negative trip",
+      "pad": "U11.1",
+      "reference": "C45.2",
+      "side": "F",
+      "method": "fixture microprobe; injected isolated CT stimulus",
+      "power_state": "controller SELV supply"
+    },
+    {
+      "name": "Kelvin differential",
+      "pad": "R5.2",
+      "reference": "R5.3",
+      "side": "F",
+      "method": "paired low-noise differential microprobes; no common ground tie across terminals",
+      "power_state": "cold resistance/current injection first; energized bus only in rated interlocked fixture"
+    },
+    {
+      "name": "VGS_A_high",
+      "pad": "Q2.1",
+      "reference": "Q2.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli; probe common-mode/CMTI rating must cover switching node",
+      "power_state": "de-energized attach; low-energy bus test before mains"
+    },
+    {
+      "name": "VGS_A_low",
+      "pad": "Q3.1",
+      "reference": "Q3.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli",
+      "power_state": "de-energized attach; low-energy bus test before mains"
+    },
+    {
+      "name": "VGS_B_high",
+      "pad": "Q5.1",
+      "reference": "Q5.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli; floating switching reference",
+      "power_state": "de-energized attach; low-energy bus test before mains"
+    },
+    {
+      "name": "VGS_B_low",
+      "pad": "Q6.1",
+      "reference": "Q6.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli",
+      "power_state": "de-energized attach; low-energy bus test before mains"
+    },
+    {
+      "name": "VDS_A_high",
+      "pad": "Q2.2",
+      "reference": "Q2.3",
+      "side": "B",
+      "method": "rated high-voltage differential probe, with fixed guarded underside contacts",
+      "power_state": "de-energized attach; staged low-energy test before mains"
+    },
+    {
+      "name": "VDS_B_high",
+      "pad": "Q5.2",
+      "reference": "Q5.3",
+      "side": "B",
+      "method": "rated high-voltage differential probe, with fixed guarded underside contacts",
+      "power_state": "de-energized attach; staged low-energy test before mains"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+[22:16:53] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/gate-drive/s             
+                    ource-build-09                                              
+           INFO     Building default                                 build.py:38
+[22:16:55] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/zapote/gate-drive/sou            
+                    rce-build-09/build                                          
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name            ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩
+│           C1 │ c_vcci          │
+│           C2 │ c_ls            │
+│           C3 │ c_ls_bulk       │
+│           C4 │ c_boot          │
+│           D1 │ d_boot          │
+│           J1 │ host            │
+│           J2 │ supply          │
+│           J3 │ gate_h          │
+│           J4 │ gate_l          │
+│           J5 │ vcc_3v3         │
+│           Q1 │ permit_sw       │
+│           R1 │ r_permit_series │
+│           R2 │ r_permit_pd     │
+│           R3 │ r_dis_pu        │
+│           R4 │ dt              │
+│           R5 │ rg_h            │
+│           R6 │ rgs_h           │
+│           R7 │ rg_l            │
+│           R8 │ rgs_l           │
+│           U1 │ driver          │
+└──────────────┴─────────────────┘
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓          ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ c_boot          │ C4         │
+│ c_ls            │ C2         │
+│ c_ls_bulk       │ C3         │
+│ c_vcci          │ C1         │
+│ d_boot          │ D1         │
+│ driver          │ U1         │
+│ dt              │ R4         │
+│ gate_h          │ J3         │
+│ gate_l          │ J4         │
+│ host            │ J1         │
+│ permit_sw       │ Q1         │
+│ r_dis_pu        │ R3         │
+│ r_permit_pd     │ R2         │
+│ r_permit_series │ R1         │
+│ rg_h            │ R5         │
+│ rg_l            │ R7         │
+│ rgs_h           │ R6         │
+│ rgs_l           │ R8         │
+│ supply          │ J2         │
+│ vcc_3v3         │ J5         │
+└─────────────────┴────────────┘
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+                                   Assertions                                   
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Status ┃ Assertion                            ┃ Numeric                      ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ PASSED │ assert t_dead_time within 300ns to   │ 348.4ns within 300 to 360 ns │
+│        │ 360ns                                │                              │
+└────────┴──────────────────────────────────────┴──────────────────────────────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment          ┃ Designator  ┃ Footprint        ┃ LCSC             ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ B4B-XH-A(LF)(SN) │ J1          │ Connector_JST:J… │ B4B-XH-A(LF)(SN) │ 0.00  │
+│ 61300211121      │ J2,J3,J4,J5 │ Connector_PinHe… │ 61300211121      │ 0.00  │
+│ UCC21550BDWKR    │ U1          │ SOIC16W_Isolated │ UCC21550BDWKR    │ 0.00  │
+│ C0603C104K5RACTU │ C1,C2       │ Capacitor_SMD:C… │ C0603C104K5RACTU │ 0.00  │
+│ AO3400A          │ Q1          │ Package_TO_SOT_… │ AO3400A          │ 0.00  │
+│ RC0603FR-071KL   │ R1          │ Resistor_SMD:R_… │ RC0603FR-071KL   │ 0.00  │
+│ RC0603FR-07100KL │ R2          │ Resistor_SMD:R_… │ RC0603FR-07100KL │ 0.00  │
+│ RC0603FR-0710KL  │ R3          │ Resistor_SMD:R_… │ RC0603FR-0710KL  │ 0.00  │
+│ RC0603FR-0739KL  │ R4          │ Resistor_SMD:R_… │ RC0603FR-0739KL  │ 0.00  │
+│ GRM32ER71H106KA… │ C3,C4       │ Capacitor_SMD:C… │ GRM32ER71H106KA… │ 0.00  │
+│ UF4007-E3/54     │ D1          │ Diode_THT:D_DO-… │ UF4007-E3/54     │ 0.00  │
+│ RC1206FR-073R9L  │ R5,R7       │ Resistor_SMD:R_… │ RC1206FR-073R9L  │ 0.00  │
+│ RC0603FR-072K2L  │ R6,R8       │ Resistor_SMD:R_… │ RC0603FR-072K2L  │ 0.00  │
+└──────────────────┴─────────────┴──────────────────┴──────────────────┴───────┘
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Successfully built 'netlist, designator-map,    build.py:105
+                    copy-3dmodels, layout-module-map,                           
+                    copy-footprints, assertions-report,                         
+                    variable-report, bom, clone-footprints' for                 
+                    'default' config                                            
+           INFO     Build complete!                                  build.py:59

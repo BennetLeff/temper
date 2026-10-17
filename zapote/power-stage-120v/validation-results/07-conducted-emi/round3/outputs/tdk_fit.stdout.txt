@@ -1,0 +1,54 @@
+{
+  "source_url": "https://www.alldatasheet.com/html-pdf/327493/EPCOS/B82726S2203A020/650/4/B82726S2203A020.html",
+  "source_page_image_url": "https://www.alldatasheet.com/htmldatasheet2/327493/EPCOS/B82726S2203A020/650/4/B82726S2203A020.png",
+  "source_image_sha256": "c290332c3dd42337bf5c1ec0aff0ee9e193b805e7b9a09cf1646461152aa01e3",
+  "source_revision": "TDK/EPCOS 10/08, plot IND0783-T; May 2026 sheet uses same plot identifier but numeric stray L revised 15 to 18 uH",
+  "measurement": "typical magnitude, both windings in parallel, 20 C",
+  "calibration_pixels": {
+    "x": [
+      [
+        134,
+        10000.0
+      ],
+      [
+        400,
+        10000000.0
+      ]
+    ],
+    "y": [
+      [
+        807,
+        10.0
+      ],
+      [
+        466,
+        1000000.0
+      ]
+    ]
+  },
+  "fit_kind": "heuristic parallel RLC constrained by May 2026 nominal L and 18-uH stray inductance",
+  "parallel_inductance_h": 0.0015955000000000001,
+  "parallel_dc_resistance_ohm": 0.00225,
+  "parallel_damping_resistance_ohm": 6345.718180002907,
+  "damping_resistance_per_winding_ohm": 12691.436360005813,
+  "parallel_capacitance_f": 2.2155637163759824e-11,
+  "capacitance_per_winding_f": 1.1077818581879912e-11,
+  "self_resonance_hz": 846505.1512394742,
+  "fit_rmse_db": 0.3448623233431348,
+  "fit_max_abs_error_db": 0.8472297104108923,
+  "digitization_sensitivity": {
+    "method": "uniform independent +/-2 pixel jitter for 200 seeded trials plus four +/-2-pixel systematic corners; not part tolerance",
+    "parallel_capacitance_pf_range": [
+      19.726214186955033,
+      24.884914915271363
+    ],
+    "parallel_damping_resistance_ohm_range": [
+      5731.390422628246,
+      7001.766989406591
+    ],
+    "self_resonance_hz_range": [
+      798736.7140306769,
+      897118.5879630323
+    ]
+  }
+}

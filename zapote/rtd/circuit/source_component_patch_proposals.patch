@@ -1,0 +1,63 @@
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -1819,8 +1819,10 @@
+     adc = new MAX31865
+     
+     r_ref = new Resistor
+-    r_ref.value = 430ohm +/- 0.1%
+-    r_ref.mpn = "ERA-6AEB431V"
++    # 0.05% / 5 ppm/C keeps the declared 100 C accuracy ledger below 2 C.
++    # Susumu RG2012V is 0805, 1/8 W, -55..155 C; verify distributor lot.
++    r_ref.value = 430ohm +/- 0.05%
++    r_ref.mpn = "RG2012V-431-W-T1"
+     r_ref.footprint = "Resistor_SMD:R_0805_2012Metric"
+     
+     c_vdd = new Capacitor
+@@ -2043,29 +2045,29 @@
+     window_and.Y ~ r_window_ok_pulldown.p1
+     r_window_ok_pulldown.p2 ~ power.gnd
+ 
+-    # TPS3700 is powered upstream of the ferrite.  OUTA is pulled high only
+-    # while RTD_AVDD is above its approximately 2.84 V nominal UV threshold
+-    # (2026-07-27: was ~2.82 V before r_avdd_top's 616k->619k correction,
+-    # see docs/evidence/2026-07-27-era-resistor-resolution.md); it pulls low
+-    # through brownout before the post-rail TLV3201 operation is unspecified.
++    # TPS3700 is powered upstream of the ferrite. OUTA is pulled high only
++    # while RTD_AVDD is above the MAX31865 3.0 V supply minimum. The 698k/100k
++    # divider gives a 3.15 V nominal falling threshold; with TPS3700 VIT-,
++    # divider tolerance, 25 ppm/C resistor drift over 60 C, and +/-25 nA input
++    # current, the bounded falling range is 3.057..3.223 V. Thus permission
++    # is removed before the ADC can be below its specified supply, while the
++    # Nominal 3.3 V remains above the bounded rising threshold (3.129..3.256 V),
++    # but the source's declared 3.135 V lower envelope (and post-ferrite
++    # 3.1332 V at the bounded 10 mA RTD load) does not guarantee release;
++    # see rail_monitor_bounds.txt for the deterministic low-valid-rail
++    # nuisance condition and no-window analysis.
++    # Below V(POR), TPS3700 output state is indeterminate; the upstream
++    # pull-up/fault path must therefore remain fail-safe in board validation.
+     rail_monitor = new TPS3700
+     rail_monitor.VDD ~ power.vcc
+     rail_monitor.GND ~ power.gnd
+     rail_monitor.INB_N ~ power.gnd
+-    # r_avdd_top was ERA-3AEB6163V (616k): not an E96/E192 value and the MPN
+-    # does not exist at DigiKey (confirmed 2026-07-27, direct fetch). 616k
+-    # also turns out to be above the top of Panasonic's ERA-3A (0603) range
+-    # for this decade -- 604k/612k/619k/626k/634k ERA-3A part numbers were
+-    # individually checked and NONE exist in 0603; the same 3-digit values
+-    # DO exist in the ERA-6A (0805) family (confirmed: ERA-6AEB6193V, 619k,
+-    # in stock). Replaced with 619k/ERA-6AEB6193V and the footprint bumped to
+-    # 0805 to match -- see docs/evidence/2026-07-27-era-resistor-resolution.md
+-    # for the distributor evidence and TPS3700 trip-window arithmetic
+-    # (including 25 ppm/C tempco) showing this still clears the required
+-    # 2.70-2.97V corner with margin.
++    # 619k left a 2.777..2.882 V permission corner, which overlaps the
++    # MAX31865 out-of-spec region. Use the exact Panasonic 0805 high-precision
++    # part ERA-6AEB6983V (698k, 0.1%, +/-25 ppm/C).
+     r_avdd_top = new Resistor
+-    r_avdd_top.value = 619kohm +/- 0.1%
+-    r_avdd_top.mpn = "ERA-6AEB6193V"
++    r_avdd_top.value = 698kohm +/- 0.1%
++    r_avdd_top.mpn = "ERA-6AEB6983V"
+     r_avdd_top.footprint = "Resistor_SMD:R_0805_2012Metric"
+     r_avdd_bottom = new Resistor
+     r_avdd_bottom.value = 100kohm +/- 0.1%

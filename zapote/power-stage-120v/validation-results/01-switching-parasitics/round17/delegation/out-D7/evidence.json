@@ -1,0 +1,51 @@
+{
+  "evidence_class": "identity audit and assumed-sweep arithmetic; no measured/model ESL",
+  "source_revision": "f9b13b483d6d4ed52439d4da419c7670bab6966c",
+  "runtime": "3.12.12",
+  "sha256": {
+    "frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "validation-results/01-switching-parasitics/round17/d2/leg_matrix5.cir": "7a065bfc9ad738eac1e98d9e604d44feb17f0df2c140e39cf56c8f120e88d7ed"
+  },
+  "parts": [
+    {
+      "part": "B32652A0104K000",
+      "references": [
+        "C38",
+        "C39",
+        "C40",
+        "C41"
+      ],
+      "capacitance_nf": 100.0,
+      "illustrative_assumed_esl_nh": [
+        5,
+        10,
+        20
+      ],
+      "implied_srf_mhz_NOT_measured": [
+        7.117625434171771,
+        5.032921210448704,
+        3.5588127170858854
+      ]
+    },
+    {
+      "part": "B32656G0275J000",
+      "references": [
+        "C5",
+        "C6"
+      ],
+      "capacitance_nf": 2700.0,
+      "illustrative_assumed_esl_nh": [
+        5,
+        10,
+        20
+      ],
+      "implied_srf_mhz_NOT_measured": [
+        1.3697876534699995,
+        0.9685861385542454,
+        0.6848938267349998
+      ]
+    }
+  ]
+}

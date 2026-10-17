@@ -1,0 +1,342 @@
+{
+  "scope": "Evidence identity and electrical-to-thermal transfer only",
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "a3_verified_files": 84,
+  "external_vendor_inputs": [],
+  "a4_heat_checks": [
+    {
+      "case": "bus-dc-q2-p00625-pl18.json",
+      "case_sha256": "812e5d6f94997b9016f309ada474daabfbf227db4cd666ec09f2b74c2738df4d",
+      "heat_sha256": "29ca8f96448306a4b7e5283dd948bbc810593476a2c065f56821958a4f0de810",
+      "loss_w": 1.7730336455553037,
+      "nodal_w": 1.6791964624963378,
+      "barrel_w": 0.09383718258514132,
+      "residual_w": -4.738245351632031e-10
+    },
+    {
+      "case": "bus-dc-q2-p025-pl18.json",
+      "case_sha256": "587b0e9be445ad0f61fa552b5a6e74698c8a3a45026835ebe11cc3ee09f0e451",
+      "heat_sha256": "a903330b6b5ea0720e84ee1caa9728dc8be968163db11d8c22ff6a120058e97a",
+      "loss_w": 1.808221293245535,
+      "nodal_w": 1.7086028296614595,
+      "barrel_w": 0.09961846355250253,
+      "residual_w": -3.157296646350005e-11
+    },
+    {
+      "case": "bus_dc_q2-p0125-pl12.json",
+      "case_sha256": "2780c63b66ad8270880d722b761c7820ca83ba5275547c11545c181d7f6aeb51",
+      "heat_sha256": "a9c7f2d3a937cb99ade58a29253dc6668da778b7ab1bf808bb043ac24ff2f0bb",
+      "loss_w": 1.8288252350691245,
+      "nodal_w": 1.6889064455023615,
+      "barrel_w": 0.1399187894082247,
+      "residual_w": -1.5853829360423788e-10
+    },
+    {
+      "case": "bus_dc_q2-p0125-pl18.json",
+      "case_sha256": "5a2fc4593a1c26e73f3e29c13aa6c5108816766203e6d00dc373c637160cf1d4",
+      "heat_sha256": "3d2760a5c61e2793477acd8003e029b89845d7aeba5a0189bf72c6d5b7544af0",
+      "loss_w": 1.7826120322430614,
+      "nodal_w": 1.6868213866979755,
+      "barrel_w": 0.09579064539363293,
+      "residual_w": -1.5145285026108013e-10
+    },
+    {
+      "case": "bus_dc_q5-p0125-pl18.json",
+      "case_sha256": "c69dea1e30b8bd15d660a48dd9f876453dff4b0300a2bb4e8ad663385acd191a",
+      "heat_sha256": "323222ce1f7ed7105d3859fc6a5dfb80fd7351838dd585910e43b20dff01a85f",
+      "loss_w": 1.5587272093113813,
+      "nodal_w": 1.4630037257366624,
+      "barrel_w": 0.09572348346695643,
+      "residual_w": -1.0776246561761127e-10
+    },
+    {
+      "case": "bus_hf_q2-p0125-pl18.json",
+      "case_sha256": "a8ee1b5f55f7bce6104c5f5020ce827f06b133038b1113afb9706425ebf5f2dc",
+      "heat_sha256": "caba6b62d73a52aec1b243bfcefc7840fba1d7edb6282d189fa83590f00ad8fe",
+      "loss_w": 0.31558993694563464,
+      "nodal_w": 0.18875321552858126,
+      "barrel_w": 0.12683672140979693,
+      "residual_w": -7.256417688950023e-12
+    },
+    {
+      "case": "bus_hf_q5-p0125-pl18.json",
+      "case_sha256": "de29a4c8a93f9aa94d4116c245baf4b8812491b696e607eb3fb0954e075c0f57",
+      "heat_sha256": "80894ea24823728589c416977d7f472a94a9c4602aa18aa22754c5358e265827",
+      "loss_w": 0.34260557159193994,
+      "nodal_w": 0.21572922398633695,
+      "barrel_w": 0.1268763475971524,
+      "residual_w": -8.450573574236842e-12
+    },
+    {
+      "case": "bus_mixed_q2-p0125-pl12.json",
+      "case_sha256": "3caaef414942985dc6e674282ce379adb6cd9f8a2e43f187964ccc1392d58d39",
+      "heat_sha256": "0f211f4adcb244c0df90c5c3ffcfa05b091e811da0413d881a2ad76f63f75687",
+      "loss_w": 2.6670255276587107,
+      "nodal_w": 2.151955543149565,
+      "barrel_w": 0.5150699842832855,
+      "residual_w": -2.2586021941606305e-10
+    },
+    {
+      "case": "bus_mixed_q2-p0125-pl18.json",
+      "case_sha256": "015bc2f0f51cc9e4b1f7b49a024dd72c422f771ffe85050e14f5c725300a1d9c",
+      "heat_sha256": "b2486f983c4ee477b7a558abc210740e50c26b94f3ce49e72ff766f1acdd6998",
+      "loss_w": 2.4963039830397857,
+      "nodal_w": 2.1498704843496568,
+      "barrel_w": 0.3464334984830294,
+      "residual_w": -2.0709967074594715e-10
+    },
+    {
+      "case": "bus_mixed_q5-p0125-pl12.json",
+      "case_sha256": "ec349353acc75192d76625997343a3f7b54740fbc517fbb727d4324698b29731",
+      "heat_sha256": "2753dc0622d472a1a6d160cd2268ec76aa4e89e8aeb766dea59ef4d173fa0a9b",
+      "loss_w": 2.476045775108591,
+      "nodal_w": 1.9610311707903623,
+      "barrel_w": 0.5150146041444512,
+      "residual_w": -1.7377788097405755e-10
+    },
+    {
+      "case": "bus_mixed_q5-p0125-pl18.json",
+      "case_sha256": "d77cc356eb7337894f3789c8fc0f5f1bc6760800ea14ef67bc9058d44d60e143",
+      "heat_sha256": "70352449054335ac34f6ec473befa8dde81263a476a6b78ea0b14c49e1d02632",
+      "loss_w": 2.305324224304389,
+      "nodal_w": 1.958946109595113,
+      "barrel_w": 0.34637811455225764,
+      "residual_w": -1.5701839828352604e-10
+    },
+    {
+      "case": "coil_feed-p0125-pl12.json",
+      "case_sha256": "4ea5431f8eb73d0fe56c6aa7f06c688f332716bb1d4fb6fde8d3ee345a273221",
+      "heat_sha256": "1ec184aa6ab6d500ba63a61e6b4fc48e4e59618374469ca29eb31bc082648e4c",
+      "loss_w": 0.288636212900653,
+      "nodal_w": 0.2880614315085856,
+      "barrel_w": 0.0005747813919457195,
+      "residual_w": -1.2168044349891716e-13
+    },
+    {
+      "case": "coil_feed-p0125-pl18.json",
+      "case_sha256": "2d6f078773828df33228a19e83772b90ffcfbd0fbda42e3e1d55b1df03af811e",
+      "heat_sha256": "1ec184aa6ab6d500ba63a61e6b4fc48e4e59618374469ca29eb31bc082648e4c",
+      "loss_w": 0.288636212900653,
+      "nodal_w": 0.2880614315085856,
+      "barrel_w": 0.0005747813919457195,
+      "residual_w": -1.2168044349891716e-13
+    },
+    {
+      "case": "hv_dc-p0125-pl12.json",
+      "case_sha256": "459368aec12ff7f196c60f416136e9246a70042b4f8fa470d5092fe92dd311b9",
+      "heat_sha256": "534713990f07591e0d559d09e640d79a8e0fadde092c1568b1bc00ffe01d7149",
+      "loss_w": 0.8275815469666568,
+      "nodal_w": 0.794407411094382,
+      "barrel_w": 0.0331741358463307,
+      "residual_w": -2.5944135728650508e-11
+    },
+    {
+      "case": "hv_dc-p0125-pl18.json",
+      "case_sha256": "65541ee59a997683c5a849629ed2edfabf16aa76b155def2117f31af40a85292",
+      "heat_sha256": "f06260436b8f047434e8654b2d5666d0e964bcd88ba0fc82a7d7feb6ab4c77cc",
+      "loss_w": 0.8167276888396386,
+      "nodal_w": 0.7930637719321818,
+      "barrel_w": 0.02366391688231862,
+      "residual_w": -2.5138224835075107e-11
+    },
+    {
+      "case": "hv_hf_a-p0125-pl18.json",
+      "case_sha256": "f7266d60d411f7fa35d181304e0a954c016fa90ac2b9d376c1f8267ada00d897",
+      "heat_sha256": "835b18a05c8e2398e1946056ca9b7ed2f7a760f9044f0cfc2439d1fa8c032961",
+      "loss_w": 0.280187897694273,
+      "nodal_w": 0.2170612682815673,
+      "barrel_w": 0.0631266294124269,
+      "residual_w": -2.787770014833768e-13
+    },
+    {
+      "case": "hv_hf_b-p0125-pl18.json",
+      "case_sha256": "4d59696827776ef9f48d7fd84e8df0ddb3efd4e5b00d7a6628b552f5a6fa29c2",
+      "heat_sha256": "01286914c4dac1ee79e394178d038b443f2530c2e66a1a0247b175fd2b4c7e09",
+      "loss_w": 0.24057509782270523,
+      "nodal_w": 0.17726978942530178,
+      "barrel_w": 0.06330530839728243,
+      "residual_w": -1.2101430968414206e-13
+    },
+    {
+      "case": "hv_mixed_a-p0125-pl12.json",
+      "case_sha256": "c8c4813c11589eeb0d169cb1d0e35ed5dfa8858cb18aa9e9aebde6e4096591e2",
+      "heat_sha256": "ba103f2767bbf26a627ac8bcd5f7f094a8c02612d199b422676f8dff0765b801",
+      "loss_w": 1.6187502117199115,
+      "nodal_w": 1.4539825729694014,
+      "barrel_w": 0.1647676387302453,
+      "residual_w": -2.0264900868482982e-11
+    },
+    {
+      "case": "hv_mixed_a-p0125-pl18.json",
+      "case_sha256": "4773a5300268e374c348aecfbdfe2ea8dbd99468ac6e85da09122f7be258ce02",
+      "heat_sha256": "7bd5e84ae824469590a60877fb780b5ac577887f3c88a37ca4fac5ebcb414444",
+      "loss_w": 1.5651292302587028,
+      "nodal_w": 1.4506063701936682,
+      "barrel_w": 0.11452286004571105,
+      "residual_w": -1.932343174360085e-11
+    },
+    {
+      "case": "hv_mixed_b-p0125-pl12.json",
+      "case_sha256": "31b8c18b9c9405582c36cc936cb4f3a2ed2026d6e827d2a947941208658bd805",
+      "heat_sha256": "80e487f4bce2031e250b435b0a99ced6a3b52d898122f9c46c43665e573560d4",
+      "loss_w": 1.8237711203674558,
+      "nodal_w": 1.66139718605356,
+      "barrel_w": 0.16237393427676772,
+      "residual_w": -3.7128078389514485e-11
+    },
+    {
+      "case": "hv_mixed_b-p0125-pl18.json",
+      "case_sha256": "875c1122b3a88ff34b135719b1b43189633ee0e586017a438de407ed2e267d78",
+      "heat_sha256": "83eaaaf669e1819160d78a9c88ae99e767ef0d6291762dcd96676dd63aec84fe",
+      "loss_w": 1.770765001161552,
+      "nodal_w": 1.6585534612356758,
+      "barrel_w": 0.11221153988987943,
+      "residual_w": -3.599676112742145e-11
+    },
+    {
+      "case": "leg_a_15-p0125-pl18.json",
+      "case_sha256": "e61826d93ee283ab56eed14eaa2b4f532cb31099557082600c09228b5455f6a2",
+      "heat_sha256": "e7d878c3f743f212868c3518515c64ce3890a008565d47835e41e1593ec4b59e",
+      "loss_w": 0.4228901882155964,
+      "nodal_w": 0.38339622987577016,
+      "barrel_w": 0.03949395833900465,
+      "residual_w": -8.215650382226158e-13
+    },
+    {
+      "case": "leg_a_18p7-p0125-pl12.json",
+      "case_sha256": "a26bcae68a1026c520ad65e2bc2f8f5ce22e85bae4dff8d183c2ff034974f46f",
+      "heat_sha256": "a56d64367b49c3d5fce621704833f619ba7267f17491d9da86e81de1d1453152",
+      "loss_w": 0.6868205119322012,
+      "nodal_w": 0.5967667718365616,
+      "barrel_w": 0.09005374009444847,
+      "residual_w": -1.1911582831203305e-12
+    },
+    {
+      "case": "leg_a_18p7-p0125-pl18.json",
+      "case_sha256": "944fb638674d3532f636a41fc94f01f0b8eeab726c677ff2db46b5b3e8de7479",
+      "heat_sha256": "5dd0f1308b775c7d60d72f6f275b20e740bc8e5aaa4d2242a26c53f8569ec76e",
+      "loss_w": 0.6572465329649421,
+      "nodal_w": 0.5958659005567032,
+      "barrel_w": 0.06138063240696257,
+      "residual_w": -1.27631238910908e-12
+    },
+    {
+      "case": "leg_a_19-p0125-pl18.json",
+      "case_sha256": "03f61c185489b7be36b2ab6170b7e4e5dc28ba60a8945275c927ad9ca9d29c00",
+      "heat_sha256": "cd76b77c3703f54b99bda4ab9c3ad44c77a369f75358d4b41ddf81be6be67bb5",
+      "loss_w": 0.6785038130925791,
+      "nodal_w": 0.6151379510451248,
+      "barrel_w": 0.06336586204613619,
+      "residual_w": -1.3181677971374484e-12
+    },
+    {
+      "case": "leg_a_34-p0125-pl18.json",
+      "case_sha256": "40c7ef07044c26c6f1cf699cd81cfefce2d994b678d4671d6c098382f12e6bca",
+      "heat_sha256": "a6a114a3292223fa9e4db1381334bc7404a1ed23d382b3a863a09fa6fabf0178",
+      "loss_w": 2.172715811454353,
+      "nodal_w": 1.9698046299395142,
+      "barrel_w": 0.20291118151061885,
+      "residual_w": -4.220179761205145e-12
+    },
+    {
+      "case": "leg_b_18p7-p0125-pl12.json",
+      "case_sha256": "c2850a1c62bf954351a23bf1951969e3ab2e02bf60923e0389e3c282d7299787",
+      "heat_sha256": "ac474ec36a2588783a4d60ef2e321095b301e295cbb28a4dd66620d52b271fd6",
+      "loss_w": 0.32380744418964197,
+      "nodal_w": 0.2339795193999085,
+      "barrel_w": 0.08982792478916106,
+      "residual_w": -5.724309914967307e-13
+    },
+    {
+      "case": "leg_b_18p7-p0125-pl18.json",
+      "case_sha256": "d644f1b7050d2260bb750e82712ef010391aa8937d076c70fa0b4425afabd86e",
+      "heat_sha256": "8653b48d631f64482f410ebf0f3c3a2f28584a9966fe8deee569313ae7220aa4",
+      "loss_w": 0.29424206425886046,
+      "nodal_w": 0.23311844515908153,
+      "barrel_w": 0.06112361909922921,
+      "residual_w": -5.497269306431463e-13
+    },
+    {
+      "case": "leg_b_34-p0125-pl18.json",
+      "case_sha256": "3f47aef665d104bd5b1def854c3d936fb7190ee7d7e99ba78a3318362cef30c3",
+      "heat_sha256": "5df8f89eddb12c0e12869699a92faa7a24bfff5fc074cb31a35bd63d14209ff3",
+      "loss_w": 0.9727010388722603,
+      "nodal_w": 0.7706394881291952,
+      "barrel_w": 0.2020615507412421,
+      "residual_w": -1.822986206434507e-12
+    },
+    {
+      "case": "res_a-p0125-pl12.json",
+      "case_sha256": "5b3d0cd65be862ef7f14216de8847e045a1ca3e0cf091853ce447d6077f83040",
+      "heat_sha256": "602cffc6855257b603d9702ea2aae28bcd9ad961260c767c2f00fc91cec98979",
+      "loss_w": 0.24018564996643982,
+      "nodal_w": 0.208136742610893,
+      "barrel_w": 0.03204890735547615,
+      "residual_w": -7.066569551739121e-14
+    },
+    {
+      "case": "res_a-p0125-pl18.json",
+      "case_sha256": "71d0677f9d5ae52d2ea1ec5399a31f4bb35f3e9deb1f99a5973165acf5ced524",
+      "heat_sha256": "eea20100d81a0668518af5f76495dcdbf145c033a5a457c261b817e6a9819d3a",
+      "loss_w": 0.2296268573810633,
+      "nodal_w": 0.20797026849879452,
+      "barrel_w": 0.021656588882102392,
+      "residual_w": -1.6639467581569534e-13
+    },
+    {
+      "case": "sw_a-p0125-pl12.json",
+      "case_sha256": "eb3e328ace92837c57a7439a77f69dc8d646f5a64851c347a00f514d9470fbeb",
+      "heat_sha256": "d400fa875e1dc3f0e8834e8d6af9a09be7f654c56d8aee34cb5d39002e161ad0",
+      "loss_w": 1.7097865298610544,
+      "nodal_w": 1.6834076111235676,
+      "barrel_w": 0.026378918688325342,
+      "residual_w": -4.9161341664216707e-11
+    },
+    {
+      "case": "sw_a-p0125-pl18.json",
+      "case_sha256": "0ec6fdf94f449e0c1f049d50b4ea085d1db28cbf6ce49d1bc309749500390e5b",
+      "heat_sha256": "35fa3e598e14691b374f550792a9cd2eea64286327476566cf3c559f25e3fa55",
+      "loss_w": 1.701247125527237,
+      "nodal_w": 1.681692635308811,
+      "barrel_w": 0.019554490169194454,
+      "residual_w": -4.9231507759373017e-11
+    },
+    {
+      "case": "sw_b_high-p0125-pl12.json",
+      "case_sha256": "46089cecfe5a7e5316b871786bc7a5362538d13b68be44770a384d76de6e2ce2",
+      "heat_sha256": "e5403c2936257b13c9a126eeb6d76f9cba9705b196026b62d4a52562cb3df0b0",
+      "loss_w": 1.6988714082765668,
+      "nodal_w": 1.44072279110873,
+      "barrel_w": 0.25814861713922926,
+      "residual_w": -2.860756076472626e-11
+    },
+    {
+      "case": "sw_b_high-p0125-pl18.json",
+      "case_sha256": "8b640e0d01a7a60a66ef4e26b6200536491d01fe1e3cd4401f80e59652e6ff4f",
+      "heat_sha256": "4bb9e7189a2edc34b52f88827bf70ed0a976966200ef13e57fa20ed77845edf8",
+      "loss_w": 1.6120211044009454,
+      "nodal_w": 1.4372341656064198,
+      "barrel_w": 0.17478693876676213,
+      "residual_w": -2.776334717680129e-11
+    },
+    {
+      "case": "sw_b_low-p0125-pl12.json",
+      "case_sha256": "04c5c19a10a56654b2edcae57ebb5203c9dcc19049676918332997dde18167ee",
+      "heat_sha256": "015d771ab40daa9866a610de96130b2ffcf355b83c9ec300915a5c4f481433c7",
+      "loss_w": 2.1440128492326536,
+      "nodal_w": 1.9234403401704154,
+      "barrel_w": 0.22057250907028458,
+      "residual_w": 8.046452393273285e-12
+    },
+    {
+      "case": "sw_b_low-p0125-pl18.json",
+      "case_sha256": "d8c7ad33a0ab40f377affa660e8f108a232381e11d2b595864c3f0bab7fe6fd1",
+      "heat_sha256": "cd303673948a7f2e2f50957b88fc53d045663ca532f86fe5f2a9089f0e2de25d",
+      "loss_w": 2.0704694555533596,
+      "nodal_w": 1.9234347415284234,
+      "barrel_w": 0.14703471403114088,
+      "residual_w": 6.204814440025075e-12
+    }
+  ],
+  "status": "PASS; external vendor inputs listed separately; no engineering acceptance"
+}

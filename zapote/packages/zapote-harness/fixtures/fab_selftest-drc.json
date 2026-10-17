@@ -1,0 +1,709 @@
+{
+  "$schema": "https://schemas.kicad.org/drc.v1.json",
+  "coordinate_units": "mm",
+  "date": "2026-10-08T20:46:39",
+  "ignored_checks": [
+    {
+      "description": "Footprint has no courtyard defined",
+      "key": "missing_courtyard"
+    },
+    {
+      "description": "Track endpoint not centered on via",
+      "key": "track_not_centered_on_via"
+    },
+    {
+      "description": "Tuning profile track geometries",
+      "key": "tuning_profile_track_geometries"
+    },
+    {
+      "description": "Footprint doesn't match symbol's footprint filters",
+      "key": "footprint_filters_mismatch"
+    },
+    {
+      "description": "Footprint component type doesn't match footprint pads",
+      "key": "footprint_type_mismatch"
+    }
+  ],
+  "included_severities": [
+    "error",
+    "warning",
+    "exclusion"
+  ],
+  "kicad_version": "10.0.4",
+  "schematic_parity": [],
+  "source": "fab_selftest.kicad_pcb",
+  "unconnected_items": [
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [A] on F.Cu, length 30.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 5.0
+          },
+          "uuid": "5c9490ab-1208-488c-9ff4-9b7e74e2bff2"
+        },
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        },
+        {
+          "description": "Pad 2 [A] of J1 on F.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 20.0
+          },
+          "uuid": "51175472-25fa-4680-99b7-c210a6afa630"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "PTH pad 1 [A] of J1",
+          "pos": {
+            "x": 20.0,
+            "y": 15.0
+          },
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+        },
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [B] on F.Cu, length 30.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 5.21
+          },
+          "uuid": "bda593b8-5c92-4499-add8-ddf827a273b8"
+        },
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        },
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 17.0,
+            "y": 15.66
+          },
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        },
+        {
+          "description": "Pad 3 [B] of J1 on F.Cu",
+          "pos": {
+            "x": 10.51,
+            "y": 20.0
+          },
+          "uuid": "bbe700c3-739d-4237-a930-cc97583ccce8"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 17.0,
+            "y": 15.66
+          },
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+        },
+        {
+          "description": "Track [B] on In1.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 20.66,
+            "y": 12.0
+          },
+          "uuid": "62f508af-8f9a-4b58-bc24-775ac5eceee9"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    },
+    {
+      "description": "Missing connection between items",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 17.0,
+            "y": 15.66
+          },
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+        },
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 27.0,
+            "y": 15.61
+          },
+          "uuid": "97b38c4d-a9d6-40f1-a5d4-e1fc9561385a"
+        }
+      ],
+      "severity": "error",
+      "type": "unconnected_items"
+    }
+  ],
+  "violations": [
+    {
+      "description": "Annular width (board setup constraints min annular width 0.1000 mm; actual 0.0500 mm)",
+      "items": [
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        }
+      ],
+      "severity": "error",
+      "type": "annular_width"
+    },
+    {
+      "description": "Annular width (board setup constraints min annular width 0.1000 mm; actual 0.0500 mm)",
+      "items": [
+        {
+          "description": "PTH pad 1 [A] of J1",
+          "pos": {
+            "x": 20.0,
+            "y": 15.0
+          },
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+        }
+      ],
+      "severity": "error",
+      "type": "annular_width"
+    },
+    {
+      "description": "Hole clearance violation (rule 'zapote fab NPTH hole to copper' clearance 0.2000 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 27.0,
+            "y": 15.61
+          },
+          "uuid": "97b38c4d-a9d6-40f1-a5d4-e1fc9561385a"
+        },
+        {
+          "description": "NPTH pad of J1",
+          "pos": {
+            "x": 30.0,
+            "y": 15.0
+          },
+          "uuid": "df9bfe30-c9cf-4606-aa1a-f6d5272dbc83"
+        }
+      ],
+      "severity": "error",
+      "type": "hole_clearance"
+    },
+    {
+      "description": "Clearance violation (rule 'zapote fab copper clearance' clearance 0.0900 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Track [A] on F.Cu, length 30.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 5.0
+          },
+          "uuid": "5c9490ab-1208-488c-9ff4-9b7e74e2bff2"
+        },
+        {
+          "description": "Track [B] on F.Cu, length 30.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 5.21
+          },
+          "uuid": "bda593b8-5c92-4499-add8-ddf827a273b8"
+        }
+      ],
+      "severity": "error",
+      "type": "clearance"
+    },
+    {
+      "description": "Clearance violation (rule 'zapote fab copper clearance' clearance 0.0900 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        },
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        }
+      ],
+      "severity": "error",
+      "type": "clearance"
+    },
+    {
+      "description": "Clearance violation (rule 'zapote fab pad to track' clearance 0.1000 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "PTH pad 1 [A] of J1",
+          "pos": {
+            "x": 20.0,
+            "y": 15.0
+          },
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+        },
+        {
+          "description": "Track [B] on In1.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 20.66,
+            "y": 12.0
+          },
+          "uuid": "62f508af-8f9a-4b58-bc24-775ac5eceee9"
+        }
+      ],
+      "severity": "error",
+      "type": "clearance"
+    },
+    {
+      "description": "Hole clearance violation (rule 'zapote fab via hole to copper' clearance 0.2000 mm; actual 0.0600 mm)",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        },
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        }
+      ],
+      "severity": "error",
+      "type": "hole_clearance"
+    },
+    {
+      "description": "Hole clearance violation (rule 'zapote fab inner PTH hole to copper' clearance 0.3000 mm; actual 0.0600 mm)",
+      "items": [
+        {
+          "description": "Track [B] on In1.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 20.66,
+            "y": 12.0
+          },
+          "uuid": "62f508af-8f9a-4b58-bc24-775ac5eceee9"
+        },
+        {
+          "description": "PTH pad 1 [A] of J1",
+          "pos": {
+            "x": 20.0,
+            "y": 15.0
+          },
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+        }
+      ],
+      "severity": "error",
+      "type": "hole_clearance"
+    },
+    {
+      "description": "Clearance violation (rule 'zapote fab pad to track' clearance 0.1000 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "PTH pad 1 [A] of J1",
+          "pos": {
+            "x": 20.0,
+            "y": 15.0
+          },
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+        },
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 17.0,
+            "y": 15.66
+          },
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+        }
+      ],
+      "severity": "error",
+      "type": "clearance"
+    },
+    {
+      "description": "Hole clearance violation (rule 'zapote fab PTH hole to copper' clearance 0.2800 mm; actual 0.0600 mm)",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 17.0,
+            "y": 15.66
+          },
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+        },
+        {
+          "description": "PTH pad 1 [A] of J1",
+          "pos": {
+            "x": 20.0,
+            "y": 15.0
+          },
+          "uuid": "230068b3-2765-498c-8464-15a34cfc5b96"
+        }
+      ],
+      "severity": "error",
+      "type": "hole_clearance"
+    },
+    {
+      "description": "Clearance violation (rule 'zapote fab SMD pad to pad' clearance 0.1500 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Pad 2 [A] of J1 on F.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 20.0
+          },
+          "uuid": "51175472-25fa-4680-99b7-c210a6afa630"
+        },
+        {
+          "description": "Pad 3 [B] of J1 on F.Cu",
+          "pos": {
+            "x": 10.51,
+            "y": 20.0
+          },
+          "uuid": "bbe700c3-739d-4237-a930-cc97583ccce8"
+        }
+      ],
+      "severity": "error",
+      "type": "clearance"
+    },
+    {
+      "description": "Via diameter (board setup constraints min diameter 0.5000 mm; actual 0.4000 mm)",
+      "items": [
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        }
+      ],
+      "severity": "error",
+      "type": "via_diameter"
+    },
+    {
+      "description": "Front solder mask aperture bridges items with different nets",
+      "items": [
+        {
+          "description": "Pad 2 [A] of J1 on F.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 20.0
+          },
+          "uuid": "51175472-25fa-4680-99b7-c210a6afa630"
+        },
+        {
+          "description": "Pad 3 [B] of J1 on F.Cu",
+          "pos": {
+            "x": 10.51,
+            "y": 20.0
+          },
+          "uuid": "bbe700c3-739d-4237-a930-cc97583ccce8"
+        }
+      ],
+      "severity": "error",
+      "type": "solder_mask_bridge"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [A] on F.Cu, length 30.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 5.0
+          },
+          "uuid": "5c9490ab-1208-488c-9ff4-9b7e74e2bff2"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    },
+    {
+      "description": "Via is not connected or connected on only one layer",
+      "items": [
+        {
+          "description": "Via [A] on F.Cu - B.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 15.0
+          },
+          "uuid": "9b268bf8-2337-4e55-833a-01762de16ec7"
+        }
+      ],
+      "severity": "warning",
+      "type": "via_dangling"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [B] on F.Cu, length 30.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 5.21
+          },
+          "uuid": "bda593b8-5c92-4499-add8-ddf827a273b8"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 17.0,
+            "y": 15.66
+          },
+          "uuid": "7096fe3d-50db-4036-a25b-30c7ec208120"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 27.0,
+            "y": 15.61
+          },
+          "uuid": "97b38c4d-a9d6-40f1-a5d4-e1fc9561385a"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [B] on B.Cu, length 10.0000 mm",
+          "pos": {
+            "x": 5.0,
+            "y": 15.31
+          },
+          "uuid": "f81c5958-8f33-48a6-bdd1-561409f8c53b"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [B] on In1.Cu, length 6.0000 mm",
+          "pos": {
+            "x": 20.66,
+            "y": 12.0
+          },
+          "uuid": "62f508af-8f9a-4b58-bc24-775ac5eceee9"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    },
+    {
+      "description": "Text thickness out of range (rule 'zapote fab silk text thickness' min thickness 0.1500 mm; actual 0.0300 mm)",
+      "items": [
+        {
+          "description": "PCB text 'FAB' on F.Silkscreen",
+          "pos": {
+            "x": 10.0,
+            "y": 25.0
+          },
+          "uuid": "87fb1c2c-c38c-4ee4-941a-d95d240b6788"
+        }
+      ],
+      "severity": "warning",
+      "type": "text_thickness"
+    },
+    {
+      "description": "Text height out of range (rule 'zapote fab silk text height' min height 1.0000 mm; actual 0.3000 mm)",
+      "items": [
+        {
+          "description": "PCB text 'FAB' on F.Silkscreen",
+          "pos": {
+            "x": 10.0,
+            "y": 25.0
+          },
+          "uuid": "87fb1c2c-c38c-4ee4-941a-d95d240b6788"
+        }
+      ],
+      "severity": "warning",
+      "type": "text_height"
+    },
+    {
+      "description": "Text thickness out of range (rule 'zapote fab silk text thickness B' min thickness 0.1500 mm; actual 0.0300 mm)",
+      "items": [
+        {
+          "description": "PCB text 'FAB' on B.Silkscreen",
+          "pos": {
+            "x": 30.0,
+            "y": 25.0
+          },
+          "uuid": "dec16c14-2768-4f87-9981-e2a32bfac97e"
+        }
+      ],
+      "severity": "warning",
+      "type": "text_thickness"
+    },
+    {
+      "description": "Text height out of range (rule 'zapote fab silk text height B' min height 1.0000 mm; actual 0.3000 mm)",
+      "items": [
+        {
+          "description": "PCB text 'FAB' on B.Silkscreen",
+          "pos": {
+            "x": 30.0,
+            "y": 25.0
+          },
+          "uuid": "dec16c14-2768-4f87-9981-e2a32bfac97e"
+        }
+      ],
+      "severity": "warning",
+      "type": "text_height"
+    },
+    {
+      "description": "Silkscreen clipped by solder mask (rule 'zapote fab pad to silk' clearance 0.1500 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Segment on F.Silkscreen",
+          "pos": {
+            "x": 9.6,
+            "y": 19.43
+          },
+          "uuid": "faecefcf-4931-459a-bca4-1ad422797c0f"
+        },
+        {
+          "description": "Pad 2 [A] of J1 on F.Cu",
+          "pos": {
+            "x": 10.0,
+            "y": 20.0
+          },
+          "uuid": "51175472-25fa-4680-99b7-c210a6afa630"
+        }
+      ],
+      "severity": "warning",
+      "type": "silk_over_copper"
+    },
+    {
+      "description": "Silkscreen clipped by solder mask (rule 'zapote fab pad to silk' clearance 0.1500 mm; actual 0.0100 mm)",
+      "items": [
+        {
+          "description": "Segment on F.Silkscreen",
+          "pos": {
+            "x": 9.6,
+            "y": 19.43
+          },
+          "uuid": "faecefcf-4931-459a-bca4-1ad422797c0f"
+        },
+        {
+          "description": "Pad 3 [B] of J1 on F.Cu",
+          "pos": {
+            "x": 10.51,
+            "y": 20.0
+          },
+          "uuid": "bbe700c3-739d-4237-a930-cc97583ccce8"
+        }
+      ],
+      "severity": "warning",
+      "type": "silk_over_copper"
+    }
+  ]
+}

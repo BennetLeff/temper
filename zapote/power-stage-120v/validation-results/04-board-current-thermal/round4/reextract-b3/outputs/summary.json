@@ -1,0 +1,218 @@
+{
+  "status": "conditional_only_no_operating_temperature_verdict",
+  "selftest": {
+    "status": "PASS",
+    "strip": [
+      {
+        "pitch_mm": 1.0,
+        "peak_rise_k": 19.21101454287463,
+        "analytic_peak_rise_k": 19.211997896187803,
+        "relative_error": 5.1184333794307336e-05,
+        "source_w": 1.0000000000000004,
+        "convection_w": 0.12914132119148197,
+        "fixed_end_w": 0.8708586788072511,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 1.2673195826096162e-12,
+        "cg_iterations": 67,
+        "relative_residual": 8.414646897139978e-10
+      },
+      {
+        "pitch_mm": 0.5,
+        "peak_rise_k": 19.211752041688285,
+        "analytic_peak_rise_k": 19.211997896187803,
+        "relative_error": 1.2796925173859492e-05,
+        "source_w": 1.0000000000000004,
+        "convection_w": 0.1290665738333641,
+        "fixed_end_w": 0.8709334261638435,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 2.7928770407470438e-12,
+        "cg_iterations": 140,
+        "relative_residual": 9.1386589706799e-10
+      }
+    ],
+    "through_thickness_column": {
+      "peak_rise_k": 45.705820512820566,
+      "analytic_peak_rise_k": 45.705820512820516,
+      "relative_error": 1.0882200766805066e-15,
+      "source_w": 1.0,
+      "convection_w": 0.0,
+      "fixed_end_w": 0.0,
+      "fixed_bottom_w": 1.000000000000001,
+      "balance_w": -1.1102230246251565e-15,
+      "cg_iterations": 7,
+      "relative_residual": 2.6173908628949806e-15
+    }
+  },
+  "runs": {
+    "bus_dc_q2_h10_p2": {
+      "peak": {
+        "temperature_c": 79.77934694696128,
+        "rise_k": 29.779346946961287,
+        "x_mm": 55.0,
+        "y_mm": 21.0,
+        "layer": "In2.Cu"
+      },
+      "balance": {
+        "source_w": 1.7812090830936367,
+        "convection_w": 1.7812090828581022,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 2.3553448080804174e-10,
+        "cg_iterations": 642,
+        "relative_residual": 9.733044288174694e-10
+      },
+      "source_w": 1.7812090830936367,
+      "receipt": "bus_dc_q2_h10_p2.json",
+      "image": "bus_dc_q2_h10_p2.png"
+    },
+    "bus_dc_q2_h10_p1": {
+      "peak": {
+        "temperature_c": 85.95123119808677,
+        "rise_k": 35.951231198086774,
+        "x_mm": 55.5,
+        "y_mm": 22.5,
+        "layer": "In2.Cu"
+      },
+      "balance": {
+        "source_w": 1.7812090830936367,
+        "convection_w": 1.781209083284546,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": -1.909092883778385e-10,
+        "cg_iterations": 1092,
+        "relative_residual": 9.537220375164478e-10
+      },
+      "source_w": 1.7812090830936367,
+      "receipt": "bus_dc_q2_h10_p1.json",
+      "image": "bus_dc_q2_h10_p1.png"
+    },
+    "bus_dc_q2_h10_p0p5": {
+      "peak": {
+        "temperature_c": 78.22857434885539,
+        "rise_k": 28.22857434885539,
+        "x_mm": 54.75,
+        "y_mm": 21.75,
+        "layer": "In2.Cu"
+      },
+      "balance": {
+        "source_w": 1.7812090830936367,
+        "convection_w": 1.7812090833960288,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": -3.0239211135096866e-10,
+        "cg_iterations": 2186,
+        "relative_residual": 9.896516891079511e-10
+      },
+      "source_w": 1.7812090830936367,
+      "receipt": "bus_dc_q2_h10_p0p5.json",
+      "image": "bus_dc_q2_h10_p0p5.png"
+    },
+    "bus_dc_q2_h25_p2": {
+      "peak": {
+        "temperature_c": 70.90261987204617,
+        "rise_k": 20.902619872046174,
+        "x_mm": 55.0,
+        "y_mm": 21.0,
+        "layer": "In2.Cu"
+      },
+      "balance": {
+        "source_w": 1.7812090830936367,
+        "convection_w": 1.7812090823046003,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 7.890363917795185e-10,
+        "cg_iterations": 451,
+        "relative_residual": 9.768474082655142e-10
+      },
+      "source_w": 1.7812090830936367,
+      "receipt": "bus_dc_q2_h25_p2.json",
+      "image": "bus_dc_q2_h25_p2.png"
+    },
+    "bus_dc_q2_h25_p1": {
+      "peak": {
+        "temperature_c": 77.30184981000004,
+        "rise_k": 27.30184981000004,
+        "x_mm": 55.5,
+        "y_mm": 22.5,
+        "layer": "In2.Cu"
+      },
+      "balance": {
+        "source_w": 1.7812090830936367,
+        "convection_w": 1.7812090826500973,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 4.4353942740826824e-10,
+        "cg_iterations": 827,
+        "relative_residual": 9.87266432024109e-10
+      },
+      "source_w": 1.7812090830936367,
+      "receipt": "bus_dc_q2_h25_p1.json",
+      "image": "bus_dc_q2_h25_p1.png"
+    },
+    "a6_partial_nominal_h10_p2": {
+      "peak": {
+        "temperature_c": 154.006710195717,
+        "rise_k": 104.00671019571699,
+        "x_mm": 19.0,
+        "y_mm": 109.0,
+        "layer": "F.Cu"
+      },
+      "balance": {
+        "source_w": 3.62884964,
+        "convection_w": 3.6288496396213086,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 3.7869130053991285e-10,
+        "cg_iterations": 647,
+        "relative_residual": 9.938546067299082e-10
+      },
+      "source_w": 3.62884964,
+      "receipt": "a6_partial_nominal_h10_p2.json",
+      "image": "a6_partial_nominal_h10_p2.png"
+    },
+    "a6_partial_nominal_h10_p1": {
+      "peak": {
+        "temperature_c": 132.65494062196026,
+        "rise_k": 82.65494062196026,
+        "x_mm": 27.5,
+        "y_mm": 134.5,
+        "layer": "F.Cu"
+      },
+      "balance": {
+        "source_w": 3.6288496399999994,
+        "convection_w": 3.6288496388764373,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 1.1235621322214229e-09,
+        "cg_iterations": 1107,
+        "relative_residual": 9.848996179493793e-10
+      },
+      "source_w": 3.6288496399999994,
+      "receipt": "a6_partial_nominal_h10_p1.json",
+      "image": "a6_partial_nominal_h10_p1.png"
+    },
+    "a6_partial_nominal_h25_p2": {
+      "peak": {
+        "temperature_c": 129.49690431967645,
+        "rise_k": 79.49690431967645,
+        "x_mm": 19.0,
+        "y_mm": 109.0,
+        "layer": "F.Cu"
+      },
+      "balance": {
+        "source_w": 3.62884964,
+        "convection_w": 3.6288496366170175,
+        "fixed_end_w": 0.0,
+        "fixed_bottom_w": 0.0,
+        "balance_w": 3.382982338706597e-09,
+        "cg_iterations": 441,
+        "relative_residual": 9.902636040283255e-10
+      },
+      "source_w": 3.62884964,
+      "receipt": "a6_partial_nominal_h25_p2.json",
+      "image": "a6_partial_nominal_h25_p2.png"
+    }
+  },
+  "bus_h10_peak_mesh_span_k": 7.7226568492313845,
+  "a6_h10_peak_mesh_span_k": 21.351769573756727
+}

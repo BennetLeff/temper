@@ -1,0 +1,76 @@
+* Round5 executable-C feedback coupled plant. Differential-mode reduced devices.
+.param VRMS=@VRMS@ RT=@RT@ LC=20u CT=540n CC=42.3u CL=@CL@ CR=.08
+.param RP1=@RP1@ RP2=@RP2@ FAULT=@FAULT@ FT=@FT@
+Bline src 0 V=sqrt(2)*VRMS*sin(2*pi*60*time)
+Rsrc src sp .1
+Lsrc sp mains 20u
+Vcontacts contacts 0 external
+Vbypass bypass 0 external
+Vproof proof 0 external
+Vallow allow 0 external
+Vm rawm 0 external
+Rm rawm m 10
+Cm m 0 1n
+Vhwfault hwfault 0 external
+Rcontacts mains pre R={.02+1e7*(1-v(contacts))}
+Ccontacts mains pre 100p
+* Arc is a sensitivity assumption, not a contactor model or interruption pass.
+Barc mains pre I=max(v(mains,pre)-400,0)/.5+min(v(mains,pre)+400,0)/.5
+Baux mains 0 I=25*v(mains)/(VRMS*VRMS)
+Rpre1 pre li {RP1}
+Rpre2 pre li {RP2}
+Rby pre li R={.01+1e9*(1-v(bypass))}
+* Bypass arc voltage is an explicit 400V sensitivity, not a supplier model.
+Bbyarc pre li I=max(v(pre,li)-400,0)/.5+min(v(pre,li)+400,0)/.5
+Rproof li 0 R={220+1e9*(1-v(proof))}
+Rxin li xi .035
+Cxin xi 0 2.2u
+Rnew li nl .009
+Lnew nl mid 18u
+Rxo mid xo .035
+Cxo xo 0 4.7u
+Rdamp mid da 3.9
+Cdamp da 0 4.7u
+Rbleed mid 0 30k
+Rx1 mid x1 .035
+Cx1 x1 0 1u
+Rold mid ol .009
+Lold ol rect 18u
+Rx2 rect x2 .035
+Cx2 x2 0 1u
+Roldbleed mid 0 240k
+* Nonlinear energy-conserving fullwave aggregate forward fit; generic diode.
+Brectdc rd 0 V=sqrt(v(rect)^2+1e-8)
+Vsense rd rdd 0
+Drect rdd bp DR
+Brectac rect 0 I=v(rect)/sqrt(v(rect)^2+1e-8)*i(Vsense)
+.model DR D(Is=1n N=3 Rs=.01)
+Rbulk bp cb .02
+Cbulk cb 0 5.4u
+Rlocal bp cbl .01
+Clocal cbl 0 400n
+Rdcbleed bp 0 440k
+* No guessed cross-leg matrix in this plant. A/B field models run separately.
+Bbridge a 0 V=v(allow)*v(m)*v(bp)-(1-v(allow))*(v(bp)+1.4)*tanh(i(Lcoil)/.1)-.036*i(Lcoil)
+Bdc bp 0 I=v(allow)*v(m)*i(Lcoil)-(1-v(allow))*i(Lcoil)*tanh(i(Lcoil)/.1)
+Lcoil a lr {LC}
+Rtank lr ct {RT}
+Ctank ct 0 {CT}
+Rtb ct 0 1.88meg
+Rfuse bp df .002
+Dcatch df cd DCATCH
+.model DCATCH D(Is=1n N=1 Rs=.02 Cjo=150p)
+Lcatch cd cr {CL}
+Rcatch cr catch {CR}
+Ccatch catch 0 {CC}
+Rcb catch 0 200k
+* Finite1us fault transition avoids an ideal topological discontinuity.
+Bfault fraction 0 V=min(1,max(0,(time-FT)/1u))
+Bcapshort catch 0 I=v(catch)*(1e-8+(FAULT==1)*v(fraction)/.01)
+Bbusshort bp 0 I=v(bp)*(1e-8+(FAULT==2)*v(fraction)/.01)
+Bpre vpre 0 V=v(pre)-v(li)
+Bproofcurrent iproof 0 V=v(li)/(220+1e9*(1-v(proof)))
+.save v(src) v(mains) v(pre) v(li) v(bp) v(catch) v(ct) v(vpre) v(iproof) i(Lsrc) i(Lcoil) i(Lcatch) i(Vsense) v(mid) v(da) v(m) v(allow) v(bypass) v(contacts)
+.options method=gear reltol=1e-4 abstol=1e-8 vntol=1e-6 itl4=300
+.tran @STEP@ @END@ 0 @STEP@ uic
+.end

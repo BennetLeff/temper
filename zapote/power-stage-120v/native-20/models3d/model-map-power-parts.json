@@ -1,0 +1,211 @@
+{
+  "format_version": 1,
+  "model_coordinate_system": "Millimetres: model X = footprint X, model Y = -footprint Y, Z positive above PCB",
+  "models": [
+    {
+      "references": [
+        "BR1"
+      ],
+      "footprint": "temper:Diode_Bridge_GBJ2510",
+      "path": "${KIPRJMOD}/../models3d/power-parts/GBJ2510-F_provisional.step",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "sha256": "1a1c80d4f760da21d5962d906c0fba8618dd937529bbb4cba9cd22f9be4e1aea",
+      "source_urls": [
+        "https://www.diodes.com/datasheet/download/GBJ2510.pdf",
+        "https://www.diodes.com/assets/Package-Files/GBJ.pdf"
+      ],
+      "dimensions_mm": {
+        "body_length_max": 30.3,
+        "body_thickness_max": 4.8,
+        "height_above_board": 20.3
+      },
+      "limitations": "Simplified rectangular GBJ silhouette. Screw recess and metal tab are omitted; check actual bridge and heat-sink fit."
+    },
+    {
+      "references": [
+        "D3"
+      ],
+      "footprint": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/power-parts/MRT130KP295CV_provisional.step",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "sha256": "88938b721f6c892a130604f474f6dfcb4081f02ed67db1956b1d435024b3367f",
+      "source_urls": [
+        "https://ww1.microchip.com/downloads/aemDocuments/documents/HRDS/ProductDocuments/DataSheets/130-kW-Transient-Voltage-Suppressor-TVS-Device-00005551.pdf"
+      ],
+      "dimensions_mm": {
+        "body_length": 12.954,
+        "body_diameter": 7.874,
+        "local_formed_pitch": 20.0
+      },
+      "limitations": "The straight package dimensions are from Microchip; the 20 mm formed lead shape is local and must be checked against the supplied part."
+    },
+    {
+      "references": [
+        "J6"
+      ],
+      "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/power-parts/KDS3_1704004_provisional.step",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "sha256": "b84e4defadf8d3486af8528fbcf536c29aacd810e4bbfd94572ff9f2f64d542e",
+      "source_urls": [
+        "https://www.phoenixcontact.com/en-de/products/pcb-terminal-block-kds-3-1704004?type=pdf"
+      ],
+      "dimensions_mm": {
+        "width": 5.08,
+        "length": 27.0,
+        "installed_height": 25.0,
+        "solder_pin_spacing": 15.24
+      },
+      "limitations": "Body envelope and pin centres only. Screw head, wire entry and latch details are not represented; verify enclosure fit on a sample."
+    },
+    {
+      "references": [
+        "RV1"
+      ],
+      "footprint": "temper:TMOV20RP_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/power-parts/TMOV20RP175E_provisional.step",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "sha256": "2841b0cbc4cf831e7d7b11c082f26b34db01a0e03b21cbb1fc24005db816a549",
+      "source_urls": [
+        "https://www.littelfuse.com/assetdocs/varistors-tmov-datasheet?assetguid=bd475732-1071-4352-b8aa-f78b0007eb05"
+      ],
+      "dimensions_mm": {
+        "disc_diameter_max": 23.0,
+        "disc_thickness_max": 9.0,
+        "seated_height_max": 28.0,
+        "local_formed_pitch": 7.5
+      },
+      "limitations": "The molded detail and lead forming to the local 7.5 mm pad pitch are approximate."
+    },
+    {
+      "references": [
+        "L1"
+      ],
+      "footprint": "temper:B82726S2_ReviewOnly",
+      "path": "${KIPRJMOD}/../models3d/power-parts/B82726S2203A020_provisional.step",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "sha256": "4c79e571d2df591727741e39d11d11448eb52ea19febdc5cdc49ea36077e1939",
+      "source_urls": [
+        "https://product.tdk.com/en/search/emc/emc/line-filter/info?part_no=B82726S2203A020",
+        "https://product.tdk.com/system/files/dam/doc/product/emc/emc/line-filter/3doutline_step/b82726s22x3a020_v06_max_public_tdk-pc.zip"
+      ],
+      "dimensions_mm": {
+        "body_length_max": 45.0,
+        "body_width_max": 25.5,
+        "body_height_max": 41.0,
+        "pad_pitch_x": 10.0,
+        "pad_pitch_y": 25.0
+      },
+      "limitations": "TDK lists an exact STEP archive but returned HTTP 403 in this environment. The torus and carrier are approximate; the envelope and pin centres follow TDK and the reviewed footprint."
+    },
+    {
+      "references": [
+        "T1"
+      ],
+      "footprint": "temper:CST3015",
+      "path": "${KIPRJMOD}/../models3d/power-parts/CST3015-100ED_provisional.step",
+      "offset_mm": [
+        0,
+        0,
+        0
+      ],
+      "rotation_deg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "status": "provisional-dimensioned",
+      "sha256": "7e06bce8b91cfec2e61b7728bf26933b85615c4c05bd5d3de33c4284aea5b766",
+      "source_urls": [
+        "https://www.coilcraft.com/en-us/products/transformers/power-transformers/current-sensing/cst3015/cst3015-100e/",
+        "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf"
+      ],
+      "dimensions_mm": {
+        "body_width_max": 23.0,
+        "body_length_max": 30.0,
+        "body_height_max": 15.2
+      },
+      "limitations": "Coilcraft lists a 3D model, but a direct archive URL was not exposed to this environment. Ferrite and bobbin detail are approximate; use a vendor CAD model for final fit and insulation review."
+    }
+  ]
+}

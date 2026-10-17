@@ -1,0 +1,34 @@
+[
+  {
+    "case": "success",
+    "aborted": false,
+    "primary_returncode": 0,
+    "raw_returncode": 0,
+    "both_logs_retained": true,
+    "pass": true
+  },
+  {
+    "case": "primary_nonzero",
+    "aborted": true,
+    "primary_returncode": 1,
+    "raw_returncode": 0,
+    "both_logs_retained": true,
+    "pass": true
+  },
+  {
+    "case": "raw_nonzero",
+    "aborted": true,
+    "primary_returncode": 0,
+    "raw_returncode": 1,
+    "both_logs_retained": true,
+    "pass": true
+  },
+  {
+    "case": "raw_missing",
+    "aborted": true,
+    "primary_returncode": 0,
+    "raw_returncode": 0,
+    "both_logs_retained": true,
+    "pass": true
+  }
+]

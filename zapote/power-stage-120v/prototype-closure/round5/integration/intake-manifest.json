@@ -1,0 +1,818 @@
+{
+  "schema": 1,
+  "status": "INTAKE_NOT_FINAL_REVIEW",
+  "baseline": "round4",
+  "native19_board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "reviewed_physical_hardware": false,
+  "baseline_artifacts": [
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/supervisor/circuit.rs",
+      "sha256": "507b727cf8540012bfbd5c20515e87833a4ec388d6ba05ff1bf3481c9f30f994"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/supervisor/generated/pins.tsv",
+      "sha256": "3163e9b3f6eccd77f064acfa12f8fe2d4f7c4fde69b0c42236372bae5785c0d2"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/supervisor/review-disposition.md",
+      "sha256": "26abb21a2c48bb53def5b9c6efe1c0ce2362ec6552a4de6b16daccc7a8e8ab94"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/supervisor/README.md",
+      "sha256": "d1dbc9adaa0c3b46194f542ff4c01648ce98c9a5761389246ba81c23c182f4f4"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/firmware/README.md",
+      "sha256": "389bce990408f2b0362af8fd7a28639856047bbccbb40cdab014886cd7464ae9"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/coupled-model/README.md",
+      "sha256": "565e2c7c5286cf8c6b23f44b8cfb2d8969e4ea4e89734fac3402c4c300bd60b2"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/interface.json",
+      "sha256": "f94abf37b24fe5b880e04c947c8eeaf08e24e2ba7629a67f5d20eb8d3ab0a39d"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/results.json",
+      "sha256": "42e282c79c594f45e5a3fdd5a7c87aabcd092f8badd523da47931976332067e0"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/catch/README.md",
+      "sha256": "3beb64328258f10311cde0f7d8a54ee28ed21dfbcaf09a1655c302056017a34b"
+    },
+    {
+      "path": "firmware/components/power/energy_link.c",
+      "sha256": "c6ac384e7fa26fa7717fd51cb4d1cf1081b46d5da143f4b13942f3f705707bba"
+    },
+    {
+      "path": "firmware/components/power/energy_supervisor.c",
+      "sha256": "6664014da008ebdcb9b8b86f4d3b792330d3b4a8b202795ed0ca7dc6ba1451cd"
+    },
+    {
+      "path": "firmware/components/power/fullbridge_adapter.c",
+      "sha256": "3b781f28dea7f776ddc558623171bb7a20b9206bac82be2ed714d6445b832f0c"
+    },
+    {
+      "path": "firmware/components/power/power_service.c",
+      "sha256": "96607ec4651870e4dab098e5524bb9c3a4cfcfa077c042e7ca661393a6d33e26"
+    },
+    {
+      "path": "firmware/components/power/include/energy_link.h",
+      "sha256": "2ff181ad0dbe1eeaf62c551e2ed2bd5edfbae8b6fd15c13669dd2d4ba48c3c59"
+    },
+    {
+      "path": "firmware/components/power/include/energy_supervisor.h",
+      "sha256": "3d999575d48c7e8a6a6a6ef3a4a0eb4c123b4565ad9c181fb5c709c34f450c1e"
+    },
+    {
+      "path": "firmware/components/power/include/fullbridge_adapter.h",
+      "sha256": "32953c0a48388a0170446b3fe2901b63136d6d6179ef45218d78c8da8f849156"
+    },
+    {
+      "path": "firmware/components/power/include/power_service.h",
+      "sha256": "d33ecf90429a91a7413631c981d987aa3c9f0b165ad9a0faf2914bb239f20bce"
+    }
+  ],
+  "baseline_interfaces": {
+    "JCTRL": [
+      {
+        "pin": "1",
+        "function": "CTRL_3V3",
+        "net": "CTRL_3V3",
+        "type": "power_out"
+      },
+      {
+        "pin": "2",
+        "function": "CTRL_GND",
+        "net": "CTRL_GND",
+        "type": "power_out"
+      },
+      {
+        "pin": "3",
+        "function": "SUP_RUN_OK",
+        "net": "SUP_RUN_OK",
+        "type": "passive"
+      },
+      {
+        "pin": "4",
+        "function": "CTRL_PWM_REQUEST",
+        "net": "CTRL_PWM_REQUEST",
+        "type": "passive"
+      },
+      {
+        "pin": "5",
+        "function": "CTRL_HEARTBEAT",
+        "net": "CTRL_HEARTBEAT",
+        "type": "passive"
+      },
+      {
+        "pin": "6",
+        "function": "CTRL_FAULT_HIGH",
+        "net": "CTRL_FAULT_HIGH",
+        "type": "passive"
+      },
+      {
+        "pin": "7",
+        "function": "CTRL_TX",
+        "net": "CTRL_TX",
+        "type": "passive"
+      },
+      {
+        "pin": "8",
+        "function": "CTRL_RX",
+        "net": "CTRL_RX",
+        "type": "passive"
+      },
+      {
+        "pin": "9",
+        "function": "CTRL_RAIL_OK",
+        "net": "CTRL_RAIL_OK",
+        "type": "passive"
+      },
+      {
+        "pin": "10",
+        "function": "CTRL_INTERLOCK_OK",
+        "net": "CTRL_INTERLOCK_OK",
+        "type": "passive"
+      }
+    ],
+    "J_PERMIT": [
+      {
+        "pin": "1",
+        "function": "NATIVE_PERMIT",
+        "net": "NATIVE_PERMIT",
+        "type": "passive"
+      },
+      {
+        "pin": "2",
+        "function": "CTRL_GND",
+        "net": "CTRL_GND",
+        "type": "passive"
+      }
+    ],
+    "J_CATCH_REMOTE": [
+      {
+        "pin": "1",
+        "function": "POD_3V3",
+        "net": "POD_3V3",
+        "type": "passive"
+      },
+      {
+        "pin": "2",
+        "function": "AUX_0V",
+        "net": "AUX_0V",
+        "type": "passive"
+      },
+      {
+        "pin": "3",
+        "function": "VCATCH_P",
+        "net": "VCATCH_P",
+        "type": "passive"
+      },
+      {
+        "pin": "4",
+        "function": "VCATCH_N",
+        "net": "VCATCH_N",
+        "type": "passive"
+      },
+      {
+        "pin": "5",
+        "function": "VCATCH_DIAG_N",
+        "net": "VCATCH_DIAG_N",
+        "type": "passive"
+      },
+      {
+        "pin": "6",
+        "function": "AUX_0V",
+        "net": "AUX_0V",
+        "type": "passive"
+      }
+    ],
+    "J_CATCH_POD": [
+      {
+        "pin": "1",
+        "function": "POD_3V3",
+        "net": "POD_3V3",
+        "type": "passive"
+      },
+      {
+        "pin": "2",
+        "function": "AUX_0V",
+        "net": "AUX_0V",
+        "type": "passive"
+      },
+      {
+        "pin": "3",
+        "function": "VCATCH_P",
+        "net": "VCATCH_P",
+        "type": "passive"
+      },
+      {
+        "pin": "4",
+        "function": "VCATCH_N",
+        "net": "VCATCH_N",
+        "type": "passive"
+      },
+      {
+        "pin": "5",
+        "function": "VCATCH_DIAG_N",
+        "net": "VCATCH_DIAG_N",
+        "type": "passive"
+      },
+      {
+        "pin": "6",
+        "function": "AUX_0V",
+        "net": "AUX_0V",
+        "type": "passive"
+      }
+    ],
+    "U_MCU": [
+      {
+        "pin": "1",
+        "function": "PC11",
+        "net": "CTRL_RAIL_OK_LOCAL",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "2",
+        "function": "PC12",
+        "net": "CTRL_FAULT_LOCAL",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "3",
+        "function": "PC13",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "4",
+        "function": "PC14",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "5",
+        "function": "PC15",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "6",
+        "function": "VBAT",
+        "net": "POD_3V3",
+        "type": "power_in"
+      },
+      {
+        "pin": "7",
+        "function": "VREF+",
+        "net": "POD_3V3",
+        "type": "power_in"
+      },
+      {
+        "pin": "8",
+        "function": "VDD",
+        "net": "POD_3V3",
+        "type": "power_in"
+      },
+      {
+        "pin": "9",
+        "function": "VSS",
+        "net": "AUX_0V",
+        "type": "power_in"
+      },
+      {
+        "pin": "10",
+        "function": "NRST",
+        "net": "WD_RESET_N",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "11",
+        "function": "PF0",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "12",
+        "function": "PF1",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "13",
+        "function": "PC0",
+        "net": "POD_START",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "14",
+        "function": "PC1",
+        "net": "POD_RESET",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "15",
+        "function": "PC2",
+        "net": "POD_STOP",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "16",
+        "function": "PC3",
+        "net": "MCU_WDI",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "17",
+        "function": "PA0",
+        "net": "ADC_DRDY_N",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "18",
+        "function": "PA1",
+        "net": "ADC_RESET_N",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "19",
+        "function": "PA2",
+        "net": "RP1_TEMP_ADC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "20",
+        "function": "PA3",
+        "net": "RP2_TEMP_ADC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "21",
+        "function": "PA4",
+        "net": "ADC_CS_N",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "22",
+        "function": "PA5",
+        "net": "ADC_SCLK",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "23",
+        "function": "PA6",
+        "net": "ADC_DOUT",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "24",
+        "function": "PA7",
+        "net": "ADC_DIN",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "25",
+        "function": "PC4",
+        "net": "CMD_K1",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "26",
+        "function": "PC5",
+        "net": "CMD_K2",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "27",
+        "function": "PB0",
+        "net": "CMD_KB",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "28",
+        "function": "PB1",
+        "net": "CMD_KT",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "29",
+        "function": "PB2",
+        "net": "MCU_HEALTHY",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "30",
+        "function": "PB10",
+        "net": "MCU_POST_OK",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "31",
+        "function": "PB11",
+        "net": "MCU_RESET_OK",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "32",
+        "function": "PB12",
+        "net": "MCU_PRECHARGE_DONE",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "33",
+        "function": "PB13",
+        "net": "MCU_BYPASS_PROVEN",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "34",
+        "function": "PB14",
+        "net": "MCU_RUN",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "35",
+        "function": "PB15",
+        "net": "MCU_STOP_DONE",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "36",
+        "function": "PA8",
+        "net": "ADC_CLKIN",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "37",
+        "function": "PA9",
+        "net": "MCU_UART_TX",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "38",
+        "function": "PC6",
+        "net": "START_RELEASED",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "39",
+        "function": "PC7",
+        "net": "K1_MIRROR",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "40",
+        "function": "PD8",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "41",
+        "function": "PD9",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "42",
+        "function": "PA10",
+        "net": "MCU_UART_RX",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "43",
+        "function": "PA11",
+        "net": "CTRL_INTERLOCK_OK_LOCAL",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "44",
+        "function": "PA12",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "45",
+        "function": "PA13",
+        "net": "SWDIO",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "46",
+        "function": "PA14",
+        "net": "SWCLK",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "47",
+        "function": "PA15",
+        "net": "NC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "48",
+        "function": "PC8",
+        "net": "K2_MIRROR",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "49",
+        "function": "PC9",
+        "net": "KB_MIRROR",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "50",
+        "function": "PD0",
+        "net": "K1_FB_EXC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "51",
+        "function": "PD1",
+        "net": "K2_FB_EXC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "52",
+        "function": "PD2",
+        "net": "KB_FB_EXC",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "53",
+        "function": "PD3",
+        "net": "CTRL_HEARTBEAT_LOCAL",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "54",
+        "function": "PD4",
+        "net": "CTRL_HEARTBEAT_OK",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "55",
+        "function": "PD5",
+        "net": "K1_ST_N",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "56",
+        "function": "PD6",
+        "net": "K2_ST_N",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "57",
+        "function": "PB3",
+        "net": "LATCH_OK",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "58",
+        "function": "PB4",
+        "net": "ATTEMPT",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "59",
+        "function": "PB5",
+        "net": "BYPASS_PROVEN",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "60",
+        "function": "PB6",
+        "net": "TOTAL_WINDOW",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "61",
+        "function": "PB7",
+        "net": "START_WINDOW",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "62",
+        "function": "PB8",
+        "net": "PROOF_WINDOW",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "63",
+        "function": "PB9",
+        "net": "BASIC_HEALTHY",
+        "type": "bidirectional"
+      },
+      {
+        "pin": "64",
+        "function": "PC10",
+        "net": "CTRL_PWM_REQUEST_LOCAL",
+        "type": "bidirectional"
+      }
+    ],
+    "U_ADC": [
+      {
+        "pin": "13",
+        "function": "AGND",
+        "net": "AUX_0V",
+        "type": "power_in"
+      },
+      {
+        "pin": "28",
+        "function": "AGND",
+        "net": "AUX_0V",
+        "type": "power_in"
+      },
+      {
+        "pin": "15",
+        "function": "AVDD",
+        "net": "POD_3V3",
+        "type": "power_in"
+      },
+      {
+        "pin": "26",
+        "function": "DVDD",
+        "net": "POD_3V3",
+        "type": "power_in"
+      },
+      {
+        "pin": "25",
+        "function": "DGND",
+        "net": "AUX_0V",
+        "type": "power_in"
+      },
+      {
+        "pin": "24",
+        "function": "CAP",
+        "net": "ADC_CAP",
+        "type": "power_out"
+      },
+      {
+        "pin": "14",
+        "function": "REFIN",
+        "net": "NC",
+        "type": "input"
+      },
+      {
+        "pin": "27",
+        "function": "NC",
+        "net": "NC",
+        "type": "no_connect"
+      },
+      {
+        "pin": "17",
+        "function": "CS_N",
+        "net": "ADC_CS_N",
+        "type": "input"
+      },
+      {
+        "pin": "18",
+        "function": "DRDY_N",
+        "net": "ADC_DRDY_N",
+        "type": "output"
+      },
+      {
+        "pin": "19",
+        "function": "SCLK",
+        "net": "ADC_SCLK",
+        "type": "input"
+      },
+      {
+        "pin": "20",
+        "function": "DOUT",
+        "net": "ADC_DOUT",
+        "type": "output"
+      },
+      {
+        "pin": "21",
+        "function": "DIN",
+        "net": "ADC_DIN",
+        "type": "input"
+      },
+      {
+        "pin": "16",
+        "function": "SYNC_RESET_N",
+        "net": "ADC_RESET_N",
+        "type": "input"
+      },
+      {
+        "pin": "23",
+        "function": "CLKIN",
+        "net": "ADC_CLKIN",
+        "type": "input"
+      },
+      {
+        "pin": "22",
+        "function": "XTAL2",
+        "net": "NC",
+        "type": "output"
+      },
+      {
+        "pin": "29",
+        "function": "AINP",
+        "net": "VLINE_ADC_P",
+        "type": "input"
+      },
+      {
+        "pin": "30",
+        "function": "AINN",
+        "net": "VLINE_ADC_N",
+        "type": "input"
+      },
+      {
+        "pin": "32",
+        "function": "AINP",
+        "net": "VPRE_ADC_P",
+        "type": "input"
+      },
+      {
+        "pin": "31",
+        "function": "AINN",
+        "net": "VPRE_ADC_N",
+        "type": "input"
+      },
+      {
+        "pin": "1",
+        "function": "AINP",
+        "net": "VOUT_ADC_P",
+        "type": "input"
+      },
+      {
+        "pin": "2",
+        "function": "AINN",
+        "net": "VOUT_ADC_N",
+        "type": "input"
+      },
+      {
+        "pin": "4",
+        "function": "AINP",
+        "net": "VBUS_ADC_P",
+        "type": "input"
+      },
+      {
+        "pin": "3",
+        "function": "AINN",
+        "net": "VBUS_ADC_N",
+        "type": "input"
+      },
+      {
+        "pin": "5",
+        "function": "AINP",
+        "net": "VCATCH_ADC_P",
+        "type": "input"
+      },
+      {
+        "pin": "6",
+        "function": "AINN",
+        "net": "VCATCH_ADC_N",
+        "type": "input"
+      },
+      {
+        "pin": "8",
+        "function": "AINP",
+        "net": "VTANK_ADC_P",
+        "type": "input"
+      },
+      {
+        "pin": "7",
+        "function": "AINN",
+        "net": "VTANK_ADC_N",
+        "type": "input"
+      },
+      {
+        "pin": "9",
+        "function": "AINP",
+        "net": "IPROOF_ADC",
+        "type": "input"
+      },
+      {
+        "pin": "10",
+        "function": "AINN",
+        "net": "REF_1V25",
+        "type": "input"
+      },
+      {
+        "pin": "12",
+        "function": "AINP",
+        "net": "ILINE_ADC",
+        "type": "input"
+      },
+      {
+        "pin": "11",
+        "function": "AINN",
+        "net": "REF_1V25",
+        "type": "input"
+      }
+    ]
+  },
+  "pending_owners": [
+    "target_firmware",
+    "supervisor_layout",
+    "protection_hardware",
+    "coupled_model"
+  ],
+  "release": "NOT_RELEASED"
+}

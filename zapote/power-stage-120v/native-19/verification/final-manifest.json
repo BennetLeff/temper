@@ -1,0 +1,85 @@
+{
+  "schema": "temper.native19.engineering-candidate.v1",
+  "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
+  "board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "schematic_sha256": "29c4781b62930f03a067fc363fb36f5084a1eb454242812fb5d13ebc4e0ae22d",
+  "baseline_commit": "fda5ab9ece24ef1ee6f2317604c5ca73367d5201",
+  "baseline_board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "components": 142,
+  "nets": 89,
+  "drc": {
+    "runs": 3,
+    "errors_each": 0,
+    "unconnected_each": 0,
+    "schematic_parity_findings_each": 0,
+    "warnings_each": {
+      "lib_footprint_mismatch": 36,
+      "silk_overlap": 3
+    }
+  },
+  "erc": {
+    "errors": 0,
+    "warnings": {
+      "ground_pin_not_ground": 3,
+      "isolated_pin_label": 13
+    }
+  },
+  "source_audit_tests": 62,
+  "source_frozen_copies_equal": true,
+  "power_regions": {
+    "A": "CHANGED",
+    "B": "CHANGED",
+    "reuse_native18_fem": "NOT_AUTHORIZED"
+  },
+  "models": {
+    "resolved": 142,
+    "provisional_envelopes": 24
+  },
+  "local_step": {
+    "path": "output/temper-prototype-closure/pcb/temper-power-native19-candidate.step",
+    "sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c",
+    "solids": 216,
+    "expected_component_refs_found": 142,
+    "publish_generated_file": false
+  },
+  "probe_points": "CANDIDATE_ONLY; full tip/copper and actual mask-aperture containment NOT_CHECKED",
+  "physical": "NOT_RUN",
+  "historical_receipts": {
+    "build.json": "Authored pre-refill board identity; final identity is this manifest. Later R5 model path substitution affects representation only.",
+    "baseline-footprint-pad-comparison.json": "Parent comparison pinned to historical stable HOT5 snapshot; pad geometry equivalence only, not full library equivalence.",
+    "simplification-equivalence.json": "Pre-review simplification proof; review-fix-verification.json records subsequent reproduction-guard changes and board equivalence."
+  },
+  "final_receipt_sha256": {
+    "build.json": "d6b2ca4774350a7b4bffdda2aecc996097482ce248e0bc18f634e7c44540c995",
+    "component-identity.json": "e8991846accbe1a312a4ed085ea0e09c86f7bd858819b8188e5c69a2ced6e44d",
+    "schematic-build.json": "a7a65e8140fd248322bd5bfe4bf56278d537bbbed981c3d25dee7b6129b83a4d",
+    "drc-final-1.json": "55b746a1cce0a24340469c2a111550fe0e790d3a527cec2e2cca63cbdf1dba3f",
+    "drc-final-2.json": "4f7487da10fa2fd6a2777460e99f9643a2323f3dcc42ba1955e20541dcf6440f",
+    "drc-final-3.json": "777c4c0a6fae4fdd9b9fbdc240cf9f2bd894486e14854b2f59ef6c0b77e681cf",
+    "erc-final.json": "8d67a8240b07c52da23e626fdc80f921cb6f702507eca59b6c3c9e6f00d80208",
+    "source-audit.txt": "940815d3516cc7559c8bdc737b0d5ea3211f56f51776ba8664788adb6e3e0e2c",
+    "source-audit-tests.txt": "5ee20b7166a46c78dfb2d605c88947eeda77c843401341931010ffad7256bb3f",
+    "edge-contact-screen.json": "eaa5cb20acc08e1f150ff8ee9cae40263e16650bc0bfe0e474877daa5d9811dd",
+    "probe-access.json": "d5b8b0cef38620bfdd931ae99626a5eaf36b2989c289120d5fd281129097a2a8",
+    "model-inventory.json": "553019fab14d9582228ceee7a6d1a6d8b0458fdedbbd59315021873131e1405b",
+    "leg-region-diff.json": "4532ce8b50ae2cc81167552feecb162c7eb109fcf3a85a3d15506499f66f0fd4",
+    "leg-region-diff.txt": "94a557c1da11dece603ce1ab168ea244489c7ff588baa6a23d966cf67cdd2366",
+    "step-export.json": "83f685cb5b658b5161c4910b4e3d0cda18b7cb2931e65b319457b5da62cbe0c9",
+    "baseline-footprint-pad-comparison.json": "f0a73b16839a7fa2585a6bddcbbd6de9307ce468d1164fcd9088a1e72e0ea476",
+    "reproducibility.json": "b0f904f6799a33f430eab0d7c4ae3ab8a7c7ae9559e6097c9c0d084415dd0261",
+    "code-freeze-sha256.txt": "b115ac56ddab9c10aa354844532fdb3ef0392e198755bd991c589e7985483d13",
+    "simplification-equivalence.json": "67239e40dd54d882d56c00d994382b8e0f254f46ce26e5c5f5ba109d92c268e9",
+    "reproduction-commands.json": "a00c80a30620abda24ad5b5232b3de584b140d81db1eb39e0131d5caab41761d",
+    "review-fix-verification.json": "582cd967251e476e208c9a5cd8c077651c73bf6406c1b50fbdb34ef0116535f2"
+  },
+  "native_design_sha256": {
+    "section.kicad_pcb": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+    "section.kicad_sch": "29c4781b62930f03a067fc363fb36f5084a1eb454242812fb5d13ebc4e0ae22d",
+    "section.kicad_pro": "260dcdfa0eacb03aa7625aeb3a6c282e32eca79b3243563156e5357b0c634a68",
+    "section.kicad_dru": "b7457980ca28db98fba0365a8a0e7affee17a390d2e841e5cfda919ce709eabf",
+    "native19.kicad_sym": "226c14031002db434bcd7ef343b00e9d4af1392a99a1d67db8001d131a9a77b6",
+    "fp-lib-table": "ac59eca45543a25f5dfbda5fe8da4806b45997b84b650bf3a1624fa74309585d",
+    "sym-lib-table": "df8c6906b6c3642b6df5a4c473df2e9ebd14246273cf78318d6dadd2ab1639e5",
+    "stackup.json": "4022df3f3b96530ece8727e96e523691352234c4ed0de00f0cb93227cc89a37d"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "status": "PASS within stated model and layout acceptance conditions",
+  "base_commit": "fada4c13c",
+  "hardware_qualified": false,
+  "rail_limit_V": -1.6,
+  "switching_limit_V": 1.9,
+  "edge_step_ps": 50,
+  "edge_span_V": 15.5,
+  "repeated_pulse_charge_nC": 740,
+  "repeated_pulse_peak_A": 8,
+  "hot_load_span_V": 18,
+  "hot_load_current_mA": 30,
+  "corner_count_per_selected_waveform": 128,
+  "qualification_limits": [
+    "gm/pole factors are engineering sensitivities, not vendor temperature/process bounds",
+    "effective capacitance and mounted ESL/ESR must meet ECO limits",
+    "transformer control startup, core loss, saturation and worst leakage are not qualified",
+    "rail monitor startup/recovery, DIS timing and D-20 harness remain physical gates",
+    "bursts remain disabled pending LINE_ZC firmware and timing qualification"
+  ],
+  "switching": [
+    {
+      "path": "edge-current/results.json",
+      "cases": 504,
+      "passed": 504,
+      "maximum_off_gate_V": 1.589109
+    },
+    {
+      "path": "edge-current-2.4V/results.json",
+      "cases": 26,
+      "passed": 26,
+      "maximum_off_gate_V": 0.6705964
+    }
+  ],
+  "rail_campaigns": [
+    {
+      "path": "rail-qualified/edge-screen.json",
+      "cases": 1008,
+      "completed": 1008,
+      "passed": 1008,
+      "least_negative_partner_window_V": -1.844578,
+      "margin_to_minus_1p6_V": 0.24457799999999996,
+      "worst_case": "edge-150-1",
+      "minimum_shunt_A": 0.001428727,
+      "maximum_shunt_A": 0.002075061
+    },
+    {
+      "path": "rail-qualified/edge-corners.json",
+      "cases": 3328,
+      "completed": 3328,
+      "passed": 3328,
+      "least_negative_partner_window_V": -1.678912,
+      "margin_to_minus_1p6_V": 0.07891199999999987,
+      "worst_case": "corner-30-150-1",
+      "minimum_shunt_A": 7.431145e-11,
+      "maximum_shunt_A": 0.004051647
+    },
+    {
+      "path": "rail-deep-bias/edge-screen.json",
+      "cases": 52,
+      "completed": 52,
+      "passed": 52,
+      "least_negative_partner_window_V": -1.844417,
+      "margin_to_minus_1p6_V": 0.24441699999999988,
+      "worst_case": "edge-13-1",
+      "minimum_shunt_A": 0.001417406,
+      "maximum_shunt_A": 0.002075595
+    },
+    {
+      "path": "rail-deep-bias/edge-corners.json",
+      "cases": 3200,
+      "completed": 3200,
+      "passed": 3200,
+      "least_negative_partner_window_V": -1.678614,
+      "margin_to_minus_1p6_V": 0.07861399999999996,
+      "worst_case": "corner-30-13-1",
+      "minimum_shunt_A": 2.836464e-11,
+      "maximum_shunt_A": 0.004051647
+    },
+    {
+      "path": "rail-qualified/periodic.json",
+      "cases": 256,
+      "completed": 256,
+      "passed": 256,
+      "least_negative_partner_window_V": -1.888341,
+      "margin_to_minus_1p6_V": 0.28834099999999996,
+      "worst_case": "periodic-26-33000",
+      "minimum_shunt_A": 1.462388e-10,
+      "maximum_shunt_A": 0.03307715
+    },
+    {
+      "path": "rail-hot-18V/hot-load.json",
+      "cases": 128,
+      "completed": 128,
+      "passed": 128,
+      "least_negative_partner_window_V": -1.915819,
+      "margin_to_minus_1p6_V": 0.31581899999999985,
+      "worst_case": "hot-load-73-33000",
+      "minimum_shunt_A": 0.02123161,
+      "maximum_shunt_A": 0.06406181
+    }
+  ],
+  "least_negative_partner_window_V": -1.678614,
+  "rail_margin_V": 0.07861399999999996,
+  "minimum_phase_margin_deg": 51.61766316659299,
+  "refinement": {
+    "cases": 6,
+    "maximum_50_to_25ps_difference_V": 9.999999999177334e-07
+  },
+  "transformer": {
+    "cases": 4,
+    "minimum_rectified_output_V": 17.27942,
+    "maximum_switch_current_A": 0.4667421,
+    "maximum_drain_V": 50.42807,
+    "maximum_rectifier_reverse_V": 89.4776
+  },
+  "maximum_supply_allocation_W": 9.592228571428574,
+  "supply_rating_before_derating_W": 21.6,
+  "evidence_sha256": {
+    "rail-qualified/edge-screen.json": "f1fbb4f0af1bf2e65802be616f9bb592726ea9ad810b3c6fb98c48eb2d492f38",
+    "rail-qualified/edge-corners.json": "d84d55fbbca209d1efae432099eca497f98abeeb234ffab68bedbf0447af02be",
+    "rail-deep-bias/edge-screen.json": "3c4461159693c5d80fcb9cca330c071cd0035a0fc40b7a54f6e83fdc1a77ce0f",
+    "rail-deep-bias/edge-corners.json": "79bceb3d04358eef056ac1f3e9903c3c0e9813122444126451f9c21b1c578d7c",
+    "rail-qualified/periodic.json": "d1a07e7c2afd7b14ce1eac906b51eb2a1d82bb5808a508781fb29cb61723a9d0",
+    "rail-hot-18V/hot-load.json": "b5b4e8b4c1bd9cc4daa07b990083b22801601e010994b1605fc50491f3a0ab32",
+    "edge-current/results.json": "3b18d3a8159653c9c623287f100b4e6c368f3d2ac67945e2e5c0a7c6d530a93f",
+    "edge-current-2.4V/results.json": "0379575a5353d35fce18a521362cf85065f554caa6abb12a57cc6c9d58752912",
+    "edge_currents.py": "98b4b9d4a7c5c51d0900c761214d4802600af347d4518076721627f2a9bb7cd9",
+    "rail_qualification.py": "2c8874b2df33728ebe99ab3dbea8b0561a170ce0755752f7ef65de6e8cc4e182",
+    "refine_rail.py": "b58bbe6378efcc606456eb49016b60f92e76c8836dfd5ee6b022dd36d7ac35eb",
+    "transformer_check.py": "d012e309d182d595c043890eaa14aef4952e1b3363f3542deef4fa7cd5475d5e",
+    "qualification_summary.py": "c8d62865ae6845c88a4517a76977d97644d9ca0b6a1ad3a2a2bcd96775dd38bd",
+    "bias-sizing.json": "ec0f479f061970afccc0788b8a5cd7811f729d976948370166d6e33f00f387a0",
+    "rail-qualified/final-refinement.json": "b3f2e0f9d069b80b46a12c9355b54c555904ffafb47dc1e88704992bb5cf8f5a",
+    "rail-qualified/loop.json": "4217b86a91f6d771c68c2fe9be3409369eff495f31ae28ab71a7b41d47d8c31d",
+    "transformer-check/results.json": "c76128e8e6f90ca14d773de38aa816ee8a994a69c19122089ac3e4d5e8037a16"
+  }
+}

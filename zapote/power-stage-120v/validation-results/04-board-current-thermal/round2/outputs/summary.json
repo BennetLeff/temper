@@ -1,0 +1,14 @@
+{
+  "board_sha256": "8056fc952675bc6987bcc9d32c12a88eebc4cec9bc3696f8cbd4876700a39129",
+  "solver_sha256": "349faeacc92e7466acf26ffdf877684211083a6cef0590417d7480c22356c5c2",
+  "smoke_checks_passed": 16,
+  "solver_selftest": "PASS",
+  "physical_component_crossing_edges": 4,
+  "void_crossing_edges": 70,
+  "board_current_and_temperature_verdict": "BLOCKED",
+  "reason": "0.25 mm raster graph crosses real native-13 BUS_P copper gaps; drilled-contact model also missing",
+  "resistance_ohm": null,
+  "via_current_a": null,
+  "joule_temperature_rise_c": null,
+  "total_board_temperature_c": null
+}

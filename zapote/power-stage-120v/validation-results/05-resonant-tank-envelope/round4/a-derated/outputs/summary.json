@@ -1,0 +1,278 @@
+{
+  "evidence_class": "simulation/model-based",
+  "case_count": 270,
+  "accepted_case_count": 270,
+  "event_count": 190336,
+  "ceilings": {
+    "42": {
+      "status_counts": {
+        "derated": 63,
+        "retained": 72
+      },
+      "accepted_above_shunt_min_38_438184a": 73,
+      "retained_above_shunt_min_38_438184a": 10,
+      "derated_above_shunt_min_38_438184a": 63,
+      "accepted_above_ct_min_50_558351a": 0,
+      "max_accepted_peak_a": 41.94159,
+      "min_delivered_power_w": 298.3023,
+      "needs_burst_or_phase_shift": [],
+      "by_pan_and_line": [
+        {
+          "pan": "carbon_or_430_steel",
+          "vrms_v": 108.0,
+          "min_delivered_w": 298.3023,
+          "max_delivered_w": 1434.851,
+          "mean_delivered_w": 778.8205222222223,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "carbon_or_430_steel",
+          "vrms_v": 120.0,
+          "min_delivered_w": 298.6359,
+          "max_delivered_w": 1431.97,
+          "mean_delivered_w": 775.3641222222222,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "carbon_or_430_steel",
+          "vrms_v": 140.0,
+          "min_delivered_w": 299.0927,
+          "max_delivered_w": 1418.157,
+          "mean_delivered_w": 767.7661,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "cast_iron",
+          "vrms_v": 108.0,
+          "min_delivered_w": 299.9591,
+          "max_delivered_w": 1709.855,
+          "mean_delivered_w": 862.2173888888889,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "cast_iron",
+          "vrms_v": 120.0,
+          "min_delivered_w": 299.9903,
+          "max_delivered_w": 1712.057,
+          "mean_delivered_w": 862.1438111111111,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "cast_iron",
+          "vrms_v": 140.0,
+          "min_delivered_w": 299.4857,
+          "max_delivered_w": 1708.804,
+          "mean_delivered_w": 857.6906888888889,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "low_R_silargan_like",
+          "vrms_v": 108.0,
+          "min_delivered_w": 299.4524,
+          "max_delivered_w": 1074.372,
+          "mean_delivered_w": 642.9283,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "low_R_silargan_like",
+          "vrms_v": 120.0,
+          "min_delivered_w": 298.6911,
+          "max_delivered_w": 1063.367,
+          "mean_delivered_w": 637.1183777777778,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "low_R_silargan_like",
+          "vrms_v": 140.0,
+          "min_delivered_w": 299.7247,
+          "max_delivered_w": 1031.076,
+          "mean_delivered_w": 625.2416666666667,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "offset_or_small_pan",
+          "vrms_v": 108.0,
+          "min_delivered_w": 300.3538,
+          "max_delivered_w": 771.7136,
+          "mean_delivered_w": 470.4938888888889,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "offset_or_small_pan",
+          "vrms_v": 120.0,
+          "min_delivered_w": 300.4285,
+          "max_delivered_w": 758.5961,
+          "mean_delivered_w": 465.5339777777778,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "offset_or_small_pan",
+          "vrms_v": 140.0,
+          "min_delivered_w": 298.9679,
+          "max_delivered_w": 734.8543,
+          "mean_delivered_w": 457.54659999999996,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "triply_clad_GUESS",
+          "vrms_v": 108.0,
+          "min_delivered_w": 299.1211,
+          "max_delivered_w": 1123.637,
+          "mean_delivered_w": 624.8236777777778,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "triply_clad_GUESS",
+          "vrms_v": 120.0,
+          "min_delivered_w": 299.3365,
+          "max_delivered_w": 1109.346,
+          "mean_delivered_w": 619.1519111111111,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "triply_clad_GUESS",
+          "vrms_v": 140.0,
+          "min_delivered_w": 300.2826,
+          "max_delivered_w": 1083.715,
+          "mean_delivered_w": 609.1931888888889,
+          "mean_requested_w": 955.0
+        }
+      ]
+    },
+    "40.45": {
+      "status_counts": {
+        "derated": 69,
+        "retained": 66
+      },
+      "accepted_above_shunt_min_38_438184a": 73,
+      "retained_above_shunt_min_38_438184a": 4,
+      "derated_above_shunt_min_38_438184a": 69,
+      "accepted_above_ct_min_50_558351a": 0,
+      "max_accepted_peak_a": 40.39312,
+      "min_delivered_power_w": 298.3023,
+      "needs_burst_or_phase_shift": [],
+      "by_pan_and_line": [
+        {
+          "pan": "carbon_or_430_steel",
+          "vrms_v": 108.0,
+          "min_delivered_w": 298.3023,
+          "max_delivered_w": 1329.481,
+          "mean_delivered_w": 748.3611444444444,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "carbon_or_430_steel",
+          "vrms_v": 120.0,
+          "min_delivered_w": 298.6359,
+          "max_delivered_w": 1329.578,
+          "mean_delivered_w": 744.0985999999999,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "carbon_or_430_steel",
+          "vrms_v": 140.0,
+          "min_delivered_w": 299.0927,
+          "max_delivered_w": 1306.171,
+          "mean_delivered_w": 732.5951111111111,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "cast_iron",
+          "vrms_v": 108.0,
+          "min_delivered_w": 299.9591,
+          "max_delivered_w": 1618.955,
+          "mean_delivered_w": 830.9357222222222,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "cast_iron",
+          "vrms_v": 120.0,
+          "min_delivered_w": 299.9903,
+          "max_delivered_w": 1641.824,
+          "mean_delivered_w": 832.5149222222221,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "cast_iron",
+          "vrms_v": 140.0,
+          "min_delivered_w": 299.4857,
+          "max_delivered_w": 1643.54,
+          "mean_delivered_w": 827.4120222222223,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "low_R_silargan_like",
+          "vrms_v": 108.0,
+          "min_delivered_w": 299.4524,
+          "max_delivered_w": 996.9185,
+          "mean_delivered_w": 609.4281222222222,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "low_R_silargan_like",
+          "vrms_v": 120.0,
+          "min_delivered_w": 298.6911,
+          "max_delivered_w": 979.4483,
+          "mean_delivered_w": 601.7895666666667,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "low_R_silargan_like",
+          "vrms_v": 140.0,
+          "min_delivered_w": 299.7247,
+          "max_delivered_w": 944.378,
+          "mean_delivered_w": 592.2245555555555,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "offset_or_small_pan",
+          "vrms_v": 108.0,
+          "min_delivered_w": 300.3538,
+          "max_delivered_w": 712.6585,
+          "mean_delivered_w": 442.07752222222217,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "offset_or_small_pan",
+          "vrms_v": 120.0,
+          "min_delivered_w": 300.4285,
+          "max_delivered_w": 697.9121,
+          "mean_delivered_w": 437.2877111111111,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "offset_or_small_pan",
+          "vrms_v": 140.0,
+          "min_delivered_w": 298.9679,
+          "max_delivered_w": 677.44,
+          "mean_delivered_w": 430.1388,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "triply_clad_GUESS",
+          "vrms_v": 108.0,
+          "min_delivered_w": 299.1211,
+          "max_delivered_w": 1037.477,
+          "mean_delivered_w": 591.6594,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "triply_clad_GUESS",
+          "vrms_v": 120.0,
+          "min_delivered_w": 299.3365,
+          "max_delivered_w": 1027.847,
+          "mean_delivered_w": 586.0058111111111,
+          "mean_requested_w": 955.0
+        },
+        {
+          "pan": "triply_clad_GUESS",
+          "vrms_v": 140.0,
+          "min_delivered_w": 300.2826,
+          "max_delivered_w": 995.8706,
+          "mean_delivered_w": 577.0242999999999,
+          "mean_requested_w": 955.0
+        }
+      ]
+    }
+  }
+}

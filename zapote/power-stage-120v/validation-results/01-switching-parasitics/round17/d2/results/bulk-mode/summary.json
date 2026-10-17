@@ -1,0 +1,121 @@
+{
+ "matrix": "legA-h0-lin12.matrix.txt",
+ "lbulk_nH": 21.519,
+ "cases": [
+  {
+   "tag": "S1_v170_i37_d0_dt348_esl10",
+   "aborted": false,
+   "max_abs_didt_A_per_ns": {
+    "bulk": 3.8464265337382053,
+    "c38": 1.4219331775878088,
+    "c39": 1.5380978682272302
+   },
+   "gate_high": {
+    "represented_V": 10.312393550672013,
+    "bulk_estimate_V": 13.972913669110778,
+    "bulk_cs_bound_V": 90.92172483030181
+   },
+   "gate_low": {
+    "represented_V": 15.845977480928106,
+    "bulk_estimate_V": 20.832630749379494,
+    "bulk_cs_bound_V": 107.60912270064603
+   }
+  },
+  {
+   "tag": "S1_v170_i37_d1_dt348_esl10",
+   "aborted": false,
+   "max_abs_didt_A_per_ns": {
+    "bulk": 3.857037015732445,
+    "c38": 1.4097035877132855,
+    "c39": 1.5544932373280544
+   },
+   "gate_high": {
+    "represented_V": 10.322830943156921,
+    "bulk_estimate_V": 14.011458367051253,
+    "bulk_cs_bound_V": 91.17253511245208
+   },
+   "gate_low": {
+    "represented_V": 15.870138165192277,
+    "bulk_estimate_V": 20.890098180908495,
+    "bulk_cs_bound_V": 107.9059656661404
+   }
+  },
+  {
+   "tag": "S2_v280_i71_d0_dt348_esl10",
+   "aborted": false,
+   "max_abs_didt_A_per_ns": {
+    "bulk": 4.437313908875275,
+    "c38": 1.5871510447256967,
+    "c39": 1.709607992069357
+   },
+   "gate_high": {
+    "represented_V": 11.486504824036727,
+    "bulk_estimate_V": 16.119430236771212,
+    "bulk_cs_bound_V": 104.88910438550134
+   },
+   "gate_low": {
+    "represented_V": 17.64813597764004,
+    "bulk_estimate_V": 24.03293586185938,
+    "bulk_cs_bound_V": 124.14001741439263
+   }
+  },
+  {
+   "tag": "S2_v280_i71_d1_dt348_esl10",
+   "aborted": false,
+   "max_abs_didt_A_per_ns": {
+    "bulk": 4.338007351239773,
+    "c38": 1.515264497325303,
+    "c39": 1.6875998878685665
+   },
+   "gate_high": {
+    "represented_V": 11.151716844208213,
+    "bulk_estimate_V": 15.758679304848725,
+    "bulk_cs_bound_V": 102.54169870181485
+   },
+   "gate_low": {
+    "represented_V": 17.148988726848103,
+    "bulk_estimate_V": 23.495081615049738,
+    "bulk_cs_bound_V": 121.36177858626354
+   }
+  },
+  {
+   "tag": "S4_v198_i-20_d0_dt348_esl10",
+   "aborted": false,
+   "max_abs_didt_A_per_ns": {
+    "bulk": 8.921306904689255,
+    "c38": 3.368602517888573,
+    "c39": 3.6851895933622285
+   },
+   "gate_high": {
+    "represented_V": 24.568872303001843,
+    "bulk_estimate_V": 32.408431592664655,
+    "bulk_cs_bound_V": 210.8816077468427
+   },
+   "gate_low": {
+    "represented_V": 37.763767104657425,
+    "bulk_estimate_V": 48.31869032648747,
+    "bulk_cs_bound_V": 249.585947095634
+   }
+  },
+  {
+   "tag": "S4_v198_i-20_d1_dt348_esl10",
+   "aborted": false,
+   "max_abs_didt_A_per_ns": {
+    "bulk": 8.711733998778412,
+    "c38": 3.2582292160357516,
+    "c39": 3.6244629668429034
+   },
+   "gate_high": {
+    "represented_V": 23.96470969903948,
+    "bulk_estimate_V": 31.647116097362336,
+    "bulk_cs_bound_V": 205.92772914914235
+   },
+   "gate_low": {
+    "represented_V": 36.851498573153215,
+    "bulk_estimate_V": 47.183622510783756,
+    "bulk_cs_bound_V": 243.72285407953694
+   }
+  }
+ ],
+ "note": "estimate assumes bulk copper couples like the capacitor copper; cs_bound holds only if LBULK is the bulk path's whole loop inductance (round-3 heuristic)"
+}

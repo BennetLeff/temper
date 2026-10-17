@@ -1,0 +1,127 @@
+{
+  "ports": [
+    "10",
+    "11",
+    "12",
+    "13"
+  ],
+  "port_identity": [
+    {
+      "physical": 10,
+      "name": "P1_C38",
+      "k_A_per_m": [
+        -2500.0,
+        -0.0,
+        0.0
+      ],
+      "sif_sha256": "a39a17d87320ff13c45c5382a2159aa5ecff5306f379f9c06d266bff30cd99e5"
+    },
+    {
+      "physical": 11,
+      "name": "P2_C39",
+      "k_A_per_m": [
+        -2500.0,
+        -0.0,
+        0.0
+      ],
+      "sif_sha256": "2250cc130c92ce58f73620bcb9093ba2787f58501571a1093f35d293ea8b0105"
+    },
+    {
+      "physical": 12,
+      "name": "P3_gate_high",
+      "k_A_per_m": [
+        2500.0,
+        -0.0,
+        0.0
+      ],
+      "sif_sha256": "c0e545906adef271191c4b8df1fa023601ec7ad8f1c17ec0d47145920fa05fb2"
+    },
+    {
+      "physical": 13,
+      "name": "P4_gate_low",
+      "k_A_per_m": [
+        2500.0,
+        -0.0,
+        0.0
+      ],
+      "sif_sha256": "f64d570bcc09473830a815018876b3719d58add42e9236ac386c985a9fa4a254"
+    }
+  ],
+  "mesh_sha256": "a4973703e4371f8bef15d0260301fa17ea24545ed6360d1db97cf7ea3074b274",
+  "legacy_runs_without_receipt": [],
+  "L_nH": [
+    [
+      27.818028,
+      16.999075,
+      3.579547,
+      5.186767
+    ],
+    [
+      16.999075,
+      27.247229,
+      3.433299,
+      5.23352
+    ],
+    [
+      3.579547,
+      3.433299,
+      24.475894,
+      -0.290383
+    ],
+    [
+      5.186767,
+      5.23352,
+      -0.290383,
+      34.17418
+    ]
+  ],
+  "tets": 990341,
+  "partitions": 4,
+  "max_within_tet_spread": 8.849134471458282e-16,
+  "diagonal_vs_energy": [
+    {
+      "port": "10",
+      "L_from_B_nH": 27.818028,
+      "L_energy_nH": 27.81802,
+      "rel_diff": 2.856986673069511e-07
+    },
+    {
+      "port": "11",
+      "L_from_B_nH": 27.247229,
+      "L_energy_nH": 27.24722,
+      "rel_diff": 3.217864506036083e-07
+    },
+    {
+      "port": "12",
+      "L_from_B_nH": 24.475894,
+      "L_energy_nH": 24.475900000000003,
+      "rel_diff": 2.3459477911408873e-07
+    },
+    {
+      "port": "13",
+      "L_from_B_nH": 34.17418,
+      "L_energy_nH": 34.17418,
+      "rel_diff": 2.9049027162613305e-09
+    }
+  ],
+  "minimum_eigenvalue_nH": 10.530511391209851,
+  "converged_run_receipts": [
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p10/result.json",
+      "sha256": "2a7620701cf89710e41fbcd31f35214430e2fd236e04246478a83b9de86a3e39"
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p11/result.json",
+      "sha256": "ec8b8a0d3a4fbd5a862cd6ef6f87f8ed0d5bf9312cc1497e3ab87623707af7f0"
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p12/result.json",
+      "sha256": "e2644048ce52fc07bc63d71fc160e1d357665b01fea01107727d52d7f266694c"
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/A-e4-h1-np4-p13/result.json",
+      "sha256": "93146b003381e3552786e2e8c4bb76b4624eb32972fc867c2ade688dfb20330a"
+    }
+  ],
+  "classification": "simulated magnetostatic finite-closure matrix; no physical qualification"
+}

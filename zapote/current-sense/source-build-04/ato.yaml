@@ -1,0 +1,4 @@
+ato-version: 0.2.69
+builds:
+  default:
+    entry: elec/src/current_sense_unit.ato:CurrentSenseUnit

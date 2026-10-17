@@ -1,0 +1,94 @@
+{
+  "status": "COMPARED_NOT_A_PHYSICAL_BOUND",
+  "cases": [
+    "v170-r2-e1.06-f60000-s2-c48",
+    "v170-r2-e1.06-f60000-s0.5-c48"
+  ],
+  "power_W": [
+    104.74375617989406,
+    104.67615286188757
+  ],
+  "comparisons": [
+    {
+      "scenario": "r3_nominal",
+      "coarse_min_AV_dB": -16.078384390969987,
+      "fine_min_AV_dB": -16.078874971060188,
+      "min_AV_change_dB": -0.000490580090200865,
+      "fine_minus_coarse_at_240k_dB": 0.000490580090200865,
+      "max_abs_line_change_150k_to_1M_dB": 15.820024105454486,
+      "max_abs_line_change_full_band_dB": 53.60534730792685
+    },
+    {
+      "scenario": "proposal_dm36u_x2p2u",
+      "coarse_min_AV_dB": -1.3347579547410504,
+      "fine_min_AV_dB": -1.3359082842141063,
+      "min_AV_change_dB": -0.0011503294730559332,
+      "fine_minus_coarse_at_240k_dB": 0.0011503294730559332,
+      "max_abs_line_change_150k_to_1M_dB": 21.723306792259045,
+      "max_abs_line_change_full_band_dB": 52.913917097319136
+    },
+    {
+      "scenario": "proposal_dm36u_x4p7u",
+      "coarse_min_AV_dB": -0.9907895270567764,
+      "fine_min_AV_dB": 5.470327073260407,
+      "min_AV_change_dB": 6.461116600317183,
+      "fine_minus_coarse_at_240k_dB": 0.0027496911543281044,
+      "max_abs_line_change_150k_to_1M_dB": 22.347074545342082,
+      "max_abs_line_change_full_band_dB": 52.9087399516456
+    },
+    {
+      "scenario": "l1_minus30",
+      "coarse_min_AV_dB": -16.09253809502073,
+      "fine_min_AV_dB": -16.093063889343142,
+      "min_AV_change_dB": -0.0005257943224137307,
+      "fine_minus_coarse_at_240k_dB": 0.0005257943224137307,
+      "max_abs_line_change_150k_to_1M_dB": 16.769739592558437,
+      "max_abs_line_change_full_band_dB": 53.604115215280515
+    },
+    {
+      "scenario": "l1_plus50",
+      "coarse_min_AV_dB": -16.068145134398065,
+      "fine_min_AV_dB": -16.068610422062434,
+      "min_AV_change_dB": -0.00046528766436892965,
+      "fine_minus_coarse_at_240k_dB": 0.00046528766436892965,
+      "max_abs_line_change_150k_to_1M_dB": 15.441885567222982,
+      "max_abs_line_change_full_band_dB": 53.60630325748436
+    },
+    {
+      "scenario": "coil10p",
+      "coarse_min_AV_dB": -16.046489600292773,
+      "fine_min_AV_dB": -16.04694113129763,
+      "min_AV_change_dB": -0.000451531004856065,
+      "fine_minus_coarse_at_240k_dB": 0.000451531004856065,
+      "max_abs_line_change_150k_to_1M_dB": 14.57947168304188,
+      "max_abs_line_change_full_band_dB": 53.53399591490958
+    },
+    {
+      "scenario": "coil100p",
+      "coarse_min_AV_dB": -16.117384160445084,
+      "fine_min_AV_dB": -16.117922502805385,
+      "min_AV_change_dB": -0.0005383423603007031,
+      "fine_minus_coarse_at_240k_dB": 0.0005383423603007031,
+      "max_abs_line_change_150k_to_1M_dB": 16.974711684885328,
+      "max_abs_line_change_full_band_dB": 53.219678803751805
+    },
+    {
+      "scenario": "tabs20pct",
+      "coarse_min_AV_dB": -16.078383671184056,
+      "fine_min_AV_dB": -16.07887548517533,
+      "min_AV_change_dB": -0.0004918139912746256,
+      "fine_minus_coarse_at_240k_dB": 0.0004918139912746256,
+      "max_abs_line_change_150k_to_1M_dB": 0.007271413918871872,
+      "max_abs_line_change_full_band_dB": 6.658269012921615
+    },
+    {
+      "scenario": "combined_sensitivity",
+      "coarse_min_AV_dB": -16.14329285804456,
+      "fine_min_AV_dB": -16.143881141374052,
+      "min_AV_change_dB": -0.000588283329491901,
+      "fine_minus_coarse_at_240k_dB": 0.000588283329491901,
+      "max_abs_line_change_150k_to_1M_dB": 0.013904593358418538,
+      "max_abs_line_change_full_band_dB": 6.722462740353741
+    }
+  ]
+}

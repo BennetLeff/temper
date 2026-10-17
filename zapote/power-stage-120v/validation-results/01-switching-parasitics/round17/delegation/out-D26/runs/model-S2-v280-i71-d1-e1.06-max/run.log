@@ -1,0 +1,205 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * round 17 d2: complementary half-bridge leg with the fem board inductance
+
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+src                                        280
+bulk                                       280
+bus                                        280
+c38a                                       280
+c38b                                       280
+c38c                                       280
+c39a                                       280
+c39b                                       280
+c39c                                       280
+xqh.x1.d1                                  280
+xqh.x1.ox                                  280
+xqh.x1.e_edg1_int1                           0
+xqh.g                                  294.987
+xqh.x1.ox2                                 280
+xqh.x1.e_edg2_int1                -1.45699e-17
+xqh.s                                      280
+xqh.x1.edep1                               280
+xqh.x1.e_eds1_int1                           0
+xqh.x1.edep2                               280
+xqh.x1.e_eds2_int1                 3.09194e-23
+xqh.x1.d                                   280
+xqh.x1.g_chan_int1                 1.71064e-06
+xqh.tj                                      27
+xqh.dd                                     280
+xqh.x1.d2                                  280
+xqh.x1.g_g_rd_int1                 1.71072e-06
+xqh.x1.dio                                 280
+xqh.x1.dio2                                280
+xqh.x1.g_rdio_int1                -6.59192e-12
+xqh.x1.g_g_ptot_channel_int1                 0
+xqh.x1.g_g_ptot_epi_int1                     0
+xqh.ldrd                                   280
+sw                                         280
+xqh.lsrs                                   280
+g_hs                                   294.987
+xqh.lgrg                               294.987
+xqh.w                                        0
+xqh.e1_int1                                 27
+d_ls                                       280
+xql.x1.d1                                  280
+xql.x1.ox                              1.79856
+xql.x1.e_edg1_int1                     278.201
+xql.g                              1.70918e-09
+xql.x1.ox2                             32.9519
+xql.x1.e_edg2_int1                     247.048
+xql.s                              2.29372e-09
+xql.x1.edep1                           6464.39
+xql.x1.e_eds1_int1                    -6184.39
+xql.x1.edep2                           28.2733
+xql.x1.e_eds2_int1                     251.727
+xql.x1.d                                   280
+xql.x1.g_chan_int1                 1.01892e-15
+xql.tj                                      27
+xql.dd                                     280
+xql.x1.d2                                  280
+xql.x1.g_g_rd_int1                     5.6e-07
+xql.x1.dio                                 280
+xql.x1.dio2                                280
+xql.x1.g_rdio_int1                 -5.8919e-07
+xql.x1.g_g_ptot_channel_int1                 0
+xql.x1.g_g_ptot_epi_int1                     0
+xql.ldrd                                   280
+s_ls                               1.70918e-09
+xql.lsrs                           1.70918e-09
+g_ls                               1.70918e-09
+xql.lgrg                           1.70918e-09
+xql.w                                        0
+xql.e1_int1                                 27
+shunt                              1.70918e-09
+vc                                         3.3
+vdh                                        295
+vdl                                         15
+ina                                        3.3
+inb                                          0
+xu.one                                       1
+xu.la                                 0.999999
+xu.lb                              9.99999e-07
+xu.ld                              9.99999e-07
+xu.aa                                        1
+xu.ab                                        0
+xu.ad                                        0
+xu.ha                                        1
+xu.hb                                        0
+xu.ca                                        1
+xu.cb                                        0
+xu.ofa                                       1
+xu.ofb                                       0
+xu.oa                                        1
+xu.ob                                        0
+xu.vc                                 0.999999
+xu.vh                                 0.999999
+xu.vl                                 0.999999
+xu.uc                                        1
+xu.uh                                        1
+xu.ul                                        1
+xu.ena                                       1
+xu.enb                                       0
+xu.ba                                        1
+xu.bb                                        0
+gdh                                    294.993
+gdl                                1.70918e-09
+gdl3                               1.70918e-09
+gdh3                                   294.987
+b.xu.benb#branch                             0
+b.xu.bena#branch                             0
+b.xu.bcb#branch                              0
+b.xu.bca#branch                              0
+b.xql.be1#branch                             0
+b.xql.x1.bg_g_ptot_epi#branch                0
+v.xql.x1.v_iepi#branch                1.12e-06
+v.xql.x1.v_sense2#branch            5.8919e-07
+b.xql.x1.bg_g_ptot_channel#branch               0
+v.xql.x1.v_ichannel#branch         5.60002e-07
+b.xql.x1.bg_rdio#branch                      0
+b.xql.x1.bg_g_rd#branch                      0
+b.xql.x1.bg_chan#branch                      0
+b.xql.x1.be_eds2#branch                      0
+b.xql.x1.be_eds1#branch                      0
+b.xql.x1.be_edg2#branch                      0
+b.xql.x1.be_edg1#branch                      0
+b.xqh.be1#branch                             0
+b.xqh.x1.bg_g_ptot_epi#branch                0
+v.xqh.x1.v_iepi#branch             1.71072e-06
+v.xqh.x1.v_sense2#branch           6.59192e-12
+b.xqh.x1.bg_g_ptot_channel#branch               0
+v.xqh.x1.v_ichannel#branch         1.71072e-06
+b.xqh.x1.bg_rdio#branch                      0
+b.xqh.x1.bg_g_rd#branch                      0
+b.xqh.x1.bg_chan#branch                      0
+b.xqh.x1.be_eds2#branch                      0
+b.xqh.x1.be_eds1#branch                      0
+b.xqh.x1.be_edg2#branch                      0
+b.xqh.x1.be_edg1#branch                      0
+l_p3#branch                        -0.00149868
+l_p4#branch                        5.84322e-19
+lshunt#branch                      1.70918e-06
+l.xql.l_lg#branch                 -5.84582e-19
+l.xql.l_ls#branch                 -1.70918e-06
+l.xql.l_ld#branch                  1.70914e-06
+l.xqh.l_lg#branch                  1.49866e-08
+l.xqh.l_ls#branch                 -1.72413e-06
+l.xqh.l_ld#branch                  1.71069e-06
+lesl39#branch                     -7.38723e-12
+l_p2#branch                       -7.38723e-12
+lesl38#branch                     -7.38723e-12
+l_p1#branch                       -7.38723e-12
+lbulk#branch                       1.71067e-06
+e.xql.e1#branch                              0
+e.xql.x1.e_eds2#branch                       0
+e.xql.x1.e_eds1#branch                       0
+e.xql.x1.e_edg2#branch                       0
+e.xql.x1.e_edg1#branch                       0
+e.xqh.e1#branch                              0
+e.xqh.x1.e_eds2#branch                       0
+e.xqh.x1.e_eds1#branch                       0
+e.xqh.x1.e_edg2#branch                       0
+e.xqh.x1.e_edg1#branch                       0
+v.xu.vone#branch                        -4e-06
+vinb#branch                                  0
+vina#branch                       -3.66667e-05
+vl#branch                                    0
+vh#branch                                    0
+vcc#branch                        -3.66667e-05
+vids#branch                        1.70915e-06
+vbus#branch                       -1.71067e-06
+a.xu.ao#branch_1_0                           0
+a.xu.ao#branch_1_1                           0
+a.xu.aboost#branch_1_0                       0
+a.xu.aboost#branch_1_1                       0
+a.xu.aue#branch_1_0                          0
+a.xu.aue#branch_1_1                          0
+a.xu.aue#branch_1_2                          0
+a.xu.aofast#branch_1_0                       0
+a.xu.aofast#branch_1_1                       0
+a.xu.ahold#branch_1_0                        0
+a.xu.ahold#branch_1_1                        0
+a.xu.adac#branch_1_0                         0
+a.xu.adac#branch_1_1                         0
+a.xu.adac#branch_1_2                         0
+
+
+No. of Data Rows : 2
+ngspice-45.2 done
+Note: Starting dynamic gmin stepping
+Note: Dynamic gmin stepping completed
+doAnalyses: TRAN:  Timestep too small; time = 2e-12, timestep = 2.5e-22: trouble with node "bus"
+
+
+run simulation(s) aborted

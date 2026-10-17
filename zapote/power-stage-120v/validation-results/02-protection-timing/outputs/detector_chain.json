@@ -1,0 +1,299 @@
+{
+ "ct_transfer": [
+  {
+   "f_hz": 20000.0,
+   "gain_error_pct": -0.014,
+   "phase_deg": -0.65
+  },
+  {
+   "f_hz": 33000.0,
+   "gain_error_pct": -0.042,
+   "phase_deg": -1.52
+  },
+  {
+   "f_hz": 39000.0,
+   "gain_error_pct": -0.061,
+   "phase_deg": -1.89
+  },
+  {
+   "f_hz": 60000.0,
+   "gain_error_pct": -0.153,
+   "phase_deg": -3.09
+  },
+  {
+   "f_hz": 100000.0,
+   "gain_error_pct": -0.434,
+   "phase_deg": -5.3
+  }
+ ],
+ "ct_flux_half_cycle_Vus": {
+  "37 A pk @ 33 kHz": 10.7,
+  "88 A pk @ 33 kHz": 25.5,
+  "88 A pk @ 20 kHz": 42.0
+ },
+ "ct_flux_limit_Vus": 638.0,
+ "trip_bands_A": {
+  "BAT54H, 25 C (model default, 4 uA)": [
+   50.93,
+   59.51
+  ],
+  "BAT54H, ~85 C (60 uA: 2 x Fig. 2 typical)": [
+   45.34,
+   65.21
+  ],
+  "BAT54H, ~125 C (600 uA: 2 x Fig. 2 typical)": [
+   -8.71,
+   120.17
+  ],
+  "BAT54H ~125 C with R42 = 100 ohm": [
+   27.49,
+   83.42
+  ],
+  "BAS116H, 150 C (2 x 80 nA max, Table 7)": "use the 25 C band: 0.16 uA is below the 4 uA default"
+ },
+ "zero_cross_idle": {
+  "static_offset_bound_mV": 4.08,
+  "hysteresis_typ_mV": 1.2,
+  "phase_error_deg": {
+   "2 A pk": 7.7,
+   "5 A pk": 3.1,
+   "10 A pk": 1.5,
+   "37 A pk": 0.4
+  }
+ },
+ "chain_as_built_R14_1k_R16_10k": {
+  "tank_ct": {
+   "links": [
+    {
+     "link": "burden || C42 pole (tau = 1.5 ohm x 100 nF)",
+     "ns": 150.0
+    },
+    {
+     "link": "R42 1 k x (2 x 10 pF BAT54H/BAS116H + 3 x 2 pF TLV input) ",
+     "ns": 26.0
+    },
+    {
+     "link": "TLV3201 tPD max, 20 mV overdrive, -40..125 C (SBOS561C 6.6)",
+     "ns": 55.0
+    },
+    {
+     "link": "SN74LVC1G332 tpd max at 3.3 V (SCES489E)",
+     "ns": 4.5
+    },
+    {
+     "link": "Harness to interlock, assumed 1 m",
+     "ns": 5.0
+    },
+    {
+     "link": "SN74LVC14A tpd max at 3.3 V (x2: input and ALL_GOOD inverter)",
+     "ns": 16.0
+    },
+    {
+     "link": "CD74HC30 tpd max at 2 V, 125 C (bound for 3.3 V; SCHS...)",
+     "ns": 110.0
+    },
+    {
+     "link": "SN74LVC1G74 CLR->Q max, 3.3 V, -40..125 C",
+     "ns": 7.9
+    },
+    {
+     "link": "PERMIT -> AO3400A off (1000 ohm x Ciss bound, to VTH min)",
+     "ns": 1416.1
+    },
+    {
+     "link": "DIS rise (10000 ohm pullup x Coss bound) to VDIS_H max",
+     "ns": 2116.7
+    },
+    {
+     "link": "UCC21550 tPD_DIS max (SLUSE89C 5.9)",
+     "ns": 80.0
+    },
+    {
+     "link": "IPW65R018CFD7 gate discharge below threshold, assumed (task 01 to confirm)",
+     "ns": 150.0
+    }
+   ],
+   "total_us": 4.137
+  },
+  "shunt_ocp": {
+   "links": [
+    {
+     "link": "OCP node filter (10 k || 10 k) x 100 pF: ramp lag = tau",
+     "ns": 500.0
+    },
+    {
+     "link": "TLV3201 tPD max (U6, 5 V)",
+     "ns": 55.0
+    },
+    {
+     "link": "SN74LVC1G00 tpd max at 5 V, -40..125 C (SCES212)",
+     "ns": 5.0
+    },
+    {
+     "link": "ISO7710 tPLH/tPHL max (SLLSER9E)",
+     "ns": 21.0
+    },
+    {
+     "link": "SN74LVC1G332 tpd max at 3.3 V",
+     "ns": 4.5
+    },
+    {
+     "link": "Harness to interlock, assumed 1 m",
+     "ns": 5.0
+    },
+    {
+     "link": "SN74LVC14A tpd max at 3.3 V (x2: input and ALL_GOOD inverter)",
+     "ns": 16.0
+    },
+    {
+     "link": "CD74HC30 tpd max at 2 V, 125 C (bound for 3.3 V; SCHS...)",
+     "ns": 110.0
+    },
+    {
+     "link": "SN74LVC1G74 CLR->Q max, 3.3 V, -40..125 C",
+     "ns": 7.9
+    },
+    {
+     "link": "PERMIT -> AO3400A off (1000 ohm x Ciss bound, to VTH min)",
+     "ns": 1416.1
+    },
+    {
+     "link": "DIS rise (10000 ohm pullup x Coss bound) to VDIS_H max",
+     "ns": 2116.7
+    },
+    {
+     "link": "UCC21550 tPD_DIS max (SLUSE89C 5.9)",
+     "ns": 80.0
+    },
+    {
+     "link": "IPW65R018CFD7 gate discharge below threshold, assumed (task 01 to confirm)",
+     "ns": 150.0
+    }
+   ],
+   "total_us": 4.487
+  }
+ },
+ "chain_improved_R14_100_R16_1k": {
+  "tank_ct": {
+   "links": [
+    {
+     "link": "burden || C42 pole (tau = 1.5 ohm x 100 nF)",
+     "ns": 150.0
+    },
+    {
+     "link": "R42 1 k x (2 x 10 pF BAT54H/BAS116H + 3 x 2 pF TLV input) ",
+     "ns": 26.0
+    },
+    {
+     "link": "TLV3201 tPD max, 20 mV overdrive, -40..125 C (SBOS561C 6.6)",
+     "ns": 55.0
+    },
+    {
+     "link": "SN74LVC1G332 tpd max at 3.3 V (SCES489E)",
+     "ns": 4.5
+    },
+    {
+     "link": "Harness to interlock, assumed 1 m",
+     "ns": 5.0
+    },
+    {
+     "link": "SN74LVC14A tpd max at 3.3 V (x2: input and ALL_GOOD inverter)",
+     "ns": 16.0
+    },
+    {
+     "link": "CD74HC30 tpd max at 2 V, 125 C (bound for 3.3 V; SCHS...)",
+     "ns": 110.0
+    },
+    {
+     "link": "SN74LVC1G74 CLR->Q max, 3.3 V, -40..125 C",
+     "ns": 7.9
+    },
+    {
+     "link": "PERMIT -> AO3400A off (100 ohm x Ciss bound, to VTH min)",
+     "ns": 141.6
+    },
+    {
+     "link": "DIS rise (1000 ohm pullup x Coss bound) to VDIS_H max",
+     "ns": 211.7
+    },
+    {
+     "link": "UCC21550 tPD_DIS max (SLUSE89C 5.9)",
+     "ns": 80.0
+    },
+    {
+     "link": "IPW65R018CFD7 gate discharge below threshold, assumed (task 01 to confirm)",
+     "ns": 150.0
+    }
+   ],
+   "total_us": 0.958
+  },
+  "shunt_ocp": {
+   "links": [
+    {
+     "link": "OCP node filter (10 k || 10 k) x 100 pF: ramp lag = tau",
+     "ns": 500.0
+    },
+    {
+     "link": "TLV3201 tPD max (U6, 5 V)",
+     "ns": 55.0
+    },
+    {
+     "link": "SN74LVC1G00 tpd max at 5 V, -40..125 C (SCES212)",
+     "ns": 5.0
+    },
+    {
+     "link": "ISO7710 tPLH/tPHL max (SLLSER9E)",
+     "ns": 21.0
+    },
+    {
+     "link": "SN74LVC1G332 tpd max at 3.3 V",
+     "ns": 4.5
+    },
+    {
+     "link": "Harness to interlock, assumed 1 m",
+     "ns": 5.0
+    },
+    {
+     "link": "SN74LVC14A tpd max at 3.3 V (x2: input and ALL_GOOD inverter)",
+     "ns": 16.0
+    },
+    {
+     "link": "CD74HC30 tpd max at 2 V, 125 C (bound for 3.3 V; SCHS...)",
+     "ns": 110.0
+    },
+    {
+     "link": "SN74LVC1G74 CLR->Q max, 3.3 V, -40..125 C",
+     "ns": 7.9
+    },
+    {
+     "link": "PERMIT -> AO3400A off (100 ohm x Ciss bound, to VTH min)",
+     "ns": 141.6
+    },
+    {
+     "link": "DIS rise (1000 ohm pullup x Coss bound) to VDIS_H max",
+     "ns": 211.7
+    },
+    {
+     "link": "UCC21550 tPD_DIS max (SLUSE89C 5.9)",
+     "ns": 80.0
+    },
+    {
+     "link": "IPW65R018CFD7 gate discharge below threshold, assumed (task 01 to confirm)",
+     "ns": 150.0
+    }
+   ],
+   "total_us": 1.308
+  }
+ },
+ "tank_fault_peak_current": {
+  "198 V / 70 uH": {
+   "as_built_A": 71.2,
+   "improved_A": 62.2
+  },
+  "280 V / 70 uH": {
+   "as_built_A": 76.1,
+   "improved_A": 63.3
+  }
+ },
+ "shoot_through": "UCC21550 with RDT = 39 k: 'If both inputs are high simultaneously, both outputs will immediately be set low' (SLUSE89C, programmable dead time). Command-level shoot-through is blocked in the driver; dv/dt false turn-on is task 01."
+}

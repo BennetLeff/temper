@@ -1,0 +1,86 @@
+[
+  {
+    "case": "shunt-2.2u-33000Hz",
+    "aborted": false,
+    "measurements": {
+      "negmax": -1.755325,
+      "negmin": -2.249432,
+      "negstart": -2.000041
+    },
+    "loop": {
+      "effective_C_F": 2.2e-06,
+      "unity_gain_Hz": 13092.457422168938,
+      "phase_margin_deg": 4.273809840536131
+    }
+  },
+  {
+    "case": "shunt-2.2u-80000Hz",
+    "aborted": false,
+    "measurements": {
+      "negmax": -1.761596,
+      "negmin": -2.249432,
+      "negstart": -2.000041
+    },
+    "loop": {
+      "effective_C_F": 2.2e-06,
+      "unity_gain_Hz": 13092.457422168938,
+      "phase_margin_deg": 4.273809840536131
+    }
+  },
+  {
+    "case": "shunt-10u-33000Hz",
+    "aborted": false,
+    "measurements": {
+      "negmax": -1.764856,
+      "negmin": -2.239297,
+      "negstart": -2.000041
+    },
+    "loop": {
+      "effective_C_F": 9.999999999999999e-06,
+      "unity_gain_Hz": 6216.528592236528,
+      "phase_margin_deg": 9.4494950835049
+    }
+  },
+  {
+    "case": "shunt-10u-80000Hz",
+    "aborted": false,
+    "measurements": {
+      "negmax": -1.76576,
+      "negmin": -2.239297,
+      "negstart": -2.000041
+    },
+    "loop": {
+      "effective_C_F": 9.999999999999999e-06,
+      "unity_gain_Hz": 6216.528592236528,
+      "phase_margin_deg": 9.4494950835049
+    }
+  },
+  {
+    "case": "shunt-22u-33000Hz",
+    "aborted": false,
+    "measurements": {
+      "negmax": -1.763677,
+      "negmin": -2.23925,
+      "negstart": -2.000041
+    },
+    "loop": {
+      "effective_C_F": 2.2e-05,
+      "unity_gain_Hz": 4170.865664255533,
+      "phase_margin_deg": 14.058827900094457
+    }
+  },
+  {
+    "case": "shunt-22u-80000Hz",
+    "aborted": false,
+    "measurements": {
+      "negmax": -1.76377,
+      "negmin": -2.23925,
+      "negstart": -2.000041
+    },
+    "loop": {
+      "effective_C_F": 2.2e-05,
+      "unity_gain_Hz": 4170.865664255533,
+      "phase_margin_deg": 14.058827900094457
+    }
+  }
+]

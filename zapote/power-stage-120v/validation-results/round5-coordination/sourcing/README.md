@@ -1,0 +1,13 @@
+# Native-17 exact-part catalog candidates
+
+This is sourcing evidence, **not an assembly BOM or purchase authorization**. All 57 native-17 BOM lines were queried with the pcbparts connector on 2026-09-28. The frozen source's manufacturer and full MPN were checked together; identically named parts from unrelated vendors were rejected. Manufacturer display-name aliases are recorded by the source and candidate fields. No source, schematic, BOM or placement file was edited.
+
+[Candidate matches](candidate-matches.csv) contains 50 exact manufacturer/MPN matches and seven unresolved lines. [Catalog evidence](catalog-evidence.json) retains the queries, returned alternatives, detail responses, timestamps and input hashes. `jlc_search` uses an index restricted to stock ≥10; absent exact matches were checked with `jlc_stock_check(min_stock=0)`. Selected codes were read with `jlc_get_part`. Stock is a dated observation, not a reservation or guaranteed future availability. These snapshots should be refreshed at ordering.
+
+The seven unresolved MPNs are B32656G0275J000, WSK2512R0010FEA, UCC21550BDWKR, IPW65R018CFD7, GRM31A5C3A102JW01D, CST3015-100ED and 74650074. A failed catalog query does not prove worldwide unavailability. Suffix variants are retained as leads, not silently treated as the specified part.
+
+Before populating the source's supplier fields or releasing assembly, independently check each candidate's datasheet/package against the approved part, manufacturer identity, board land pattern, pin 1/polarity, CPL rotation, available assembly process and actual order quantity. An exact catalog string match alone does not establish those checks. Use exact-part consignment or hand assembly for unavailable parts; substitutions require a separate design decision.
+
+F1 needs special treatment: its listed MPN `0326020.MXP` is a cartridge fuse, while the native footprint is `Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal`. A match for the fuse does not procure its two clips. Resolve the exact clip ordering code, pitch, continuous-current/temperature rating, and separate assembly entries before ordering. Littelfuse publishes [clip dimensions and ordering information](https://www.littelfuse.com/assetdocs/fuse-clip-520-521-and-102071-datasheet?assetguid=d82d8702-e379-43c1-b009-e03f91ba79c0); similarly named clip families are not interchangeable without checking their drawings. No clip choice is made here.
+
+The recommended purchasing workflow is to qualify the exact catalog candidates first, then explicitly allocate unresolved or unavailable items to consignment/hand assembly. Keep the fabrication-release and CTI gates open.

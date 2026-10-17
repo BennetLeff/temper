@@ -1,0 +1,3283 @@
+{
+  "boards": {
+    "controller": {
+      "connectors": {
+        "J1": {
+          "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+          "line": 3790,
+          "pads": {
+            "1": [
+              {
+                "line": 3802,
+                "net": "rtd_force_p"
+              }
+            ],
+            "2": [
+              {
+                "line": 3804,
+                "net": "rtd_sense_p"
+              }
+            ],
+            "3": [
+              {
+                "line": 3806,
+                "net": "rtd_sense_n"
+              }
+            ],
+            "4": [
+              {
+                "line": 3808,
+                "net": "rtd_force_n"
+              }
+            ]
+          },
+          "sheetpath": "rtd_pan.j_rtd1",
+          "value": "?"
+        },
+        "J2": {
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+          "line": 3812,
+          "pads": {
+            "1": [
+              {
+                "line": 3837,
+                "net": "thermal.j_fan-p1"
+              }
+            ],
+            "2": [
+              {
+                "line": 3839,
+                "net": "gnd"
+              }
+            ]
+          },
+          "sheetpath": "thermal.j_fan",
+          "value": "?"
+        },
+        "U27": {
+          "footprint": "lib:ESP32-S3-WROOM-1",
+          "line": 7757,
+          "pads": {
+            "1": [
+              {
+                "line": 7767,
+                "net": "gnd"
+              }
+            ],
+            "10": [
+              {
+                "line": 7785,
+                "net": "SHUTDOWN"
+              }
+            ],
+            "11": [
+              {
+                "line": 7787,
+                "net": "gpio18"
+              }
+            ],
+            "12": [
+              {
+                "line": 7789,
+                "net": "RTD_SCK"
+              }
+            ],
+            "13": [
+              {
+                "line": 7791,
+                "net": "usb_dn"
+              }
+            ],
+            "14": [
+              {
+                "line": 7793,
+                "net": "usb_dp"
+              }
+            ],
+            "15": [
+              {
+                "line": 7795,
+                "net": "safety-line"
+              }
+            ],
+            "16": [
+              {
+                "line": 7797,
+                "net": "io46"
+              }
+            ],
+            "17": [
+              {
+                "line": 7799,
+                "net": "RTD_DRDY"
+              }
+            ],
+            "18": [
+              {
+                "line": 7801,
+                "net": "RTD_CS_N"
+              }
+            ],
+            "19": [
+              {
+                "line": 7803,
+                "net": "RTD_SDI"
+              }
+            ],
+            "2": [
+              {
+                "line": 7769,
+                "net": "+3V3"
+              }
+            ],
+            "20": [
+              {
+                "line": 7805,
+                "net": "RTD_SDO"
+              }
+            ],
+            "21": [
+              {
+                "line": 7807,
+                "net": "io13"
+              }
+            ],
+            "22": [
+              {
+                "line": 7809,
+                "net": "safety-line-2"
+              }
+            ],
+            "23": [
+              {
+                "line": 7811,
+                "net": "gpio21"
+              }
+            ],
+            "24": [
+              {
+                "line": 7813,
+                "net": "DISCHARGE_CTRL"
+              }
+            ],
+            "25": [
+              {
+                "line": 7815,
+                "net": "io48"
+              }
+            ],
+            "26": [
+              {
+                "line": 7817,
+                "net": "io45"
+              }
+            ],
+            "27": [
+              {
+                "line": 7819,
+                "net": "io0"
+              }
+            ],
+            "28": [
+              {
+                "line": 7821,
+                "net": "gpio35"
+              }
+            ],
+            "29": [
+              {
+                "line": 7823,
+                "net": "gpio36"
+              }
+            ],
+            "3": [
+              {
+                "line": 7771,
+                "net": "en"
+              }
+            ],
+            "30": [
+              {
+                "line": 7825,
+                "net": "gpio37"
+              }
+            ],
+            "31": [
+              {
+                "line": 7827,
+                "net": "i2c_sda_ui"
+              }
+            ],
+            "32": [
+              {
+                "line": 7829,
+                "net": "i2c_scl_ui"
+              }
+            ],
+            "33": [
+              {
+                "line": 7831,
+                "net": "io40"
+              }
+            ],
+            "34": [
+              {
+                "line": 7833,
+                "net": "io41"
+              }
+            ],
+            "35": [
+              {
+                "line": 7835,
+                "net": "io42"
+              }
+            ],
+            "36": [
+              {
+                "line": 7837,
+                "net": "rx"
+              }
+            ],
+            "37": [
+              {
+                "line": 7839,
+                "net": "tx"
+              }
+            ],
+            "38": [
+              {
+                "line": 7841,
+                "net": "V_BUS_SENSE"
+              }
+            ],
+            "39": [
+              {
+                "line": 7843,
+                "net": "I_SENSE"
+              }
+            ],
+            "4": [
+              {
+                "line": 7773,
+                "net": "PWM_HS"
+              }
+            ],
+            "5": [
+              {
+                "line": 7775,
+                "net": "PWM_LS"
+              }
+            ],
+            "6": [
+              {
+                "line": 7777,
+                "net": "WDT_RESET_N"
+              }
+            ],
+            "7": [
+              {
+                "line": 7779,
+                "net": "WDT_KICK"
+              }
+            ],
+            "8": [
+              {
+                "line": 7781,
+                "net": "safety-line-3"
+              }
+            ],
+            "9": [
+              {
+                "line": 7783,
+                "net": "RELAY_CTRL"
+              }
+            ]
+          },
+          "sheetpath": "mcu.mcu",
+          "value": "?"
+        },
+        "U3": {
+          "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+          "line": 7847,
+          "pads": {
+            "1": [
+              {
+                "line": 7890,
+                "net": "gnd"
+              }
+            ],
+            "2": [
+              {
+                "line": 7892,
+                "net": "sw"
+              }
+            ],
+            "3": [
+              {
+                "line": 7894,
+                "net": "+15V"
+              }
+            ],
+            "4": [
+              {
+                "line": 7896,
+                "net": "fb"
+              }
+            ],
+            "5": [
+              {
+                "line": 7898,
+                "net": "+15V"
+              }
+            ],
+            "6": [
+              {
+                "line": 7900,
+                "net": "boot"
+              }
+            ]
+          },
+          "sheetpath": "power_mgmt.buck_3v3.buck",
+          "value": "?"
+        }
+      },
+      "path": "pcb/temper.kicad_pcb"
+    },
+    "current-sense": {
+      "connectors": {
+        "J1": {
+          "footprint": "lib:LitzPad_15A",
+          "line": 1406,
+          "pads": {
+            "1": [
+              {
+                "line": 1494,
+                "net": "PRIMARY_IN"
+              }
+            ],
+            "2": [
+              {
+                "line": 1503,
+                "net": "PRIMARY_OUT"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "NON_PURCHASED_BARE_LANDS"
+        },
+        "J2": {
+          "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+          "line": 2429,
+          "pads": {
+            "1": [
+              {
+                "line": 2707,
+                "net": "+3V3"
+              }
+            ],
+            "2": [
+              {
+                "line": 2717,
+                "net": "gnd"
+              }
+            ],
+            "3": [
+              {
+                "line": 2726,
+                "net": "OCP_FAULT"
+              }
+            ],
+            "4": [
+              {
+                "line": 2735,
+                "net": "SENSE_MON"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "B4B-XH-A(LF)(SN)"
+        }
+      },
+      "path": "zapote/current-sense/candidate/section.kicad_pcb"
+    },
+    "gate-drive": {
+      "connectors": {
+        "J1": {
+          "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+          "line": 4256,
+          "pads": {
+            "1": [
+              {
+                "line": 4534,
+                "net": "pwm_h"
+              }
+            ],
+            "2": [
+              {
+                "line": 4544,
+                "net": "pwm_l"
+              }
+            ],
+            "3": [
+              {
+                "line": 4553,
+                "net": "permit"
+              }
+            ],
+            "4": [
+              {
+                "line": 4562,
+                "net": "ctrl_gnd"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "B4B-XH-A(LF)(SN)"
+        },
+        "J2": {
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+          "line": 4584,
+          "pads": {
+            "1": [
+              {
+                "line": 4817,
+                "net": "v15_ls"
+              }
+            ],
+            "2": [
+              {
+                "line": 4826,
+                "net": "gate_l_kelvin"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "61300211121"
+        },
+        "J3": {
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+          "line": 932,
+          "pads": {
+            "1": [
+              {
+                "line": 1165,
+                "net": "gate_h_out"
+              }
+            ],
+            "2": [
+              {
+                "line": 1174,
+                "net": "gate_h_kelvin"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "61300211121"
+        },
+        "J4": {
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+          "line": 1643,
+          "pads": {
+            "1": [
+              {
+                "line": 1876,
+                "net": "gate_l_out"
+              }
+            ],
+            "2": [
+              {
+                "line": 1885,
+                "net": "gate_l_kelvin"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "61300211121"
+        },
+        "J5": {
+          "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+          "line": 1196,
+          "pads": {
+            "1": [
+              {
+                "line": 1429,
+                "net": "v3v3"
+              }
+            ],
+            "2": [
+              {
+                "line": 1438,
+                "net": "ctrl_gnd"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "61300211121"
+        }
+      },
+      "path": "zapote/gate-drive/candidate/section.kicad_pcb"
+    },
+    "interlock": {
+      "connectors": {
+        "J1": {
+          "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+          "line": 578,
+          "pads": {
+            "1": [
+              {
+                "line": 868,
+                "net": "gnd"
+              }
+            ],
+            "2": [
+              {
+                "line": 878,
+                "net": "ocp_fault"
+              }
+            ],
+            "3": [
+              {
+                "line": 887,
+                "net": "ovp_fault"
+              }
+            ],
+            "4": [
+              {
+                "line": 896,
+                "net": "hs_fault"
+              }
+            ],
+            "5": [
+              {
+                "line": 905,
+                "net": "coil_fault"
+              }
+            ],
+            "6": [
+              {
+                "line": 914,
+                "net": "rtd_fault"
+              }
+            ],
+            "7": [
+              {
+                "line": 923,
+                "net": "runaway_fault"
+              }
+            ],
+            "8": [
+              {
+                "line": 932,
+                "net": "aux_fault"
+              }
+            ]
+          },
+          "sheetpath": "faults",
+          "value": "B8B-XH-A(LF)(SN)"
+        },
+        "J2": {
+          "footprint": "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical",
+          "line": 5842,
+          "pads": {
+            "1": [
+              {
+                "line": 6132,
+                "net": "vcc"
+              }
+            ],
+            "2": [
+              {
+                "line": 6142,
+                "net": "gnd"
+              }
+            ],
+            "3": [
+              {
+                "line": 6151,
+                "net": "wdi"
+              }
+            ],
+            "4": [
+              {
+                "line": 6160,
+                "net": "reset_n"
+              }
+            ],
+            "5": [
+              {
+                "line": 6169,
+                "net": "sensor_live"
+              }
+            ],
+            "6": [
+              {
+                "line": 6178,
+                "net": "permit"
+              }
+            ],
+            "7": [
+              {
+                "line": 6187,
+                "net": "latched_fault"
+              }
+            ],
+            "8": [
+              {
+                "line": 6196,
+                "net": "wdt_good"
+              }
+            ]
+          },
+          "sheetpath": "host",
+          "value": "B8B-XH-A(LF)(SN)"
+        }
+      },
+      "path": "zapote/interlock/candidate/section.kicad_pcb"
+    },
+    "power": {
+      "connectors": {
+        "J1": {
+          "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+          "line": 4201,
+          "pads": {
+            "1": [
+              {
+                "line": 4546,
+                "net": "ac_l_in"
+              }
+            ],
+            "2": [
+              {
+                "line": 4558,
+                "net": "ac_n_in"
+              }
+            ]
+          },
+          "sheetpath": "j_mains",
+          "value": "1711725"
+        },
+        "J10": {
+          "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+          "line": 16287,
+          "pads": {
+            "": [
+              {
+                "line": 16507,
+                "net": null
+              },
+              {
+                "line": 16513,
+                "net": null
+              },
+              {
+                "line": 16519,
+                "net": null
+              },
+              {
+                "line": 16526,
+                "net": null
+              },
+              {
+                "line": 16532,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 16538,
+                "net": "hv_ret"
+              },
+              {
+                "line": 16549,
+                "net": "hv_ret"
+              },
+              {
+                "line": 16560,
+                "net": "hv_ret"
+              },
+              {
+                "line": 16571,
+                "net": "hv_ret"
+              }
+            ]
+          },
+          "sheetpath": "link_neg.terminal_bus",
+          "value": "74650074"
+        },
+        "J2": {
+          "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+          "line": 11197,
+          "pads": {
+            "": [
+              {
+                "line": 11417,
+                "net": null
+              },
+              {
+                "line": 11423,
+                "net": null
+              },
+              {
+                "line": 11429,
+                "net": null
+              },
+              {
+                "line": 11436,
+                "net": null
+              },
+              {
+                "line": 11442,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 11448,
+                "net": "coil_feed"
+              },
+              {
+                "line": 11459,
+                "net": "coil_feed"
+              },
+              {
+                "line": 11470,
+                "net": "coil_feed"
+              },
+              {
+                "line": 11481,
+                "net": "coil_feed"
+              }
+            ]
+          },
+          "sheetpath": "j_coil",
+          "value": "74650074"
+        },
+        "J3": {
+          "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+          "line": 10547,
+          "pads": {
+            "1": [
+              {
+                "line": 10829,
+                "net": "l_filt"
+              }
+            ],
+            "2": [
+              {
+                "line": 10841,
+                "net": "tco_l"
+              }
+            ]
+          },
+          "sheetpath": "j_tco",
+          "value": "B2P-VH(LF)(SN)"
+        },
+        "J4": {
+          "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+          "line": 4753,
+          "pads": {
+            "": [
+              {
+                "line": 5143,
+                "net": null
+              },
+              {
+                "line": 5150,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 5157,
+                "net": "v15_selv"
+              }
+            ],
+            "10": [
+              {
+                "line": 5257,
+                "net": "bus_fault"
+              }
+            ],
+            "11": [
+              {
+                "line": 5268,
+                "net": "vbus_p"
+              }
+            ],
+            "12": [
+              {
+                "line": 5279,
+                "net": "vbus_n"
+              }
+            ],
+            "13": [
+              {
+                "line": 5290,
+                "net": "ct_zc"
+              }
+            ],
+            "14": [
+              {
+                "line": 5301,
+                "net": "ct_mon"
+              }
+            ],
+            "15": [
+              {
+                "line": 5312,
+                "net": "selv_gnd"
+              }
+            ],
+            "16": [
+              {
+                "line": 5323,
+                "net": "selv_gnd"
+              }
+            ],
+            "2": [
+              {
+                "line": 5169,
+                "net": "selv_gnd"
+              }
+            ],
+            "3": [
+              {
+                "line": 5180,
+                "net": "v3v3"
+              }
+            ],
+            "4": [
+              {
+                "line": 5191,
+                "net": "selv_gnd"
+              }
+            ],
+            "5": [
+              {
+                "line": 5202,
+                "net": "pwm_ha"
+              }
+            ],
+            "6": [
+              {
+                "line": 5213,
+                "net": "pwm_la"
+              }
+            ],
+            "7": [
+              {
+                "line": 5224,
+                "net": "pwm_hb"
+              }
+            ],
+            "8": [
+              {
+                "line": 5235,
+                "net": "pwm_lb"
+              }
+            ],
+            "9": [
+              {
+                "line": 5246,
+                "net": "permit"
+              }
+            ]
+          },
+          "sheetpath": "j_selv",
+          "value": "0430451612"
+        },
+        "J5": {
+          "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+          "line": 30165,
+          "pads": {
+            "": [
+              {
+                "line": 30385,
+                "net": null
+              },
+              {
+                "line": 30391,
+                "net": null
+              },
+              {
+                "line": 30397,
+                "net": null
+              },
+              {
+                "line": 30404,
+                "net": null
+              },
+              {
+                "line": 30410,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 30416,
+                "net": "res_a"
+              },
+              {
+                "line": 30427,
+                "net": "res_a"
+              },
+              {
+                "line": 30438,
+                "net": "res_a"
+              },
+              {
+                "line": 30449,
+                "net": "res_a"
+              }
+            ]
+          },
+          "sheetpath": "j_coil_return",
+          "value": "74650074"
+        },
+        "J6": {
+          "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+          "line": 20179,
+          "pads": {
+            "1": [
+              {
+                "line": 20312,
+                "net": "pe"
+              }
+            ],
+            "2": [
+              {
+                "line": 20323,
+                "net": "pe"
+              }
+            ]
+          },
+          "sheetpath": "j_pe",
+          "value": "1704004"
+        },
+        "J7": {
+          "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+          "line": 12284,
+          "pads": {
+            "": [
+              {
+                "line": 12504,
+                "net": null
+              },
+              {
+                "line": 12510,
+                "net": null
+              },
+              {
+                "line": 12516,
+                "net": null
+              },
+              {
+                "line": 12523,
+                "net": null
+              },
+              {
+                "line": 12529,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 12535,
+                "net": "rect_p"
+              },
+              {
+                "line": 12546,
+                "net": "rect_p"
+              },
+              {
+                "line": 12557,
+                "net": "rect_p"
+              },
+              {
+                "line": 12568,
+                "net": "rect_p"
+              }
+            ]
+          },
+          "sheetpath": "link_pos.terminal_rect",
+          "value": "74650074"
+        },
+        "J8": {
+          "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+          "line": 21138,
+          "pads": {
+            "": [
+              {
+                "line": 21358,
+                "net": null
+              },
+              {
+                "line": 21364,
+                "net": null
+              },
+              {
+                "line": 21370,
+                "net": null
+              },
+              {
+                "line": 21377,
+                "net": null
+              },
+              {
+                "line": 21383,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 21389,
+                "net": "bus_p"
+              },
+              {
+                "line": 21400,
+                "net": "bus_p"
+              },
+              {
+                "line": 21411,
+                "net": "bus_p"
+              },
+              {
+                "line": 21422,
+                "net": "bus_p"
+              }
+            ]
+          },
+          "sheetpath": "link_pos.terminal_bus",
+          "value": "74650074"
+        },
+        "J9": {
+          "footprint": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+          "line": 22659,
+          "pads": {
+            "": [
+              {
+                "line": 22879,
+                "net": null
+              },
+              {
+                "line": 22885,
+                "net": null
+              },
+              {
+                "line": 22891,
+                "net": null
+              },
+              {
+                "line": 22898,
+                "net": null
+              },
+              {
+                "line": 22904,
+                "net": null
+              }
+            ],
+            "1": [
+              {
+                "line": 22910,
+                "net": "rect_n"
+              },
+              {
+                "line": 22921,
+                "net": "rect_n"
+              },
+              {
+                "line": 22932,
+                "net": "rect_n"
+              },
+              {
+                "line": 22943,
+                "net": "rect_n"
+              }
+            ]
+          },
+          "sheetpath": "link_neg.terminal_rect",
+          "value": "74650074"
+        }
+      },
+      "path": "zapote/power-stage-120v/native-17/section.kicad_pcb"
+    },
+    "rtd": {
+      "connectors": {
+        "J1": {
+          "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+          "line": 4402,
+          "pads": {
+            "1": [
+              {
+                "line": 4680,
+                "net": "rtd_force_p"
+              }
+            ],
+            "2": [
+              {
+                "line": 4690,
+                "net": "rtd_sense_p"
+              }
+            ],
+            "3": [
+              {
+                "line": 4699,
+                "net": "rtd_sense_n"
+              }
+            ],
+            "4": [
+              {
+                "line": 4708,
+                "net": "rtd_force_n"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "B4B-XH-A(LF)(SN)"
+        },
+        "J2": {
+          "footprint": "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm",
+          "line": 4730,
+          "pads": {
+            "1": [
+              {
+                "line": 4873,
+                "net": "+3V3"
+              }
+            ],
+            "10": [
+              {
+                "line": 4954,
+                "net": "SHARED_REF_2V5"
+              }
+            ],
+            "2": [
+              {
+                "line": 4882,
+                "net": "gnd"
+              }
+            ],
+            "3": [
+              {
+                "line": 4891,
+                "net": "gnd"
+              }
+            ],
+            "4": [
+              {
+                "line": 4900,
+                "net": "RTD_SCK"
+              }
+            ],
+            "5": [
+              {
+                "line": 4909,
+                "net": "RTD_SDI"
+              }
+            ],
+            "6": [
+              {
+                "line": 4918,
+                "net": "RTD_SDO"
+              }
+            ],
+            "7": [
+              {
+                "line": 4927,
+                "net": "RTD_CS_N"
+              }
+            ],
+            "8": [
+              {
+                "line": 4936,
+                "net": "RTD_DRDY"
+              }
+            ],
+            "9": [
+              {
+                "line": 4945,
+                "net": "RTD_HW_FAULT"
+              }
+            ]
+          },
+          "sheetpath": null,
+          "value": "FTSH-105-01-F-D"
+        }
+      },
+      "path": "zapote/rtd/unit/candidate/section.kicad_pcb"
+    },
+    "thermal-sense": {
+      "connectors": {
+        "J1": {
+          "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+          "line": 6153,
+          "pads": {
+            "1": [
+              {
+                "line": 6443,
+                "net": "HS_SENSE"
+              }
+            ],
+            "2": [
+              {
+                "line": 6453,
+                "net": "gnd"
+              }
+            ]
+          },
+          "sheetpath": "heatsink_probe",
+          "value": "B2B-XH-A(LF)(SN)"
+        },
+        "J2": {
+          "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+          "line": 3994,
+          "pads": {
+            "1": [
+              {
+                "line": 4284,
+                "net": "COIL_SENSE"
+              }
+            ],
+            "2": [
+              {
+                "line": 4294,
+                "net": "gnd"
+              }
+            ]
+          },
+          "sheetpath": "coil_probe",
+          "value": "B2B-XH-A(LF)(SN)"
+        },
+        "J3": {
+          "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+          "line": 6475,
+          "pads": {
+            "1": [
+              {
+                "line": 6765,
+                "net": "+3V3"
+              }
+            ],
+            "2": [
+              {
+                "line": 6775,
+                "net": "gnd"
+              }
+            ],
+            "3": [
+              {
+                "line": 6784,
+                "net": "HS_FAULT"
+              }
+            ],
+            "4": [
+              {
+                "line": 6793,
+                "net": "COIL_FAULT"
+              }
+            ],
+            "5": [
+              {
+                "line": 6802,
+                "net": "HS_SENSE"
+              }
+            ],
+            "6": [
+              {
+                "line": 6811,
+                "net": "COIL_SENSE"
+              }
+            ]
+          },
+          "sheetpath": "host",
+          "value": "B6B-XH-A(LF)(SN)"
+        }
+      },
+      "path": "zapote/thermal-sense/candidate/section.kicad_pcb"
+    }
+  },
+  "counterpart_candidates": {
+    "1": {
+      "candidates_only": [
+        {
+          "lines": [
+            7894
+          ],
+          "net": "+15V",
+          "pin": "3",
+          "ref": "U3",
+          "role": "possible supply input, already connected locally",
+          "unit": "controller"
+        }
+      ],
+      "selected_harness": null
+    },
+    "10": {
+      "candidates_only": [
+        {
+          "lines": [
+            878
+          ],
+          "net": "ocp_fault",
+          "pin": "2",
+          "ref": "J1",
+          "role": "candidate receiver; select one",
+          "unit": "interlock"
+        },
+        {
+          "lines": [
+            887
+          ],
+          "net": "ovp_fault",
+          "pin": "3",
+          "ref": "J1",
+          "role": "candidate receiver; select one",
+          "unit": "interlock"
+        },
+        {
+          "lines": [
+            932
+          ],
+          "net": "aux_fault",
+          "pin": "8",
+          "ref": "J1",
+          "role": "candidate receiver; select one",
+          "unit": "interlock"
+        }
+      ],
+      "selected_harness": null
+    },
+    "11": {
+      "candidates_only": [
+        {
+          "lines": [
+            7841
+          ],
+          "net": "V_BUS_SENSE",
+          "pin": "38",
+          "ref": "U27",
+          "role": "single-ended input already locally driven",
+          "unit": "controller"
+        }
+      ],
+      "selected_harness": null
+    },
+    "12": {
+      "candidates_only": [],
+      "selected_harness": null
+    },
+    "13": {
+      "candidates_only": [],
+      "selected_harness": null
+    },
+    "14": {
+      "candidates_only": [
+        {
+          "lines": [
+            7843
+          ],
+          "net": "I_SENSE",
+          "pin": "39",
+          "ref": "U27",
+          "role": "input already locally driven",
+          "unit": "controller"
+        },
+        {
+          "lines": [
+            2735
+          ],
+          "net": "SENSE_MON",
+          "pin": "4",
+          "ref": "J2",
+          "role": "another output; not a receiver",
+          "unit": "current-sense"
+        }
+      ],
+      "selected_harness": null
+    },
+    "15": {
+      "candidates_only": [
+        {
+          "lines": [
+            6142
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "interlock"
+        },
+        {
+          "lines": [
+            4562
+          ],
+          "net": "ctrl_gnd",
+          "pin": "4",
+          "ref": "J1",
+          "role": "common return",
+          "unit": "gate-drive"
+        },
+        {
+          "lines": [
+            2717
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "current-sense"
+        },
+        {
+          "lines": [
+            6775
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J3",
+          "role": "common return",
+          "unit": "thermal-sense"
+        },
+        {
+          "lines": [
+            4882
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        },
+        {
+          "lines": [
+            4891
+          ],
+          "net": "gnd",
+          "pin": "3",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        }
+      ],
+      "selected_harness": null
+    },
+    "16": {
+      "candidates_only": [
+        {
+          "lines": [
+            6142
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "interlock"
+        },
+        {
+          "lines": [
+            4562
+          ],
+          "net": "ctrl_gnd",
+          "pin": "4",
+          "ref": "J1",
+          "role": "common return",
+          "unit": "gate-drive"
+        },
+        {
+          "lines": [
+            2717
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "current-sense"
+        },
+        {
+          "lines": [
+            6775
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J3",
+          "role": "common return",
+          "unit": "thermal-sense"
+        },
+        {
+          "lines": [
+            4882
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        },
+        {
+          "lines": [
+            4891
+          ],
+          "net": "gnd",
+          "pin": "3",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        }
+      ],
+      "selected_harness": null
+    },
+    "2": {
+      "candidates_only": [
+        {
+          "lines": [
+            6142
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "interlock"
+        },
+        {
+          "lines": [
+            4562
+          ],
+          "net": "ctrl_gnd",
+          "pin": "4",
+          "ref": "J1",
+          "role": "common return",
+          "unit": "gate-drive"
+        },
+        {
+          "lines": [
+            2717
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "current-sense"
+        },
+        {
+          "lines": [
+            6775
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J3",
+          "role": "common return",
+          "unit": "thermal-sense"
+        },
+        {
+          "lines": [
+            4882
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        },
+        {
+          "lines": [
+            4891
+          ],
+          "net": "gnd",
+          "pin": "3",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        }
+      ],
+      "selected_harness": null
+    },
+    "3": {
+      "candidates_only": [
+        {
+          "lines": [
+            7769
+          ],
+          "net": "+3V3",
+          "pin": "2",
+          "ref": "U27",
+          "role": "rail only; no supply connector",
+          "unit": "controller"
+        }
+      ],
+      "selected_harness": null
+    },
+    "4": {
+      "candidates_only": [
+        {
+          "lines": [
+            6142
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "interlock"
+        },
+        {
+          "lines": [
+            4562
+          ],
+          "net": "ctrl_gnd",
+          "pin": "4",
+          "ref": "J1",
+          "role": "common return",
+          "unit": "gate-drive"
+        },
+        {
+          "lines": [
+            2717
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "current-sense"
+        },
+        {
+          "lines": [
+            6775
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J3",
+          "role": "common return",
+          "unit": "thermal-sense"
+        },
+        {
+          "lines": [
+            4882
+          ],
+          "net": "gnd",
+          "pin": "2",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        },
+        {
+          "lines": [
+            4891
+          ],
+          "net": "gnd",
+          "pin": "3",
+          "ref": "J2",
+          "role": "common return",
+          "unit": "rtd"
+        }
+      ],
+      "selected_harness": null
+    },
+    "5": {
+      "candidates_only": [
+        {
+          "lines": [
+            7773
+          ],
+          "net": "PWM_HS",
+          "pin": "4",
+          "ref": "U27",
+          "role": "unallocated producer",
+          "unit": "controller"
+        },
+        {
+          "lines": [
+            4534
+          ],
+          "net": "pwm_h",
+          "pin": "1",
+          "ref": "J1",
+          "role": "another receiver",
+          "unit": "gate-drive"
+        }
+      ],
+      "selected_harness": null
+    },
+    "6": {
+      "candidates_only": [
+        {
+          "lines": [
+            7775
+          ],
+          "net": "PWM_LS",
+          "pin": "5",
+          "ref": "U27",
+          "role": "unallocated producer",
+          "unit": "controller"
+        },
+        {
+          "lines": [
+            4544
+          ],
+          "net": "pwm_l",
+          "pin": "2",
+          "ref": "J1",
+          "role": "another receiver",
+          "unit": "gate-drive"
+        }
+      ],
+      "selected_harness": null
+    },
+    "7": {
+      "candidates_only": [],
+      "selected_harness": null
+    },
+    "8": {
+      "candidates_only": [],
+      "selected_harness": null
+    },
+    "9": {
+      "candidates_only": [
+        {
+          "lines": [
+            6178
+          ],
+          "net": "permit",
+          "pin": "6",
+          "ref": "J2",
+          "role": "producer",
+          "unit": "interlock"
+        }
+      ],
+      "selected_harness": null
+    }
+  },
+  "input_revision": "65fbde6a87c3f95558976c0213e402df9b799ca6",
+  "input_sha256": {
+    "elec/src/main.ato": "8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28",
+    "elec/src/modules.ato": "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5",
+    "pcb/temper.kicad_pcb": "00a27419b82101e3518ddbf9d174f8359d76940c495ca1e5bd3d9cc32d7ac4d9",
+    "zapote/current-sense/INTERFACES.md": "2de35ef3a2e9c65d7f16146adfa92f39eb1be08362b5e649037ae60d0df4934d",
+    "zapote/current-sense/candidate/section.kicad_pcb": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623",
+    "zapote/gate-drive/INTERFACES.md": "0878a207318954b5cf915dbe33ce206857d4fe62444b8d58cb8b0c7915f73104",
+    "zapote/gate-drive/candidate/section.kicad_pcb": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495",
+    "zapote/interlock/INTERFACES.md": "5155e7d34ed58b4fae9fd4731a9e11730a6082c99c191e2518d20bb0f850b508",
+    "zapote/interlock/candidate/section.kicad_pcb": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87",
+    "zapote/interlock/interface-contract.json": "fdce38c47354a03b3dd5fbdbad2e6a9f2f709acd683e6611f0c202d52c239bb5",
+    "zapote/interlock/source-build-02/elec/src/interlock_unit.ato": "8e457eaa3c50c810e0877ce5b533faae4a751f966a1f9e1c39bb6b4fe067276d",
+    "zapote/ports.toml": "e19ce8761f7f60adc9860b782cf8930b6043ea409a558291f605d0c6086d8d53",
+    "zapote/power-stage-120v/elec/src/parts.ato": "fbd826ca405cf57d5fcb59e9bced369153080e5880685feb184cbc2ede9ed076",
+    "zapote/power-stage-120v/elec/src/power_stage_120v.ato": "03f157fc83cad18daaa392ca3a85ec3202a3d0c89c60b4566ab9248d1cfc7112",
+    "zapote/power-stage-120v/frozen/default.csv": "08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67",
+    "zapote/power-stage-120v/frozen/default.net": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+    "zapote/power-stage-120v/native-17/section.kicad_pcb": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "zapote/project.toml": "c173ccccdc00dbb8577adb837a38d0b5cbfe7a6d1570b898fca7c99dda25051e",
+    "zapote/rtd/unit/HANDOFF.md": "26f116051046b0555994d34079965aee9dd1d19712c002d617e9da70b3859176",
+    "zapote/rtd/unit/candidate/section.kicad_pcb": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb",
+    "zapote/thermal-sense/INTERFACES.md": "eb7ae7fd93914325193a819fbd961d57987d5c7974f01e3a3bf636c6ee442410",
+    "zapote/thermal-sense/candidate/section.kicad_pcb": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c"
+  },
+  "j4_comparison": [
+    {
+      "board_nets": [
+        "v15_selv"
+      ],
+      "match": true,
+      "netlist": "v15_selv",
+      "pin": "1",
+      "source": {
+        "line": 541,
+        "net": "v15_selv"
+      }
+    },
+    {
+      "board_nets": [
+        "selv_gnd"
+      ],
+      "match": true,
+      "netlist": "selv_gnd",
+      "pin": "2",
+      "source": {
+        "line": 542,
+        "net": "selv_gnd"
+      }
+    },
+    {
+      "board_nets": [
+        "v3v3"
+      ],
+      "match": true,
+      "netlist": "v3v3",
+      "pin": "3",
+      "source": {
+        "line": 543,
+        "net": "v3v3"
+      }
+    },
+    {
+      "board_nets": [
+        "selv_gnd"
+      ],
+      "match": true,
+      "netlist": "selv_gnd",
+      "pin": "4",
+      "source": {
+        "line": 544,
+        "net": "selv_gnd"
+      }
+    },
+    {
+      "board_nets": [
+        "pwm_ha"
+      ],
+      "match": true,
+      "netlist": "pwm_ha",
+      "pin": "5",
+      "source": {
+        "line": 545,
+        "net": "pwm_ha"
+      }
+    },
+    {
+      "board_nets": [
+        "pwm_la"
+      ],
+      "match": true,
+      "netlist": "pwm_la",
+      "pin": "6",
+      "source": {
+        "line": 546,
+        "net": "pwm_la"
+      }
+    },
+    {
+      "board_nets": [
+        "pwm_hb"
+      ],
+      "match": true,
+      "netlist": "pwm_hb",
+      "pin": "7",
+      "source": {
+        "line": 547,
+        "net": "pwm_hb"
+      }
+    },
+    {
+      "board_nets": [
+        "pwm_lb"
+      ],
+      "match": true,
+      "netlist": "pwm_lb",
+      "pin": "8",
+      "source": {
+        "line": 548,
+        "net": "pwm_lb"
+      }
+    },
+    {
+      "board_nets": [
+        "permit"
+      ],
+      "match": true,
+      "netlist": "permit",
+      "pin": "9",
+      "source": {
+        "line": 549,
+        "net": "permit"
+      }
+    },
+    {
+      "board_nets": [
+        "bus_fault"
+      ],
+      "match": true,
+      "netlist": "bus_fault",
+      "pin": "10",
+      "source": {
+        "line": 550,
+        "net": "bus_fault"
+      }
+    },
+    {
+      "board_nets": [
+        "vbus_p"
+      ],
+      "match": true,
+      "netlist": "vbus_p",
+      "pin": "11",
+      "source": {
+        "line": 551,
+        "net": "vbus_p"
+      }
+    },
+    {
+      "board_nets": [
+        "vbus_n"
+      ],
+      "match": true,
+      "netlist": "vbus_n",
+      "pin": "12",
+      "source": {
+        "line": 552,
+        "net": "vbus_n"
+      }
+    },
+    {
+      "board_nets": [
+        "ct_zc"
+      ],
+      "match": true,
+      "netlist": "ct_zc",
+      "pin": "13",
+      "source": {
+        "line": 553,
+        "net": "ct_zc"
+      }
+    },
+    {
+      "board_nets": [
+        "ct_mon"
+      ],
+      "match": true,
+      "netlist": "ct_mon",
+      "pin": "14",
+      "source": {
+        "line": 554,
+        "net": "ct_mon"
+      }
+    },
+    {
+      "board_nets": [
+        "selv_gnd"
+      ],
+      "match": true,
+      "netlist": "selv_gnd",
+      "pin": "15",
+      "source": {
+        "line": 555,
+        "net": "selv_gnd"
+      }
+    },
+    {
+      "board_nets": [
+        "selv_gnd"
+      ],
+      "match": true,
+      "netlist": "selv_gnd",
+      "pin": "16",
+      "source": {
+        "line": 556,
+        "net": "selv_gnd"
+      }
+    }
+  ],
+  "power_selected_nets": {
+    "bus_fault": {
+      "line": 1484,
+      "nodes": [
+        {
+          "line": 1485,
+          "pin": "10",
+          "ref": "J4"
+        },
+        {
+          "line": 1486,
+          "pin": "4",
+          "ref": "U13"
+        }
+      ]
+    },
+    "ct_mon": {
+      "line": 1531,
+      "nodes": [
+        {
+          "line": 1532,
+          "pin": "14",
+          "ref": "J4"
+        },
+        {
+          "line": 1533,
+          "pin": "2",
+          "ref": "R47"
+        }
+      ]
+    },
+    "ct_s1": {
+      "line": 1493,
+      "nodes": [
+        {
+          "line": 1494,
+          "pin": "3",
+          "ref": "T1"
+        },
+        {
+          "line": 1495,
+          "pin": "1",
+          "ref": "R39"
+        },
+        {
+          "line": 1496,
+          "pin": "1",
+          "ref": "C42"
+        },
+        {
+          "line": 1497,
+          "pin": "1",
+          "ref": "R42"
+        }
+      ]
+    },
+    "ct_s2": {
+      "line": 1498,
+      "nodes": [
+        {
+          "line": 1499,
+          "pin": "4",
+          "ref": "T1"
+        },
+        {
+          "line": 1500,
+          "pin": "2",
+          "ref": "R39"
+        },
+        {
+          "line": 1501,
+          "pin": "2",
+          "ref": "C42"
+        },
+        {
+          "line": 1502,
+          "pin": "2",
+          "ref": "R40"
+        },
+        {
+          "line": 1503,
+          "pin": "1",
+          "ref": "R41"
+        },
+        {
+          "line": 1504,
+          "pin": "1",
+          "ref": "C43"
+        },
+        {
+          "line": 1505,
+          "pin": "4",
+          "ref": "U12"
+        }
+      ]
+    },
+    "ct_sense_mon": {
+      "line": 1506,
+      "nodes": [
+        {
+          "line": 1507,
+          "pin": "2",
+          "ref": "R42"
+        },
+        {
+          "line": 1508,
+          "pin": "2",
+          "ref": "D4"
+        },
+        {
+          "line": 1509,
+          "pin": "1",
+          "ref": "D5"
+        },
+        {
+          "line": 1510,
+          "pin": "3",
+          "ref": "U10"
+        },
+        {
+          "line": 1511,
+          "pin": "4",
+          "ref": "U11"
+        },
+        {
+          "line": 1512,
+          "pin": "3",
+          "ref": "U12"
+        },
+        {
+          "line": 1513,
+          "pin": "1",
+          "ref": "R47"
+        }
+      ]
+    },
+    "ct_zc": {
+      "line": 1528,
+      "nodes": [
+        {
+          "line": 1529,
+          "pin": "13",
+          "ref": "J4"
+        },
+        {
+          "line": 1530,
+          "pin": "1",
+          "ref": "U12"
+        }
+      ]
+    },
+    "pe": {
+      "line": 1177,
+      "nodes": [
+        {
+          "line": 1178,
+          "pin": "2",
+          "ref": "C3"
+        },
+        {
+          "line": 1179,
+          "pin": "2",
+          "ref": "C4"
+        },
+        {
+          "line": 1180,
+          "pin": "1",
+          "ref": "R38"
+        },
+        {
+          "line": 1181,
+          "pin": "1",
+          "ref": "J6"
+        },
+        {
+          "line": 1182,
+          "pin": "2",
+          "ref": "J6"
+        }
+      ]
+    },
+    "permit": {
+      "line": 1480,
+      "nodes": [
+        {
+          "line": 1481,
+          "pin": "1",
+          "ref": "R6"
+        },
+        {
+          "line": 1482,
+          "pin": "1",
+          "ref": "R14"
+        },
+        {
+          "line": 1483,
+          "pin": "9",
+          "ref": "J4"
+        }
+      ]
+    },
+    "pwm_ha": {
+      "line": 1468,
+      "nodes": [
+        {
+          "line": 1469,
+          "pin": "1",
+          "ref": "U1"
+        },
+        {
+          "line": 1470,
+          "pin": "5",
+          "ref": "J4"
+        }
+      ]
+    },
+    "pwm_hb": {
+      "line": 1474,
+      "nodes": [
+        {
+          "line": 1475,
+          "pin": "1",
+          "ref": "U2"
+        },
+        {
+          "line": 1476,
+          "pin": "7",
+          "ref": "J4"
+        }
+      ]
+    },
+    "pwm_la": {
+      "line": 1471,
+      "nodes": [
+        {
+          "line": 1472,
+          "pin": "2",
+          "ref": "U1"
+        },
+        {
+          "line": 1473,
+          "pin": "6",
+          "ref": "J4"
+        }
+      ]
+    },
+    "pwm_lb": {
+      "line": 1477,
+      "nodes": [
+        {
+          "line": 1478,
+          "pin": "2",
+          "ref": "U2"
+        },
+        {
+          "line": 1479,
+          "pin": "8",
+          "ref": "J4"
+        }
+      ]
+    },
+    "selv_gnd": {
+      "line": 1407,
+      "nodes": [
+        {
+          "line": 1408,
+          "pin": "4",
+          "ref": "U1"
+        },
+        {
+          "line": 1409,
+          "pin": "2",
+          "ref": "C7"
+        },
+        {
+          "line": 1410,
+          "pin": "2",
+          "ref": "R7"
+        },
+        {
+          "line": 1411,
+          "pin": "2",
+          "ref": "Q1"
+        },
+        {
+          "line": 1412,
+          "pin": "2",
+          "ref": "R9"
+        },
+        {
+          "line": 1413,
+          "pin": "4",
+          "ref": "U2"
+        },
+        {
+          "line": 1414,
+          "pin": "2",
+          "ref": "C14"
+        },
+        {
+          "line": 1415,
+          "pin": "2",
+          "ref": "R15"
+        },
+        {
+          "line": 1416,
+          "pin": "2",
+          "ref": "Q4"
+        },
+        {
+          "line": 1417,
+          "pin": "2",
+          "ref": "R17"
+        },
+        {
+          "line": 1418,
+          "pin": "3",
+          "ref": "PS1"
+        },
+        {
+          "line": 1419,
+          "pin": "5",
+          "ref": "U4"
+        },
+        {
+          "line": 1420,
+          "pin": "2",
+          "ref": "C29"
+        },
+        {
+          "line": 1421,
+          "pin": "9",
+          "ref": "U9"
+        },
+        {
+          "line": 1422,
+          "pin": "16",
+          "ref": "U9"
+        },
+        {
+          "line": 1423,
+          "pin": "2",
+          "ref": "C37"
+        },
+        {
+          "line": 1424,
+          "pin": "2",
+          "ref": "J4"
+        },
+        {
+          "line": 1425,
+          "pin": "4",
+          "ref": "J4"
+        },
+        {
+          "line": 1426,
+          "pin": "15",
+          "ref": "J4"
+        },
+        {
+          "line": 1427,
+          "pin": "16",
+          "ref": "J4"
+        },
+        {
+          "line": 1428,
+          "pin": "2",
+          "ref": "R38"
+        },
+        {
+          "line": 1429,
+          "pin": "2",
+          "ref": "R41"
+        },
+        {
+          "line": 1430,
+          "pin": "2",
+          "ref": "C43"
+        },
+        {
+          "line": 1431,
+          "pin": "2",
+          "ref": "D5"
+        },
+        {
+          "line": 1432,
+          "pin": "2",
+          "ref": "R44"
+        },
+        {
+          "line": 1433,
+          "pin": "2",
+          "ref": "R46"
+        },
+        {
+          "line": 1434,
+          "pin": "2",
+          "ref": "U10"
+        },
+        {
+          "line": 1435,
+          "pin": "2",
+          "ref": "C44"
+        },
+        {
+          "line": 1436,
+          "pin": "2",
+          "ref": "U11"
+        },
+        {
+          "line": 1437,
+          "pin": "2",
+          "ref": "C45"
+        },
+        {
+          "line": 1438,
+          "pin": "2",
+          "ref": "U12"
+        },
+        {
+          "line": 1439,
+          "pin": "2",
+          "ref": "C46"
+        },
+        {
+          "line": 1440,
+          "pin": "2",
+          "ref": "U13"
+        },
+        {
+          "line": 1441,
+          "pin": "2",
+          "ref": "C47"
+        }
+      ]
+    },
+    "v15_selv": {
+      "line": 1404,
+      "nodes": [
+        {
+          "line": 1405,
+          "pin": "4",
+          "ref": "PS1"
+        },
+        {
+          "line": 1406,
+          "pin": "1",
+          "ref": "J4"
+        }
+      ]
+    },
+    "v3v3": {
+      "line": 1442,
+      "nodes": [
+        {
+          "line": 1443,
+          "pin": "3",
+          "ref": "U1"
+        },
+        {
+          "line": 1444,
+          "pin": "8",
+          "ref": "U1"
+        },
+        {
+          "line": 1445,
+          "pin": "1",
+          "ref": "C7"
+        },
+        {
+          "line": 1446,
+          "pin": "2",
+          "ref": "R8"
+        },
+        {
+          "line": 1447,
+          "pin": "3",
+          "ref": "U2"
+        },
+        {
+          "line": 1448,
+          "pin": "8",
+          "ref": "U2"
+        },
+        {
+          "line": 1449,
+          "pin": "1",
+          "ref": "C14"
+        },
+        {
+          "line": 1450,
+          "pin": "2",
+          "ref": "R16"
+        },
+        {
+          "line": 1451,
+          "pin": "8",
+          "ref": "U4"
+        },
+        {
+          "line": 1452,
+          "pin": "1",
+          "ref": "C29"
+        },
+        {
+          "line": 1453,
+          "pin": "14",
+          "ref": "U9"
+        },
+        {
+          "line": 1454,
+          "pin": "1",
+          "ref": "C37"
+        },
+        {
+          "line": 1455,
+          "pin": "3",
+          "ref": "J4"
+        },
+        {
+          "line": 1456,
+          "pin": "1",
+          "ref": "R40"
+        },
+        {
+          "line": 1457,
+          "pin": "1",
+          "ref": "D4"
+        },
+        {
+          "line": 1458,
+          "pin": "1",
+          "ref": "R43"
+        },
+        {
+          "line": 1459,
+          "pin": "1",
+          "ref": "R45"
+        },
+        {
+          "line": 1460,
+          "pin": "5",
+          "ref": "U10"
+        },
+        {
+          "line": 1461,
+          "pin": "1",
+          "ref": "C44"
+        },
+        {
+          "line": 1462,
+          "pin": "5",
+          "ref": "U11"
+        },
+        {
+          "line": 1463,
+          "pin": "1",
+          "ref": "C45"
+        },
+        {
+          "line": 1464,
+          "pin": "5",
+          "ref": "U12"
+        },
+        {
+          "line": 1465,
+          "pin": "1",
+          "ref": "C46"
+        },
+        {
+          "line": 1466,
+          "pin": "5",
+          "ref": "U13"
+        },
+        {
+          "line": 1467,
+          "pin": "1",
+          "ref": "C47"
+        }
+      ]
+    },
+    "vbus_n": {
+      "line": 1490,
+      "nodes": [
+        {
+          "line": 1491,
+          "pin": "6",
+          "ref": "U4"
+        },
+        {
+          "line": 1492,
+          "pin": "12",
+          "ref": "J4"
+        }
+      ]
+    },
+    "vbus_p": {
+      "line": 1487,
+      "nodes": [
+        {
+          "line": 1488,
+          "pin": "7",
+          "ref": "U4"
+        },
+        {
+          "line": 1489,
+          "pin": "11",
+          "ref": "J4"
+        }
+      ]
+    }
+  },
+  "power_selected_parts": {
+    "C42": {
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "line": 22488,
+      "pads": {
+        "1": [
+          {
+            "line": 22630,
+            "net": "ct_s1"
+          }
+        ],
+        "2": [
+          {
+            "line": 22638,
+            "net": "ct_s2"
+          }
+        ]
+      },
+      "sheetpath": "c_ct_burden",
+      "value": "GRM31C5C1H104JA01L"
+    },
+    "D4": {
+      "footprint": "Diode_SMD:D_SOD-123F",
+      "line": 21617,
+      "pads": {
+        "1": [
+          {
+            "line": 21897,
+            "net": "v3v3"
+          }
+        ],
+        "2": [
+          {
+            "line": 21905,
+            "net": "ct_sense_mon"
+          }
+        ]
+      },
+      "sheetpath": "d_ct_hi",
+      "value": "BAS116H,115"
+    },
+    "D5": {
+      "footprint": "Diode_SMD:D_SOD-123F",
+      "line": 17515,
+      "pads": {
+        "1": [
+          {
+            "line": 17795,
+            "net": "ct_sense_mon"
+          }
+        ],
+        "2": [
+          {
+            "line": 17803,
+            "net": "selv_gnd"
+          }
+        ]
+      },
+      "sheetpath": "d_ct_lo",
+      "value": "BAS116H,115"
+    },
+    "PS1": {
+      "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+      "line": 12592,
+      "pads": {
+        "1": [
+          {
+            "line": 12852,
+            "net": "l_filt"
+          }
+        ],
+        "2": [
+          {
+            "line": 12863,
+            "net": "n_filt"
+          }
+        ],
+        "3": [
+          {
+            "line": 12874,
+            "net": "selv_gnd"
+          }
+        ],
+        "4": [
+          {
+            "line": 12885,
+            "net": "v15_selv"
+          }
+        ]
+      },
+      "sheetpath": "ps_selv",
+      "value": "IRM-20-15"
+    },
+    "Q1": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "line": 11505,
+      "pads": {
+        "1": [
+          {
+            "line": 11859,
+            "net": "leg_a-permit_gate"
+          }
+        ],
+        "2": [
+          {
+            "line": 11867,
+            "net": "selv_gnd"
+          }
+        ],
+        "3": [
+          {
+            "line": 11875,
+            "net": "leg_a-dis"
+          }
+        ]
+      },
+      "sheetpath": "leg_a.permit_fet",
+      "value": "AO3400A"
+    },
+    "Q4": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "line": 9464,
+      "pads": {
+        "1": [
+          {
+            "line": 9818,
+            "net": "leg_b-permit_gate"
+          }
+        ],
+        "2": [
+          {
+            "line": 9826,
+            "net": "selv_gnd"
+          }
+        ],
+        "3": [
+          {
+            "line": 9834,
+            "net": "leg_b-dis"
+          }
+        ]
+      },
+      "sheetpath": "leg_b.permit_fet",
+      "value": "AO3400A"
+    },
+    "R38": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 4582,
+      "pads": {
+        "1": [
+          {
+            "line": 4724,
+            "net": "pe"
+          }
+        ],
+        "2": [
+          {
+            "line": 4732,
+            "net": "selv_gnd"
+          }
+        ]
+      },
+      "sheetpath": "r_fe",
+      "value": "RC0603JR-070RL"
+    },
+    "R39": {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "line": 1849,
+      "pads": {
+        "1": [
+          {
+            "line": 1991,
+            "net": "ct_s1"
+          }
+        ],
+        "2": [
+          {
+            "line": 1999,
+            "net": "ct_s2"
+          }
+        ]
+      },
+      "sheetpath": "r_ct_burden",
+      "value": "RC1206FR-071R5L"
+    },
+    "R40": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 16116,
+      "pads": {
+        "1": [
+          {
+            "line": 16258,
+            "net": "v3v3"
+          }
+        ],
+        "2": [
+          {
+            "line": 16266,
+            "net": "ct_s2"
+          }
+        ]
+      },
+      "sheetpath": "r_ct_bias_top",
+      "value": "RT0603BRD071KL"
+    },
+    "R41": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 13487,
+      "pads": {
+        "1": [
+          {
+            "line": 13629,
+            "net": "ct_s2"
+          }
+        ],
+        "2": [
+          {
+            "line": 13637,
+            "net": "selv_gnd"
+          }
+        ]
+      },
+      "sheetpath": "r_ct_bias_bot",
+      "value": "RT0603BRD071KL"
+    },
+    "R42": {
+      "footprint": "Resistor_SMD:R_1206_3216Metric",
+      "line": 27543,
+      "pads": {
+        "1": [
+          {
+            "line": 27685,
+            "net": "ct_s1"
+          }
+        ],
+        "2": [
+          {
+            "line": 27693,
+            "net": "ct_sense_mon"
+          }
+        ]
+      },
+      "sheetpath": "r_ct_series",
+      "value": "RC1206FR-071KL"
+    },
+    "R47": {
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "line": 13829,
+      "pads": {
+        "1": [
+          {
+            "line": 13971,
+            "net": "ct_sense_mon"
+          }
+        ],
+        "2": [
+          {
+            "line": 13979,
+            "net": "ct_mon"
+          }
+        ]
+      },
+      "sheetpath": "r_ct_mon",
+      "value": "RC0603FR-071KL"
+    },
+    "T1": {
+      "footprint": "temper:CST3015",
+      "line": 28937,
+      "pads": {
+        "1": [
+          {
+            "line": 29098,
+            "net": "sw_a"
+          }
+        ],
+        "2": [
+          {
+            "line": 29105,
+            "net": "coil_feed"
+          }
+        ],
+        "3": [
+          {
+            "line": 29112,
+            "net": "ct_s1"
+          }
+        ],
+        "4": [
+          {
+            "line": 29119,
+            "net": "ct_s2"
+          }
+        ]
+      },
+      "sheetpath": "t_ct",
+      "value": "CST3015-100ED"
+    },
+    "U10": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "line": 25686,
+      "pads": {
+        "1": [
+          {
+            "line": 26040,
+            "net": "ct_oc_pos"
+          }
+        ],
+        "2": [
+          {
+            "line": 26048,
+            "net": "selv_gnd"
+          }
+        ],
+        "3": [
+          {
+            "line": 26056,
+            "net": "ct_sense_mon"
+          }
+        ],
+        "4": [
+          {
+            "line": 26064,
+            "net": "ct_ref_hi"
+          }
+        ],
+        "5": [
+          {
+            "line": 26072,
+            "net": "v3v3"
+          }
+        ]
+      },
+      "sheetpath": "u_ct_pos",
+      "value": "TLV3201AIDBVR"
+    },
+    "U11": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "line": 5689,
+      "pads": {
+        "1": [
+          {
+            "line": 6043,
+            "net": "ct_oc_neg"
+          }
+        ],
+        "2": [
+          {
+            "line": 6051,
+            "net": "selv_gnd"
+          }
+        ],
+        "3": [
+          {
+            "line": 6059,
+            "net": "ct_ref_lo"
+          }
+        ],
+        "4": [
+          {
+            "line": 6067,
+            "net": "ct_sense_mon"
+          }
+        ],
+        "5": [
+          {
+            "line": 6075,
+            "net": "v3v3"
+          }
+        ]
+      },
+      "sheetpath": "u_ct_neg",
+      "value": "TLV3201AIDBVR"
+    },
+    "U12": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "line": 8860,
+      "pads": {
+        "1": [
+          {
+            "line": 9214,
+            "net": "ct_zc"
+          }
+        ],
+        "2": [
+          {
+            "line": 9222,
+            "net": "selv_gnd"
+          }
+        ],
+        "3": [
+          {
+            "line": 9230,
+            "net": "ct_sense_mon"
+          }
+        ],
+        "4": [
+          {
+            "line": 9238,
+            "net": "ct_s2"
+          }
+        ],
+        "5": [
+          {
+            "line": 9246,
+            "net": "v3v3"
+          }
+        ]
+      },
+      "sheetpath": "u_ct_zc",
+      "value": "TLV3201AIDBVR"
+    },
+    "U13": {
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "line": 17824,
+      "pads": {
+        "1": [
+          {
+            "line": 18128,
+            "net": "bus_fault_iso"
+          }
+        ],
+        "2": [
+          {
+            "line": 18136,
+            "net": "selv_gnd"
+          }
+        ],
+        "3": [
+          {
+            "line": 18144,
+            "net": "ct_oc_pos"
+          }
+        ],
+        "4": [
+          {
+            "line": 18152,
+            "net": "bus_fault"
+          }
+        ],
+        "5": [
+          {
+            "line": 18160,
+            "net": "v3v3"
+          }
+        ],
+        "6": [
+          {
+            "line": 18168,
+            "net": "ct_oc_neg"
+          }
+        ]
+      },
+      "sheetpath": "u_fault_or",
+      "value": "SN74LVC1G332DBVR"
+    },
+    "U4": {
+      "footprint": "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm",
+      "line": 10865,
+      "pads": {
+        "1": [
+          {
+            "line": 11120,
+            "net": "hot5"
+          }
+        ],
+        "2": [
+          {
+            "line": 11128,
+            "net": "vsense_in"
+          }
+        ],
+        "3": [
+          {
+            "line": 11136,
+            "net": "leg_ret"
+          }
+        ],
+        "4": [
+          {
+            "line": 11144,
+            "net": "leg_ret"
+          }
+        ],
+        "5": [
+          {
+            "line": 11152,
+            "net": "selv_gnd"
+          }
+        ],
+        "6": [
+          {
+            "line": 11160,
+            "net": "vbus_n"
+          }
+        ],
+        "7": [
+          {
+            "line": 11168,
+            "net": "vbus_p"
+          }
+        ],
+        "8": [
+          {
+            "line": 11176,
+            "net": "v3v3"
+          }
+        ]
+      },
+      "sheetpath": "u_vsense",
+      "value": "AMC1311BDWVR"
+    },
+    "U9": {
+      "footprint": "lib:SOIC16W_DW0016B_HV",
+      "line": 7319,
+      "pads": {
+        "1": [
+          {
+            "line": 7623,
+            "net": "leg_ret"
+          }
+        ],
+        "10": [
+          {
+            "line": 7695,
+            "net": "nc10"
+          }
+        ],
+        "11": [
+          {
+            "line": 7703,
+            "net": "nc11"
+          }
+        ],
+        "12": [
+          {
+            "line": 7711,
+            "net": "nc12"
+          }
+        ],
+        "13": [
+          {
+            "line": 7719,
+            "net": "bus_fault_iso"
+          }
+        ],
+        "14": [
+          {
+            "line": 7727,
+            "net": "v3v3"
+          }
+        ],
+        "15": [
+          {
+            "line": 7735,
+            "net": "nc15"
+          }
+        ],
+        "16": [
+          {
+            "line": 7743,
+            "net": "selv_gnd"
+          }
+        ],
+        "2": [
+          {
+            "line": 7631,
+            "net": "nc2"
+          }
+        ],
+        "3": [
+          {
+            "line": 7639,
+            "net": "hot5"
+          }
+        ],
+        "4": [
+          {
+            "line": 7647,
+            "net": "bus_fault_hot"
+          }
+        ],
+        "5": [
+          {
+            "line": 7655,
+            "net": "nc5"
+          }
+        ],
+        "6": [
+          {
+            "line": 7663,
+            "net": "nc6"
+          }
+        ],
+        "7": [
+          {
+            "line": 7671,
+            "net": "leg_ret"
+          }
+        ],
+        "8": [
+          {
+            "line": 7679,
+            "net": "nc8"
+          }
+        ],
+        "9": [
+          {
+            "line": 7687,
+            "net": "selv_gnd"
+          }
+        ]
+      },
+      "sheetpath": "u_iso",
+      "value": "ISO7710DWR"
+    }
+  },
+  "runtime": "3.12.12",
+  "scope": "D10 exact structural extraction; electrical acceptance remains in README",
+  "selected_net_comparison": {
+    "bus_fault": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "ct_mon": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "ct_s1": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "ct_s2": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "ct_sense_mon": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "ct_zc": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "pe": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "permit": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "pwm_ha": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "pwm_hb": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "pwm_la": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "pwm_lb": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "selv_gnd": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "v15_selv": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "v3v3": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "vbus_n": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    },
+    "vbus_p": {
+      "match": true,
+      "native_only": [],
+      "netlist_only": []
+    }
+  }
+}

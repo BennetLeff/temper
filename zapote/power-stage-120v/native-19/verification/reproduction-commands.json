@@ -1,0 +1,85 @@
+{
+  "working_directory": "repository checkout; source compilation commands use zapote/power-stage-120v",
+  "prerequisites": [
+    "KiCad10 installed with pcbnew Python3.9 and standard model library; footprints are vendored in candidate-libs",
+    "Cached Atopile0.2.69; no install/network required",
+    "Exact native18 baseline hash fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+    "Keep project rules/library tables/candidate-libs/models beside native19 board",
+    "Host Python3.10+ for build_schematic.py (KiCad pcbnew Python is3.9)"
+  ],
+  "ordered_operations": [
+    {
+      "cwd": "zapote/power-stage-120v",
+      "command": "uv tool run --offline --from atopile==0.2.69 ato build"
+    },
+    {
+      "cwd": "zapote/power-stage-120v",
+      "command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py . build/resolved-components.json --entry-file elec/src/power_stage_120v.ato --entry PowerStage120V"
+    },
+    {
+      "cwd": "zapote/power-stage-120v",
+      "command": "cp build/default.net build/default.csv build/resolved-components.json frozen/",
+      "note": "Validate actual compiler output paths before copying; never hand edit netlist."
+    },
+    {
+      "cwd": ".",
+      "command": "rustc --edition=2021 --test zapote/power-stage-120v/audit.rs -o /private/tmp/native19-audit-test && /private/tmp/native19-audit-test"
+    },
+    {
+      "cwd": ".",
+      "command": "rustc --edition=2021 -O zapote/power-stage-120v/audit.rs -o /private/tmp/native19-audit && /private/tmp/native19-audit zapote/power-stage-120v/frozen/default.net zapote/power-stage-120v/frozen/default.csv zapote/power-stage-120v/frozen/resolved-components.json"
+    },
+    {
+      "cwd": "zapote/power-stage-120v",
+      "command": "cp frozen/default.net frozen/default.csv frozen/resolved-components.json native-19/frozen/",
+      "gate": "Only after the compiled exports pass the source audit. Both builders independently reject any missing or divergent native snapshot before writing."
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3\" zapote/power-stage-120v/prototype-closure/pcb/build_candidate.py /Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/section.kicad_pcb"
+    },
+    {
+      "cwd": ".",
+      "command": "python3 zapote/power-stage-120v/prototype-closure/pcb/build_schematic.py"
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli\" sch erc --severity-all --format json --output zapote/power-stage-120v/native-19/verification/erc-final.json zapote/power-stage-120v/native-19/section.kicad_sch"
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli\" pcb drc --severity-all --all-track-errors --schematic-parity --format json --refill-zones --save-board --output zapote/power-stage-120v/native-19/verification/drc-final-1.json zapote/power-stage-120v/native-19/section.kicad_pcb",
+      "repeat": "Repeat twice without --save-board; write drc-final-2.json and drc-final-3.json; compare violation sets."
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3\" zapote/power-stage-120v/prototype-closure/pcb/inspect_candidate.py"
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3\" zapote/power-stage-120v/prototype-closure/pcb/probe_access.py"
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3\" zapote/power-stage-120v/prototype-closure/pcb/model_inventory.py"
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli\" pcb export step --output output/temper-prototype-closure/pcb/temper-power-native19-candidate.step --force --subst-models --no-dnp zapote/power-stage-120v/native-19/section.kicad_pcb",
+      "gate": "Only after zero-error DRC/ERC and no missing model inventory; validate STEP shape and reference completeness."
+    },
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli\" sch export pdf --output output/temper-prototype-closure/pcb/native19-schematic.pdf zapote/power-stage-120v/native-19/section.kicad_sch"
+    }
+  ],
+  "qualification": "Digital candidate only; physical tests NOT_RUN.",
+  "verification_commands": [
+    {
+      "cwd": ".",
+      "command": "\"/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3\" zapote/power-stage-120v/prototype-closure/pcb/test_replay_guards.py /Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/section.kicad_pcb",
+      "note": "Runs real builders only in temporary copies; checks missing/divergent exports, local-footprint-only replay, missing shunt footprint and schematic equivalence."
+    }
+  ],
+  "execution_rule": "Run in order and stop on any nonzero exit; do not continue from a partial compilation or copy."
+}

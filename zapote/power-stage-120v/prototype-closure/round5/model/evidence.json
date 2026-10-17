@@ -1,0 +1,73 @@
+{
+  "status": "DIAGNOSTIC_ONLY_NO_POWER_RELEASE",
+  "accepted_replay": "output/temper-prototype-closure/round5/model/replay-20261005c",
+  "extended_replay": "output/temper-prototype-closure/round5/model/extended-cases",
+  "upstream_modified": false,
+  "source_board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "files": [
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/audit.json",
+      "sha256": "77c34901b231db7e3eae13c7a2c559da851ebfa3a4a471e13ae0de041942b824"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/case-results.csv",
+      "sha256": "e88df35aca98f9fff73b1b1d9a24273eb7b79d58a13e527ae2ff0e4b4db57ee4"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/cases.csv",
+      "sha256": "3326fa5565ead2dafccfd97da89caac045c90a61066604df01f2dde882c2c894"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/device-results.csv",
+      "sha256": "c30cca10584534fecd3342952ce633556ec19fee8662346c35e9a65132ff87c9"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/energy-ode.csv",
+      "sha256": "0b229ce5b9fa565abe224ceea29f2f6f94a3bda59bec34c7d04e6c2dfbaf7f15"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/energy-tests.log",
+      "sha256": "17d4aed3626df3c09869d1ce78e00c17eb61e31da924926ad33382f96447a32d"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/extended-input-recheck.log",
+      "sha256": "020510885fd59fae665f21657c4303752eda42dc9e4ce119a19d5ff7d49e9b5c"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/extended-inputs.sha256",
+      "sha256": "40809d1053344b140b9147433565db804fa3e42345b87c470eff22e5c637af1f"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/geometry-gate.json",
+      "sha256": "eaf1bfb68ef047ab74b0a3cda7b83bf80194b234731155e009b6a21d874c5a31"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/input-recheck.log",
+      "sha256": "ac3e07d27bca84e0e2972bd6e1119d776ef975234b4361123389d1d8446d61c9"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/long-.625us.json",
+      "sha256": "47991fe8000d5501fb857aa8fdaea5d3c8615e64e4f73a472e7299b670eff7f7"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/long-1.25us.json",
+      "sha256": "cb77ea3bf3224f5e0df7776ff1587de18ba16d3af07ac89e20cf18cfd85efa9d"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/measurement-tests.log",
+      "sha256": "8172ca9d07609a00e56881102ff09a1dc5f88990ef84ed3101e5e3d8e54c5c07"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/replay-inputs.sha256",
+      "sha256": "dc92e770de3e696591ef0fec5d74967ac86b974d6343f4227ee7e341e88c9d59"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/runtime-check.log",
+      "sha256": "1b1aae0f832439eff9f2ab209f052bb2e42901495e461bbce7af087509934bb0"
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round5/model/evidence/tool-versions.txt",
+      "sha256": "5a0e3e9475070462eef6e67309e3aad2595a783038d65ed366a47f562a4f2a54"
+    }
+  ]
+}

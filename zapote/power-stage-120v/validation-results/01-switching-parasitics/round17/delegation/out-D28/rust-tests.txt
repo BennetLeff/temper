@@ -1,0 +1,11 @@
+
+running 6 tests
+test full_bridge_symmetry ... ok
+test full_off_window_catches_other_leg_disturbance ... ok
+test missing_or_incomplete_screens_never_pass ... ok
+test voltage_alone_does_not_prove_inductive_commutation ... ok
+test zero_drive ... ok
+test periodic_boundary ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

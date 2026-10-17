@@ -1,0 +1,54 @@
+{
+  "checks": "PASS",
+  "superposition_max_abs_v": 6.638140734476246e-13,
+  "rows": [
+    {
+      "frequency_hz": 150000.0,
+      "single_terminal_cm_v": 0.00021046687109731028,
+      "single_terminal_dm_v": 1.4686637498152645e-07,
+      "opposed_terminal_cm_v": 1.7915533477258077e-19,
+      "opposed_terminal_dm_v": 1.2608311390510523e-22,
+      "mismatch_terminal_cm_v": 5.277378260354465e-05,
+      "mismatch_terminal_dm_v": 3.6826195517794034e-08,
+      "q3_tab_current_analytic_a": 3.8915997959639496e-05,
+      "q3_tab_current_spice_a": 3.89159979596395e-05,
+      "q3_tab_current_rel_error": 1.7412541733751018e-16
+    },
+    {
+      "frequency_hz": 1000000.0,
+      "single_terminal_cm_v": 5.7701045446978295e-05,
+      "single_terminal_dm_v": 5.471881307584298e-09,
+      "opposed_terminal_cm_v": 2.163526084434414e-16,
+      "opposed_terminal_dm_v": 5.773740491048542e-21,
+      "mismatch_terminal_cm_v": 1.4468321843771388e-05,
+      "mismatch_terminal_dm_v": 1.3720538203996822e-09,
+      "q3_tab_current_analytic_a": 0.0002600254373498052,
+      "q3_tab_current_spice_a": 0.0002600254373498052,
+      "q3_tab_current_rel_error": 3.8173831959689884e-20
+    },
+    {
+      "frequency_hz": 10000000.0,
+      "single_terminal_cm_v": 0.0004960315862789358,
+      "single_terminal_dm_v": 7.83807600298499e-08,
+      "opposed_terminal_cm_v": 2.715125453977237e-18,
+      "opposed_terminal_dm_v": 2.3445890926875805e-28,
+      "mismatch_terminal_cm_v": 0.00012437806939444377,
+      "mismatch_terminal_dm_v": 1.9653683112268394e-08,
+      "q3_tab_current_analytic_a": 0.0026014300672981246,
+      "q3_tab_current_spice_a": 0.002601430067298125,
+      "q3_tab_current_rel_error": 1.6670865134006666e-16
+    },
+    {
+      "frequency_hz": 30000000.0,
+      "single_terminal_cm_v": 0.00148416343567726,
+      "single_terminal_dm_v": 8.925706411609192e-06,
+      "opposed_terminal_cm_v": 3.1049293811799067e-23,
+      "opposed_terminal_dm_v": 1.169222813827072e-27,
+      "mismatch_terminal_cm_v": 0.00037214844356723285,
+      "mismatch_terminal_dm_v": 2.238087577836534e-06,
+      "q3_tab_current_analytic_a": 0.007819008277849662,
+      "q3_tab_current_spice_a": 0.007819008277849662,
+      "q3_tab_current_rel_error": 5.416498596464246e-20
+    }
+  ]
+}

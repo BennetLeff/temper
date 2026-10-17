@@ -1,0 +1,2079 @@
+{
+  "status": "COLD_MOCKUP_CANDIDATE_NOT_THERMALLY_OR_ELECTRICALLY_QUALIFIED",
+  "inputs_sha256": {
+    "interface.json": "df385e6f263cd4ff721f23ebf2ad469a49f2902f297e54d50bd22d8d38048b0b",
+    "build_study.py": "1fa6ef4cb56f3bcd02ec7cf316a98c7aad449121aa3b18ddbe607291cb98a4aa",
+    "inventory": "ec751555cd08a24e58657f9ed1a4099f4ef8f2cf00661ab8f378fc01f0254b68",
+    "catalog": "66bf90c0b5668b525a732f51d07d234327f05adb001dbeab5ad2a54485562a6c",
+    "models_and_parts": {
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/power-parts/GBJ2510-F_provisional.step": "1a1c80d4f760da21d5962d906c0fba8618dd937529bbb4cba9cd22f9be4e1aea",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/capacitors/KEMET_R463N410000N1M.step": "ca4a6472700aac00885209335a0f2ce5a46665f238e8be72b0a499c675f56315",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Capacitor_SMD.3dshapes/C_1210_3225Metric.step": "f8510481c5044113cf49b0fa6dd54ddab9224508bd6808e1afab8ef0cefdefc9",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Capacitor_SMD.3dshapes/C_0603_1608Metric.step": "4857b3dc717675bf1fb22edda622ac3b3ae03cf44d81eefaf3fa3ba3a86d84c1",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Capacitor_SMD.3dshapes/C_1206_3216Metric.step": "11e948c72c90e2b6322436b72745f40ff4e8ba0da64fb2a0df943dfa61e89c1a",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/capacitors/CDE_942C12P22K-F.step": "1ba5d3b3aeab9f63c870f6bc59f246dd34062564c5db924c363db544561b1db5",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/capacitors/CDE_942C12P1K-F.step": "d847a7fe2fd9b46ebb51ab5243026ca840adf7e285f5781ea321bd21d5c973ad",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step": "e516b7bc17521af73d334e3da8eed0c43d0583b33132acf86f6f450f9d472fc1",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/capacitors/TDK_B32652A0104K000.step": "0df5794113e79f640c373c71e0f1af890ab66ce070f02e38e3aed8e71969000e",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/capacitors/TDK_B32656G0275J000.step": "1472b12fa3bf8c3f8b4b67e931243d88f108e0fd6a91f49ec160435dc9861007",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Diode_THT.3dshapes/D_DO-41_SOD81_P10.16mm_Horizontal.step": "c3e23d4b276811b74eecb329bd4480209ad3dbc8cf6e6e3f2a5b542c5ca343c1",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/power-parts/MRT130KP295CV_provisional.step": "88938b721f6c892a130604f474f6dfcb4081f02ed67db1956b1d435024b3367f",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Diode_SMD.3dshapes/D_SOD-123F.step": "132323445e3d1f9231e81c083cd88a33cd204dd8b96063bb2ed1f3ab4470c7e7",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/linked-parts/Littelfuse-102071-pair-envelope.step": "1e9b32ef23e93a40e702b88e65de34e6a3e7eb1837483689f5e2c7bc999b301a",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/TerminalBlock_Phoenix.3dshapes/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.step": "3a0d37570e8effa4c30a293b3b5430e75bd56ddc43e5a8aae899662b215df377",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step": "37dc535d72f8be28734aff5e7f569c023411c3d31a8c2d1aaa925ddc368188bb",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/linked-parts/JST-B2P-VH-envelope.step": "4d1d8273f9cb82ba83090cca1d426a910e0c08b05d4ef83742ae02c1dc32febe",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/linked-parts/Molex-43045-1612-envelope.step": "4048fa66b0abb6810fb9dcc2bf22a380c677a95610be67d21a2e0b47b00d4aba",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/power-parts/KDS3_1704004_provisional.step": "b84e4defadf8d3486af8528fbcf536c29aacd810e4bbfd94572ff9f2f64d542e",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/power-parts/B82726S2203A020_provisional.step": "4c79e571d2df591727741e39d11d11448eb52ea19febdc5cdc49ea36077e1939",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Converter_ACDC.3dshapes/Converter_ACDC_MeanWell_IRM-20-xx_THT.step": "7f4a46c459a25fde333a6a739ef0e20fef2b5d23c171fd106883ce38aec565d5",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/linked-parts/IRM-05-15-envelope.step": "6b9167e1109fca0a82a12bf52ed665884b2d6820122d2cb5081caf152d258c06",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_TO_SOT_SMD.3dshapes/SOT-23.step": "dd5d1711204e1d8d26cd11490923bd84340820baa69538c385a4300ec2539bc0",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step": "ec0db59b04bcea2e0db6f976bf3ab8644e761c8b0059239f77f4febd6dc9eff4",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Resistor_SMD.3dshapes/R_1206_3216Metric.step": "f5d1ea5c47935091292bd1c6c698e0df88d3d4bbf92bf66b4c97e49df5be9ebc",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Resistor_SMD.3dshapes/R_0603_1608Metric.step": "1875571c326d0d9e96f36b4efeb8094068ef7619f0a449c781caf0b49c2e5861",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/linked-parts/WSK2512R0010FEA-envelope.step": "ae5fdb65474a380fdb14a67e7f201c4c1d96ce231df15ca17aee39cbe83b2cfd",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/power-parts/TMOV20RP175E_provisional.step": "2841b0cbc4cf831e7d7b11c082f26b34db01a0e03b21cbb1fc24005db816a549",
+      "/Users/bennet/Desktop/temper/worktrees/ps-oracle/zapote/power-stage-120v/native-18/../models3d/power-parts/CST3015-100ED_provisional.step": "7e06bce8b91cfec2e61b7728bf26933b85615c4c05bd5d3de33c4284aea5b766",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_SO.3dshapes/SOIC-16W_7.5x10.3mm_P1.27mm.step": "159663ceb2b4996b1b89d3111e4a355fc27de3e24d3570f50e5ed9086e0d73af",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step": "720a6eab0024069bbee68e7cb4c3ff1149468a34611225cdc852662c5d0ec2b7",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step": "c9fe686b4d1b56927a41fa84a9bc1efb61d8a45a123a3db43bcaa05c2891d635",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_TO_SOT_SMD.3dshapes/SOT-89-3.step": "844c0bb504d0c383535d9845c6376fe7a4053241a2ede8d8ef694df3fcfc37c8",
+      "/Applications/KiCad/KiCad.app/Contents/SharedSupport/3dmodels/Package_SO.3dshapes/SOIC-8_7.5x5.85mm_P1.27mm.step": "7835b043f302f4e38c68e80e7290f961db6856aac23a2204bcf32fbed7df4481",
+      "STEP/parts/three_bend_front_top_rear_cover.step": "d9d692f0683cdf2ef0ea62b5ce705f1e2cf630772b828aece26fdf5475cd6a2d",
+      "STEP/parts/two_bend_bottom_and_sides.step": "6487fc9e1c05181af4792b460a28abdb01b1db45173542bb24bebe4599a6510c",
+      "STEP/parts/flat_glass_carrier_ring.step": "72deea1658f4b7448a44d4846767e583d8c7e24e83308059d78e923be69621e9",
+      "STEP/parts/glass_338x326_with_center_aperture.step": "4539d798b0ef0262a97513706507b13a3b6b2de778fc18d22184cc5be852cdb8",
+      "STEP/parts/glass_bedding_ENVELOPE.step": "7bc1d143b80956a97be623691965335aa462bdc9f7ce626be65cba006d04de79",
+      "STEP/parts/stock_angle_mount_-1_140.step": "d13efd5e5b69b0be917ccb39c9b3b54dc4df43e62630f1ea2ff59031588961eb",
+      "STEP/parts/single_spacer_2p4_-1_140.step": "fa8e6bc25207deeb79c07f81e72eae570b0d4f19df175260e2f64838d313b593",
+      "STEP/parts/stock_angle_mount_-1_380.step": "d65027d3ca3b1d7561ace24190d229a582e8e3ff2eeb73f9ae87455fcc39cc2b",
+      "STEP/parts/single_spacer_2p4_-1_380.step": "f8aaf91d3521c5fca11e129d96a8f6606661626b113896d4a7bd740bdaa45567",
+      "STEP/parts/stock_angle_mount_1_140.step": "0f8cbfe1f688709eafedea6d9c93b603b292f3082f4cd4408f37f072d2f713db",
+      "STEP/parts/single_spacer_2p4_1_140.step": "936a9723a84623d6c17a6fa5e843d5386a1332a50f27e20efe200c4392fface9",
+      "STEP/parts/stock_angle_mount_1_380.step": "dadbc0125c48195b06b03623ab2f769a4a75550296e4fa3b1a455643a988e1de",
+      "STEP/parts/single_spacer_2p4_1_380.step": "bc85e02ba94e52294be057d32facff48c35b82a955a9a8cf0fc8a8b4489cdd34",
+      "STEP/parts/sensor_service_cover.step": "a86bdc60ae00e3776dca481c6dae4166c9ce02c73d01b1d47d09038abd3bd6ad",
+      "STEP/parts/foot_M4x12_-145.0_38.0.step": "f20815b9371dd172b8c8e304686c6a10eee5d44b8ea8bf9ccfd5e77b599f0297",
+      "STEP/parts/foot_M4_washer_-145.0_38.0.step": "fb2e4df79aa52ae37de9afe2c85e4fe8c40ed996bea21bb760b584b793ef240d",
+      "STEP/parts/foot_M4_nut_-145.0_38.0.step": "4e6366fe0928279e21e7ad96939fb568c6e193577b1b64371dfd52f4e8713502",
+      "STEP/parts/foot_-145_38.step": "009fd537265dc9be8cdf523ecb5fb4016b7edb30c6c99d02fcac61215e85f9e6",
+      "STEP/parts/foot_M4x12_-145.0_404.0.step": "957ab8f541b34709630092cafc467f1c16de5d87dfd6114d2e2adaa612f2ae1b",
+      "STEP/parts/foot_M4_washer_-145.0_404.0.step": "bdce518af621816c935b68906f82b84cb0c9c6be1412a61045de5ffafea9f4d2",
+      "STEP/parts/foot_M4_nut_-145.0_404.0.step": "1d29077f9a234c6f0305fdc0c4b0b7d58060313c68afaead04185c8f3c8c2f65",
+      "STEP/parts/foot_-145_404.step": "f31733c33e3dbca0b943b7d97fdec08a5d575555e36b09c5d86afaf9db08275f",
+      "STEP/parts/foot_M4x12_145.0_38.0.step": "ee3ebf5cf52ffdd15588ca346cf4e3edbff42a291bf76987c0e45543feac0978",
+      "STEP/parts/foot_M4_washer_145.0_38.0.step": "e47188831b88a1bbbf29e9728053c28c40e7889a3e4da369ac349ab0afd53031",
+      "STEP/parts/foot_M4_nut_145.0_38.0.step": "b40f28144d16415f94caa6aec7385cee699ee5bdde2a2ed4ba7e2e7c95cf654e",
+      "STEP/parts/foot_145_38.step": "55e882bfd82db170d35d0066459b89020a6c226a80a6458fe33bd3ce8a1a8464",
+      "STEP/parts/foot_M4x12_145.0_404.0.step": "cb384b14911493268b9552e518493eeb8d6db39b138c456e7bd9c786b8c579b1",
+      "STEP/parts/foot_M4_washer_145.0_404.0.step": "2abba4415238850a2e045fd91ee3ecd7eecd9b978518720c5c9faf961baffa63",
+      "STEP/parts/foot_M4_nut_145.0_404.0.step": "34144a2de892787237ed25b929e446f243c2e4313aa53e002e53f9175fadca2d",
+      "STEP/parts/foot_145_404.step": "f5ffe6c5b543994a3370ee93da086f1988fc57a7ee52d675143aac45a6942eaf",
+      "STEP/parts/mains_connector_REPLACEABLE_BLANK.step": "e0bf2dc34edb640a2f3108cdafc51063df343476f6f7ea35ca03e67c8a97e0a3",
+      "STEP/parts/probe_connector_REPLACEABLE_BLANK.step": "a0efadd458987e5df99e917c93cf936b01144fe4b01ab5b68b3167c4a18ea00e",
+      "STEP/parts/probe_adapter_M3x8_53.step": "be6d99d30ce4a5309b883db3d6942774c779650da4aad234cf1471c61d83869b",
+      "STEP/parts/probe_adapter_M3_nut_53.step": "95c015513979676298c8b14be87c1aab38202539166894f7947b132a3a295191",
+      "STEP/parts/probe_adapter_M3x8_91.step": "19193c0263109e491676251dec2e06973706e01c47834a32782bfdca8ed484c7",
+      "STEP/parts/probe_adapter_M3_nut_91.step": "83c5fe2067e6d2237e991d17aceaebb4657c003cae95a994da083799eb074393",
+      "STEP/parts/mains_adapter_M3x8_106.step": "4d32d7f515282df245ff9c471eeaae00a56345df81e0033833c1b14e2e7fc9dd",
+      "STEP/parts/mains_adapter_M3_nut_106.step": "31824f66c985b2d5545a6f14e351c12d9b276076ddccc7da81b964fe29a241a3",
+      "STEP/parts/mains_adapter_M3x8_164.step": "c66903764287251be3cb7fae8abe6eb4e3a9965b7af193c58619211a344ea7b4",
+      "STEP/parts/mains_adapter_M3_nut_164.step": "8ecec7eea0beea3e42374b1c81076b225daf3c4da99d63f5158ff9a7de8eafc4",
+      "STEP/parts/cover_M3x12_countersunk_-1_140.step": "1657ed95bb7c9380268b720f5d3a0efc1f780322715f5817c64e944b47363523",
+      "STEP/parts/carrier_M3_washer_-1_140.step": "2270dbdb313928aca2981188496950fb48f4a320a33fc8585c2fc322f4774a5c",
+      "STEP/parts/carrier_M3_nut_-1_140.step": "25bf2db8898a084a13bb547080f0812ff462e5705409499c84f9d4c8ae972558",
+      "STEP/parts/side_M3x8_-1_140.step": "5851862346af376cf7fa2bcafd30fc1307bde754714164c013efe119d14cb969",
+      "STEP/parts/side_M3_nut_-1_140.step": "83aa578ac2fd92dd1dfc69e06d760e4122f6153c40d11b70777eb8adcb468a3b",
+      "STEP/parts/cover_M3x12_countersunk_-1_380.step": "db45c556dce3d745dcc7cbede6ae7a274d537988f587a644704b181ac5f01fb5",
+      "STEP/parts/carrier_M3_washer_-1_380.step": "6ca92c32ec982f963e357401266b5caac7944ca4bb6cb7c80a65a8fc89df1426",
+      "STEP/parts/carrier_M3_nut_-1_380.step": "90cfe725b1a1dfba709c3f4e583b10b943872a7000d72ab1c1fd9b570574d3d1",
+      "STEP/parts/side_M3x8_-1_380.step": "14b25e9fe2760dc929d6231e6cd2791aee55a10d42f9591e433ab415be8fb4cc",
+      "STEP/parts/side_M3_nut_-1_380.step": "98c017145484968a5786b41c6eb95471ce4dae7361ad8e699bd29cf2c8bfc61a",
+      "STEP/parts/cover_M3x12_countersunk_1_140.step": "1c2b5638d7b98dae16dd438fa03f02dac30c616c118d86d1935a40a042916730",
+      "STEP/parts/carrier_M3_washer_1_140.step": "2436f8e6723408ca0fa05cdb4a5ff98e47858cfea6a34bfcffcb558ae60249b1",
+      "STEP/parts/carrier_M3_nut_1_140.step": "fc3e26f46e129cc9eeb8ceb5dbcd6cf8ce68033d3b695fe6839b31a16318c191",
+      "STEP/parts/side_M3x8_1_140.step": "472ca2aa88ba9a4b16c04933f0127ed1a5e93e87d80a9b23d6cf8ab688d8c3f6",
+      "STEP/parts/side_M3_nut_1_140.step": "5cfbf6f4b98ce449fec32d9c04bc080fc8b9def7618b49c3e7792cbdd617ccde",
+      "STEP/parts/cover_M3x12_countersunk_1_380.step": "e97d381536b0cd604eeda06183b259ce9c3f128a16ffcaaaf43f0cfc01495ad7",
+      "STEP/parts/carrier_M3_washer_1_380.step": "14171b77838ee44b0bde922e462ddbd688d9cec538dc1801fddb4dfcb71afdd3",
+      "STEP/parts/carrier_M3_nut_1_380.step": "6b68ebb58f2e5ff106bd6f34eb20b75dcaba035553f1ff338392321943604b6b",
+      "STEP/parts/side_M3x8_1_380.step": "604656a1ad1387738c53e29f69a7c399b229bc2e0e75d8194f667392deffe0f7",
+      "STEP/parts/side_M3_nut_1_380.step": "f79d3989ae058c57a3942dee60a3cc8f89a72af63b2bc6dc8e097c3e57518b08",
+      "STEP/parts/glass_perimeter_joint_SEALANT_ALLOCATION.step": "02980debbab984433aae4ca7b674dcaf2098caf4fdcc76cd7cf7c50981af0d17",
+      "STEP/parts/hatch_M3_screw_-28.step": "d42aa10a64299c0f9d074aecc7ae728f89420b83a5f1b7c47ae7fd614a12374f",
+      "STEP/parts/hatch_M3_screw_28.step": "0c430583cd6b5711392e052a7cedd2ebac1658fa7ecb4273a82e86bea51a33be",
+      "STEP/parts/PE_bonding_stud_ALLOCATION.step": "4602c8b9ca2da6bfa6a7354fde65a505ed2f7323359c16abb4d95f4743b59ce2",
+      "STEP/parts/hatch_strip_rivet_-28_253.step": "7d647985dc9f0eaa1e22bfe7f4004c2a2e1fa13b03dd8ca490b717565a24a78e",
+      "STEP/parts/hatch_strip_rivet_-28_269.step": "874f82a799d75a61dcdc778488d19f9b432c4db2287fd26d7ae18ccf229f6003",
+      "STEP/parts/hatch_tapped_strip_-28.step": "8c3240309b388da97d8c1078850d566c889f98ae024ed51dc3a54430358ad32c",
+      "STEP/parts/hatch_strip_rivet_28_253.step": "253516abf648544877eaa6a36345620c734e3d5523b49a034c4a3e43bfd11446",
+      "STEP/parts/hatch_strip_rivet_28_269.step": "9e4bcf16cd496e827e7f118ab7d48c1c7d8f456aa6a79db6e51a829e1cdd1852",
+      "STEP/parts/hatch_tapped_strip_28.step": "fe817255d9eafa9b678867c0a4f30d3c307ffbfb20d3c5e58b234f3bad9880ea",
+      "STEP/parts/knob_shoe_with_two_M2_plunger_bores.step": "2ae130fb46ddb7356a4c8226dd3a8e94a96368dc25548009877d074fd0ebc3b7",
+      "STEP/parts/knob_turned_aluminum_grip_56mm.step": "236e5c999bf5f613ba2328bbcca964bd78b68b63bd74a30873318ba8db6c4736",
+      "STEP/parts/knob_replaceable_profile_cam_8mm.step": "02f07440b3c5951c7607c7a98e89561273933df015f2e3bffb9b2b6edbda431d",
+      "STEP/parts/knob_cam_M2x12_countersunk_90.step": "86e8b72e18381576e16098f06b7cc3bd69219e43fd9a4c39a5e616434ad25447",
+      "STEP/parts/knob_cam_M2x12_countersunk_210.step": "b50dffd54f96dbee36e9379b13d73ffaae0a5986a1e2f13fbbefdc672b861a96",
+      "STEP/parts/knob_cam_M2x12_countersunk_330.step": "3f2bfc6c47bad673728152e8b8e8ea4e5db85dfa43da660cae6852b75835189f",
+      "STEP/parts/knob_keyed_thrust_washer.step": "865180640bde4a619c2a433a903f80832cf951d8d9e7b285fd717c07b3e460d4",
+      "STEP/parts/knob_flexible_retaining_clip_candidate.step": "a1523509ade7c9676af30c5cadb612b9c1e89ad3419a823cc868c35a44c39103",
+      "STEP/parts/knob_bushing_capture_screw_60_threads_omitted.step": "d3e6d981d82dea15518a183d5cea110485c5fa7484593a715d2eeb14f0a513d4",
+      "STEP/parts/knob_bushing_capture_screw_180_threads_omitted.step": "2804f277b79b20ce54172ecc12e99c59a1e9b02eb3d8cf3788f13e857e8d67b8",
+      "STEP/parts/knob_bushing_capture_screw_300_threads_omitted.step": "68ec2cc855aa5a6b90e6aa02f73fc5471ae5c89a6db30dda21b4ffb44872c59e",
+      "STEP/parts/knob_flanged_hub_guide_bushing.step": "6e5002b78daed0248cdbbfa0b390f27e6dad72e69a65d4d380ffad26500eba3b",
+      "STEP/parts/knob_diametric_sensing_magnet.step": "b93dae011d5a79b924d680f5611857cf32f2f02b03ec1fbde82986d6c71808ec",
+      "STEP/parts/knob_puck_retention_magnet_0.step": "01e67b26eba5ca459ed70164b1a29cc67c8df74a6e9db330120fbf8edaa2b9aa",
+      "STEP/parts/knob_bonded_magnet_pocket_cover_0.step": "7bd54b835b2e60500ffbb678a9d124fa4a2dd58c19d90892717a98643fc716f0",
+      "STEP/parts/knob_nonmarking_stationary_pad_0.step": "dc2efa198d67d773f11a478f4d2e9072a6e05e5873050b3c732a34759cfe411f",
+      "STEP/parts/knob_axial_return_coil_0.step": "a9ec5c97165ffcde8c50b8d9df5830f36628f69ebd6370339e595846e91539cd",
+      "STEP/parts/knob_puck_retention_magnet_1.step": "d1f93f6bfe3cd1fa17bfb5e82ace079a602455e87b967f92b40f1a544c5a6b7c",
+      "STEP/parts/knob_bonded_magnet_pocket_cover_1.step": "b874073326202fe61240ef3ba04f6c34c254ddc82d5cb3a2ef520fb4248fa313",
+      "STEP/parts/knob_nonmarking_stationary_pad_1.step": "b9c7b13e8040ba054dd929f1c368066e2386d364233ab7b21a4b6ec7547d7c23",
+      "STEP/parts/knob_axial_return_coil_1.step": "938cb48ee358e71b15624ff0c323c74c4f6d95ee7ddce2cf77cac75390d3783b",
+      "STEP/parts/knob_puck_retention_magnet_2.step": "9bb5f33449f672c2b2d07ee00c839a3c790fdc1ee22fb118eb3dcf927729fcf3",
+      "STEP/parts/knob_bonded_magnet_pocket_cover_2.step": "84e0bb0b7c1e3f8fa853e77df6c28599cad15f6d736080cc34e0e60caa754a76",
+      "STEP/parts/knob_nonmarking_stationary_pad_2.step": "20ae1bc410e25449c1bf12833f19cb10b757124a9ca49affa74fd0c942580d31",
+      "STEP/parts/knob_axial_return_coil_2.step": "2bb9892261ede7c03d36a40ef488516d4fb88dfb2701070795c433eaa6fd690e",
+      "STEP/parts/knob_rear_retention_magnet_0.step": "772df2ef79d1b978faec8faca37027fe0cab0185a466586c481695376ba29766",
+      "STEP/parts/knob_rear_retention_magnet_1.step": "74d45a8ab6c4dea9d30bce8ace2cc1a24c54bdb59dfdb2d5cd266e3d13f8c20f",
+      "STEP/parts/knob_rear_retention_magnet_2.step": "76584aafc5dd49c361d31013988c96258da6970b2200db1c8f1df26fcb49fddf",
+      "STEP/parts/knob_rear_carrier_with_sensor_standoffs.step": "e50089d188eccdfe8b65f23d03ed0fa09d9a7a27ff50945651af9a00e9fc7131",
+      "STEP/parts/knob_Hall_board_envelope.step": "2568431d13b14703c65f6674f7123d7b7088ff60a5fe99ca3d06591a44bf82fd",
+      "STEP/parts/knob_Hall_package_envelope.step": "2b838b0fd516fd87b207247c551d72aab37c8c6a1e73314df9a2fc5303448f31",
+      "STEP/parts/knob_click_cartridge_removable_seat.step": "7d86576ee34dba92deed5e8adaa9c04745b7132fe397d0b06ca0d8f1bb9f864a",
+      "STEP/parts/knob_CK_PTS645SH43SMTR92_LFS_BODY_ENVELOPE.step": "744b1519394ebf178ab03de812625bcb08fbb6d567a26b261f7c1ea786e25896",
+      "STEP/parts/knob_CK_tactile_actuator_ENVELOPE.step": "571fc55169a95c119419fece5ad0ab22bef8637a4aa8e802b1a7498f277e11c3",
+      "STEP/parts/knob_click_seat_M1p4_screw_-4.8.step": "ed4149f4dca38d1deb8abe7277f15eddd9e84ed1d6b0bf0573e3b4fb660f36d7",
+      "STEP/parts/knob_click_seat_M1p4_screw_4.8.step": "2a144479e07f854b21ef4e80485fae51ba67713fdb4850b715edbfc630cab19a",
+      "STEP/parts/knob_optional_bonded_round_antirotation_key.step": "61fc3957ad1ac292f4c2525dd011d4d8b33679e6d9537c9847bba2971b4bc89a",
+      "STEP/parts/knob_key_bondline_ENVELOPE.step": "d007af003fea50c822c572a963feba6869a9a3f3b0fcc620b6f4d4d705d2021e",
+      "STEP/parts/knob_rear_bond_stud_-28_-24.step": "c549182a22f7e9681565c5f5fc0a7629613b7511dcd670a226c2507fff5142ec",
+      "STEP/parts/knob_rear_stud_bondline_-28_-24.step": "51eb0d972e79a5689344aa4c1253a84bff98b04bf3a8c1cf38167aa30c90026c",
+      "STEP/parts/knob_rear_stud_nut_-28_-24.step": "7bf0fa20b247f7a5fd80494dda3ebdfe9cd15eed9a6be75b5b5c747faced2724",
+      "STEP/parts/knob_rear_bond_stud_-28_24.step": "c618b68a64238b6df87a83f0a71f210bd1aba3068a118a494f0fac8bb5cb6789",
+      "STEP/parts/knob_rear_stud_bondline_-28_24.step": "2b06dc186fac9874da7c515c52421bbde07b07b6ea7b1c60b0d12d626fc7bb7e",
+      "STEP/parts/knob_rear_stud_nut_-28_24.step": "18d78325afbde5ea558849a02917516a48937491ad4f66bdb040ff3fc74a1fba",
+      "STEP/parts/knob_rear_bond_stud_28_-24.step": "ba73105ad49c585f8a1dce4fbb6d7ed6f51d4606038c357f7be4c8b8584971f6",
+      "STEP/parts/knob_rear_stud_bondline_28_-24.step": "5ca36b41960638e7cfb3aad6f3c34d89d14405af0363e0588bfbead5d084f809",
+      "STEP/parts/knob_rear_stud_nut_28_-24.step": "c0ea838f34a08c081b6bfb2cf5632cc9ea877d8219b481a1f9a5be3af16a447a",
+      "STEP/parts/knob_rear_bond_stud_28_24.step": "3894fb08646531f3c2e3fea23a68d548c1d215bba624fb0f935e45ca1e9b0ca3",
+      "STEP/parts/knob_rear_stud_bondline_28_24.step": "115f7b078d496ebf9a4fa9397453b239500e3ab9753b878b6a1d5036fdc6f071",
+      "STEP/parts/knob_rear_stud_nut_28_24.step": "46b59ae2a9808cd8cbcb4e0e0d646b6ba222005d451156e7e9e6858241c18742",
+      "STEP/parts/knob_GN615_M2_KN_0_body.step": "cd93c57ae720b167d066f31be82b1aeba9a3ded584b8c8665f891dfdb6eb2ff8",
+      "STEP/parts/knob_GN615_M2_KN_0_ball.step": "757849dd12d8b5e0d5abdca81f98dd5e3000e2742c0346a3a1cfe0bca4967a46",
+      "STEP/parts/knob_GN615_M2_KN_180_body.step": "20665b29e2f59cf3dcfa72f7376b40ce114200a59009213600251abfd1b1ca4e",
+      "STEP/parts/knob_GN615_M2_KN_180_ball.step": "381e6c247fb4145dbecb47dd4c202658803ffa846664843324053ff61f0b0a99",
+      "STEP/parts/sensor_body_with_independent_flange.step": "8d758ae929484608f85d08cf0d7ca17f0f6e52a31af6b914794a3ab1079ec33e",
+      "STEP/parts/sensor_insulating_guide.step": "c0253b50a5c9b22c2965a0d7d09900e168ed36d82968677fc4f4cf7a7870bdc6",
+      "STEP/parts/sensor_upper_capture_clip_geometry_candidate.step": "dd5446e402c331fc4c76d75ea0ef19aff6063a3a5acc3856ea0c15f8ca1fdd27",
+      "STEP/parts/sensor_dielectric_bond.step": "ffd2f6f82d3e77bb44a29a0b1127f9a5176add6698006204032eb1bd9dc4e5e3",
+      "STEP/parts/sensor_PT100_element.step": "18875b2ff221ba94315044f97392ef53db6409c27b87fd716bf2c78aa0176bd1",
+      "STEP/parts/sensor_lower_spring_cap.step": "28cccb778a7b304d564486a072e8a0ffcd1f71481b03e0e29b159ce4d92e7525",
+      "STEP/parts/sensor_lower_M2p5x8_screw_1_thread_envelope.step": "c66437f39e9ce2918da0bab479554917cef022c91a1113860d9a6406de140892",
+      "STEP/parts/sensor_lower_M2p5x8_screw_2_thread_envelope.step": "862819f3daa63ecd87f9549df0ad27e83beda14a109966b5c81c3f270bfa39eb",
+      "STEP/parts/sensor_lower_M2p5x8_screw_3_thread_envelope.step": "9a2b66e5e225389ddebedbc1a1520d7a93af0ddc4854ef794a6e91b9b1d230d1",
+      "STEP/parts/sensor_compression_spring_ENVELOPE.step": "260dcdd47da44d9f5506aa88139a0e46a11f4825541e601c611bef988ab9bd09",
+      "STEP/parts/sensor_four_wire_slack_and_exit_ENVELOPE.step": "8d4ef11b00aaf4f611b391769238142ce8488301a5165517243f4d357c115322",
+      "STEP/parts/sensor_M14_retainer_thread_envelope.step": "d0125e22f43fda7010ca09b5679fab46a70772372e7c1c901c2e936070c2365d",
+      "STEP/parts/sensor_hollow_insulating_plunger_with_capture_groove.step": "4451351fa0a69fd0baa4f501b0c35442f69aa94f4817bf81ed8c7e1c11bccc03",
+      "STEP/parts/sensor_contact_cap_thick_skirt_formed_lip.step": "d6c2bf6cb78eabbd642180ae9c83668665e85613d69275d9500c266d1f999b44",
+      "STEP/parts/sensor_flex_diaphragm_ENVELOPE.step": "79872d96bb6e82c6e4241617260473310d5dca9016b985d8ad320dd5f7205cbf",
+      "STEP/parts/sensor_static_face_seal_1p50CS_INSTALLED_ENVELOPE.step": "d65b724b8f51d5c43e18f7af0216952f5f1916431e8ac62b591cdb47e0ef75b6",
+      "STEP/parts/sensor_M16_clamp_skirt_thread_ENVELOPE.step": "69a01c0cd858b810d3c9a9a9f37527ad809e3e9b46494701f488e8ffc359e1b7",
+      "STEP/parts/sensor_M6_fixed_cable_gland_body_thread_ENVELOPE.step": "2c471e4a480c80d613de5454c01c0e0d3d1ffdebdf3f03602442a7db73bf3158",
+      "STEP/parts/sensor_M6_compression_nut_thread_ENVELOPE.step": "95c4ceb9a0bebec25c8b2a36e43a74e0b06cc893252393211372e600f1df48e3",
+      "STEP/parts/sensor_cable_compression_bushing_INSTALLED_ENVELOPE.step": "a74f6ba336c5a9e2c195298c65df51ec7e2bd107a678c4a87e81f2198790137f",
+      "STEP/parts/sensor_glass_load_spreader_flat_annulus.step": "65e874400c8744662fd74d586eb1160f9ec80db15980ac1bb6a01233f1f8dc9a",
+      "STEP/parts/coil_support_flat_routed_plate.step": "2903c08f1afa0e7d83d109a3e58cad40709b1ceda3f1aac7cea911f080f27607",
+      "STEP/parts/sensor_mount_M2p5x12_0.step": "a911bbd6420f24c130a903b3b4911bafc75c9beb18f53bd149ad2450ae7793ea",
+      "STEP/parts/sensor_adapter_M2p5_nut_0.step": "7644fc304214d910d93722c652432fa1b2c0a8f015a8b263e72b36ea6e91ba00",
+      "STEP/parts/sensor_mount_M2p5x12_120.step": "fd594988901752449cb8d7cf6d0f927ee96d44120b78de01ed20d43e5a0860b4",
+      "STEP/parts/sensor_adapter_M2p5_nut_120.step": "9421c390f0197c10858d6082addd0e945f105471ebc0732fabe6241b0f0893c1",
+      "STEP/parts/sensor_mount_M2p5x12_240.step": "4c4e6750703c02b955763e5237a4bde87fdf088044609d0410959ad237c121be",
+      "STEP/parts/sensor_adapter_M2p5_nut_240.step": "b973af2e9bf38e46bb81482874fb777a5b9d62d92c4286056af48a2f645deb31",
+      "STEP/parts/sensor_support_flat_spacer_2mm.step": "06ce8622c8e227db016de6c1f8a056533f4b36f17d961ca10543a0166695c61f",
+      "STEP/parts/sensor_support_flat_adapter_3mm.step": "557511ea54c8510fe6f5154b628c7519b887be0a529b61733f0aef133fe238c9",
+      "STEP/parts/leg_tube_12OD_8ID_75_-157.0_190.0.step": "51e452d264bf96910e4c66d6258644df4731ddd8deab5f6f9ad4407a519d8a4a",
+      "STEP/parts/leg_M4x90_-157.0_190.0.step": "048dc01b4b34fb148d89d1139434c4f3a0ee56cd4cad338662d463066050f4ba",
+      "STEP/parts/leg_lower_washer_-157.0_190.0.step": "d3d9394159c9032f2407c1cdd1f3379ed8c2077445275cb752e53942955c74c9",
+      "STEP/parts/leg_top_washer_-157.0_190.0.step": "e3170da8872390a289be91425e5505ddf4123828aa0dd01a9ec2c549035783b2",
+      "STEP/parts/leg_M4_nut_-157.0_190.0.step": "3ec7df8dae3dc5fd2a07b4c92c8051abaf91263f8c9358f4eac311e5873f1e27",
+      "STEP/parts/leg_tube_12OD_8ID_75_-157.0_330.0.step": "cdc7c847a8b65a2d481138ebabb30a5083170cc4b92a6b457e6ee88899833157",
+      "STEP/parts/leg_M4x90_-157.0_330.0.step": "6e4297d2673fa6f772e6b88936a48f4523216fa54b1b328346858e8f38155ae2",
+      "STEP/parts/leg_lower_washer_-157.0_330.0.step": "836d170ba6f895b82f019bdd98e94694f8217a0b17e3189d303e11fea0ad1d6b",
+      "STEP/parts/leg_top_washer_-157.0_330.0.step": "9e3703ec46f42ab299ee034dbb5cf6473c3af59576428465bae6927de2d28871",
+      "STEP/parts/leg_M4_nut_-157.0_330.0.step": "243dde7b8a66aa2f8f923f6954a0bd12c7d5a6ec20576db1c01bb91ea4515db2",
+      "STEP/parts/leg_tube_12OD_8ID_75_157.0_190.0.step": "33a5e5201842ca809a4713595bc2fe4c8935d923f8878e1d379267c29b7e713e",
+      "STEP/parts/leg_M4x90_157.0_190.0.step": "c5a5b684a4adb13efd5f18e6b86edf8b92c038b851e662eec62e987f7f45d562",
+      "STEP/parts/leg_lower_washer_157.0_190.0.step": "1ce8e7e2c1687c308438ab9b73b952be6a7fc615b63f26826b352f92fddef078",
+      "STEP/parts/leg_top_washer_157.0_190.0.step": "647af643cf7164ec4cf5591ce77eda0a4c714d9558a2d4a201021a643a991176",
+      "STEP/parts/leg_M4_nut_157.0_190.0.step": "8db6ebe8a6ff90e62ac6f3ef6d6ab7cc98e329c748d50ca025bc4cec9a719add",
+      "STEP/parts/leg_tube_12OD_8ID_75_157.0_330.0.step": "496da734367327b85cf358da106cb36ddf7a9b28624d36829b453e0be3a0b788",
+      "STEP/parts/leg_M4x90_157.0_330.0.step": "750c01d6579be5647eed79da31b7f49a0cac915933fa69a1f514554cdb067a82",
+      "STEP/parts/leg_lower_washer_157.0_330.0.step": "3e2768508a26ac691b6ed20c86d12aa5283c1bdc08dd1bca0634623710a1f58b",
+      "STEP/parts/leg_top_washer_157.0_330.0.step": "95bcf6a2a9ac9efa5601ab123f946740931f03e2abafb704aa337b7423a2ded6",
+      "STEP/parts/leg_M4_nut_157.0_330.0.step": "8b01edd4d8be6959ff2315e69aaf69ce6c9ec80c0fc8c04ffbe11f1044953f66",
+      "STEP/parts/brand.step": "c18cca528e3c9493c97c4a8ea5eca122882ecb1a2990774d8474d78886b96707",
+      "STEP/parts/placement_ring.step": "651f2a166e7252426ef9b12d031e2620f5cd1a460c418c206447073423f6d81b",
+      "STEP/parts/coil_200OD_44ID_envelope.step": "afbb0fb12e21d7d0fd4d0f442ef51d30f35d5610c0924e65e0650adf5f274b9b",
+      "STEP/parts/ferrite_allocation.step": "abdfef079a002001011160a7bc7bc885e66335e96f0c2c08db567f42eb922ddf",
+      "STEP/parts/front_flush_lens_108x38x2.step": "d2bc2f2f02926a7241640feacd8b19bf29432cbd137080d45bc9d3d1b6a9a6b4",
+      "STEP/parts/front_lens_perimeter_seal_ALLOCATION.step": "15fa3e5928adf0b3724580561c163a54242d7efbcf34308e9c7f3f9fd35ff555",
+      "STEP/parts/front_lens_rear_support_ring.step": "ebbf4f3b91cdf44dd05ee72cce87ff9b7d49073fe79754f77be74d0a193e0f40",
+      "STEP/parts/front_lens_rear_bondline_ALLOCATION.step": "8c44858bee8f0ae681e5dc77c5a86be75759e06581aab61cffe6b85ba758c500",
+      "STEP/parts/front_carrier_and_closed_sidewalls.step": "059d4014841c10242a16ecf9a15db0799a3d029a869678c43948fa37ee88c745",
+      "STEP/parts/front_stud_base_bond_-99.0_17.0.step": "419af43b569792dc2a360697cdbd1091f471c39ed3823cdfc2f4d81e20d93d13",
+      "STEP/parts/front_concealed_M3_stud_-99.0_17.0.step": "92d48a7b27f022188c524627a69eb867c1190e06becd54586f0872d3c8dd8409",
+      "STEP/parts/front_carrier_standoff_-99.0_17.0.step": "077e619b7c092d2ac1606498ce6079eef1c62a384cdee61499c410a9402518c1",
+      "STEP/parts/front_carrier_washer_-99.0_17.0.step": "b535a348199db02185d51ae161dc1b55e42af074e458a159d12298b15111be9d",
+      "STEP/parts/front_carrier_M3_nut_-99.0_17.0.step": "efc75a917dc74bf32e40d931d20c0eb5cdb3113e65abdf40bf968217e21e64da",
+      "STEP/parts/front_stud_base_bond_-99.0_50.0.step": "e63f621498ada9687bfa40d6483869eff0c874e1ad31acf9aef84a27eb8a252c",
+      "STEP/parts/front_concealed_M3_stud_-99.0_50.0.step": "d3d82d982153c4c58e802652b59e544afe453aa46e2d2375c82f2557a5855083",
+      "STEP/parts/front_carrier_standoff_-99.0_50.0.step": "600dbaf2f6cf7a5032ae01abe13bd5d83456d1eadd99c3a29578a9bd10ba7895",
+      "STEP/parts/front_carrier_washer_-99.0_50.0.step": "2a9c809c1322c2b98a2142468e610e97438f574f109ece25884c4c961ee31142",
+      "STEP/parts/front_carrier_M3_nut_-99.0_50.0.step": "316b3ffc24097428417a405fad6607716250dac0564a9dbb4bc4cc49177e7167",
+      "STEP/parts/front_stud_base_bond_-99.0_83.0.step": "1936965c65cd017177035cd398f69b99dbde1025023e7e73b93300879121462c",
+      "STEP/parts/front_concealed_M3_stud_-99.0_83.0.step": "8fa68b4616e0e4edf3994f9ff6cf3926caaaafa615160d6648f2526e722314ec",
+      "STEP/parts/front_carrier_standoff_-99.0_83.0.step": "ab36b5d511950e8eb10eb22c5a4933d978801c3c1a53690aaf9b0497f488c0db",
+      "STEP/parts/front_carrier_washer_-99.0_83.0.step": "2267b76f176a129ce01207e77001a902dfe6754cd09b19908050a15e77e8ca10",
+      "STEP/parts/front_carrier_M3_nut_-99.0_83.0.step": "7e7333d3bc2863e38db57216c8e1ce881cf39c62d42827dd79dafc937940fc3c",
+      "STEP/parts/front_stud_base_bond_29.0_17.0.step": "0b75dbecb3ba2cef65745f08776f580bc2bb8378872ad43bcc6606bb1a67efb2",
+      "STEP/parts/front_concealed_M3_stud_29.0_17.0.step": "265c732e831b99fb150d32c0a596a1ad85f0fc004696e06e0ebde18611c22fce",
+      "STEP/parts/front_carrier_standoff_29.0_17.0.step": "02ef8fc50428f0fe5a2f164b51fa64326672d4ef0e020b014008fd4098eae2fb",
+      "STEP/parts/front_carrier_washer_29.0_17.0.step": "90ad8e4f0960b49a26a615b4ff431428b781bc00993166230947f19bfc6d9b1b",
+      "STEP/parts/front_carrier_M3_nut_29.0_17.0.step": "6a18717b8745454477432551423c8642c6ab8976e53baabe577ec3a094d42cbc",
+      "STEP/parts/front_stud_base_bond_29.0_50.0.step": "e13eaab7086cfce1b09883845d65c549aa63c7e8e97082b6612ee40de55dd1bd",
+      "STEP/parts/front_concealed_M3_stud_29.0_50.0.step": "b7eb50d378f22d2706e46ce1d16e91b770902d58ab1c719639191ec76415b4f1",
+      "STEP/parts/front_carrier_standoff_29.0_50.0.step": "e8589611bb24775a4d25afc2441dbbbcc2f0e3965446fc357964c7107440662e",
+      "STEP/parts/front_carrier_washer_29.0_50.0.step": "787276af960933c0558a8bd5cda5699d8c20b406a1e382b2e2266afefa6da8b7",
+      "STEP/parts/front_carrier_M3_nut_29.0_50.0.step": "fe54030ec8768b9c66949a23c771111589507c7c38ccd9984c9b131658face9b",
+      "STEP/parts/front_stud_base_bond_29.0_83.0.step": "141fa0ea4ba1e24517dfe6f52183b09b3fa5f7fad738534bbbc6811e45c708ca",
+      "STEP/parts/front_concealed_M3_stud_29.0_83.0.step": "6759bc39b3faf8dd7da3be96c1a01b5f38fb92aaf3715d6b6e5946d680904f94",
+      "STEP/parts/front_carrier_standoff_29.0_83.0.step": "59999d9c7e161a48142533cf4cbf9c367327e69c51c2e004b2470c927a23a7a8",
+      "STEP/parts/front_carrier_washer_29.0_83.0.step": "f4e036d51df5d0bfb8fb72bbf11106593af7791addccf3ebac7c485048d3f9ea",
+      "STEP/parts/front_carrier_M3_nut_29.0_83.0.step": "95ccef69aa471c79ec87fbf18edc946414e1f94a8fbba4d2c482e7557287308d",
+      "STEP/parts/front_three_button_continuous_membrane_INSTALLED.step": "3c5387e8bfdec5e96f1d5a6c6ae94ee65f568ffb33624503154df486c738509e",
+      "STEP/parts/front_label_BACK.step": "ef5e9acc1a74343911fa301d6d4afb9618090f055c0edb30a1c452b33bb8ef6d",
+      "STEP/parts/front_label_SELECT_START.step": "1f773d1f48b4d187444e22f2dff2766e8332e97943bc5e987af9cc3a3fa0ddad",
+      "STEP/parts/front_label_STOP.step": "3e5a62d83cafd2de95f65c1fd7a223a3b86d6770689569d5c2ff63b8edca9bec",
+      "STEP/parts/front_NHD_3p12_25664UCW2_PCB_ENVELOPE.step": "d49f32394c154fa0733ddc93604be782e61830f87e2ad915b44340a595b1a9f8",
+      "STEP/parts/front_NHD_display_bezel_ENVELOPE.step": "b4b0462791853abb57e8ba29e613a6028f8ec3f2973f3bd241699e44f4db91ad",
+      "STEP/parts/front_NHD_rear_components_KEEPOUT.step": "a18ef487b916173a69f47711979e111594b28653c8ea30674284ad446272cbad",
+      "STEP/parts/front_OLED_M2x4_rear_-41.6_-19.0.step": "adc7f7330874d306a20cec0dccda5440bbbfedf78af6fc06ab52977d0fa6bbac",
+      "STEP/parts/front_OLED_M2x4_rear_-41.6_19.0.step": "59f301d326c7395d79d6b477fa8e9db005756b33246c0c115028c04306ca0147",
+      "STEP/parts/front_OLED_M2x4_rear_41.6_-19.0.step": "d1c83a690132e28ebae08f77d295e20adfd602340b3fb847fca7a20bdf8e7f82",
+      "STEP/parts/front_OLED_M2x4_rear_41.6_19.0.step": "e5028d76837ab838cce9ca1b288ba3b5a5bfdd3c2fe08bf9ec990e7360682ec5",
+      "STEP/parts/front_OLED_header_and_bend_KEEPOUT.step": "0417ed033d2974f9240e3b2c1f5e5c7e7e084ecb6264eaaf3972fa0c71242faf",
+      "STEP/parts/front_button_PCB_ENVELOPE.step": "4e066ac6272feb60de58f1d193745995e5f54b1a991a82500b7cdc534d30c6da",
+      "STEP/parts/front_switch_BACK_ENVELOPE.step": "f9f0ebd9536728d14901b40cc55925941e0a99c4de33cb1b4215ec40fa9dd9d3",
+      "STEP/parts/front_switch_SELECT_START_ENVELOPE.step": "9dd6402cc1dd37b3eab2f4c44a621d69fcf1a867d81fc570731d78ecde7af634",
+      "STEP/parts/front_switch_STOP_ENVELOPE.step": "fa948e2702d590972e1a10e778bc6b32eb707c672964d08694ad33ffe2d29a0d",
+      "STEP/parts/front_button_board_M2x6_-85.0_17.0.step": "76de861a751e6c1797de335da43a56656161e152dc5b6bf52220b20fb414dbe8",
+      "STEP/parts/front_button_board_M2x6_-85.0_35.0.step": "548c6acff82df889109a9283408469aa04c41264320a74cf48c8631a8efe817f",
+      "STEP/parts/front_button_board_M2x6_15.0_17.0.step": "e52d5df6c0ee743f943939a1402e94d6f72122ab4a53e0f67b992807ca971deb",
+      "STEP/parts/front_button_board_M2x6_15.0_35.0.step": "4510d18fb2c895866f6269de7dc5462d9dff8fe5e54649661f2770daf6811c47",
+      "STEP/parts/front_lid_compression_stop_-103.0_13.0.step": "2cc36f4302cb71df4d85ba9293e72ad2d42344719cee4ff2f2cd21c89566ec2f",
+      "STEP/parts/front_lid_M3x10_-103.0_13.0.step": "b7b10b891dae331da12d6e2f9081aed244b68984a85cb632f027fb25e357c738",
+      "STEP/parts/front_lid_sealing_washer_-103.0_13.0.step": "431bef6aa592ea0ab91f78df04790595daef89f6acb78211ae1b55965c0f3ac1",
+      "STEP/parts/front_lid_compression_stop_-103.0_87.0.step": "2741c3159ae2dcd207029ba98483d10070379a17e81cd384d44f45c9682cf73e",
+      "STEP/parts/front_lid_M3x10_-103.0_87.0.step": "954c6d211df5c4a98062859f72405faa97630745bf2543644852f858c2f2289e",
+      "STEP/parts/front_lid_sealing_washer_-103.0_87.0.step": "bad00705837f7628b0d358c9df8f69eab11597bc3a6073c57f812985edcb5725",
+      "STEP/parts/front_lid_compression_stop_33.0_13.0.step": "70b87ccbdf521b4d94d4abc956c7eed4bacde80fd0c075f6cf054bafd5225b61",
+      "STEP/parts/front_lid_M3x10_33.0_13.0.step": "c593842f613984ba7cbab61aa25303d53a0d15664819cf790d38b6fe0de4ff99",
+      "STEP/parts/front_lid_sealing_washer_33.0_13.0.step": "840416f6cfd537f5dc9b65e77691ea8176545964fb8ee9e9438951f211027711",
+      "STEP/parts/front_lid_compression_stop_33.0_87.0.step": "639bf1b3da1d9dca27bcde9b7b71a37256e5cf7031106c5361b0bad40e83001d",
+      "STEP/parts/front_lid_M3x10_33.0_87.0.step": "f8f4c8c527e2a47c2ef836b3f35f834185ae7c0c45aeb9f4b2825e1845d484e5",
+      "STEP/parts/front_lid_sealing_washer_33.0_87.0.step": "458f91cccf2caaa07c6a59c627e248e013515b0162cf9df77ab077acf0da6ab3",
+      "STEP/parts/front_rear_lid.step": "ec64786ab559cb331ce3e5f2041715157ab89417f22245923676b5efaa93c120",
+      "STEP/parts/front_rear_lid_gasket_INSTALLED.step": "84a309788a9c54464af071090f1b8cefe5756a75fabd13092ddb7fb2b32a1c6d",
+      "STEP/parts/front_side_cable_feedthrough_ENVELOPE.step": "59136e1a5cdca1b094c065179c90587218038ff5f1bde7104ecbe0166c39988c",
+      "STEP/parts/front_cable_ENVELOPE.step": "848f545339613e4439d5abc8670b207b9645706e866d9cafe885be5a56f4d542",
+      "STEP/parts/front_readout_artwork.step": "b4697fc0505ae825204e5aa3c8b9c00c22c7737c9c7518ab82da3f256f880e0f"
+    }
+  },
+  "board_transform": {
+    "origin_xy": [
+      -110.5,
+      162.0
+    ],
+    "top_z": 32.0,
+    "rotation_degrees": 0
+  },
+  "r4_parts_included": 250,
+  "r4_parts_omitted": [
+    "pcb_export_000",
+    "pcb_export_001",
+    "pcb_export_002",
+    "pcb_export_003",
+    "pcb_export_004",
+    "pcb_export_005",
+    "pcb_export_006",
+    "pcb_export_007",
+    "pcb_export_008",
+    "pcb_export_009",
+    "pcb_export_010",
+    "pcb_export_011",
+    "pcb_export_012",
+    "pcb_export_013",
+    "pcb_export_014",
+    "pcb_export_015",
+    "pcb_export_016",
+    "pcb_export_017",
+    "pcb_export_018",
+    "pcb_export_019",
+    "pcb_export_020",
+    "pcb_export_021",
+    "pcb_export_022",
+    "pcb_export_023",
+    "pcb_export_024",
+    "pcb_export_025",
+    "pcb_export_026",
+    "pcb_export_027",
+    "pcb_export_028",
+    "pcb_export_029",
+    "pcb_export_030",
+    "pcb_export_031",
+    "pcb_export_032",
+    "pcb_export_033",
+    "pcb_export_034",
+    "pcb_export_035",
+    "pcb_export_036",
+    "pcb_export_037",
+    "pcb_export_038",
+    "pcb_export_039",
+    "pcb_export_040",
+    "pcb_export_041",
+    "pcb_export_042",
+    "pcb_export_043",
+    "pcb_export_044",
+    "pcb_export_045",
+    "pcb_export_046",
+    "pcb_export_047",
+    "pcb_export_048",
+    "pcb_export_049",
+    "pcb_export_050",
+    "pcb_export_051",
+    "pcb_export_052",
+    "pcb_export_053",
+    "pcb_export_054",
+    "pcb_export_055",
+    "pcb_export_056",
+    "pcb_export_057",
+    "pcb_export_058",
+    "pcb_export_059",
+    "pcb_export_060",
+    "pcb_export_061",
+    "pcb_export_062",
+    "pcb_export_063",
+    "pcb_export_064",
+    "pcb_export_065",
+    "pcb_export_066",
+    "pcb_export_067",
+    "pcb_export_068",
+    "pcb_export_069",
+    "pcb_export_070",
+    "pcb_export_071",
+    "pcb_export_072",
+    "pcb_export_073",
+    "pcb_export_074",
+    "pcb_export_075",
+    "pcb_export_076",
+    "pcb_export_077",
+    "pcb_export_078",
+    "pcb_export_079",
+    "pcb_export_080",
+    "pcb_export_081",
+    "pcb_export_082",
+    "pcb_export_083",
+    "pcb_export_084",
+    "pcb_export_085",
+    "pcb_export_086",
+    "pcb_export_087",
+    "pcb_export_088",
+    "pcb_export_089",
+    "pcb_export_090",
+    "pcb_export_091",
+    "pcb_export_092",
+    "pcb_export_093",
+    "pcb_export_094",
+    "pcb_export_095",
+    "pcb_export_096",
+    "pcb_export_097",
+    "pcb_export_098",
+    "pcb_export_099",
+    "pcb_export_100",
+    "pcb_export_101",
+    "pcb_export_102",
+    "pcb_export_103",
+    "pcb_export_104",
+    "pcb_export_105",
+    "pcb_export_106",
+    "pcb_export_107",
+    "pcb_export_108",
+    "pcb_export_109",
+    "pcb_export_110",
+    "pcb_export_111",
+    "pcb_export_112",
+    "pcb_export_113",
+    "pcb_export_114",
+    "pcb_export_115",
+    "pcb_export_116",
+    "pcb_export_117",
+    "pcb_export_118",
+    "pcb_export_119",
+    "pcb_export_120",
+    "pcb_export_121",
+    "pcb_export_122",
+    "pcb_export_123",
+    "pcb_export_124",
+    "pcb_export_125",
+    "pcb_export_126",
+    "pcb_export_127",
+    "pcb_export_128",
+    "pcb_export_129",
+    "pcb_export_130",
+    "pcb_export_131",
+    "pcb_export_132",
+    "pcb_export_133",
+    "pcb_export_134",
+    "pcb_export_135",
+    "pcb_export_136",
+    "pcb_export_137",
+    "pcb_export_138",
+    "pcb_export_139",
+    "pcb_export_140",
+    "pcb_export_141",
+    "pcb_export_142",
+    "pcb_export_143",
+    "pcb_export_144",
+    "pcb_export_145",
+    "pcb_export_146",
+    "pcb_export_147",
+    "pcb_export_148",
+    "PS1_datasheet_body_envelope",
+    "covered_PCB_tray_allocation",
+    "PCB_chamber_lid_allocation",
+    "Sunon_60x60x25_frame_envelope",
+    "fan_hub_envelope",
+    "compact_sink_candidate_120x100x40",
+    "separate_rear_cooling_duct"
+  ],
+  "new_parts": 188,
+  "part_bounds_mm": {
+    "native18_BARE_BOARD": [
+      -110.5,
+      162.0,
+      30.347,
+      129.5,
+      322.0,
+      32.0
+    ],
+    "native18_BR1_0": [
+      -96.85000000000001,
+      164.2,
+      32.0,
+      -66.55000000000001,
+      169.0,
+      52.3
+    ],
+    "native18_C1_0": [
+      -59.9,
+      283.9,
+      32.0,
+      -33.1,
+      295.1,
+      52.1
+    ],
+    "native18_C10_0": [
+      25.9,
+      200.05,
+      32.0,
+      29.1,
+      202.55,
+      34.5
+    ],
+    "native18_C11_0": [
+      30.500000000000004,
+      200.0,
+      32.0,
+      31.300000000000008,
+      201.60000000000002,
+      32.800000000000004
+    ],
+    "native18_C12_0": [
+      46.62999999999999,
+      170.89999999999998,
+      32.0,
+      49.82999999999999,
+      172.5,
+      33.6
+    ],
+    "native18_C13_0": [
+      28.62999999999999,
+      170.89999999999998,
+      32.0,
+      31.82999999999999,
+      172.5,
+      33.6
+    ],
+    "native18_C14_0": [
+      -14.8,
+      218.1,
+      32.0,
+      -13.2,
+      218.9,
+      32.800000000000004
+    ],
+    "native18_C15_0": [
+      0.19999999999999996,
+      201.2,
+      32.0,
+      1.8,
+      202.0,
+      32.800000000000004
+    ],
+    "native18_C16_0": [
+      -0.6000000000000001,
+      196.35,
+      32.0,
+      2.6000000000000005,
+      198.85,
+      34.5
+    ],
+    "native18_C17_0": [
+      -18.1,
+      200.05,
+      32.0,
+      -14.9,
+      202.55,
+      34.5
+    ],
+    "native18_C18_0": [
+      -13.499999999999995,
+      200.0,
+      32.0,
+      -12.699999999999994,
+      201.60000000000002,
+      32.800000000000004
+    ],
+    "native18_C19_0": [
+      -11.369999999999996,
+      170.89999999999998,
+      32.0,
+      -8.169999999999996,
+      172.5,
+      33.6
+    ],
+    "native18_C2_0": [
+      -86.10000000000001,
+      172.2,
+      32.0,
+      -74.89999999999999,
+      199.0,
+      52.1
+    ],
+    "native18_C20_0": [
+      6.630000000000004,
+      170.89999999999998,
+      32.0,
+      9.830000000000004,
+      172.5,
+      33.6
+    ],
+    "native18_C21_0": [
+      80.65,
+      245.75,
+      32.0,
+      124.35,
+      272.25,
+      59.1
+    ],
+    "native18_C22_0": [
+      80.65,
+      274.25,
+      32.0,
+      124.35,
+      300.75,
+      59.1
+    ],
+    "native18_C23_0": [
+      92.5,
+      172.25,
+      32.0,
+      111.5,
+      215.75,
+      51.6
+    ],
+    "native18_C24_0": [
+      -45.25,
+      178.4,
+      32.0,
+      -42.75,
+      181.6,
+      34.5
+    ],
+    "native18_C25_0": [
+      -49.3,
+      175.1,
+      32.0,
+      -47.7,
+      175.9,
+      32.800000000000004
+    ],
+    "native18_C26_0": [
+      -54.25,
+      178.4,
+      32.0,
+      -51.75,
+      181.6,
+      34.5
+    ],
+    "native18_C27_0": [
+      -53.9,
+      253.2,
+      32.0,
+      -53.1,
+      254.8,
+      32.800000000000004
+    ],
+    "native18_C28_0": [
+      -53.9,
+      243.2,
+      32.0,
+      -53.1,
+      244.8,
+      32.800000000000004
+    ],
+    "native18_C29_0": [
+      -40.9,
+      238.2,
+      32.0,
+      -40.1,
+      239.8,
+      32.800000000000004
+    ],
+    "native18_C3_0": [
+      26.0,
+      244.7,
+      32.0,
+      30.0,
+      255.3,
+      46.0
+    ],
+    "native18_C30_0": [
+      -32.9,
+      180.2,
+      32.0,
+      -32.1,
+      181.8,
+      32.800000000000004
+    ],
+    "native18_C31_0": [
+      -27.900000000000002,
+      186.7,
+      32.0,
+      -27.099999999999998,
+      188.3,
+      32.800000000000004
+    ],
+    "native18_C32_0": [
+      -39.3,
+      184.6,
+      32.0,
+      -37.7,
+      185.4,
+      32.800000000000004
+    ],
+    "native18_C33_0": [
+      -46.9,
+      260.2,
+      32.0,
+      -46.1,
+      261.8,
+      32.800000000000004
+    ],
+    "native18_C34_0": [
+      -44.8,
+      256.6,
+      32.0,
+      -43.2,
+      257.4,
+      32.800000000000004
+    ],
+    "native18_C35_0": [
+      -36.5,
+      196.4,
+      32.0,
+      -34.900000000000006,
+      197.20000000000002,
+      32.800000000000004
+    ],
+    "native18_C36_0": [
+      -28.3,
+      199.1,
+      32.0,
+      -26.7,
+      199.9,
+      32.800000000000004
+    ],
+    "native18_C37_0": [
+      -28.3,
+      218.1,
+      32.0,
+      -26.7,
+      218.9,
+      32.800000000000004
+    ],
+    "native18_C38_0": [
+      17.0,
+      179.5,
+      32.0,
+      35.0,
+      188.5,
+      49.5
+    ],
+    "native18_C39_0": [
+      37.599999999999994,
+      179.5,
+      32.0,
+      55.599999999999994,
+      188.5,
+      49.5
+    ],
+    "native18_C4_0": [
+      33.0,
+      244.7,
+      32.0,
+      37.0,
+      255.3,
+      46.0
+    ],
+    "native18_C40_0": [
+      -3.0,
+      179.5,
+      32.0,
+      15.0,
+      188.5,
+      49.5
+    ],
+    "native18_C41_0": [
+      -23.599999999999994,
+      179.5,
+      32.0,
+      -5.599999999999994,
+      188.5,
+      49.5
+    ],
+    "native18_C42_0": [
+      63.2,
+      230.9,
+      32.0,
+      64.80000000000001,
+      234.1,
+      33.6
+    ],
+    "native18_C43_0": [
+      63.9,
+      245.2,
+      32.0,
+      67.10000000000001,
+      246.8,
+      33.6
+    ],
+    "native18_C44_0": [
+      56.60000000000001,
+      237.0,
+      32.0,
+      58.2,
+      237.8,
+      32.800000000000004
+    ],
+    "native18_C45_0": [
+      56.60000000000001,
+      231.0,
+      32.0,
+      58.2,
+      231.8,
+      32.800000000000004
+    ],
+    "native18_C46_0": [
+      56.60000000000001,
+      243.0,
+      32.0,
+      58.2,
+      243.8,
+      32.800000000000004
+    ],
+    "native18_C47_0": [
+      -8.699999999999998,
+      231.7,
+      32.0,
+      -7.899999999999997,
+      233.3,
+      32.800000000000004
+    ],
+    "native18_C5_0": [
+      -99.75,
+      199.6,
+      32.0,
+      -57.75,
+      232.6,
+      80.0
+    ],
+    "native18_C6_0": [
+      57.49999999999999,
+      173.0,
+      32.0,
+      90.5,
+      215.0,
+      80.0
+    ],
+    "native18_C7_0": [
+      29.2,
+      218.1,
+      32.0,
+      30.8,
+      218.9,
+      32.800000000000004
+    ],
+    "native18_C8_0": [
+      44.2,
+      201.2,
+      32.0,
+      45.8,
+      202.0,
+      32.800000000000004
+    ],
+    "native18_C9_0": [
+      43.4,
+      196.35,
+      32.0,
+      46.6,
+      198.85,
+      34.5
+    ],
+    "native18_D1_0": [
+      10.44,
+      200.64,
+      29.499999999999996,
+      21.4,
+      203.36,
+      35.21
+    ],
+    "native18_D2_0": [
+      -22.4800001,
+      194.64,
+      29.499999999999996,
+      -11.519999900000004,
+      197.36,
+      35.21
+    ],
+    "native18_D3_0": [
+      -56.43699999999999,
+      206.54999999999998,
+      32.0,
+      -48.562999999999995,
+      227.35,
+      40.037
+    ],
+    "native18_D4_0": [
+      53.7499999,
+      225.1999999,
+      31.9999999,
+      57.2500001,
+      226.8000001,
+      33.1000001
+    ],
+    "native18_D5_0": [
+      53.7499999,
+      228.1999999,
+      31.9999999,
+      57.2500001,
+      229.8000001,
+      33.1000001
+    ],
+    "native18_F1_0": [
+      -91.1,
+      311.25,
+      32.0,
+      -56.89999999999999,
+      318.75,
+      40.15
+    ],
+    "native18_J1_0": [
+      -109.08300009999999,
+      309.34499999999997,
+      26.999999999999996,
+      -97.883,
+      320.0750000000001,
+      50.0
+    ],
+    "native18_J10_0": [
+      -67.0,
+      189.0,
+      29.5,
+      -60.0,
+      196.0,
+      35.00000010000035
+    ],
+    "native18_J2_0": [
+      117.0,
+      229.0,
+      29.5,
+      124.0,
+      236.0,
+      35.00000010000035
+    ],
+    "native18_J3_0": [
+      -77.75,
+      261.36999999999995,
+      32.0,
+      -69.25,
+      269.22999999999996,
+      42.9
+    ],
+    "native18_J4_0": [
+      -1.5699999999999998,
+      223.60999999999999,
+      32.0,
+      26.57,
+      230.98,
+      41.910000000000004
+    ],
+    "native18_J5_0": [
+      111.0,
+      309.5,
+      29.5,
+      118.0,
+      316.5,
+      35.00000010000035
+    ],
+    "native18_J6_0": [
+      -4.000000000000007,
+      238.95999999999998,
+      28.5,
+      22.999999999999993,
+      244.04,
+      57.0
+    ],
+    "native18_J7_0": [
+      -101.0,
+      176.0,
+      29.5,
+      -94.0,
+      183.0,
+      35.00000010000035
+    ],
+    "native18_J8_0": [
+      -101.0,
+      189.0,
+      29.5,
+      -94.0,
+      196.0,
+      35.00000010000035
+    ],
+    "native18_J9_0": [
+      -67.0,
+      176.0,
+      29.5,
+      -60.0,
+      183.0,
+      35.00000010000035
+    ],
+    "native18_L1_0": [
+      -109.0,
+      271.5,
+      28.5,
+      -64.0,
+      298.5,
+      71.0000001
+    ],
+    "native18_PS1_0": [
+      -37.7,
+      229.0,
+      28.6,
+      -10.499999999999993,
+      281.4,
+      56.1
+    ],
+    "native18_PS2_0": [
+      -109.1,
+      234.79999999999998,
+      29.0,
+      -63.39999999999999,
+      260.2,
+      53.5
+    ],
+    "native18_Q1_0": [
+      33.75,
+      217.4999999,
+      32.0,
+      36.25,
+      220.5000001,
+      33.200000100000004
+    ],
+    "native18_Q2_0": [
+      37.550000000000004,
+      163.51500000000001,
+      16.169999999999998,
+      53.45000000000002,
+      168.54500000000002,
+      57.270000000000785
+    ],
+    "native18_Q3_0": [
+      19.550000000000004,
+      163.51500000000001,
+      16.169999999999998,
+      35.45000000000002,
+      168.54500000000002,
+      57.270000000000785
+    ],
+    "native18_Q4_0": [
+      -10.25,
+      217.4999999,
+      32.0,
+      -7.75,
+      220.5000001,
+      33.200000100000004
+    ],
+    "native18_Q5_0": [
+      -20.45000000000001,
+      163.51500000000001,
+      16.169999999999998,
+      -4.549999999999996,
+      168.54500000000002,
+      57.270000000000785
+    ],
+    "native18_Q6_0": [
+      -2.4500000000000095,
+      163.51500000000001,
+      16.169999999999998,
+      13.450000000000005,
+      168.54500000000002,
+      57.270000000000785
+    ],
+    "native18_R1_0": [
+      -29.3,
+      284.4,
+      32.0,
+      -27.7,
+      287.6,
+      32.55
+    ],
+    "native18_R10_0": [
+      39.25000000000001,
+      173.0,
+      32.0,
+      40.85000000000001,
+      176.2,
+      32.55
+    ],
+    "native18_R11_0": [
+      36.85,
+      173.29999999999998,
+      32.0,
+      37.65,
+      174.9,
+      32.45
+    ],
+    "native18_R12_0": [
+      21.25000000000001,
+      173.0,
+      32.0,
+      22.850000000000012,
+      176.2,
+      32.55
+    ],
+    "native18_R13_0": [
+      18.849999999999998,
+      173.29999999999998,
+      32.0,
+      19.65,
+      174.9,
+      32.45
+    ],
+    "native18_R14_0": [
+      -4.8,
+      218.1,
+      32.0,
+      -3.2,
+      218.9,
+      32.45
+    ],
+    "native18_R15_0": [
+      -4.8,
+      221.1,
+      32.0,
+      -3.2,
+      221.9,
+      32.45
+    ],
+    "native18_R16_0": [
+      -0.8,
+      218.1,
+      32.0,
+      0.8,
+      218.9,
+      32.45
+    ],
+    "native18_R17_0": [
+      -0.8,
+      221.1,
+      32.0,
+      0.8,
+      221.9,
+      32.45
+    ],
+    "native18_R18_0": [
+      -18.750000000000004,
+      173.0,
+      32.0,
+      -17.150000000000002,
+      176.2,
+      32.55
+    ],
+    "native18_R19_0": [
+      -21.150000000000002,
+      173.29999999999998,
+      32.0,
+      -20.35,
+      174.9,
+      32.45
+    ],
+    "native18_R2_0": [
+      -29.3,
+      289.59999999999997,
+      32.0,
+      -27.7,
+      292.8,
+      32.55
+    ],
+    "native18_R20_0": [
+      -0.7500000000000031,
+      173.0,
+      32.0,
+      0.8499999999999974,
+      176.2,
+      32.55
+    ],
+    "native18_R21_0": [
+      -3.1500000000000004,
+      173.29999999999998,
+      32.0,
+      -2.3499999999999996,
+      174.9,
+      32.45
+    ],
+    "native18_R22_0": [
+      77.89999999999999,
+      306.2,
+      32.0,
+      81.10000000000001,
+      307.8,
+      32.55
+    ],
+    "native18_R23_0": [
+      84.89999999999999,
+      306.2,
+      32.0,
+      88.10000000000001,
+      307.8,
+      32.55
+    ],
+    "native18_R24_0": [
+      91.89999999999999,
+      306.2,
+      32.0,
+      95.10000000000001,
+      307.8,
+      32.55
+    ],
+    "native18_R25_0": [
+      98.2,
+      306.2,
+      32.0,
+      101.40000000000002,
+      307.8,
+      32.55
+    ],
+    "native18_R26_0": [
+      -59.3,
+      236.4,
+      32.0,
+      -57.699999999999996,
+      239.6,
+      32.55
+    ],
+    "native18_R27_0": [
+      -59.3,
+      241.1,
+      32.0,
+      -57.699999999999996,
+      244.29999999999998,
+      32.55
+    ],
+    "native18_R28_0": [
+      -59.3,
+      245.8,
+      32.0,
+      -57.699999999999996,
+      249.0,
+      32.55
+    ],
+    "native18_R29_0": [
+      -59.3,
+      250.5,
+      32.0,
+      -57.699999999999996,
+      253.7,
+      32.55
+    ],
+    "native18_R3_0": [
+      -47.800000000000004,
+      221.9,
+      32.0,
+      -46.2,
+      225.1,
+      32.55
+    ],
+    "native18_R30_0": [
+      -53.9,
+      249.2,
+      32.0,
+      -53.1,
+      250.8,
+      32.45
+    ],
+    "native18_R31_0": [
+      -29.3,
+      183.6,
+      32.0,
+      -27.7,
+      184.4,
+      32.45
+    ],
+    "native18_R32_0": [
+      -35.4,
+      184.7,
+      32.0,
+      -34.6,
+      186.3,
+      32.45
+    ],
+    "native18_R33_0": [
+      -35.4,
+      180.2,
+      32.0,
+      -34.6,
+      181.8,
+      32.45
+    ],
+    "native18_R34_0": [
+      -32.9,
+      184.7,
+      32.0,
+      -32.1,
+      186.3,
+      32.45
+    ],
+    "native18_R35_0": [
+      -30.400000000000002,
+      186.7,
+      32.0,
+      -29.6,
+      188.3,
+      32.45
+    ],
+    "native18_R36_0": [
+      -52.9,
+      260.2,
+      32.0,
+      -52.1,
+      261.8,
+      32.45
+    ],
+    "native18_R37_0": [
+      -49.9,
+      260.2,
+      32.0,
+      -49.1,
+      261.8,
+      32.45
+    ],
+    "native18_R38_0": [
+      -7.8,
+      240.6,
+      32.0,
+      -6.2,
+      241.4,
+      32.45
+    ],
+    "native18_R39_0": [
+      65.7,
+      230.9,
+      32.0,
+      67.3,
+      234.1,
+      32.55
+    ],
+    "native18_R4_0": [
+      -47.800000000000004,
+      208.9,
+      32.0,
+      -46.2,
+      212.1,
+      32.55
+    ],
+    "native18_R40_0": [
+      63.6,
+      241.2,
+      32.0,
+      64.4,
+      242.8,
+      32.45
+    ],
+    "native18_R41_0": [
+      66.6,
+      241.2,
+      32.0,
+      67.4,
+      242.8,
+      32.45
+    ],
+    "native18_R42_0": [
+      58.9,
+      226.7,
+      32.0,
+      62.1,
+      228.3,
+      32.55
+    ],
+    "native18_R43_0": [
+      58.399999999999984,
+      238.95,
+      32.0,
+      59.99999999999999,
+      239.75,
+      32.45
+    ],
+    "native18_R44_0": [
+      58.399999999999984,
+      240.54999999999998,
+      32.0,
+      59.99999999999999,
+      241.35,
+      32.45
+    ],
+    "native18_R45_0": [
+      49.699999999999996,
+      236.04999999999998,
+      32.0,
+      51.300000000000004,
+      236.85,
+      32.45
+    ],
+    "native18_R46_0": [
+      49.699999999999996,
+      234.54999999999998,
+      32.0,
+      51.300000000000004,
+      235.35,
+      32.45
+    ],
+    "native18_R47_0": [
+      49.699999999999996,
+      247.4,
+      32.0,
+      51.300000000000004,
+      248.20000000000002,
+      32.45
+    ],
+    "native18_R5_0": [
+      14.41,
+      171.42499999999998,
+      32.0,
+      17.59,
+      177.775,
+      32.635
+    ],
+    "native18_R6_0": [
+      39.199999999999996,
+      218.1,
+      32.0,
+      40.800000000000004,
+      218.9,
+      32.45
+    ],
+    "native18_R7_0": [
+      39.199999999999996,
+      221.1,
+      32.0,
+      40.800000000000004,
+      221.9,
+      32.45
+    ],
+    "native18_R8_0": [
+      43.199999999999996,
+      218.1,
+      32.0,
+      44.800000000000004,
+      218.9,
+      32.45
+    ],
+    "native18_R9_0": [
+      43.199999999999996,
+      221.1,
+      32.0,
+      44.800000000000004,
+      221.9,
+      32.45
+    ],
+    "native18_RV1_0": [
+      -53.79900000000001,
+      304.5,
+      32.0,
+      -30.799000000000007,
+      313.5,
+      60.0
+    ],
+    "native18_T1_0": [
+      68.45,
+      221.0,
+      32.0,
+      100.55,
+      244.0,
+      47.2
+    ],
+    "native18_U1_0": [
+      32.3499999,
+      202.85,
+      31.999999999999996,
+      42.6500001,
+      213.15,
+      34.7500001
+    ],
+    "native18_U10_0": [
+      54.1,
+      238.54999990000002,
+      32.0,
+      56.9,
+      241.45000009999998,
+      33.5500001
+    ],
+    "native18_U11_0": [
+      54.1,
+      232.54999990000002,
+      32.0,
+      56.9,
+      235.45000009999998,
+      33.5500001
+    ],
+    "native18_U12_0": [
+      54.1,
+      244.54999990000002,
+      32.0,
+      56.9,
+      247.45000009999998,
+      33.5500001
+    ],
+    "native18_U13_0": [
+      -6.300000000000006,
+      231.04999990000002,
+      32.0,
+      -3.5000000000000058,
+      233.95000009999998,
+      33.5500001
+    ],
+    "native18_U2_0": [
+      -11.6500001,
+      202.85,
+      31.999999999999996,
+      -1.3499998999999996,
+      213.15,
+      34.7500001
+    ],
+    "native18_U3_0": [
+      -50.75000000000001,
+      177.95,
+      32.0,
+      -46.24999999999999,
+      181.95,
+      33.52
+    ],
+    "native18_U4_0": [
+      -50.75,
+      243.0749999,
+      32.0,
+      -39.25,
+      248.9250001,
+      34.8000001
+    ],
+    "native18_U5_0": [
+      -29.75,
+      178.9999999,
+      32.0,
+      -27.25,
+      182.0000001,
+      33.200000100000004
+    ],
+    "native18_U6_0": [
+      -39.9,
+      179.54999990000002,
+      32.0,
+      -37.1,
+      182.45000009999998,
+      33.5500001
+    ],
+    "native18_U7_0": [
+      -49.9,
+      255.54999990000002,
+      32.0,
+      -47.1,
+      258.45000010000007,
+      33.5500001
+    ],
+    "native18_U8_0": [
+      -37.1,
+      199.34999990000003,
+      32.0,
+      -34.300000000000004,
+      202.2500001,
+      33.5500001
+    ],
+    "native18_U9_0": [
+      -32.6500001,
+      202.85,
+      31.999999999999996,
+      -22.349999899999997,
+      213.15,
+      34.7500001
+    ],
+    "CUSTOM_200mm_SINK_BASE": [
+      -112.0,
+      154.515,
+      12.0,
+      88.0,
+      162.515,
+      72.0
+    ],
+    "CUSTOM_SINK_FIN_00": [
+      -112.0,
+      94.515,
+      12.0,
+      88.0,
+      154.515,
+      13.6
+    ],
+    "CUSTOM_SINK_FIN_01": [
+      -112.0,
+      94.515,
+      15.0,
+      88.0,
+      154.515,
+      16.6
+    ],
+    "CUSTOM_SINK_FIN_02": [
+      -112.0,
+      94.515,
+      18.0,
+      88.0,
+      154.515,
+      19.6
+    ],
+    "CUSTOM_SINK_FIN_03": [
+      -112.0,
+      94.515,
+      21.0,
+      88.0,
+      154.515,
+      22.6
+    ],
+    "CUSTOM_SINK_FIN_04": [
+      -112.0,
+      94.515,
+      24.0,
+      88.0,
+      154.515,
+      25.6
+    ],
+    "CUSTOM_SINK_FIN_05": [
+      -112.0,
+      94.515,
+      27.0,
+      88.0,
+      154.515,
+      28.6
+    ],
+    "CUSTOM_SINK_FIN_06": [
+      -112.0,
+      94.515,
+      30.0,
+      88.0,
+      154.515,
+      31.6
+    ],
+    "CUSTOM_SINK_FIN_07": [
+      -112.0,
+      94.515,
+      33.0,
+      88.0,
+      154.515,
+      34.6
+    ],
+    "CUSTOM_SINK_FIN_08": [
+      -112.0,
+      94.515,
+      36.0,
+      88.0,
+      154.515,
+      37.6
+    ],
+    "CUSTOM_SINK_FIN_09": [
+      -112.0,
+      94.515,
+      39.0,
+      88.0,
+      154.515,
+      40.6
+    ],
+    "CUSTOM_SINK_FIN_10": [
+      -112.0,
+      94.515,
+      42.0,
+      88.0,
+      154.515,
+      43.6
+    ],
+    "CUSTOM_SINK_FIN_11": [
+      -112.0,
+      94.515,
+      45.0,
+      88.0,
+      154.515,
+      46.6
+    ],
+    "CUSTOM_SINK_FIN_12": [
+      -112.0,
+      94.515,
+      48.0,
+      88.0,
+      154.515,
+      49.6
+    ],
+    "CUSTOM_SINK_FIN_13": [
+      -112.0,
+      94.515,
+      51.0,
+      88.0,
+      154.515,
+      52.6
+    ],
+    "CUSTOM_SINK_FIN_14": [
+      -112.0,
+      94.515,
+      54.0,
+      88.0,
+      154.515,
+      55.6
+    ],
+    "CUSTOM_SINK_FIN_15": [
+      -112.0,
+      94.515,
+      57.0,
+      88.0,
+      154.515,
+      58.6
+    ],
+    "CUSTOM_SINK_FIN_16": [
+      -112.0,
+      94.515,
+      60.0,
+      88.0,
+      154.515,
+      61.6
+    ],
+    "CUSTOM_SINK_FIN_17": [
+      -112.0,
+      94.515,
+      63.0,
+      88.0,
+      154.515,
+      64.6
+    ],
+    "CUSTOM_SINK_FIN_18": [
+      -112.0,
+      94.515,
+      66.0,
+      88.0,
+      154.515,
+      67.6
+    ],
+    "CUSTOM_SINK_FIN_19": [
+      -112.0,
+      94.515,
+      69.0,
+      88.0,
+      154.515,
+      70.6
+    ],
+    "DC0602512W2B-BT0_FAN_ENVELOPE": [
+      88.0,
+      94.515,
+      12.0,
+      113.0,
+      154.515,
+      72.0
+    ],
+    "CUSTOM_BR1_MACHINED_LAND_PROVISIONAL": [
+      -100.0,
+      162.515,
+      34.0,
+      -62.0,
+      163.2,
+      60.0
+    ],
+    "CUSTOM_ALN_BR1_38x26x1": [
+      -100.0,
+      163.2,
+      34.0,
+      -62.0,
+      164.2,
+      60.0
+    ],
+    "CUSTOM_ALN_Q5_Q6_38x26x1": [
+      -22.5,
+      162.515,
+      34.0,
+      15.5,
+      163.515,
+      60.0
+    ],
+    "CUSTOM_ALN_Q3_Q2_38x26x1": [
+      17.5,
+      162.515,
+      34.0,
+      55.5,
+      163.515,
+      60.0
+    ],
+    "CUSTOM_CLIP_ANCHOR_RAIL_ENVELOPE": [
+      -108.0,
+      160.515,
+      64.0,
+      84.0,
+      172.515,
+      70.0
+    ],
+    "Q5_Max03NG_CLIP_INSTALLATION_ALLOCATION": [
+      -16.5,
+      168.545,
+      38.0,
+      -8.5,
+      176.545,
+      64.0
+    ],
+    "Q6_Max03NG_CLIP_INSTALLATION_ALLOCATION": [
+      1.5,
+      168.545,
+      38.0,
+      9.5,
+      176.545,
+      64.0
+    ],
+    "Q3_Max03NG_CLIP_INSTALLATION_ALLOCATION": [
+      23.5,
+      168.545,
+      38.0,
+      31.5,
+      176.545,
+      64.0
+    ],
+    "Q2_Max03NG_CLIP_INSTALLATION_ALLOCATION": [
+      41.5,
+      168.545,
+      38.0,
+      49.5,
+      176.545,
+      64.0
+    ],
+    "BR1_CUSTOM_SPRING_CLAMP_ALLOCATION": [
+      -88.0,
+      169.0,
+      37.0,
+      -75.0,
+      171.0,
+      64.0
+    ],
+    "EMI_D22_110x80x50_BODY_ALLOCATION": [
+      -140.0,
+      335.0,
+      12.0,
+      -30.0,
+      415.0,
+      62.0
+    ],
+    "CARRIER_RAIL_-122p5": [
+      -122.5,
+      162.0,
+      10.0,
+      -110.5,
+      322.0,
+      16.0
+    ],
+    "CARRIER_RAIL_128p5": [
+      128.5,
+      162.0,
+      10.0,
+      140.5,
+      322.0,
+      16.0
+    ],
+    "L20_PEEK_TOP_CAPTURE": [
+      -120.5,
+      179.0,
+      32.1,
+      -107.5,
+      185.0,
+      34.1
+    ],
+    "L140_PEEK_TOP_CAPTURE": [
+      -120.5,
+      299.0,
+      32.1,
+      -107.5,
+      305.0,
+      34.1
+    ],
+    "R20_PEEK_TOP_CAPTURE": [
+      126.5,
+      179.0,
+      32.1,
+      140.5,
+      185.0,
+      34.1
+    ],
+    "R80_PEEK_TOP_CAPTURE": [
+      126.5,
+      239.0,
+      32.1,
+      140.5,
+      245.0,
+      34.1
+    ],
+    "L20_PEEK_LOWER_SHOE": [
+      -120.5,
+      161.0,
+      16.0,
+      -107.5,
+      185.0,
+      32.1
+    ],
+    "L140_PEEK_LOWER_SHOE": [
+      -120.5,
+      299.0,
+      16.0,
+      -107.5,
+      324.0,
+      32.1
+    ],
+    "R20_PEEK_LOWER_SHOE": [
+      126.5,
+      179.0,
+      16.0,
+      140.5,
+      185.0,
+      32.1
+    ],
+    "R80_PEEK_LOWER_SHOE": [
+      126.5,
+      239.0,
+      16.0,
+      140.5,
+      245.0,
+      32.1
+    ],
+    "RETAINER_M3x25_0": [
+      -118.25,
+      179.25,
+      10.6,
+      -112.75,
+      184.75,
+      38.6
+    ],
+    "RETAINER_1p5_SPACER_0": [
+      -118.5,
+      179.0,
+      34.1,
+      -112.5,
+      185.0,
+      35.6
+    ],
+    "RETAINER_M3x25_1": [
+      -118.25,
+      299.25,
+      10.6,
+      -112.75,
+      304.75,
+      38.6
+    ],
+    "RETAINER_1p5_SPACER_1": [
+      -118.5,
+      299.0,
+      34.1,
+      -112.5,
+      305.0,
+      35.6
+    ],
+    "RETAINER_M3x25_2": [
+      132.75,
+      179.25,
+      10.6,
+      138.25,
+      184.75,
+      38.6
+    ],
+    "RETAINER_1p5_SPACER_2": [
+      132.5,
+      179.0,
+      34.1,
+      138.5,
+      185.0,
+      35.6
+    ],
+    "RETAINER_M3x25_3": [
+      132.75,
+      239.25,
+      10.6,
+      138.25,
+      244.75,
+      38.6
+    ],
+    "RETAINER_1p5_SPACER_3": [
+      132.5,
+      239.0,
+      34.1,
+      138.5,
+      245.0,
+      35.6
+    ],
+    "CUSTOM_DUCT_TOP_1mm": [
+      -112.0,
+      94.515,
+      72.0,
+      113.0,
+      154.515,
+      73.0
+    ]
+  },
+  "r4_collisions": [],
+  "cooling_to_pcb_collisions": [],
+  "contacts": [
+    {
+      "reference": "Q5",
+      "modeled_rear_plane_y": 163.51500000000001,
+      "planar_face_areas_mm2": [
+        89.25220671933215,
+        30.36663458959892
+      ],
+      "plane_evidence": "KiCad library / provisional model; NOT manufacturer metal-face proof",
+      "bounds_mm": [
+        -20.45000000000001,
+        163.51500000000001,
+        16.169999999999998,
+        -4.549999999999996,
+        168.54500000000002,
+        57.270000000000785
+      ]
+    },
+    {
+      "reference": "Q6",
+      "modeled_rear_plane_y": 163.51500000000001,
+      "planar_face_areas_mm2": [
+        89.25220671933215,
+        30.36663458959892
+      ],
+      "plane_evidence": "KiCad library / provisional model; NOT manufacturer metal-face proof",
+      "bounds_mm": [
+        -2.4500000000000095,
+        163.51500000000001,
+        16.169999999999998,
+        13.450000000000005,
+        168.54500000000002,
+        57.270000000000785
+      ]
+    },
+    {
+      "reference": "Q3",
+      "modeled_rear_plane_y": 163.51500000000001,
+      "planar_face_areas_mm2": [
+        89.25220671933215,
+        30.36663458959892
+      ],
+      "plane_evidence": "KiCad library / provisional model; NOT manufacturer metal-face proof",
+      "bounds_mm": [
+        19.550000000000004,
+        163.51500000000001,
+        16.169999999999998,
+        35.45000000000002,
+        168.54500000000002,
+        57.270000000000785
+      ]
+    },
+    {
+      "reference": "Q2",
+      "modeled_rear_plane_y": 163.51500000000001,
+      "planar_face_areas_mm2": [
+        89.25220671933215,
+        30.36663458959892
+      ],
+      "plane_evidence": "KiCad library / provisional model; NOT manufacturer metal-face proof",
+      "bounds_mm": [
+        37.550000000000004,
+        163.51500000000001,
+        16.169999999999998,
+        53.45000000000002,
+        168.54500000000002,
+        57.270000000000785
+      ]
+    },
+    {
+      "reference": "BR1",
+      "modeled_rear_plane_y": 164.2,
+      "planar_face_areas_mm2": [
+        530.25
+      ],
+      "plane_evidence": "KiCad library / provisional model; NOT manufacturer metal-face proof",
+      "bounds_mm": [
+        -96.85000000000001,
+        164.2,
+        32.0,
+        -66.55000000000001,
+        169.0,
+        52.3
+      ]
+    }
+  ],
+  "sink_continuity": {
+    "valid_fused_solid_count": 1
+  },
+  "step": {
+    "path": "output/temper-prototype-closure/cooling/contact-bearing-cold-study.step",
+    "sha256": "674705250ad24a4f0e0cbe05864d11848d1e13c5815b4217e8836df85b54eeb5",
+    "valid_reimport": true,
+    "solid_count": 539
+  },
+  "limits": [
+    "complete inlet/exhaust duct turns and rear-vent coupling",
+    "fan guards and supplier mounting brackets",
+    "new PCB electrical barrier chamber",
+    "exact clamp spring profile and force",
+    "harness bend radii and separation",
+    "controller PCB",
+    "native19 HOT5 additions",
+    "manufacturer-verified device rear metallization and lead trim",
+    "new coil/sink/chassis capacitive or magnetic coupling; unchanged board copper does not preserve environmental EMI qualification",
+    "manufacturer-approved thermal metal faces; library face normal is geometric evidence only",
+    "cold carrier chassis attachment, PEEK grade, load verification and qualified electrical distances"
+  ]
+}

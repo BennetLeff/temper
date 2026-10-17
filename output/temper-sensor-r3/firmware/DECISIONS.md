@@ -442,7 +442,7 @@ Unit tests in `test_pan_temp_loop_only` cover:
 
 Both read `firmware/test/traces/manifest.json`. A scenario's `modes` says which
 targets run it (default both). CI's firmware job builds both targets and runs
-`ctest -R sil_fault_tests`, then `scripts/check_sil_coverage.py`.
+`ctest -R sil_fault_tests`, then `firmware/tools/check_sil_coverage.py`.
 
 **The C1 target models the converter and the power stage.** It steps the
 firmware's own cadence: each 100 ms trace row is 10 control ticks of 10 ms in
@@ -2052,6 +2052,8 @@ gate PWM low and then lowers it. The fault cut no longer writes GPIO15.
 Host tests (`power_gate_tests`, 10): refused while the PWM runs, after a bare
 stop and with an unreadable PWM state; allowed with no channel, with an
 initialised idle channel and after an emergency stop; lowering always works.
+(The `board_peripherals.c` wiring above is superseded by D-MAINMERGE: the
+power owner now holds those functions and nothing raises RUN_EN.)
 
 **Burst start (C39, item 18).** This tree has no native-21 switching path;
 the power stage's full bridge (`tank_freq.c`, `burst_scheduler.c`) is on
@@ -2869,6 +2871,47 @@ Against the Mac-committed evidence:
   - cosim-results and hc-cosim: one rounding step of h;
   - all else: ≤ 1e-4.
 - The commit message lists every file.
+
+## D-MAINMERGE. 2026-10-17: merge with main's power owner (#1663) and check-script moves (#1674)
+
+**Power owner.** Main's `components/power/power_service.c` defines
+`pwm_set_duty_cycle()`, `pwm_disable_all()`, `power_set_level()`,
+`power_enable()` and `test_pwm_generation()`, the same symbols
+`main/board_peripherals.c` defined for D-BRINGUP. Main's owner wins; ours are
+removed. It stays inhibited until a reviewed full-bridge binding is installed
+(`power_service_bind()`): `power_enable()` grants nothing, and
+`power_service_frequency()` accepts only the binding's one fixed frequency.
+Consequences:
+- RUN_EN: `board_power_init()` holds it low and nothing raises it.
+  `power_gate_enable()` stays the checked path for the binding.
+  `trigger_hardware_shutdown()` (safety.c, target only) now calls
+  `power_gate_disable()` itself, because the owner's `pwm_disable_all()`
+  stops the bridge but does not own RUN_EN.
+- PLL: `pll_enable()`, `pll_reset()` and `pll_update_loop()` keep the burst
+  start (D-BRINGUP) but write the frequency only through
+  `power_service_frequency()`, with no raw `mcpwm_timer_set_period()`. That
+  also retires the 160 MHz / 80 MHz period bug. A refused start or reset
+  leaves the PLL disabled. A refused update keeps the old frequency. With no
+  timer attached (host, and the target today) nothing changes.
+- Pan detection: the `pan_detect_pulse_ops_t` sequence is kept (idle check,
+  burst-start frequency, pulse). On target, `pan_detect_init()` installs ops
+  that route through the power owner (`pwm_disable_all()`,
+  `power_service_frequency()`, `power_service_pan_pulse()`). Main disallows
+  burst-mode pulses, so detection fails closed: error, reported as no pan.
+- `hal_pwm_esp32.c` is main's rewrite: `stop()` now forces the outputs off and
+  the gate channel belongs to the power owner. `outputs_off` is re-applied:
+  set by init and `stop()` (and so `emergency_stop()`), cleared by `start()`.
+- `hal_bus_crossing.h` moved to `temper_hal/include` (main added it under
+  `components/hal`, which this branch renamed).
+
+**Checks.** The firmware gate scripts moved from `scripts/` to
+`firmware/tools/` (`check_firmware_invariants.py`,
+`check_state_machine_model.py`, `check_fault_list_consistency.py`, plus the
+`check_sil_coverage.py` wrapper). `scripts/check_firmware_board_contract.py`
+is deleted on main as an orphaned legacy-board guard. Earlier entries that
+cite the old paths are records of those runs. `check_board_pin_map.py` runs in
+the Firmware Tests job in its default mode, which reads only the committed
+snapshot. `--verify-board-ref` needs the board branch and does not run in CI.
 
 ## Open items for the firmware owner
 

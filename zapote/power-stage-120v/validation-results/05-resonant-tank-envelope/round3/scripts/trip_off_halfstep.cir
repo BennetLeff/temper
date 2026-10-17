@@ -1,0 +1,47 @@
+* A5.3 all-gates-off tank freewheel to finite DC-link capacitance.
+* Explicit IDEALIZED body diodes: fixed 20 mOhm forward series resistance,
+* no reverse recovery, package parasitics, avalanche, or temperature model.
+* These are not the Infineon CFD7 transistor subcircuits.
+.include ../common/options.inc
+.param LLOAD=50u RPAN40=2 RCOIL=0.25 FREQ=35k CRES=0.54u
+.param VBUS0=170 VCAP0=450 I0=0
+.param CBULK=2.7u CLOCAL=0.1u
+.include params.inc
+.param RTOT={RCOIL+RPAN40*sqrt(FREQ/40k)}
+
+* C5/C6: 2.7 uF +/-5% each. C38-C41: 0.1 uF +/-10% each.
+C5 bus_p 0 {CBULK} ic={VBUS0}
+C6 bus_p 0 {CBULK} ic={VBUS0}
+C38 bus_p 0 {CLOCAL} ic={VBUS0}
+C39 bus_p 0 {CLOCAL} ic={VBUS0}
+C40 bus_p 0 {CLOCAL} ic={VBUS0}
+C41 bus_p 0 {CLOCAL} ic={VBUS0}
+Rbus_leak bus_p 0 1G
+Vsh leg_ret shunt 0
+R5 shunt 0 1m
+
+* Q2/Q5 high-side diodes conduct switch node -> BUS_P.
+* Q3/Q6 low-side diodes conduct LEG_RET -> switch node.
+.model BODY_IDEALIZED D(Is=1e-12 N=1 Rs=0.02)
+Vha sw_a dha 0
+Vla leg_ret dla 0
+Vhb sw_b dhb 0
+Vlb leg_ret dlb 0
+D_Q2 dha bus_p BODY_IDEALIZED
+D_Q3 dla sw_a BODY_IDEALIZED
+D_Q5 dhb bus_p BODY_IDEALIZED
+D_Q6 dlb sw_b BODY_IDEALIZED
+
+Rpan_coil sw_a tank_l {RTOT}
+Ltank tank_l tank_c {LLOAD} ic={I0}
+Cres tank_c sw_b {CRES} ic={VCAP0}
+R22_25 tank_c sw_b 1.88Meg
+
+.tran 12.5n 500u 0 25n uic
+.meas tran bus_peak MAX v(bus_p) from=0 to=500u
+.meas tran bus_final FIND v(bus_p) AT=500u
+.meas tran cap_final FIND par('v(tank_c)-v(sw_b)') AT=500u
+.meas tran i_final FIND i(Ltank) AT=500u
+.meas tran shunt_abs_peak MAX par('abs(i(Vsh))') from=0 to=500u
+.meas tran cap_abs_peak MAX par('abs(v(tank_c)-v(sw_b))') from=0 to=500u
+.end

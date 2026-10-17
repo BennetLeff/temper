@@ -1,0 +1,320 @@
+# Standalone interlock; sensors and gate driver remain separate units.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+
+component InterlockHeader:
+    designator_prefix = "J"
+    footprint = "Connector_JST:JST_XH_B8B-XH-A_1x08_P2.50mm_Vertical"
+    mpn = "B8B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    datasheet = "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+
+component InterlockSchmitt:
+    designator_prefix = "U"
+    footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+    mpn = "SN74LVC14ADR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc14a.pdf"
+    signal A1 ~ pin 1
+    signal A2 ~ pin 3
+    signal A3 ~ pin 5
+    signal A4 ~ pin 9
+    signal A5 ~ pin 11
+    signal A6 ~ pin 13
+    signal Y1 ~ pin 2
+    signal Y2 ~ pin 4
+    signal Y3 ~ pin 6
+    signal Y4 ~ pin 8
+    signal Y5 ~ pin 10
+    signal Y6 ~ pin 12
+    signal GND ~ pin 7
+    signal VCC ~ pin 14
+
+component InterlockNand:
+    designator_prefix = "U"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    mpn = "CD74HC30PWR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/cd74hc30.pdf"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal C ~ pin 3
+    signal D ~ pin 4
+    signal E ~ pin 5
+    signal F ~ pin 6
+    signal G ~ pin 11
+    signal H ~ pin 12
+    signal GND ~ pin 7
+    signal Y ~ pin 8
+    signal NC9 ~ pin 9
+    signal NC10 ~ pin 10
+    signal NC13 ~ pin 13
+    signal VCC ~ pin 14
+
+component InterlockFlipFlop:
+    designator_prefix = "U"
+    footprint = "Package_SO:VSSOP-8_2.3x2mm_P0.5mm"
+    mpn = "SN74LVC1G74DCUR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf"
+    signal CLK ~ pin 1
+    signal D ~ pin 2
+    signal QBAR ~ pin 3
+    signal GND ~ pin 4
+    signal Q ~ pin 5
+    signal CLR_N ~ pin 6
+    signal PRE_N ~ pin 7
+    signal VCC ~ pin 8
+
+component InterlockWatchdog:
+    designator_prefix = "U"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "TPS3823-33DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/tps3823.pdf"
+    signal RESET_N ~ pin 1
+    signal GND ~ pin 2
+    signal MR_N ~ pin 3
+    signal WDI ~ pin 4
+    signal VDD ~ pin 5
+
+component InterlockAnd:
+    designator_prefix = "U"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+module InterlockUnit:
+    """Fault-dominant permission latch; a fresh reset edge is required to enable."""
+    signal vcc
+    signal gnd
+    signal ocp_fault
+    signal ocp_healthy
+    signal ovp_fault
+    signal ovp_healthy
+    signal hs_fault
+    signal hs_healthy
+    signal coil_fault
+    signal coil_healthy
+    signal rtd_fault
+    signal rtd_healthy
+    signal runaway_fault
+    signal runaway_healthy
+    signal aux_fault
+    signal aux_healthy
+    signal reset_n
+    signal reset_clock
+    signal sensor_live
+    signal live_n
+    signal live_buf
+    signal wdt_good
+    signal wdi
+    signal common_good
+    signal any_fault
+    signal all_good
+    signal permit
+    signal latched_fault
+    faults = new InterlockHeader
+    host = new InterlockHeader
+    fault_inv = new InterlockSchmitt
+    control_inv = new InterlockSchmitt
+    aggregate = new InterlockNand
+    latch = new InterlockFlipFlop
+    watchdog = new InterlockWatchdog
+    common = new InterlockAnd
+    ocp_pullup = new Resistor
+    ocp_pullup.value = 10kohm +/- 1%
+    ocp_pullup.mpn = "RC0603FR-0710KL"
+    ocp_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    ovp_pullup = new Resistor
+    ovp_pullup.value = 10kohm +/- 1%
+    ovp_pullup.mpn = "RC0603FR-0710KL"
+    ovp_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    hs_pullup = new Resistor
+    hs_pullup.value = 10kohm +/- 1%
+    hs_pullup.mpn = "RC0603FR-0710KL"
+    hs_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    coil_pullup = new Resistor
+    coil_pullup.value = 10kohm +/- 1%
+    coil_pullup.mpn = "RC0603FR-0710KL"
+    coil_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    rtd_pullup = new Resistor
+    rtd_pullup.value = 10kohm +/- 1%
+    rtd_pullup.mpn = "RC0603FR-0710KL"
+    rtd_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    runaway_pullup = new Resistor
+    runaway_pullup.value = 10kohm +/- 1%
+    runaway_pullup.mpn = "RC0603FR-0710KL"
+    runaway_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    aux_pullup = new Resistor
+    aux_pullup.value = 10kohm +/- 1%
+    aux_pullup.mpn = "RC0603FR-0710KL"
+    aux_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    reset_pullup = new Resistor
+    reset_pullup.value = 10kohm +/- 1%
+    reset_pullup.mpn = "RC0603FR-0710KL"
+    reset_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    wdi_pulldown = new Resistor
+    wdi_pulldown.value = 1kohm +/- 1%
+    wdi_pulldown.mpn = "RC0603FR-071KL"
+    wdi_pulldown.footprint = "Resistor_SMD:R_0603_1608Metric"
+    live_pulldown = new Resistor
+    live_pulldown.value = 10kohm +/- 1%
+    live_pulldown.mpn = "RC0603FR-0710KL"
+    live_pulldown.footprint = "Resistor_SMD:R_0603_1608Metric"
+    permit_pulldown = new Resistor
+    permit_pulldown.value = 10kohm +/- 1%
+    permit_pulldown.mpn = "RC0603FR-0710KL"
+    permit_pulldown.footprint = "Resistor_SMD:R_0603_1608Metric"
+    fault_inv_bypass = new Capacitor
+    fault_inv_bypass.value = 100nF +/- 10%
+    fault_inv_bypass.mpn = "C0603C104K5RACTU"
+    fault_inv_bypass.voltage_rating = 50V
+    fault_inv_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    control_inv_bypass = new Capacitor
+    control_inv_bypass.value = 100nF +/- 10%
+    control_inv_bypass.mpn = "C0603C104K5RACTU"
+    control_inv_bypass.voltage_rating = 50V
+    control_inv_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    aggregate_bypass = new Capacitor
+    aggregate_bypass.value = 100nF +/- 10%
+    aggregate_bypass.mpn = "C0603C104K5RACTU"
+    aggregate_bypass.voltage_rating = 50V
+    aggregate_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    latch_bypass = new Capacitor
+    latch_bypass.value = 100nF +/- 10%
+    latch_bypass.mpn = "C0603C104K5RACTU"
+    latch_bypass.voltage_rating = 50V
+    latch_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    watchdog_bypass = new Capacitor
+    watchdog_bypass.value = 100nF +/- 10%
+    watchdog_bypass.mpn = "C0603C104K5RACTU"
+    watchdog_bypass.voltage_rating = 50V
+    watchdog_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    common_bypass = new Capacitor
+    common_bypass.value = 100nF +/- 10%
+    common_bypass.mpn = "C0603C104K5RACTU"
+    common_bypass.voltage_rating = 50V
+    common_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    vcc ~ host.p1
+    vcc ~ fault_inv_bypass.p1
+    vcc ~ fault_inv.VCC
+    vcc ~ control_inv_bypass.p1
+    vcc ~ control_inv.VCC
+    vcc ~ aggregate_bypass.p1
+    vcc ~ aggregate.VCC
+    vcc ~ latch_bypass.p1
+    vcc ~ latch.VCC
+    vcc ~ watchdog_bypass.p1
+    vcc ~ watchdog.VDD
+    vcc ~ common_bypass.p1
+    vcc ~ common.VCC
+    vcc ~ ocp_pullup.p1
+    vcc ~ ovp_pullup.p1
+    vcc ~ hs_pullup.p1
+    vcc ~ coil_pullup.p1
+    vcc ~ rtd_pullup.p1
+    vcc ~ runaway_pullup.p1
+    vcc ~ aux_pullup.p1
+    vcc ~ latch.D
+    vcc ~ latch.PRE_N
+    vcc ~ watchdog.MR_N
+    vcc ~ reset_pullup.p1
+    gnd ~ host.p2
+    gnd ~ faults.p1
+    gnd ~ fault_inv_bypass.p2
+    gnd ~ fault_inv.GND
+    gnd ~ control_inv_bypass.p2
+    gnd ~ control_inv.GND
+    gnd ~ aggregate_bypass.p2
+    gnd ~ aggregate.GND
+    gnd ~ latch_bypass.p2
+    gnd ~ latch.GND
+    gnd ~ watchdog_bypass.p2
+    gnd ~ watchdog.GND
+    gnd ~ common_bypass.p2
+    gnd ~ common.GND
+    gnd ~ wdi_pulldown.p2
+    gnd ~ live_pulldown.p2
+    gnd ~ permit_pulldown.p2
+    gnd ~ control_inv.A6
+    ocp_fault ~ faults.p2
+    ocp_fault ~ fault_inv.A1
+    ocp_fault ~ ocp_pullup.p2
+    ocp_healthy ~ fault_inv.Y1
+    ocp_healthy ~ aggregate.A
+    ovp_fault ~ faults.p3
+    ovp_fault ~ fault_inv.A2
+    ovp_fault ~ ovp_pullup.p2
+    ovp_healthy ~ fault_inv.Y2
+    ovp_healthy ~ aggregate.B
+    hs_fault ~ faults.p4
+    hs_fault ~ fault_inv.A3
+    hs_fault ~ hs_pullup.p2
+    hs_healthy ~ fault_inv.Y3
+    hs_healthy ~ aggregate.C
+    coil_fault ~ faults.p5
+    coil_fault ~ fault_inv.A4
+    coil_fault ~ coil_pullup.p2
+    coil_healthy ~ fault_inv.Y4
+    coil_healthy ~ aggregate.D
+    rtd_fault ~ faults.p6
+    rtd_fault ~ fault_inv.A5
+    rtd_fault ~ rtd_pullup.p2
+    rtd_healthy ~ fault_inv.Y5
+    rtd_healthy ~ aggregate.E
+    runaway_fault ~ faults.p7
+    runaway_fault ~ fault_inv.A6
+    runaway_fault ~ runaway_pullup.p2
+    runaway_healthy ~ fault_inv.Y6
+    runaway_healthy ~ aggregate.F
+    aux_fault ~ faults.p8
+    aux_fault ~ control_inv.A1
+    aux_fault ~ aux_pullup.p2
+    aux_healthy ~ control_inv.Y1
+    aux_healthy ~ aggregate.G
+    wdi ~ host.p3
+    wdi ~ watchdog.WDI
+    wdi ~ wdi_pulldown.p1
+    reset_n ~ host.p4
+    reset_n ~ reset_pullup.p2
+    reset_n ~ control_inv.A3
+    sensor_live ~ host.p5
+    sensor_live ~ live_pulldown.p1
+    sensor_live ~ control_inv.A4
+    live_n ~ control_inv.Y4
+    live_n ~ control_inv.A5
+    live_buf ~ control_inv.Y5
+    live_buf ~ common.B
+    permit ~ host.p6
+    permit ~ latch.Q
+    permit ~ permit_pulldown.p1
+    latched_fault ~ host.p7
+    latched_fault ~ latch.QBAR
+    wdt_good ~ host.p8
+    wdt_good ~ watchdog.RESET_N
+    wdt_good ~ common.A
+    common_good ~ common.Y
+    common_good ~ aggregate.H
+    any_fault ~ aggregate.Y
+    any_fault ~ control_inv.A2
+    all_good ~ control_inv.Y2
+    all_good ~ latch.CLR_N
+    reset_clock ~ control_inv.Y3
+    reset_clock ~ latch.CLK

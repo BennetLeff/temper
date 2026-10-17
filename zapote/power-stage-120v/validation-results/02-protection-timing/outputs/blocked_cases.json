@@ -1,0 +1,55 @@
+[
+  {
+    "params": {
+      "FREQ": "33000",
+      "I0": "37",
+      "SLOPE": "1e6",
+      "VOS": "-0.004",
+      "TPD": "45e-9"
+    },
+    "status": "complete",
+    "meas": {
+      "t_ip_trip": 3.45497e-05,
+      "t_in_trip": 2.11713e-05,
+      "t_pos_trip": 3.47195e-05,
+      "t_or": 2.12743e-05,
+      "t_ip_zero": 9.09091e-05,
+      "t_zc": 9.10794e-05,
+      "sense_max": 3.794703
+    },
+    "log_sha256": "3f6561e8babb8945566f3733f1c9c6e6f9ea22590f6bd6f72f361abc7e0062be"
+  },
+  {
+    "params": {
+      "FREQ": "33000",
+      "I0": "37",
+      "SLOPE": "1e7",
+      "VOS": "-0.004",
+      "TPD": "45e-9"
+    },
+    "status": "blocked",
+    "error": "ngspice timeout: ct_frontend_negative_reference.cir, {'FREQ': '33000', 'I0': '37', 'SLOPE': '1e7', 'VOS': '-0.004', 'TPD': '45e-9'}\n\n Reference value :  4.20796e-06\n Reference value :  4.22146e-06\n Reference value :  4.23046e-06\n Reference value :  4.23496e-06\n Reference value :  4.24396e-06\n Reference value :  4.24846e-06\n Reference value :  4.24846e-06\n Reference value :  4.25296e-06\n Reference value :  4.25746e-06\n Reference value :  4.25746e-06\n Reference value :  4.26196e-06\n Reference value :  4.26196e-06\n Reference value :  4.26646e-06\n Reference value :  4.26646e-06\n Reference value :  4.26646e-06\n Reference value :  4.27096e-06\n Reference value :  4.27096e-06\n Reference value :  4.27546e-06\n Reference value :  4.27546e-06"
+  },
+  {
+    "params": {
+      "FREQ": "33000",
+      "I0": "10",
+      "SLOPE": "1e6",
+      "VOS": "0",
+      "TPD": "55e-9"
+    },
+    "status": "blocked",
+    "error": "ngspice timeout: ct_frontend_negative_reference.cir, {'FREQ': '33000', 'I0': '10', 'SLOPE': '1e6', 'VOS': '0', 'TPD': '55e-9'}\n\n Reference value :  6.49134e-05\n Reference value :  6.49279e-05\n Reference value :  6.49369e-05\n Reference value :  6.49414e-05\n Reference value :  6.49459e-05\n Reference value :  6.49504e-05\n Reference value :  6.49539e-05\n Reference value :  6.49584e-05\n Reference value :  6.49594e-05\n Reference value :  6.49629e-05\n Reference value :  6.49629e-05\n Reference value :  6.49639e-05\n Reference value :  6.49674e-05\n Reference value :  6.49684e-05\n Reference value :  6.49684e-05\n Reference value :  6.49694e-05\n Reference value :  6.49719e-05\n Reference value :  6.49729e-05\n Reference value :  6.49729e-05"
+  },
+  {
+    "params": {
+      "FREQ": "39000",
+      "I0": "37",
+      "SLOPE": "1e6",
+      "VOS": "-0.004",
+      "TPD": "45e-9"
+    },
+    "status": "blocked",
+    "error": "ngspice timeout: ct_frontend_negative_reference.cir, {'FREQ': '39000', 'I0': '37', 'SLOPE': '1e6', 'VOS': '-0.004', 'TPD': '45e-9'}\n\n Reference value :  1.66869e-04\n Reference value :  1.68472e-04\n Reference value :  1.68486e-04\n Reference value :  1.68495e-04\n Reference value :  1.68504e-04\n Reference value :  1.68508e-04\n Reference value :  1.68513e-04\n Reference value :  1.68517e-04\n Reference value :  1.68517e-04\n Reference value :  1.68522e-04\n Reference value :  1.68526e-04\n Reference value :  1.68526e-04\n Reference value :  1.68531e-04\n Reference value :  1.68531e-04\n Reference value :  1.68535e-04\n Reference value :  1.68535e-04\n Reference value :  1.68540e-04\n Reference value :  1.68540e-04\n Reference value :  1.68544e-04"
+  }
+]

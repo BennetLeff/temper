@@ -1,0 +1,3026 @@
+{
+  "board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "meshes": [
+    {
+      "name": "A-e4-h1",
+      "mesh": {
+        "thin_faces_merged": 472,
+        "thin_mm": 0.02,
+        "cov_simplify_mm": 0.0,
+        "port_leak_A": [
+          {
+            "port": "P1_C38",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P2_C39",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P3_gate_high",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P4_gate_low",
+            "leak_A": 0.0
+          }
+        ],
+        "port_w_mm": 0.4,
+        "leg": "A",
+        "barrels_included": true,
+        "barrels": 31,
+        "arch_h_mm": 1.0,
+        "h_edge_mm": 4.0,
+        "h_far_mm": 6.0,
+        "dz_max_mm": 1.0,
+        "margin_mm": 20.0,
+        "air_mm": 10.0,
+        "segments": 3489,
+        "faces_2d": 515,
+        "degenerate_faces_skipped": 0,
+        "skipped_area_mm2": 0.0,
+        "outline_polygons": 160,
+        "open_r_mm": 0.1,
+        "simplify_mm": 0.05,
+        "min_area_mm2": 0.05,
+        "grid_mm": 0.01,
+        "tri_area_min_mm2": 5.0000000000015635e-05,
+        "tri_area_below_1e-6": 0,
+        "triangles_2d": 20253,
+        "z_levels": 18,
+        "tets": 990341,
+        "nodes": 187250,
+        "pec_faces": 86188,
+        "farfield_faces": 5964,
+        "zero_volume_tets": 0,
+        "ports": [
+          {
+            "name": "P1_C38",
+            "physical": 10,
+            "faces": 95,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.0,
+              22.0
+            ],
+            "b": [
+              129.0,
+              22.0
+            ]
+          },
+          {
+            "name": "P2_C39",
+            "physical": 11,
+            "faces": 56,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              164.6,
+              22.0
+            ],
+            "b": [
+              149.6,
+              22.0
+            ]
+          },
+          {
+            "name": "P3_gate_high",
+            "physical": 12,
+            "faces": 12,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.825,
+              41.125
+            ],
+            "b": [
+              146.095,
+              41.125
+            ]
+          },
+          {
+            "name": "P4_gate_low",
+            "physical": 13,
+            "faces": 8,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              151.175,
+              41.125
+            ],
+            "b": [
+              152.445,
+              41.125
+            ]
+          }
+        ],
+        "mesh2d_s": 0.5,
+        "total_s": 4.3
+      },
+      "mesh_sha256": "a4973703e4371f8bef15d0260301fa17ea24545ed6360d1db97cf7ea3074b274",
+      "pec_columns": {
+        "inner_farfield_triangles": 0,
+        "column_xy": []
+      },
+      "port_divergence": [
+        {
+          "port": "P1_C38",
+          "port_current_A": 1.0,
+          "air_nodes": 64,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                142.82,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                140.22,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                142.8,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P2_C39",
+          "port_current_A": 1.0,
+          "air_nodes": 38,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                163.44,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.4,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.637,
+                -21.973,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P3_gate_high",
+          "port_current_A": 1.0,
+          "air_nodes": 7,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                145.49,
+                -41.33,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.644,
+                -41.125,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.5,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P4_gate_low",
+          "port_current_A": 1.0,
+          "air_nodes": 3,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                151.718,
+                -41.091,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.54,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.919,
+                -41.147,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        }
+      ],
+      "port_loops": {
+        "pec_components": 5,
+        "ports": [
+          {
+            "port": "P1_C38",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 41436,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P2_C39",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 41436,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P3_gate_high",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 41436,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P4_gate_low",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 41436,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "closure_ends": [
+          {
+            "closure": "P1_C38",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P2_C39",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P3_gate_high",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P4_gate_low",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R5_1_4",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R10",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R12",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          }
+        ]
+      },
+      "generation_adapter_sha256": "bbb563f03bbec109bc384f548b826c5adc2d5bc0e7c7fe6e803150c2743fe522",
+      "generation_adapter_snapshot": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/mesh-adapter-used.py",
+      "generation_adapter_original_path": "zapote/power-stage-120v/prototype-closure/round4/fields/mesh.py"
+    },
+    {
+      "name": "B-e4-f4-h1",
+      "mesh": {
+        "thin_faces_merged": 661,
+        "thin_mm": 0.02,
+        "cov_simplify_mm": 0.0,
+        "port_leak_A": [
+          {
+            "port": "P1_C40",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P2_C41",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P3_gate_high",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P4_gate_low",
+            "leak_A": 0.0
+          }
+        ],
+        "port_w_mm": 0.4,
+        "leg": "B",
+        "barrels_included": true,
+        "barrels": 47,
+        "arch_h_mm": 1.0,
+        "h_edge_mm": 4.0,
+        "h_far_mm": 4.0,
+        "dz_max_mm": 1.0,
+        "margin_mm": 20.0,
+        "air_mm": 10.0,
+        "segments": 5051,
+        "faces_2d": 724,
+        "degenerate_faces_skipped": 0,
+        "skipped_area_mm2": 0.0,
+        "outline_polygons": 240,
+        "open_r_mm": 0.1,
+        "simplify_mm": 0.05,
+        "min_area_mm2": 0.05,
+        "grid_mm": 0.01,
+        "tri_area_min_mm2": 4.999999999992681e-05,
+        "tri_area_below_1e-6": 0,
+        "triangles_2d": 27702,
+        "z_levels": 18,
+        "tets": 1361532,
+        "nodes": 255377,
+        "pec_faces": 112012,
+        "farfield_faces": 6668,
+        "zero_volume_tets": 0,
+        "ports": [
+          {
+            "name": "P1_C40",
+            "physical": 10,
+            "faces": 68,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              109.0,
+              22.0
+            ],
+            "b": [
+              124.0,
+              22.0
+            ]
+          },
+          {
+            "name": "P2_C41",
+            "physical": 11,
+            "faces": 62,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              88.4,
+              22.0
+            ],
+            "b": [
+              103.4,
+              22.0
+            ]
+          },
+          {
+            "name": "P3_gate_high",
+            "physical": 12,
+            "faces": 14,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              100.825,
+              41.125
+            ],
+            "b": [
+              102.095,
+              41.125
+            ]
+          },
+          {
+            "name": "P4_gate_low",
+            "physical": 13,
+            "faces": 4,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              107.175,
+              41.125
+            ],
+            "b": [
+              108.445,
+              41.125
+            ]
+          }
+        ],
+        "mesh2d_s": 0.9,
+        "total_s": 6.9
+      },
+      "mesh_sha256": "eea5352e81cc5b069f8a5db82afbecfa6d7d814853b6b7f21ce1d57c420c8e12",
+      "pec_columns": {
+        "inner_farfield_triangles": 0,
+        "column_xy": []
+      },
+      "port_divergence": [
+        {
+          "port": "P1_C40",
+          "port_current_A": 1.0,
+          "air_nodes": 48,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                116.42,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                116.4,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                116.32,
+                -22.05,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P2_C41",
+          "port_current_A": 1.0,
+          "air_nodes": 41,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                92.8,
+                -22.19,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                92.8,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                95.63,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P3_gate_high",
+          "port_current_A": 1.0,
+          "air_nodes": 6,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                101.18,
+                -40.95,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                101.23,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                101.23,
+                -40.98,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P4_gate_low",
+          "port_current_A": 1.0,
+          "air_nodes": 1,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                107.815,
+                -41.125,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        }
+      ],
+      "port_loops": {
+        "pec_components": 27,
+        "ports": [
+          {
+            "port": "P1_C40",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45286,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P2_C41",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45286,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P3_gate_high",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45286,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P4_gate_low",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45286,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "closure_ends": [
+          {
+            "closure": "P1_C40",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P2_C41",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P3_gate_high",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P4_gate_low",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q5_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q6_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R5_1_4",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R18",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R20",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q5_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q6_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          }
+        ]
+      },
+      "generation_adapter_sha256": "bbb563f03bbec109bc384f548b826c5adc2d5bc0e7c7fe6e803150c2743fe522",
+      "generation_adapter_snapshot": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/mesh-adapter-used.py",
+      "generation_adapter_original_path": "zapote/power-stage-120v/prototype-closure/round4/fields/mesh.py"
+    },
+    {
+      "name": "A-e2-h1",
+      "mesh": {
+        "thin_faces_merged": 472,
+        "thin_mm": 0.02,
+        "cov_simplify_mm": 0.0,
+        "port_leak_A": [
+          {
+            "port": "P1_C38",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P2_C39",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P3_gate_high",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P4_gate_low",
+            "leak_A": 0.0
+          }
+        ],
+        "port_w_mm": 0.4,
+        "leg": "A",
+        "barrels_included": true,
+        "barrels": 31,
+        "arch_h_mm": 1.0,
+        "h_edge_mm": 2.0,
+        "h_far_mm": 6.0,
+        "dz_max_mm": 1.0,
+        "margin_mm": 20.0,
+        "air_mm": 10.0,
+        "segments": 3489,
+        "faces_2d": 515,
+        "degenerate_faces_skipped": 0,
+        "skipped_area_mm2": 0.0,
+        "outline_polygons": 160,
+        "open_r_mm": 0.1,
+        "simplify_mm": 0.05,
+        "min_area_mm2": 0.05,
+        "grid_mm": 0.01,
+        "tri_area_min_mm2": 5.0000000000015635e-05,
+        "tri_area_below_1e-6": 0,
+        "triangles_2d": 24210,
+        "z_levels": 18,
+        "tets": 1271025,
+        "nodes": 236817,
+        "pec_faces": 94544,
+        "farfield_faces": 12688,
+        "zero_volume_tets": 0,
+        "ports": [
+          {
+            "name": "P1_C38",
+            "physical": 10,
+            "faces": 101,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.0,
+              22.0
+            ],
+            "b": [
+              129.0,
+              22.0
+            ]
+          },
+          {
+            "name": "P2_C39",
+            "physical": 11,
+            "faces": 63,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              164.6,
+              22.0
+            ],
+            "b": [
+              149.6,
+              22.0
+            ]
+          },
+          {
+            "name": "P3_gate_high",
+            "physical": 12,
+            "faces": 12,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.825,
+              41.125
+            ],
+            "b": [
+              146.095,
+              41.125
+            ]
+          },
+          {
+            "name": "P4_gate_low",
+            "physical": 13,
+            "faces": 8,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              151.175,
+              41.125
+            ],
+            "b": [
+              152.445,
+              41.125
+            ]
+          }
+        ],
+        "mesh2d_s": 0.6,
+        "total_s": 7.1
+      },
+      "mesh_sha256": "9af656608f1550ae91ac48aa4de46d632d21ccb00153e8a57948f2876c5b12b0",
+      "pec_columns": {
+        "inner_farfield_triangles": 0,
+        "column_xy": []
+      },
+      "port_divergence": [
+        {
+          "port": "P1_C38",
+          "port_current_A": 1.0,
+          "air_nodes": 70,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                142.8,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                141.52,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                141.51,
+                -21.8,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P2_C39",
+          "port_current_A": 1.0,
+          "air_nodes": 45,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                163.44,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.4,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.637,
+                -21.973,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P3_gate_high",
+          "port_current_A": 1.0,
+          "air_nodes": 7,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                145.49,
+                -41.33,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.644,
+                -41.125,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.5,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P4_gate_low",
+          "port_current_A": 1.0,
+          "air_nodes": 3,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                151.718,
+                -41.091,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.54,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.919,
+                -41.147,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        }
+      ],
+      "port_loops": {
+        "pec_components": 5,
+        "ports": [
+          {
+            "port": "P1_C38",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45546,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P2_C39",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45546,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P3_gate_high",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45546,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P4_gate_low",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 45546,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "closure_ends": [
+          {
+            "closure": "P1_C38",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P2_C39",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P3_gate_high",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P4_gate_low",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R5_1_4",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R10",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R12",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          }
+        ]
+      },
+      "generation_adapter_sha256": "bbb563f03bbec109bc384f548b826c5adc2d5bc0e7c7fe6e803150c2743fe522",
+      "generation_adapter_snapshot": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/mesh-adapter-used.py",
+      "generation_adapter_original_path": "zapote/power-stage-120v/prototype-closure/round4/fields/mesh.py"
+    },
+    {
+      "name": "A5-e4-f4-h1",
+      "mesh": {
+        "thin_faces_merged": 464,
+        "thin_mm": 0.02,
+        "cov_simplify_mm": 0.0,
+        "port_leak_A": [
+          {
+            "port": "P1_C38",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P2_C39",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P3_gate_high",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P4_gate_low",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P5_C6_bulk",
+            "leak_A": 0.0
+          }
+        ],
+        "port_w_mm": 0.4,
+        "leg": "A5",
+        "barrels_included": true,
+        "barrels": 31,
+        "arch_h_mm": 1.0,
+        "h_edge_mm": 4.0,
+        "h_far_mm": 4.0,
+        "dz_max_mm": 1.0,
+        "margin_mm": 20.0,
+        "air_mm": 10.0,
+        "segments": 3558,
+        "faces_2d": 533,
+        "degenerate_faces_skipped": 0,
+        "skipped_area_mm2": 0.0,
+        "outline_polygons": 167,
+        "open_r_mm": 0.1,
+        "simplify_mm": 0.05,
+        "min_area_mm2": 0.05,
+        "grid_mm": 0.01,
+        "tri_area_min_mm2": 5.0000000000015635e-05,
+        "tri_area_below_1e-6": 0,
+        "triangles_2d": 20188,
+        "z_levels": 18,
+        "tets": 991399,
+        "nodes": 187684,
+        "pec_faces": 85532,
+        "farfield_faces": 7728,
+        "zero_volume_tets": 0,
+        "ports": [
+          {
+            "name": "P1_C38",
+            "physical": 10,
+            "faces": 91,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.0,
+              22.0
+            ],
+            "b": [
+              129.0,
+              22.0
+            ]
+          },
+          {
+            "name": "P2_C39",
+            "physical": 11,
+            "faces": 60,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              164.6,
+              22.0
+            ],
+            "b": [
+              149.6,
+              22.0
+            ]
+          },
+          {
+            "name": "P3_gate_high",
+            "physical": 12,
+            "faces": 12,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.825,
+              41.125
+            ],
+            "b": [
+              146.095,
+              41.125
+            ]
+          },
+          {
+            "name": "P4_gate_low",
+            "physical": 13,
+            "faces": 8,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              151.175,
+              41.125
+            ],
+            "b": [
+              152.445,
+              41.125
+            ]
+          },
+          {
+            "name": "P5_C6_bulk",
+            "physical": 14,
+            "faces": 53,
+            "direction": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              174.35,
+              50.75
+            ],
+            "b": [
+              174.35,
+              13.25
+            ]
+          }
+        ],
+        "mesh2d_s": 0.6,
+        "total_s": 4.8
+      },
+      "mesh_sha256": "ba75b0dea7a405410fd015773bfbc4ea83ed209eebce04378803ac7bcf73ae01",
+      "pec_columns": {
+        "inner_farfield_triangles": 0,
+        "column_xy": []
+      },
+      "port_divergence": [
+        {
+          "port": "P1_C38",
+          "port_current_A": 1.0,
+          "air_nodes": 61,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                142.84,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                142.8,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                143.037,
+                -21.973,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P2_C39",
+          "port_current_A": 1.0,
+          "air_nodes": 41,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                163.42,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                160.82,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.4,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P3_gate_high",
+          "port_current_A": 1.0,
+          "air_nodes": 7,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                145.49,
+                -41.33,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.644,
+                -41.125,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.5,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P4_gate_low",
+          "port_current_A": 1.0,
+          "air_nodes": 3,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                151.718,
+                -41.091,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.54,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.919,
+                -41.147,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P5_C6_bulk",
+          "port_current_A": 1.0,
+          "air_nodes": 41,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                174.15,
+                -49.39,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                174.15,
+                -49.38,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                174.24,
+                -49.35,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        }
+      ],
+      "port_loops": {
+        "pec_components": 9,
+        "ports": [
+          {
+            "port": "P1_C38",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 40992,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    194.35,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P2_C39",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 40992,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    194.35,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P3_gate_high",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 40992,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    194.35,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P4_gate_low",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 40992,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    194.35,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P5_C6_bulk",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 40992,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    194.35,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "closure_ends": [
+          {
+            "closure": "P1_C38",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P2_C39",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P3_gate_high",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P4_gate_low",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R5_1_4",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R10",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R12",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P5_C6_bulk",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          }
+        ]
+      },
+      "generation_adapter_sha256": "65247c7e56595fb7cca3847cac0893207130f45616e5ee4a6e73b60b6f4bce82",
+      "generation_adapter_snapshot": "zapote/power-stage-120v/prototype-closure/round4/fields/mesh-a5.py",
+      "generation_adapter_original_path": "zapote/power-stage-120v/prototype-closure/round4/fields/mesh-a5.py"
+    },
+    {
+      "name": "fine-A-e1-dz025-h1",
+      "mesh": {
+        "thin_faces_merged": 472,
+        "thin_mm": 0.02,
+        "cov_simplify_mm": 0.0,
+        "port_leak_A": [
+          {
+            "port": "P1_C38",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P2_C39",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P3_gate_high",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P4_gate_low",
+            "leak_A": 0.0
+          }
+        ],
+        "port_w_mm": 0.4,
+        "leg": "A",
+        "barrels_included": true,
+        "barrels": 31,
+        "arch_h_mm": 1.0,
+        "h_edge_mm": 1.0,
+        "h_far_mm": 2.0,
+        "dz_max_mm": 0.25,
+        "margin_mm": 20.0,
+        "air_mm": 10.0,
+        "segments": 3489,
+        "faces_2d": 515,
+        "degenerate_faces_skipped": 0,
+        "skipped_area_mm2": 0.0,
+        "outline_polygons": 160,
+        "open_r_mm": 0.1,
+        "simplify_mm": 0.05,
+        "min_area_mm2": 0.05,
+        "grid_mm": 0.01,
+        "tri_area_min_mm2": 5.0000000000015635e-05,
+        "tri_area_below_1e-6": 0,
+        "triangles_2d": 38893,
+        "z_levels": 28,
+        "tets": 3542432,
+        "nodes": 626639,
+        "pec_faces": 128608,
+        "farfield_faces": 38254,
+        "zero_volume_tets": 0,
+        "ports": [
+          {
+            "name": "P1_C38",
+            "physical": 10,
+            "faces": 139,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.0,
+              22.0
+            ],
+            "b": [
+              129.0,
+              22.0
+            ]
+          },
+          {
+            "name": "P2_C39",
+            "physical": 11,
+            "faces": 103,
+            "direction": [
+              -1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              164.6,
+              22.0
+            ],
+            "b": [
+              149.6,
+              22.0
+            ]
+          },
+          {
+            "name": "P3_gate_high",
+            "physical": 12,
+            "faces": 12,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              144.825,
+              41.125
+            ],
+            "b": [
+              146.095,
+              41.125
+            ]
+          },
+          {
+            "name": "P4_gate_low",
+            "physical": 13,
+            "faces": 8,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              151.175,
+              41.125
+            ],
+            "b": [
+              152.445,
+              41.125
+            ]
+          }
+        ],
+        "mesh2d_s": 0.6,
+        "total_s": 15.7
+      },
+      "mesh_sha256": "40d6ada09071cda78b5c08bd270b57739057d148a3ab12e2055e197e32a1963d",
+      "pec_columns": {
+        "inner_farfield_triangles": 0,
+        "column_xy": []
+      },
+      "port_divergence": [
+        {
+          "port": "P1_C38",
+          "port_current_A": 1.0,
+          "air_nodes": 93,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                142.8,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                142.508,
+                -22.009,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                142.737,
+                -21.937,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P2_C39",
+          "port_current_A": 1.0,
+          "air_nodes": 70,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                163.44,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.4,
+                -22.09,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                163.637,
+                -21.973,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P3_gate_high",
+          "port_current_A": 1.0,
+          "air_nodes": 7,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                145.49,
+                -41.33,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.644,
+                -41.125,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                145.5,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P4_gate_low",
+          "port_current_A": 1.0,
+          "air_nodes": 3,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                151.718,
+                -41.091,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.54,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                151.919,
+                -41.147,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        }
+      ],
+      "port_loops": {
+        "pec_components": 5,
+        "ports": [
+          {
+            "port": "P1_C38",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 62338,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P2_C39",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 62338,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P3_gate_high",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 62338,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P4_gate_low",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 62338,
+                "farfield": false,
+                "bbox": [
+                  [
+                    105.87,
+                    -53.5,
+                    -0.07
+                  ],
+                  [
+                    184.6,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "closure_ends": [
+          {
+            "closure": "P1_C38",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P2_C39",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P3_gate_high",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P4_gate_low",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R5_1_4",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R10",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R12",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q2_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q3_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          }
+        ]
+      },
+      "generation_adapter_sha256": "9b7620289e4b96e80f51a17950ddf76ac2cb9a5cf540a4b1fd04a7a3a8207c36",
+      "generation_adapter_original_path": "zapote/power-stage-120v/prototype-closure/round2/d17/mesh.py",
+      "generation_adapter_snapshot": "zapote/power-stage-120v/prototype-closure/round2/d17/mesh.py"
+    },
+    {
+      "name": "fine-B-e1-dz025-h1",
+      "mesh": {
+        "thin_faces_merged": 661,
+        "thin_mm": 0.02,
+        "cov_simplify_mm": 0.0,
+        "port_leak_A": [
+          {
+            "port": "P1_C40",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P2_C41",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P3_gate_high",
+            "leak_A": 0.0
+          },
+          {
+            "port": "P4_gate_low",
+            "leak_A": 0.0
+          }
+        ],
+        "port_w_mm": 0.4,
+        "leg": "B",
+        "barrels_included": true,
+        "barrels": 47,
+        "arch_h_mm": 1.0,
+        "h_edge_mm": 1.0,
+        "h_far_mm": 2.0,
+        "dz_max_mm": 0.25,
+        "margin_mm": 20.0,
+        "air_mm": 10.0,
+        "segments": 5051,
+        "faces_2d": 724,
+        "degenerate_faces_skipped": 0,
+        "skipped_area_mm2": 0.0,
+        "outline_polygons": 240,
+        "open_r_mm": 0.1,
+        "simplify_mm": 0.05,
+        "min_area_mm2": 0.05,
+        "grid_mm": 0.01,
+        "tri_area_min_mm2": 4.999999999992681e-05,
+        "tri_area_below_1e-6": 0,
+        "triangles_2d": 46428,
+        "z_levels": 28,
+        "tets": 4207066,
+        "nodes": 742985,
+        "pec_faces": 154658,
+        "farfield_faces": 39372,
+        "zero_volume_tets": 0,
+        "ports": [
+          {
+            "name": "P1_C40",
+            "physical": 10,
+            "faces": 93,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              109.0,
+              22.0
+            ],
+            "b": [
+              124.0,
+              22.0
+            ]
+          },
+          {
+            "name": "P2_C41",
+            "physical": 11,
+            "faces": 102,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              88.4,
+              22.0
+            ],
+            "b": [
+              103.4,
+              22.0
+            ]
+          },
+          {
+            "name": "P3_gate_high",
+            "physical": 12,
+            "faces": 14,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              100.825,
+              41.125
+            ],
+            "b": [
+              102.095,
+              41.125
+            ]
+          },
+          {
+            "name": "P4_gate_low",
+            "physical": 13,
+            "faces": 4,
+            "direction": [
+              1.0,
+              -0.0,
+              0.0
+            ],
+            "k_A_per_m": 2500.0,
+            "z_mm": 2.5629999999999997,
+            "a": [
+              107.175,
+              41.125
+            ],
+            "b": [
+              108.445,
+              41.125
+            ]
+          }
+        ],
+        "mesh2d_s": 0.8,
+        "total_s": 19.7
+      },
+      "mesh_sha256": "d700f2739cf100ccbc70989ec6334c8d20947f3097570deb572a60e8a323c235",
+      "pec_columns": {
+        "inner_farfield_triangles": 0,
+        "column_xy": []
+      },
+      "port_divergence": [
+        {
+          "port": "P1_C40",
+          "port_current_A": 1.0,
+          "air_nodes": 68,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                116.42,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                116.4,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                116.32,
+                -22.05,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P2_C41",
+          "port_current_A": 1.0,
+          "air_nodes": 69,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                92.8,
+                -22.19,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                93.743,
+                -22.2,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                93.727,
+                -21.8,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P3_gate_high",
+          "port_current_A": 1.0,
+          "air_nodes": 6,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                101.18,
+                -40.95,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                101.23,
+                -40.92,
+                2.563
+              ],
+              0.0
+            ],
+            [
+              [
+                101.23,
+                -40.98,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        },
+        {
+          "port": "P4_gate_low",
+          "port_current_A": 1.0,
+          "air_nodes": 1,
+          "leak_sum_abs_A": 0.0,
+          "leak_max_A": 0.0,
+          "pec_net_A": 0.0,
+          "worst": [
+            [
+              [
+                107.815,
+                -41.125,
+                2.563
+              ],
+              0.0
+            ]
+          ]
+        }
+      ],
+      "port_loops": {
+        "pec_components": 27,
+        "ports": [
+          {
+            "port": "P1_C40",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 64721,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P2_C41",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 64721,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P3_gate_high",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 64721,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "port": "P4_gate_low",
+            "pec_components_touched": 1,
+            "closed_loop": true,
+            "components": [
+              {
+                "nodes": 64721,
+                "farfield": false,
+                "bbox": [
+                  [
+                    68.4,
+                    -42.0,
+                    -0.07
+                  ],
+                  [
+                    147.14,
+                    -0.6,
+                    3.86
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "closure_ends": [
+          {
+            "closure": "P1_C40",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P2_C41",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P3_gate_high",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "P4_gate_low",
+            "kind": "port",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q5_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q6_DS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R5_1_4",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R18",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "R20",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q5_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          },
+          {
+            "closure": "Q6_GS",
+            "kind": "bridge",
+            "a_body": [
+              0
+            ],
+            "b_body": [
+              0
+            ]
+          }
+        ]
+      },
+      "generation_adapter_sha256": "9b7620289e4b96e80f51a17950ddf76ac2cb9a5cf540a4b1fd04a7a3a8207c36",
+      "generation_adapter_original_path": "zapote/power-stage-120v/prototype-closure/round2/d17/mesh.py",
+      "generation_adapter_snapshot": "zapote/power-stage-120v/prototype-closure/round2/d17/mesh.py"
+    }
+  ],
+  "rejected": [
+    "B-e4-h1: 2 zero-volume tetrahedra",
+    "B-e3-h1: 1 zero-volume tetrahedron"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "A-e4-h1": {
+    "gmres_restart": 200,
+    "reason": "Restart 200 qualified on exact/nonuniform fixtures. The first native four-rank run began with an 8 GiB stop and uses approximately 7 GiB steady RSS; subsequent runs reserve a 10 GiB stop for output headroom, retaining the global swap-growth guard.",
+    "rss_gib_by_port": {
+      "10": 10,
+      "11": 10,
+      "12": 10,
+      "13": 10
+    }
+  },
+  "B-e4-f4-h1": {
+    "gmres_restart": 100,
+    "reason": "Restart 100 for the initial three excitations; the fourth uses qualified restart 200 within the 10 GiB envelope. An early gate-port attempt once exceeded the initial 8 GiB ceiling by 0.036 GiB and was stopped; bounded retries follow observed 68% system memory headroom. Process-tree and swap monitoring remain active.",
+    "rss_gib_by_port": {
+      "12": 10,
+      "13": 10
+    },
+    "gmres_restart_by_port": {
+      "13": 200
+    }
+  },
+  "A-e2-h1": {
+    "gmres_restart": 200,
+    "rss_gib_by_port": {
+      "10": 10
+    },
+    "reason": "Selected horizontal refinement; use the fixture-qualified restart 200 and an observed 10 GiB stop, with serial/coarse native references checked before interpretation."
+  },
+  "A5-e4-f4-h1": {
+    "gmres_restart": 200,
+    "reason": "The C6 bulk extension has approximately the same element count as leg A; use qualified restart 200 with a 10 GiB observed-RSS stop for the two selected modes.",
+    "rss_gib_by_port": {
+      "10": 10,
+      "14": 10
+    }
+  },
+  "fine-A-e1-dz025-h1": {
+    "gmres_restart": 100,
+    "rss_gib_by_port": {
+      "10": 16,
+      "11": 16,
+      "12": 16,
+      "13": 16
+    },
+    "reason": "Retained native19 fine mesh; qualified restart100 with16GiB observed-RSS stop, paging guard and fresh headroom check. A completed probe does not pre-qualify other excitations."
+  },
+  "fine-B-e1-dz025-h1": {
+    "gmres_restart": 100,
+    "rss_gib_by_port": {
+      "10": 16,
+      "11": 16,
+      "12": 16,
+      "13": 16
+    },
+    "reason": "Retained native19 fine mesh; qualified restart100 with16GiB observed-RSS stop, paging guard and fresh headroom check. A completed probe does not pre-qualify other excitations."
+  }
+}

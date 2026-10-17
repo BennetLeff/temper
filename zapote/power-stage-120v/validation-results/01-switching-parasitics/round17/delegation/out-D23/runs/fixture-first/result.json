@@ -1,0 +1,7 @@
+{
+  "status": "INDETERMINATE",
+  "reason": "manually terminated after initialization stalled; no transient measurements",
+  "termination": "SIGTERM to the task-owned ngspice PID",
+  "replay": "python3 probe_model.py --first (bounded 60-second replay in separate folder)",
+  "elapsed_time_seconds": null
+}

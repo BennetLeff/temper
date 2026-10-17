@@ -1,0 +1,354 @@
+{
+  "schema": "zapote.rtd.unit-catalog-crosswalk.v1",
+  "source_manifest_sha256": "b19f709e026b28499e8c50a2803225e0522dba3bdf3817a2ff37021843f22868",
+  "groups": [
+    {
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "references": [
+        "J1"
+      ],
+      "catalog": {
+        "category": "connector",
+        "catalog_value": "4 circuits, 2.50 mm pitch",
+        "package": "JST XH through-hole vertical",
+        "notes": "JST product search confirms B4B-XH-A and LF/SN label marking."
+      },
+      "sources": {
+        "evidence_url": "https://www.jst-mfg.com/product/index.php?lang=2&search_product=B4B-XH-A&type=1"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "BLM18AG121SN1D",
+      "references": [
+        "R8"
+      ],
+      "catalog": {
+        "category": "ferrite_bead",
+        "catalog_value": "120 \u03a9 typical impedance at 100 MHz",
+        "impedance": "120 \u03a9 @100 MHz typical",
+        "dc_resistance": "0.18 \u03a9 max",
+        "rated_current": "800 mA",
+        "package": "0603 / 1608",
+        "notes": "Murata general-use bead; source models it as a Resistor placeholder. Verify bead symbol/type before release."
+      },
+      "sources": {
+        "evidence_url": "https://www.murata.com/products/productdata/8818142019614/ENFA2345.pdf"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "C0603C102J5GACTU",
+      "references": [
+        "C3"
+      ],
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "1000 pF (1 nF)",
+        "catalog_tolerance": "\u00b15%",
+        "dielectric": "C0G",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "TCC listed as 30 ppm/\u00b0C; no DC-bias derating expected for C0G."
+      },
+      "sources": {
+        "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C102J5GACTU"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "C0603C104K5RACTU",
+      "references": [
+        "C1",
+        "C2",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "C9"
+      ],
+      "catalog": {
+        "category": "capacitor",
+        "catalog_value": "0.1 \u00b5F (100 nF)",
+        "catalog_tolerance": "\u00b110%",
+        "dielectric": "X7R",
+        "rated_voltage": "50 VDC",
+        "temperature_range": "-55..+125 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Source declares 10 V minimum; catalog MPN is 50 V. Evaluate DC-bias capacitance at the actual rail."
+      },
+      "sources": {
+        "evidence_url": "https://search.kemet.com/component-documentation/download/specsheet/C0603C104K5RACTU"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "ERA-3AEB103V",
+      "references": [
+        "R10",
+        "R12",
+        "R16"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "10 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "sources": {
+        "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB103V"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "ERA-3AEB1652V",
+      "references": [
+        "R15"
+      ],
+      "catalog_provenance": "source04 circuit and custom-library qualification; see ../HANDOFF.md and circuit audit"
+    },
+    {
+      "mpn": "ERA-3AEB5901V",
+      "references": [
+        "R11"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "5.9 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "sources": {
+        "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB5901V"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "ERA-3AEB6192V",
+      "references": [
+        "R9"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "61.9 k\u03a9",
+        "catalog_tolerance": "\u00b10.1%",
+        "tcr": "\u00b125 ppm/\u00b0C",
+        "power": "0.1 W",
+        "voltage": "75 V",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "sources": {
+        "evidence_url": "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA3AEB6192V"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "FTSH-105-01-F-D",
+      "references": [
+        "J2"
+      ],
+      "catalog_provenance": "source04 circuit and custom-library qualification; see ../HANDOFF.md and circuit audit"
+    },
+    {
+      "mpn": "MAX31865AAP+",
+      "references": [
+        "U1"
+      ],
+      "catalog": {
+        "category": "adc",
+        "catalog_value": "RTD-to-digital converter",
+        "package": "20-pin SSOP",
+        "supply": "2.7..3.6 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "sources": {
+        "evidence_url": "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "RC0603FR-07100KL",
+      "references": [
+        "R13",
+        "R14"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "100 k\u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "sources": {
+        "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-07100KL"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "RC0603FR-0710KL",
+      "references": [
+        "R17",
+        "R18"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "10 k\u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608"
+      },
+      "sources": {
+        "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0710KL"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "RC0603FR-0733RL",
+      "references": [
+        "R4",
+        "R5",
+        "R6",
+        "R7"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "33 \u03a9",
+        "catalog_tolerance": "\u00b11%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "SOURCE DISCREPANCY: modules.ato claims \u00b15%; manufacturer exact MPN is \u00b11%."
+      },
+      "sources": {
+        "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-0733RL"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "RC0603JR-071ML",
+      "references": [
+        "R2",
+        "R3"
+      ],
+      "catalog": {
+        "category": "resistor",
+        "catalog_value": "1 M\u03a9",
+        "catalog_tolerance": "\u00b15%",
+        "tcr": "\u00b1100 ppm/\u00b0C",
+        "power": "0.1 W at 70 \u00b0C",
+        "voltage": "75 V continuous; 150 V overload",
+        "temperature_range": "-55..+155 \u00b0C",
+        "package": "0603 / 1608",
+        "notes": "Exact manufacturer sheet; diagnostic bias part."
+      },
+      "sources": {
+        "evidence_url": "https://www.yageogroup.com/component-documentation/download/specsheet/RC0603JR-071ML"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "REF2025AIDDCR",
+      "references": [
+        "U2"
+      ],
+      "catalog": {
+        "category": "voltage_reference",
+        "catalog_value": "2.5 V VREF / 1.25 V VBIAS",
+        "package": "SOT-23 (DDC), 5 pin",
+        "supply": "3..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C",
+        "initial_accuracy": "\u00b10.05% max",
+        "tcr": "8 ppm/\u00b0C max"
+      },
+      "sources": {
+        "evidence_url": "https://www.ti.com/product/REF2025/part-details/REF2025AIDDCR"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "RG2012V-431-W-T1",
+      "references": [
+        "R1"
+      ],
+      "catalog_provenance": "source04 circuit and custom-library qualification; see ../HANDOFF.md and circuit audit"
+    },
+    {
+      "mpn": "SN74LVC1G08DBVR",
+      "references": [
+        "U5"
+      ],
+      "catalog": {
+        "category": "logic",
+        "catalog_value": "single 2-input positive AND",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.65..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "sources": {
+        "evidence_url": "https://www.ti.com/product/SN74LVC1G08/part-details/SN74LVC1G08DBVR"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "SN74LVC1G38DBVR",
+      "references": [
+        "U7"
+      ],
+      "catalog": {
+        "category": "logic",
+        "catalog_value": "single 2-input open-drain NAND",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.65..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "sources": {
+        "evidence_url": "https://www.ti.com/product/SN74LVC1G38/part-details/SN74LVC1G38DBVR"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "TLV3201AIDBVR",
+      "references": [
+        "U3",
+        "U4"
+      ],
+      "catalog": {
+        "category": "comparator",
+        "catalog_value": "single push-pull comparator",
+        "package": "SOT-23 (DBV), 5 pin",
+        "supply": "1.8..5.5 V",
+        "temperature_range": "-40..+125 \u00b0C"
+      },
+      "sources": {
+        "evidence_url": "https://www.ti.com/product/TLV3201/part-details/TLV3201AIDBVR"
+      },
+      "catalog_provenance": "retained manufacturer audit, sha256 ea0b1fa9f2fc42964e507dce878d0b330a17136d7d1fb7528bfe96559a406f22"
+    },
+    {
+      "mpn": "TPS389001DSER",
+      "references": [
+        "U6"
+      ],
+      "catalog_provenance": "source04 circuit and custom-library qualification; see ../HANDOFF.md and circuit audit"
+    }
+  ]
+}

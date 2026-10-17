@@ -1,0 +1,16 @@
+id,topology,bus_v,loaded_l_uh,coil_r_ohm,reflected_pan_r_ohm,tank_c_nf,frequency_khz,permit,v15_ok
+# All numerical values below are illustrative screens, not measured Temper operating limits.
+# 0.34 ohm unloaded coil R and 3.25 ohm loaded total R are approximate 40 kHz chart reads from Infineon EVAL-IHW25N140R5L Figure 16.
+legacy_midpoint_340,half_midpoint,340,59.84,0.34,2.91,300,47,yes,yes
+rev38_direct_390,half_hot0,390,59.84,0.34,2.91,300,47,yes,yes
+synthetic_midpoint_390,half_midpoint,390,59.84,0.34,2.91,300,47,yes,yes
+full_bridge_390,full_hot0,390,59.84,0.34,2.91,300,47,yes,yes
+low_loaded_l_low_c_44k,half_hot0,390,53.43,0.34,2.91,270,44,yes,yes
+high_loaded_l_high_c_50k,half_hot0,390,65.8,0.34,2.91,330,50,yes,yes
+no_pan_47k,half_hot0,390,88,0.34,0,300,47,yes,yes
+weak_coupling_47k,half_hot0,390,70,0.34,0.5,300,47,yes,yes
+bus_450_rating_probe,half_hot0,450,59.84,0.34,2.91,300,47,yes,yes
+permit_lost,half_hot0,390,59.84,0.34,2.91,300,47,no,yes
+gate_15v_lost,half_hot0,390,59.84,0.34,2.91,300,47,yes,no
+invalid_zero_l,half_hot0,390,0,0.34,2.91,300,47,yes,yes
+invalid_bus_over_igbt,half_hot0,1300,59.84,0.34,2.91,300,47,yes,yes

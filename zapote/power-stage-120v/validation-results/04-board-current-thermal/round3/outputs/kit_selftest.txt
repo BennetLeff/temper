@@ -1,0 +1,10 @@
+strip: R = 1.1940 mohm, analytic 1.1940 mohm, error 0.00 %
+two layers: R = 0.5948 mohm, analytic 0.5970 mohm, error 0.36 %
+four-layer via: R = 0.5811 mohm, analytic 0.5811 mohm, error 0.00 %
+unequal sources: R_loss = 2.8996 mohm, sum(VI)/I^2 2.8996 mohm
+off-copper injection refused: True
+unused island: R finite True, excluded cells 4
+source without sink refused: True
+0.2 mm gap does not conduct: True (dropped edges 4)
+drilled via: drill centre void True, R 2.7042 -> 2.7693 mohm, point in empty drill refused True, filled lead carries injection True
+SELFTEST PASS

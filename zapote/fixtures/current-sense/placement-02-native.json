@@ -1,0 +1,2789 @@
+{
+  "components": [
+    {
+      "id": "c_burden",
+      "uuid": "153038cd-42dc-4acf-bc2a-ea43c124ef1c",
+      "mpn": "GRM31C5C1H104JA01L",
+      "kind": "C_1206_3216Metric",
+      "position_mm": [
+        40.0,
+        52.2
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c9d071cc-0b17-4ea5-95ec-b04355a6ee9d",
+          "net": "CT_SENSE",
+          "position_mm": [
+            38.525,
+            52.2
+          ],
+          "size_mm": [
+            1.15,
+            1.8
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "6e273d8e-12d9-480f-8819-8abb31e48b49",
+          "net": "VBIAS",
+          "position_mm": [
+            41.475,
+            52.2
+          ],
+          "size_mm": [
+            1.15,
+            1.8
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_sense_series",
+      "uuid": "154b19e3-163f-48f5-b71d-1fb9c8ba2b4e",
+      "mpn": "RC1206FR-071KL",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        36.0,
+        54.8
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "b28ce141-0e36-4002-a5ce-6e3edf921f3c",
+          "net": "CT_SENSE",
+          "position_mm": [
+            36.0,
+            53.3375
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "d08c07a4-4892-40fc-a4e9-84be6fa73f1e",
+          "net": "SENSE_MON",
+          "position_mm": [
+            36.0,
+            56.2625
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ref_lo_bottom",
+      "uuid": "251d9081-d83f-4b25-a450-ea825646de82",
+      "mpn": "ERA3AEB3741V",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        49.0,
+        56.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "42beafe1-3f02-4a46-a748-dfa66624f917",
+          "net": "REF_LO",
+          "position_mm": [
+            49.0,
+            55.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "2a47e591-b588-40f0-9538-d741c0b2e951",
+          "net": "gnd",
+          "position_mm": [
+            49.0,
+            56.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ref_lo_top",
+      "uuid": "3c26d84c-9a8d-4590-b6cc-f011e5775c15",
+      "mpn": "ERA3AEB103V",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        49.0,
+        52.5
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "e5725a7c-8b55-4d19-a0c2-4a32a64a70e2",
+          "net": "+3V3",
+          "position_mm": [
+            49.0,
+            51.675
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "d9f0f84a-1897-4ee5-b3fd-e67ccf4697a3",
+          "net": "REF_LO",
+          "position_mm": [
+            49.0,
+            53.325
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ref_hi_top",
+      "uuid": "4135e0d8-719e-4709-bd87-bb98d20bb405",
+      "mpn": "ERA3AEB3741V",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        29.0,
+        49.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "ecd65b04-92f3-497d-8f90-594ab13a6a6d",
+          "net": "+3V3",
+          "position_mm": [
+            29.0,
+            48.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "dcfd1248-1859-499a-a295-4d3b7b054ed9",
+          "net": "REF_HI",
+          "position_mm": [
+            29.0,
+            49.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_comp_pos",
+      "uuid": "49305b9a-6e61-4eb9-8fed-045c92961ebb",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        30.5,
+        62.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "5eb0c3b5-ed93-4dec-9679-60e47ecf1a93",
+          "net": "+3V3",
+          "position_mm": [
+            31.275,
+            62.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "b057ee8b-df7c-484a-ae83-36e0ad0a7370",
+          "net": "gnd",
+          "position_mm": [
+            29.725,
+            62.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_bias_bottom",
+      "uuid": "4954d8e8-c0ee-491f-9856-bfb8c3705c12",
+      "mpn": "ERA3AEB103V",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        57.0,
+        51.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "2e513de1-7e6a-47c4-b602-1c205545dcbf",
+          "net": "VBIAS",
+          "position_mm": [
+            57.0,
+            50.175
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "51a6ebd8-61b5-4b71-a1dd-bb05c51baaf9",
+          "net": "gnd",
+          "position_mm": [
+            57.0,
+            51.825
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "primary_lands",
+      "uuid": "4a18789b-b539-4a3f-aa9b-e6774788761d",
+      "mpn": "NON_PURCHASED_BARE_LANDS",
+      "kind": "LitzPad_15A",
+      "position_mm": [
+        52.5,
+        10.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "85e0d502-2a38-4caa-b172-d926f7ec47bd",
+          "net": "PRIMARY_IN",
+          "position_mm": [
+            52.5,
+            10.0
+          ],
+          "size_mm": [
+            15.0,
+            15.0
+          ],
+          "drill_mm": [
+            3.0,
+            3.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 0,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "2b529e69-57c1-4ccc-a2d8-954f0061785b",
+          "net": "PRIMARY_OUT",
+          "position_mm": [
+            27.5,
+            10.0
+          ],
+          "size_mm": [
+            15.0,
+            15.0
+          ],
+          "drill_mm": [
+            3.0,
+            3.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 0,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d_clamp_lo",
+      "uuid": "4c59d5a2-eaac-440b-8d7d-c542cda33da7",
+      "mpn": "BAT54H,115",
+      "kind": "D_SOD-123F",
+      "position_mm": [
+        40.0,
+        56.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "9ad2c982-4780-47a7-bb87-68489d156835",
+          "net": "SENSE_MON",
+          "position_mm": [
+            40.0,
+            57.4
+          ],
+          "size_mm": [
+            1.1,
+            1.1
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "853f2b41-9cc9-4d56-927c-e96ceaf44bd9",
+          "net": "gnd",
+          "position_mm": [
+            40.0,
+            54.6
+          ],
+          "size_mm": [
+            1.1,
+            1.1
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comp_pos",
+      "uuid": "5fb79ab6-6236-4a51-b46f-8931bc9bd4ac",
+      "mpn": "TLV3201AIDBVR",
+      "kind": "SOT-23-5",
+      "position_mm": [
+        33.0,
+        60.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "eb20ffa5-f47d-4c90-8410-99a0a089c80d",
+          "net": "OCP_POS",
+          "position_mm": [
+            34.1375,
+            60.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "7cee8f13-fa6d-4d0d-9be5-15da333bee0d",
+          "net": "gnd",
+          "position_mm": [
+            34.1375,
+            60.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "176d9f00-3fb3-49d1-9162-5cf4b5d7a366",
+          "net": "SENSE_MON",
+          "position_mm": [
+            34.1375,
+            59.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "3e40fe99-37b1-4a5b-9e06-a210f50bac6b",
+          "net": "REF_HI",
+          "position_mm": [
+            31.8625,
+            59.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "86224e83-9f30-45c5-81c4-192400adf558",
+          "net": "+3V3",
+          "position_mm": [
+            31.8625,
+            60.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_bias_bypass",
+      "uuid": "75dd4a27-c66e-4d6c-9aa9-34e207a6c70a",
+      "mpn": "GRM31C5C1H104JA01L",
+      "kind": "C_1206_3216Metric",
+      "position_mm": [
+        54.0,
+        47.5
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "bb962acf-7bf9-4491-a49b-249f01b79583",
+          "net": "VBIAS",
+          "position_mm": [
+            54.0,
+            48.975
+          ],
+          "size_mm": [
+            1.15,
+            1.8
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "4638cf5d-3cf9-45a6-af6b-5c1333dcd29c",
+          "net": "gnd",
+          "position_mm": [
+            54.0,
+            46.025
+          ],
+          "size_mm": [
+            1.15,
+            1.8
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "host",
+      "uuid": "783c667c-e272-4c63-a54a-94965783d8b1",
+      "mpn": "B4B-XH-A(LF)(SN)",
+      "kind": "JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+      "position_mm": [
+        64.0,
+        67.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "23a84461-6207-4fdc-9245-c798c97643fa",
+          "net": "+3V3",
+          "position_mm": [
+            64.0,
+            67.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 90.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "c2c332c7-83ba-4fb9-b787-d1a2ebd786b4",
+          "net": "gnd",
+          "position_mm": [
+            64.0,
+            64.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 90.0,
+          "shape": 2,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "3c67b0c0-dbb2-489a-955f-191c8b8411d4",
+          "net": "OCP_FAULT",
+          "position_mm": [
+            64.0,
+            62.0
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 90.0,
+          "shape": 2,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "7e789ff9-68dd-4b39-8680-e4c154c886c2",
+          "net": "SENSE_MON",
+          "position_mm": [
+            64.0,
+            59.5
+          ],
+          "size_mm": [
+            1.7,
+            1.95
+          ],
+          "drill_mm": [
+            0.95,
+            0.95
+          ],
+          "orientation_deg": 90.0,
+          "shape": 2,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "In1.Cu",
+            "In2.Cu",
+            "In3.Cu",
+            "In4.Cu",
+            "In5.Cu",
+            "In6.Cu",
+            "In7.Cu",
+            "In8.Cu",
+            "In9.Cu",
+            "In10.Cu",
+            "In11.Cu",
+            "In12.Cu",
+            "In13.Cu",
+            "In14.Cu",
+            "In15.Cu",
+            "In16.Cu",
+            "In17.Cu",
+            "In18.Cu",
+            "In19.Cu",
+            "In20.Cu",
+            "In21.Cu",
+            "In22.Cu",
+            "In23.Cu",
+            "In24.Cu",
+            "In25.Cu",
+            "In26.Cu",
+            "In27.Cu",
+            "In28.Cu",
+            "In29.Cu",
+            "In30.Cu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "burden",
+      "uuid": "857afb6c-1332-4c3b-8ce8-adb8208fd0f3",
+      "mpn": "RC1206FR-071R5L",
+      "kind": "R_1206_3216Metric",
+      "position_mm": [
+        40.0,
+        49.2
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "84d26c90-1abd-4e33-a150-c383586547c4",
+          "net": "CT_SENSE",
+          "position_mm": [
+            38.5375,
+            49.2
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "f5b2cf5f-7cf8-4081-9cd2-199cedb35cf6",
+          "net": "VBIAS",
+          "position_mm": [
+            41.4625,
+            49.2
+          ],
+          "size_mm": [
+            1.125,
+            1.75
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ct",
+      "uuid": "8776ecb1-8127-4324-86ac-df4661677ca6",
+      "mpn": "CST3015-100ED",
+      "kind": "CST3015_Datasheet2025",
+      "position_mm": [
+        40.0,
+        31.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "1443df0e-5131-4bd8-b61d-29363a81af4f",
+          "net": "PRIMARY_IN",
+          "position_mm": [
+            45.58,
+            19.45
+          ],
+          "size_mm": [
+            4.8,
+            9.0
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 1,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "ca571687-5a81-40c2-a6fd-47f4d97c2920",
+          "net": "PRIMARY_OUT",
+          "position_mm": [
+            34.42,
+            19.45
+          ],
+          "size_mm": [
+            4.8,
+            9.0
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 1,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "171eb24f-3b47-4145-a066-666d68803804",
+          "net": "CT_SENSE",
+          "position_mm": [
+            33.12,
+            44.75
+          ],
+          "size_mm": [
+            3.0,
+            4.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 1,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "2bcfc50c-81e1-4a0a-82fd-122e1b6b32d7",
+          "net": "VBIAS",
+          "position_mm": [
+            46.88,
+            44.75
+          ],
+          "size_mm": [
+            3.0,
+            4.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 1,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d_clamp_hi",
+      "uuid": "9296f236-a1f9-4556-a38e-2856f26e1ab0",
+      "mpn": "BAT54H,115",
+      "kind": "D_SOD-123F",
+      "position_mm": [
+        33.5,
+        55.5
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "9eea16f5-c45b-4925-b9b2-4c80b9591246",
+          "net": "+3V3",
+          "position_mm": [
+            33.5,
+            54.1
+          ],
+          "size_mm": [
+            1.1,
+            1.1
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "8f975ecb-74f9-4158-aad5-2291f34c76de",
+          "net": "SENSE_MON",
+          "position_mm": [
+            33.5,
+            56.9
+          ],
+          "size_mm": [
+            1.1,
+            1.1
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_ref_hi_bottom",
+      "uuid": "a4739764-3873-46f7-88a2-be6e068b846d",
+      "mpn": "ERA3AEB103V",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        29.0,
+        52.5
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c46fe55e-e3fb-4581-8f80-92d95de5a420",
+          "net": "REF_HI",
+          "position_mm": [
+            29.0,
+            51.675
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "ec0df6e5-6bd1-4faf-851b-2c1caae0c7e7",
+          "net": "gnd",
+          "position_mm": [
+            29.0,
+            53.325
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_or_bypass",
+      "uuid": "bee63d8c-5298-4848-b9ff-ffc9784168c0",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        44.3,
+        64.2
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "70450339-117a-477c-b5a9-595b688ab007",
+          "net": "+3V3",
+          "position_mm": [
+            43.525,
+            64.2
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "8e64e440-409a-43ef-84d1-93effd255abd",
+          "net": "gnd",
+          "position_mm": [
+            45.075,
+            64.2
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c_comp_neg",
+      "uuid": "c48c4604-fcc3-4070-a61b-c851b3be61d6",
+      "mpn": "C0603C104K5RACTU",
+      "kind": "C_0603_1608Metric",
+      "position_mm": [
+        41.5,
+        62.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "c380fb1e-0779-477f-9948-a9b1ca9f3e3d",
+          "net": "+3V3",
+          "position_mm": [
+            42.275,
+            62.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "73284d11-4351-4c17-8e55-f4cc55a57205",
+          "net": "gnd",
+          "position_mm": [
+            40.725,
+            62.0
+          ],
+          "size_mm": [
+            0.9,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comp_neg",
+      "uuid": "c564c149-fe91-44dd-a893-43191edac0f4",
+      "mpn": "TLV3201AIDBVR",
+      "kind": "SOT-23-5",
+      "position_mm": [
+        44.0,
+        60.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "ad29e65b-4a6b-4e39-8e16-849c0b4b9ef7",
+          "net": "OCP_NEG",
+          "position_mm": [
+            45.1375,
+            60.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "5a3ffc37-964e-4b37-a536-c6964cf51ae8",
+          "net": "gnd",
+          "position_mm": [
+            45.1375,
+            60.0
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "c617e0e0-abc1-4a15-b987-deaf93c944ad",
+          "net": "REF_LO",
+          "position_mm": [
+            45.1375,
+            59.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "8cff23c1-5120-4c59-bb95-fec4ca6a7c4f",
+          "net": "SENSE_MON",
+          "position_mm": [
+            42.8625,
+            59.05
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "8be34fac-88a1-4d96-bd78-95622713af88",
+          "net": "+3V3",
+          "position_mm": [
+            42.8625,
+            60.95
+          ],
+          "size_mm": [
+            1.325,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 180.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "r_bias_top",
+      "uuid": "ce1f5d72-23f9-49e9-a6ab-a685a14f4f91",
+      "mpn": "ERA3AEB103V",
+      "kind": "R_0603_1608Metric",
+      "position_mm": [
+        57.0,
+        47.5
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "282d20d3-d5ab-47bd-abc3-86269e3cdf82",
+          "net": "+3V3",
+          "position_mm": [
+            57.0,
+            46.675
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "a7db6645-c64c-4164-a72c-458fe4ea0a4a",
+          "net": "VBIAS",
+          "position_mm": [
+            57.0,
+            48.325
+          ],
+          "size_mm": [
+            0.8,
+            0.95
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 270.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output_or",
+      "uuid": "ce3da019-26e6-4343-a7bc-ded8ff5f3be6",
+      "mpn": "SN74HC4075DR",
+      "kind": "SOIC-14_3.9x8.7mm_P1.27mm",
+      "position_mm": [
+        38.5,
+        68.0
+      ],
+      "footprint_pads": [
+        {
+          "pad": "1",
+          "uuid": "f5be2018-219d-4164-ba0d-baa7e73dc34f",
+          "net": "OCP_POS",
+          "position_mm": [
+            36.025,
+            64.19
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "2",
+          "uuid": "bafa8ba6-2f82-4260-968c-b6ea8f4aa81e",
+          "net": "OCP_NEG",
+          "position_mm": [
+            36.025,
+            65.46
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "3",
+          "uuid": "fd8f7b3e-033c-40aa-b42f-caeec1c00cac",
+          "net": "gnd",
+          "position_mm": [
+            36.025,
+            66.73
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "4",
+          "uuid": "28c281d7-87f4-4219-866b-0a112ea4366c",
+          "net": "gnd",
+          "position_mm": [
+            36.025,
+            68.0
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "5",
+          "uuid": "e93c0ec0-74c0-43e0-9564-9304936f8ccd",
+          "net": "gnd",
+          "position_mm": [
+            36.025,
+            69.27
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "6",
+          "uuid": "226a59e3-24f5-4d86-9420-d5c1d60f2771",
+          "net": "y2",
+          "position_mm": [
+            36.025,
+            70.54
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "7",
+          "uuid": "29b92e7d-33a2-44df-995f-6face88d71c3",
+          "net": "gnd",
+          "position_mm": [
+            36.025,
+            71.81
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "8",
+          "uuid": "041bac43-4951-4e02-8438-0a2adcaf4782",
+          "net": "gnd",
+          "position_mm": [
+            40.975,
+            71.81
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "9",
+          "uuid": "64ff8ff9-d61d-4eff-aab3-26e133217fbc",
+          "net": "OCP_FAULT",
+          "position_mm": [
+            40.975,
+            70.54
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "10",
+          "uuid": "1b8ec2cc-b1fd-4412-aa76-49f57ecb40ea",
+          "net": "y3",
+          "position_mm": [
+            40.975,
+            69.27
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "11",
+          "uuid": "8babf2bd-cb35-43c5-9881-62587794baab",
+          "net": "gnd",
+          "position_mm": [
+            40.975,
+            68.0
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "12",
+          "uuid": "06583d25-9792-4385-b01f-fef85daee038",
+          "net": "gnd",
+          "position_mm": [
+            40.975,
+            66.73
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "13",
+          "uuid": "dd88203c-4ab5-431d-b9a0-2815fac14aa0",
+          "net": "gnd",
+          "position_mm": [
+            40.975,
+            65.46
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        },
+        {
+          "pad": "14",
+          "uuid": "d0022c97-97cc-4ec1-9417-c6db09dccdb5",
+          "net": "+3V3",
+          "position_mm": [
+            40.975,
+            64.19
+          ],
+          "size_mm": [
+            1.95,
+            0.6
+          ],
+          "drill_mm": [
+            0.0,
+            0.0
+          ],
+          "orientation_deg": 0.0,
+          "shape": 4,
+          "layers": [
+            "F.Cu",
+            "F.Mask",
+            "F.Paste"
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "component": "c_burden",
+      "pin": "1",
+      "net": "CT_SENSE"
+    },
+    {
+      "component": "c_burden",
+      "pin": "2",
+      "net": "VBIAS"
+    },
+    {
+      "component": "r_sense_series",
+      "pin": "1",
+      "net": "CT_SENSE"
+    },
+    {
+      "component": "r_sense_series",
+      "pin": "2",
+      "net": "SENSE_MON"
+    },
+    {
+      "component": "r_ref_lo_bottom",
+      "pin": "1",
+      "net": "REF_LO"
+    },
+    {
+      "component": "r_ref_lo_bottom",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "r_ref_lo_top",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "r_ref_lo_top",
+      "pin": "2",
+      "net": "REF_LO"
+    },
+    {
+      "component": "r_ref_hi_top",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "r_ref_hi_top",
+      "pin": "2",
+      "net": "REF_HI"
+    },
+    {
+      "component": "c_comp_pos",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "c_comp_pos",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "r_bias_bottom",
+      "pin": "1",
+      "net": "VBIAS"
+    },
+    {
+      "component": "r_bias_bottom",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "primary_lands",
+      "pin": "1",
+      "net": "PRIMARY_IN"
+    },
+    {
+      "component": "primary_lands",
+      "pin": "2",
+      "net": "PRIMARY_OUT"
+    },
+    {
+      "component": "d_clamp_lo",
+      "pin": "1",
+      "net": "SENSE_MON"
+    },
+    {
+      "component": "d_clamp_lo",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "comp_pos",
+      "pin": "1",
+      "net": "OCP_POS"
+    },
+    {
+      "component": "comp_pos",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "comp_pos",
+      "pin": "3",
+      "net": "SENSE_MON"
+    },
+    {
+      "component": "comp_pos",
+      "pin": "4",
+      "net": "REF_HI"
+    },
+    {
+      "component": "comp_pos",
+      "pin": "5",
+      "net": "+3V3"
+    },
+    {
+      "component": "c_bias_bypass",
+      "pin": "1",
+      "net": "VBIAS"
+    },
+    {
+      "component": "c_bias_bypass",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "host",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "host",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "host",
+      "pin": "3",
+      "net": "OCP_FAULT"
+    },
+    {
+      "component": "host",
+      "pin": "4",
+      "net": "SENSE_MON"
+    },
+    {
+      "component": "burden",
+      "pin": "1",
+      "net": "CT_SENSE"
+    },
+    {
+      "component": "burden",
+      "pin": "2",
+      "net": "VBIAS"
+    },
+    {
+      "component": "ct",
+      "pin": "1",
+      "net": "PRIMARY_IN"
+    },
+    {
+      "component": "ct",
+      "pin": "2",
+      "net": "PRIMARY_OUT"
+    },
+    {
+      "component": "ct",
+      "pin": "3",
+      "net": "CT_SENSE"
+    },
+    {
+      "component": "ct",
+      "pin": "4",
+      "net": "VBIAS"
+    },
+    {
+      "component": "d_clamp_hi",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "d_clamp_hi",
+      "pin": "2",
+      "net": "SENSE_MON"
+    },
+    {
+      "component": "r_ref_hi_bottom",
+      "pin": "1",
+      "net": "REF_HI"
+    },
+    {
+      "component": "r_ref_hi_bottom",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "c_or_bypass",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "c_or_bypass",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "c_comp_neg",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "c_comp_neg",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "comp_neg",
+      "pin": "1",
+      "net": "OCP_NEG"
+    },
+    {
+      "component": "comp_neg",
+      "pin": "2",
+      "net": "gnd"
+    },
+    {
+      "component": "comp_neg",
+      "pin": "3",
+      "net": "REF_LO"
+    },
+    {
+      "component": "comp_neg",
+      "pin": "4",
+      "net": "SENSE_MON"
+    },
+    {
+      "component": "comp_neg",
+      "pin": "5",
+      "net": "+3V3"
+    },
+    {
+      "component": "r_bias_top",
+      "pin": "1",
+      "net": "+3V3"
+    },
+    {
+      "component": "r_bias_top",
+      "pin": "2",
+      "net": "VBIAS"
+    },
+    {
+      "component": "output_or",
+      "pin": "1",
+      "net": "OCP_POS"
+    },
+    {
+      "component": "output_or",
+      "pin": "2",
+      "net": "OCP_NEG"
+    },
+    {
+      "component": "output_or",
+      "pin": "3",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "4",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "5",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "6",
+      "net": "y2"
+    },
+    {
+      "component": "output_or",
+      "pin": "7",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "8",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "9",
+      "net": "OCP_FAULT"
+    },
+    {
+      "component": "output_or",
+      "pin": "10",
+      "net": "y3"
+    },
+    {
+      "component": "output_or",
+      "pin": "11",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "12",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "13",
+      "net": "gnd"
+    },
+    {
+      "component": "output_or",
+      "pin": "14",
+      "net": "+3V3"
+    }
+  ],
+  "traces": [],
+  "net_names": [
+    "+3V3",
+    "CT_SENSE",
+    "OCP_FAULT",
+    "OCP_NEG",
+    "OCP_POS",
+    "PRIMARY_IN",
+    "PRIMARY_OUT",
+    "REF_HI",
+    "REF_LO",
+    "SENSE_MON",
+    "VBIAS",
+    "gnd",
+    "y2",
+    "y3"
+  ],
+  "copper_layer_count": 2,
+  "polygon_max_error_mm": 0.005,
+  "copper_layers": [
+    "F.Cu",
+    "B.Cu"
+  ],
+  "vias": [],
+  "zones": [],
+  "connectivity_clusters": [
+    {
+      "net": "+3V3",
+      "nodes": [
+        "c_comp_pos.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "c_comp_neg.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "c_or_bypass.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "d_clamp_hi.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "host.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "r_bias_top.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "r_ref_hi_top.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "r_ref_lo_top.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "comp_pos.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "comp_neg.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "+3V3",
+      "nodes": [
+        "output_or.14"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "CT_SENSE",
+      "nodes": [
+        "c_burden.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "CT_SENSE",
+      "nodes": [
+        "burden.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "CT_SENSE",
+      "nodes": [
+        "r_sense_series.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "CT_SENSE",
+      "nodes": [
+        "ct.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OCP_FAULT",
+      "nodes": [
+        "host.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OCP_FAULT",
+      "nodes": [
+        "output_or.9"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OCP_NEG",
+      "nodes": [
+        "comp_neg.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OCP_NEG",
+      "nodes": [
+        "output_or.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OCP_POS",
+      "nodes": [
+        "comp_pos.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "OCP_POS",
+      "nodes": [
+        "output_or.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "PRIMARY_IN",
+      "nodes": [
+        "primary_lands.1",
+        "ct.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "PRIMARY_OUT",
+      "nodes": [
+        "primary_lands.2",
+        "ct.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "REF_HI",
+      "nodes": [
+        "r_ref_hi_top.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "REF_HI",
+      "nodes": [
+        "r_ref_hi_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "REF_HI",
+      "nodes": [
+        "comp_pos.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "REF_LO",
+      "nodes": [
+        "r_ref_lo_top.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "REF_LO",
+      "nodes": [
+        "r_ref_lo_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "REF_LO",
+      "nodes": [
+        "comp_neg.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "SENSE_MON",
+      "nodes": [
+        "d_clamp_hi.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "SENSE_MON",
+      "nodes": [
+        "d_clamp_lo.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "SENSE_MON",
+      "nodes": [
+        "host.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "SENSE_MON",
+      "nodes": [
+        "r_sense_series.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "SENSE_MON",
+      "nodes": [
+        "comp_pos.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "SENSE_MON",
+      "nodes": [
+        "comp_neg.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VBIAS",
+      "nodes": [
+        "c_burden.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VBIAS",
+      "nodes": [
+        "c_bias_bypass.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VBIAS",
+      "nodes": [
+        "burden.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VBIAS",
+      "nodes": [
+        "r_bias_top.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VBIAS",
+      "nodes": [
+        "r_bias_bottom.1"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "VBIAS",
+      "nodes": [
+        "ct.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "c_bias_bypass.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "c_comp_pos.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "c_comp_neg.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "c_or_bypass.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "d_clamp_lo.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "host.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "r_bias_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "r_ref_hi_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "r_ref_lo_bottom.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "comp_pos.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "comp_neg.2"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.11"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.12"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.13"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.3"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.4"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.5"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.7"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "gnd",
+      "nodes": [
+        "output_or.8"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "y2",
+      "nodes": [
+        "output_or.6"
+      ],
+      "source": "native"
+    },
+    {
+      "net": "y3",
+      "nodes": [
+        "output_or.10"
+      ],
+      "source": "native"
+    }
+  ],
+  "kicad_version": "10.0.4",
+  "reference_to_instance": {
+    "C1": "c_burden",
+    "R4": "r_sense_series",
+    "R8": "r_ref_lo_bottom",
+    "R7": "r_ref_lo_top",
+    "R5": "r_ref_hi_top",
+    "C3": "c_comp_pos",
+    "R3": "r_bias_bottom",
+    "J1": "primary_lands",
+    "D2": "d_clamp_lo",
+    "U1": "comp_pos",
+    "C2": "c_bias_bypass",
+    "J2": "host",
+    "R1": "burden",
+    "T1": "ct",
+    "D1": "d_clamp_hi",
+    "R6": "r_ref_hi_bottom",
+    "C5": "c_or_bypass",
+    "C4": "c_comp_neg",
+    "U2": "comp_neg",
+    "R2": "r_bias_top",
+    "U3": "output_or"
+  },
+  "board_sha256": "2db49c4069f060b03121bb2d6c6298426ab5e68ce77dde9ba32cd084e485cec0",
+  "extractor_sha256": "070799d571f8e37a926a6cf905f1173534d9805e3683e739d9cbd224ace4bdad"
+}

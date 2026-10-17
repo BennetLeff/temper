@@ -1,0 +1,2 @@
+{'tag': 'output-dc', 'status': 'COMPLETED', 'timeout_s': 90, 'returncode': 0, 'last_time_s': 3e-06, 'fixture': 'dc', 'ROH_ohm': 4.999999999999787, 'ROL_ohm': 0.5499999999999997}
+{'tag': 'output-peak', 'status': 'COMPLETED', 'timeout_s': 90, 'returncode': 0, 'last_time_s': 3e-06, 'fixture': 'peak', 'source_peak_A': 10.453084436198031, 'sink_peak_A': 13.221500001333517, 'source_typical_A': 4, 'sink_typical_A': 6}

@@ -1,0 +1,35 @@
+{
+  "run_id": "cast_iron-low-108v-1710w",
+  "model": "ideal diagonal full bridge; no dead time",
+  "bridge_state": "s=sign(v(drv)); i_R5=s*i_tank; low-side source return through R5",
+  "line_average_r5_rms_a": 26.436759558686674,
+  "crest_interval_r5_rms_a": 36.16786738449008,
+  "crest_interval_definition": "rectified line voltage >= 90% of its crest",
+  "crest_interval_s": [
+    0.0029702808905941146,
+    0.0053630524427392195
+  ],
+  "arithmetic_sample_rms_a_wrong": 26.43554355710595,
+  "time_step_min_s": 5e-10,
+  "time_step_max_s": 5.00000000010041e-08,
+  "tank_cap_peak_state": {
+    "time_s": 0.004179127941572828,
+    "tank_cap_voltage_v": 452.0683859565848,
+    "tank_current_a": -0.1100398603436049,
+    "line_bus_voltage_v": 152.73337936671584
+  },
+  "measurements": {
+    "i_rms": 26.4368,
+    "i_pk": 51.46897,
+    "vc_pk": 452.0684,
+    "vc_rms": 224.961,
+    "p_avg": 1711.491
+  },
+  "params": {
+    "VRMS": "108",
+    "FREQ": "34607.4721469573",
+    "LLOAD": "5.179999999999999e-05",
+    "RPAN40": "2.52",
+    "RCOIL": "0.105"
+  }
+}

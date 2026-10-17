@@ -1,0 +1,77 @@
+   Compiling zapote-drc v0.1.0 (/Users/bennet/Desktop/temper/worktrees/layout-quality/zapote/packages/zapote-drc)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.66s
+     Running tests/layout_quality.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/layout_quality-a9a31b81f84ae64f)
+
+running 2 tests
+test opposing_mutuals_cancel_only_for_the_declared_simultaneous_slews ... ok
+test parallel_copper_shares_current_by_conductance ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/layout_quality_copper.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/layout_quality_copper-d1e57b4767f8a22e)
+
+running 7 tests
+test conductor_resistance_has_correct_millimeter_conversion ... ok
+test balanced_wheatstone_bridge_has_no_cross_current ... ok
+test invalid_or_disconnected_networks_do_not_produce_low_loss ... ok
+test reversing_an_edge_reverses_its_current_but_preserves_loss ... ok
+test conductor_subdivision_preserves_voltage_and_power ... ok
+test parallel_network_matches_closed_form ... ok
+test current_conservation_energy_balance_and_ground_invariance ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests/layout_quality_electrical.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/layout_quality_electrical-f6c126e7c23d9b0f)
+
+running 16 tests
+test return_length_includes_vias_and_reports_shared_noise_separately ... ok
+test rlc_series_resonance_and_parallel_sharing_match_closed_form ... ok
+test nonfinite_and_empty_electrical_inputs_are_not_zero_noise ... ok
+test emi_bypass_combines_inductive_and_capacitive_bounds ... ok
+test kelvin_cancellation_preserves_independent_sign_bound ... ok
+test real_leg_a_matrix_preserves_port_orientation_and_mutual_sign ... ok
+test antiresonance_can_have_branch_current_larger_than_total ... ok
+test decoupling_overflow_cannot_silently_remove_capacitive_reactance ... ok
+test displacement_current_uses_picofarads_and_nanoseconds ... ok
+test decoupling_rejects_missing_sweep_or_lossless_resonance ... ok
+test thermal_model_keeps_calibration_drift_and_domain_explicit ... ok
+test subdividing_a_straight_return_does_not_change_its_detour ... ok
+test reversing_both_port_and_current_orientation_preserves_pickup ... ok
+test parallel_identical_decouplers_halve_impedance ... ok
+test thermal_rise_is_monotone_in_positive_power ... ok
+test signed_pickup_never_exceeds_independent_bound ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/layout_quality_geometry.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/layout_quality_geometry-47dfd6630ea6ba7c)
+
+running 13 tests
+test tolerance_and_tool_access_consume_assembly_margin ... ok
+test nested_envelope_penetration_is_the_translation_to_separation ... ok
+test nonfinite_geometry_cannot_disappear_in_comparisons ... ok
+test overlapping_subdivisions_and_coplanar_crossings_are_rejected ... ok
+test parallel_plate_closed_form_has_correct_si_conversion ... ok
+test touching_rectangle_edges_do_not_have_overlap_area ... ok
+test underflowing_overlap_is_not_reported_as_absent_coupling ... ok
+test increasing_assembly_tolerance_never_improves_clearance ... ok
+test broadside_is_invariant_under_common_translation ... ok
+test broadside_subdivision_preserves_total_capacitance ... ok
+test assembly_sweep_matches_all_pairs ... ok
+test sweep_matches_brute_force_overlap ... ok
+test asymmetric_3d_assembly_sweep_matches_exhaustive_distances ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/layout_quality_report.rs (/Users/bennet/Desktop/temper/target-shared/debug/deps/layout_quality_report-eb14ab53f6022e61)
+
+running 8 tests
+test batch_rejects_bad_identity_unknown_schema_and_duplicate_cases ... ok
+test invalid_case_cannot_cover_a_required_family ... ok
+test no_budget_is_unscored_and_missing_family_is_explicit ... ok
+test budget_typo_is_an_error_and_cannot_silently_skip_comparison ... ok
+test budget_margin_boundary_and_failure_are_preserved ... ok
+test lower_bound_clearance_cannot_claim_an_upper_bound ... ok
+test serde_rejects_unknown_fields_and_roundtrips_typed_input ... ok
+test all_nine_families_are_evaluated_through_the_public_batch_api ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

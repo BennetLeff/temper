@@ -1,0 +1,19 @@
+* Table 8 clamped-inductive commutation; ideal constant-current load limit.
+.include IFX_CFD7_650V.lib
+.include ../common/options.inc
+.param RG=100 TJ=25 STEP=0.2n IFWD=58.2
+.include params.inc
+.temp {TJ}
+Vbus bus 0 400
+XQH bus gh sw IPW65R018CFD7_L1
+Vprobe sw drain 0
+XQD drain gd 0 IPW65R018CFD7_L1
+* Equal external gate resistors, as datasheet Table 8.
+Roff gd 0 {RG}
+Vcmd cmd sw PULSE(0 13 2u 5n 5n 20u 40u)
+Ron cmd gh {RG}
+Iload sw 0 PWL(0 0 1u {IFWD})
+.tran {STEP} 12u 0 {STEP}
+.save v(sw) v(xqd.dd) v(xqd.s) v(xqd.g) i(vprobe) i(v.xqd.x1.v_sense2)
+.meas tran peak MAX i(vprobe) from=2u to=12u
+.end

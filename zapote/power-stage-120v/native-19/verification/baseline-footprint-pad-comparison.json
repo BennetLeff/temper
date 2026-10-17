@@ -1,0 +1,549 @@
+{
+  "scope": "Pad copper/drill/layer geometry only; does not establish full footprint equivalence or manufacturer correctness",
+  "records": [
+    {
+      "reference": "PS2",
+      "library": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-05-xx_THT",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/linked-parts/IRM-05-15-envelope.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Converter_ACDC.3dshapes/Converter_ACDC_MeanWell_IRM-05-xx_THT.step"
+      ],
+      "board_graphics_count": 16,
+      "library_graphics_count": 16,
+      "library_sha256": "75bfa42b4d9bd0d4ceeaedd8026f49e3cd0e35b9bc322d9a6419d201541b4dea"
+    },
+    {
+      "reference": "D1",
+      "library": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Diode_THT.3dshapes/D_DO-41_SOD81_P10.16mm_Horizontal.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Diode_THT.3dshapes/D_DO-41_SOD81_P10.16mm_Horizontal.step"
+      ],
+      "board_graphics_count": 16,
+      "library_graphics_count": 16,
+      "library_sha256": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e"
+    },
+    {
+      "reference": "Q5",
+      "library": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "board_graphics_count": 14,
+      "library_graphics_count": 14,
+      "library_sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f"
+    },
+    {
+      "reference": "C21",
+      "library": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P22K-F.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 12,
+      "library_graphics_count": 12,
+      "library_sha256": "bad1891a78d5c7f934f13cc8dea511810fba739c3f4882d5516a1f4ef01ff06c"
+    },
+    {
+      "reference": "J1",
+      "library": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Phoenix.3dshapes/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Phoenix.3dshapes/TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal.step"
+      ],
+      "board_graphics_count": 25,
+      "library_graphics_count": 25,
+      "library_sha256": "e3b06eda34b6c80468fef8b320e1710a8d768cdb078443257022da58112e71fe"
+    },
+    {
+      "reference": "J4",
+      "library": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/linked-parts/Molex-43045-1612-envelope.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Connector_Molex.3dshapes/Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical.step"
+      ],
+      "board_graphics_count": 30,
+      "library_graphics_count": 30,
+      "library_sha256": "ebc0a18ce161d289004c2bbb907bbaede2b3edc73e38f9c0039d9e401920e518"
+    },
+    {
+      "reference": "C39",
+      "library": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 7,
+      "library_graphics_count": 7,
+      "library_sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f"
+    },
+    {
+      "reference": "C40",
+      "library": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 7,
+      "library_graphics_count": 7,
+      "library_sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f"
+    },
+    {
+      "reference": "BR1",
+      "library": "temper:Diode_Bridge_GBJ2510",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/power-parts/GBJ2510-F_provisional.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 3,
+      "library_graphics_count": 3,
+      "library_sha256": "a4ef38e48747d09cefd6e964686dd5b2c88c4a91127031952a20d3eb23543c5c"
+    },
+    {
+      "reference": "J3",
+      "library": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/linked-parts/JST-B2P-VH-envelope.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_VH_B2P-VH_1x02_P3.96mm_Vertical.step"
+      ],
+      "board_graphics_count": 19,
+      "library_graphics_count": 19,
+      "library_sha256": "db267aa991d5a9d6f37a7118ea3649762027773687cf65df88339d984a25edb3"
+    },
+    {
+      "reference": "J2",
+      "library": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "board_graphics_count": 13,
+      "library_graphics_count": 13,
+      "library_sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
+    },
+    {
+      "reference": "C3",
+      "library": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 9,
+      "library_graphics_count": 9,
+      "library_sha256": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32"
+    },
+    {
+      "reference": "J7",
+      "library": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "board_graphics_count": 13,
+      "library_graphics_count": 13,
+      "library_sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
+    },
+    {
+      "reference": "PS1",
+      "library": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Converter_ACDC.3dshapes/Converter_ACDC_MeanWell_IRM-20-xx_THT.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Converter_ACDC.3dshapes/Converter_ACDC_MeanWell_IRM-20-xx_THT.step"
+      ],
+      "board_graphics_count": 17,
+      "library_graphics_count": 17,
+      "library_sha256": "f5312e0c533a4a0edb84fb0a8affe6a1a6e6109c9689eedb472d169ca3d38e58"
+    },
+    {
+      "reference": "C23",
+      "library": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P1K-F.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 12,
+      "library_graphics_count": 12,
+      "library_sha256": "587e95529a9d370383f4ed43185803496c23f72418c8deeb04ab0a1a379a5473"
+    },
+    {
+      "reference": "F1",
+      "library": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/linked-parts/Littelfuse-102071-pair-envelope.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Fuse.3dshapes/Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal.step"
+      ],
+      "board_graphics_count": 29,
+      "library_graphics_count": 29,
+      "library_sha256": "3d55e69ec8640014f147db094fbf2828efa3b35b27b58b1d200a8d134d1d8845"
+    },
+    {
+      "reference": "J10",
+      "library": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "board_graphics_count": 13,
+      "library_graphics_count": 13,
+      "library_sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
+    },
+    {
+      "reference": "D3",
+      "library": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/power-parts/MRT130KP295CV_provisional.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 8,
+      "library_graphics_count": 8,
+      "library_sha256": "834fd22e3ef0102bb6895591110641bb20bf410ccfe6ccfcfbbcc39949e607ef"
+    },
+    {
+      "reference": "C1",
+      "library": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/KEMET_R463N410000N1M.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 7,
+      "library_graphics_count": 7,
+      "library_sha256": "935eb63a1326c560dccf37bd13a828e84ee029c931f4e4af7d68ed862c0343b8"
+    },
+    {
+      "reference": "C4",
+      "library": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/Murata_DE1E3RA222MA4BP01F.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 9,
+      "library_graphics_count": 9,
+      "library_sha256": "5ccb71103b01a699a5daba33b6bb19e27df1287f552bb2c7d1f587fe993d2b32"
+    },
+    {
+      "reference": "J6",
+      "library": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/power-parts/KDS3_1704004_provisional.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 4,
+      "library_graphics_count": 4,
+      "library_sha256": "d5211b40ad46eddff4568412234d58b79e4cb9cf4b374da8cc293f4013ab5485"
+    },
+    {
+      "reference": "RV1",
+      "library": "temper:TMOV20RP_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/power-parts/TMOV20RP175E_provisional.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 3,
+      "library_graphics_count": 3,
+      "library_sha256": "6d8ff131617aa7aacd71dd52a05d03b33366496b25b463a865371dc3b0a33eda"
+    },
+    {
+      "reference": "C2",
+      "library": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/KEMET_R463N410000N1M.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 7,
+      "library_graphics_count": 7,
+      "library_sha256": "935eb63a1326c560dccf37bd13a828e84ee029c931f4e4af7d68ed862c0343b8"
+    },
+    {
+      "reference": "L1",
+      "library": "temper:B82726S2_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/power-parts/B82726S2203A020_provisional.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 12,
+      "library_graphics_count": 12,
+      "library_sha256": "e8c7a8faa69dc90b0ade3ec0eb3930abf7295bcf4a77f93696ca69d01f592d67"
+    },
+    {
+      "reference": "J8",
+      "library": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "board_graphics_count": 13,
+      "library_graphics_count": 13,
+      "library_sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
+    },
+    {
+      "reference": "J9",
+      "library": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "board_graphics_count": 13,
+      "library_graphics_count": 13,
+      "library_sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
+    },
+    {
+      "reference": "C6",
+      "library": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/TDK_B32656G0275J000.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 4,
+      "library_graphics_count": 4,
+      "library_sha256": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14"
+    },
+    {
+      "reference": "C22",
+      "library": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/CDE_942C12P22K-F.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 12,
+      "library_graphics_count": 12,
+      "library_sha256": "bad1891a78d5c7f934f13cc8dea511810fba739c3f4882d5516a1f4ef01ff06c"
+    },
+    {
+      "reference": "Q3",
+      "library": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "board_graphics_count": 14,
+      "library_graphics_count": 14,
+      "library_sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f"
+    },
+    {
+      "reference": "C5",
+      "library": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/TDK_B32656G0275J000.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 4,
+      "library_graphics_count": 4,
+      "library_sha256": "224675481fc4cc529d41ec25aba2274208f340270407963b870c2a8111c07c14"
+    },
+    {
+      "reference": "Q6",
+      "library": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "board_graphics_count": 14,
+      "library_graphics_count": 14,
+      "library_sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f"
+    },
+    {
+      "reference": "C38",
+      "library": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 7,
+      "library_graphics_count": 7,
+      "library_sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f"
+    },
+    {
+      "reference": "D2",
+      "library": "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Diode_THT.3dshapes/D_DO-41_SOD81_P10.16mm_Horizontal.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Diode_THT.3dshapes/D_DO-41_SOD81_P10.16mm_Horizontal.step"
+      ],
+      "board_graphics_count": 16,
+      "library_graphics_count": 16,
+      "library_sha256": "f7a156e9b80a77d5d232d68b3f1b1e81b7bf99703017f9124da667d1d31af41e"
+    },
+    {
+      "reference": "Q2",
+      "library": "Package_TO_SOT_THT:TO-247-3_Vertical",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_THT.3dshapes/TO-247-3_Vertical.step"
+      ],
+      "board_graphics_count": 14,
+      "library_graphics_count": 14,
+      "library_sha256": "cac3a8e76febdf6a0b8b2110c0b15a822ad80b1d17afca625e0d0ea824e3898f"
+    },
+    {
+      "reference": "C41",
+      "library": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KIPRJMOD}/../models3d/capacitors/TDK_B32652A0104K000.step"
+      ],
+      "library_model_paths": [],
+      "board_graphics_count": 7,
+      "library_graphics_count": 7,
+      "library_sha256": "45595807deb41189f9c86db29979a21033797b9d4be2f031e1bdf5805d2aa55f"
+    },
+    {
+      "reference": "J5",
+      "library": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+      "pad_geometry_equal": true,
+      "board_pads": null,
+      "library_pads": null,
+      "board_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "library_model_paths": [
+        "${KICAD10_3DMODEL_DIR}/TerminalBlock_Wuerth.3dshapes/Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR.step"
+      ],
+      "board_graphics_count": 13,
+      "library_graphics_count": 13,
+      "library_sha256": "601e74f87995c22e112206015f6ea4a4cc42fc8dd3879ef5d8d94a6791800dd8"
+    }
+  ],
+  "board_sha256": "50d981d44ff08a546c9a7cb84a2c81afa41e804f4bfb1086e0dc0fb55527bcfe",
+  "comparison_script_sha256": "bc81da92be6cd25a7dabf414bf6e6cddc9ced7c6fa30fad9e375e7403581141d",
+  "diagnostic": "pcbnew emitted wxApp traits warning during footprint loading; all36 named loads produced expected pad records. Comparison is scoped and does not waive DRC mismatches.",
+  "kicad_drc_version": "10.0.4"
+}

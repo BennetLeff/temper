@@ -50,6 +50,14 @@ void low_temp_start(float target_temp_c) {
 bool low_temp_update(float current_temp_c) {
     if (!lt_ctx.active) return false;
 
+#ifdef ESP_PLATFORM
+    /* Native19 first-prototype release excludes burst control. This legacy
+     * algorithm must not translate temperature demand into intermittent heat. */
+    (void)current_temp_c;
+    power_set_level(0);
+    return false;
+#endif
+
     uint32_t now = get_time_ms();
     
     /* 1. Update PID to determine desired duty cycle (mapped to period) */

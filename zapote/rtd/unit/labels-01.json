@@ -1,0 +1,174 @@
+{
+  "references": {
+    "rtd_pan.adc": [
+      20,
+      15
+    ],
+    "rtd_pan.r_ref": [
+      12.2,
+      20.5
+    ],
+    "rtd_pan.c_vdd": [
+      12.2,
+      18
+    ],
+    "rtd_pan.c_dvdd": [
+      14.5,
+      14.1
+    ],
+    "rtd_pan.c_rtd_input": [
+      20,
+      27
+    ],
+    "rtd_pan.r_rtdin_p_bias": [
+      13.6,
+      27
+    ],
+    "rtd_pan.r_rtdin_n_bias": [
+      26.4,
+      27
+    ],
+    "rtd_pan.r_miso": [
+      31,
+      16.9
+    ],
+    "rtd_pan.r_cs": [
+      31,
+      18.6
+    ],
+    "rtd_pan.r_sclk": [
+      33,
+      20.3
+    ],
+    "rtd_pan.r_mosi": [
+      33,
+      22
+    ],
+    "rtd_pan.j_rtd1": [
+      27,
+      34
+    ],
+    "rtd_pan.reference": [
+      20,
+      43.8
+    ],
+    "rtd_pan.c_reference": [
+      20,
+      36.8
+    ],
+    "rtd_pan.low_window": [
+      30,
+      42.7
+    ],
+    "rtd_pan.high_window": [
+      30,
+      51.7
+    ],
+    "rtd_pan.c_low_window": [
+      30,
+      35.9
+    ],
+    "rtd_pan.c_high_window": [
+      30,
+      44.9
+    ],
+    "rtd_pan.window_and": [
+      40,
+      43.8
+    ],
+    "rtd_pan.c_window_and": [
+      40,
+      37.9
+    ],
+    "rtd_pan.r_window_ok_pulldown": [
+      44.7,
+      45.5
+    ],
+    "rtd_pan.rail_monitor": [
+      43,
+      26.2
+    ],
+    "rtd_pan.c_rail_monitor": [
+      43,
+      32.1
+    ],
+    "rtd_pan.r_avdd_top": [
+      37.5,
+      26
+    ],
+    "rtd_pan.r_avdd_bottom": [
+      37.5,
+      29.5
+    ],
+    "rtd_pan.r_rail_ok_pullup": [
+      46,
+      32.5
+    ],
+    "rtd_pan.fault_nand": [
+      49,
+      43.8
+    ],
+    "rtd_pan.c_fault_nand": [
+      49,
+      37.9
+    ],
+    "rtd_pan.r_fault_pullup": [
+      52.5,
+      47
+    ],
+    "rtd_pan.r_low_top": [
+      23.5,
+      39
+    ],
+    "rtd_pan.r_low_bottom": [
+      25.5,
+      44.2
+    ],
+    "rtd_pan.r_high_top": [
+      23.5,
+      48
+    ],
+    "rtd_pan.r_high_bottom": [
+      25.5,
+      54
+    ],
+    "rtd_pan.fb_power": [
+      36,
+      10.5
+    ],
+    "unit_io": [
+      48,
+      7.5
+    ]
+  },
+  "labels": [
+    {
+      "text": "RTD UNIT  /  3V3 SELV",
+      "position_mm": [
+        20,
+        56
+      ]
+    },
+    {
+      "text": "J2 HOST\n1 VCC   2 GND\n3 GND   4 SCK\n5 SDI   6 SDO\n7 CSn   8 DRDY\n9 FAULT 10 REF",
+      "position_mm": [
+        50,
+        21
+      ]
+    },
+    {
+      "text": "PT100  4-WIRE",
+      "position_mm": [
+        20,
+        29
+      ]
+    },
+    {
+      "text": "1F+  2S+  3S-  4F-",
+      "position_mm": [
+        20,
+        37.5
+      ]
+    }
+  ]
+}

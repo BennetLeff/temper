@@ -1,0 +1,1551 @@
+{
+  "assembly_sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291",
+  "method": "Independent cadgen saved-scene name resolution; compare volume, bounds and solid count to individual STEP.",
+  "scope": "Correspondence screen, not full topological equivalence or physical proof.",
+  "checked": 257,
+  "all_match": true,
+  "parts": [
+    {
+      "name": "three_bend_front_top_rear_cover",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "two_bend_bottom_and_sides",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "flat_glass_carrier_ring",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "glass_338x326_with_center_aperture",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "glass_bedding_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "stock_angle_mount_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "single_spacer_2p4_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "stock_angle_mount_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "single_spacer_2p4_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "stock_angle_mount_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "single_spacer_2p4_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "stock_angle_mount_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "single_spacer_2p4_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_service_cover",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4x12_-145.0_38.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_washer_-145.0_38.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_nut_-145.0_38.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_-145_38",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4x12_-145.0_404.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_washer_-145.0_404.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_nut_-145.0_404.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_-145_404",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4x12_145.0_38.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_washer_145.0_38.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_nut_145.0_38.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_145_38",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4x12_145.0_404.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_washer_145.0_404.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_M4_nut_145.0_404.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "foot_145_404",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "mains_connector_REPLACEABLE_BLANK",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "probe_connector_REPLACEABLE_BLANK",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "probe_adapter_M3x8_53",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "probe_adapter_M3_nut_53",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "probe_adapter_M3x8_91",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "probe_adapter_M3_nut_91",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "mains_adapter_M3x8_106",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "mains_adapter_M3_nut_106",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "mains_adapter_M3x8_164",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "mains_adapter_M3_nut_164",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "cover_M3x12_countersunk_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_washer_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_nut_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3x8_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3_nut_-1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "cover_M3x12_countersunk_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_washer_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_nut_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3x8_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3_nut_-1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "cover_M3x12_countersunk_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_washer_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_nut_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3x8_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3_nut_1_140",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "cover_M3x12_countersunk_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_washer_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "carrier_M3_nut_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3x8_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "side_M3_nut_1_380",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "glass_perimeter_joint_SEALANT_ALLOCATION",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_M3_screw_-28",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_M3_screw_28",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "PE_bonding_stud_ALLOCATION",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_strip_rivet_-28_253",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_strip_rivet_-28_269",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_tapped_strip_-28",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_strip_rivet_28_253",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_strip_rivet_28_269",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "hatch_tapped_strip_28",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_shoe_with_two_M2_plunger_bores",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_turned_aluminum_grip_56mm",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_replaceable_profile_cam_8mm",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_cam_M2x12_countersunk_90",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_cam_M2x12_countersunk_210",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_cam_M2x12_countersunk_330",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_keyed_thrust_washer",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_flexible_retaining_clip_candidate",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_bushing_capture_screw_60_threads_omitted",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_bushing_capture_screw_180_threads_omitted",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_bushing_capture_screw_300_threads_omitted",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_flanged_hub_guide_bushing",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_diametric_sensing_magnet",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_puck_retention_magnet_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_bonded_magnet_pocket_cover_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_nonmarking_stationary_pad_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_axial_return_coil_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_puck_retention_magnet_1",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_bonded_magnet_pocket_cover_1",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_nonmarking_stationary_pad_1",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_axial_return_coil_1",
+      "volume_difference_mm3": 1.2212453270876722e-15,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_puck_retention_magnet_2",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_bonded_magnet_pocket_cover_2",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_nonmarking_stationary_pad_2",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_axial_return_coil_2",
+      "volume_difference_mm3": 2.220446049250313e-16,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_retention_magnet_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_retention_magnet_1",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_retention_magnet_2",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_carrier_with_sensor_standoffs",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_Hall_board_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_Hall_package_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_click_cartridge_removable_seat",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_CK_PTS645SH43SMTR92_LFS_BODY_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_CK_tactile_actuator_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_click_seat_M1p4_screw_-4.8",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_click_seat_M1p4_screw_4.8",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_optional_bonded_round_antirotation_key",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_key_bondline_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_bond_stud_-28_-24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_bondline_-28_-24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_nut_-28_-24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_bond_stud_-28_24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_bondline_-28_24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_nut_-28_24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_bond_stud_28_-24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_bondline_28_-24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_nut_28_-24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_bond_stud_28_24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_bondline_28_24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_rear_stud_nut_28_24",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_GN615_M2_KN_0_body",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_GN615_M2_KN_0_ball",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_GN615_M2_KN_180_body",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "knob_GN615_M2_KN_180_ball",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_body_with_independent_flange",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_insulating_guide",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_upper_capture_clip_geometry_candidate",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_dielectric_bond",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_PT100_element",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_lower_spring_cap",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_lower_M2p5x8_screw_1_thread_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_lower_M2p5x8_screw_2_thread_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_lower_M2p5x8_screw_3_thread_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_compression_spring_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_four_wire_slack_and_exit_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_M14_retainer_thread_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_hollow_insulating_plunger_with_capture_groove",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_contact_cap_thick_skirt_formed_lip",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_flex_diaphragm_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_static_face_seal_1p50CS_INSTALLED_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_M16_clamp_skirt_thread_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_M6_fixed_cable_gland_body_thread_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_M6_compression_nut_thread_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_cable_compression_bushing_INSTALLED_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_glass_load_spreader_flat_annulus",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "coil_support_flat_routed_plate",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_mount_M2p5x12_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_adapter_M2p5_nut_0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_mount_M2p5x12_120",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_adapter_M2p5_nut_120",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_mount_M2p5x12_240",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_adapter_M2p5_nut_240",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_support_flat_spacer_2mm",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "sensor_support_flat_adapter_3mm",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_tube_12OD_8ID_75_-157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4x90_-157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_lower_washer_-157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_top_washer_-157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4_nut_-157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_tube_12OD_8ID_75_-157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4x90_-157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_lower_washer_-157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_top_washer_-157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4_nut_-157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_tube_12OD_8ID_75_157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4x90_157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_lower_washer_157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_top_washer_157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4_nut_157.0_190.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_tube_12OD_8ID_75_157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4x90_157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_lower_washer_157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_top_washer_157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "leg_M4_nut_157.0_330.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "brand",
+      "volume_difference_mm3": 7.05635549991257e-12,
+      "max_bound_difference_mm": 4.999378688808065e-11,
+      "matches": true
+    },
+    {
+      "name": "placement_ring",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "PS1_datasheet_body_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "covered_PCB_tray_allocation",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "PCB_chamber_lid_allocation",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "coil_200OD_44ID_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "ferrite_allocation",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "Sunon_60x60x25_frame_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "fan_hub_envelope",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "compact_sink_candidate_120x100x40",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "separate_rear_cooling_duct",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_flush_lens_108x38x2",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lens_perimeter_seal_ALLOCATION",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lens_rear_support_ring",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lens_rear_bondline_ALLOCATION",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_and_closed_sidewalls",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_stud_base_bond_-99.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_concealed_M3_stud_-99.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_standoff_-99.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_washer_-99.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_M3_nut_-99.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_stud_base_bond_-99.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_concealed_M3_stud_-99.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_standoff_-99.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_washer_-99.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_M3_nut_-99.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_stud_base_bond_-99.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_concealed_M3_stud_-99.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_standoff_-99.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_washer_-99.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_M3_nut_-99.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_stud_base_bond_29.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_concealed_M3_stud_29.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_standoff_29.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_washer_29.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_M3_nut_29.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_stud_base_bond_29.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_concealed_M3_stud_29.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_standoff_29.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_washer_29.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_M3_nut_29.0_50.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_stud_base_bond_29.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_concealed_M3_stud_29.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_standoff_29.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_washer_29.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_carrier_M3_nut_29.0_83.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_three_button_continuous_membrane_INSTALLED",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_label_BACK",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_label_SELECT_START",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_label_STOP",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_NHD_3p12_25664UCW2_PCB_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_NHD_display_bezel_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_NHD_rear_components_KEEPOUT",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_OLED_M2x4_rear_-41.6_-19.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_OLED_M2x4_rear_-41.6_19.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_OLED_M2x4_rear_41.6_-19.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_OLED_M2x4_rear_41.6_19.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_OLED_header_and_bend_KEEPOUT",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_button_PCB_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_switch_BACK_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_switch_SELECT_START_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_switch_STOP_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_button_board_M2x6_-85.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_button_board_M2x6_-85.0_35.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_button_board_M2x6_15.0_17.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_button_board_M2x6_15.0_35.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_compression_stop_-103.0_13.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_M3x10_-103.0_13.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_sealing_washer_-103.0_13.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_compression_stop_-103.0_87.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_M3x10_-103.0_87.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_sealing_washer_-103.0_87.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_compression_stop_33.0_13.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_M3x10_33.0_13.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_sealing_washer_33.0_13.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_compression_stop_33.0_87.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_M3x10_33.0_87.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_lid_sealing_washer_33.0_87.0",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_rear_lid",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_rear_lid_gasket_INSTALLED",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_side_cable_feedthrough_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_cable_ENVELOPE",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    },
+    {
+      "name": "front_readout_artwork",
+      "volume_difference_mm3": 0.0,
+      "max_bound_difference_mm": 0.0,
+      "matches": true
+    }
+  ]
+}

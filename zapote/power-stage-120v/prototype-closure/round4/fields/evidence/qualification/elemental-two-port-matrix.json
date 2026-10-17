@@ -1,0 +1,69 @@
+{
+  "ports": [
+    "4",
+    "5"
+  ],
+  "port_identity": [
+    {
+      "physical": 4,
+      "name": "P1_exact",
+      "k_A_per_m": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "sif_sha256": "b4aa278ae0701da74651cc05994e9e1d12c4fa322960f8d45340020ecd559eb3"
+    },
+    {
+      "physical": 5,
+      "name": "P2_exact",
+      "k_A_per_m": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "sif_sha256": "4b41a9d8c99f19b2ac770915c11272cf3d85052237cc8f51853131eebce6acaf"
+    }
+  ],
+  "mesh_sha256": "2de52d4eda6168a19c9b4f0db32bdf27648195d28d8d12161d7cedca570f9d96",
+  "legacy_runs_without_receipt": [],
+  "L_nH": [
+    [
+      3.141593,
+      1.884956
+    ],
+    [
+      1.884956,
+      1.884956
+    ]
+  ],
+  "tets": 966,
+  "partitions": 4,
+  "max_within_tet_spread": 1.7255613505258349e-15,
+  "diagonal_vs_energy": [
+    {
+      "port": "4",
+      "L_from_B_nH": 3.141593,
+      "L_energy_nH": 3.1415919999999997,
+      "rel_diff": 2.080650729894434e-07
+    },
+    {
+      "port": "5",
+      "L_from_B_nH": 1.884956,
+      "L_energy_nH": 1.8849555999999998,
+      "rel_diff": 4.198516987622013e-09
+    }
+  ],
+  "minimum_eigenvalue_nH": 0.5263564696378388,
+  "converged_run_receipts": [
+    {
+      "path": "output/temper-prototype-closure/round4/fields/elemental-two-port-p4/result.json",
+      "sha256": "5f847de7e947db0e82a5c2046c4cad1cdb759fa572d9b00b6fe0c6307a26d0d2"
+    },
+    {
+      "path": "output/temper-prototype-closure/round4/fields/elemental-two-port-p5/result.json",
+      "sha256": "5a1b824f5f1096433c09f916f2c1890bce7fb715633d1eb355c3ace1ef817325"
+    }
+  ],
+  "classification": "simulated magnetostatic finite-closure matrix; no physical qualification"
+}

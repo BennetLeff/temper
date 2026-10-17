@@ -1,0 +1,11 @@
+=== IMPORT-LINTER TOOL ERROR ===
+GATE RESULT: ERROR — not PASSED, not a contract violation. lint-imports did not complete a normal run.
+Reason: lint-imports output does not contain the expected 'Analyzed N files...' / 'Contracts: X kept, Y broken.' completion markers -- the tool did not finish a normal run (exit code 2).
+lint-imports exit code: 2
+--- raw lint-imports output (stdout+stderr) ---
+
+WARN Ignoring non-directory workspace member: `/Users/bennet/.codex/worktrees/round17-d3-recovery/temper/packages/README.md`
+error: Failed to initialize cache at `/Users/bennet/.cache/uv`
+  Caused by: failed to open file `/Users/bennet/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+--- end raw output ---

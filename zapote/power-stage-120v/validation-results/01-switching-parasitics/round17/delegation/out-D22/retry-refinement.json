@@ -1,0 +1,15 @@
+[
+  {
+    "label": "envelope-v198-f60000-r100-e1.06-s0.08",
+    "config": {
+      "bus": 198,
+      "freq": 60000,
+      "resistance": 100,
+      "esl": 1.06,
+      "step": 0.08,
+      "cycles": 48,
+      "timeout": 12000,
+      "reference_label": "envelope-v198-f60000-r100-e1.06-s0.25"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+path,link,source,min_ns,max_ns
+tank_ct,"analog front end, SPICE model",frontend_sweep.json,103.0,296.94
+tank_ct,"Harness to interlock, assumed 1 m",detector_chain.json / datasheets.json,,5.0
+tank_ct,SN74LVC14A tpd max at 3.3 V (x2: input and ALL_GOOD inverter),detector_chain.json / datasheets.json,,16.0
+tank_ct,"CD74HC30 tpd max at 2 V, 125 C (bound for 3.3 V; SCHS...)",detector_chain.json / datasheets.json,,110.0
+tank_ct,"SN74LVC1G74 CLR->Q max, 3.3 V, -40..125 C",detector_chain.json / datasheets.json,,7.9
+tank_ct,"PERMIT -> AO3400A off (100 ohm x Ciss bound, to VTH min)",detector_chain.json / datasheets.json,,141.6
+tank_ct,DIS rise (1000 ohm pullup x Coss bound) to VDIS_H max,detector_chain.json / datasheets.json,,211.7
+tank_ct,UCC21550 tPD_DIS max (SLUSE89C 5.9),detector_chain.json / datasheets.json,,80.0
+tank_ct,MOSFET gate discharge,task 01 required; old 150 ns is assumed,,BLOCKED
+shunt_ocp,"analog front end, SPICE model",frontend_sweep.json,251.312,555.03
+shunt_ocp,"SN74LVC1G00 tpd max at 5 V, -40..125 C (SCES212)",detector_chain.json / datasheets.json,,5.0
+shunt_ocp,ISO7710 tPLH/tPHL max (SLLSER9E),detector_chain.json / datasheets.json,,21.0
+shunt_ocp,SN74LVC1G332 tpd max at 3.3 V,detector_chain.json / datasheets.json,,4.5
+shunt_ocp,"Harness to interlock, assumed 1 m",detector_chain.json / datasheets.json,,5.0
+shunt_ocp,SN74LVC14A tpd max at 3.3 V (x2: input and ALL_GOOD inverter),detector_chain.json / datasheets.json,,16.0
+shunt_ocp,"CD74HC30 tpd max at 2 V, 125 C (bound for 3.3 V; SCHS...)",detector_chain.json / datasheets.json,,110.0
+shunt_ocp,"SN74LVC1G74 CLR->Q max, 3.3 V, -40..125 C",detector_chain.json / datasheets.json,,7.9
+shunt_ocp,"PERMIT -> AO3400A off (100 ohm x Ciss bound, to VTH min)",detector_chain.json / datasheets.json,,141.6
+shunt_ocp,DIS rise (1000 ohm pullup x Coss bound) to VDIS_H max,detector_chain.json / datasheets.json,,211.7
+shunt_ocp,UCC21550 tPD_DIS max (SLUSE89C 5.9),detector_chain.json / datasheets.json,,80.0
+shunt_ocp,MOSFET gate discharge,task 01 required; old 150 ns is assumed,,BLOCKED

@@ -1,0 +1,24 @@
+{
+  "scope": "Saved nominal rigid geometry; sampled cover lift only. Disconnect, tools, hands, wires and seals require a mockup.",
+  "top_first_cover_lift": [
+    {
+      "cover_lift_mm": 1,
+      "hits": []
+    },
+    {
+      "cover_lift_mm": 5,
+      "hits": []
+    },
+    {
+      "cover_lift_mm": 26,
+      "hits": []
+    }
+  ],
+  "direct_rear_lid_pull_5mm_hits": [
+    {
+      "stationary": "PCB_chamber_lid_allocation",
+      "mm3": 1002.6827633361858
+    }
+  ],
+  "status": "PASS_COMPUTED"
+}

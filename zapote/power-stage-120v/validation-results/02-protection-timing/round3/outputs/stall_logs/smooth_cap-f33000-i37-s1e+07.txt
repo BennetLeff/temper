@@ -1,0 +1,40 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 02: tank-ct detector front end (native-13 values), analog timing.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+ipri                                         0
+ct_s2                                     1.65
+ctx                                       1.65
+ct_s1                                     1.65
+vcc                                        3.3
+sense                                     1.65
+ref_hi                                 2.47748
+ref_lo                                0.822523
+pos_i                                        0
+pos_d                                        0
+neg_i                                        0
+neg_d                                        0
+zc_i                                   3.29889
+zc_d                                   3.29889
+or_i                                         0
+or_d                                         0
+bor#branch                                   0
+bzc#branch                          -0.0659779
+bneg#branch                                  0
+bpos#branch                                  0
+bip#branch                                   0
+lmag#branch                        2.03282e-16
+vcc#branch                          -0.0021455
+
+ Reference value :  4.19896e-06 Reference value :  4.21246e-06 Reference value :  4.22146e-06 Reference value :  4.22596e-06 Reference value :  4.23046e-06 Reference value :  4.23496e-06 Reference value :  4.23946e-06 Reference value :  4.24396e-06 Reference value :  4.24396e-06 Reference value :  4.24846e-06 Reference value :  4.25296e-06 Reference value :  4.25296e-06 Reference value :  4.25746e-06 Reference value :  4.25746e-06 Reference value :  4.26196e-06 Reference value :  4.26196e-06 Reference value :  4.26196e-06 Reference value :  4.26646e-06 Reference value :  4.26646e-06 Reference value :  4.26646e-06 Reference value :  4.27096e-06 Reference value :  4.27096e-06 Reference value :  4.27096e-06 Reference value :  4.27546e-06 Reference value :  4.27546e-06 Reference value :  4.27546e-06 Reference value :  4.27996e-06 Reference value :  4.27996e-06 Reference value :  4.27996e-06 Reference value :  4.27996e-06 Reference value :  4.28446e-06 Reference value :  4.28446e-06 Reference value :  4.28446e-06 Reference value :  4.28446e-06 Reference value :  4.28896e-06 Reference value :  4.28896e-06 Reference value :  4.28896e-06 Reference value :  4.28896e-06 Reference value :  4.29346e-06 Reference value :  4.29346e-06 Reference value :  4.29346e-06 Reference value :  4.29346e-06 Reference value :  4.29346e-06 Reference value :  4.29796e-06 Reference value :  4.29796e-06 Reference value :  4.29796e-06 Reference value :  4.29796e-06 Reference value :  4.29796e-06 Reference value :  4.30246e-06 Reference value :  4.30246e-06 Reference value :  4.30246e-06 Reference value :  4.30246e-06 Reference value :  4.30246e-06 Reference value :  4.30246e-06 Reference value :  4.30696e-06 Reference value :  4.30696e-06 Reference value :  4.30696e-06 Reference value :  4.30696e-06 Reference value :  4.30696e-06

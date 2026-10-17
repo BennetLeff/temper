@@ -1,0 +1,19 @@
+# Values are declared scenario inputs, not a qualified Rev38 operating envelope. Resistance is split into coil copper proxy and reflected pan proxy.
+id,topology,f2,vd0_v,vb0_v,i0_a,vc0_v,cd_uf,cb_uf,local_uf,l_uh,c_nf,r_coil_ohm,r_pan_ohm,f_khz,dead_ns,run_ms,stop_kind,stop_at_ms,stop_delay_us,source_off_ms,source_command_a,source_target_v,source_gain_a_per_v,source_max_a,source_max_w,rd_ohm,rb_ohm,screen_ceiling_v,stop_threshold_a,tank_v_screen_v,tank_i_screen_a,dt_ns
+bias_zero,hot0,closed,390,390,0,0,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+bias_half,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+low_l_stiff_proxy,hot0,closed,390,390,0,195,22.47,2240,0.47,30,380,0.2,0.2,47,300,2,none,never,0,never,0,390,100,100,50000,500000,450000,430,0.1,1600,160,50
+low_l_limited_proxy,hot0,closed,390,390,0,195,22.47,2240,0.47,30,380,0.2,0.2,47,300,2,none,never,0,never,0,390,100,6,1800,500000,450000,430,0.1,1600,160,50
+low_l_source_off,hot0,closed,390,390,0,195,22.47,2240,0.47,30,380,0.2,0.2,47,300,2,none,never,0,0,0,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+no_pan_proxy,hot0,closed,390,390,0,195,22.47,2240,0.47,88,300,0.2,0,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+weak_pan_proxy,hot0,closed,390,390,0,195,22.47,2240,0.47,70,300,0.2,0.2,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+pwm_loss,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,pwm,0.5,20,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+permit_loss,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,permit,0.5,20,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+gate_rail_loss,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,rail,0.5,20,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,5
+f2_opening_with_source,hot0,opening,390,390,10,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,permit,0.5,20,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+f2_open_post_state,hot0,open,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,0.2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+source_loss,hot0,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,0.5,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+wrong_midpoint, pwr_rtn,closed,390,390,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+missing_loaded_l,hot0,closed,390,390,0,195,22.47,2240,0.47,unknown,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+over_declared_ceiling,hot0,closed,450,450,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50
+unequal_f2_reclose,hot0,reclosing,400,380,0,195,22.47,2240,0.47,59.84,300,0.2,0.8,47,300,2,none,never,0,never,6,390,0,6,1800,500000,450000,430,0.1,1600,160,50

@@ -1,0 +1,43 @@
+{
+  "base_commit": "c09244caa7588bb72d786a8b1b884390003a5caf",
+  "branch": "codex/ps-r17-d23-vendor-driver",
+  "dirty": true,
+  "scope": "out-D23 evidence only; board and source files read-only",
+  "inputs": {
+    "zapote/power-stage-120v/frozen/default.net": "ab1fdc00d5a4c6eec097220a328fb361f176cdf49b5ec6a1a1888d4c97972ff8",
+    "zapote/power-stage-120v/frozen/default.csv": "f9f8beb617460134d2fa67bd11dcbb2396972c1cf76e0b1b8299880fe5452257",
+    "zapote/power-stage-120v/native-19/section.kicad_pcb": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+    "zapote/power-stage-120v/DECISIONS.md": "af51f1932fbaa6868f7b797b95ef020cc8513e97bcdbca4833bcc968a9053d1b",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/results/grid-best-longdt/results.jsonl": "127d24443a30607564d89299c6a4a920851d72db89fdbd14d76e1c24046ebcde",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round4/c1-zvs/sources/ucc21550-revc.pdf": "5f80a86ae72418d7d538067f3f0438907b9692b74554a8d7aa6866c2f6ffc7ba",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-plan/sim-kit/smoke_test.py": "5da4f157c5d8e9395aaece52e5299bbe6e6220af69b66ad47d3f48622c573b1a"
+  },
+  "vendor": {
+    "ti": {
+      "url": "https://www.ti.com/lit/zip/slum881",
+      "version": "UCC21550-Q1 Rev. A, 2023-10-19",
+      "product_listing": "https://www.ti.com/product/es-mx/UCC21550-Q1",
+      "archive_sha256": "a78cde1efc300da2758bb2e2ff8ce9d6a115acea7b2d5336e1b32a2152a2ab5e",
+      "library_sha256": "4355b47c5ee17cd416075f86f3b80e76b013125f9539fe9ac04b077136ea2b22",
+      "applicability": "B-Q1 proxy; equivalence to selected catalog BDWKR unestablished"
+    },
+    "infineon": {
+      "library_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "use": "upstream kit smoke test only"
+    }
+  },
+  "scripts": {
+    "probe_model.py": "3eb6970a44f502952e97a052d55c042e2eeddcfffb6a24dda84bd8f58b0e32d4",
+    "record_evidence.py": "bd0efd0874d52a795bd90f7c0e53c98607c7c92e5fa9afcf6570bb25589a8c38",
+    "smoke.py": "9355f33e386e5482bfc02e5359a839f97c3ad2234795954358732fbe73f64160"
+  },
+  "probe_decks": {
+    "driver_fixture.cir": "088068083e71c50f414842c88986a5a15a9e381c7dc36b11242aa5457c83800e",
+    "runs/fixture-first/driver_fixture.cir": "088068083e71c50f414842c88986a5a15a9e381c7dc36b11242aa5457c83800e",
+    "runs/fixture-low-start/probe.cir": "3fd9def5dfb4a06e729c2f4b8dabbeb65655913850b57716643681dbc2edede3"
+  },
+  "result": "INDETERMINATE: model compatibility not demonstrated; no decision-case reruns"
+}

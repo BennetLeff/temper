@@ -105,7 +105,7 @@ at 2.9–3.3 V with R90 lifted (does the DIVIDER fault fire).
 ## SIL fault injection in both configurations (D-SIL)
 
 `python3 firmware/test/test_sil_coverage.py --gate` prints and gates
-coverage. CI runs it as `scripts/check_sil_coverage.py`.
+coverage. CI runs it as `firmware/tools/check_sil_coverage.py`.
 
 | Mode | Scenarios | (fault class, origin) pairs | C1 mechanism × origin |
 |---|---|---|---|

@@ -1,0 +1,63 @@
+(footprint "TMOV20RP_ReviewOnly"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Littelfuse TMOV20RP175E two-lead disc, D max 23mm, E thickness max 9mm, lead span 7.5mm nominal. Bulk leads not in-line (e1 1.5-4.0mm); bend lead 2 to line at assembly. Straight-lead seated height max 28mm. Review only.")
+	(tags "thermally protected varistor TMOV Littelfuse")
+	(property "Reference" "REF**"
+		(at 3.75 -13.5 0)
+		(layer "F.SilkS")
+		(uuid "440bcc4c-f55b-4134-a96a-d18d2a2d6752")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "TMOV20RP_ReviewOnly"
+		(at 3.75 13.5 0)
+		(layer "F.Fab")
+		(uuid "2463817b-ecc9-4e17-9229-bed7b2096d78")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "edad8aed-f91d-40db-a2ba-99520e5fad81")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "b4768ca1-dd1e-43dd-ae68-f2fdfe2ddd63")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_circle (center 3.75 0) (end 15.25 0) (stroke (width 0.1) (type solid)) (fill no) (layer "F.Fab"))
+	(fp_circle (center 3.75 0) (end 15.4 0) (stroke (width 0.12) (type solid)) (fill no) (layer "F.SilkS"))
+	(fp_circle (center 3.75 0) (end 15.75 0) (stroke (width 0.05) (type solid)) (fill no) (layer "F.CrtYd"))
+	(pad "1" thru_hole rect (at 0 0) (size 2.4 2.4) (drill 1.2) (layers "*.Cu" "*.Mask"))
+	(pad "2" thru_hole circle (at 7.5 0) (size 2.4 2.4) (drill 1.2) (layers "*.Cu" "*.Mask"))
+)

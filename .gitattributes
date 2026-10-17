@@ -1,0 +1,4 @@
+# Preserve the hashed historical CAD input and compiled CSV bytes exactly.
+output/temper-flush-front-r4/inputs/*.step -text -diff
+output/temper-flush-front-r4/change-register.csv -text whitespace=cr-at-eol
+zapote/power-stage-120v/frozen/*.csv -text whitespace=cr-at-eol

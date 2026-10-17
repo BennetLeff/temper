@@ -1,0 +1,72 @@
+name: Firmware Target Build
+
+# On-target build gate: compiles the real ESP32-S3 firmware with ESP-IDF
+# (`idf.py build`). firmware-tests.yml only builds the *host* tests under
+# firmware/test, so the target build (component CMakeLists, main/ sources,
+# sdkconfig.defaults, the IDF component graph) could rot unnoticed.
+#
+# This is a separate workflow rather than a job in firmware-tests.yml so that
+# its path filter is exactly firmware/** + this file. firmware-tests.yml also
+# triggers on the 120 V prototype's round5 firmware (host-test sources only),
+# which never affects the ESP-IDF build, and its path list is mirrored by
+# .github/required-checks.json (context_triggers) and enforced by
+# scripts/tests -- keeping this gate out of that file leaves the required-check
+# plumbing untouched.
+#
+# NOT a required check yet: the target build is red on main until the
+# fix/firmware-idf-build work lands. Once it does, add the context below to
+# .github/required-checks.json (required_contexts + context_triggers mirroring
+# the paths here).
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware-target-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'firmware/**'
+      - '.github/workflows/firmware-target-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  idf-build:
+    name: Firmware target build (ESP-IDF esp32s3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Official Espressif image, pinned by multi-arch index digest so the
+    # toolchain cannot change underneath us. HAL targets ESP-IDF v5.3.
+    # Bump tag and digest together:
+    #   docker buildx imagetools inspect espressif/idf:<tag>
+    container:
+      image: espressif/idf:v5.3.6@sha256:cee52f0c4fdaf088992a7a739f5993154e95cf1d3ab61c24f5b40e6d56a3a070
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # The container user differs from the checkout owner; without this, the
+      # git calls ESP-IDF's CMake makes (PROJECT_VER via `git describe`) fail
+      # with "dubious ownership".
+      - name: Mark workspace as a safe git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Build for esp32s3
+        shell: bash
+        working-directory: firmware
+        run: |
+          . "$IDF_PATH/export.sh"
+          # firmware/CMakeLists.txt regenerates config.h and transition_table.h
+          # at configure time and fails if that fails (a stale config.h would
+          # build thresholds that disagree with config.yaml); the generators
+          # need these deps in the IDF Python env.
+          python -m pip install -q -r tools/requirements.txt
+          idf.py set-target esp32s3
+          idf.py build

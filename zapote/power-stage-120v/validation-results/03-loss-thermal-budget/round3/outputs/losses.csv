@@ -1,0 +1,121 @@
+scenario,ref,mechanism,watts,basis,source,sink_fraction,board_fraction
+nominal_example,Q2,conduction_typical_125c,6.77524155,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+nominal_example,Q3,conduction_typical_125c,6.77524155,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+nominal_example,Q5,conduction_typical_125c,6.77524155,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+nominal_example,Q6,conduction_typical_125c,6.77524155,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+nominal_example,Q2,turnoff_covered_events_27c_model,0.25618743,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q2,turnoff_uncovered_events,,11 of 546 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q2,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+nominal_example,Q2,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+nominal_example,Q3,turnoff_covered_events_27c_model,0.32922782,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q3,turnoff_uncovered_events,,11 of 546 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q3,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+nominal_example,Q3,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+nominal_example,Q5,turnoff_covered_events_27c_model,0.25618743,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q5,turnoff_uncovered_events,,11 of 546 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q5,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+nominal_example,Q5,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+nominal_example,Q6,turnoff_covered_events_27c_model,0.32922782,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q6,turnoff_uncovered_events,,11 of 546 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+nominal_example,Q6,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+nominal_example,Q6,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+nominal_example,BR1,forward_sinusoidal_screen,28.35996396,"2×1.05 V×E|Iin|, 15 A rms sinusoid; 1.05 V at IF=12.5 A/Tj25 only, not a waveform bound",Diodes GBJ Rev11 p2; 00-MASTER-PLAN.md envelope,1.0,0.0
+nominal_example,BR1,reverse_recovery,,No reverse-recovery loss estimate for unfiltered input bridge,GBJ datasheet,1.0,0.0
+nominal_example,R5,resistive,0.46089935,"I_R5,rms² × 1mΩ; stress uses +1% tolerance and +50 C×250ppm/C",A5 shunt-grid.csv; Vishay WSK2512 Rev2023 p1-2,0.0,1.0
+nominal_example,C21,esr_typical_100khz_screen,0.45900407,I_rms² × 0.006Ω typical at 100 kHz; actual 30-60 kHz/hot ESR unknown,CDE 942C catalog p3; A5 cases.csv,0.0,1.0
+nominal_example,C22,esr_typical_100khz_screen,0.45900407,I_rms² × 0.006Ω typical at 100 kHz; actual 30-60 kHz/hot ESR unknown,CDE 942C catalog p3; A5 cases.csv,0.0,1.0
+nominal_example,C23,esr_typical_100khz_screen,0.07902963,I_rms² × 0.005Ω typical at 100 kHz; actual 30-60 kHz/hot ESR unknown,CDE 942C catalog p3; A5 cases.csv,0.0,1.0
+nominal_example,R22,bleed,0.00494435,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+nominal_example,R23,bleed,0.00494435,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+nominal_example,R24,bleed,0.00494435,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+nominal_example,R25,bleed,0.00494435,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+nominal_example,R39,ct_burden_ideal,0.06913512,"(tank rms/100)²×1.5Ω; ideal CT ratio, no saturation/core heat",A5 cases.csv; ROUND-3.md A5; frozen/default.csv,0.0,1.0
+nominal_example,T1,core_and_winding,,CT winding/core loss requires burden waveform and vendor winding data,CST3015 datasheet needed,,
+nominal_example,L1,dc_copper_typical,2.025,two windings × 4.5mΩ typical × 15A²; AC/thermal copper rise excluded,TDK B82726S22x3 May2026 p4; validation-results/07-conducted-emi/sources,0.0,1.0
+nominal_example,R10,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+nominal_example,R12,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+nominal_example,R18,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+nominal_example,R20,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+nominal_example,U1,gate_driver,,driver output plus quiescent heat; 15V charge and exact loads unknown,Infineon Rev2 p5 Table6; UCC21550 data needed,0.0,1.0
+nominal_example,U2,gate_driver,,driver output plus quiescent heat; 15V charge and exact loads unknown,Infineon Rev2 p5 Table6; UCC21550 data needed,0.0,1.0
+nominal_example,U3,ldo_quiescent_only,0.057,"15V×3.8mA typical input bias, excludes (15-5)V×Ihot5",onsemi MC78L00A p3/5; hot5 load missing,0.0,1.0
+nominal_example,U3,ldo_load,,10V×measured HOT5 output current; no full native-15 current budget,MC78L00A; HOT5 measurement required,0.0,1.0
+nominal_example,PS1,conversion_loss,,Pout×(1/0.84-1) is rated-load/230Vac/25C typical only; actual load unknown,Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2,0.0,1.0
+nominal_example,PS2,conversion_loss,,Pout×(1/0.75-1) is rated-load/230Vac/25C typical only; actual load unknown,Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2,0.0,1.0
+nominal_example,C1,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C2,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C5,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C6,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C12,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C13,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C19,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C20,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C38,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C39,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C40,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,C41,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,R26,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,R27,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,R28,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,R29,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+nominal_example,D3,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,Q2,conduction_typical_125c,29.3664037,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+high_current_unprotected_stress,Q3,conduction_typical_125c,29.3664037,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+high_current_unprotected_stress,Q5,conduction_typical_125c,29.3664037,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+high_current_unprotected_stress,Q6,conduction_typical_125c,29.3664037,"I_tank,rms²/2 × linear interpolated 25-to-150 C typical RDS(on), VGS=10 V",Infineon Rev2 p5 Table4; cases.csv,1.0,0.0
+high_current_unprotected_stress,Q2,turnoff_covered_events_27c_model,0.05893838,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q2,turnoff_uncovered_events,,387 of 532 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q2,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+high_current_unprotected_stress,Q2,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+high_current_unprotected_stress,Q3,turnoff_covered_events_27c_model,0.0757204,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q3,turnoff_uncovered_events,,387 of 532 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q3,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+high_current_unprotected_stress,Q3,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+high_current_unprotected_stress,Q5,turnoff_covered_events_27c_model,0.05893838,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q5,turnoff_uncovered_events,,387 of 532 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q5,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+high_current_unprotected_stress,Q5,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+high_current_unprotected_stress,Q6,turnoff_covered_events_27c_model,0.0757204,"1 outgoing HS+1 LS per event, shared by 2 of each device; A1 heat only for 1-37 A events; low bus uses 120 V proxy",A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q6,turnoff_uncovered_events,,387 of 532 events outside 1-37 A model domain,A1 turnoff_energy.csv; A5 switching-events.csv,1.0,0.0
+high_current_unprotected_stress,Q6,body_diode_deadtime,,A5 ideal bridge omits dead-time diode current and Qrr; cannot assign thermal watts,ROUND-3.md A5.2,1.0,0.0
+high_current_unprotected_stress,Q6,lost_zvs_turnon,,Requires A5 ZVS map and Eoss(V)/integrated Coss; Co(tr) is time-equivalent only,Infineon Rev2 p5 Table5; ROUND-3.md B4,1.0,0.0
+high_current_unprotected_stress,BR1,forward_sinusoidal_screen,28.35996396,"2×1.05 V×E|Iin|, 15 A rms sinusoid; 1.05 V at IF=12.5 A/Tj25 only, not a waveform bound",Diodes GBJ Rev11 p2; 00-MASTER-PLAN.md envelope,1.0,0.0
+high_current_unprotected_stress,BR1,reverse_recovery,,No reverse-recovery loss estimate for unfiltered input bridge,GBJ datasheet,1.0,0.0
+high_current_unprotected_stress,R5,resistive,2.04290563,"I_R5,rms² × 1mΩ; stress uses +1% tolerance and +50 C×250ppm/C",A5 shunt-grid.csv; Vishay WSK2512 Rev2023 p1-2,0.0,1.0
+high_current_unprotected_stress,C21,esr_typical_100khz_screen,1.98949349,I_rms² × 0.006Ω typical at 100 kHz; actual 30-60 kHz/hot ESR unknown,CDE 942C catalog p3; A5 cases.csv,0.0,1.0
+high_current_unprotected_stress,C22,esr_typical_100khz_screen,1.98949349,I_rms² × 0.006Ω typical at 100 kHz; actual 30-60 kHz/hot ESR unknown,CDE 942C catalog p3; A5 cases.csv,0.0,1.0
+high_current_unprotected_stress,C23,esr_typical_100khz_screen,0.34254364,I_rms² × 0.005Ω typical at 100 kHz; actual 30-60 kHz/hot ESR unknown,CDE 942C catalog p3; A5 cases.csv,0.0,1.0
+high_current_unprotected_stress,R22,bleed,0.02263045,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+high_current_unprotected_stress,R23,bleed,0.02263045,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+high_current_unprotected_stress,R24,bleed,0.02263045,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+high_current_unprotected_stress,R25,bleed,0.02263045,A5 average V²/R from ideal tank waveform; 470kΩ per resistor,A5 cases.csv; frozen/default.csv,0.0,1.0
+high_current_unprotected_stress,R39,ct_burden_ideal,0.29965718,"(tank rms/100)²×1.5Ω; ideal CT ratio, no saturation/core heat",A5 cases.csv; ROUND-3.md A5; frozen/default.csv,0.0,1.0
+high_current_unprotected_stress,T1,core_and_winding,,CT winding/core loss requires burden waveform and vendor winding data,CST3015 datasheet needed,,
+high_current_unprotected_stress,L1,dc_copper_typical,2.025,two windings × 4.5mΩ typical × 15A²; AC/thermal copper rise excluded,TDK B82726S22x3 May2026 p4; validation-results/07-conducted-emi/sources,0.0,1.0
+high_current_unprotected_stress,R10,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+high_current_unprotected_stress,R12,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+high_current_unprotected_stress,R18,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+high_current_unprotected_stress,R20,gate_resistor,,Qg234nC applies 0-10V; 15V gate swing and resistor/driver division unavailable,Infineon Rev2 p5 Table6; frozen board,0.0,1.0
+high_current_unprotected_stress,U1,gate_driver,,driver output plus quiescent heat; 15V charge and exact loads unknown,Infineon Rev2 p5 Table6; UCC21550 data needed,0.0,1.0
+high_current_unprotected_stress,U2,gate_driver,,driver output plus quiescent heat; 15V charge and exact loads unknown,Infineon Rev2 p5 Table6; UCC21550 data needed,0.0,1.0
+high_current_unprotected_stress,U3,ldo_quiescent_only,0.057,"15V×3.8mA typical input bias, excludes (15-5)V×Ihot5",onsemi MC78L00A p3/5; hot5 load missing,0.0,1.0
+high_current_unprotected_stress,U3,ldo_load,,10V×measured HOT5 output current; no full native-15 current budget,MC78L00A; HOT5 measurement required,0.0,1.0
+high_current_unprotected_stress,PS1,conversion_loss,,Pout×(1/0.84-1) is rated-load/230Vac/25C typical only; actual load unknown,Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2,0.0,1.0
+high_current_unprotected_stress,PS2,conversion_loss,,Pout×(1/0.75-1) is rated-load/230Vac/25C typical only; actual load unknown,Mean Well IRM-20 2025-11-21 p2 or IRM-05 2025-08-08 p2,0.0,1.0
+high_current_unprotected_stress,C1,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C2,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C5,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C6,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C12,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C13,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C19,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C20,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C38,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C39,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C40,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,C41,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,R26,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,R27,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,R28,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,R29,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0
+high_current_unprotected_stress,D3,secondary_power_part_unquantified,,actual RMS/ripple/edge or hot ESR/leakage unavailable; no zero-heat claim,frozen/default.csv; board-parts.json; electrical waveforms needed,0.0,1.0

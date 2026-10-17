@@ -1,0 +1,109 @@
+[20:15:01] INFO     Using project                                   common.py:72
+                    /Users/bennet/Desktop/temper/.worktrees/codex/b             
+                    uck-harness-experiment-plan/zapote/interlock/so             
+                    urce-build-02                                               
+           INFO     Building default                                 build.py:38
+[20:15:03] INFO     No variables in assertions to solve        assertions.py:252
+           INFO     Writing outputs to                               build.py:78
+                    /Users/bennet/Desktop/temper/.worktrees/codex/bu            
+                    ck-harness-experiment-plan/zapote/interlock/sour            
+                    ce-build-02/build                                           
+           INFO     Building 'copy-3dmodels' for 'default' config   build.py:100
+           INFO     Building 'designator-map' for 'default' config  build.py:100
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name               ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│           C1 │ fault_inv_bypass   │
+│           C2 │ control_inv_bypass │
+│           C3 │ aggregate_bypass   │
+│           C4 │ latch_bypass       │
+│           C5 │ watchdog_bypass    │
+│           C6 │ common_bypass      │
+│           J1 │ faults             │
+│           J2 │ host               │
+│           R1 │ ocp_pullup         │
+│           R2 │ ovp_pullup         │
+│           R3 │ hs_pullup          │
+│           R4 │ coil_pullup        │
+│           R5 │ rtd_pullup         │
+│           R6 │ runaway_pullup     │
+│           R7 │ aux_pullup         │
+│           R8 │ reset_pullup       │
+│           R9 │ wdi_pulldown       │
+│          R10 │ live_pulldown      │
+│          R11 │ permit_pulldown    │
+│           U1 │ fault_inv          │
+│           U2 │ control_inv        │
+│           U3 │ aggregate          │
+│           U4 │ latch              │
+│           U5 │ watchdog           │
+│           U6 │ common             │
+└──────────────┴────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓             ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aggregate          │ U3         │
+│ aggregate_bypass   │ C3         │
+│ aux_pullup         │ R7         │
+│ coil_pullup        │ R4         │
+│ common             │ U6         │
+│ common_bypass      │ C6         │
+│ control_inv        │ U2         │
+│ control_inv_bypass │ C2         │
+│ fault_inv          │ U1         │
+│ fault_inv_bypass   │ C1         │
+│ faults             │ J1         │
+│ host               │ J2         │
+│ hs_pullup          │ R3         │
+│ latch              │ U4         │
+│ latch_bypass       │ C4         │
+│ live_pulldown      │ R10        │
+│ ocp_pullup         │ R1         │
+│ ovp_pullup         │ R2         │
+│ permit_pulldown    │ R11        │
+│ reset_pullup       │ R8         │
+│ rtd_pullup         │ R5         │
+│ runaway_pullup     │ R6         │
+│ watchdog           │ U5         │
+│ watchdog_bypass    │ C5         │
+│ wdi_pulldown       │ R9         │
+└────────────────────┴────────────┘
+           INFO     Building 'variable-report' for 'default' config build.py:100
+       Variable Values       
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━┓
+┃ Address ┃ Value ┃ Comment ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━┩
+└─────────┴───────┴─────────┘
+           INFO     Building 'layout-module-map' for 'default'      build.py:100
+                    config                                                      
+           INFO     Building 'clone-footprints' for 'default'       build.py:100
+                    config                                                      
+           INFO     Building 'assertions-report' for 'default'      build.py:100
+                    config                                                      
+           Assertions           
+┏━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Status ┃ Assertion ┃ Numeric ┃
+┡━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━┩
+└────────┴───────────┴─────────┘
+           INFO     Building 'netlist' for 'default' config         build.py:100
+           INFO     Building 'bom' for 'default' config             build.py:100
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Comment         ┃ Designator      ┃ Footprint      ┃ LCSC            ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ B8B-XH-A(LF)(S… │ J1,J2           │ Connector_JST… │ B8B-XH-A(LF)(S… │ 0.00  │
+│ SN74LVC14ADR    │ U1,U2           │ Package_SO:SO… │ SN74LVC14ADR    │ 0.00  │
+│ CD74HC30PWR     │ U3              │ Package_SO:TS… │ CD74HC30PWR     │ 0.00  │
+│ SN74LVC1G74DCUR │ U4              │ Package_SO:VS… │ SN74LVC1G74DCUR │ 0.00  │
+│ TPS3823-33DBVR  │ U5              │ Package_TO_SO… │ TPS3823-33DBVR  │ 0.00  │
+│ SN74LVC1G08DBVR │ U6              │ Package_TO_SO… │ SN74LVC1G08DBVR │ 0.00  │
+│ RC0603FR-0710KL │ R1,R2,R3,R4,R5… │ Resistor_SMD:… │ RC0603FR-0710KL │ 0.00  │
+│ RC0603FR-071KL  │ R9              │ Resistor_SMD:… │ RC0603FR-071KL  │ 0.00  │
+│ C0603C104K5RAC… │ C1,C2,C3,C4,C5… │ Capacitor_SMD… │ C0603C104K5RAC… │ 0.00  │
+└─────────────────┴─────────────────┴────────────────┴─────────────────┴───────┘
+           INFO     Building 'copy-footprints' for 'default' config build.py:100
+           INFO     Successfully built 'copy-3dmodels,              build.py:105
+                    designator-map, variable-report,                            
+                    layout-module-map, clone-footprints,                        
+                    assertions-report, netlist, bom,                            
+                    copy-footprints' for 'default' config                       
+           INFO     Build complete!                                  build.py:59

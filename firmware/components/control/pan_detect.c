@@ -23,6 +23,8 @@
 #include <stddef.h>
 
 #ifdef ESP_PLATFORM
+#include "../power/include/power_service.h"
+#include "esp_rom_sys.h"
 #include "driver/mcpwm_prelude.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -71,6 +73,36 @@ static uint32_t capture_listen(uint32_t window_ms) {
     portEXIT_CRITICAL(&edge_count_spinlock);
     return n;
 }
+
+/* Target pulse ops: every gate write goes through the power owner
+ * (power_service.c). fullbridge_stop() leaves every gate command low, so the
+ * idle check stops the bridge first. While the first prototype disallows
+ * burst mode, power_service_pan_pulse() refuses and detection fails closed
+ * (PAN_DETECT_ERROR, reported as no pan). */
+static bool power_gates_idle(void) {
+    pwm_disable_all();
+    return true;
+}
+
+static bool power_set_frequency_hz(float f_hz) {
+    return f_hz > 0.0f && power_service_frequency((uint32_t)f_hz);
+}
+
+static bool power_pulse(uint32_t width_us) {
+    if (!power_service_pan_pulse(width_us)) {
+        pwm_disable_all();
+        return false;
+    }
+    esp_rom_delay_us(width_us);
+    pwm_disable_all();
+    return true;
+}
+
+static const pan_detect_pulse_ops_t s_power_pulse_ops = {
+    .gates_idle = power_gates_idle,
+    .set_frequency_hz = power_set_frequency_hz,
+    .pulse = power_pulse,
+};
 #endif
 
 esp_err_t pan_detect_init(mcpwm_cap_channel_handle_t cap_chan,
@@ -102,6 +134,9 @@ esp_err_t pan_detect_init(mcpwm_cap_channel_handle_t cap_chan,
         return ret;
     }
     s_listen = capture_listen;
+    if (s_pulse_ops == NULL) {
+        s_pulse_ops = &s_power_pulse_ops;
+    }
     ESP_LOGI(TAG, "Pan detection listening on CT_ZC (pulse=%luus, threshold=%d/%d)",
              (unsigned long)s_config.pulse_width_us, s_config.threshold_pan,
              s_config.threshold_open);

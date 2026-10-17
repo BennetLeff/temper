@@ -1,0 +1,69 @@
+{
+ "part": "CST3015-100ED",
+ "L_sec_H": 0.0032,
+ "ratio": 100,
+ "volt_time_limit_Vus": 638,
+ "selv_reference": "SELV/ELV touch limits are tens of volts (e.g. 42.4 V peak / 60 V DC); state the applicable standard in the report",
+ "cases": [
+  {
+   "case": "full power peak",
+   "primary_peak_a": 37.0,
+   "f_hz": 35000.0,
+   "secondary_peak_a": 0.37,
+   "open_v_peak_est": 260.4,
+   "open_half_cycle_vus_demand": 2368.0,
+   "open_saturates": true,
+   "open_v_at_saturation_est": 231.0,
+   "terminated_1ohm_v_peak": 0.37,
+   "terminated_half_cycle_vus": 8.41
+  },
+  {
+   "case": "full power peak, 33 kHz",
+   "primary_peak_a": 37.0,
+   "f_hz": 33000.0,
+   "secondary_peak_a": 0.37,
+   "open_v_peak_est": 245.5,
+   "open_half_cycle_vus_demand": 2368.0,
+   "open_saturates": true,
+   "open_v_at_saturation_est": 217.8,
+   "terminated_1ohm_v_peak": 0.37,
+   "terminated_half_cycle_vus": 8.92
+  },
+  {
+   "case": "OCP nominal trip",
+   "primary_peak_a": 61.0,
+   "f_hz": 35000.0,
+   "secondary_peak_a": 0.61,
+   "open_v_peak_est": 429.3,
+   "open_half_cycle_vus_demand": 3904.0,
+   "open_saturates": true,
+   "open_v_at_saturation_est": 317.4,
+   "terminated_1ohm_v_peak": 0.61,
+   "terminated_half_cycle_vus": 13.87
+  },
+  {
+   "case": "OCP trip + 10 A spread",
+   "primary_peak_a": 71.0,
+   "f_hz": 35000.0,
+   "secondary_peak_a": 0.71,
+   "open_v_peak_est": 499.6,
+   "open_half_cycle_vus_demand": 4544.0,
+   "open_saturates": true,
+   "open_v_at_saturation_est": 347.2,
+   "terminated_1ohm_v_peak": 0.71,
+   "terminated_half_cycle_vus": 16.14
+  },
+  {
+   "case": "light load",
+   "primary_peak_a": 10.0,
+   "f_hz": 60000.0,
+   "secondary_peak_a": 0.1,
+   "open_v_peak_est": 120.6,
+   "open_half_cycle_vus_demand": 640.0,
+   "open_saturates": true,
+   "open_v_at_saturation_est": 120.6,
+   "terminated_1ohm_v_peak": 0.1,
+   "terminated_half_cycle_vus": 1.33
+  }
+ ]
+}

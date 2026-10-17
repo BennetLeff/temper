@@ -1,0 +1,10 @@
+#VRML V2.0 utf8
+# Provisional Diodes GBJ2510-F visualization. Simplified GBJ envelope, no heat-sink screw recess.
+# Coordinates in mm; set KiCad model scale to 0.3937008 on all axes.
+WorldInfo { title "Diodes GBJ2510-F (provisional)" }
+Transform { translation 12.5 0 11.55 children [ Shape { appearance Appearance { material Material { diffuseColor 0.09 0.1 0.12 } } geometry Box { size 30.3 4.8 17.5 } } ] }
+Transform { translation 12.5 0 20 children [ Shape { appearance Appearance { material Material { diffuseColor 0.17 0.19 0.2 } } geometry Box { size 29 4.3 0.6 } } ] }
+Transform { translation 0 0 1.4 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 1 0.75 2.8 } } ] }
+Transform { translation 10 0 1.4 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 1 0.75 2.8 } } ] }
+Transform { translation 17.5 0 1.4 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 1 0.75 2.8 } } ] }
+Transform { translation 25 0 1.4 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 1 0.75 2.8 } } ] }

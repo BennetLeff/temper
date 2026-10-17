@@ -1,0 +1,10 @@
+#VRML V2.0 utf8
+# Provisional Microchip MRT130KP295CV visualization. Axial body/formed leads are schematic approximations.
+# Coordinates in mm; set KiCad model scale to 0.3937008 on all axes.
+WorldInfo { title "Microchip MRT130KP295CV (provisional)" }
+Transform { translation 10 0 4.1 rotation 0 0 1 -1.5707963 children [ Shape { appearance Appearance { material Material { diffuseColor 0.09 0.1 0.12 } } geometry Cylinder { radius 3.937 height 12.954 } } ] }
+Transform { translation 1.75 0 4.1 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 3.55 0.8 0.8 } } ] }
+Transform { translation 18.25 0 4.1 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 3.55 0.8 0.8 } } ] }
+Transform { translation 0 0 2.05 rotation 1 0 0 1.5707963 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Cylinder { radius 0.4 height 4.1 } } ] }
+Transform { translation 20 0 2.05 rotation 1 0 0 1.5707963 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Cylinder { radius 0.4 height 4.1 } } ] }
+Transform { translation 4.35 0 4.1 children [ Shape { appearance Appearance { material Material { diffuseColor 0.68 0.69 0.7 } } geometry Box { size 0.8 7.9 7.9 } } ] }

@@ -1,0 +1,16 @@
+# Protected standalone RTD unit build receipt
+
+Date: 2026-09-10
+
+Copied current canonical `elec/src` and `elec/ato.yaml`, applied
+`rtd_window_protection.patch`, and ran:
+
+```text
+cd /tmp/rtd-protected-unit-final/elec
+uv tool run --from 'atopile==0.2.69' ato --non-interactive build src/rtd_unit.ato:RTDUnit
+```
+
+Result: exit 0, `Build complete!`; the 3.3 V assertion passed. The generated
+designator map contains `rtd_pan.r_window_sense_p` and `unit_io` as J2 with
+`FTSH-105-01-F-D`. This is a source/netlist checkpoint only; placement,
+routing, and physical validation remain NOT RUN.

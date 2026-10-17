@@ -1,0 +1,203 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * round 17 d2: complementary half-bridge leg with the fem board inductance
+
+ASCII raw file "waves.raw"
+Doing analysis at TEMP = 150.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 12  
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+src                                        280
+bulk                                       280
+bus                                        280
+c38a                                       280
+c38b                                       280
+c38c                                       280
+c39a                                       280
+c39b                                       280
+c39c                                       280
+xqh.x1.d1                                  280
+xqh.x1.ox                                  280
+xqh.x1.e_edg1_int1                           0
+xqh.g                                  294.987
+xqh.x1.ox2                                 280
+xqh.x1.e_edg2_int1                 1.77636e-15
+xqh.s                                      280
+xqh.x1.edep1                               280
+xqh.x1.e_eds1_int1                 -7.3564e-05
+xqh.x1.edep2                               280
+xqh.x1.e_eds2_int1                 1.65471e-26
+xqh.x1.d                                   280
+xqh.x1.g_chan_int1                 0.000128053
+xqh.tj                                     150
+xqh.dd                                     280
+xqh.x1.d2                                  280
+xqh.x1.g_g_rd_int1                 0.000128053
+xqh.x1.dio                                 280
+xqh.x1.dio2                                280
+xqh.x1.g_rdio_int1                -1.19452e-08
+xqh.x1.g_g_ptot_channel_int1                 0
+xqh.x1.g_g_ptot_epi_int1                     0
+xqh.ldrd                                   280
+sw                                         280
+xqh.lsrs                                   280
+g_hs                                   294.987
+xqh.lgrg                               294.987
+xqh.w                                        0
+xqh.e1_int1                                150
+d_ls                                       280
+xql.x1.d1                                  280
+xql.x1.ox                              1.79856
+xql.x1.e_edg1_int1                     278.201
+xql.g                              1.28064e-07
+xql.x1.ox2                             32.9519
+xql.x1.e_edg2_int1                     247.048
+xql.s                              1.71862e-07
+xql.x1.edep1                           6464.39
+xql.x1.e_eds1_int1                    -6184.39
+xql.x1.edep2                           28.2733
+xql.x1.e_eds2_int1                     251.727
+xql.x1.d                                   280
+xql.x1.g_chan_int1                 8.31968e-10
+xql.tj                                     150
+xql.dd                                     280
+xql.x1.d2                                  280
+xql.x1.g_g_rd_int1                  5.6083e-07
+xql.x1.dio                                 280
+xql.x1.dio2                                280
+xql.x1.g_rdio_int1                -0.000126944
+xql.x1.g_g_ptot_channel_int1                 0
+xql.x1.g_g_ptot_epi_int1                     0
+xql.ldrd                                   280
+s_ls                               1.28064e-07
+xql.lsrs                           1.28064e-07
+g_ls                               1.28064e-07
+xql.lgrg                           1.28064e-07
+xql.w                                        0
+xql.e1_int1                                150
+shunt                              1.28064e-07
+gl_cmd                             1.28064e-07
+gdl                                1.28064e-07
+gdl3                               1.28064e-07
+gh_cmd                                     295
+gdh                                    294.993
+gdh3                                   294.987
+pa_00                                      280
+pa_01                              4.02223e-06
+pa_02                              -4.3798e-08
+pa_03                              -4.3798e-08
+pa_04                                  14.9867
+pa_05                                  14.9867
+pa_06                              -4.3798e-08
+pa_07                                  14.9867
+pa_08                              4.02223e-06
+pa_09                                      280
+pa_10                              -4.3798e-08
+pa_11                                  14.9867
+bpa_11#branch                                0
+bpa_10#branch                                0
+bpa_09#branch                                0
+bpa_08#branch                                0
+bpa_07#branch                                0
+bpa_06#branch                                0
+bpa_05#branch                                0
+bpa_04#branch                                0
+bpa_03#branch                                0
+bpa_02#branch                                0
+bpa_01#branch                                0
+bpa_00#branch                                0
+b.xql.be1#branch                             0
+b.xql.x1.bg_g_ptot_epi#branch                0
+v.xql.x1.v_iepi#branch             1.12083e-06
+v.xql.x1.v_sense2#branch           0.000126944
+b.xql.x1.bg_g_ptot_channel#branch               0
+v.xql.x1.v_ichannel#branch         5.60831e-07
+b.xql.x1.bg_rdio#branch                      0
+b.xql.x1.bg_g_rd#branch                      0
+b.xql.x1.bg_chan#branch                      0
+b.xql.x1.be_eds2#branch                      0
+b.xql.x1.be_eds1#branch                      0
+b.xql.x1.be_edg2#branch                      0
+b.xql.x1.be_edg1#branch                      0
+b.xqh.be1#branch                             0
+b.xqh.x1.bg_g_ptot_epi#branch                0
+v.xqh.x1.v_iepi#branch             0.000128053
+v.xqh.x1.v_sense2#branch           1.19452e-08
+b.xqh.x1.bg_g_ptot_channel#branch               0
+v.xqh.x1.v_ichannel#branch         0.000128053
+b.xqh.x1.bg_rdio#branch                      0
+b.xqh.x1.bg_g_rd#branch                      0
+b.xqh.x1.bg_chan#branch                      0
+b.xqh.x1.be_eds2#branch                      0
+b.xqh.x1.be_eds1#branch                      0
+b.xqh.x1.be_edg2#branch                      0
+b.xqh.x1.be_edg1#branch                      0
+l_p3#branch                        -0.00149868
+l_p4#branch                        4.37785e-17
+lshunt#branch                      0.000128064
+l.xql.l_lg#branch                  -4.3798e-17
+l.xql.l_ls#branch                 -0.000128064
+l.xql.l_ld#branch                  0.000128064
+l.xqh.l_lg#branch                  1.49867e-08
+l.xqh.l_ls#branch                 -0.000128079
+l.xqh.l_ld#branch                  0.000128065
+lesl39#branch                       2.7529e-12
+l_p2#branch                         2.7529e-12
+lesl38#branch                     -8.85076e-13
+l_p1#branch                       -8.85076e-13
+lbulk#branch                       0.000128065
+e.xql.e1#branch                              0
+e.xql.x1.e_eds2#branch                       0
+e.xql.x1.e_eds1#branch                       0
+e.xql.x1.e_edg2#branch                       0
+e.xql.x1.e_edg1#branch                       0
+e.xqh.e1#branch                              0
+e.xqh.x1.e_eds2#branch                       0
+e.xqh.x1.e_eds1#branch                       0
+e.xqh.x1.e_edg2#branch                       0
+e.xqh.x1.e_edg1#branch                       0
+vgh_cmd#branch                               0
+vgl_cmd#branch                               0
+vids#branch                        0.000128064
+vbus#branch                       -0.000128065
+
+ Reference value :  2.09126e-07
+ Reference value :  4.28926e-07
+ Reference value :  6.43326e-07
+ Reference value :  8.61126e-07
+ Reference value :  1.08107e-06
+ Reference value :  1.30147e-06
+ Reference value :  1.51727e-06
+ Reference value :  1.73667e-06
+ Reference value :  1.95547e-06
+ Reference value :  2.12890e-06
+ Reference value :  2.31610e-06
+ Reference value :  2.50550e-06
+ Reference value :  2.64758e-06
+ Reference value :  2.78365e-06
+ Reference value :  2.93695e-06
+ Reference value :  3.10615e-06
+No. of Data Rows : 16389
+
+Total analysis time (seconds) = 4.19921
+
+Total elapsed time (seconds) = 4.221 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  718.297 MB.
+Maximum ngspice program size =   12.656 MB.
+Current ngspice program size =   12.656 MB.
+
+
+No .measure possible in batch mode (-b) with -r rawfile set!
+Remove rawfile and use .print or .plot or
+select interactive mode (optionally with .control section) instead.
+

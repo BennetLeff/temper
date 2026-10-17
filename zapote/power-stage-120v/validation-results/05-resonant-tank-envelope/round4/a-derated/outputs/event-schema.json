@@ -1,0 +1,18 @@
+{
+  "evidence_class": "simulation/model-based",
+  "source": "ngspice ideal full-bridge RLC deck, 50 ns maximum timestep, one rectified 60 Hz half-cycle",
+  "key": ["ceiling_a", "run_id", "event_index"],
+  "time_s": "Linear interpolation to v(drv)=0 at each commanded diagonal transition.",
+  "direction": "Rising or falling v(drv) crossing.",
+  "tank_current_a": "Signed i(vim) at ideal-drive crossing.",
+  "tank_cap_voltage_v": "Interpolated v(c) at crossing.",
+  "bus_voltage_v": "Instantaneous rectified 60 Hz line bus from VRMS and event time.",
+  "inductive_sign": "Round-3 sign screen: negative tank current on rising drive or positive on falling drive.",
+  "tank_current_before_500ns_a": "Ideal-drive tank current 500 ns before crossing, interpolated from the saved waveform.",
+  "tank_current_after_500ns_a": "Ideal-drive tank current 500 ns after crossing, interpolated from the saved waveform; the model switches drive immediately and does not model floating dead time.",
+  "tank_current_slope_a_per_s": "Local slope across ngspice samples bracketing the ideal-drive crossing; diagnostic only.",
+  "minimum_zvs_current_a": "Blank until a qualified A1 threshold is available.",
+  "zvs_verdict": "PENDING_A1; no physical dead-time reversal or diode-loss conclusion is encoded.",
+  "waveform_archive": "outputs/runs/<ceiling>a/<run_id>/waves.raw.gz for every accepted case; ASCII ngspice raw waveform, gzip-compressed. The exact run deck, params, logs and result.json are adjacent.",
+  "excluded_cases": "needs_burst_or_phase_shift rows have no accepted frequency-only switching events or R5 waveform. Their 60 kHz data is diagnostic."
+}

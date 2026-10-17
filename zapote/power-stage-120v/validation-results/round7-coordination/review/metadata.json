@@ -1,0 +1,90 @@
+{
+  "branch": "codex/ps-r5-integration",
+  "completed_at": "2026-09-28T21:32:30.039568+00:00",
+  "cost": {
+    "host": "codex",
+    "scope": {
+      "changed_lines": "untracked 32 files + tracked 8 lines",
+      "depth": "full",
+      "exec_nontest_lines": "untracked >200",
+      "size_band": "large",
+      "unclassified_lines": "untracked scope"
+    },
+    "stages": [
+      {
+        "elapsed_seconds": 6.476,
+        "ended_at": "2026-09-28T21:20:44.934728+00:00",
+        "facts": {
+          "changed_lines": "untracked 32 files + tracked 8 lines",
+          "depth": "full",
+          "exec_nontest_lines": "untracked >200",
+          "size_band": "large",
+          "unclassified_lines": "untracked scope"
+        },
+        "stage": "scope",
+        "started_at": "2026-09-28T21:20:38.459075+00:00"
+      },
+      {
+        "elapsed_seconds": 464.539,
+        "ended_at": "2026-09-28T21:28:29.474066+00:00",
+        "facts": {
+          "execution": "sequential-inline",
+          "external_peer": "prohibited",
+          "untracked_scoped_files": 31
+        },
+        "stage": "select",
+        "started_at": "2026-09-28T21:20:44.934728+00:00"
+      },
+      {
+        "candidates": 2,
+        "elapsed_seconds": 121.266,
+        "ended_at": "2026-09-28T21:30:30.739949+00:00",
+        "facts": {
+          "final_scoped_files": 36,
+          "untracked_scoped_files": 35
+        },
+        "note": "Sequential inline lenses per AGENTS; two findings fixed and rechecked during parent work; no external peer or subagents by user restriction.",
+        "reviewers": 1,
+        "stage": "review",
+        "started_at": "2026-09-28T21:28:29.474066+00:00"
+      },
+      {
+        "candidates": 0,
+        "elapsed_seconds": 94.788,
+        "ended_at": "2026-09-28T21:32:05.527815+00:00",
+        "note": "Mechanical merge: zero malformed returns, zero remaining findings.",
+        "stage": "merge",
+        "started_at": "2026-09-28T21:30:30.739949+00:00"
+      },
+      {
+        "candidates": 0,
+        "elapsed_seconds": 0.031,
+        "ended_at": "2026-09-28T21:32:05.558865+00:00",
+        "note": "Empty validator batch; prior parent fixes rechecked inline.",
+        "stage": "validate",
+        "started_at": "2026-09-28T21:32:05.527815+00:00"
+      },
+      {
+        "candidates": 0,
+        "elapsed_seconds": 24.511,
+        "ended_at": "2026-09-28T21:32:30.069407+00:00",
+        "note": "Completed mode:agent receipt; no actionable findings.",
+        "stage": "report",
+        "started_at": "2026-09-28T21:32:05.558865+00:00"
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "artifact_bytes": 169378,
+      "candidates": 2,
+      "elapsed_seconds": 711.611,
+      "reviewers": 1
+    },
+    "truncated_events": 0
+  },
+  "head_sha": "dd3695326d416c6d818f4296ef2db6b0dffd2286",
+  "mode": "agent",
+  "review_path": "/tmp/compound-engineering-501/ce-code-review/20260928-152038-748b39ca/review.json",
+  "run_id": "20260928-152038-748b39ca",
+  "verdict": "Ready to merge"
+}

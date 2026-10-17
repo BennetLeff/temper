@@ -1,0 +1,48 @@
+{
+  "source_commit": "7d1c97b92c0ed42be1c28a32d4ccaadd512d2238",
+  "source_base_commit": "fda5ab9ece24ef1ee6f2317604c5ca73367d5201",
+  "copied_verbatim": [
+    {
+      "path": "envelope-summary.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/envelope-summary.json",
+      "sha256": "8b47ff7bff6de60cb50938d2b738e38dc80298531ebc79f7fda4cfd3f362c05d"
+    },
+    {
+      "path": "filter-scenarios.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/filter-scenarios.json",
+      "sha256": "320f710d1b22941b882a0c58fbc6f0fb742d334026ceb27a21d33e5af02ec746"
+    },
+    {
+      "path": "budget.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/budget.json",
+      "sha256": "5f3ebfac557eb3bd83f425ef7b894fbaf22e0b7933cf8518143501f0c0484fec"
+    },
+    {
+      "path": "placement.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/placement.json",
+      "sha256": "9d396244491e60e0797d9efcba4525708fc0f6e97ea8f24d8f5de3edcf49ba3b"
+    },
+    {
+      "path": "module-plan.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/module-plan.json",
+      "sha256": "e21d3e8fa76efd135974e4e74badb4375d2975de23cbdacf4e9ee740b23d1226"
+    },
+    {
+      "path": "damping-results.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/damping-results.json",
+      "sha256": "1f3041436ca3c52ee7685faa086aeffdab600803d498b6c9d3f44b0ec9c30ac9"
+    },
+    {
+      "path": "reproduction.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/reproduction.json",
+      "sha256": "6a8c6643d02ecf395fcd6ebccd30d71e15adfdca0936618cb5e6d0c0f8ba1dcc"
+    },
+    {
+      "path": "replay-results.json",
+      "source_path": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D22/replay-results.json",
+      "sha256": "8e15c06d0ecda0fd4c37636e098410ccd117afc2d7ce4d6b596fb3cc2566d87e"
+    }
+  ],
+  "scope": "Compact verbatim JSON intake; full raw captures, methods and analysis remain in the pinned published source commit. Read readiness EMI record for navigable source links.",
+  "source_provenance_sha256": "144fe215d3c27cc29010a4f95d91968eb22be6ec2260ecf5d522058a603658e9"
+}

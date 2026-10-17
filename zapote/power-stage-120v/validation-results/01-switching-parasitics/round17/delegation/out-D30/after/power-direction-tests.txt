@@ -1,0 +1,24 @@
+
+running 20 tests
+test tests::actual_j9_return_regression_is_rejected ... ok
+test tests::actual_j9_supply_regression_is_rejected ... ok
+test tests::actual_regulator_removal_leaves_six_remote_supplies_undriven ... ok
+test tests::all_nine_production_boards_pass ... ok
+test tests::connectors_cannot_drive_each_other_without_a_component ... ok
+test tests::duplicate_pin_is_rejected ... ok
+test tests::empty_table_is_rejected ... ok
+test tests::intentionally_unconnected_component_outputs_are_allowed ... ok
+test tests::joined_real_source_powers_remote_input ... ok
+test tests::missing_controller_boundary_does_not_borrow_aux_supply ... ok
+test tests::missing_type_column_is_rejected ... ok
+test tests::open_collector_is_a_signal_driver ... ok
+test tests::output_requires_a_driver_even_if_external_power_is_declared ... ok
+test tests::pwr_flag_is_not_an_onboard_producer ... ok
+test tests::same_net_name_on_unjoined_boards_is_not_a_source ... ok
+test tests::signal_output_is_not_a_power_producer ... ok
+test tests::transitive_harness_outputs_also_conflict ... ok
+test tests::two_locally_driven_harness_outputs_conflict ... ok
+test tests::unconnected_power_input_is_rejected ... ok
+test tests::unknown_pin_type_is_rejected ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s

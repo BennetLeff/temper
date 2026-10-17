@@ -1,0 +1,47 @@
+{
+  "schema": "temper.compiler-inputs.v1",
+  "headers": [
+    {
+      "name": "stm32g071xx.h",
+      "kind": "device",
+      "url": "https://raw.githubusercontent.com/STMicroelectronics/cmsis-device-g0/master/Include/stm32g071xx.h",
+      "sha256": "0b19058af668cff72649ae3871f6729b0fa68c6e81794cefbd1b0d63e0943fb3"
+    },
+    {
+      "name": "system_stm32g0xx.h",
+      "kind": "device",
+      "url": "https://raw.githubusercontent.com/STMicroelectronics/cmsis-device-g0/master/Include/system_stm32g0xx.h",
+      "sha256": "20ee999e4431472a7c351e2412537aa0ef7f5f5e499a21a92c1d4cc21f84ebf1"
+    },
+    {
+      "name": "core_cm0plus.h",
+      "kind": "core",
+      "url": "https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/core_cm0plus.h",
+      "sha256": "05c1ad27fa722d82f3a2babe15f80d62c737cbdc37678e85f33fbd1a26f33f4e"
+    },
+    {
+      "name": "cmsis_version.h",
+      "kind": "core",
+      "url": "https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/cmsis_version.h",
+      "sha256": "184c19fd3ee73632edf35a0b4d49cd48be75fbf49e6ccb19d9db05fa83bea4b3"
+    },
+    {
+      "name": "cmsis_compiler.h",
+      "kind": "core",
+      "url": "https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/cmsis_compiler.h",
+      "sha256": "747c5edd04a88d4e228c7856750ec475908545c77464a162a305b38d9e362d82"
+    },
+    {
+      "name": "cmsis_gcc.h",
+      "kind": "core",
+      "url": "https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/cmsis_gcc.h",
+      "sha256": "2f92cd832b6f58e4d4803b28d7340443f5e46b0f357a307cda76a42a0e530108"
+    },
+    {
+      "name": "mpu_armv7.h",
+      "kind": "core",
+      "url": "https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/mpu_armv7.h",
+      "sha256": "29206b52ee02290ed6f5a5415ebd4187de802cf176d9b3cb844390d8e5571372"
+    }
+  ]
+}

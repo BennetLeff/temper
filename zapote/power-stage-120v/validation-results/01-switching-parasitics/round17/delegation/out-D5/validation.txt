@@ -1,0 +1,20 @@
+D-5 validation, 2026-10-02
+
+python3.12 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D5/gate_dead_time.py
+Exit 0. Reran with subprocess.check_output and compared the bytes with committed gate_dead_time.txt: exact match.
+
+UV_CACHE_DIR=/private/tmp/temper-r17-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/temper-r17-audit-tools PATH=/private/tmp/temper-r17-audit-tools/bin:$PATH PYTHONPATH=packages/temper-placer/src /private/tmp/temper-r17-audit-tools/bin/python scripts/import_linter_gate.py
+Exit 0. lint-imports report: 5 kept, 0 broken (exit code 0).
+Import boundary gate PASSED — 0 new violations.
+The first sandboxed attempts failed on cache access, not contracts; the same command completed with permitted worktree/cache access. No uv sync or native build was run.
+
+/private/tmp/temper-r17-audit-tools/bin/python scripts/regen_derived.py --check
+Exit 0. All derived artifacts consistent, including repo state, seven wasm registries, oracle hashes, hash order, script manifest, unwired kernels and wire formats. This is read-only source validation; it does not build Rust or execute wasm.
+
+scripts/assert-base.sh f9b13b483d6d4ed52439d4da419c7670bab6966c
+Exit 0 before committing: HEAD equals required base.
+
+git diff --check
+Exit 0.
+
+No firmware tests, ngspice simulation, vendor model restoration or physical measurement needed for this read-only timing audit. No model library added.

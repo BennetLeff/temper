@@ -1,0 +1,58 @@
+{
+ "cases": 96,
+ "aborted": 1,
+ "task_pass": 59,
+ "task_fail": 37,
+ "task_pass_hot_screen": 59,
+ "stress_pass": 59,
+ "stress_fail": 37,
+ "fail_by_criterion": {
+  "pass_vds": 1,
+  "pass_off_gate": 37,
+  "pass_vgs_transient": 1
+ },
+ "off_gate_fail_causes": {
+  "above_limit_at_partner_cmd": 0,
+  "later_peak": 36,
+  "unknown": 0,
+  "aborted": 1
+ },
+ "off_gate_fails_by_dt_ns": {
+  "391": 12,
+  "443": 13,
+  "498": 12
+ },
+ "zvs_S1_at_443ns": {
+  "yes": 12,
+  "no": 0
+ },
+ "worst": {
+  "vds_pk": {
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 443,
+   "esl_nH": 10,
+   "vds_pk": 518.44
+  },
+  "vgs_off_max": {
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 1.06,
+   "vgs_off_max": 4.416503
+  },
+  "vgs_abs_max": {
+   "case": "S4",
+   "vbus": 280,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 391,
+   "esl_nH": 10,
+   "vgs_abs_max": 15.02428
+  }
+ }
+}

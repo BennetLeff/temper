@@ -1,0 +1,102 @@
+[
+  {
+    "temp_C": 25,
+    "dVth_V": 0,
+    "deck": "threshold.cir",
+    "params": {
+      "TJ": "25",
+      "DV": "0"
+    },
+    "run_dir": "raw/threshold_t25_dv0",
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": null,
+    "meas": {
+      "vth": 4.062434
+    },
+    "failed": [],
+    "log_tail": [
+      "",
+      "Total DRAM available = 32768.000 MB.",
+      "DRAM currently available =  170.000 MB.",
+      "Maximum ngspice program size =   12.484 MB.",
+      "Current ngspice program size =   12.484 MB.",
+      ""
+    ]
+  },
+  {
+    "temp_C": 25,
+    "dVth_V": -0.5,
+    "deck": "threshold.cir",
+    "params": {
+      "TJ": "25",
+      "DV": "-0.5"
+    },
+    "run_dir": "raw/threshold_t25_dv-0.5",
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": null,
+    "meas": {
+      "vth": 3.345435
+    },
+    "failed": [],
+    "log_tail": [
+      "",
+      "Total DRAM available = 32768.000 MB.",
+      "DRAM currently available =  174.250 MB.",
+      "Maximum ngspice program size =   12.484 MB.",
+      "Current ngspice program size =   12.484 MB.",
+      ""
+    ]
+  },
+  {
+    "temp_C": 150,
+    "dVth_V": 0,
+    "deck": "threshold.cir",
+    "params": {
+      "TJ": "150",
+      "DV": "0"
+    },
+    "run_dir": "raw/threshold_t150_dv0",
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": null,
+    "meas": {
+      "vth": 2.98794
+    },
+    "failed": [],
+    "log_tail": [
+      "",
+      "Total DRAM available = 32768.000 MB.",
+      "DRAM currently available =  282.562 MB.",
+      "Maximum ngspice program size =   12.438 MB.",
+      "Current ngspice program size =   12.438 MB.",
+      ""
+    ]
+  },
+  {
+    "temp_C": 150,
+    "dVth_V": -0.5,
+    "deck": "threshold.cir",
+    "params": {
+      "TJ": "150",
+      "DV": "-0.5"
+    },
+    "run_dir": "raw/threshold_t150_dv-0.5",
+    "aborted": false,
+    "returncode": 0,
+    "raw_returncode": null,
+    "meas": {
+      "vth": 2.270941
+    },
+    "failed": [],
+    "log_tail": [
+      "",
+      "Total DRAM available = 32768.000 MB.",
+      "DRAM currently available =  287.703 MB.",
+      "Maximum ngspice program size =   12.422 MB.",
+      "Current ngspice program size =   12.422 MB.",
+      ""
+    ]
+  }
+]

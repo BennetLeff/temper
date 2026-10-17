@@ -1,0 +1,54 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.12, pytest-9.1.1, pluggy-1.6.0 -- /Users/bennet/Miniforge3/bin/python3
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /Users/bennet/Desktop/temper/worktrees/ps-build
+configfile: pyproject.toml
+plugins: cov-7.1.0, hypothesis-6.156.6, anyio-4.13.0
+collecting ... collected 43 items
+
+zapote/power-stage-120v/tests/test_barrier_rust_differential.py::test_rust_does_not_underreport_pinned_oracle_on_real_filled_board PASSED [  2%]
+zapote/power-stage-120v/tests/test_copper_identity.py::test_saved_route_via_net_reassignment_is_rejected PASSED [  4%]
+zapote/power-stage-120v/tests/test_kelvin_connection.py::test_kelvin_pickup_is_separate_and_a_copper_bridge_is_detected[original] PASSED [  6%]
+zapote/power-stage-120v/tests/test_kelvin_connection.py::test_kelvin_pickup_is_separate_and_a_copper_bridge_is_detected[bridge] PASSED [  9%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_capture_round_trips_the_generated_board PASSED [ 11%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_capture_accepts_kicad_saved_tab_indentation PASSED [ 13%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_capture_rejects_a_missing_instance PASSED [ 16%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_rules_classify_every_board_net_and_keep_barriers_unexempted PASSED [ 18%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_rules_reject_an_unclassified_net PASSED [ 20%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_rules_reject_a_net_in_two_domains PASSED [ 23%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_distinct_potentials_never_share_a_group PASSED [ 25%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_every_group_is_documented_as_equipotential PASSED [ 27%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_facing_jumper_lugs_at_13_mm_collide PASSED [ 30%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_link_strap_is_one_item_spanning_both_studs PASSED [ 32%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_normal_configuration_uses_straps_not_facing_lugs PASSED [ 34%]
+zapote/power-stage-120v/tests/test_placement_tools.py::test_committed_metrics_have_no_hardware_conflicts PASSED [ 37%]
+zapote/power-stage-120v/tests/test_planning_stackup.py::test_stackup_projection_retains_source_identity_and_stable_pad_uuids PASSED [ 39%]
+zapote/power-stage-120v/tests/test_planning_stackup.py::test_unsupported_layer_order_leaves_board_and_manifest_untouched PASSED [ 41%]
+zapote/power-stage-120v/tests/test_planning_stackup.py::test_existing_copper_is_not_rewritten PASSED [ 44%]
+zapote/power-stage-120v/tests/test_planning_stackup.py::test_source_renumbering_preserves_pad_uuids PASSED [ 46%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_replay_rejects_stale_two_layer_placement_before_output PASSED [ 48%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_replay_never_deletes_an_existing_output PASSED [ 51%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_replay_rejects_placement_with_stale_frozen_source[default.net] PASSED [ 53%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_replay_rejects_placement_with_stale_frozen_source[default.csv] PASSED [ 55%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_replay_rejects_placement_with_stale_frozen_source[resolved-components.json] PASSED [ 58%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_copper_dump_rejects_arc_instead_of_serializing_a_chord PASSED [ 60%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_copper_dump_rejects_unfilled_zone PASSED [ 62%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_saved_board_change_during_extraction_is_rejected[copper_dump.py-dump] PASSED [ 65%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_saved_board_change_during_extraction_is_rejected[check_native_parity.py-extract] PASSED [ 67%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_native_parity_rejects_mutated_frozen_source[default.net] PASSED [ 69%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_native_parity_rejects_mutated_frozen_source[default.csv] PASSED [ 72%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_native_parity_rejects_mutated_frozen_source[resolved-components.json] PASSED [ 74%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_real_pcbnew_adapter_rejects_saved_pad_net_mutation PASSED [ 76%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_barrier_evidence_detects_cross_layer_overlap_and_stale_board PASSED [ 79%]
+zapote/power-stage-120v/tests/test_routing_evidence.py::test_barrier_rejects_unsupported_or_missing_copper PASSED [ 81%]
+zapote/power-stage-120v/tests/test_shelf_poses.py::test_reviewed_terminal_resolves_without_global_library PASSED [ 83%]
+zapote/power-stage-120v/tests/test_shelf_poses.py::test_required_unit_library_never_falls_back_to_stock PASSED [ 86%]
+zapote/power-stage-120v/tests/test_terminal_footprint.py::test_reviewed_terminal_geometry_survives_in_every_native_instance PASSED [ 88%]
+zapote/power-stage-120v/tests/test_terminal_footprint.py::test_deleted_same_number_leg_is_rejected PASSED [ 90%]
+zapote/power-stage-120v/tests/test_write_rules.py::test_saved_board_tracks_are_not_attributed_to_the_last_footprint PASSED [ 93%]
+zapote/power-stage-120v/tests/test_write_rules.py::test_footprint_nets_only_come_from_pad_expressions PASSED [ 95%]
+zapote/power-stage-120v/tests/test_write_rules.py::test_rule_does_not_exempt_tracks_merely_touching_courtyard PASSED [ 97%]
+zapote/power-stage-120v/tests/test_write_rules.py::test_barrier_rules_have_final_priority_over_escape_rules PASSED [100%]
+
+============================= 43 passed in 54.97s ==============================

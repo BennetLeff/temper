@@ -1,0 +1,22 @@
+{
+  "schema": "power-stage.pad-escapes.v1",
+  "basis": "Provisional component-local no-worse-than-pad-gap routing only; physical functional-insulation qualification remains open",
+  "requests": [
+    {"reference": "C12", "outward_nm": 1200000, "board_floor_nm": 3200000, "pad_nets": {"1": "bus_p", "2": "sw_a"}},
+    {"reference": "C13", "outward_nm": 1200000, "board_floor_nm": 3200000, "pad_nets": {"1": "sw_a", "2": "leg_ret"}},
+    {"reference": "C19", "outward_nm": 1200000, "board_floor_nm": 3200000, "pad_nets": {"1": "bus_p", "2": "sw_b"}},
+    {"reference": "C20", "outward_nm": 1200000, "board_floor_nm": 3200000, "pad_nets": {"1": "sw_b", "2": "leg_ret"}},
+    {"reference": "R1", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "l_f", "2": "xbleed_mid"}},
+    {"reference": "R2", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "xbleed_mid", "2": "ac_n_in"}},
+    {"reference": "R3", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "bus_p", "2": "busbleed_mid"}},
+    {"reference": "R4", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "busbleed_mid", "2": "hv_ret"}},
+    {"reference": "R22", "outward_nm": 2800000, "board_floor_nm": 5000000, "pad_nets": {"1": "res_a", "2": "crbleed_1"}},
+    {"reference": "R23", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "crbleed_1", "2": "crbleed_2"}},
+    {"reference": "R24", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "crbleed_2", "2": "crbleed_3"}},
+    {"reference": "R25", "outward_nm": 2800000, "board_floor_nm": 5000000, "pad_nets": {"1": "crbleed_3", "2": "sw_b"}},
+    {"reference": "R26", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "bus_p", "2": "vdiv_1"}},
+    {"reference": "R27", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "vdiv_1", "2": "vdiv_2"}},
+    {"reference": "R28", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "vdiv_2", "2": "vdiv_3"}},
+    {"reference": "R29", "outward_nm": 800000, "board_floor_nm": 3200000, "pad_nets": {"1": "vdiv_3", "2": "vsense_in"}}
+  ]
+}

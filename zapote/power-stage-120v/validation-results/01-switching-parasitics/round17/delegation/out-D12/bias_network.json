@@ -1,0 +1,167 @@
+{
+  "status": "analytical estimates, circuit-specific transient validation pending",
+  "assumptions": {
+    "VDD_V": 15.0,
+    "Cgs_F": 1e-09,
+    "Cz_nom_F": 1e-05,
+    "Cz_sizing_effective_F": 5e-06,
+    "Rgs_ohm": 10000.0,
+    "Qg_reference_C": 2.34e-07,
+    "Qg_sizing_scenario_C": 4e-07,
+    "frequency_scenarios_Hz": [
+      20000,
+      40000,
+      80000
+    ],
+    "bootstrap_effective_scenario_F": 5e-06,
+    "bootstrap_start_V_scenario": 13.0,
+    "bootstrap_refresh_target_V": 9.2,
+    "driver_quiescent_sizing_A": 0.0044,
+    "bootstrap_diode_drop_scenario_V": 1.0
+  },
+  "variants": {
+    "2.0": {
+      "gate_on_nominal_est_V": 13.0,
+      "gate_off_nominal_est_V": -2.0,
+      "positive_reduction_vs_D6_V": 2.0,
+      "zener_25C_at_5mA_range_V": [
+        1.91,
+        2.09
+      ],
+      "zener_small_signal_ZZT_max_ohm_at_5mA": 100,
+      "zener_Tcoeff_mV_C_at_5mA": [
+        -3.5,
+        0
+      ],
+      "zener_125C_shift_est_V": [
+        -0.35,
+        0
+      ],
+      "on_Rgs_current_est_A": 0.0013,
+      "average_available_zener_current_est_A_50pct": 0.0005499999999999999,
+      "zener_power_est_W_50pct": 0.0010999999999999998,
+      "Rgs_power_est_W_50pct": 0.00865,
+      "bias_cap_ripple_Qg_reference_est_V": 0.0249,
+      "bias_cap_ripple_sizing_est_V": 0.08299999999999999,
+      "minimum_duty_for_nominal_bias_in_ideal_average_model": 0.13333333333333333,
+      "startup_time_to_nominal_bias_est_ms": 31.01549283038395,
+      "disabled_decay_time_constant_nom_ms": 100.0,
+      "disabled_bias_after_100ms_est_V": -0.7357588823428847,
+      "nominal_off_before_first_switch_V": 0,
+      "duty_sensitivity": [
+        {
+          "duty": 0.1,
+          "ideal_average_bias_V": 1.5
+        },
+        {
+          "duty": 0.2,
+          "ideal_average_bias_V": 2.0
+        },
+        {
+          "duty": 0.3,
+          "ideal_average_bias_V": 2.0
+        },
+        {
+          "duty": 0.5,
+          "ideal_average_bias_V": 2.0
+        }
+      ],
+      "high_side_on_est_with_1V_boot_diode_drop_V": 12.0
+    },
+    "3.9": {
+      "gate_on_nominal_est_V": 11.1,
+      "gate_off_nominal_est_V": -3.9,
+      "positive_reduction_vs_D6_V": 3.9,
+      "zener_25C_at_5mA_range_V": [
+        3.7,
+        4.1
+      ],
+      "zener_small_signal_ZZT_max_ohm_at_5mA": 90,
+      "zener_Tcoeff_mV_C_at_5mA": [
+        -3.5,
+        0
+      ],
+      "zener_125C_shift_est_V": [
+        -0.35,
+        0
+      ],
+      "on_Rgs_current_est_A": 0.0011099999999999999,
+      "average_available_zener_current_est_A_50pct": 0.00035999999999999997,
+      "zener_power_est_W_50pct": 0.0014039999999999999,
+      "Rgs_power_est_W_50pct": 0.006920999999999999,
+      "bias_cap_ripple_Qg_reference_est_V": 0.0249,
+      "bias_cap_ripple_sizing_est_V": 0.08299999999999999,
+      "minimum_duty_for_nominal_bias_in_ideal_average_model": 0.26,
+      "startup_time_to_nominal_bias_est_ms": 73.39691750802005,
+      "disabled_decay_time_constant_nom_ms": 100.0,
+      "disabled_bias_after_100ms_est_V": -1.434729820568625,
+      "nominal_off_before_first_switch_V": 0,
+      "duty_sensitivity": [
+        {
+          "duty": 0.1,
+          "ideal_average_bias_V": 1.5
+        },
+        {
+          "duty": 0.2,
+          "ideal_average_bias_V": 3.0
+        },
+        {
+          "duty": 0.3,
+          "ideal_average_bias_V": 3.9
+        },
+        {
+          "duty": 0.5,
+          "ideal_average_bias_V": 3.9
+        }
+      ],
+      "high_side_on_est_with_1V_boot_diode_drop_V": 10.1
+    }
+  },
+  "capacitor_only_drive": [
+    {
+      "swing_V": 15,
+      "added_charge_C": 1.5000000000000002e-08,
+      "energy_per_gate_cycle_J": 2.2500000000000002e-07,
+      "whole_bridge_added_W": {
+        "20000": 0.018000000000000002,
+        "40000": 0.036000000000000004,
+        "80000": 0.07200000000000001
+      },
+      "approx_driver_share_single_3p9_path_J_per_gate_cycle": 7.71067415730337e-08
+    },
+    {
+      "swing_V": 17,
+      "added_charge_C": 1.7e-08,
+      "energy_per_gate_cycle_J": 2.89e-07,
+      "whole_bridge_added_W": {
+        "20000": 0.02312,
+        "40000": 0.04624,
+        "80000": 0.09248
+      },
+      "approx_driver_share_single_3p9_path_J_per_gate_cycle": 9.903932584269662e-08
+    },
+    {
+      "swing_V": 19,
+      "added_charge_C": 1.9e-08,
+      "energy_per_gate_cycle_J": 3.61e-07,
+      "whole_bridge_added_W": {
+        "20000": 0.028880000000000003,
+        "40000": 0.057760000000000006,
+        "80000": 0.11552000000000001
+      },
+      "approx_driver_share_single_3p9_path_J_per_gate_cycle": 1.237134831460674e-07
+    }
+  ],
+  "bootstrap_sizing": {
+    "charge_per_switch_scenario_C": 4.15e-07,
+    "Q_over_C_droop_scenario_V": 0.08299999999999999,
+    "high_hold_limit_to_9p2V_scenario_ms": 4.223863636363638,
+    "minimum_refresh_charge_scenario_C": 6.350000000000001e-07,
+    "required_avg_refresh_current_for_1us_A": 0.6350000000000001
+  },
+  "split_off_path": {
+    "external_parallel_incremental_R_ohm": 0.7959183673469387,
+    "plus_model_driver_sink_R_ohm": 1.3459183673469388,
+    "note": "Only when Schottky conducts; Vf, package inductance and capacitance remain"
+  }
+}

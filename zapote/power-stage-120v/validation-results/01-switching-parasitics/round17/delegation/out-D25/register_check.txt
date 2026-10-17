@@ -1,0 +1,9 @@
+D21 topology mask DT_CFG[16:8]=0x05000; RED=23 FED=23 for 24 requested ticks
+raw_A raw_B steady_output_A steady_output_B
+0 0 0 1
+0 1 0 0
+1 0 1 1
+1 1 1 0
+Initialized/stop force GEN_FORCE=0x240; raw=0,1; output=0,0
+Start clears continuous force modes; waveform timing is outside this static calculation.
+PASS: force polarity and LL register encoding agree with TRM static topology.

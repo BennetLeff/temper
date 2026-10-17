@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-04",
+  "kind": "DOCUMENT_AND_INTAKE_PREFLIGHT_ONLY",
+  "physical_tests": "NOT_RUN",
+  "compilation_or_simulation": "NOT_RUN_NOT_APPLICABLE",
+  "checks": {
+    "all_13_intake_hashes_current": true,
+    "physical_status_not_run": true,
+    "all_nine_holds_unreleased": true,
+    "picklist_unique_ids_and_declared_inventory": true,
+    "all_local_links_resolve": true,
+    "changed_file_whitespace_clean": true,
+    "current_native19_hash_matches": true,
+    "historical_intake_preserved": true
+  },
+  "picklist_rows": 21,
+  "hashes_checked": 13,
+  "missing_links": [],
+  "whitespace_failures": [],
+  "limits": "Checks validate file identities and record structure only; they do not approve material selection, board fabrication, fixtures, station, powered testing or release.",
+  "refresh_note": "Refreshed after native19 Kelvin source integration. Historical initial-intake hashes retained in initial_intake; current inputs above identify candidate only."
+}

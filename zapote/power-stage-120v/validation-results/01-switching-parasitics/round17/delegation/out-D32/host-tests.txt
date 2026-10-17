@@ -1,0 +1,43 @@
+Test project /private/tmp/d32-host
+      Start  1: all_tests
+ 1/19 Test  #1: all_tests ........................   Passed    0.01 sec
+      Start  2: state_machine_tests
+ 2/19 Test  #2: state_machine_tests ..............   Passed    0.00 sec
+      Start  3: max31865_tests
+ 3/19 Test  #3: max31865_tests ...................   Passed    0.00 sec
+      Start  4: pid_tests
+ 4/19 Test  #4: pid_tests ........................   Passed    0.00 sec
+      Start  5: cascade_pid_tests
+ 5/19 Test  #5: cascade_pid_tests ................   Passed    0.00 sec
+      Start  6: cascade_pid_integration_tests
+ 6/19 Test  #6: cascade_pid_integration_tests ....   Passed    0.00 sec
+      Start  7: thermal_mass_tests
+ 7/19 Test  #7: thermal_mass_tests ...............   Passed    0.00 sec
+      Start  8: low_temp_tests
+ 8/19 Test  #8: low_temp_tests ...................   Passed    0.00 sec
+      Start  9: safety_tests
+ 9/19 Test  #9: safety_tests .....................   Passed    0.00 sec
+      Start 10: pan_detection_tests
+10/19 Test #10: pan_detection_tests ..............   Passed    0.00 sec
+      Start 11: pll_tests
+11/19 Test #11: pll_tests ........................   Passed    0.01 sec
+      Start 12: integration_tests
+12/19 Test #12: integration_tests ................   Passed    0.00 sec
+      Start 13: profiles_tests
+13/19 Test #13: profiles_tests ...................   Passed    0.00 sec
+      Start 14: sil_fault_tests
+14/19 Test #14: sil_fault_tests ..................   Passed    0.00 sec
+      Start 15: power_adapter_tests
+15/19 Test #15: power_adapter_tests ..............   Passed    0.27 sec
+      Start 16: power_no_burst_tests
+16/19 Test #16: power_no_burst_tests .............   Passed    0.00 sec
+      Start 17: pwm_esp32_tests
+17/19 Test #17: pwm_esp32_tests ..................   Passed    0.00 sec
+      Start 18: burst_scheduler_tests
+18/19 Test #18: burst_scheduler_tests ............   Passed    0.00 sec
+      Start 19: prototype_pwm_tests
+19/19 Test #19: prototype_pwm_tests ..............   Passed    0.00 sec
+
+100% tests passed out of 19
+
+Total Test time (real) =   0.35 sec

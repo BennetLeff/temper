@@ -1,0 +1,12 @@
+FastHenry official upstream commit: 363e43ed57ad3b9affa11cba5a86624fad0edaa9
+Command: make fasthenry
+Working directory: /private/tmp/ps-r3-a2-FastHenry2
+Exit status: 2
+Compiler: Apple clang 21.0.0 (arm64-apple-darwin25.6.0)
+First fatal examples from original terminal output:
+  induct.c:36:1: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int
+  induct.c:133:9: error: call to undeclared function 'readGeom'; ISO C99 and later do not support implicit function declarations
+  fatal error: too many errors emitted
+  make[1]: *** [induct.o] Error 1
+  make: *** [fasthenry] Error 2
+The initial terminal output was not redirected to a file, so this is a faithful failure excerpt, not a full raw compiler log. Full raw output for attempt 2 is fasthenry-build2.txt.

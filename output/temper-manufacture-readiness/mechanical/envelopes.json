@@ -1,0 +1,237 @@
+{
+  "status": "SPACE_STUDY_ONLY_NOT_INTEGRATED_OR_RELEASED",
+  "units": "mm",
+  "r4_assembly_sha256": "2e89923f65e466831395a10a2ac7e307ded48fbb8b49e5c19e87b4da1df21291",
+  "native18_board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "coordinate_frame": "R4 world: X left/right; Y front to rear; Z up. Board placement here is a study, not an ECAD transform.",
+  "omitted_r4_name_prefixes": [
+    "pcb_export_",
+    "PS1_datasheet_body_envelope",
+    "Sunon_",
+    "fan_hub_envelope",
+    "compact_sink_candidate_",
+    "separate_rear_cooling_duct"
+  ],
+  "cases": [
+    {
+      "id": "rear_bay_disconnected_study",
+      "purpose": "Can the D18 catalog body and bare fan allocations occupy the rear bay? Does not provide a heat-transfer path, duct, bracket, guard, populated PCB, fan supply, or approved EMI module.",
+      "boxes": [
+        {
+          "name": "native18_BARE_OUTLINE_ONLY",
+          "min": [
+            -110.5,
+            70,
+            30.25
+          ],
+          "size": [
+            240,
+            160,
+            1.653
+          ],
+          "evidence": "Native18 Edge.Cuts240x160; saved KiCad stack thickness1.653. Nominal fabrication target1.6; components/solder omitted."
+        },
+        {
+          "name": "D18_SFA2B1L_BODY_ENVELOPE",
+          "min": [
+            -152.5,
+            350,
+            12
+          ],
+          "size": [
+            305,
+            60,
+            68
+          ],
+          "evidence": "Wakefield 2026 rev1.0 pp3-4 body dimensions; NO fins/clamps modeled"
+        },
+        {
+          "name": "D18_RIGHT_PUSH_FAN_ENVELOPE",
+          "min": [
+            152.5,
+            350,
+            20
+          ],
+          "size": [
+            25,
+            60,
+            60
+          ],
+          "evidence": "Wakefield DC0602512W2B-BT0 nominal60x60x25; mounting/guards omitted"
+        },
+        {
+          "name": "D18_LEFT_PULL_FAN_ENVELOPE",
+          "min": [
+            -177.5,
+            350,
+            20
+          ],
+          "size": [
+            25,
+            60,
+            60
+          ],
+          "evidence": "Same fan; right-to-left nominal axis"
+        },
+        {
+          "name": "D22_REQUESTED_SPACE_NOT_SELECTED_MODULE",
+          "min": [
+            -140,
+            250,
+            15
+          ],
+          "size": [
+            110,
+            80,
+            50
+          ],
+          "evidence": "Historical discussed allocation only; no approved module or wire space"
+        }
+      ]
+    },
+    {
+      "id": "rear_edge_direct_sink_conflict_study",
+      "purpose": "Illustrate the sensor conflict when a transverse sink is placed immediately behind a front PCB; neither board-side mating plane nor sink clamp is defined.",
+      "boxes": [
+        {
+          "name": "native18_BARE_OUTLINE_ONLY",
+          "min": [
+            -110.5,
+            70,
+            30.25
+          ],
+          "size": [
+            240,
+            160,
+            1.653
+          ],
+          "evidence": "Native18 Edge.Cuts240x160; saved KiCad stack thickness1.653. Nominal fabrication target1.6; components/solder omitted."
+        },
+        {
+          "name": "DIRECT_EDGE_SINK_CONFLICT_ENVELOPE",
+          "min": [
+            -152.5,
+            236,
+            12
+          ],
+          "size": [
+            305,
+            60,
+            68
+          ],
+          "evidence": "D18 catalog body dimensions placed as rejection probe; NOT proposed accepted assembly"
+        }
+      ]
+    },
+    {
+      "id": "rear_bay_shifted_disconnected_candidate",
+      "purpose": "Move body/fans12mm forward to avoid rear foot bolts; bounded geometric candidate only, no heat path or completed cooling design.",
+      "boxes": [
+        {
+          "name": "native18_BARE_OUTLINE_ONLY",
+          "min": [
+            -110.5,
+            70,
+            30.25
+          ],
+          "size": [
+            240,
+            160,
+            1.653
+          ],
+          "evidence": "Native18 Edge.Cuts240x160; saved KiCad stack thickness1.653. Nominal fabrication target1.6; components/solder omitted."
+        },
+        {
+          "name": "D18_SFA2B1L_BODY_ENVELOPE",
+          "min": [
+            -152.5,
+            338,
+            12
+          ],
+          "size": [
+            305,
+            60,
+            68
+          ],
+          "evidence": "Wakefield 2026 rev1.0 pp3-4 body dimensions; NO fins/clamps modeled"
+        },
+        {
+          "name": "D18_RIGHT_PUSH_FAN_ENVELOPE",
+          "min": [
+            152.5,
+            338,
+            20
+          ],
+          "size": [
+            25,
+            60,
+            60
+          ],
+          "evidence": "Wakefield DC0602512W2B-BT0 nominal60x60x25; mounting/guards omitted"
+        },
+        {
+          "name": "D18_LEFT_PULL_FAN_ENVELOPE",
+          "min": [
+            -177.5,
+            338,
+            20
+          ],
+          "size": [
+            25,
+            60,
+            60
+          ],
+          "evidence": "Same fan; right-to-left nominal axis"
+        },
+        {
+          "name": "D22_REQUESTED_SPACE_NOT_SELECTED_MODULE",
+          "min": [
+            -140,
+            250,
+            15
+          ],
+          "size": [
+            110,
+            80,
+            50
+          ],
+          "evidence": "Historical discussed D22 allocation only; current EMC architecture is not selected. No wire space."
+        }
+      ]
+    },
+    {
+      "id": "front_edge_direct_sink_conflict_study",
+      "purpose": "Default unrotated board maps native y0 device edge to worldy70. Probe sink directly forward of that edge; body collides with existing front structure.",
+      "boxes": [
+        {
+          "name": "native18_BARE_OUTLINE_ONLY",
+          "min": [
+            -110.5,
+            70,
+            30.25
+          ],
+          "size": [
+            240,
+            160,
+            1.653
+          ],
+          "evidence": "Native18 Edge.Cuts240x160; saved KiCad stack thickness1.653. Nominal fabrication target1.6; components/solder omitted."
+        },
+        {
+          "name": "FRONT_EDGE_SINK_CONFLICT_ENVELOPE",
+          "min": [
+            -152.5,
+            4,
+            12
+          ],
+          "size": [
+            305,
+            60,
+            68
+          ],
+          "evidence": "D18 catalog body dimensions placed as rejection probe; NOT proposed accepted assembly"
+        }
+      ]
+    }
+  ]
+}

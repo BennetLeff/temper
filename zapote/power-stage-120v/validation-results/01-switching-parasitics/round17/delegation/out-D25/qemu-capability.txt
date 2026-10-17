@@ -1,0 +1,7 @@
+QEMU commit: febae182e132e4055529be423a818225ebddaa3a
+Recursive source tree truncated=false; MCPWM path matches=0
+ESP32-S3 machine source MCPWM/DR_REG_PWM references=0
+Manual source review: no MCPWM device instantiated or mapped in esp32s3.c.
+Generic unsupported IO handler: reads return zero, writes discarded (461-476).
+Pinned support table: GPIO matrix / IOMUX unsupported for ESP32-S3.
+EMULATION NOT RUN: no MCPWM/GPIO-matrix model capable of the requested observation.

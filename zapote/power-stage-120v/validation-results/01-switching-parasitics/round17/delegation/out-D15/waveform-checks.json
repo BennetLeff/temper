@@ -1,0 +1,377 @@
+[
+  {
+    "tag": "v198_i2_d0_dt348_esl1.06_step0.1",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.003039971348571058,
+    "energy_deltas_uJ": {
+      "e_l_pre": 1.9137612540838178e-07,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.003039971348571058,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 7.177009529638312e-08,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": 3.518190328909848e-05,
+      "diode_e_h_post": -1.936726842928343e-05
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt348_esl1.06_step0.05",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.0020878538036092024,
+    "energy_deltas_uJ": {
+      "e_l_pre": -4.3425306272584075e-07,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -0.0020878538036092024,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -1.1994145388856194e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -0.0006001285386063142,
+      "diode_e_h_post": -4.413619497200317e-06
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt348_esl10_step0.1",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.004329538180809669,
+    "energy_deltas_uJ": {
+      "e_l_pre": 6.100247980435109e-08,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -0.004329538180809669,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -6.49106814077101e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -0.000432570810849622,
+      "diode_e_h_post": -2.4119749861759963e-05
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt348_esl10_step0.05",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.0022461680681526213,
+    "energy_deltas_uJ": {
+      "e_l_pre": -8.595569572426273e-08,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0022461680681526213,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -1.6164074045692202e-08,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -0.00046612438095536973,
+      "diode_e_h_post": -5.850896318424868e-06
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt443_esl1.06_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0008493723652473924,
+    "energy_deltas_uJ": {
+      "e_l_pre": 4.516499533945372e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0005464258195090254,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -2.0842577277100526e-07,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": 0.0008493723652473924,
+      "diode_e_h_post": -1.2915602366554878e-05
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt443_esl1.06_step0.05",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.001863322715700143,
+    "energy_deltas_uJ": {
+      "e_l_pre": -3.921049895676029e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -0.001863322715700143,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -1.288835703471599e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": 0.00019008094666946203,
+      "diode_e_h_post": -3.6293852770111726e-06
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt443_esl10_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0006468469914295552,
+    "energy_deltas_uJ": {
+      "e_l_pre": -1.335928532841517e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0006468469914295552,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -7.0262558909526095e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": 0.0003256553808084553,
+      "diode_e_h_post": -1.3425835451070046e-05
+    }
+  },
+  {
+    "tag": "v198_i2_d0_dt443_esl10_step0.05",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0002834286171103477,
+    "energy_deltas_uJ": {
+      "e_l_pre": 1.964302584445574e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -0.0001892278421900418,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 3.0099705098199944e-08,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": 0.0002834286171103477,
+      "diode_e_h_post": -2.3993706375174016e-06
+    }
+  },
+  {
+    "tag": "v198_i2_d1_dt348_esl1.06_step0.1",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.004460501548672678,
+    "energy_deltas_uJ": {
+      "e_l_pre": -3.405008322909499e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0008348889451146885,
+      "diode_e_l_post": -1.2110363424626816e-05,
+      "e_h_pre": 5.801033439351596e-07,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": 0.004460501548672678,
+      "diode_e_h_post": 0.0
+    }
+  },
+  {
+    "tag": "v198_i2_d1_dt348_esl10_step0.1",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.0027772032932908697,
+    "energy_deltas_uJ": {
+      "e_l_pre": 9.792256572577505e-07,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0006600382845801337,
+      "diode_e_l_post": -1.456576067482223e-05,
+      "e_h_pre": 3.5500224899556493e-07,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -0.0027772032932908697,
+      "diode_e_h_post": 0.0
+    }
+  },
+  {
+    "tag": "v198_i2_d1_dt443_esl1.06_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.002448227252424182,
+    "energy_deltas_uJ": {
+      "e_l_pre": -3.166890760543461e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0002269111032155314,
+      "diode_e_l_post": -1.0601408482477009e-05,
+      "e_h_pre": 4.585466509333968e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -0.002448227252424182,
+      "diode_e_h_post": 0.0
+    }
+  },
+  {
+    "tag": "v198_i2_d1_dt443_esl10_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0028149732079552677,
+    "energy_deltas_uJ": {
+      "e_l_pre": 2.0394401663734345e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 0.0003719031094911486,
+      "diode_e_l_post": -1.0046594152117344e-05,
+      "e_h_pre": 9.986057672792806e-07,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -0.0028149732079552677,
+      "diode_e_h_post": 0.0
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt348_esl1.06_step0.1",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.002066853293210074,
+    "energy_deltas_uJ": {
+      "e_l_pre": -0.002066853293210074,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 5.508110902945778e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -9.309422214788646e-06,
+      "diode_e_h_pre": -2.692106035992067e-05,
+      "e_h_post": -2.5237652838747257e-05,
+      "diode_e_h_post": 1.0898694217549294e-06
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt348_esl1.06_step0.05",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.0003434248125678066,
+    "energy_deltas_uJ": {
+      "e_l_pre": 0.0003434248125678066,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 4.5281238814413e-06,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -3.4593537651641306e-06,
+      "diode_e_h_pre": -5.470903028750206e-06,
+      "e_h_post": -4.7042364375118363e-07,
+      "diode_e_h_post": -3.38866415769488e-07
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt348_esl10_step0.1",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 0.0009646368848018408,
+    "energy_deltas_uJ": {
+      "e_l_pre": -0.0009646368848018408,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -8.312234904087079e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 4.86729722150505e-06,
+      "diode_e_h_pre": -2.5782664557413363e-05,
+      "e_h_post": 3.944444572942345e-05,
+      "diode_e_h_post": -1.6387043106611031e-06
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt348_esl10_step0.05",
+    "wave_end_s": 3.148e-06,
+    "max_abs_energy_disagreement_uJ": 5.84769011235638e-05,
+    "energy_deltas_uJ": {
+      "e_l_pre": 5.84769011235638e-05,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 3.13201291921169e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 3.3896000818795093e-06,
+      "diode_e_h_pre": -6.057013523253392e-06,
+      "e_h_post": 3.595030077734149e-05,
+      "diode_e_h_post": 1.6813403747468472e-06
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt443_esl1.06_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.002033603374088891,
+    "energy_deltas_uJ": {
+      "e_l_pre": -0.002033603374088891,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -4.4385482324664776e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -4.078220329968324e-06,
+      "diode_e_h_pre": -2.688417484168911e-05,
+      "e_h_post": 7.069892539918231e-06,
+      "diode_e_h_post": -1.3012485401738406e-06
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt443_esl1.06_step0.05",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0003259408701326936,
+    "energy_deltas_uJ": {
+      "e_l_pre": 0.0003259408701326936,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 2.4685858859721608e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -2.3730831786672544e-06,
+      "diode_e_h_pre": -9.239587830016458e-06,
+      "e_h_post": -4.0594522426710966e-05,
+      "diode_e_h_post": 1.912508843344106e-06
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt443_esl10_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0010628967441302572,
+    "energy_deltas_uJ": {
+      "e_l_pre": -0.0010628967441302572,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 2.054527161497266e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 1.2613579791419217e-05,
+      "diode_e_h_pre": -1.9690559743151294e-05,
+      "e_h_post": 3.614758364460296e-05,
+      "diode_e_h_post": 3.846505754666015e-06
+    }
+  },
+  {
+    "tag": "v198_i37_d0_dt443_esl10_step0.05",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.00012782992912341133,
+    "energy_deltas_uJ": {
+      "e_l_pre": 0.00012782992912341133,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 1.713645978759879e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 1.3863328040609243e-06,
+      "diode_e_h_pre": -3.734789363760366e-06,
+      "e_h_post": -2.4088191849709097e-05,
+      "diode_e_h_post": 5.714620777081466e-06
+    }
+  },
+  {
+    "tag": "v170_i10_d0_dt443_esl1.06_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.00018788906989633406,
+    "energy_deltas_uJ": {
+      "e_l_pre": 0.00018788906989633406,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 2.4622750985929716e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 7.5833810064098174e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -5.041107679032528e-06,
+      "diode_e_h_post": 9.5352177697012e-07
+    }
+  },
+  {
+    "tag": "v170_i10_d0_dt443_esl1.06_step0.05",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 8.87852879527507e-05,
+    "energy_deltas_uJ": {
+      "e_l_pre": -8.87852879527507e-05,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -3.1561092270295562e-06,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -1.7605835326757084e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -2.8407139822083776e-06,
+      "diode_e_h_post": 1.2820714753317726e-06
+    }
+  },
+  {
+    "tag": "v170_i10_d0_dt443_esl10_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.0001543001547353888,
+    "energy_deltas_uJ": {
+      "e_l_pre": 0.0001543001547353888,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -1.9504590850396843e-05,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": 3.0021334076733795e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -2.5400303935562015e-06,
+      "diode_e_h_post": 1.6067451075692905e-07
+    }
+  },
+  {
+    "tag": "v170_i10_d0_dt443_esl10_step0.05",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 7.791791585654386e-05,
+    "energy_deltas_uJ": {
+      "e_l_pre": -7.791791585654386e-05,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": 3.055988813310058e-06,
+      "diode_e_l_post": 0.0,
+      "e_h_pre": -1.8556841131535486e-06,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -1.025639558168467e-06,
+      "diode_e_h_post": 8.79690468977664e-07
+    }
+  },
+  {
+    "tag": "v170_i10_d1_dt443_esl1.06_step0.1",
+    "wave_end_s": 3.243e-06,
+    "max_abs_energy_disagreement_uJ": 0.00012993909667322577,
+    "energy_deltas_uJ": {
+      "e_l_pre": -2.4571355359313182e-06,
+      "diode_e_l_pre": 0.0,
+      "e_l_post": -8.033821355378116e-06,
+      "diode_e_l_post": 2.501484039379686e-07,
+      "e_h_pre": 0.00012993909667322577,
+      "diode_e_h_pre": 0.0,
+      "e_h_post": -2.103524823588793e-05,
+      "diode_e_h_post": 0.0
+    }
+  }
+]

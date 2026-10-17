@@ -1,0 +1,167 @@
+{
+  "schema": "temper-control-energy-design-v1",
+  "status": "PROPOSED_NOT_IMPLEMENTED_OR_RELEASED",
+  "native_board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "states_with_possible_gate_permission": [
+    "RUN"
+  ],
+  "gate_expression": "RUN && PWM_REQUEST && SUP_RUN_OK && INTERLOCK_LATCH_OK",
+  "existing_power_board_interface": {
+    "J4.1": "V15 output: do not backfeed from upstream AUX",
+    "J4.3": "V3V3 input",
+    "J4.9": "PERMIT active high; low/floating/unpowered disables",
+    "J4.10": "BUS_FAULT active high; low required in RUN",
+    "J4.11_J4.12": "AMC1311 differential bus feedback; linear nominal bus span approximately 0..239.975 V, HOT5-dependent",
+    "J8": "BUS_P bus-side M4 stud for proposed catch branch",
+    "J10": "HV_RET bus-side M4 stud for proposed catch return"
+  },
+  "new_signals_not_spare_pin_assignments": {
+    "VLINE": "L_AUX/N_AUX after manual switch and BEFORE K1/K2; isolated source sensor; two complete OFF cycles100..140Vrms required",
+    "I_INLET": "whole inlet BEFORE auxiliary split, includes AUX/fans/contactors",
+    "VBUS_AUX": "BUS_P-to-HV_RET isolated monitor, range at least 600 V, upstream AUX powered",
+    "VCATCH_AUX": "catch-to-HV_RET isolated monitor, range at least 600 V, upstream AUX powered",
+    "VTANK_AUX": "resonant capacitor differential isolated monitor, diagnostic range at least 2000 V; final range must cover validated stress",
+    "I_PROOF": "actual proof-load branch current, not voltage divided by assumed R",
+    "VPRE": "differential isolated voltage across precharge resistor/bypass",
+    "SUP_RUN_OK": "3.3 V actively asserted hardware healthy; pull-down on interlock receiver",
+    "PWM_REQUEST": "3.3 V actively asserted full-bridge adapter request; independent of supervisor health",
+    "CMD_K1": "24 V driver request, independent channel and hardware cutoff",
+    "CMD_K2": "24 V driver request, independent channel and hardware cutoff",
+    "CMD_KB": "24 V bypass driver request; default off",
+    "CMD_KT": "24 V proof-load driver request; default off",
+    "POD_START": "Separate normally open operator; active high with pulldown; fresh edge after released state; starts only in OFF",
+    "POD_RESET": "Separate normally open operator; active high with pulldown; clears eligible fault to OFF only, never starts",
+    "POD_STOP_OK": "Normally closed hardware healthy chain; wire open or STOP immediately removes gate permission and coil enables; no certified emergency-stop claim"
+  },
+  "requirements_not_measured_limits": {
+    "line_rms_design_range_v": [
+      100,
+      140
+    ],
+    "whole_inlet_rms_allocation_a": 15,
+    "proposed_supervisory_rms_target_a": 13.5,
+    "commissioning_current_limit_until_characterized_a": 0,
+    "precharge_complete_line_cycles": 2,
+    "precharge_crest_current_max_a": 0.5,
+    "precharge_crest_drop_max_v": 5,
+    "precharge_bus_peak_to_line_peak_min": 0.95,
+    "precharge_bus_peak_to_line_peak_max": 1.1,
+    "initial_source_command_to_bypass_confirmation_max_ms": 300,
+    "proof_window_max_ms": 100,
+    "proof_complete_line_cycles": 2,
+    "proof_actual_current_min_arms": 0.4,
+    "proof_current_vs_voltage_over_resistance_relative_tolerance": 0.1,
+    "proof_bypass_peak_drop_max_v": 1,
+    "rail_qualification_timeout_ms": 2000,
+    "native_fault_low_stable_before_run_ms": 20,
+    "bus_overvoltage_nominal_v": 230,
+    "bus_overvoltage_total_error_allowance_v": 5,
+    "catch_overvoltage_latch_v": 250,
+    "run_precharge_drop_fault_v": 10,
+    "outer_conductance_filter_hz": 2,
+    "upward_power_request_slew_w_s": 2000,
+    "pan_map_correction_bandwidth_max_hz": 20,
+    "initial_prototype_burst_enabled": false,
+    "reset_voltage_max_all_storages_v": 30,
+    "reset_voltage_stable_time_ms": 1000,
+    "retry_lockout_min_s": 60,
+    "resistor_case_below_via_temperature_sensor_c": 60,
+    "automatic_fault_reclose": false,
+    "off_state_source_qualification_complete_cycles": 2
+  },
+  "receiver_candidate": {
+    "topology": "BUS_P -> DC fuse -> diode anode/cathode -> catch capacitor -> HV_RET; two independent local bleed chains across catch",
+    "capacitor_mpn": "B32778H8476K000",
+    "capacitance_f": 4.7e-05,
+    "capacitance_min_study_f": 4.23e-05,
+    "rated_voltage_v_at_85c": 700,
+    "diode_mpn": "IDW40G65C5XKSA1",
+    "fuse_mpn": "FWP-10A14F",
+    "holder_candidate": "Mersen US141 / Z331153; pairing and installed rating unqualified",
+    "bleed_resistor_candidate": "VR37000001003JA100 (ordering-code construction; procurement verification pending)",
+    "bleed_independent_branches": 2,
+    "bleed_each_branch_series_count": 4,
+    "bleed_each_resistor_ohm": 100000,
+    "bleed_healthy_equivalent_ohm": 200000,
+    "bleed_one_branch_open_equivalent_ohm": 400000,
+    "holder_envelope_closed_mm": [
+      26.5,
+      107,
+      76.5
+    ],
+    "holder_fits_current_reservation": null,
+    "packaging": "Conditional rotated catch-carrier body-envelope study; supplier orientation, leads, terminals, full card layout, insulation and service qualification remain open. Bus route remains150..220mm; low inductance not established.",
+    "startup_energy_at_198v_j": 0.921294,
+    "native_tvs_retained": "MRT130KP295CV",
+    "native_bus_bleed_ohm": 440000,
+    "native_tank_bleed_ohm": 1880000,
+    "new_powered_measurement_or_fault_survival_pass": false,
+    "rejected_historical_envelope_mm": [
+      80,
+      60,
+      60
+    ],
+    "current_packaging": {
+      "status": "CONDITIONAL_ROTATED_CATCH_CARRIER_NOT_RELEASED",
+      "geometry_reference": "../packaging/catch-alternative.json",
+      "design_reference": "../packaging/catch-alternative.md",
+      "step_repo_path": "output/temper-prototype-closure/round3/packaging/r4-catch-alternative-design-only.step",
+      "step_sha256": "44800fe207b7de12a2b993bff371fece61790fc0f37a4a427e982b05e11d9de5",
+      "valid_solids": 572,
+      "nominal_collision_check_empty_lists": 6,
+      "holder_rotated_min_mm": [
+        17,
+        348,
+        12
+      ],
+      "holder_rotated_size_mm": [
+        107,
+        76.5,
+        26.5
+      ],
+      "capacitor_rotated_min_mm": [
+        25,
+        355,
+        45
+      ],
+      "capacitor_rotated_size_mm": [
+        57.5,
+        45,
+        30
+      ],
+      "bleed_sense_card_min_mm": [
+        45,
+        404,
+        45
+      ],
+      "bleed_sense_card_max_size_mm": [
+        36,
+        20,
+        10
+      ],
+      "eight_vr37_and_isolated_monitor_layout_fit_verified": false,
+      "complete_fit_insulation_and_service_qualified": false
+    }
+  },
+  "critical_unfinished_digital_work": [
+    "capture and review actual supervisor schematic, fault-latch and independent-coil implementation",
+    "implement and verify synchronized four-output PWM adapter and captured timing",
+    "couple finite-bandwidth controller, filter, precharge and catch failure modes",
+    "qualify catch fuse DC coordination, pulse heating and all lead/contact stresses",
+    "solve native19 field matrices and installed catch/PE/coil parasitics",
+    "derive reachable coil/pan shutdown states and tank-capacitor stress rather than adopt diagnostic states"
+  ],
+  "cold_bootstrap": {
+    "start_source": "Separate guarded inlet-pod START PRECHARGE operator, POD_START",
+    "reset_source": "Separate RESET FAULT operator, POD_RESET; eligible reset returns OFF only",
+    "stop_source": "POD_STOP_OK normally closed hardware healthy chain; opening or wire break immediately inhibits gates and source coils",
+    "start_reset_combined_or_allowed": false,
+    "held_input_at_boot_or_rail_restore_can_start": false,
+    "fresh_start_after_observed_release_required": true,
+    "certified_emergency_stop_claim": false,
+    "supervisor_power": "Upstream AUX, independent of native PS1",
+    "cooking_controller_power": "Native PS1 downstream; boots after charging/bypass",
+    "ui_heat_request_required_before_precharge": false,
+    "upstream_cooking_controller_converter_selected": false
+  }
+}

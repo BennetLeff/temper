@@ -36,6 +36,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "power_gate.h"
 
 static const char *TAG = "safety";
 #endif
@@ -437,6 +438,11 @@ void trigger_hardware_shutdown(void) {
 #endif
     pwm_disable_all();
     power_set_level(0);
+#ifdef ESP_PLATFORM
+    /* RUN_EN low (zapote C23): the power owner's pwm_disable_all() stops the
+     * bridge but does not own RUN_EN. */
+    power_gate_disable();
+#endif
     safe_mode_active = true;
 }
 

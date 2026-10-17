@@ -1,0 +1,202 @@
+{
+  "status": "REDUCED_NATIVE19_MATRICES_SOLVED_FINE_WORKFLOW_RESOURCE_STOPPED",
+  "native_board": {
+    "path": "zapote/power-stage-120v/native-19/section.kicad_pcb",
+    "sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b"
+  },
+  "classification": "actual local numerical solves on source-matched generated geometry; no physical measurements",
+  "matrices": [
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A-e4-h1-matrix.json",
+      "sha256": "e3781f7c9e6590405ca3f2713a07d9966a70cfaf1dde2c7776b06098b3a594ed",
+      "mesh_sha256": "a4973703e4371f8bef15d0260301fa17ea24545ed6360d1db97cf7ea3074b274",
+      "ports": [
+        "P1_C38",
+        "P2_C39",
+        "P3_gate_high",
+        "P4_gate_low"
+      ],
+      "L_nH": [
+        [
+          27.818028,
+          16.999075,
+          3.579547,
+          5.186767
+        ],
+        [
+          16.999075,
+          27.247229,
+          3.433299,
+          5.23352
+        ],
+        [
+          3.579547,
+          3.433299,
+          24.475894,
+          -0.290383
+        ],
+        [
+          5.186767,
+          5.23352,
+          -0.290383,
+          34.17418
+        ]
+      ],
+      "minimum_eigenvalue_nH": 10.530511391209851,
+      "max_energy_relative_error": 3.217864506036083e-07,
+      "tets": 990341
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/B-e4-f4-h1-matrix.json",
+      "sha256": "fbdc133846c1e84c5c77a19378e23266f3ec5c6c52c22cdc16f7d34d4326e56a",
+      "mesh_sha256": "eea5352e81cc5b069f8a5db82afbecfa6d7d814853b6b7f21ce1d57c420c8e12",
+      "ports": [
+        "P1_C40",
+        "P2_C41",
+        "P3_gate_high",
+        "P4_gate_low"
+      ],
+      "L_nH": [
+        [
+          28.762329,
+          19.933409,
+          3.980617,
+          3.290712
+        ],
+        [
+          19.933409,
+          31.015143,
+          4.13397,
+          3.380299
+        ],
+        [
+          3.980617,
+          4.13397,
+          26.859983,
+          -0.224055
+        ],
+        [
+          3.290712,
+          3.380299,
+          -0.224055,
+          28.977149
+        ]
+      ],
+      "minimum_eigenvalue_nH": 9.923061463869022,
+      "max_energy_relative_error": 3.038537783800989e-07,
+      "tets": 1361532
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A-selected-refinement-matrix.json",
+      "sha256": "375392b4e6bee64022b1c79004cc065ad1533bbbad6d7aa30acf6e9eaa8c89ae",
+      "mesh_sha256": "9af656608f1550ae91ac48aa4de46d632d21ccb00153e8a57948f2876c5b12b0",
+      "ports": [
+        "P1_C38"
+      ],
+      "L_nH": [
+        [
+          28.145563
+        ]
+      ],
+      "minimum_eigenvalue_nH": 28.145563,
+      "max_energy_relative_error": 1.1949522434425835e-07,
+      "tets": 1271025
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A5-selected-bulk-matrix.json",
+      "sha256": "a4ad0dfe45b47eb92dd43553d06232f6e279e8b1b0b8a4f4021582202e301cfb",
+      "mesh_sha256": "ba75b0dea7a405410fd015773bfbc4ea83ed209eebce04378803ac7bcf73ae01",
+      "ports": [
+        "P1_C38",
+        "P5_C6_bulk"
+      ],
+      "L_nH": [
+        [
+          27.772455,
+          16.942696
+        ],
+        [
+          16.942696,
+          38.038505
+        ]
+      ],
+      "minimum_eigenvalue_nH": 15.202291208173795,
+      "max_energy_relative_error": 1.6218673732990787e-07,
+      "tets": 991399
+    }
+  ],
+  "independent_native_pair": {
+    "port_names": [
+      "P1_C38",
+      "P3_gate_high"
+    ],
+    "M_field_nH": 3.579547,
+    "M_pair_energy_nH": 3.579609,
+    "absolute_difference_nH": 6.2e-05,
+    "relative_difference": 1.73206e-05,
+    "pass": true,
+    "evidence": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/A-pair-check.log"
+  },
+  "horizontal_refinement": {
+    "selected_port": "A C38",
+    "edge_mm": [
+      4,
+      2
+    ],
+    "dz_mm": [
+      1,
+      1
+    ],
+    "L_nH": [
+      27.818028,
+      28.145563
+    ],
+    "change_relative_to_coarse": 0.011774199091322988,
+    "interpretation": "observed one-diagonal sensitivity; not certified global discretization error"
+  },
+  "qualifications": [
+    "Analytic two-port plate fixture at one and four ranks; restart100 and explicit200",
+    "Nonuniform floating-conductor elemental-field fixture",
+    "Independent pair-energy mutual on analytic fixture and native A selected pair",
+    "Actual reversed-current fixture rejected",
+    "Unconverged solver exit0 rejected",
+    "Mixed A fields and B mesh rejected",
+    "Two degenerate initial B meshes rejected without deleting elements",
+    "Owned child timeout/RSS stops and synthetic Swapouts stop exercised"
+  ],
+  "open_digital_gaps": [
+    "Both full matrices lack independent horizontal/vertical/outer-air/crop/closure-height convergence bounds",
+    "Zero-height board-only extraction and device-package/capacitor ESL not supplied",
+    "Full-board C5/C6 and both-leg common-return/cross-leg matrix not supplied",
+    "Loaded Kelvin reference mode lacks physically closed model",
+    "Installed catch loop and enclosure/heatsink coupling not extracted",
+    "Frequency-dependent conductor losses and electrostatic/common-mode modes absent"
+  ],
+  "physical_release": "HOLD: no assembled hardware, no supported45A limit, no tank/SOA/current/fault/thermal/manufacturing qualification",
+  "fine_default_probe": {
+    "status": "REJECTED_NO_COMPLETED_FIELD_RESULT",
+    "last_linear_residual": 9.955756e-08,
+    "linear_iterations": 4315,
+    "reason": "global paging guard triggered during CalcFields postprocessing",
+    "new_swapout_bytes": 504954880,
+    "peak_sampled_tree_rss_gib": 10.639114379882812,
+    "resource_limit_note": "sampled RSS does not bound transient allocation/compression or establish whole-workflow memory feasibility",
+    "causal_limit": "system-wide paging detected at this phase; not a unique attribution of all paging to this process",
+    "finer_B_status": "NOT_LAUNCHED; prepared queue withheld after A postprocessing resource stop"
+  },
+  "elemental_profile_qualification": "QUALIFIED on analytic/nonuniform fixtures and native coarse reference; not a fine-workflow memory qualification",
+  "fine_elemental_probe": {
+    "status": "REJECTED_NO_COMPLETED_FIELD_RESULT",
+    "linear_iterations": 4315,
+    "last_linear_residual": 9.955756e-08,
+    "postprocessor_profile": "elemental_B_only_no_nodal_projection",
+    "reason": "paging guard at CalcFields before field output completed",
+    "elapsed_s": 1198.69974775007,
+    "peak_sampled_tree_rss_gib": 12.894012451171875,
+    "new_swapout_bytes": 921108480,
+    "peak_net_used_swap_growth_bytes": 585493381,
+    "resource_limit_note": "system-wide counters; sampled RSS is not a bound on transient allocation or compressed memory",
+    "finer_B_and_remaining_modes": "NOT_LAUNCHED; sequential campaign stopped on first rejection"
+  },
+  "fine_follow_on": "Guarded, unexecuted >=64 GiB macOS profiles in fine-matrices.sh/refinement-job.sh"
+}

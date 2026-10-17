@@ -1,0 +1,683 @@
+{
+  "identity_capture": "post-run; see README limitations",
+  "base": "27b23b5ea01ee983d651c9461b648cf2d123f575",
+  "runtime": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "source_hashes": {
+    "run.py": "e6bfd15eff3e34c697eb53ffed5b8ff942e730a174c1c0a95707936310d29adb",
+    "ucc21550_parametric.lib": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+    "extra_fixtures.py": "6d7679edcd59af9931853123fdc8ad6221b34699a231a7345fbb4a7891438980",
+    "output_fixtures.py": "430d9736fcfa31c7f621e9ea806b4f8ef611cca631d68ce97e7b18705a949e5c",
+    "check_reporting.py": "0092659d18a178007eddd6c23c9008b84b7e1d47f81757638c0524b7de5e8545",
+    "report.py": "a305178c1b190782baa807ab1e5b90965fd3da7accb1a2843cb61ce1d402c940",
+    "smoke.py": "9355f33e386e5482bfc02e5359a839f97c3ad2234795954358732fbe73f64160"
+  },
+  "matrix": "cf861da357ee496a0314356a21cfa4478d67e4ae8e15d36dae42dbc9deac2019",
+  "original_deck": "804f9be838a470feb92a6b31bf43fb61fd56830f784aa242121f382bade5e346",
+  "options": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+  "runs": [
+    {
+      "tag": "baseline-S1-v170-i37-d0-e1.06-base391",
+      "saved_deck_sha256": "3fd59360cf2da589e41976c5d77e39ccb3df75e8a9c5dcfa2e9625dad8edd99b",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d0-e1.06-base443",
+      "saved_deck_sha256": "117beae51a66d7d7c3df60d0c326ef1eb24e416e467bfdfe9031a4dc45ce1a47",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d0-e1.06-base498",
+      "saved_deck_sha256": "9db3e8b003c7acd0b479e2d5c1fac310eea5b4fbfcf111bc05340ef7694c8981",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d0-e10-base391",
+      "saved_deck_sha256": "209b35b39784f64d7abb9db8d06f6c3652312184cae1c8e6b24c3e87d6b9dbb7",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d0-e10-base443",
+      "saved_deck_sha256": "2294d7b7dd77b779e07c105035e906adce1dd8fdfa8f5c0e7bd107456d537e51",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d0-e10-base498",
+      "saved_deck_sha256": "4aaa28ebe074f45520f751b233f396ca53f6e7d271d944a55491a95a04a44b60",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d1-e1.06-base391",
+      "saved_deck_sha256": "45a0c629ec5d9b505b30735ee473dbfd3403fa1823d04049ddcef3f670ddcfc9",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d1-e1.06-base443",
+      "saved_deck_sha256": "52a7fce1139ef07dad390b96a386832d5118794e1ec5b29d3891014ffe47ed5b",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d1-e1.06-base498",
+      "saved_deck_sha256": "e98560dfbf1de937a18c15be7908e86f9e8e44fbbbe2cd3a8db5fa193dba33e2",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d1-e10-base391",
+      "saved_deck_sha256": "fb9c5ef683f40e9d1191dea1445803158251370d4f9fed28e4375da5935fc0c8",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d1-e10-base443",
+      "saved_deck_sha256": "cde7257cacf4841907d4c95c2d9208d0d0eec7d154d8d7d6d9216189dd2a1732",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S1-v170-i37-d1-e10-base498",
+      "saved_deck_sha256": "87c28e8a13f2e66171ad67999007ce8912c9050ddb53a254fd839c6e233dd002",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d0-e1.06-base391",
+      "saved_deck_sha256": "ae7943e12c4472fe0906ce719be3f9c3d14421b03e8a6b72f1d2d970b123be3c",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d0-e1.06-base443",
+      "saved_deck_sha256": "03b312484dac8a7ec6040f82b255c319565e47783c5eb6436dd31548d035962d",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d0-e1.06-base498",
+      "saved_deck_sha256": "4a85b3bd45ad53ed2ab07a0209c18aa3d11a880c621002fa5f2e9ec080b06ad5",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d0-e10-base391",
+      "saved_deck_sha256": "a959b1da9c08264bed1ed64b52c5275e782dcb1438239562d84b2bc3b3856a3d",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d0-e10-base443",
+      "saved_deck_sha256": "32b1349097c64177de9e8416222c1c01ac941b8b79aede10aa63297c46ad89ea",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d0-e10-base498",
+      "saved_deck_sha256": "fdbb2cd7da4a2ec3679bafba2962de0fe1d395f15bf50d30cd94a1c662df1564",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d1-e1.06-base391",
+      "saved_deck_sha256": "270e0135db98597097dc21bd4814a9b671e5b21acd98b08b79ec561bbd01fe86",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d1-e1.06-base443",
+      "saved_deck_sha256": "227a5f30c75c7cb55c5829afe318e85d92bf806c399cfc0e57cef012aa18b655",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d1-e1.06-base498",
+      "saved_deck_sha256": "69c7c9c3bbc0969290034d7111b81dbfde803aa7380ce49dff43553243831712",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d1-e10-base391",
+      "saved_deck_sha256": "77b87e502c2c2dc73d1c80f886fb76d6bd035857e4bca56ccc3878d3a9c06184",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d1-e10-base443",
+      "saved_deck_sha256": "530ef5c8bd5e3ab0dd0104ccf11cedcb9d3524dfe031cc02ec92e4c7b183e005",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S2-v280-i71-d1-e10-base498",
+      "saved_deck_sha256": "f2568ce12e45caf2a416cafa15d848ae3afcd0cfe41b2b70d0c817e61180b2f0",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d0-e1.06-base391",
+      "saved_deck_sha256": "e8d8e2a6280e209af524c7300613928d55f10fb2ca5107b2bca6c2eb6b3cca6e",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d0-e1.06-base443",
+      "saved_deck_sha256": "b0dc1620e4e02c427e68ee1e13324a4ab676cc5dfdd1844eb87fa6fee3efe5db",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d0-e1.06-base498",
+      "saved_deck_sha256": "0aae2a1bac3e82eeb56bc8a7764c8fbf77743a0bbdfeff21fca355ba01e2787f",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d0-e10-base391",
+      "saved_deck_sha256": "a534858e5d3663074c5ae2247efddd22875c4c96133750c7e0239b21bb31d9aa",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d0-e10-base443",
+      "saved_deck_sha256": "428d2625a0f459ad59a5e3f654535a936d4564654b4c4c7a3b34a489988f782a",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d0-e10-base498",
+      "saved_deck_sha256": "bc09574795b0dc7282738eafcc9cc778b3558be7c4e018b302fb53dc049b5929",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d1-e1.06-base391",
+      "saved_deck_sha256": "5a8c1a5df3a4d537d8392eb2c86e0b6408b6fbdf76a1eb0c5020840ab0227c28",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d1-e1.06-base443",
+      "saved_deck_sha256": "774e80b8cf1374bd9285e13b9aa9caa2f716a31fefec9773bae25cb42d90820c",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d1-e1.06-base498",
+      "saved_deck_sha256": "fe20a640d404e4ae77848fe3067ae0da98b16b24301678b10637d027f671ea48",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d1-e10-base391",
+      "saved_deck_sha256": "eeeb1071029aa76a21a322acbcc5ed49d5a45bbfde8818e42cceea60e4ffae62",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d1-e10-base443",
+      "saved_deck_sha256": "581fd07e4c1e719136ac91c7ce2c5f39c4117c4ec632e05f70d21fd0e8a5d5e8",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "baseline-S4-v198-i-20-d1-e10-base498",
+      "saved_deck_sha256": "a216060d65572f99657587c9540699a101405f4ddee8ed5b16a84c007b9d9584",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d0-e1.06-max",
+      "saved_deck_sha256": "99e9ebaf754479a8c0170888476c8ca9857364ee63bc2d7539a64b50424f9806",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d0-e1.06-min",
+      "saved_deck_sha256": "905580a40a2de4f2e8bd7bd111a56b22f3abb92eb2a87a2289624f27e0d0639d",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d0-e1.06-typ",
+      "saved_deck_sha256": "30576cee73a5cd5cbd236aaf4807425b4212f420d0f88e67350e504267fac566",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d0-e10-max",
+      "saved_deck_sha256": "ca6efc4599e29f782930cf1c5409a1ae8d8c225ba0585d79e467fbae5417ebaa",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d0-e10-min",
+      "saved_deck_sha256": "17430dbfa19ab1a534e4561cf621e1dcab905b4621a9ffc1ce947b1ce5291c75",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d0-e10-typ",
+      "saved_deck_sha256": "96230cf44672568031de336c6e1c6d92f5efde808d0f39b28170d9201f4fda7e",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d1-e1.06-max",
+      "saved_deck_sha256": "92da62b6129f6546d149d07198bbc23288f76f1bf95b9d6e9c62957cd9db5c30",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d1-e1.06-min",
+      "saved_deck_sha256": "6316f461db4f927894d3a4a428f58b89394c465af0bac60d9883a4445f2e8385",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d1-e1.06-typ",
+      "saved_deck_sha256": "db3b05833058c0f70705a0b9c440e748a81d75de0cf10e4a49d16fd49781447b",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d1-e10-max",
+      "saved_deck_sha256": "7530990e3b8c67c465b371384257964881bf973b3fcaeb106f833de2e9081958",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d1-e10-min",
+      "saved_deck_sha256": "6a4f29350284445337affc3612406dfb2cd93147c95b07438963cf50c04b40bf",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S1-v170-i37-d1-e10-typ",
+      "saved_deck_sha256": "0331117abd4c1c52ef4ebab16f778ecb4cd27df94815843d22eebcc119d55bc5",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d0-e1.06-max",
+      "saved_deck_sha256": "cd53593bf65fb76d9c16d7c941c2069ca31b75db575b508d167ebae3f7c75984",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d0-e1.06-min",
+      "saved_deck_sha256": "94657347efc3da5058b0df41ea5b7925c927bc1eed2f2c150d6598777a462e2c",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d0-e1.06-typ",
+      "saved_deck_sha256": "2b6ee4fac4e87c1c210c6ec9ca0a8486224005b5f281e108d3c9c1adb3b54b9f",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d0-e10-max",
+      "saved_deck_sha256": "d61cdfb04b75d0c8c06f9f2f88de40d4cbfdc1747e316b09d55f9be687fff932",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d0-e10-min",
+      "saved_deck_sha256": "b08672f2152663335ab4a9348fef817290e027f1e5a24bd5186686200a3b07b9",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d0-e10-typ",
+      "saved_deck_sha256": "2703f745ac4e634be4a081fc9e9ec7cc5ee4223d9d12c6079952f90343a8e45d",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d1-e1.06-max",
+      "saved_deck_sha256": "9e6afe463c8ea9953ad18151e50a34c7c0e0b486831fc5c6632f49e23c4e5d03",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d1-e1.06-min",
+      "saved_deck_sha256": "fef4e03f7709ed3aec5d9e441d798dfee07a196c76c7f02c83b570e876aa4e5f",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d1-e1.06-typ",
+      "saved_deck_sha256": "945825466275e42ba1934a749de00a6a2023554d53df0e6d1dcf51da3a46dfeb",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d1-e10-max",
+      "saved_deck_sha256": "4cbd73ff17b27a99f92ce84a40fe017a1267cde1c7c30dc67f81320040c18985",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d1-e10-min",
+      "saved_deck_sha256": "9fc5592d4d32565e0a1ed6e9a8c77c3c18fd0b962941d59ecf48a567fbda61e2",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S2-v280-i71-d1-e10-typ",
+      "saved_deck_sha256": "40ebd6d46a6f2257189b9d3d92422230316457bec490c632a1d6d9e908ef0638",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d0-e1.06-max",
+      "saved_deck_sha256": "40b493456044cfd960e632447dd21ba8ba256e7811e748035525d149090cf3b1",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d0-e1.06-min",
+      "saved_deck_sha256": "770e5df845ab956638837b228753aafded268cb664d9e958afe0d79de3278f32",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d0-e1.06-typ",
+      "saved_deck_sha256": "ef153d9aac6a523ca8e7aa1fe24da7fecc173409527f3196e01b6f20aec17b2a",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d0-e10-max",
+      "saved_deck_sha256": "f650a11c6f9647bad9b1941793498a8d694cfdb3695045e0ea44483af4a05479",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d0-e10-min",
+      "saved_deck_sha256": "bc63c215212a8f807362d06051fe7f90134307521657c33d24f5ec6f4d38ef6a",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d0-e10-typ",
+      "saved_deck_sha256": "3cb0e6868c1be9ffbc88771ac7d5ee5e83d7b23ffd58babb190afc82338afa34",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d1-e1.06-max",
+      "saved_deck_sha256": "849d8ffe54e051224ea82517c25d3983f1b54a872f5bb7ee30d574e0fb81c970",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d1-e1.06-min",
+      "saved_deck_sha256": "1fd206479183a0e336bb00c1d0e178292b33144cb78d74c609e571c4551d0bfb",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d1-e1.06-typ",
+      "saved_deck_sha256": "f06199e25c657272211b4c690e3384c8c9944106e8fa188878f45241eabfd30e",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d1-e10-max",
+      "saved_deck_sha256": "0f3ec7fd84e5de9b4fc0946f851d74e351f5895d39d56d47a7c1f561829a1ab8",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d1-e10-min",
+      "saved_deck_sha256": "3bf93695e0fb7c59f6c36f47cbda4822f536ef35d03fa890deecaf6375cfd710",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "model-S4-v198-i-20-d1-e10-typ",
+      "saved_deck_sha256": "2a77446cf504c6bdf202f7d9b61c25fe7d0f5958fd9260d4a1b2a5b3e556d474",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk-6.5-pwd-5",
+      "saved_deck_sha256": "98dd31689717d7e558c0dc394621b14d16f9fb48d2234b567795496d7ced22a8",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk-6.5-pwd5",
+      "saved_deck_sha256": "4d8d596720ea8d407e8239ecba1efe3ffb922c2ceb8552bccfd221b370a632e9",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk6.5-pwd-5",
+      "saved_deck_sha256": "19e486eaa722742ee3d710b6f4f78a88af4ef8668839ed8ab1ed71defb7579a0",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc-1-sk6.5-pwd5",
+      "saved_deck_sha256": "d7ca86195ec13187372c1d0c8c2471bbbe02c607b35a970f3a4f198899d521f4",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk-6.5-pwd-5",
+      "saved_deck_sha256": "48603da1ab65d6c1b9e768ee69310196ba9feb10e041ccd9654f52467b224206",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk-6.5-pwd5",
+      "saved_deck_sha256": "dbc271cc5629f639cb2260d465f32ebbcb42b05caee5a5201c8658a8b1ac6dee",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk6.5-pwd-5",
+      "saved_deck_sha256": "dec68f1ca25ad603fb2f9af91bd72f37171961bbd26ce16bb1f172930a468309",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e1.06-dtc1-sk6.5-pwd5",
+      "saved_deck_sha256": "a75c33a8fea5df78f9476d0a853ddb627ff99798b46fa708302e12a7a8b21645",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e10-dtc-1-sk-6.5-pwd-5",
+      "saved_deck_sha256": "4930c7400505ff2c2de0fe7c18ba2ef2b1f6a2d67dfe190c14cf3b7d6cc61d50",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e10-dtc-1-sk-6.5-pwd5",
+      "saved_deck_sha256": "18e525b372977b4159929ef98662636bd0c22b6d55fd7ba2b279fcfe564e953a",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    },
+    {
+      "tag": "stress-S1-v170-i37-d0-e10-dtc-1-sk6.5-pwd-5",
+      "saved_deck_sha256": "2815bb9862bb68e45f4b2f37060666963a110250c306721a17843dacb40b43d1",
+      "final_renderer_matches_saved_deck": true,
+      "model_sha256": "669d475b366fa646355d4208ba9f99085604737616a932cbb38706a63db911e1",
+      "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+      "identity_capture": "post-run reconstructed; execution-time runner hash unavailable for this first campaign"
+    }
+  ]
+}

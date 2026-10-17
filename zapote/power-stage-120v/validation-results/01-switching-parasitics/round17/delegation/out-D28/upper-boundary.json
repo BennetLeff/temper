@@ -1,0 +1,20 @@
+[
+  {
+    "label": "boundary-v170-r2-p125-s0.5",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 125,
+    "step": 0.5,
+    "cycles": 40
+  },
+  {
+    "label": "boundary-v170-r2-p130-s0.5",
+    "bus": 170,
+    "resistance": 2,
+    "freq": 50000,
+    "phase": 130,
+    "step": 0.5,
+    "cycles": 40
+  }
+]

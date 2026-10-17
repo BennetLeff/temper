@@ -1,0 +1,7 @@
+{
+  "import_gate_exit": 0,
+  "regen_check_exit": 0,
+  "import_invocation": "existing gate, same config/parser/allowlist; CLI --no-cache; source on PYTHONPATH",
+  "regen_invocation": "scripts/regen_derived.py --check (report-only make regen-check entry point)",
+  "write_regeneration": "not run: user allows writes only to out-D27"
+}

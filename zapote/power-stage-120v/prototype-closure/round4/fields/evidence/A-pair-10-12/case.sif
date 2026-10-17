@@ -1,0 +1,93 @@
+! Round-10 magnetostatic fixture, 1 A port. Coordinates in metres after ElmerGrid -scale; L = 2E/I^2 with 1 A per driven port.
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "mesh"
+  Results Directory "mesh"
+End
+Simulation
+  Coordinate System = Cartesian 3D
+  Simulation Type = Steady
+  Steady State Max Iterations = 1
+  Max Output Level = 10
+  Output File = "case.result"
+End
+Constants
+  Permeability of Vacuum = 1.2566370614359173e-6
+End
+Body 1
+  Target Bodies(1) = 1
+  Equation = 1
+  Material = 1
+End
+Material 1
+  Relative Permeability = 1.0
+  Relative Permittivity = 1.0
+  Electric Conductivity = 0.0
+End
+Equation 1
+  Active Solvers(2) = 1 2
+End
+Solver 1
+  Equation = "MGDynamics"
+  Variable = "AV"
+  Procedure = "MagnetoDynamics" "WhitneyAVSolver"
+  Edge Basis = Logical True
+  Linear System Solver = Iterative
+  Linear System Use Hypre = Logical True
+  Linear System Preconditioning = ams
+  Linear System Method Hypre Index = Integer 8
+  AMS Singular Matrix = Logical True
+  Linear System Symmetric = True
+  Edge Basis = Logical True
+  Linear System Convergence Tolerance = 1e-07
+  Linear System Max Iterations = 18000
+  Linear System Residual Output = 10
+  Linear System Abort Not Converged = True
+  Use Tree Gauge = False
+  HYPRE GmRes Dimension = Integer 200
+End
+Solver 2
+  Equation = "MGDynamicsCalc"
+  Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+  Potential Variable = String "AV"
+  Calculate Magnetic Field Strength = Logical True
+  Calculate Elemental Fields = Logical True
+  Separate Magnetic Energy = Logical True
+  Calculate Magnetic Vector Potential = Logical True
+  Linear System Solver = Iterative
+  Linear System Iterative Method = CG
+  Linear System Preconditioning = ILU0
+  Linear System Max Iterations = 2000
+  Linear System Convergence Tolerance = 1e-9
+End
+Boundary Condition 1
+  Target Boundaries(2) = 2 3
+  AV {e} = Real 0.0
+End
+Boundary Condition 2
+  Target Boundaries(1) = 10
+  Magnetic Field Strength 1 = Real -2500.0
+  Magnetic Field Strength 2 = Real -0.0
+  Magnetic Field Strength 3 = Real 0.0
+End
+Boundary Condition 3
+  Target Boundaries(1) = 12
+  Magnetic Field Strength 1 = Real 2500.0
+  Magnetic Field Strength 2 = Real -0.0
+  Magnetic Field Strength 3 = Real 0.0
+End
+Solver 3
+  Exec Solver = After Saving
+  Equation = "ResultOutput"
+  Procedure = "ResultOutputSolve" "ResultOutputSolver"
+  Output File Name = "case"
+  Vtu Format = Logical True
+  Discontinuous Galerkin = Logical True
+  ! The writer otherwise averages DG fields within each body (default True),
+  ! which smooths the per-tet curl that inductance_matrix.py needs (round 17).
+  Average Within Materials = Logical False
+  Save Bulk Only = Logical True
+  Scalar Field 1 = String "none"
+  Vector Field 1 = String "magnetic flux density e"
+  Save Geometry Ids = Logical True
+End

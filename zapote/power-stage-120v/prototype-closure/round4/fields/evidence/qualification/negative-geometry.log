@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/prototype-closure/round4/fields/register-mesh.py", line 80, in <module>
+    main()
+  File "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/zapote/power-stage-120v/prototype-closure/round4/fields/register-mesh.py", line 35, in main
+    raise ValueError("degenerate or omitted mesh geometry")
+ValueError: degenerate or omitted mesh geometry

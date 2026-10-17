@@ -1,0 +1,30 @@
+# Geometry input for the adjacent unit-local .pretty footprint; millimetres.
+# KiCad Library Tools capacitor/THT/other currently generates two-terminal
+# rectangular capacitors, so this four-pin drawing was transcribed directly.
+footprint: TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly
+manufacturer: TDK Electronics
+mpn: B32656G0275J000
+method: manufacturer_drawing_transcription
+source:
+  url: https://www.tdk-electronics.tdk.com/inf/20/20/db/fc_2009/MKP_B32651_658.pdf
+  drawing: B1, page 4
+  ordering_table: page 29, 1000 VDC 2700 nF J-tolerance row
+body_max_mm: {length: 42.0, width: 33.0, height: 48.0}
+fab_rect_mm: {xmin: -2.25, ymin: -6.35, xmax: 39.75, ymax: 26.65}
+lead_diameter_mm: 1.2
+lead_diameter_tolerance_mm: 0.05
+end_span_mm: 37.5
+end_span_tolerance_mm: 0.4
+side_span_mm: 20.3
+pad_size_mm: 2.8
+drill_mm: 1.8
+pads:
+  - {number: '1', x_mm: 0.0, y_mm: 0.0, electrode: A}
+  - {number: '2', x_mm: 0.0, y_mm: 20.3, electrode: A}
+  - {number: '3', x_mm: 37.5, y_mm: 0.0, electrode: B}
+  - {number: '4', x_mm: 37.5, y_mm: 20.3, electrode: B}
+limitations:
+  - Datasheet drawing has no pin numbers; the numbers above are a local convention.
+  - The same-end electrode grouping follows the two-ended drawing; verify continuity on received parts.
+  - No manufacturer-recommended hole diameter was located; 1.8 mm is a fabrication choice for 1.2 mm leads and the stated span tolerance.
+  - The body envelope is centered on the four-lead array because drawing B1 does not dimension body-to-lead offsets individually.

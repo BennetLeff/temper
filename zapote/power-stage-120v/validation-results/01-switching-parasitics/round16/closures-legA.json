@@ -1,0 +1,13 @@
+[
+ {"name": "P1_C38",       "kind": "port",   "a": [144.000, 22.000], "b": [129.000, 22.000], "level": 0, "note": "C38.1 bus_p -> C38.2 hv_ret"},
+ {"name": "P2_C39",       "kind": "port",   "a": [164.600, 22.000], "b": [149.600, 22.000], "level": 0, "note": "C39.1 bus_p -> C39.2 hv_ret"},
+ {"name": "P3_gate_high", "kind": "port",   "a": [144.825, 41.125], "b": [146.095, 41.125], "level": 0, "note": "U1.15 out_h -> U1.14 sw_a"},
+ {"name": "P4_gate_low",  "kind": "port",   "a": [151.175, 41.125], "b": [152.445, 41.125], "level": 0, "note": "U1.10 out_l -> U1.9 leg_ret"},
+ {"name": "Q2_DS",        "kind": "bridge", "a": [156.000, 4.215],  "b": [161.450, 4.215],  "level": 0, "note": "Q2 drain bus_p -> source sw_a"},
+ {"name": "Q3_DS",        "kind": "bridge", "a": [138.000, 4.215],  "b": [143.450, 4.215],  "level": 0, "note": "Q3 drain sw_a -> source leg_ret"},
+ {"name": "R5_1_4",       "kind": "bridge", "a": [127.135, 9.615],  "b": [125.865, 15.585], "level": 0, "note": "R5.1 leg_ret -> R5.4 hv_ret"},
+ {"name": "R10",          "kind": "bridge", "a": [150.550, 14.062], "b": [150.550, 11.137], "level": 0, "note": "R10 out_h -> gate_h"},
+ {"name": "R12",          "kind": "bridge", "a": [132.550, 14.062], "b": [132.550, 11.137], "level": 0, "note": "R12 out_l -> gate_l"},
+ {"name": "Q2_GS",        "kind": "bridge", "a": [150.550, 4.215],  "b": [161.450, 4.215],  "level": 1, "note": "Q2 gate -> source, over the drain"},
+ {"name": "Q3_GS",        "kind": "bridge", "a": [132.550, 4.215],  "b": [143.450, 4.215],  "level": 1, "note": "Q3 gate -> source, over the drain"}
+]

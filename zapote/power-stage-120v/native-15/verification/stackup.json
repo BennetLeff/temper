@@ -1,0 +1,27 @@
+{
+  "board": "native-15/section.kicad_pcb",
+  "board_sha256": "bec1df670d5965bff852b5c0e674dbfa2a6396767c78f213f88b58eddad9ab5f",
+  "checks": [
+    {
+      "checked_rules": [
+        "DRC.BOARD.STACKUP"
+      ],
+      "coverage_gaps": [],
+      "findings": [
+        {
+          "actual": null,
+          "message": "4 copper layers; copper + dielectric + mask = 1.653000 mm, declared 1.653000 mm",
+          "object": "board.setup.stackup",
+          "required": null,
+          "rule": "DRC.BOARD.STACKUP",
+          "severity": "info",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "zapote.board-checks.v1",
+  "scope": "Common saved-board gates only; unit electrical checks and native ERC/DRC remain required",
+  "status": "pass"
+}

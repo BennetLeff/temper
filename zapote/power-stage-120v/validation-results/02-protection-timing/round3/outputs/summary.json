@@ -1,0 +1,63 @@
+{
+  "cases": 108,
+  "independent_analog_runs": 18,
+  "reference_cases": 12,
+  "max_original_reference_error_ns": 0.0921790803884155,
+  "max_half_step_error_ns": 0.007200752086343031,
+  "positive_nominal_reference_intervals_ns": [
+    71.01026260131546,
+    336.2896384489092
+  ],
+  "threshold_reference_mismatches": [
+    {
+      "params": {
+        "FREQ": "39000",
+        "I0": "10",
+        "SLOPE": "1000000.0",
+        "VOS": "-0.004",
+        "TPD": "4.5e-08"
+      },
+      "t_ip_trip": 5.5380794327099676e-05,
+      "t_in_trip": 6.734365223103948e-05,
+      "t_pos_trip": 5.554331301659225e-05,
+      "t_or": 4.511989521176675e-05,
+      "detection_delay_ns": -10260.899115332926,
+      "primary_at_detection_a": -55.0180622718094,
+      "t_20mv_overdrive": 5.5642206751576126e-05,
+      "t_20mv_plus_55ns": 5.5697206751576124e-05,
+      "conditional_20mv_delay_ns": 316.4124244764486,
+      "primary_at_conditional_20mv_a": 58.001151084505835,
+      "zc_lag_ns_min": 154.22135121185755,
+      "zc_lag_ns_max": 174.91571827256024,
+      "raw_end_s": 0.0002,
+      "raw_points": 40008,
+      "analog_run": "f39000-i10-s1e+06-dt5e-09"
+    },
+    {
+      "params": {
+        "FREQ": "39000",
+        "I0": "10",
+        "SLOPE": "1000000.0",
+        "VOS": "-0.004",
+        "TPD": "5.5e-08"
+      },
+      "t_ip_trip": 5.5380794327099676e-05,
+      "t_in_trip": 6.734365223103948e-05,
+      "t_pos_trip": 5.555331301659225e-05,
+      "t_or": 4.512989521176675e-05,
+      "detection_delay_ns": -10250.899115332926,
+      "primary_at_detection_a": -55.01967061993825,
+      "t_20mv_overdrive": 5.5642206751576126e-05,
+      "t_20mv_plus_55ns": 5.5697206751576124e-05,
+      "conditional_20mv_delay_ns": 316.4124244764486,
+      "primary_at_conditional_20mv_a": 58.001151084505835,
+      "zc_lag_ns_min": 164.22135121185576,
+      "zc_lag_ns_max": 184.91571827255507,
+      "raw_end_s": 0.0002,
+      "raw_points": 40008,
+      "analog_run": "f39000-i10-s1e+06-dt5e-09"
+    }
+  ],
+  "max_absolute_primary_at_model_trip_a": 59.87284077415319,
+  "verdict": "BLOCKED for physical protection; numerical CT grid complete under fixed-delay assumption"
+}

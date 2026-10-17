@@ -1,0 +1,20 @@
+{
+  "sha256": "9b898c1229fa193ac2c69ae22f0edb65466b966a5e11641f2d5f0e059606a47d",
+  "variants": {
+    "c1_neg2": [
+      null,
+      1,
+      -2
+    ],
+    "c1_neg4": [
+      null,
+      1,
+      -4
+    ]
+  },
+  "argv": [
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D6/supply_combinations.py",
+    "--workers",
+    "2"
+  ]
+}

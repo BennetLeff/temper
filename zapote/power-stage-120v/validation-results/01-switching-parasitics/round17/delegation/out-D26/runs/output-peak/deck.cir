@@ -1,0 +1,20 @@
+* Output-stage peak; CVDD10u, VDD12V
+.include "/Users/bennet/.codex/worktrees/ps-r17-d26-parametric/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D26/ucc21550_parametric.lib"
+Vcc vc 0 3.3
+Vdd vd 0 12
+Cdd vd 0 10u
+Va a 0 PULSE(0 3.3 1u 1n 1n 1u 1m)
+Vb b 0 0
+XU a b 0 vc 0 vd 0 oa vd 0 ob UCC21550 DTEN=0
+Ca oa 0 220n
+Cb ob 0 1f
+.tran 0.1n 3u
+.control
+set numdgt=15
+set wr_singlescale
+set wr_vecnames
+run
+wrdata wave.txt v(oa) v(ob)
+quit
+.endc
+.end

@@ -1,0 +1,168 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * healthy initial point for exact short transient
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+	Node                                  Voltage
+	----                                  -------
+	----	-------
+	highth                           7.861635e-01
+	lowth                            1.772241e-01
+	windowp                          3.912473e-01
+	sensem                           3.916155e-03
+	sensep                           3.912473e-01
+	forcen_i                         3.892876e-06
+	sensorn                          3.896768e-03
+	sensorp                          3.912456e-01
+	forcep_i                         3.951175e-01
+	refsrc                           1.250000e+00
+	bias                             2.060000e+00
+
+	Source	Current
+	------	-------
+
+	vbias#branch                     -3.87554e-03
+	vrefsrc#branch                   -9.59471e-05
+
+ Capacitor models (Fixed capacitor)
+      model                     C
+
+        cap                     0
+         cj                     0
+       cjsw                     0
+       defw                 1e-05
+       defl                     0
+     narrow                     0
+      short                     0
+        del                     0
+        tc1                     0
+        tc2                     0
+         di                     0
+      thick                     0
+     bv_max                 1e+99
+
+ Resistor models (Simple linear resistor)
+      model                     R
+
+        rsh                     0
+     narrow                     0
+      short                     0
+        tc1                     0
+        tc2                     0
+        tce                     0
+       defw                 1e-05
+          l                 1e-05
+         kf                     0
+         af                     0
+          r                     0
+     bv_max                 1e+99
+         lf                     1
+         wf                     1
+         ef                     1
+
+ Capacitor: Fixed capacitor
+     device                   cgn                   cgp                 cdiff
+      model                     C                     C                     C
+capacitance                 1e-10                 1e-10               1.1e-09
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+          i                     0                     0                     0
+          p                     0                     0                     0
+
+ Resistor: Simple linear resistor
+     device             rhighbotx             rhightopx              rlowbotx
+      model                     R                     R                     R
+ resistance                 10000                  5900                 10000
+         ac                 10000                  5900                 10000
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           7.86164e-05           7.86164e-05           1.73308e-05
+          p           6.18053e-05           3.64651e-05           3.00356e-06
+
+ Resistor: Simple linear resistor
+     device              rlowtopx                 rwinp                rdiagn
+      model                     R                     R                     R
+ resistance                 61900                100000                 1e+06
+         ac                 61900                100000                 1e+06
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           1.73308e-05           5.55112e-22           2.05608e-06
+          p           1.85921e-05           3.08149e-38           4.22748e-06
+
+ Resistor: Simple linear resistor
+     device                rdiagp                rsnath                rspath
+      model                     R                     R                     R
+ resistance                 1e+06                     1                     1
+         ac                 1e+06                     1                     1
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i           1.66875e-06          -1.93869e-05          -1.66875e-06
+          p           2.78474e-06           3.75851e-10           2.78474e-12
+
+ Resistor: Simple linear resistor
+     device               rreturn                rfnath                  rrtd
+      model                     R                     R                     R
+ resistance                 0.001                     1                   100
+         ac                 0.001                     1                   100
+      dtemp                     0                     0                     0
+     bv_max                 1e+99                 1e+99                 1e+99
+      noisy                     1                     1                     1
+          i            0.00389288            0.00389288            0.00387349
+          p           1.51545e-08           1.51545e-05            0.00150039
+
+ Resistor: Simple linear resistor
+     device                rfpath                  rref
+      model                     R                     R
+ resistance                     1                   430
+         ac                     1                   430
+      dtemp                     0                     0
+     bv_max                 1e+99                 1e+99
+      noisy                     1                     1
+          i            0.00387182            0.00387182
+          p            1.4991e-05            0.00644613
+
+ Vsource: Independent voltage source
+     device               vrefsrc                 vbias
+         dc                  1.25                  2.06
+      acmag                     0                     0
+      pulse         -         -
+        sin         -         -
+        exp         -         -
+        pwl         -         -
+       sffm         -         -
+         am         -         -
+    trnoise         -         -
+   trrandom         -         -
+    portnum                     0                     0
+         z0                     0                     0
+        pwr                     0                     0
+       freq                     0                     0
+      phase                     0                     0
+          i          -9.59471e-05           -0.00387554
+          p          -0.000119934           -0.00798362
+
+
+Total analysis time (seconds) = 0.000564
+
+Total elapsed time (seconds) = 0.004 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  416.953 MB.
+Maximum ngspice program size =    9.922 MB.
+Current ngspice program size =    9.922 MB.
+
+Warning from checkvalid: vector op is not available or has zero length.

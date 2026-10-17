@@ -1,0 +1,20 @@
+{
+  "file": "zapote/power-stage-120v/frozen/default.net",
+  "sha256": "32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f",
+  "U1_pin_nets": {
+    "9": "leg_ret",
+    "14": "sw_a",
+    "11": "v15_ls",
+    "4": "selv_gnd",
+    "3": "v3v3",
+    "8": "v3v3",
+    "1": "pwm_ha",
+    "2": "pwm_la",
+    "5": "leg_a-dis",
+    "16": "leg_a-boot",
+    "15": "leg_a-out_h",
+    "10": "leg_a-out_l",
+    "6": "leg_a.driver-dt",
+    "7": "leg_a.driver-nc_7"
+  }
+}

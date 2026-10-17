@@ -1,0 +1,119 @@
+* Round 17 D2: complementary half-bridge leg with the FEM board inductance
+* matrix as four coupled inductors (one per FEM port), one transition.
+* Built from round 3's complementary_leg.cir (same driver approximation,
+* Infineon L1 models, snubbers, shunt, load, solver options).
+*
+* Board copper: the 4x4 FEM matrix (h -> 0) maps onto
+*   L_P1  in series with C38's branch   (port P1: C38.1 bus_p -> C38.2 hv_ret)
+*   L_P2  in series with C39's branch   (port P2: C39.1 bus_p -> C39.2 hv_ret)
+*   L_P3  in the high-side gate path    (port P3: driver out_h -> sw, i.e. +
+*         is gate-discharge current, gate -> driver)
+*   L_P4  in the low-side gate path     (port P4: driver out_l -> leg_ret)
+* coupled by K (k_ij = L_ij/sqrt(L_ii L_jj)). Each inductor's first node is
+* the end where FEM port current enters (the port's 'a' side), so the K
+* signs carry over. The FEM shorted the FETs, gate resistors and shunt at
+* their pads (closures), so those parts sit in the SPICE loops at the same
+* places; the FEM ports were at the capacitors and the driver pins.
+* The common-source effect is the P1/P2-to-P3/P4 coupling (no separate LCS).
+*
+* NOT from the FEM: LBULK (bulk-capacitor path, round-3 heuristic copper
+* value), capacitor ESL LESL (TDK bound <= ~20 nH, PACKAGE-INDUCTANCE.md),
+* shunt inductance LSHUNT (Vishay 0.5-5 nH). The Infineon L1 subcircuit
+* already contains the TO-247 leads (Ld 1.88, Ls 2.82, Lg 8.32 nH) and
+* Rg,int 2.7 ohm: do not add package L again.
+
+.include "/Users/bennet/.codex/worktrees/ps-r17-d26-parametric/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D26/vendor/IFX_CFD7_650V.lib"
+.include "/Users/bennet/.codex/worktrees/ps-r17-d26-parametric/temper/zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc"
+* D-14 (delegation/out-D14): raise the transient iteration limit; resolves
+* the 'timestep too small' aborts without changing converged results.
+.options itl4=100000
+
+* ---- defaults; params.inc (written by the runner) overrides them
+.param VBUS=170 IL=37 DIR=0 T1=2u DT=348n TRMAX=0.2n
+.param LP1=26n LP2=26n LP3=20n LP4=20n K12=0.6 K13=0.1 K14=0.15 K23=0.1 K24=0.15 K34=0
+.param LESL=10n LSHUNT=2n LBULK=21.519n RG=3.9 ROL=0.55 ROH=5 VDRV=15 CSNUB=1n
+.param C38=0.1u C39=0.1u CBULK=5.4u
+.param CORNER=0 SK=0 PWDS=0 PDOV=0 PWOV=0
+.param LP1=24.2544n
+.param LP2=23.4895n
+.param LP3=24.2615n
+.param LP4=35.617n
+.param K12=0.627255913
+.param K13=0.166300122
+.param K14=0.188169102
+.param K23=0.161764352
+.param K24=0.19954378
+.param K34=-0.00887537245
+.param VBUS=280
+.param IL=71
+.param DIR=1
+.param DT=443n
+.param LESL=10n
+.param TRMAX=0.2n
+.param CORNER=1
+.param SK=0n
+.param PWDS=0n
+.include "/Users/bennet/.codex/worktrees/ps-r17-d26-parametric/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D26/ucc21550_parametric.lib"
+.param GL0={VDRV*(1-DIR)} GL1={VDRV*DIR}
+.param GH0={VDRV*DIR} GH1={VDRV*(1-DIR)}
+.param TLS={T1+DIR*DT} THS={T1+(1-DIR)*DT}
+.param ILOAD_SIGNED={IL*(1-2*DIR)}
+
+* ---- DC bus: bulk path (not FEM) and the two local film capacitors
+Vbus src 0 {VBUS}
+Rsrc src bulk 10m
+Cbulk bulk 0 {CBULK}
+Lbulk bulk bus {LBULK}
+L_P1 bus c38a {LP1}
+Lesl38 c38a c38b {LESL}
+Rc38 c38b c38c 5m
+Cc38 c38c 0 {C38}
+L_P2 bus c39a {LP2}
+Lesl39 c39a c39b {LESL}
+Rc39 c39b c39c 5m
+Cc39 c39c 0 {C39}
+
+* ---- power path: bus -> HS -> sw -> LS -> shunt -> 0 (board L is in L_P1/L_P2)
+XQH bus g_hs sw IPW65R018CFD7_L1
+Vids sw d_ls 0
+XQL d_ls g_ls s_ls IPW65R018CFD7_L1
+Lshunt s_ls shunt {LSHUNT}
+Rshunt shunt 0 1m
+Csnh bus sw {CSNUB}
+Csnl d_ls s_ls {CSNUB}
+
+* ---- load (ramped from 0 for a consistent operating point)
+Iload bus sw PWL(0 0 1u {ILOAD_SIGNED})
+
+* ---- drivers: output-resistance approximation (round 3), then the gate
+* resistor, then the board gate-loop inductor (first node at the gate)
+Vcc vc 0 3.3
+Vh vdh sw {VDRV}
+Vl vdl s_ls {VDRV}
+Vina ina 0 PULSE({3.3*DIR} {3.3*(1-DIR)} {T1+(1-DIR)*200n} 1n 1n 10u 20u)
+Vinb inb 0 PULSE({3.3*(1-DIR)} {3.3*DIR} {T1+DIR*200n} 1n 1n 10u 20u)
+XU ina inb 0 vc 0 vdh sw gdh vdl s_ls gdl UCC21550 CORNER={CORNER} SKEW={SK} PWD={PWDS} PDOV={PDOV} PWOV={PWOV}
+Rgl gdl gdl3 {RG}
+L_P4 g_ls gdl3 {LP4}
+Rholdl g_ls s_ls 10k
+Rgh gdh gdh3 {RG}
+L_P3 g_hs gdh3 {LP3}
+Rholdh g_hs sw 10k
+* ---- FEM couplings
+K12 L_P1 L_P2 {K12}
+K13 L_P1 L_P3 {K13}
+K14 L_P1 L_P4 {K14}
+K23 L_P2 L_P3 {K23}
+K24 L_P2 L_P4 {K24}
+K34 L_P3 L_P4 {K34}
+
+.tran {TRMAX} 3.5u 0 {TRMAX}
+.control
+set numdgt=15
+set wr_singlescale
+set wr_vecnames
+run
+wrdata wave.txt v(xql.g,xql.s) v(xqh.g,xqh.s) v(xql.dd,xql.s) v(xqh.dd,xqh.s) v(gdl,s_ls) v(gdh,sw)
+quit
+.endc
+.end

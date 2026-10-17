@@ -1,0 +1,52 @@
+{
+  "base_commit": "b30b3ae35a4bd3ad5c22d8c300c4640986e1232a",
+  "source_sha256": {
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-best.matrix.txt": "c6f8fde3c97a2283eaceed2ef2dd860845ba78849fe5b0e580aece37620801a4",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/edge.cir": "f6a0eb690a1f3b98f8859c94e7a59876db38e0c92011988f1958f370e3fc4299",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/edges.py": "8b9330cac81ac96f41b07c8561c2ae5a406950c5f7abe37a921346d4c4f63493",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/manifest.py": "05af6e2737a1ef087b7670c285d08c1f02c2131d0d5ed4bf18f3306525a9da24",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/periodic-sweep.cir": "5f740dbc4f134fe8591f4ac467d0e5e17cc6e093f1d6c073040fc2ca29ffd80b",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/periodic-tank.cir": "cd18c2b533711b5c660aab34ccaad301250dfa67f4a7f0262b6ac958601af262",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/periodic.cir": "19336cef86beec1090d97c57075ef756569b87df8ac3120ac791184ef9e7b9fa",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/periodic.py": "606a5d20dd8e3f0257eef9a629e5c9ce3df7e0d210f7f92576b6239f08ae38cc",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/prepare.py": "282023ec79dbfc6e20ad3802b40e3936ede9f821e05404ed7391953b0cfc6b78",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/replay_periodic.py": "a5e8282f93225bf706efc7eb304c1ca6b34721bf81e5277823039cf9355d3389",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/report.py": "2e1cfa4d3fbee892bb3255acd35bb0aa4bac17dfe61606d1ed0b5302365ca09a",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/source_metrics.py": "9ccf580c533a5319167ca839b0d00b0f7656fde8c29fd7453382087850bef8ff",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/spectrum.py": "c95d9f26221aa22b148b1878dea2cb57d322d95b52eb366e332d306cea1f8c38",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/step_compare.py": "3a939cc64d76c1a907dcd6c9b3d904a113a64354ab271cb534d1075e5a39439d",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/summarize.py": "bbdcb96d8df601d2f2721db59721fd54c15ead55cd138976b61b748b93fd8d36",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/sweep.py": "db4c6a3faa14f1678a2658e453fb46978e59cd1cef92860a048cdd47be325e12",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/test_spectrum.py": "b06b9cfa5d38fef78877c2a40bec516a92f70ba2adc98f7834679a5ad2ee0ca9",
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/round3/scripts/check_topology.py": "9fcb8580681f29200e11ef7eada4690d5a89118640a7195c4c3141fca18e147b",
+    "zapote/power-stage-120v/validation-results/07-conducted-emi/round3/scripts/emi_topology.cir": "6dbb0761ff8cb27b81acd0fa9aa0a2215113a92dceec1ef33e9c64b928190f11"
+  },
+  "runtime": {
+    "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:34:53) [Clang 19.1.7 ]",
+    "numpy": "2.4.6",
+    "ngspice_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+    "ngspice_version": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+    "vendor_library_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b"
+  },
+  "periodic_status_counts": {
+    "complete": 3,
+    "not_settled": 1,
+    "indeterminate": 15
+  },
+  "worst_model_line": {
+    "case": "v170-r2-e1.06-f35000-s0.5-c24",
+    "scenario": "combined_sensitivity",
+    "frequency_Hz": 210000.0,
+    "terminal": "N",
+    "rms_line_dBuV": 77.41399393109066,
+    "AV_line_headroom_dB": -24.208676962237632,
+    "QP_line_headroom_dB": -14.208676962237632,
+    "peak_line_vs_AV_dB": -27.218976918877445,
+    "old_earth_reference_min_AV_dB": -24.2083969598243,
+    "prior_cycle_min_AV_dB": -24.20825906926771,
+    "min_AV_cycle_change_dB": -0.0004178929699207856
+  }
+}

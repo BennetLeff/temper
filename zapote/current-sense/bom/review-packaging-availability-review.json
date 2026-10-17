@@ -1,0 +1,123 @@
+{
+  "schema": "zapote.current-sense.packaging-availability-review.v1",
+  "retrieved_on": "2026-09-11",
+  "scope": "Read-only exact-MPN/package and distributor review; no canonical source edits or purchases.",
+  "variants": [
+    {
+      "family": "TLV3201",
+      "source_mpn": "TLV3201AIDBVR",
+      "variant_mpn": "TLV3201AIDBVR",
+      "manufacturer": "Texas Instruments",
+      "package": "SOT-23-5 / DBV",
+      "same_pcb_footprint": true,
+      "same_electrical_family": true,
+      "manufacturer_package_evidence": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+      "availability": [
+        {
+          "vendor": "DigiKey US",
+          "url": "https://www.digikey.com/en/products/detail/texas-instruments/TLV3201AIDBVR/3188691",
+          "status": "out_of_stock",
+          "quantity": 0,
+          "expected": ["2026-10-29:2637", "2026-11-02:363"],
+          "lead_time_weeks": 16
+        },
+        {
+          "vendor": "Mouser US",
+          "url": "https://www.mouser.com/en/ProductDetail/Texas-Instruments/TLV3201AIDBVR?qs=5771e39Rz9GGuYwPEKy7fA%3D%3D",
+          "status": "out_of_stock",
+          "quantity": 0,
+          "on_order": ["2026-11-19:26495", "2026-11-27:6000", "2027-01-21:21000"],
+          "lead_time_weeks": 16
+        }
+      ],
+      "result": "No well-stocked US DigiKey/Mouser evidence today; retain source identity and confirm regional stock manually."
+    },
+    {
+      "family": "TLV3201",
+      "source_mpn": "TLV3201AIDBVR",
+      "variant_mpn": "TLV3201AIDBVT",
+      "manufacturer": "Texas Instruments",
+      "package": "SOT-23-5 / DBV",
+      "same_pcb_footprint": true,
+      "same_electrical_family": true,
+      "manufacturer_package_evidence": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+      "availability": [
+        {
+          "vendor": "DigiKey US",
+          "url": "https://www.digikey.com/en/products/detail/texas-instruments/TLV3201AIDBVT/3283558",
+          "status": "out_of_stock",
+          "quantity": 0,
+          "expected": ["2026-11-10:250"],
+          "lead_time_weeks": 16
+        },
+        {
+          "vendor": "Mouser US",
+          "url": "https://www.mouser.com/en/ProductDetail/Texas-Instruments/TLV3201AIDBVT?qs=5771e39Rz9Hw%2Fr7F1K1Yhg%3D%3D",
+          "status": "out_of_stock",
+          "quantity": 0,
+          "on_order": ["2026-11-27:25916", "2027-06-25:25000"],
+          "lead_time_weeks": 26
+        }
+      ],
+      "result": "Exact same-footprint packaging variant confirmed, but no well-stocked US DigiKey/Mouser listing today."
+    },
+    {
+      "family": "BAT54H",
+      "source_mpn": "BAT54H,115",
+      "variant_mpn": "BAT54H,135",
+      "manufacturer": "Nexperia",
+      "package": "SOD123F / SOD2",
+      "same_pcb_footprint": true,
+      "same_electrical_family": true,
+      "manufacturer_package_evidence": "https://assets.nexperia.com/documents/data-sheet/BAT54H.pdf",
+      "packing_evidence": "The BAT54H datasheet lists -115 as 3,000 and -135 as 10,000 pieces, both 4 mm pitch on 8 mm tape and reel, under the same SOD123F type.",
+      "availability": [
+        {
+          "vendor": "DigiKey US",
+          "url": "https://www.digikey.com/en/products/detail/nexperia-usa-inc/BAT54H-115/1127168",
+          "status": "out_of_stock",
+          "quantity": 0,
+          "expected": ["2027-05-03:3000"],
+          "lead_time_weeks": 30
+        },
+        {
+          "vendor": "Mouser US",
+          "url": "https://www.mouser.com/en/ProductDetail/Nexperia/BAT54H115?qs=me8TqzrmIYVuhJavRbr9OQ%3D%3D",
+          "status": "out_of_stock",
+          "quantity": 0,
+          "on_order": ["2027-03-22:76853", "2027-06-25:30000"],
+          "lead_time_weeks": 53
+        }
+      ],
+      "variant_135_live_listing": "not_found",
+      "result": "BAT54H,135 is a same-package alternate reel quantity, but no current DigiKey/Mouser listing or stock was verified; manual Nexperia/distributor confirmation required."
+    },
+    {
+      "family": "CD74HC4075",
+      "source_mpn": "SN74HC4075DR",
+      "variant_mpn": "CD74HC4075M96",
+      "manufacturer": "Texas Instruments",
+      "package": "SOIC-14 / 3.90 mm body width",
+      "same_pcb_footprint": true,
+      "same_electrical_family": "pending circuit-owner approval",
+      "manufacturer_evidence": "https://www.ti.com/product/CD74HC4075/part-details/CD74HC4075M96",
+      "availability": [
+        {
+          "vendor": "DigiKey US",
+          "url": "https://www.digikey.com/en/products/detail/texas-instruments/CD74HC4075M96/555792",
+          "status": "in_stock",
+          "quantity": 6622,
+          "lead_time_weeks": 6
+        },
+        {
+          "vendor": "Mouser US",
+          "url": "https://www.mouser.com/en/ProductDetail/Texas-Instruments/CD74HC4075M96?qs=0OT4q4QBUTKJhg5dtPagMQ%3D%3D",
+          "status": "in_stock",
+          "quantity": 2465,
+          "lead_time_weeks": 9
+        }
+      ],
+      "result": "Well-stocked exact CD74HC4075M96 is verified at both preferred distributors; do not change the source MPN until the circuit owner approves the TI CD-family substitution and source properties are updated."
+    }
+  ]
+}

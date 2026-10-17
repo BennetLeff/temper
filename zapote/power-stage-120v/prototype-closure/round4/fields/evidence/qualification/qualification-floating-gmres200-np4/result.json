@@ -1,0 +1,38 @@
+{
+ "label": "floating",
+ "mesh": "output/temper-prototype-closure/round4/fields/floating.msh",
+ "exit_code": 0,
+ "mesh_sha256": "61f91bd5f267958c1789f8931fdbbdd4ce66e997315b70aba2c98ed2d38088a0",
+ "sif_sha256": "acfff083855a04a4ab1cfd8bc7911a069566f3ce72d33387b2a25ce81997feeb",
+ "elmer_solver_sha256": "b60ae75db18b3c1102ee4f2155dcff7f26310ede453697215360f08a4b50b7ed",
+ "maxit": 5000,
+ "all_done": true,
+ "energy_J": 1.218229e-09,
+ "inductance_nH": 2.436458,
+ "peak_memory_GB": 0.00521076,
+ "max_rss_GB": 0.051134464,
+ "wall_s": 1.83,
+ "np": 4,
+ "solver": "iterative Hypre GMRES(100) + AMS",
+ "tol": 1e-10,
+ "solver_lines": [
+  "HYPRE GmRes Dimension = Integer 200"
+ ],
+ "tree_gauge": false,
+ "last_iteration": 116,
+ "last_residual": 8.15026e-11,
+ "converged": true,
+ "k_A_per_m": [
+  0.0,
+  0.0,
+  100.0
+ ],
+ "pec": [
+  2,
+  3
+ ],
+ "port": 4,
+ "port2": null,
+ "k2_A_per_m": null,
+ "scale_m": 0.001
+}

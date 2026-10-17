@@ -1,0 +1,9 @@
+id,status,v1_rms_v,tank_i_rms_a,tank_i_peak_sine_a,phase_deg,f_res_khz,cap_ac_rms_v,cap_dc_bias_v,cap_abs_peak_v,coil_loss_w,pan_reflected_loss_w,cap_esr_loss_w,nominal_vce_headroom_v
+kit_reference_vessel,SCREEN_ONLY,175.56,24.36,34.45,63.18,37.51,275.00,195.00,583.90,201.80,1727.20,0.79,810.00
+kit_no_vessel,SCREEN_ONLY,175.56,12.18,17.23,88.64,31.15,137.54,195.00,389.50,50.48,0.00,0.20,810.00
+kit_half_coupling_synthetic,SCREEN_ONLY,175.56,16.61,23.49,80.22,33.89,187.46,195.00,460.10,93.77,401.29,0.37,810.00
+cross_coil_cast_iron_synthetic,SCREEN_ONLY,175.56,16.64,23.53,66.48,34.49,187.78,195.00,460.56,94.10,1071.04,0.37,810.00
+cross_coil_steel_synthetic,SCREEN_ONLY,175.56,20.63,29.17,66.74,36.12,232.84,195.00,524.29,144.67,1285.05,0.57,810.00
+cross_coil_silargan_synthetic,SCREEN_ONLY,175.56,32.25,45.61,62.88,39.31,364.04,195.00,709.82,353.64,2225.87,1.39,810.00
+kit_reference_l_minus_10pct,SCREEN_ONLY,175.56,30.90,43.70,55.09,39.54,348.80,195.00,688.27,324.65,2778.66,1.27,810.00
+kit_reference_l_plus_10pct,SCREEN_ONLY,175.56,19.90,28.14,68.38,35.77,224.58,195.00,512.61,134.60,1151.99,0.53,810.00

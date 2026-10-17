@@ -1,0 +1,78 @@
+{
+  "verdict": "BLOCKED",
+  "reason": "The fallback Elmer scalable AMS solver does not reproduce the direct coax result and does not meet its residual tolerance; plate, mutual, and board solves were not run.",
+  "analytic_coax_nH": 13.862943611198906,
+  "coax": {
+    "port_method": "Elmer WhitneyAVSolver boundary load vector is radial on the annular end sheet; see pinned WhitneyAVSolver.F90 LocalMatrixBC",
+    "direct_tree_gauge": [
+      {
+        "mesh_size_mm": 0.5,
+        "tetrahedra": 25041,
+        "energy_J": 6.662585e-9,
+        "nominal_L_nH": 13.32517,
+        "nominal_analytic_error_pct": -3.8792,
+        "verdict": "FAIL 2% coarse fixture tolerance"
+      },
+      {
+        "mesh_size_mm": 0.35,
+        "tetrahedra": 66006,
+        "energy_J": 6.839985e-9,
+        "nominal_L_nH": 13.67997,
+        "nominal_analytic_error_pct": -1.3199,
+        "port_cut_currents_A": [1.0115553325230109, 1.0032982050336063, 1.0015486366096946, 1.002490245691063],
+        "verdict": "Nominal numerical error within 2%; sampled port current is not exactly conserved"
+      },
+      {
+        "mesh_size_mm": 0.25,
+        "tetrahedra": 179590,
+        "min_jacobian_mm3": 0.00478100288489733,
+        "energy_J": 6.872621e-9,
+        "nominal_L_nH": 13.745242,
+        "nominal_analytic_error_pct": -0.8490376539065037,
+        "port_cut_radii_mm": [0.6, 1.0, 1.5, 1.9],
+        "port_cut_currents_A": [1.0111193845412074, 0.999669029393654, 1.000459853207579, 1.0014763581607038],
+        "sampled_cut_spread_A": 0.0114503551475534,
+        "area_average_current_A": 1.0032776793882225,
+        "area_average_normalized_L_nH": 13.655578082009669,
+        "verdict": "Nominal numerical error within 2%; sampled port current range prevents a unique exact 1 A interpretation"
+      }
+    ],
+    "scaling_at_0p35_mm": {
+      "one_amp_energy_J": 6.839985e-9,
+      "two_amp_energy_J": 2.735993e-8,
+      "reversed_one_amp_energy_J": 6.839985e-9,
+      "interpretation": "2 A energy is 4 times 1 A to printed precision; reversal leaves energy unchanged"
+    },
+    "hypre_ams_at_0p35_mm": [
+      {
+        "configuration": "upstream AMS pattern, no tree gauge, 1e-9 requested tolerance",
+        "energy_J": 1.777093e-9,
+        "last_residual": null,
+        "verdict": "FAIL: 74% lower magnetic energy than same-mesh direct result; no printed residual"
+      },
+      {
+        "configuration": "same with documented AMS Singular Matrix=True and verbose residual history",
+        "energy_J": 1.025604e-5,
+        "last_hypre_relative_residual": 9.723099,
+        "requested_relative_tolerance": 1e-9,
+        "elmer_exit_code": 0,
+        "verdict": "FAIL: residual stalled/diverged and energy disagrees by orders of magnitude despite zero exit and ALL DONE"
+      }
+    ]
+  },
+  "parallel_plates": {
+    "geometry": "10 by 50 mm PEC sheets, 0.5 mm gap, end short and current sheet",
+    "tetrahedra_prepared": 1787643,
+    "minimum_jacobian_mm3": 0.000935949,
+    "solve": null,
+    "verdict": "NOT RUN: scalable solver failed coax method qualification"
+  },
+  "mutual": {"solve": null, "verdict": "NOT RUN: scalable solver failed coax method qualification"},
+  "board": {
+    "native17_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+    "step_sha256": "07e8a14caa1f2b1888576dbece1e4356350f593d3bef12cc5d4d928a6ac17aff",
+    "step_imported_solids": 84,
+    "crop_and_four_port_solve": null,
+    "verdict": "NOT RUN: fixture gate failed; no matrix exists"
+  }
+}

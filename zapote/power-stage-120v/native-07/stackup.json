@@ -1,0 +1,61 @@
+{
+  "schema": "temper.power-stage-120v.stackup.v1",
+  "status": "D3 four-layer outline basis approved 2026-09-26. Proposed 70 um copper on all four layers to improve the inner return-plane current margin; nominal 1.6 mm stackup remains provisional until fabricator acceptance. The 0.2 mm core between In1 (HV_RET) and In2 (BUS_P) reduces commutation-loop area.",
+  "board_thickness_mm": 1.6,
+  "layers": [
+    {
+      "name": "F.Mask",
+      "type": "Top Solder Mask",
+      "thickness_mm": 0.01
+    },
+    {
+      "name": "F.Cu",
+      "type": "copper",
+      "thickness_mm": 0.07
+    },
+    {
+      "name": "dielectric 1",
+      "type": "prepreg",
+      "thickness_mm": 0.55,
+      "material": "FR4",
+      "epsilon_r": 4.4,
+      "loss_tangent": 0.02
+    },
+    {
+      "name": "In1.Cu",
+      "type": "copper",
+      "thickness_mm": 0.07
+    },
+    {
+      "name": "dielectric 2",
+      "type": "core",
+      "thickness_mm": 0.2,
+      "material": "FR4",
+      "epsilon_r": 4.5,
+      "loss_tangent": 0.02
+    },
+    {
+      "name": "In2.Cu",
+      "type": "copper",
+      "thickness_mm": 0.07
+    },
+    {
+      "name": "dielectric 3",
+      "type": "prepreg",
+      "thickness_mm": 0.55,
+      "material": "FR4",
+      "epsilon_r": 4.4,
+      "loss_tangent": 0.02
+    },
+    {
+      "name": "B.Cu",
+      "type": "copper",
+      "thickness_mm": 0.07
+    },
+    {
+      "name": "B.Mask",
+      "type": "Bottom Solder Mask",
+      "thickness_mm": 0.01
+    }
+  ]
+}

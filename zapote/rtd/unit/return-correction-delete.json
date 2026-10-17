@@ -1,0 +1,10 @@
+{
+  "reason": "Rust corridor finding: B SENSE+ crossing an In2 BIAS return-plane slot; remove authored B branch before explicit relocation",
+  "placements": {},
+  "delete_copper_uuids": [
+    "0f6b43d7-f013-4724-bc12-e3a04df8e3bb",
+    "42c3e9c4-11d9-4ad5-8573-d3bd1c8bf885",
+    "b5c753a1-29fa-4a23-b087-4931885b424e",
+    "bf910d58-bd4d-463f-8ba9-1fa871e71fc5"
+  ]
+}

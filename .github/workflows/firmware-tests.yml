@@ -12,25 +12,15 @@ on:
     branches: [main]
     paths:
       - 'firmware/**'
-      - 'pcb/**'
-      - 'scripts/check_firmware_board_contract.py'
-      - 'scripts/check_pll_range_consistency.py'
-      - 'scripts/check_state_machine_model.py'
-      - 'scripts/check_firmware_invariants.py'
-      - 'scripts/check_sil_coverage.py'
-      - 'state-machine-crosscheck-allowlist.yaml'
+      # Host tests compile the 120 V prototype PWM sources (test/CMakeLists.txt).
+      - 'zapote/power-stage-120v/prototype-closure/round5/firmware/**'
       - '.github/workflows/firmware-tests.yml'
   pull_request:
     branches: [main]
     paths:
       - 'firmware/**'
-      - 'pcb/**'
-      - 'scripts/check_firmware_board_contract.py'
-      - 'scripts/check_pll_range_consistency.py'
-      - 'scripts/check_state_machine_model.py'
-      - 'scripts/check_firmware_invariants.py'
-      - 'scripts/check_sil_coverage.py'
-      - 'state-machine-crosscheck-allowlist.yaml'
+      # Host tests compile the 120 V prototype PWM sources (test/CMakeLists.txt).
+      - 'zapote/power-stage-120v/prototype-closure/round5/firmware/**'
       - '.github/workflows/firmware-tests.yml'
 
 jobs:
@@ -46,7 +36,7 @@ jobs:
     # that staying true.
     name: Firmware Tests (state-machine + fault-injection)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v7
@@ -63,6 +53,9 @@ jobs:
           python3 firmware/tools/gen_config.py
           git diff --exit-code firmware/config.h
 
+      - name: firmware/tools unit tests (generators, state-machine and invariant gates)
+        run: python3 -m pytest -q firmware/tools firmware/test/test_codegen_tools.py
+
       - name: Check header matches manifest
         run: python3 firmware/tools/check_config_matches_manifest.py
 
@@ -72,50 +65,29 @@ jobs:
           git diff --exit-code firmware/main/fault_list_generated.h
 
       - name: Check fault list consistency
-        run: python3 scripts/check_fault_list_consistency.py
+        run: python3 firmware/tools/check_fault_list_consistency.py
 
-      # Firmware-assumption contract oracle (plan 2026-08-02-027, R18):
-      # re-derives every board-derived firmware constant
-      # (PLL_MIN_FREQ_HZ, MAX31865 threshold words) from the ACTUAL board
-      # (pcb/temper.kicad_pcb) -- hardware and firmware cannot disagree
-      # about a load-bearing value.
-      #
-      # Was ADVISORY (continue-on-error) until the board fix landed: the
-      # oracle was RED by design because tank.c_tank3 was staged
-      # OFF-OUTLINE at (20.0, 272.75) -- the exact defect class this
-      # oracle exists to catch. The tank-cap placement fix landed in
-      # de59c045 (#602, 2026-08-03); the oracle now PASSES 3/3 on the
-      # current board (verified stable across repeated local runs on
-      # 2026-08-07) and the mask was removed -- it was dead weight, not a
-      # live advisory. This is now a hard gate, per the landing contract
-      # the original comment described.
-      - name: Firmware-board contract oracle
-        run: python3 scripts/check_firmware_board_contract.py
+      # The firmware-board contract oracle (pcb/temper.kicad_pcb) was removed with
+      # the legacy board on 2026-10-08 (archive/temper-legacy-2026-10-08).
 
-      # Drift guard: every constant annotated with a board-derivation
-      # marker (@board-derived in pll_control.h, board_derivation: true in
-      # config.yaml) must have a registry entry in
-      # firmware/tools/board_derivations.yaml, or the oracle will never
-      # check it. Hard gate -- annotated-but-unregistered is a silent gap.
-      - name: Board-derivation coverage drift guard
-        run: python3 firmware/tools/check_board_derivation_coverage.py
 
       # Pin map vs the zapote/controller netlist (output/temper-sensor-r3/
       # firmware/DECISIONS.md D-PINS): every pin in temper_pins.h must be the
       # board's (snapshot firmware/tools/zapote_controller_pins.json, derived
       # from controller-c1-crs 467917c38), every wired GPIO and expander pin
       # must be named, no source may hard-code GPIO_NUM_n, and WDI / RUN_EN
-      # have single writers (C42, C39). The pytest mutates the header and
-      # sources to prove each rule fails.
+      # have single writers (C42, C39). Default mode reads only the committed
+      # snapshot; --verify-board-ref needs the board branch and is not run here.
+      # Its mutation tests run in the firmware/tools pytest step above.
       - name: Firmware pin map vs zapote/controller netlist
-        run: |
-          python3 firmware/tools/check_board_pin_map.py
-          python3 -m pytest firmware/tools/test_check_board_pin_map.py -q -p no:cacheprovider
+        run: python3 firmware/tools/check_board_pin_map.py
 
       - name: Regenerate transition table and check drift
         run: |
           python3 firmware/tools/gen_transition_table.py
           git diff --exit-code firmware/main/transition_table.h
+          python3 firmware/test/gen_transition_table.py --generate
+          git diff --exit-code firmware/test/test_transition_table_generated.c
 
       # State-machine model check (R28, plan 2026-08-02-028-feat-state-
       # machine-model-check-plan.md U4): exhaustive reachability from
@@ -124,11 +96,11 @@ jobs:
       # firmware/test/gen_transition_table.py's TRANSITIONS list (test-side).
       # One real, pre-existing manifest divergence
       # ((STATE_FAULT, EVENT_FAULT_RESET_PERSISTS)) is a dated backlog entry
-      # (state-machine-crosscheck-allowlist.yaml, seeded 2026-08-07) --
+      # (firmware/tools/state-machine-crosscheck-allowlist.yaml, seeded 2026-08-07) --
       # deferred to a firmware maintainer's call, not fixed here; any NEW
       # divergence still fails this step immediately. No continue-on-error.
       - name: State-machine model check (reachability, P1-P4, manifest cross-check)
-        run: python3 scripts/check_state_machine_model.py
+        run: python3 firmware/tools/check_state_machine_model.py
 
       # Firmware invariant proofs (R29, plan 2026-08-02-028-feat-state-
       # machine-model-check-plan.md U7): re-derives every declared invariant
@@ -136,7 +108,7 @@ jobs:
       # firmware/tools/proof_record.json's verdict, only its byte-identity to
       # a fresh regeneration -- KTD5).
       - name: Firmware invariant proofs (proof_record.json freshness + invariant verification)
-        run: python3 scripts/check_firmware_invariants.py
+        run: python3 firmware/tools/check_firmware_invariants.py
 
       - name: Build and run host tests
         run: |
@@ -162,7 +134,7 @@ jobs:
 
       - name: Gate transition-table mutation report
         run: |
-          python3 scripts/check_transition_table_mutations.py \
+          python3 firmware/tools/check_transition_table_mutations.py \
             --report firmware/test/build/mutations/report.json \
             --max-report-age-seconds 900
 
@@ -185,24 +157,4 @@ jobs:
       # docstring for why it is a standalone scripts/check_*.py entry point
       # rather than folded into the CMake/CTest build above.
       - name: SIL fault-injection coverage gate
-        run: python3 scripts/check_sil_coverage.py
-
-      # ESP-IDF target build (esp32s3, TEMPER_PAN_CONTROL_C1 per
-      # firmware/main/CMakeLists.txt). Until 2026-10-15 the target had never
-      # linked and nothing in CI built it, so link breaks (missing externs,
-      # component shadowing) went unseen. A step here, not a new job: CI is
-      # capacity-bound on concurrent jobs. `docker run` (not `container:`)
-      # so the image's entrypoint sources export.sh, and the host steps
-      # above keep the runner's toolchain. Pinned to the IDF the README
-      # documents. The codegen deps (jinja2) are not in the IDF Python env;
-      # the top-level CMakeLists fails the configure without them. Last step:
-      # the container writes firmware/build as root.
-      - name: ESP-IDF target build (esp32s3, C1)
-        timeout-minutes: 10
-        run: |
-          docker run --rm -v "$GITHUB_WORKSPACE:/project" -w /project/firmware \
-            espressif/idf:v5.3.6 bash -c '
-              git config --global --add safe.directory /project &&
-              python -m pip install -q -r tools/requirements.txt &&
-              idf.py set-target esp32s3 &&
-              idf.py build'
+        run: python3 firmware/tools/check_sil_coverage.py

@@ -1,0 +1,50 @@
+{
+  "status": "QUALIFIED_NATIVE_REFERENCE",
+  "adapter_sha256": "0bda0312916c63d6ff5e13daeced6666b19f4b4febd2b50c20b1a2f9855571d3",
+  "fixtures": [
+    {
+      "new": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/qualification/elemental-two-port-matrix.json",
+      "baseline": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/qualification/two-port-qualified-np4.json",
+      "matrix_nH": [
+        [
+          3.141593,
+          1.884956
+        ],
+        [
+          1.884956,
+          1.884956
+        ]
+      ],
+      "equal_at_recorded_precision": true,
+      "max_energy_relative_error": 2.080650729894434e-07
+    },
+    {
+      "new": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/qualification/elemental-floating-matrix.json",
+      "baseline": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/qualification/floating-qualified-np4.json",
+      "matrix_nH": [
+        [
+          2.436459
+        ]
+      ],
+      "equal_at_recorded_precision": true,
+      "max_energy_relative_error": 3.688991222266035e-07
+    }
+  ],
+  "profile": "Skip Nodal Fields=True; Calculate Magnetic Field Strength=False; Calculate Magnetic Vector Potential=False; Calculate Magnetic Flux Density=True; Calculate Elemental Fields=True; DG writer averaging=False",
+  "physical_solver_change": "NONE; existing pinned runner/Elmer binary and matrix integrator",
+  "native_reference": {
+    "mesh_sha256": "a4973703e4371f8bef15d0260301fa17ea24545ed6360d1db97cf7ea3074b274",
+    "baseline_nH": 27.818028,
+    "elemental_only_nH": 27.818028,
+    "equal_at_recorded_precision": true,
+    "energy_relative_error": 2.856986673069511e-07,
+    "peak_observed_rss_gib": 6.825469970703125,
+    "new_swapout_bytes": 0
+  },
+  "native_vector_comparison": {
+    "evidence": "zapote/power-stage-120v/prototype-closure/round4/fields/evidence/qualification/elemental-native-vector-comparison.json",
+    "maximum_B_difference_T": 0.0,
+    "all_coordinates_and_tet_indices_identical": true,
+    "scope": "all exported elemental B vectors across all four partitions of native coarse C38 reference"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "zapote.unit-run-manifest.v1",
+  "units": [
+    {
+      "unit": "rtd",
+      "source": "../rtd/unit/candidate/source-manifest.json",
+      "native": "../rtd/unit/evidence/silk-2026-10-08/native.json",
+      "board": "../rtd/unit/candidate/section.kicad_pcb",
+      "schematic": "../rtd/unit/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": "../rtd/model-correctness/qualified-input-silk-2026-10-08/input.json",
+      "fab_profile": "../fab-profiles/jlcpcb-4layer-1oz.json"
+    },
+    {
+      "unit": "current-sense",
+      "source": "../current-sense/candidate/source-manifest.json",
+      "native": "../current-sense/evidence/silk-legend-2026-10-08/native.json",
+      "board": "../current-sense/candidate/section.kicad_pcb",
+      "schematic": "../current-sense/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": "../current-sense/evidence/silk-legend-2026-10-08/composite.json",
+      "fab_profile": "../fab-profiles/jlcpcb-2layer-2oz.json"
+    },
+    {
+      "unit": "thermal-sense",
+      "source": "../thermal-sense/candidate/source-manifest.json",
+      "native": "../thermal-sense/evidence/silk-legend-2026-10-08/native.json",
+      "board": "../thermal-sense/candidate/section.kicad_pcb",
+      "schematic": "../thermal-sense/candidate/section.kicad_sch",
+      "contract": "../thermal-sense/sensor-contract.json",
+      "composite": null,
+      "fab_profile": "../fab-profiles/jlcpcb-2layer-2oz.json"
+    },
+    {
+      "unit": "interlock",
+      "source": "../interlock/candidate/source-manifest.json",
+      "native": "../interlock/evidence/gang-relief-2026-10-08/native.json",
+      "board": "../interlock/candidate/section.kicad_pcb",
+      "schematic": "../interlock/candidate/section.kicad_sch",
+      "contract": "../interlock/interface-contract.json",
+      "composite": null,
+      "fab_profile": "../fab-profiles/jlcpcb-2layer-2oz.json"
+    },
+    {
+      "unit": "gate-drive",
+      "source": "../gate-drive/candidate/source-manifest.json",
+      "native": "../gate-drive/evidence/silk-pad-2026-10-08/native.json",
+      "board": "../gate-drive/candidate/section.kicad_pcb",
+      "schematic": "../gate-drive/candidate/section.kicad_sch",
+      "contract": null,
+      "composite": null,
+      "fab_profile": "../fab-profiles/jlcpcb-2layer-2oz.json"
+    }
+  ]
+}

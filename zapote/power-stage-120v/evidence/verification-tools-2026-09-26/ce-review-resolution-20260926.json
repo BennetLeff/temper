@@ -1,0 +1,90 @@
+{
+  "additional_check": "Pad escape Rust rejects non-orthogonal physical pad orientation even with axis-aligned centres; Rust test passes and saved KiCad R27 45-degree mutation fails with named orthogonal-orientation error.",
+  "canonical_checkout": "/Users/bennet/Desktop/temper/worktrees/ps-build",
+  "file_sha256": {
+    "zapote/packages/zapote-drc/src/pad_escape.rs": "92cb605545489b961a9d54f2766f443e3c0af0869e754a7aa64f2b8e0ca79a32",
+    "zapote/packages/zapote-drc/src/power_barrier.rs": "a3467aa42642421b1ff679fb8dec3cb08d41068579bb8c7d76066c448e085ad0",
+    "zapote/packages/zapote-harness/src/bin/zapote-power-barrier.rs": "06b34492b211a8ed126db7314956c640c685c5fdd3364bd7395faffb6b4bcb38",
+    "zapote/packages/zapote-harness/src/bin/zapote-power-native-parity.rs": "9199fda03cad83e9528508636d68a66f65f4b6acbb8dcfc2125ce6588e79ded5",
+    "zapote/power-stage-120v/tests/_barrier_check_py_oracle.py": "393fbfaac772f847f4e05177488ff69a0cda9ea6153e2860e6f2203207704a24",
+    "zapote/power-stage-120v/tests/test_barrier_rust_differential.py": "61e22a95b5e5fadec5b8db02bde31b187359126b573e69760dca23117c519382",
+    "zapote/power-stage-120v/tests/test_routing_evidence.py": "2b1784bc90843e5da1ce4067a14e3cf000f11ac6fde6a3b683f4151ab7d1212c",
+    "zapote/power-stage-120v/tools/barrier_check.py": "d8800131bc2bbda711ca3200fc0c5acf7a94b96901707a5b1ac3d8c8fb067ff3",
+    "zapote/power-stage-120v/tools/check_native_parity.py": "c1dd5d6ffe1b62ecd5543887a1ab790d87de14d05adfd9f3e54fa49cf6cb781d",
+    "zapote/power-stage-120v/tools/copper_dump.py": "edb092db9b0c5e404b64420664b8b73d7d2f5b27ac183cca2ed3d5b3822be751",
+    "zapote/power-stage-120v/tools/pad_escape.py": "815508f03442b65ed56fe84332e3a9dd639e5286dbd8aef39e3e39177e0e0d97",
+    "zapote/power-stage-120v/tools/route_board.py": "01c3df1117d0a42f2a3ea9c23c4c3e8ca69d71af9edbeeca429201b44e1218f3",
+    "zapote/power-stage-120v/tools/write_rules.py": "f5a9760e133bdea2fc7c114a4532e0462de0b1410af073def0097feefb105cb1"
+  },
+  "prior_findings": [
+    {
+      "evidence": "route_board.py preflight compares each frozen input to both build receipt and placement manifest; three source-specific stale-manifest tests pass.",
+      "id": 1,
+      "status": "resolved"
+    },
+    {
+      "evidence": "native parity binary checks netlist, BOM and resolved-component hashes against manifest; three frozen-file mutation tests and five Rust unit tests pass.",
+      "id": 2,
+      "status": "resolved"
+    },
+    {
+      "evidence": "new native-05 four-layer fixture baseline passes, then each isolated stale source-manifest hash fails with specific error before output; old two-layer test retained separately.",
+      "id": 3,
+      "status": "resolved"
+    },
+    {
+      "evidence": "production write_rules -> KiCad DRC on saved-board mutant reports 24 exact SELV-to-HOT rule hits (18 clearance, 6 creepage). Mutation report path and hashes below. This is a manual regression proof, not an automated test.",
+      "id": 4,
+      "status": "resolved_by_live_mutation"
+    },
+    {
+      "evidence": "Rust power_barrier owns domain classification, geometry and verdict; Python is a thin board/evidence transport. Five Rust tests and pinned-Shapely real-filled-board differential pass. Extra independent probes: 180 irregular zone-to-point and 160 zone-to-zone cases had zero Rust distance overestimates versus GEOS within 0.011 mm rounded-report tolerance.",
+      "id": 5,
+      "status": "resolved"
+    },
+    {
+      "evidence": "test_real_pcbnew_adapter_rejects_saved_pad_net_mutation saves J4.1 as selv_gnd via pcbnew; native parity rejects it. Included in 16/16 focused Python suite.",
+      "id": 6,
+      "status": "resolved"
+    },
+    {
+      "evidence": "copper_dump hashes board before pcbnew LoadBoard and after enumeration; monkeypatched concurrent-save test rejects mid-extraction mutation. Native parity extraction has matching protection.",
+      "id": 7,
+      "status": "resolved"
+    }
+  ],
+  "prior_receipt": "/tmp/compound-engineering-501/ce-code-review/20260926-130435-18f33ef2/review.json",
+  "residual_limits": [
+    "Production DRC rule-priority mutation is recorded as manual evidence; no automated full-KiCad regression was added because it is slow.",
+    "The barrier screen is a plan-view board-copper check. It does not qualify package insulation, physical overshoot or the provisional D5 basis.",
+    "Geometry differential asserts aggregate count dominance on the real board; independent randomized GEOS probes add coverage, but are not a formal proof for every possible invalid contour."
+  ],
+  "reviewed_at_utc": "2026-09-26T19:50:47.061719+00:00",
+  "schema": "temper.power-stage-120v.ce-code-review-resolution.v1",
+  "scope": "Verification/tool changes only. Route-coordinate files, CAD and documentation excluded; canonical checkout read-only.",
+  "verdict": "No remaining blocking findings in the reviewed verification-tool scope at these file hashes. Earlier Not-ready receipt describes the pre-fix snapshot.",
+  "verification": {
+    "focused_python": "16 passed in 41.48s: test_barrier_rust_differential.py and test_routing_evidence.py, with Rust binaries and KiCad pcbnew available",
+    "independent_geometry_probes": {
+      "overestimates": 0,
+      "rounding_tolerance_mm": 0.011,
+      "zone_to_point": 180,
+      "zone_to_zone": 160
+    },
+    "live_drc_barrier_mutation": {
+      "board_sha256": "bc5c30838cc8f119d00bb84402cca2c61ff9eb2853083d8967ae0a3a77897baf",
+      "report": "/tmp/ps-finish/barrier-mutation3-drc.json",
+      "report_sha256": "ad7fa5f9164b7890e7400d06e501610dac404d063e7a5d8dd69f1f4d5cd02762",
+      "rules_sha256": "8987cd1ab757c8dea86a635b4563c6713d967be3cfbf4a9e2e8facd0224c831e",
+      "selv_hot_hits": 24,
+      "types": {
+        "clearance": 18,
+        "creepage": 6
+      }
+    },
+    "live_pad_orientation_mutation": "/tmp/ps-finish/angle-mutation.log",
+    "rust_native_parity": "5 passed",
+    "rust_pad_escape": "5 passed",
+    "rust_power_barrier": "5 passed"
+  }
+}

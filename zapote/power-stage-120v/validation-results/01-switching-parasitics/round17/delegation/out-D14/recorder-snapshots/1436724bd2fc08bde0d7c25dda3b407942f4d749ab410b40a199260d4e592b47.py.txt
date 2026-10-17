@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""D14 numerical qualification; writes exclusively beside this script."""
+from __future__ import annotations
+import argparse
+from concurrent.futures import ThreadPoolExecutor
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+HERE = Path(__file__).resolve().parent
+R17 = HERE.parents[1]
+D2 = R17 / 'd2'
+D6 = HERE.parent / 'out-D6'
+sys.path.insert(0, str(D2))
+import run_d2
+
+OPTIONS = {
+    'old': '',
+    'itl4': '.options itl4=1000',
+    'tight': '.options reltol=1e-4',
+    'gmin12': '.options gmin=1e-12',
+    'abstol8': '.options abstol=1e-8',
+    'vntol5': '.options vntol=1e-5',
+    'trap': '.options method=trap',
+    'trtol1': '.options trtol=1',
+    'noopiter': '.options noopiter',
+    'chgtol18': '.options chgtol=1e-18',
+}
+
+
+def sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def case(name: str, params: dict[str, str], deck: Path, group: str) -> dict:
+    return {'name': name, 'params': params, 'deck': str(deck.relative_to(R17)), 'group': group}
+
+
+def cases() -> list[dict]:
+    rows = []
+    seen = set()
+    for grid in ('grid-best', 'grid-best-longdt'):
+        for line in (D2 / 'results' / grid / 'results.jsonl').read_text().splitlines():
+            r = json.loads(line)
+            if not r['aborted']:
+                continue
+            name = f"best_S3_v{r['vbus']}_i{r['il']}_d{r['dir']}_dt{r['dt_ns']}_esl{r['esl_nH']}"
+            if name in seen:
+                continue
+            seen.add(name)
+            p = run_d2.matrix_params(run_d2.read_L(str(D2 / 'legA-h0-best.matrix.txt')))
+            p.update(VBUS=str(r['vbus']), IL=str(r['il']), DIR=str(r['dir']), DT=f"{r['dt_ns']}n", LESL=f"{r['esl_nH']}n", LSHUNT='2n', TRMAX='0.2n')
+            rows.append(case(name, p, D2 / 'leg_matrix.cir', 'grid-abort'))
+    for r in json.loads((D6/'results-lin_quad_baseline_off1_c1_neg2_step0.1.json').read_text()):
+        name = f"d6_{r['matrix']}_{r['variant']}_{r['case']}_v{r['vbus']}_i{r['il']}_d{r['dir']}_dt{r['dt']}"
+        rows.append(case(name, r['params'], D6/'decks'/f"{r['variant']}.cir", 'refine'))
+    # All S1/S2/S4 decision cases at min/nominal legacy and proposed DT,
+    # both directions and ESL sweep endpoints. Explicit S3 aborts above.
+    for s,v,il in [('S1',v,37) for v in (170,198,280)]+[('S2',280,i) for i in (61,71)]+[('S4',v,-20) for v in (170,198,280)]:
+        for d in (0,1):
+            for dt in (307,348,391,443,498):
+                for esl in (1.06,20):
+                    p = run_d2.matrix_params(run_d2.read_L(str(D2/'legA-h0-best.matrix.txt')))
+                    p.update(VBUS=str(v), IL=str(il), DIR=str(d), DT=f'{dt}n', LESL=f'{esl}n', LSHUNT='2n', TRMAX='0.2n')
+                    name = f'best_{s}_v{v}_i{il}_d{d}_dt{dt}_esl{esl}'
+                    rows.append(case(name,p,D2/'leg_matrix.cir','decision'))
+    return rows
+
+
+def one(job: tuple[dict,str,float|None]) -> dict:
+    c, option, step = job
+    p = dict(c['params'])
+    if step is not None:
+        p['TRMAX'] = f'{step}n'
+    tag = f"{c['name']}_{option}_step{p['TRMAX']}"
+    work = HERE/'raw'/tag
+    work.mkdir(parents=True,exist_ok=True)
+    deck = R17/c['deck']
+    text = deck.read_text().replace('../common/',str(run_d2.KIT/'common')+'/')
+    text = text.replace('.end\n',OPTIONS[option]+'\n.meas tran end_time MAX time\n.end\n')
+    identity = {'source_deck':sha(deck),'options':OPTIONS[option],'params':p,'common':sha(run_d2.KIT/'common/options.inc'),'vendor':sha(run_d2.KIT/'models/vendor/IFX_CFD7_650V.lib')}
+    cache = work/'result.json'
+    if cache.exists():
+        saved = json.loads(cache.read_text())
+        if saved.get('identity') == identity:
+            return saved
+        raise RuntimeError(f'Stale cache: {work}')
+    local_deck = work/'case.cir'
+    local_deck.write_text(text)
+    r = run_d2.run(local_deck,p,keep=work)
+    (work/'IFX_CFD7_650V.lib').unlink(missing_ok=True)
+    m = r['meas']
+    required = list(run_d2.MEAS)+['vds_ls_at_on','vds_hs_at_on','vgs_ls_at_partner','vgs_hs_at_partner','end_time']
+    expected = 2e-6+float(p['DT'].removesuffix('n'))*1e-9+0.8e-6
+    complete = not r['aborted'] and not r['failed'] and all(k in m for k in required) and abs(m.get('end_time',0)-expected)<1e-11
+    log = (work/'run.log').read_text()
+    failures = [line for line in log.splitlines() if re.search('timestep too small|trouble with|aborted',line,re.I)]
+    row = dict(c,option=option,params=p,identity=identity,complete=complete,meas=m,aborted=r['aborted'],failed=r['failed'],returncode=r['returncode'],failure_lines=failures)
+    cache.write_text(json.dumps(row,indent=2)+'\n')
+    print(f'{tag}: {"OK" if complete else "FAIL"} {failures}',flush=True)
+    return row
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--mode',choices=('screen','qualify','convergence'),default='screen')
+    ap.add_argument('--options',default=','.join(OPTIONS))
+    a = ap.parse_args()
+    cs = cases()
+    if a.mode=='screen':
+        cs = [cs[0],cs[1],next(c for c in cs if c['group']=='grid-abort' and c['params']['IL']=='10')]+[r for r in cs if r['name'] in ('d6_lin_baseline_S1_v280_i37_d1_dt307','d6_quad_off1_c1_neg2_S2_v280_i71_d1_dt348')]
+    elif a.mode=='convergence':
+        cs = [c for c in cs if c['group']=='decision']
+    jobs = [(c,o,s) for c in cs for o in a.options.split(',') for s in ((.2,.1,.05) if a.mode=='convergence' else (None,))]
+    (HERE/f'manifest-{a.mode}.json').write_text(json.dumps({'cases':cs,'options':{o:OPTIONS[o] for o in a.options.split(',')},'jobs':len(jobs),'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'python':sys.version,'ngspice':subprocess.check_output(['/opt/homebrew/bin/ngspice','--version'],text=True),'script_sha256':sha(Path(__file__))},indent=2)+'\n')
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(one,jobs))
+    (HERE/f'{a.mode}.json').write_text(json.dumps(results,indent=2)+'\n')
+    print(f'COMPLETED {len(results)} runs; failed {sum(not r["complete"] for r in results)}',flush=True)
+
+if __name__=='__main__':
+    main()

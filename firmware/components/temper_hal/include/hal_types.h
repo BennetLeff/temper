@@ -140,7 +140,7 @@ typedef int32_t hal_pwm_channel_t;
 typedef struct {
     uint32_t frequency_hz;      /**< PWM frequency in Hz */
     float duty_percent;         /**< Initial duty cycle (0-100%) */
-    uint16_t dead_time_ns;      /**< Dead-time in nanoseconds (for complementary) */
+    uint16_t dead_time_ns;      /**< Explicit requested gap; no default; HAL validates and quantizes */
     hal_pin_t pin_high;         /**< High-side output pin */
     hal_pin_t pin_low;          /**< Low-side output pin (HAL_PIN_INVALID if not used) */
     bool complementary;         /**< Enable complementary output */

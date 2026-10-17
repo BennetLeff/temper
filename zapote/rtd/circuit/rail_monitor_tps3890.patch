@@ -1,0 +1,104 @@
+--- elec/src/components.ato
++++ elec/src/components.ato
+@@ -536,6 +536,20 @@
+     signal INB_N ~ pin 4
+     signal VDD ~ pin 5
+     signal OUTB ~ pin 6
++
++component TPS3890:
++    """Adjustable single-channel RTD rail supervisor; RESET is low below threshold."""
++    footprint = "Temper_RTD:TPS389001DSER_WSON-6_DSE"
++    mpn = "TPS389001DSER"
++    manufacturer = "Texas Instruments"
++
++    # TI TPS3890 DSE top view: SENSE=1, GND=2, MR=3, VDD=4, CT=5, RESET=6.
++    signal SENSE ~ pin 1
++    signal GND ~ pin 2
++    signal MR ~ pin 3
++    signal VDD ~ pin 4
++    signal CT ~ pin 5
++    signal RESET ~ pin 6
+ 
+ component SN74LVC1G08:
+     """Single two-input AND gate with partial-power-down protection."""
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -63,6 +63,7 @@
+ import TPS3823 from "components.ato"
+ import REF2025 from "components.ato"
+ import TPS3700 from "components.ato"
++import TPS3890 from "components.ato"
+ import SN74HC4075 from "components.ato"
+ import SN74HC00 from "components.ato"
+ import SN74LVC1G08 from "components.ato"
+@@ -2043,42 +2044,35 @@
+     window_and.Y ~ r_window_ok_pulldown.p1
+     r_window_ok_pulldown.p2 ~ power.gnd
+ 
+-    # TPS3700 is powered upstream of the ferrite.  OUTA is pulled high only
+-    # while RTD_AVDD is above its approximately 2.84 V nominal UV threshold
+-    # (2026-07-27: was ~2.82 V before r_avdd_top's 616k->619k correction,
+-    # see docs/evidence/2026-07-27-era-resistor-resolution.md); it pulls low
+-    # through brownout before the post-rail TLV3201 operation is unspecified.
+-    rail_monitor = new TPS3700
++    # TPS389001 is powered upstream of the ferrite while SENSE monitors the
++    # post-ferrite RTD_AVDD rail. Its 1% threshold and <=0.825% hysteresis
++    # provide a bounded trip/release window around the MAX31865 3.0 V minimum.
++    rail_monitor = new TPS3890
+     rail_monitor.VDD ~ power.vcc
+     rail_monitor.GND ~ power.gnd
+-    rail_monitor.INB_N ~ power.gnd
+-    # r_avdd_top was ERA-3AEB6163V (616k): not an E96/E192 value and the MPN
+-    # does not exist at DigiKey (confirmed 2026-07-27, direct fetch). 616k
+-    # also turns out to be above the top of Panasonic's ERA-3A (0603) range
+-    # for this decade -- 604k/612k/619k/626k/634k ERA-3A part numbers were
+-    # individually checked and NONE exist in 0603; the same 3-digit values
+-    # DO exist in the ERA-6A (0805) family (confirmed: ERA-6AEB6193V, 619k,
+-    # in stock). Replaced with 619k/ERA-6AEB6193V and the footprint bumped to
+-    # 0805 to match -- see docs/evidence/2026-07-27-era-resistor-resolution.md
+-    # for the distributor evidence and TPS3700 trip-window arithmetic
+-    # (including 25 ppm/C tempco) showing this still clears the required
+-    # 2.70-2.97V corner with margin.
++    rail_monitor.MR ~ power.vcc
++    # CT intentionally unconnected: TI specifies approximately 25 us minimum
++    # delay with no capacitor; deassertion delay is not in the fault assertion path.
++    # ERA-3AEB1652V is a real 0603 16.5k, 0.1%, 25 ppm/C part. Together with
++    # the existing ERA-3AEB103V 10k bottom, nominal falling threshold is
++    # 1.15 V * (1 + 16.5k/10k) = 3.0475 V.
+     r_avdd_top = new Resistor
+-    r_avdd_top.value = 619kohm +/- 0.1%
+-    r_avdd_top.mpn = "ERA-6AEB6193V"
+-    r_avdd_top.footprint = "Resistor_SMD:R_0805_2012Metric"
++    r_avdd_top.value = 16.5kohm +/- 0.1%
++    r_avdd_top.mpn = "ERA-3AEB1652V"
++    r_avdd_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+     r_avdd_bottom = new Resistor
+-    r_avdd_bottom.value = 100kohm +/- 0.1%
+-    r_avdd_bottom.mpn = "ERA-3AEB104V"
++    r_avdd_bottom.value = 10kohm +/- 0.1%
++    r_avdd_bottom.mpn = "ERA-3AEB103V"
++    r_avdd_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+     fb_power.p2 ~ r_avdd_top.p1
+-    r_avdd_top.p2 ~ rail_monitor.INA_P
+-    rail_monitor.INA_P ~ r_avdd_bottom.p1
++    r_avdd_top.p2 ~ rail_monitor.SENSE
++    rail_monitor.SENSE ~ r_avdd_bottom.p1
+     r_avdd_bottom.p2 ~ power.gnd
+     r_rail_ok_pullup = new Resistor
+     r_rail_ok_pullup.value = 10kohm +/- 1%
+     r_rail_ok_pullup.mpn = "RC0603FR-0710KL"
+     power.vcc ~ r_rail_ok_pullup.p1
+-    r_rail_ok_pullup.p2 ~ rail_monitor.OUTA
++    r_rail_ok_pullup.p2 ~ rail_monitor.RESET
+ 
+     # The Ioff-rated open-drain NAND is the only device allowed to hold the
+     # active-high fault net low. A short/open window violation, local-rail
+@@ -2087,7 +2081,7 @@
+     fault_nand.VCC ~ fb_power.p2
+     fault_nand.GND ~ power.gnd
+     window_and.Y ~ fault_nand.A
+-    rail_monitor.OUTA ~ fault_nand.B
++    rail_monitor.RESET ~ fault_nand.B
+     r_fault_pullup = new Resistor
+     r_fault_pullup.value = 10kohm +/- 1%
+     r_fault_pullup.mpn = "RC0603FR-0710KL"

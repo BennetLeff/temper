@@ -1,0 +1,2539 @@
+{
+  "schema": "zapote.validation-inventory.v1",
+  "date": "2026-09-12",
+  "audited_commit": "6226537c9ae2a30e41a5fbd71c656cda94ef138e",
+  "scope": {
+    "complete": "temper-drc-rs default DrcRule registry plus its unregistered PowerDomainCheck; seven maintained Zapote unit report rule censuses",
+    "bounded": "16 supplementary Rust donor surfaces reviewed for next ports; public-module discovery for five crates",
+    "excluded": "No claim of exhaustive firmware, all legacy Python validators, every optimizer/router helper or all CI consumers. No hardware qualification."
+  },
+  "counting": "Rule implementations, recorded rule IDs, object populations, test cases and physical qualification are separate; 228 prior workspace tests is not 228 PCB rules.",
+  "registry": {
+    "source": {
+      "path": "packages/temper-drc-rs/src/rules/mod.rs",
+      "sha256": "1c78af047bfcff2e69201e0f3e6c5320ebeef26c9d7236aad3823eae68091014"
+    },
+    "registered_count": 27,
+    "unregistered_stub_count": 1,
+    "execution_status": "static registration census; donor run_all not executed in this audit"
+  },
+  "donor_rules": [
+    {
+      "id": "drc_clearance",
+      "type": "ClearanceCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/drc/clearance.rs",
+        "sha256": "71b5099019e9b49da679269cc5303a7b7219efb2904159fe430a880396fbaeda"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Component-body distance by net class, not every copper pair.",
+      "zapote_overlap": "RTD has custom geometry checks; no equivalent whole-unit body-spacing pass for PFC.",
+      "next_batch": "P2",
+      "transfer_decision": "Use native bodies and explicit net/domain constraints; retain copper clearance separately.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/drc/clearance.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.net_class_rules",
+        "board.rs",
+        "constraints.clearances"
+      ]
+    },
+    {
+      "id": "drc_component_overlap",
+      "type": "ComponentOverlapCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/drc/component_overlap.rs",
+        "sha256": "04970204bcea9f2ef9643b0117eadeae2050fa4fb8ea01c52f27cf54f548f4d9"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Same-side component-body overlap.",
+      "zapote_overlap": "Native KiCad checks complement Zapote; no generic Zapote body collision gate.",
+      "next_batch": "P2",
+      "transfer_decision": "Prefer the stricter temper-geometry body_collision kernel, with supported pose and body census.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/drc/component_overlap.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components"
+      ]
+    },
+    {
+      "id": "drc_courtyard",
+      "type": "CourtyardCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/drc/courtyard.rs",
+        "sha256": "b9ff2f7722a4d09240f4fe161d72a6d4b3724e46a961a83a970acbee6569f299"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Expanded component bounding boxes, not an exact KiCad courtyard audit.",
+      "zapote_overlap": "No generic copied rule.",
+      "next_batch": "P2",
+      "transfer_decision": "Bind actual courtyard polygons and selected assembly clearance; do not adopt the 0.05 mm default blindly.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/drc/courtyard.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components"
+      ]
+    },
+    {
+      "id": "drc_trace_clearance",
+      "type": "TraceClearanceCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/drc/trace_clearance.rs",
+        "sha256": "a560317163fb0e627c0fc11bdac3b1ddac9005254ac66e37db91a1e6ad1143e0"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Same-layer trace-pair clearance using net-class constraints.",
+      "zapote_overlap": "Zapote native_clearance checks copper with the copied Temper clearance kernel.",
+      "next_batch": "retain_existing",
+      "transfer_decision": "Preserve current kernel; compare fault coverage before copying another trace-pair implementation.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/drc/trace_clearance.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.net_by_name",
+        "board.net_class_rules",
+        "board.traces"
+      ]
+    },
+    {
+      "id": "drc_via_spacing",
+      "type": "ViaSpacingCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/drc/via_spacing.rs",
+        "sha256": "fdc5420f411572f4e6ac8a6b729634128c9d42d5f383c6f7dd44477af25e850c"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Via edge gap with pad-size-dependent floor.",
+      "zapote_overlap": "Zapote copper clearance overlaps different-net spacing, not the full same-net fabrication rule.",
+      "next_batch": "P2",
+      "transfer_decision": "Use a selected fabrication envelope for drill and same-net spacing.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/drc/via_spacing.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.vias"
+      ]
+    },
+    {
+      "id": "drc_zone_containment",
+      "type": "ZoneContainmentCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/drc/zone_containment.rs",
+        "sha256": "65bdc9a3411a3c8776b39ef653afd2fa2d976af8a4dd03ecfba27e9f4fe63c64"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Component-center membership in declared zone classes.",
+      "zapote_overlap": "RTD authored-region checks cover a different scope.",
+      "next_batch": "P2",
+      "transfer_decision": "Review center-only limitation and exact zone association before port.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/drc/zone_containment.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.zones",
+        "constraints.zones"
+      ]
+    },
+    {
+      "id": "emc_ground_plane",
+      "type": "GroundPlaneCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/emc/ground_plane.rs",
+        "sha256": "389b96164bd32127749e8e03b6137578e551283a4bdb52c4b2c57d8fdea060d9"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Noisy component membership in declared ground regions; not proof of continuous return copper.",
+      "zapote_overlap": "RTD has return checks; other units have unequal coverage.",
+      "next_batch": "P3",
+      "transfer_decision": "Validate actual filled return geometry and distinguish quiet ground from high-current return.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/emc/ground_plane.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "constraints.zones"
+      ]
+    },
+    {
+      "id": "emc_loop_area",
+      "type": "LoopAreaCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/emc/loop_area.rs",
+        "sha256": "3a403fa933c2829a07cc9bb9af15c41642beac614b9f2ac30fd63d4e52eaa7c1"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Bounding-box area of components on critical nets; not the actual switching-current loop.",
+      "zapote_overlap": "Bypass locality exists on several units; PFC report has no loop-area check.",
+      "next_batch": "P3",
+      "transfer_decision": "Retain as a labeled screening heuristic; use actual commutation-path geometry for a stronger obligation.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/emc/loop_area.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.net_by_name"
+      ]
+    },
+    {
+      "id": "emc_noise_coupling",
+      "type": "NoiseCouplingCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/emc/noise_coupling.rs",
+        "sha256": "bed9a708a2197449ecdf50515e4da12d6ee2e5897c5598484f38f76ffefcdf3c"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Aggressor/victim component-distance screen.",
+      "zapote_overlap": "RTD sensitive-aggressor checks are unit-specific.",
+      "next_batch": "P3",
+      "transfer_decision": "Supply explicit aggressors/victims and meaningful noise constraints instead of assuming names classify all nets.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/emc/noise_coupling.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.net_class_rules"
+      ]
+    },
+    {
+      "id": "erc_floating_pins",
+      "type": "FloatingPinsCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/erc/floating_pins.rs",
+        "sha256": "4cfa7f39d31453d21d20c33173df798b6ecbec87361f1830ccb37d798df58e8b"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_graph",
+      "actual_scope": "Warns about whole components absent from all nets; does not inspect every pin.",
+      "zapote_overlap": "Exact unit component/pin censuses cover reviewed circuits, not a generic pin-type ERC engine.",
+      "next_batch": "P1",
+      "transfer_decision": "Add generic pin-role and intentional-NC coverage using real package pins; preserve donor orphan-component cases.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/erc/floating_pins.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.mechanical_components"
+      ]
+    },
+    {
+      "id": "erc_net_connectivity",
+      "type": "NetConnectivityCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/erc/net_connectivity.rs",
+        "sha256": "f4c28e169e50d8a05231ec3f1eea1bdf9ffcae0e8965641db8d5b6a72fb46050"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_graph",
+      "actual_scope": "Counts connected components per net; fewer than two is an error. Does not establish physical continuity.",
+      "zapote_overlap": "Zapote unit contracts check exact pin/net graphs and native connectivity.",
+      "next_batch": "retain_existing",
+      "transfer_decision": "Reuse relevant fault cases; do not replace pin/copper checks with a component count.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/erc/net_connectivity.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.nets"
+      ]
+    },
+    {
+      "id": "erc_power_domain",
+      "type": "PowerDomainCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/erc/power_domain.rs",
+        "sha256": "9f7404c603d763ae44850c1b01aeeddce3208c6efc6b98ba25da70205b2f208a"
+      },
+      "registered_in_temper_default": false,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "unimplemented",
+      "actual_scope": "Always returns an empty result and is deliberately unregistered.",
+      "zapote_overlap": "Zapote has authored domain geometry and exact circuit contracts, not generic voltage compatibility.",
+      "next_batch": "P1",
+      "transfer_decision": "Do not copy the stub. Define voltage domains and allowed isolation crossings; then implement fail-closed compatibility.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/erc/power_domain.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": []
+    },
+    {
+      "id": "placement_thermal_constraint",
+      "type": "ThermalConstraintCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/placement/thermal_constraint.rs",
+        "sha256": "d3a36a147bd170e638a1642e53538bcbac380ee07d20dd6957b88dcce23455a8"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Thermal placement spacing and edge constraints.",
+      "zapote_overlap": "No generic Zapote port.",
+      "next_batch": "P3",
+      "transfer_decision": "Copy with exact thermal-constraint schema and measured/model-bounded loss inputs.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/placement/thermal_constraint.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.height_mm",
+        "board.width_mm",
+        "constraints.thermal_constraints",
+        "constraints.yaml"
+      ]
+    },
+    {
+      "id": "placement_thermal_via_count",
+      "type": "ThermalViaCountCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/placement/thermal_via_count.rs",
+        "sha256": "43dbbb227bcf1b01bb9020a83b2c483b92aebcd4b6e89ea41be20044eef1ca64"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Power-based via-count screen; empty via input can skip evaluation.",
+      "zapote_overlap": "No general Zapote thermal-via or junction-temperature gate.",
+      "next_batch": "P3",
+      "transfer_decision": "Require power and heat-path data, reject missing required vias, and avoid treating count as a temperature prediction.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/placement/thermal_via_count.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.vias"
+      ]
+    },
+    {
+      "id": "placement_wave_solder_keepout",
+      "type": "WaveSolderKeepoutCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/placement/wave_solder_keepout.rs",
+        "sha256": "abe27028cedf1536a8c49a5f3580bd2acae0c263554951fd7b707fde0fcbbd6d"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "manufacturing_heuristic",
+      "actual_scope": "Bottom-side SMD to THT spacing screen.",
+      "zapote_overlap": "No generic Zapote port.",
+      "next_batch": "P2",
+      "transfer_decision": "Apply only to the selected assembly process; otherwise record reasoned not-applicable.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/placement/wave_solder_keepout.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.rs"
+      ]
+    },
+    {
+      "id": "routing_copper_pullback",
+      "type": "CopperPullbackCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/copper_pullback.rs",
+        "sha256": "de853300418b6530ac9a35f3e92e59a09aed758edf18114f6dc3ab8feb917e11"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Zone inset from rectangular board bounds.",
+      "zapote_overlap": "Native DRC supplements units; no common Zapote arbitrary-outline copper containment gate.",
+      "next_batch": "P2",
+      "transfer_decision": "Use saved Edge.Cuts and all copper shapes, including arcs and cutouts.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/copper_pullback.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.height_mm",
+        "board.margin_mm",
+        "board.width_mm",
+        "board.zones"
+      ]
+    },
+    {
+      "id": "routing_isolation_barrier",
+      "type": "IsolationBarrierCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/isolation_barrier.rs",
+        "sha256": "ee6334ddd731742793c1d8be73d2c0d007430ba015b255a37f482bcb0ffb681e"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Trace and filled-zone intersection/distance against layer-scoped barrier polylines.",
+      "zapote_overlap": "Current domain spacing does not assert a required physical barrier exists.",
+      "next_batch": "P1",
+      "transfer_decision": "High-value donor port; supply barriers, require applicable object census, and add pad/via coverage.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/isolation_barrier.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.rs",
+        "board.traces",
+        "board.zones",
+        "constraints.isolation_barriers",
+        "constraints.yaml"
+      ]
+    },
+    {
+      "id": "routing_isolation_slot",
+      "type": "IsolationSlotCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/isolation_slot.rs",
+        "sha256": "bcdf975c4fa7a4e053ca58e1c2de74b0aa8c42ec2510b9a608be3b9c6beb414f"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Slot/isolation-named zone bounding dimensions, not an actual milled-slot path proof.",
+      "zapote_overlap": "No general Rust slot geometry qualification.",
+      "next_batch": "P1",
+      "transfer_decision": "Bind actual Edge.Cuts slots and reviewed surface-path rules; do not count copper-zone names as slots.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/isolation_slot.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.zones"
+      ]
+    },
+    {
+      "id": "routing_pad_entry_width",
+      "type": "PadEntryWidthCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/pad_entry_width.rs",
+        "sha256": "5a7d886722c3b5611ff0b01af183543202b0444a5ae8d3d50b7298f39fa70ab9"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": ">=20 A selector and 60% component-dimension proxy at trace endpoints.",
+      "zapote_overlap": "No full-current path/neckdown gate in PFC; 15 A input could evade donor selection.",
+      "next_batch": "P1",
+      "transfer_decision": "Derive per-path RMS/peak current, use real pads, and test production 15 A-class inputs.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/pad_entry_width.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.traces"
+      ]
+    },
+    {
+      "id": "routing_parallel_run",
+      "type": "ParallelRunCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/parallel_run.rs",
+        "sha256": "8845668881c54195d0fc80cfc0126d108dcc97e7c9d406c306b06980aea8c5a4"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Parallel trace-run screen for configured noise domains.",
+      "zapote_overlap": "No generic Zapote port.",
+      "next_batch": "P3",
+      "transfer_decision": "Use explicit aggressor/victim nets and validate angular/overlap boundary cases.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/parallel_run.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.net_class_rules",
+        "board.traces",
+        "constraints.noise_domains"
+      ]
+    },
+    {
+      "id": "routing_partial_discharge",
+      "type": "PartialDischargeCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/partial_discharge.rs",
+        "sha256": "18c25601b212af0039a35390914aab2b0aa1a5f5ab2f29f0bcf71f18b6b8b35f"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Inner-layer HV spacing multiplier, not a physical partial-discharge model.",
+      "zapote_overlap": "PFC is two-layer; no inner-copper population there. Other multilayer units need explicit HV applicability.",
+      "next_batch": "P3",
+      "transfer_decision": "Keep material/insulation assumptions explicit; absence of inner layers is a reasoned scope exclusion, not a universal pass.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/partial_discharge.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.traces"
+      ]
+    },
+    {
+      "id": "routing_power_pad_teardrop",
+      "type": "PowerPadTeardropCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/power_pad_teardrop.rs",
+        "sha256": "7e8aee09d9dbd528003bb87aa59be7f7779aa37e62acfc4dc7d21d69e44752ef"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Uses component-edge and component-dimension proxies for pad entry on >=5 A nets.",
+      "zapote_overlap": "No full-current path/neckdown gate in PFC.",
+      "next_batch": "P1",
+      "transfer_decision": "Do not copy the proxy as ampacity proof; adapt to real pad copper and current-path bounds.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/power_pad_teardrop.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components",
+        "board.traces"
+      ]
+    },
+    {
+      "id": "routing_split_plane_crossing",
+      "type": "SplitPlaneCrossingCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/split_plane_crossing.rs",
+        "sha256": "a1c45956141d65f975d0fa2db4dff44810a500b6482745b27454770894eaec37"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Name-selected fast nets and declared ground-zone crossing screen.",
+      "zapote_overlap": "RTD return checks overlap intent; no universal Zapote gate.",
+      "next_batch": "P3",
+      "transfer_decision": "Use explicit signal/return pairing and native fill geometry, not only name substrings.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/split_plane_crossing.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.traces",
+        "constraints.zones"
+      ]
+    },
+    {
+      "id": "routing_stitching_via_density",
+      "type": "StitchingViaDensityCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/stitching_via_density.rs",
+        "sha256": "1763507bf3adef3920bd6bb730bf28c02b1666c6c86cf96277769972cd5e3edc"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Ground-via spacing heuristic with name-based selection and empty-population exits.",
+      "zapote_overlap": "RTD return stitching is a separate unit-specific contract.",
+      "next_batch": "P3",
+      "transfer_decision": "Require authored return nets and via coverage; missing required vias must not be an empty pass.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/stitching_via_density.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.zones"
+      ]
+    },
+    {
+      "id": "routing_tht_thermal_relief",
+      "type": "ThtThermalReliefCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/routing/tht_thermal_relief.rs",
+        "sha256": "5e6876a9d230c4d6938dda91de0853468efd1429ba6954e334d576c3597718cf"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "advisory",
+      "actual_scope": "Emits a reminder for low-current THT components; does not measure relief spokes.",
+      "zapote_overlap": "No generic Zapote relief-spoke validator.",
+      "next_batch": "P2",
+      "transfer_decision": "Use actual pad-to-fill spoke geometry; an informational reminder is not a passing manufacturing check.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/routing/tht_thermal_relief.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.electrical_components"
+      ]
+    },
+    {
+      "id": "safety_creepage",
+      "type": "CreepageCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/safety/creepage.rs",
+        "sha256": "b0e8d5d88faffd403dc078d51f63055117d8fb05b5b53199f0442bf6771dc1d2"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "heuristic",
+      "actual_scope": "Isolation-component package-size sanity only; no conductor surface-path measurement.",
+      "zapote_overlap": "No general Rust surface-path creepage qualification in the reviewed unit reports.",
+      "next_batch": "P1",
+      "transfer_decision": "Do not promote this to creepage coverage. Audit req_safe_01 and creepage_check kernels and native creepage evidence separately.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/safety/creepage.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.net_class_rules"
+      ]
+    },
+    {
+      "id": "safety_hv_lv_separation",
+      "type": "HVLVSeparationCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/safety/hv_lv_separation.rs",
+        "sha256": "913ada46a12d3bedf4e54bf5a72d468c7d17d0ac501d32f851c62dff5bad6f06"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Component-body HV/LV separation by class.",
+      "zapote_overlap": "Zapote current-sense and gate-drive use copper-domain spacing; PFC uses a net voltage profile.",
+      "next_batch": "P1",
+      "transfer_decision": "Keep native copper checks; add exhaustive authored domain membership and cross-unit interface obligations.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/safety/hv_lv_separation.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.net_class_rules",
+        "constraints.hv_clearance_mm"
+      ]
+    },
+    {
+      "id": "safety_isolation",
+      "type": "IsolationCheck",
+      "source": {
+        "path": "packages/temper-drc-rs/src/rules/safety/isolation.rs",
+        "sha256": "bde56f59e6fae6bafeddcd6550b5336d5f1f05c14df74378ede7863438fd96e5"
+      },
+      "registered_in_temper_default": true,
+      "zapote_port_status": "not_ported_as_rule",
+      "evidence_class": "structural_geometry",
+      "actual_scope": "Declared isolation-zone occupancy restrictions for component bodies.",
+      "zapote_overlap": "Unit separation checks are not a generic barrier-occupancy gate.",
+      "next_batch": "P1",
+      "transfer_decision": "Port after authored boundaries, allowed devices and input populations are explicit.",
+      "tests": {
+        "source_path": "packages/temper-drc-rs/src/rules/safety/isolation.rs",
+        "module": "tests",
+        "status": "located_not_run_in_this_audit"
+      },
+      "input_members_from_rule_source": [
+        "board.all_components",
+        "board.net_class_rules"
+      ]
+    }
+  ],
+  "recorded_ports": [
+    {
+      "source": "Temper pure Rust pad/capsule clearance kernel",
+      "source_path": "packages/temper-geometry/src/clearance_geometry.rs",
+      "source_sha256": "33ecab3dddbaa021fa4cbf74d7038120d327c6db7f6924a0e1b4f5a45c0948ed",
+      "target": "zapote/packages/zapote-drc/src/donor_clearance.rs",
+      "notes": "Luna copied the pure numerical kernel without PyO3 or donor runtime dependencies. Native pcbnew shape enums are explicitly mapped to the donor's distinct enums; unsupported shapes fail closed. Current-sense tests cover roundrect mapping, pad/trace/via pairs, zone boundaries/holes and cross-layer isolation.",
+      "current_target_sha256": "f339355f49420c93c1d35612b7feae83a2ec11a6c37608cd99a3c62e3acb1c1d",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper engineering memory policy",
+      "source_path": "harness-lab/src/memory.rs",
+      "source_sha256": "db369d02f22214629c78acfaa149ce05292c52990b3eb11ebc61cd6d97fa8b4b",
+      "target": "zapote/packages/zapote-harness/src/memory.rs",
+      "notes": "Independent Rust copy of entry validation, deterministic selection and promotion review. context.prepare binds raw catalog/entry/evidence bytes and preserves exact-fact source dependencies omitted by the old Python adapter. No runtime donor dependency.",
+      "current_target_sha256": "0ee38a79228f77174d1b758b2ad5a8f1ba47a4caa3017c419cc5f767d14e040f",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper memory policy regression tests",
+      "source_path": "harness-lab/tests/memory_policy.rs",
+      "source_sha256": "06ad3506ba4475c41ce0a4f29eadcd0d79c45b91494f50b1ddce5cb1cfea408c",
+      "target": "zapote/packages/zapote-harness/tests/memory_policy.rs",
+      "notes": "Copied donor controls target Zapote's public memory dispatcher; context and transport controls extend the evidence separately.",
+      "current_target_sha256": "1f2b9f76efcd40d22c8bd7709c92638f290ee31f1403488abc55162b54cc0df2",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper source-derived RTD contract and firmware values",
+      "source_path": "elec/src/modules.ato; elec/src/main.ato; firmware/components/hal/include/temper_pins.h; firmware/config.yaml",
+      "source_sha256": "b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5,8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28,27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055,aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b",
+      "target": "zapote/packages/zapote-core/src/lib.rs",
+      "notes": "New typed boundary; no runtime dependency on donor packages. Values cross-checked against the committed source files.",
+      "current_target_sha256": "3aa03ce8a92e48e643aed04448030655b7aece4014079addf1d21d291189c633",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper DRC geometry/connectivity patterns",
+      "source_path": "packages/temper-drc-rs/src/board.rs; packages/temper-drc-rs/src/rules/",
+      "source_sha256": "bbd4e8a6a6b839cfaa35402a4160102ba3efe298b35499a4f2f188ab25e20249",
+      "target": "zapote/packages/zapote-drc/src/lib.rs",
+      "notes": "No donor code is linked. Geometry checks use a smaller source-derived schema and preserve native evidence as input.",
+      "current_target_sha256": "586e19429ec6d0670600875ac6afc4c1ca872a822163dfc35be1623b28f43402",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper firmware MAX31865 threshold derivation",
+      "source_path": "firmware/tools/board_derivation_lib.py",
+      "source_sha256": "04fd8175d781ead68c97d075e16dfb2c197ab5dcb5051ca837c5ed39d8dc6dc4",
+      "target": "zapote/packages/zapote-erc/src/lib.rs",
+      "notes": "Strict low comparator uses floor(exact)+1; strict high comparator uses floor(exact); both shift the 15-bit code by one.",
+      "current_target_sha256": "7505a44abf1bd28f70911c14e39030a8138cf270967011cf50ab59823667a8af",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper geometry segment intersection kernel",
+      "source_path": "packages/temper-geometry/src/geometry_kernels.rs",
+      "source_sha256": "cee4ea749ebaa1d87695f9b2fbe96fbf5be8c0f76e380ace51276246ee564f51",
+      "target": "zapote/packages/zapote-drc/src/donor_geometry.rs",
+      "notes": "Copied segments_intersect with its orientation/on-segment helpers; Zapote invokes the copied kernel for live trace/region crossing checks and does not link donor crates.",
+      "current_target_sha256": "c76898d176426fec10f40f76c60c6df7ecd9168093ec2bad082c5d4f114ddb4e",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper IPC external-layer ampacity scalar",
+      "source_path": "packages/temper-drc-rs/src/ipc.rs",
+      "source_sha256": "a11a99c85e30e1877b4faf3cefeb11952a9bfae352d569e21393a738f7e1d6a3",
+      "target": "zapote/packages/zapote-drc/src/ipc.rs",
+      "notes": "Independent copy of the IPC external-layer scalar for bounded low-current local escapes; no runtime dependency on donor packages.",
+      "current_target_sha256": "9f6210032f864b991ea7cc0cc7c0e3e344359e665ef59eed85208c9e8b7f5fcd",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Standalone RTDUnit source and manufacturing profile",
+      "source_path": "zapote/rtd/unit/profile.json",
+      "source_sha256": "1531be367ea889ec8e7e45a2cb1e3bcd134a09d59ddf98eabfb23f228e529a98",
+      "target": "zapote/packages/zapote-core/src/unit.rs",
+      "notes": "Typed source-03/04 profile contract; numeric local/reference budget is checked from the independent model receipt, while local rail latency remains an explicit incomplete state.",
+      "current_target_sha256": "294188869772c6900aa865cb9d69993f133e3aba8c68ae486421437cc3239548",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    },
+    {
+      "source": "Temper S-expression document parser",
+      "source_path": "packages/temper-design-bundle/src/sexpr.rs",
+      "source_sha256": "155e5df6aab56e43e8c9afa2573fe884d5d8b0c6cfc3c850ad429c60e8d6e6f5",
+      "target": "zapote/packages/zapote-drc/src/donor_sexpr.rs",
+      "notes": "Copied tokenizer/parser; local String errors replace donor error dependency. Hardened trailing-document rejection, unterminated escaped strings, and recursion depth. Used to inspect actual PCB stackup bytes, not producer summaries.",
+      "current_target_sha256": "a2cac53593842e17d8fc69b6bde780340a934583a8330e74989f8e69e3832c26",
+      "status": "recorded_extraction_not_runtime_dependency",
+      "donor_hash_status": "historical ledger claim; not repinned by audit"
+    }
+  ],
+  "port_ledger": {
+    "path": "zapote/ports.toml",
+    "sha256": "0e90b0ed88d228198e9c600f37979d1081644cc8c3f809d5b05762736ea2ce3a"
+  },
+  "supplementary_donors": [
+    {
+      "source": {
+        "path": "packages/temper-drc-rs/src/ipc.rs",
+        "sha256": "a11a99c85e30e1877b4faf3cefeb11952a9bfae352d569e21393a738f7e1d6a3"
+      },
+      "next_batch": "P1",
+      "candidate_scope": "trace-current and required-width calculations",
+      "limitations": "Scalar partially copied; full PFC path/neck/via assessment absent. Do not copy legacy net-name current tables.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-drc-rs/src/dfm.rs",
+        "sha256": "9887724f6576058a3abf46a3b24565016a0f13ba637a065410f00e1d3f101192"
+      },
+      "next_batch": "P2",
+      "candidate_scope": "annular-ring and via geometry calculations",
+      "limitations": "Extract validation only; spoke generation and teardrop editing are outside this task.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-drc-rs/src/manufacturing.rs",
+        "sha256": "818ac1cf54652bf99a30c1b1aa27588294e53d4f98e3057d2eb985d3e4925516"
+      },
+      "next_batch": "P2",
+      "candidate_scope": "FabricationEnvelope typed manufacturing limits",
+      "limitations": "Data contract is not a running check. Select actual process limits; do not silently select a vendor preset.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-drc-rs/src/validation_kernels.rs",
+        "sha256": "954576d6bf2ec20c056680ba6c3afe9ca0ca49e2c50c5b081316ddae2d4b185b"
+      },
+      "next_batch": "P2",
+      "candidate_scope": "THT hole collisions and HV/LV trace distances",
+      "limitations": "Use exact hole and net census; copied helper presence is not acceptance coverage.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-drc-rs/src/deterministic_connectivity.rs",
+        "sha256": "4a67d3ee5787defc69b938669cd94c6e7680ca7705f7adff56a2f5d0bd15779f"
+      },
+      "next_batch": "later_oracle",
+      "candidate_scope": "physical connectivity helper",
+      "limitations": "Potential independent cross-check; keep native KiCad connectivity as current evidence authority; audit zone handling.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-drc-rs/src/req_safe_01.rs",
+        "sha256": "921cd3dede3b591a7b7b1217fab2a6d12d509d7daa96c8c051f0a8df604d42c2"
+      },
+      "next_batch": "P1",
+      "candidate_scope": "domain clearance and creepage-path entry points",
+      "limitations": "PyO3-bound donor; verify path/cutout assumptions and extract pure math only. Not automatically a complete creepage solver.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-geometry/src/creepage_check.rs",
+        "sha256": "3468924f64dae1b9c587bd90872f4798d354ccae42a50593de55e3df01a28cae"
+      },
+      "next_batch": "P1",
+      "candidate_scope": "HV pair distances and required-creepage calculations",
+      "limitations": "Name is not evidence of surface-path completeness; route extraction and report orchestration were separate.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-geometry/src/body_collision.rs",
+        "sha256": "d2da9852d8df1cd362b2a7155716c1fcf08eb38a9172b57fa75c9383338869e4"
+      },
+      "next_batch": "P2",
+      "candidate_scope": "validated F.Fab polygons and exact body overlap",
+      "limitations": "Prefer over bbox acceptance; current pose type is quadrants. Missing bodies and unsupported angles need explicit gaps.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-geometry/src/connectivity_kernels.rs",
+        "sha256": "c0512c596de0454ad434eb63c9deb07be62069e1439d47d0bfa30e73903e1d8c"
+      },
+      "next_batch": "later_oracle",
+      "candidate_scope": "union-find and copper touch predicates",
+      "limitations": "Zone predicates were provided externally. Porting this alone does not provide independent full copper connectivity.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-thermal/src/device_power.rs",
+        "sha256": "10a7001ccab83fdfd26a19d597e0f48a99cb1824d2631650a6823e5b4daaecc0"
+      },
+      "next_batch": "P3",
+      "candidate_scope": "device loss estimates",
+      "limitations": "Bind exact devices, operating corners and switching waveforms.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-thermal/src/junction_temp.rs",
+        "sha256": "7c254716e6f0fda6130de352a988b71ecf16a864a48ee4084daa58b438bad72d"
+      },
+      "next_batch": "P3",
+      "candidate_scope": "junction-temperature estimates",
+      "limitations": "Bind heatsink/interface/ambient data and retain uncertainty.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-thermal/src/safety.rs",
+        "sha256": "58a81827d253332316bcfbee7f0983d57bf0b7fc23cd8c86ef1f70879f0d881c"
+      },
+      "next_batch": "P3",
+      "candidate_scope": "fault filter and shutdown timing calculations",
+      "limitations": "Bind actual RC thresholds and component delay bounds; nominal delay is not a guaranteed shutdown limit.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-thermal/src/fdm.rs",
+        "sha256": "78ef671e4f1579a237af18190c9278560d3563331d9498fd0e9414502f68804b"
+      },
+      "next_batch": "P3",
+      "candidate_scope": "board thermal finite-difference assembly",
+      "limitations": "Model not measurement; boundary conditions, convergence and independent thermal evidence required.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-quality-oracle/src/isolation_qualification.rs",
+        "sha256": "1d693ea1ff62adb5dbedcb15efdf11da20c676c6366210ef685f4bd1b4dcd3b6"
+      },
+      "next_batch": "P1",
+      "candidate_scope": "isolation architecture evidence qualification",
+      "limitations": "Reuse evidence policy selectively; existing corridor/device constants are not portable authority.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-quality-oracle/src/ipc2221.rs",
+        "sha256": "6b91d2bd842a03a8fd2f42b45a0a7753769052023e77e77152a52b623935310e"
+      },
+      "next_batch": "P1",
+      "candidate_scope": "voltage-bracket spacing table",
+      "limitations": "This is a spacing table, not the current-capacity ipc.rs model. Review standard/version/environment authority before adopting values.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    },
+    {
+      "source": {
+        "path": "packages/temper-constraint-compiler/src/provenance.rs",
+        "sha256": "8310b3bac8eea78f9125982f7f75863e5606405d7b52718a63ad641222e2bfad"
+      },
+      "next_batch": "P0",
+      "candidate_scope": "constraint provenance infrastructure",
+      "limitations": "Candidate for requirement/source binding; not itself a physical-board check.",
+      "review_level": "entrypoint/header review; not a full correctness audit",
+      "zapote_status": "not_wired_as_complete_rule"
+    }
+  ],
+  "discovery_modules": [
+    {
+      "crate": "temper-drc-rs",
+      "declarations_source": {
+        "path": "packages/temper-drc-rs/src/lib.rs",
+        "sha256": "cc2ee40a727a046b9a9f04852363b19ed29c35e6226595e7f4937c9e32f541d1"
+      },
+      "public_modules": [
+        "board",
+        "board_py_bridge",
+        "closure_test",
+        "drc_ratchet",
+        "physics_oracle",
+        "constraints",
+        "drc_contracts",
+        "pyfmt",
+        "req_safe_01",
+        "dfm",
+        "dfm_py",
+        "manufacturing",
+        "pymath",
+        "validation_kernels",
+        "router_clearance",
+        "rules",
+        "types",
+        "validation",
+        "violation_report",
+        "wasm_test_registry",
+        "deterministic_leaf_drc",
+        "deterministic_stage_leaves",
+        "deterministic_connectivity",
+        "clearance_matrix",
+        "drc_oracle_marshal",
+        "drc_marshal",
+        "oracle_marshal",
+        "violation_contracts",
+        "drc_oracle",
+        "ipc",
+        "ipc_pyo3",
+        "drc_count",
+        "drc_count_pyo3",
+        "validation_glue"
+      ],
+      "status": "discovery_only; modules include helpers, transports, tests and optimization code, not a rule count"
+    },
+    {
+      "crate": "temper-geometry",
+      "declarations_source": {
+        "path": "packages/temper-geometry/src/lib.rs",
+        "sha256": "31923b992f53f9d53f9ea46599d1962e7763199e0d31f3105cfad6d101ccb027"
+      },
+      "public_modules": [
+        "types",
+        "primitives",
+        "smooth",
+        "polygon",
+        "sdf",
+        "transform",
+        "overlap",
+        "projections",
+        "constraints",
+        "congestion_tensor",
+        "area_sufficiency",
+        "copper_reach",
+        "pad_geometry",
+        "congestion",
+        "escape_via",
+        "routing_demand",
+        "clearance_geometry",
+        "body_collision",
+        "spice_estimators",
+        "corridor",
+        "corridor_erosion",
+        "copper_coverage",
+        "channel_widths",
+        "edt",
+        "connected_components",
+        "grid_raster",
+        "grid_leaf",
+        "occupancy_raster",
+        "host_math",
+        "grid_utils",
+        "via_placement",
+        "bottleneck_geometry",
+        "heuristics_geometry",
+        "organizational_geometry",
+        "style_geometry",
+        "audit",
+        "creepage_check",
+        "core_graph_geometry",
+        "fixed_copper",
+        "zone_pour",
+        "zone_generator",
+        "hierarchical_clustering",
+        "drc_constraints_geometry",
+        "channel_skeleton",
+        "radius_pairs",
+        "persistent_radius_index",
+        "convex_hull",
+        "nearest_neighbor",
+        "geometry_kernels",
+        "channel_mapping",
+        "resource_bound",
+        "power_plane",
+        "diff_pair_inference",
+        "trace_width_assignment",
+        "dense_package_detection",
+        "via_clearance",
+        "bottleneck_kernels",
+        "layer_capacity_kernels",
+        "connectivity_kernels",
+        "net_route_result",
+        "obstacle_map_kernels",
+        "bundle_analyzer",
+        "force",
+        "graph",
+        "heuristics",
+        "numeric",
+        "placement",
+        "propagation",
+        "zone",
+        "placement_topology",
+        "kicad_transform",
+        "property_campaigns",
+        "property_campaigns_2",
+        "property_campaigns_3",
+        "units",
+        "rotation_quadrant",
+        "layer_identity",
+        "clearance_halo",
+        "world_position",
+        "wasm_test_registry"
+      ],
+      "status": "discovery_only; modules include helpers, transports, tests and optimization code, not a rule count"
+    },
+    {
+      "crate": "temper-thermal",
+      "declarations_source": {
+        "path": "packages/temper-thermal/src/lib.rs",
+        "sha256": "8bfbe5ca292cbca129792e397ad3429039d296680c3775433ae11e5dbf18c757"
+      },
+      "public_modules": [
+        "copper_coverage",
+        "device_power",
+        "emi",
+        "fdm",
+        "geometric_metrics",
+        "heat_removal",
+        "hostmath",
+        "inductance",
+        "junction_temp",
+        "operating_point",
+        "parameter_bounds",
+        "property_campaigns",
+        "safety",
+        "solve",
+        "thermal_constants",
+        "thermal_edges",
+        "thermal_potential",
+        "thermal_scorer",
+        "tj_cross_check",
+        "wasm_test_registry"
+      ],
+      "status": "discovery_only; modules include helpers, transports, tests and optimization code, not a rule count"
+    },
+    {
+      "crate": "temper-quality-oracle",
+      "declarations_source": {
+        "path": "packages/temper-quality-oracle/src/lib.rs",
+        "sha256": "2829c3b0ae5affe0c003034b4171a4ff2a7f3d9d18f359799b5fc649bd12d1c1"
+      },
+      "public_modules": [
+        "aesthetic",
+        "classification",
+        "cluster_f",
+        "config",
+        "ct07_t2_qualification",
+        "ct07_u8_handoff",
+        "derivation",
+        "ipc2221",
+        "owner_iso7741",
+        "owner_joint_candidate",
+        "isolation_qualification",
+        "oracle",
+        "placement_metrics",
+        "property_campaigns",
+        "quality_score",
+        "regional_feasibility",
+        "routing_quality",
+        "thresholds",
+        "types",
+        "validation_metrics",
+        "wasm_test_registry"
+      ],
+      "status": "discovery_only; modules include helpers, transports, tests and optimization code, not a rule count"
+    },
+    {
+      "crate": "temper-constraint-compiler",
+      "declarations_source": {
+        "path": "packages/temper-constraint-compiler/src/lib.rs",
+        "sha256": "18bbe8644478ed95ef49c56cd679a85e56b6cc70bae3a915b7f57ca605c257a8"
+      },
+      "public_modules": [
+        "constraints",
+        "desugar_tier0",
+        "desugar_tier1",
+        "ir_tier0",
+        "ir_tier1",
+        "pcl_contracts",
+        "property_campaigns",
+        "provenance",
+        "pyo3_bridge",
+        "type_lattice",
+        "wasm_test_registry"
+      ],
+      "status": "discovery_only; modules include helpers, transports, tests and optimization code, not a rule count"
+    }
+  ],
+  "units": [
+    {
+      "unit": "rtd",
+      "board": {
+        "path": "zapote/rtd/unit/candidate/section.kicad_pcb",
+        "sha256": "d9908e58335fc9e20d9d786af4423ba8844d7ee893a08dc99472a3dd357653cb"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/lib.rs",
+          "sha256": "9e54972e8d94b891535163416e75751734d307fb254fd36cda44ce40a608d8fe"
+        },
+        "function": "run_unit"
+      },
+      "recorded_report": {
+        "path": "zapote/rtd/unit/evidence/acceptance-final/report.json",
+        "sha256": "ab1328ff029edf7be9edc2da37ee58bf962dae392e65bf5efd4851c93cecea16"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+        "DRC.RTD.FERRITE_SEMANTICS",
+        "DRC.RTD.LOCAL_DECOUPLING",
+        "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+        "DRC.RTD.NATIVE_GEOMETRY",
+        "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+        "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+        "ERC.RTD.ADC_PIN_NETS",
+        "ERC.RTD.BOARD_COMPONENT_BINDING",
+        "ERC.RTD.EXACT_COMPONENTS",
+        "ERC.RTD.FAULT_CORNERS",
+        "ERC.RTD.FAULT_OUTPUT",
+        "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+        "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+        "ERC.RTD.FORCE_SENSE_SEPARATION",
+        "ERC.RTD.FOUR_WIRE_PINOUT",
+        "ERC.RTD.NATIVE_CONNECTIVITY",
+        "ERC.RTD.RREF_IDENTITY",
+        "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+        "ERC.RTD.SHARED_REFERENCE",
+        "ERC.RTD.SPI_SERIES_PLACEMENT",
+        "ERC.RTD.UNIT_COMPONENT_MPN",
+        "ERC.RTD.UNIT_CONNECTIONS",
+        "ERC.RTD.UNIT_FIRMWARE",
+        "ERC.RTD.UNIT_INTERFACE",
+        "ERC.RTD.UNIT_MODEL",
+        "ERC.RTD.UNIT_SOURCE_BINDING"
+      ],
+      "distinct_checked_rule_ids": [
+        "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS",
+        "DRC.RTD.FERRITE_SEMANTICS",
+        "DRC.RTD.LOCAL_DECOUPLING",
+        "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY",
+        "DRC.RTD.NATIVE_GEOMETRY",
+        "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY",
+        "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS",
+        "ERC.RTD.ADC_PIN_NETS",
+        "ERC.RTD.BOARD_COMPONENT_BINDING",
+        "ERC.RTD.EXACT_COMPONENTS",
+        "ERC.RTD.FAULT_CORNERS",
+        "ERC.RTD.FAULT_OUTPUT",
+        "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE",
+        "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING",
+        "ERC.RTD.FORCE_SENSE_SEPARATION",
+        "ERC.RTD.FOUR_WIRE_PINOUT",
+        "ERC.RTD.NATIVE_CONNECTIVITY",
+        "ERC.RTD.RREF_IDENTITY",
+        "ERC.RTD.RREF_TO_REFERENCE_NETWORK",
+        "ERC.RTD.SHARED_REFERENCE",
+        "ERC.RTD.SPI_SERIES_PLACEMENT",
+        "ERC.RTD.UNIT_COMPONENT_MPN",
+        "ERC.RTD.UNIT_CONNECTIONS",
+        "ERC.RTD.UNIT_FIRMWARE",
+        "ERC.RTD.UNIT_INTERFACE",
+        "ERC.RTD.UNIT_MODEL",
+        "ERC.RTD.UNIT_SOURCE_BINDING"
+      ],
+      "distinct_checked_rule_count": 27,
+      "rule_findings": {
+        "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS": [
+          "pass"
+        ],
+        "DRC.RTD.FERRITE_SEMANTICS": [],
+        "DRC.RTD.LOCAL_DECOUPLING": [],
+        "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY": [
+          "pass"
+        ],
+        "DRC.RTD.NATIVE_GEOMETRY": [],
+        "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY": [],
+        "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS": [],
+        "ERC.RTD.ADC_PIN_NETS": [],
+        "ERC.RTD.BOARD_COMPONENT_BINDING": [],
+        "ERC.RTD.EXACT_COMPONENTS": [],
+        "ERC.RTD.FAULT_CORNERS": [
+          "indeterminate",
+          "pass"
+        ],
+        "ERC.RTD.FAULT_OUTPUT": [],
+        "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE": [],
+        "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING": [],
+        "ERC.RTD.FORCE_SENSE_SEPARATION": [],
+        "ERC.RTD.FOUR_WIRE_PINOUT": [],
+        "ERC.RTD.NATIVE_CONNECTIVITY": [],
+        "ERC.RTD.RREF_IDENTITY": [],
+        "ERC.RTD.RREF_TO_REFERENCE_NETWORK": [],
+        "ERC.RTD.SHARED_REFERENCE": [],
+        "ERC.RTD.SPI_SERIES_PLACEMENT": [],
+        "ERC.RTD.UNIT_COMPONENT_MPN": [],
+        "ERC.RTD.UNIT_CONNECTIONS": [],
+        "ERC.RTD.UNIT_FIRMWARE": [],
+        "ERC.RTD.UNIT_INTERFACE": [],
+        "ERC.RTD.UNIT_MODEL": [
+          "pass"
+        ],
+        "ERC.RTD.UNIT_SOURCE_BINDING": []
+      },
+      "coverage_gaps": [
+        "local_rtd_avdd_loss has conditional nominal timing only; guaranteed maximum remains a physical integration obligation"
+      ],
+      "nonpassing_findings": [
+        {
+          "rule": "ERC.RTD.FAULT_CORNERS",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "static rail detector is proven, but guaranteed worst-case brownout timing was not physically measured",
+          "object": "local_rtd_avdd_loss",
+          "actual": null,
+          "required": null
+        }
+      ],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/unit_profile.rs",
+          "sha256": "2781a7324e7d9133f89078009b729f7d716d142718fd97a1245dca2172e63993"
+        }
+      ],
+      "rule_owner_paths": {
+        "DRC.RTD.DOMAIN_BOUNDARY_CONNECTIONS": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "DRC.RTD.FERRITE_SEMANTICS": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "DRC.RTD.LOCAL_DECOUPLING": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "DRC.RTD.LOCAL_ESCAPE_ELIGIBILITY": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "DRC.RTD.NATIVE_GEOMETRY": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "DRC.RTD.SENSITIVE_AGGRESSOR_GEOMETRY": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "DRC.RTD.UPSTREAM_POST_FERRITE_RAILS": [
+          "zapote/packages/zapote-drc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.ADC_PIN_NETS": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.BOARD_COMPONENT_BINDING": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.EXACT_COMPONENTS": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.FAULT_CORNERS": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.FAULT_OUTPUT": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.FIRMWARE_GPIO_CORRESPONDENCE": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.FIRMWARE_THRESHOLD_ENCODING": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.FORCE_SENSE_SEPARATION": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.FOUR_WIRE_PINOUT": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.NATIVE_CONNECTIVITY": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.RREF_IDENTITY": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.RREF_TO_REFERENCE_NETWORK": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.SHARED_REFERENCE": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.SPI_SERIES_PLACEMENT": [
+          "zapote/packages/zapote-erc/src/lib.rs",
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.UNIT_COMPONENT_MPN": [
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.UNIT_CONNECTIONS": [
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.UNIT_FIRMWARE": [
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.UNIT_INTERFACE": [
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.UNIT_MODEL": [
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ],
+        "ERC.RTD.UNIT_SOURCE_BINDING": [
+          "zapote/packages/zapote-harness/src/lib.rs"
+        ]
+      }
+    },
+    {
+      "unit": "current-sense",
+      "board": {
+        "path": "zapote/current-sense/candidate/section.kicad_pcb",
+        "sha256": "ce54a8983876bc750e6b37857599d7e404e8bf846ddfd2ea2b96535a7552f623"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/current_sense.rs",
+          "sha256": "ffbab72dc4e82989bcb7371bcc333ea1e799a5dafd51b269f564be75bc7e9276"
+        },
+        "function": "run_current_sense"
+      },
+      "recorded_report": {
+        "path": "zapote/current-sense/evidence/acceptance-stackup-v2/report.json",
+        "sha256": "8e51024b43d74b2d3e8d7328da60628c8be6ba7fe03c59f32cefffe71aabfbc4"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "DRC.BOARD.STACKUP",
+        "DRC.CURRENT_SENSE.CLEARANCE",
+        "DRC.CURRENT_SENSE.LOCALITY",
+        "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+        "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+        "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+        "ERC.CURRENT_SENSE.APPLICABILITY",
+        "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+        "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+        "ERC.CURRENT_SENSE.INPUT",
+        "ERC.CURRENT_SENSE.INTERFACES",
+        "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY"
+      ],
+      "distinct_checked_rule_ids": [
+        "DRC.BOARD.STACKUP",
+        "DRC.CURRENT_SENSE.CLEARANCE",
+        "DRC.CURRENT_SENSE.LOCALITY",
+        "DRC.CURRENT_SENSE.NATIVE_GEOMETRY",
+        "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION",
+        "DRC.CURRENT_SENSE.REQUIRED_COPPER",
+        "ERC.CURRENT_SENSE.APPLICABILITY",
+        "ERC.CURRENT_SENSE.COMPONENT_ROLES",
+        "ERC.CURRENT_SENSE.ELECTRICAL_MODEL",
+        "ERC.CURRENT_SENSE.INPUT",
+        "ERC.CURRENT_SENSE.INTERFACES",
+        "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY"
+      ],
+      "distinct_checked_rule_count": 12,
+      "rule_findings": {
+        "DRC.BOARD.STACKUP": [
+          "pass"
+        ],
+        "DRC.CURRENT_SENSE.CLEARANCE": [],
+        "DRC.CURRENT_SENSE.LOCALITY": [],
+        "DRC.CURRENT_SENSE.NATIVE_GEOMETRY": [],
+        "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION": [],
+        "DRC.CURRENT_SENSE.REQUIRED_COPPER": [],
+        "ERC.CURRENT_SENSE.APPLICABILITY": [
+          "indeterminate"
+        ],
+        "ERC.CURRENT_SENSE.COMPONENT_ROLES": [],
+        "ERC.CURRENT_SENSE.ELECTRICAL_MODEL": [],
+        "ERC.CURRENT_SENSE.INPUT": [],
+        "ERC.CURRENT_SENSE.INTERFACES": [],
+        "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY": []
+      },
+      "coverage_gaps": [
+        "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+        "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+        "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+        "hardware applicability is unsupported: NOT_RUN",
+        "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+        "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+        "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC"
+      ],
+      "nonpassing_findings": [
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "both_polarities applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+          "object": "both_polarities",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "comparator_to_latch_timing applicability is unsupported: INDETERMINATE",
+          "object": "comparator_to_latch_timing",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "ct_saturation_and_thermal applicability is unsupported: INDETERMINATE",
+          "object": "ct_saturation_and_thermal",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "hardware applicability is unsupported: NOT_RUN",
+          "object": "hardware",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "pd3_reinforced_12_6mm_isolation applicability is unsupported: INDETERMINATE",
+          "object": "pd3_reinforced_12_6mm_isolation",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "primary_copper_and_terminal applicability is unsupported: NOT_RUN",
+          "object": "primary_copper_and_terminal",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.CURRENT_SENSE.APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "rust_analytical_trip applicability is unsupported: PASS_CONDITIONAL_BOUNDED_DC",
+          "object": "rust_analytical_trip",
+          "actual": null,
+          "required": null
+        }
+      ],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/current_sense_defect_corpus.rs",
+          "sha256": "47882471dbae9f2855bea2b481c72cc79805314988c1f579f347c4b5577b3437"
+        }
+      ],
+      "rule_owner_paths": {
+        "DRC.BOARD.STACKUP": [
+          "zapote/packages/zapote-drc/src/stackup.rs"
+        ],
+        "DRC.CURRENT_SENSE.CLEARANCE": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "DRC.CURRENT_SENSE.LOCALITY": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "DRC.CURRENT_SENSE.NATIVE_GEOMETRY": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "DRC.CURRENT_SENSE.PRIMARY_SECONDARY_SEPARATION": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "DRC.CURRENT_SENSE.REQUIRED_COPPER": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "ERC.CURRENT_SENSE.APPLICABILITY": [
+          "zapote/packages/zapote-erc/src/current_sense.rs"
+        ],
+        "ERC.CURRENT_SENSE.COMPONENT_ROLES": [
+          "zapote/packages/zapote-erc/src/current_sense.rs"
+        ],
+        "ERC.CURRENT_SENSE.ELECTRICAL_MODEL": [
+          "zapote/packages/zapote-erc/src/current_sense.rs"
+        ],
+        "ERC.CURRENT_SENSE.INPUT": [
+          "zapote/packages/zapote-erc/src/current_sense.rs",
+          "zapote/packages/zapote-harness/src/current_sense.rs"
+        ],
+        "ERC.CURRENT_SENSE.INTERFACES": [
+          "zapote/packages/zapote-erc/src/current_sense.rs"
+        ],
+        "ERC.CURRENT_SENSE.NATIVE_CONNECTIVITY": [
+          "zapote/packages/zapote-erc/src/current_sense.rs"
+        ]
+      }
+    },
+    {
+      "unit": "voltage-sense",
+      "board": {
+        "path": "zapote/voltage-sense/candidate/section.kicad_pcb",
+        "sha256": "ef9853e9fb03df4f7723076ac8eb77c17743465a0b2e146cec11d2da54876e1f"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/voltage_sense.rs",
+          "sha256": "6c84a4bd44be36128c3d704246b7d8428ae10dfce13907bd8ca2150092ec9b0b"
+        },
+        "function": "run_voltage_sense"
+      },
+      "recorded_report": {
+        "path": "zapote/voltage-sense/evidence/rust-final.json",
+        "sha256": "f9b77236e55831d76289748745e350be9a75889fb70297d24f17f67805799e11"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "ERC.VOLTAGE.ADC_RANGE",
+        "ERC.VOLTAGE.CONNECTIVITY",
+        "ERC.VOLTAGE.OVP_APPLICABILITY",
+        "ERC.VOLTAGE.OVP_MODEL",
+        "ERC.VOLTAGE.PARTS",
+        "ERC.VOLTAGE.QUALIFICATION",
+        "ERC.VOLTAGE.SOURCE",
+        "ERC.VOLTAGE.STRESS",
+        "ERC.VOLTAGE.TOPOLOGY",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.VOLTAGE.LOCALITY",
+        "DRC.NATIVE.CLEARANCE"
+      ],
+      "distinct_checked_rule_ids": [
+        "ERC.VOLTAGE.ADC_RANGE",
+        "ERC.VOLTAGE.CONNECTIVITY",
+        "ERC.VOLTAGE.OVP_APPLICABILITY",
+        "ERC.VOLTAGE.OVP_MODEL",
+        "ERC.VOLTAGE.PARTS",
+        "ERC.VOLTAGE.QUALIFICATION",
+        "ERC.VOLTAGE.SOURCE",
+        "ERC.VOLTAGE.STRESS",
+        "ERC.VOLTAGE.TOPOLOGY",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.VOLTAGE.LOCALITY",
+        "DRC.NATIVE.CLEARANCE"
+      ],
+      "distinct_checked_rule_count": 13,
+      "rule_findings": {
+        "ERC.VOLTAGE.ADC_RANGE": [
+          "pass"
+        ],
+        "ERC.VOLTAGE.CONNECTIVITY": [
+          "pass"
+        ],
+        "ERC.VOLTAGE.OVP_APPLICABILITY": [
+          "indeterminate"
+        ],
+        "ERC.VOLTAGE.OVP_MODEL": [
+          "pass"
+        ],
+        "ERC.VOLTAGE.PARTS": [
+          "pass"
+        ],
+        "ERC.VOLTAGE.QUALIFICATION": [
+          "indeterminate"
+        ],
+        "ERC.VOLTAGE.SOURCE": [
+          "pass"
+        ],
+        "ERC.VOLTAGE.STRESS": [
+          "pass"
+        ],
+        "ERC.VOLTAGE.TOPOLOGY": [
+          "pass"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "pass"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "pass"
+        ],
+        "DRC.VOLTAGE.LOCALITY": [
+          "pass"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "pass"
+        ]
+      },
+      "coverage_gaps": [],
+      "nonpassing_findings": [
+        {
+          "actual": null,
+          "message": "sensitivity scenario +/-5mV effective offset, VOL0..0.4V: rising [194.693341,204.230993] V; excludes unbounded internal hysteresis and is not a guaranteed device certificate",
+          "object": "comp",
+          "required": null,
+          "rule": "ERC.VOLTAGE.OVP_APPLICABILITY",
+          "severity": "warning",
+          "status": "indeterminate"
+        },
+        {
+          "actual": null,
+          "message": "TLV3201 internal hysteresis has no guaranteed maximum; 3.3V/common-mode output and offset applicability require qualification",
+          "object": "VoltageSenseUnit",
+          "required": null,
+          "rule": "ERC.VOLTAGE.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate"
+        },
+        {
+          "actual": null,
+          "message": "nonisolated BUS_RETURN/host return must be reconciled with cooker PE and doubler midpoint before integration",
+          "object": "VoltageSenseUnit",
+          "required": null,
+          "rule": "ERC.VOLTAGE.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate"
+        },
+        {
+          "actual": null,
+          "message": "receiver loading/acquisition and effective filter capacitance",
+          "object": "VoltageSenseUnit",
+          "required": null,
+          "rule": "ERC.VOLTAGE.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate"
+        },
+        {
+          "actual": null,
+          "message": "power-off, bottom-resistor-open, brownout, surge/clamp behavior and assembled insulation",
+          "object": "VoltageSenseUnit",
+          "required": null,
+          "rule": "ERC.VOLTAGE.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate"
+        },
+        {
+          "actual": null,
+          "message": "physical accuracy and end-to-end shutdown timing: NOT RUN",
+          "object": "VoltageSenseUnit",
+          "required": null,
+          "rule": "ERC.VOLTAGE.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate"
+        }
+      ],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/voltage_sense.rs",
+          "sha256": "c11014cc4977b69fe9a5f2a89e858fe9fcba6e106e7f3d92c55ab831904daaac"
+        }
+      ],
+      "rule_owner_paths": {
+        "ERC.VOLTAGE.ADC_RANGE": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.CONNECTIVITY": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.OVP_APPLICABILITY": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.OVP_MODEL": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.PARTS": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.QUALIFICATION": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.SOURCE": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.STRESS": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "ERC.VOLTAGE.TOPOLOGY": [
+          "zapote/packages/zapote-erc/src/voltage_sense.rs"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "zapote/packages/zapote-drc/src/stackup.rs"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "zapote/packages/zapote-drc/src/native_binding.rs"
+        ],
+        "DRC.VOLTAGE.LOCALITY": [
+          "zapote/packages/zapote-harness/src/voltage_sense.rs"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ]
+      }
+    },
+    {
+      "unit": "thermal-sense",
+      "board": {
+        "path": "zapote/thermal-sense/candidate/section.kicad_pcb",
+        "sha256": "09eb0c3485aed367f2a33732c89d4820ff88a7a1114e534d62ac0ce43713964c"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/thermal_sense.rs",
+          "sha256": "b52d207ab381b38c06132d4d8f3f6b7dfc2fefff6a45c2804b222f29a4d4c634"
+        },
+        "function": "run_thermal_sense"
+      },
+      "recorded_report": {
+        "path": "zapote/thermal-sense/evidence/rust-final-revb.json",
+        "sha256": "9cc5f7f68cd1609130040c037c3b2b529379dbee75fd921fda3ee8e9781eaffd"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "ERC.THERMAL.ANALOG_FAULT_CASES",
+        "ERC.THERMAL.CONNECTIVITY",
+        "ERC.THERMAL.FAULT_CASES",
+        "ERC.THERMAL.FAULT_LOGIC",
+        "ERC.THERMAL.GATE_PIN_MAP",
+        "ERC.THERMAL.NATIVE_COMPONENTS",
+        "ERC.THERMAL.OPEN_CONTRACT",
+        "ERC.THERMAL.OPEN_MARGIN",
+        "ERC.THERMAL.OPEN_SETTLING",
+        "ERC.THERMAL.PARTS",
+        "ERC.THERMAL.QUALIFICATION",
+        "ERC.THERMAL.SENSOR_CONTRACT",
+        "ERC.THERMAL.SOURCE",
+        "ERC.THERMAL.STRICT_PIN_MAP",
+        "ERC.THERMAL.THRESHOLDS",
+        "ERC.THERMAL.THRESHOLD_CORNERS",
+        "ERC.THERMAL.TOPOLOGY",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.THERMAL.LOCALITY",
+        "DRC.NATIVE.CLEARANCE"
+      ],
+      "distinct_checked_rule_ids": [
+        "ERC.THERMAL.ANALOG_FAULT_CASES",
+        "ERC.THERMAL.CONNECTIVITY",
+        "ERC.THERMAL.FAULT_CASES",
+        "ERC.THERMAL.FAULT_LOGIC",
+        "ERC.THERMAL.GATE_PIN_MAP",
+        "ERC.THERMAL.NATIVE_COMPONENTS",
+        "ERC.THERMAL.OPEN_CONTRACT",
+        "ERC.THERMAL.OPEN_MARGIN",
+        "ERC.THERMAL.OPEN_SETTLING",
+        "ERC.THERMAL.PARTS",
+        "ERC.THERMAL.QUALIFICATION",
+        "ERC.THERMAL.SENSOR_CONTRACT",
+        "ERC.THERMAL.SOURCE",
+        "ERC.THERMAL.STRICT_PIN_MAP",
+        "ERC.THERMAL.THRESHOLDS",
+        "ERC.THERMAL.THRESHOLD_CORNERS",
+        "ERC.THERMAL.TOPOLOGY",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.THERMAL.LOCALITY",
+        "DRC.NATIVE.CLEARANCE"
+      ],
+      "distinct_checked_rule_count": 21,
+      "rule_findings": {
+        "ERC.THERMAL.ANALOG_FAULT_CASES": [
+          "pass"
+        ],
+        "ERC.THERMAL.CONNECTIVITY": [
+          "pass"
+        ],
+        "ERC.THERMAL.FAULT_CASES": [
+          "pass"
+        ],
+        "ERC.THERMAL.FAULT_LOGIC": [
+          "pass"
+        ],
+        "ERC.THERMAL.GATE_PIN_MAP": [
+          "pass"
+        ],
+        "ERC.THERMAL.NATIVE_COMPONENTS": [
+          "pass"
+        ],
+        "ERC.THERMAL.OPEN_CONTRACT": [
+          "pass"
+        ],
+        "ERC.THERMAL.OPEN_MARGIN": [
+          "pass"
+        ],
+        "ERC.THERMAL.OPEN_SETTLING": [
+          "pass"
+        ],
+        "ERC.THERMAL.PARTS": [
+          "pass"
+        ],
+        "ERC.THERMAL.QUALIFICATION": [
+          "indeterminate"
+        ],
+        "ERC.THERMAL.SENSOR_CONTRACT": [
+          "pass"
+        ],
+        "ERC.THERMAL.SOURCE": [
+          "pass"
+        ],
+        "ERC.THERMAL.STRICT_PIN_MAP": [
+          "pass"
+        ],
+        "ERC.THERMAL.THRESHOLDS": [
+          "pass"
+        ],
+        "ERC.THERMAL.THRESHOLD_CORNERS": [
+          "pass"
+        ],
+        "ERC.THERMAL.TOPOLOGY": [
+          "pass"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "pass"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "pass"
+        ],
+        "DRC.THERMAL.LOCALITY": [
+          "pass"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "pass"
+        ]
+      },
+      "coverage_gaps": [],
+      "nonpassing_findings": [
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "TLV3201 common-mode, output swing, offset and internal hysteresis applicability across the 3.135\u20133.465 V monitor rail",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "TLV9031 input common-mode, output swing, offset and leakage applicability across the 3.135\u20133.465 V monitor rail",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "SN74LVC1G32 input/output thresholds and rail applicability across the 3.135\u20133.465 V monitor rail",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "beta extrapolation to coil 120\u00b0C and comparator hysteresis",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "external connector 85\u00b0C limit, mounting, thermal coupling, and self-heating",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "sensor harness open/short behavior and downstream latch integration",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.THERMAL.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "power-off behavior and system integration",
+          "object": "ThermalSenseUnit",
+          "actual": null,
+          "required": null
+        }
+      ],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/thermal_sense.rs",
+          "sha256": "44261805f4299f956c5cb1542872bd3a4ae5b4920e49fee40a8f1aa9e037b947"
+        }
+      ],
+      "rule_owner_paths": {
+        "ERC.THERMAL.ANALOG_FAULT_CASES": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.CONNECTIVITY": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.FAULT_CASES": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.FAULT_LOGIC": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.GATE_PIN_MAP": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.NATIVE_COMPONENTS": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.OPEN_CONTRACT": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.OPEN_MARGIN": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.OPEN_SETTLING": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.PARTS": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.QUALIFICATION": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.SENSOR_CONTRACT": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.SOURCE": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.STRICT_PIN_MAP": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.THRESHOLDS": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.THRESHOLD_CORNERS": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "ERC.THERMAL.TOPOLOGY": [
+          "zapote/packages/zapote-erc/src/thermal_sense.rs"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "zapote/packages/zapote-drc/src/stackup.rs"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "zapote/packages/zapote-drc/src/native_binding.rs"
+        ],
+        "DRC.THERMAL.LOCALITY": [
+          "zapote/packages/zapote-harness/src/thermal_sense.rs"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ]
+      }
+    },
+    {
+      "unit": "interlock",
+      "board": {
+        "path": "zapote/interlock/candidate/section.kicad_pcb",
+        "sha256": "09017d5c8ffa4414220adab11190829bb603e2e7063588f3838a75650fbfbe87"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/interlock.rs",
+          "sha256": "66850f040da8a0fb994ca753abafe1bd9691c9a808a882d5019edd800c46d006"
+        },
+        "function": "run_interlock"
+      },
+      "recorded_report": {
+        "path": "zapote/interlock/evidence/rust-final.json",
+        "sha256": "ba94fb9273e3b535207ac3a3df4dc9c7a32b0a11c9beba9a8fbc4aefa1828d1f"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "ERC.INTERLOCK.CONNECTIVITY",
+        "ERC.INTERLOCK.DIGITAL_MODEL",
+        "ERC.INTERLOCK.NATIVE_COMPONENTS",
+        "ERC.INTERLOCK.OPEN_MARGIN",
+        "ERC.INTERLOCK.PARTS",
+        "ERC.INTERLOCK.QUALIFICATION",
+        "ERC.INTERLOCK.SOURCE",
+        "ERC.INTERLOCK.STRICT_PIN_MAP",
+        "ERC.INTERLOCK.TOPOLOGY",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.INTERLOCK.LOCALITY",
+        "DRC.NATIVE.CLEARANCE",
+        "ERC.INTERLOCK.INTERFACE_CONTRACT"
+      ],
+      "distinct_checked_rule_ids": [
+        "ERC.INTERLOCK.CONNECTIVITY",
+        "ERC.INTERLOCK.DIGITAL_MODEL",
+        "ERC.INTERLOCK.NATIVE_COMPONENTS",
+        "ERC.INTERLOCK.OPEN_MARGIN",
+        "ERC.INTERLOCK.PARTS",
+        "ERC.INTERLOCK.QUALIFICATION",
+        "ERC.INTERLOCK.SOURCE",
+        "ERC.INTERLOCK.STRICT_PIN_MAP",
+        "ERC.INTERLOCK.TOPOLOGY",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.INTERLOCK.LOCALITY",
+        "DRC.NATIVE.CLEARANCE",
+        "ERC.INTERLOCK.INTERFACE_CONTRACT"
+      ],
+      "distinct_checked_rule_count": 14,
+      "rule_findings": {
+        "ERC.INTERLOCK.CONNECTIVITY": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.DIGITAL_MODEL": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.NATIVE_COMPONENTS": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.OPEN_MARGIN": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.PARTS": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.QUALIFICATION": [
+          "indeterminate"
+        ],
+        "ERC.INTERLOCK.SOURCE": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.STRICT_PIN_MAP": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.TOPOLOGY": [
+          "pass"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "pass"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "pass"
+        ],
+        "DRC.INTERLOCK.LOCALITY": [
+          "pass"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "pass"
+        ],
+        "ERC.INTERLOCK.INTERFACE_CONTRACT": [
+          "pass"
+        ]
+      },
+      "coverage_gaps": [],
+      "nonpassing_findings": [
+        {
+          "rule": "ERC.INTERLOCK.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "SENSOR_LIVE producer and remote power-off injection",
+          "object": "InterlockUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.INTERLOCK.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "AUX producer and downstream active-high PERMIT receiver",
+          "object": "InterlockUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.INTERLOCK.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal",
+          "object": "InterlockUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.INTERLOCK.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "HC30 threshold applicability at actual rail, harness transients and component failures",
+          "object": "InterlockUnit",
+          "actual": null,
+          "required": null
+        },
+        {
+          "rule": "ERC.INTERLOCK.QUALIFICATION",
+          "severity": "warning",
+          "status": "indeterminate",
+          "message": "physical fault tests NOT RUN",
+          "object": "InterlockUnit",
+          "actual": null,
+          "required": null
+        }
+      ],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/interlock.rs",
+          "sha256": "237a175129c754a3016666c19a6b702eb2abc3812a459b5210667db9ec4a72fc"
+        }
+      ],
+      "rule_owner_paths": {
+        "ERC.INTERLOCK.CONNECTIVITY": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.DIGITAL_MODEL": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.NATIVE_COMPONENTS": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.OPEN_MARGIN": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.PARTS": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.QUALIFICATION": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.SOURCE": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.STRICT_PIN_MAP": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "ERC.INTERLOCK.TOPOLOGY": [
+          "zapote/packages/zapote-erc/src/interlock.rs"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "zapote/packages/zapote-drc/src/stackup.rs"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "zapote/packages/zapote-drc/src/native_binding.rs"
+        ],
+        "DRC.INTERLOCK.LOCALITY": [
+          "zapote/packages/zapote-harness/src/interlock.rs"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "ERC.INTERLOCK.INTERFACE_CONTRACT": [
+          "zapote/packages/zapote-harness/src/interlock.rs"
+        ]
+      }
+    },
+    {
+      "unit": "gate-drive",
+      "board": {
+        "path": "zapote/gate-drive/candidate/section.kicad_pcb",
+        "sha256": "5cf179bd8318b936f36b83e7ac18301fecdbab180d3f00c1811a9f4fcb862495"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/gate_drive.rs",
+          "sha256": "42e480d16dd1459abf2d08acb31b32b98109d5ad5c915f35851468dc47fdfad6"
+        },
+        "function": "run"
+      },
+      "recorded_report": {
+        "path": "zapote/gate-drive/evidence/rust-09.json",
+        "sha256": "1e6b6b5a3073fc9a119441178b0c925306b1e0a3f375934130f5016f72a1c7d0"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.GATE_DRIVE.SAVED_BYTES",
+        "DRC.NATIVE.CLEARANCE",
+        "DRC.NATIVE.DOMAIN_SEPARATION",
+        "DRC.NATIVE.DOMAIN_SEPARATION",
+        "DRC.GATE_DRIVE.BYPASS_LOCALITY"
+      ],
+      "distinct_checked_rule_ids": [
+        "ERC.GATE_DRIVE.PACKAGE_GRAPH",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.GATE_DRIVE.SAVED_BYTES",
+        "DRC.NATIVE.CLEARANCE",
+        "DRC.NATIVE.DOMAIN_SEPARATION",
+        "DRC.GATE_DRIVE.BYPASS_LOCALITY"
+      ],
+      "distinct_checked_rule_count": 7,
+      "rule_findings": {
+        "ERC.GATE_DRIVE.PACKAGE_GRAPH": [
+          "pass"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "pass"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "pass"
+        ],
+        "DRC.GATE_DRIVE.SAVED_BYTES": [
+          "pass"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "pass"
+        ],
+        "DRC.NATIVE.DOMAIN_SEPARATION": [
+          "pass"
+        ],
+        "DRC.GATE_DRIVE.BYPASS_LOCALITY": [
+          "pass"
+        ]
+      },
+      "coverage_gaps": [
+        "unlisted native nets are out of scope: ctrl_gnd, dis, dt, g, nc_7, permit, pwm_h, pwm_l, v3v3",
+        "Spacing thresholds are prototype requirements; insulation system certification is not established.",
+        "Dead-time interpolation uses an assumed characterization envelope; measured timing is NOT RUN.",
+        "Bootstrap effective capacitance, diode recovery, gate charge, ringing and loaded thermal performance are NOT RUN.",
+        "Native ERC/DRC reports must additionally pass zapote-native-reports with their command receipts."
+      ],
+      "nonpassing_findings": [],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-erc/tests/gate_drive.rs",
+          "sha256": "fae909e2d90493f2a10fcdd7d70eac81dc0bbcc349d8e7cc1a7122676e994f29"
+        },
+        {
+          "path": "zapote/packages/zapote-drc/tests/domain_clearance.rs",
+          "sha256": "db86d771a9dfb067b6a8aabd6171f990c8ed2a548b6923356f0297b18ba14dda"
+        }
+      ],
+      "rule_owner_paths": {
+        "ERC.GATE_DRIVE.PACKAGE_GRAPH": [
+          "zapote/packages/zapote-harness/src/gate_drive.rs"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "zapote/packages/zapote-drc/src/stackup.rs"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "zapote/packages/zapote-drc/src/native_binding.rs"
+        ],
+        "DRC.GATE_DRIVE.SAVED_BYTES": [
+          "zapote/packages/zapote-harness/src/gate_drive.rs"
+        ],
+        "DRC.NATIVE.CLEARANCE": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "DRC.NATIVE.DOMAIN_SEPARATION": [
+          "zapote/packages/zapote-drc/src/domain_clearance.rs"
+        ],
+        "DRC.GATE_DRIVE.BYPASS_LOCALITY": [
+          "zapote/packages/zapote-harness/src/gate_drive.rs"
+        ]
+      }
+    },
+    {
+      "unit": "power-entry",
+      "board": {
+        "path": "zapote/power-entry/candidate/section.kicad_pcb",
+        "sha256": "8c36944562814d0871232758a9bd11bd2a2903993d9e4dae65f0857af54494cf"
+      },
+      "entrypoint": {
+        "source": {
+          "path": "zapote/packages/zapote-harness/src/power_entry.rs",
+          "sha256": "f923cb55b840f8c54d79cb855fe9d67bcda2506736c063f6a45f2c606071b81c"
+        },
+        "function": "run"
+      },
+      "recorded_report": {
+        "path": "zapote/power-entry/evidence/rust-11.json",
+        "sha256": "769d19183867714bc4d9b65537ad56b1558b4b19a556784a884b5c204250c872"
+      },
+      "recorded_status": "indeterminate",
+      "checked_rules_raw": [
+        "ERC.POWER_ENTRY.SOURCE_GRAPH",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.POWER_ENTRY.SAVED_BYTES",
+        "DRC.POWER_ENTRY.CONNECTIVITY",
+        "DRC.NATIVE.CLEARANCE_PROFILE",
+        "ERC.POWER_ENTRY.NOMINAL_MODEL"
+      ],
+      "distinct_checked_rule_ids": [
+        "ERC.POWER_ENTRY.SOURCE_GRAPH",
+        "DRC.BOARD.STACKUP",
+        "DRC.NATIVE.DOCUMENT_BINDING",
+        "DRC.POWER_ENTRY.SAVED_BYTES",
+        "DRC.POWER_ENTRY.CONNECTIVITY",
+        "DRC.NATIVE.CLEARANCE_PROFILE",
+        "ERC.POWER_ENTRY.NOMINAL_MODEL"
+      ],
+      "distinct_checked_rule_count": 7,
+      "rule_findings": {
+        "ERC.POWER_ENTRY.SOURCE_GRAPH": [
+          "pass"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "pass"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "pass"
+        ],
+        "DRC.POWER_ENTRY.SAVED_BYTES": [
+          "pass"
+        ],
+        "DRC.POWER_ENTRY.CONNECTIVITY": [
+          "pass"
+        ],
+        "DRC.NATIVE.CLEARANCE_PROFILE": [
+          "pass"
+        ],
+        "ERC.POWER_ENTRY.NOMINAL_MODEL": [
+          "pass"
+        ]
+      },
+      "coverage_gaps": [
+        "External isolated bias supply, HOT permit, precharge and bypass sequencing are required; this harness does not implement them.",
+        "15 A RMS foldback/PF behavior is a declared input constraint, not a measured result.",
+        "Bus bleeder decay, relay timing, semiconductor/capacitor thermal limits, EMC, insulation and mains qualification are NOT RUN."
+      ],
+      "nonpassing_findings": [],
+      "report_reexecuted_in_this_audit": false,
+      "population_counts": "not uniformly instrumented; checked IDs are not object-application counts",
+      "report_board_identity_revalidated_in_this_audit": false,
+      "regression_test_sources": [
+        {
+          "path": "zapote/packages/zapote-harness/tests/power_entry_routed.rs",
+          "sha256": "3e2c4d20aaaeafe64756511ce4c9a8f7e37a7013d3e80af02359b8afd7082e68"
+        }
+      ],
+      "rule_owner_paths": {
+        "ERC.POWER_ENTRY.SOURCE_GRAPH": [
+          "zapote/packages/zapote-harness/src/power_entry.rs"
+        ],
+        "DRC.BOARD.STACKUP": [
+          "zapote/packages/zapote-drc/src/stackup.rs"
+        ],
+        "DRC.NATIVE.DOCUMENT_BINDING": [
+          "zapote/packages/zapote-drc/src/native_binding.rs"
+        ],
+        "DRC.POWER_ENTRY.SAVED_BYTES": [
+          "zapote/packages/zapote-harness/src/power_entry.rs"
+        ],
+        "DRC.POWER_ENTRY.CONNECTIVITY": [
+          "zapote/packages/zapote-harness/src/power_entry.rs"
+        ],
+        "DRC.NATIVE.CLEARANCE_PROFILE": [
+          "zapote/packages/zapote-drc/src/current_sense.rs"
+        ],
+        "ERC.POWER_ENTRY.NOMINAL_MODEL": [
+          "zapote/packages/zapote-harness/src/power_entry.rs"
+        ]
+      }
+    }
+  ],
+  "common_runner": {
+    "source": {
+      "path": "zapote/Makefile",
+      "sha256": "5ac9fa9e387c66682f723fa37f21bb9bc37e449197dc0b8e36f7037ab304800a"
+    },
+    "cli": {
+      "path": "zapote/packages/zapote-harness/src/bin/zapote-board.rs",
+      "sha256": "cea9cbde06378f193ce1b164b5c0b01f3cd3bc520a8ce4320cb5a789ea0ee1ca"
+    },
+    "executed_rules": [
+      "DRC.BOARD.STACKUP"
+    ],
+    "receipt": {
+      "path": "zapote/validation/common-board-checks-2026-09-12.json",
+      "sha256": "5d006b205e43e5f2d201599a2ddea248a2328863a05c53a87f02f45d64868614"
+    },
+    "unit_suites_in_make_check": false
+  },
+  "unmapped_legacy_units": [
+    {
+      "unit": "buck",
+      "status": "legacy delegated qualify-buck; not in UNIT_BOARDS; no Zapote full-unit report inventoried"
+    },
+    {
+      "unit": "mcu",
+      "status": "not in UNIT_BOARDS; standalone Zapote acceptance evidence not established by this inventory"
+    }
+  ],
+  "gaps": [
+    "No unified saved-board command reruns every applicable unit suite and native receipts.",
+    "No uniform required/applicable/evaluated object counts; declared checked_rules may cover no objects.",
+    "Full-current PFC trace/via/neck/thermal qualification absent.",
+    "Generic voltage-domain/pin-role ERC and actual surface-path creepage not established.",
+    "No assertion of full Temper validator parity or 100-1000x CAD validation coverage."
+  ]
+}

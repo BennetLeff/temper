@@ -1,0 +1,44 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 02: dc-bus shunt ocp front end (u6), analog timing.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+ileg                                         0
+kelvin                                       0
+ref25                                      2.5
+ocp_node                                  1.25
+thresh                                 1.21951
+ok_i                                         5
+ok_d                                         5
+bu6#branch                                -0.1
+bk#branch                             0.000125
+bi#branch                                    0
+vref#branch                       -0.000246951
+
+
+No. of Data Rows : 1618
+
+  Measurements for Transient Analysis
+
+t_i_trip            =   6.10000e-07
+t_ok_low            =   9.87288e-07
+
+
+Total analysis time (seconds) = 0.004397
+
+Total elapsed time (seconds) = 0.009
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  370.953 MB.
+Maximum ngspice program size =   10.156 MB.
+Current ngspice program size =   10.156 MB.

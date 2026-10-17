@@ -1,0 +1,134 @@
+INPUT REVISION: f9b13b483d6d4ed52439d4da419c7670bab6966c
+RUNTIME: Python 3.12.12; GPT-6 Astra / OpenAI
+SHA256 a3156054dac2dcb765705e993936fbb5d7f7d67dbafc834608a6e34566bf16c0 firmware/components/hal/esp32/hal_pwm_esp32.c
+SHA256 c95e356e74cd3f5e4c03f4dac27d43d11d6110e8723be2e0ae343d8e783f1e3b firmware/components/hal/include/hal_types.h
+SHA256 a1c1ad21b0250fa7fa688fa06434e634d42a242d16a27f9d400b5f0469663022 firmware/components/hal/esp32/hal_init.c
+SHA256 6582d80dd445a2460a621787623216b02b3bb999b71598cdb5cf3700d9df221a firmware/components/safety/pwm_guard.c
+SHA256 cd4cd2223a3e3a6da6d7932fca51b708f9bb341cb4a034d4c1cc4657eaa5a045 firmware/components/safety/include/pwm_guard.h
+SHA256 aa14b7d63de14b3a08185f3e714d2a72622cefdfb56fe5745825fdb0d3cf1c3b firmware/components/hal/include/temper_pins.h
+SHA256 acd398a76b3e1aa02de07a2955a507557410b6d25f4aed2a7b374ed3d81e8afb firmware/main/main.c
+SHA256 27b948327244b7dcab23264d37e5484e8b892954cc2718dfc39560237abc4055 firmware/config.yaml
+SHA256 3021920ba4096159d75bbbfd41e2ffbc0d34dcecd73c1d0a65e4c00b86f5a685 firmware/config.h
+SHA256 31d786e2cd3c4cbf3b8228bcd123d58dacc6f3b80d95821d3fc4ad3242140405 firmware/sdkconfig.defaults
+SHA256 9ce543f83a9c50d757decb2a3217324b12d2431f75266ffa58e91147740f90a8 firmware/CMakeLists.txt
+SHA256 2f0c9b8601330f300aa1acd2cc4dc06ac636715bd78fef34d87d39272c4f55ba .github/workflows/release-artifacts.yml
+SHA256 8913d3867b3d694eed1a4db4674c6f3340a95c82d2f610c0828bd8b035294e28 elec/src/main.ato
+SHA256 b86344e7c0bd772f9de13d251066a8c9335cfbfaf8014b3d03e1cc78a102edf5 elec/src/modules.ato
+SHA256 32f40a8f08f04278619300b9e1df985d378008c3ce18b13626c91e57d606df5f zapote/power-stage-120v/frozen/default.net
+SHA256 08708ee5d1e7d66789f5b168dc018306bc972f8865a8afd7d33e3269120bed67 zapote/power-stage-120v/frozen/default.csv
+SHA256 eb4399b8b882c14677dab8621cf2e4af69b119cf1dc8e978df2c021483c420a5 zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D1/dead_time.py
+SHA256 16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162 zapote/power-stage-120v/native-17/section.kicad_pcb
+SHA256 f600571197e32da4b915f986da003d95d73294dd8e428d7a4e6dcc89bbe29207 datasheets/ucc21550.pdf
+
+FIRMWARE SOURCE EVIDENCE
+firmware/components/hal/esp32/hal_pwm_esp32.c:26: #define MCPWM_TIMER_RESOLUTION_HZ   80000000  /* 80 MHz = 12.5ns resolution */
+firmware/components/hal/esp32/hal_pwm_esp32.c:51: return MCPWM_TIMER_RESOLUTION_HZ / freq_hz;
+firmware/components/hal/esp32/hal_pwm_esp32.c:87: .resolution_hz = MCPWM_TIMER_RESOLUTION_HZ,
+firmware/components/hal/esp32/hal_pwm_esp32.c:179: if (config->dead_time_ns > 0) {
+firmware/components/hal/esp32/hal_pwm_esp32.c:181: .posedge_delay_ticks = (config->dead_time_ns * (MCPWM_TIMER_RESOLUTION_HZ / 1000000)) / 1000,
+firmware/components/hal/esp32/hal_pwm_esp32.c:182: .negedge_delay_ticks = (config->dead_time_ns * (MCPWM_TIMER_RESOLUTION_HZ / 1000000)) / 1000,
+firmware/components/hal/esp32/hal_pwm_esp32.c:186: err = mcpwm_generator_set_dead_time(ch->gen_high, ch->gen_high, &dt_cfg);
+firmware/components/hal/esp32/hal_pwm_esp32.c:192: dt_cfg.flags.invert_output = true;  /* Inverted output for low-side */
+firmware/components/hal/esp32/hal_pwm_esp32.c:193: err = mcpwm_generator_set_dead_time(ch->gen_low, ch->gen_low, &dt_cfg);
+firmware/components/hal/esp32/hal_pwm_esp32.c:198: ESP_LOGI(TAG, "Dead-time configured: %u ns", config->dead_time_ns);
+firmware/components/hal/esp32/hal_pwm_esp32.c:205: ch->state.dead_time_ns = config->dead_time_ns;
+firmware/components/hal/esp32/hal_pwm_esp32.c:212: channel, (unsigned long)config->frequency_hz, config->duty_percent, config->dead_time_ns);
+firmware/components/hal/esp32/hal_pwm_esp32.c:213: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:244: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:271: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:274: static hal_status_t esp32_pwm_set_dead_time(hal_pwm_channel_t channel, uint16_t dead_time_ns)
+firmware/components/hal/esp32/hal_pwm_esp32.c:281: if (dead_time_ns < 500) {
+firmware/components/hal/esp32/hal_pwm_esp32.c:282: ESP_LOGW(TAG, "Dead-time %u ns below minimum 500ns, clamping", dead_time_ns);
+firmware/components/hal/esp32/hal_pwm_esp32.c:283: dead_time_ns = 500;
+firmware/components/hal/esp32/hal_pwm_esp32.c:291: uint32_t delay_ticks = (dead_time_ns * (MCPWM_TIMER_RESOLUTION_HZ / 1000000)) / 1000;
+firmware/components/hal/esp32/hal_pwm_esp32.c:294: .posedge_delay_ticks = delay_ticks,
+firmware/components/hal/esp32/hal_pwm_esp32.c:295: .negedge_delay_ticks = delay_ticks,
+firmware/components/hal/esp32/hal_pwm_esp32.c:298: esp_err_t err = mcpwm_generator_set_dead_time(ch->gen_high, ch->gen_high, &dt_cfg);
+firmware/components/hal/esp32/hal_pwm_esp32.c:303: dt_cfg.flags.invert_output = true;
+firmware/components/hal/esp32/hal_pwm_esp32.c:304: err = mcpwm_generator_set_dead_time(ch->gen_low, ch->gen_low, &dt_cfg);
+firmware/components/hal/esp32/hal_pwm_esp32.c:309: ch->state.dead_time_ns = dead_time_ns;
+firmware/components/hal/esp32/hal_pwm_esp32.c:310: ESP_LOGD(TAG, "Dead-time updated to %u ns", dead_time_ns);
+firmware/components/hal/esp32/hal_pwm_esp32.c:311: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:339: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:367: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:415: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:426: return HAL_OK;  /* Already deinitialized */
+firmware/components/hal/esp32/hal_pwm_esp32.c:459: return HAL_OK;
+firmware/components/hal/esp32/hal_pwm_esp32.c:470: .set_dead_time = esp32_pwm_set_dead_time,
+firmware/components/safety/include/pwm_guard.h:28: #define PWM_GUARD_MIN_DEADTIME_NS 300
+firmware/components/safety/include/pwm_guard.h:29: #define PWM_GUARD_MAX_DEADTIME_NS 1000
+firmware/components/safety/pwm_guard.c:75: if (hal_pwm->get_state(s_pwm_guard.pwm_channel, &state) != HAL_OK) {
+firmware/components/safety/pwm_guard.c:94: if (state.dead_time_ns < PWM_GUARD_MIN_DEADTIME_NS ||
+firmware/components/safety/pwm_guard.c:95: state.dead_time_ns > PWM_GUARD_MAX_DEADTIME_NS) {
+firmware/components/safety/pwm_guard.c:100: s_pwm_guard.config_crc = state.frequency_hz ^ state.dead_time_ns;
+firmware/components/safety/pwm_guard.c:130: hal_pwm->get_state(s_pwm_guard.pwm_channel, &state);
+firmware/components/safety/pwm_guard.c:132: uint32_t current_crc = state.frequency_hz ^ state.dead_time_ns;
+firmware/main/main.c:141: if (hal_init() != HAL_OK) {
+firmware/main/main.c:154: /* mcpwm_init(); */
+firmware/components/hal/esp32/hal_init.c:31: const hal_pwm_ops_t *hal_pwm = NULL;
+firmware/components/hal/esp32/hal_init.c:61: hal_pwm = &hal_pwm_esp32_ops;
+firmware/components/hal/esp32/hal_init.c:91: hal_pwm = NULL;
+firmware/components/hal/esp32/hal_init.c:126: hal_pwm = ops;
+firmware/components/hal/include/temper_pins.h:27: #define PIN_PWM_HI              4
+firmware/components/hal/include/temper_pins.h:30: #define PIN_PWM_LO              5
+.github/workflows/release-artifacts.yml:13: container: espressif/idf:release-v5.3
+
+TRACKED PRODUCTION C AUDIT (comments stripped; not proof about external binaries)
+application init/set_dead_time/config instances: ['firmware/components/hal/esp32/hal_pwm_esp32.c: hal_pwm_config_t config;']
+Only HAL internal storage; no application initializer or calls found.
+
+CONFIGURATION ARITHMETIC: tick = 12.5 ns; ticks = floor(ns * 80 / 1000)
+init accepts uint16 0..65535 ns, with no minimum clamp; setter clamps below 500 ns.
+requested_ns ticks rounded_ns (arithmetic only, not physical dead time)
+    0    0     0.000
+    1    0     0.000
+   12    0     0.000
+   13    1    12.500
+  300   24   300.000
+  307   24   300.000
+  348   27   337.500
+  391   31   387.500
+  499   39   487.500
+  500   40   500.000
+  501   40   500.000
+ 1000   80  1000.000
+65535 5242 65525.000
+
+POWER BOARD PATHS: netlist membership == native-17 pad assignments
+pwm_ha: J4.5, U1.1; no intervening component
+pwm_la: J4.6, U1.2; no intervening component
+pwm_hb: J4.7, U2.1; no intervening component
+pwm_lb: J4.8, U2.2; no intervening component
+Controller-to-J4 cable, GPIO edge/threshold skew: UNKNOWN, not zero.
+
+D-1 ESTIMATE: min=307.185033, nominal=348.400000, max=391.219817 ns
+Unloaded, datasheet-condition propagation 26/33/45 ns; same-edge mismatch cold 6.5 ns, warm 5 ns; PWD 5 ns.
+Opposite-edge skew <= min(45-26, mismatch+PWD): cold 11.5 ns; warm 10 ns.
+CONDITIONAL ESTIMATE ONLY: G = max(DTS, F + path_skew + propagation_skew).
+DTS is already an output interval: do NOT subtract channel mismatch from DTS a second time.
+F is measured INA/INB threshold non-overlap below; path_skew = 0 by scenario, not a board fact.
+F_ns temperature edge min_est_ns max_est_ns
+   0 cold HSoff-LSon     307.185    391.220
+   0 cold LSoff-HSon     307.185    391.220
+   0 warm HSoff-LSon     307.185    391.220
+   0 warm LSoff-HSon     307.185    391.220
+ 300 cold HSoff-LSon     307.185    391.220
+ 300 cold LSoff-HSon     307.185    391.220
+ 300 warm HSoff-LSon     307.185    391.220
+ 300 warm LSoff-HSon     307.185    391.220
+ 348 cold HSoff-LSon     336.500    391.220
+ 348 cold LSoff-HSon     336.500    391.220
+ 348 warm HSoff-LSon     338.000    391.220
+ 348 warm LSoff-HSon     338.000    391.220
+ 500 cold HSoff-LSon     488.500    511.500
+ 500 cold LSoff-HSon     488.500    511.500
+ 500 warm HSoff-LSon     490.000    510.000
+ 500 warm LSoff-HSon     490.000    510.000
+1000 cold HSoff-LSon     988.500   1011.500
+1000 cold LSoff-HSon     988.500   1011.500
+1000 warm HSoff-LSon     990.000   1010.000
+1000 warm LSoff-HSon     990.000   1010.000
+
+ACTUAL BOARD OUTPUT TIMING: U1/U2, both edges: minimum UNKNOWN; maximum UNKNOWN.
+500 ns minimum verified: NO. Below 348 ns excluded: NO. Retain 307 ns stress case.
+No Rust/native/firmware build, circuit edit, simulation, or physical measurement performed.

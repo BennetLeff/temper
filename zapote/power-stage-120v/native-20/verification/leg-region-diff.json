@@ -1,0 +1,30 @@
+{
+ "old": "native-19/section.kicad_pcb",
+ "new": "native-20/section.kicad_pcb",
+ "margin_mm": 20.0,
+ "stackup_changed": false,
+ "fet_flags": [],
+ "legs": {
+  "A": {
+   "region_mm": [
+    105.865,
+    -15.785,
+    184.6,
+    61.125
+   ],
+   "verdict": "UNCHANGED",
+   "differences": {}
+  },
+  "B": {
+   "region_mm": [
+    68.4,
+    -15.785,
+    147.135,
+    61.125
+   ],
+   "verdict": "UNCHANGED",
+   "differences": {}
+  }
+ },
+ "rerun_needed": false
+}

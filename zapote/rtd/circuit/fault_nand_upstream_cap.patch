@@ -1,0 +1,13 @@
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -1963,7 +1963,9 @@
+     c_window_and.p2 ~ power.gnd
+     power.vcc ~ c_rail_monitor.p1
+     c_rail_monitor.p2 ~ power.gnd
+-    fb_power.p2 ~ c_fault_nand.p1
++    # The fault NAND is upstream powered so it remains a qualified sink
++    # during post-ferrite RTD_AVDD loss.
++    power.vcc ~ c_fault_nand.p1
+     c_fault_nand.p2 ~ power.gnd
+     
+     # SPI connections through Series Resistors

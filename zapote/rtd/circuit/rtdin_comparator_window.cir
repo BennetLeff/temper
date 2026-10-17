@@ -1,0 +1,55 @@
+* Standalone RTDIN_P / RTDIN_N comparator-window bounded model.
+*
+* This is a passive/DC fault-polarity model, not a MAX31865 macro-model.
+* MAX's four-wire normal-conversion range is 0..VBIAS and its recommended
+* cable-resistance bound is 0..50 ohm per lead (MAX31865 Rev 3, p2).  The
+* cooker accuracy case uses 1 ohm per force/sense lead; 50 ohm is a separate
+* robustness sweep.  RREF -> FORCE+ -> RTD -> FORCE- -> ISENSOR is represented
+* by RREF, the two force leads, RTD, and a low impedance return.
+*
+* The proposed comparator topology is:
+*   LOW:  INP=RTDIN_P, INN = RLOWTOP from 1.25 V reference to RLOWBOT to
+*         RTDIN_N; output high iff RTDIN_P > INN + VOFFL.
+*   HIGH: INP=RHIGHTOP/RHIGHBOT divider from 1.25 V reference, INN=RTDIN_P;
+*         output high iff INP > RTDIN_P + VOFFH.
+* A shared 100 kohm RTDIN_P-to-window branch is included so TLV3201 clamp
+* current is bounded during an off-board transient; the model sweeps +/-20 nA
+* at the protected window node (two input biases plus board leakage).
+* The logic window is LOW_OK AND HIGH_OK.  A force/sense open is represented by
+* 1 Tohm in that conductor.  The paired 1 Mohm pullups and 1 nF differential
+* capacitor are retained; C is DC-open in this .op model and its transient
+* result is recorded in rtd_sinc_phase_model.txt.
+*
+* Validity limits: no MAX internal switch, input-protection, ADC, TLV3201
+* common-mode, output-delay, cable capacitance/EMC, or shutdown timing model.
+* Thus a PASS means a bounded polarity margin in the explicit passive model.
+.param VBIAS=2.0 RREF=430 RTD=100 RLEAD=1 RDIAG=1Meg
+.param RLOWTOP=61.9k RLOWBOT=10k RHIGHTOP=5.9k RHIGHBOT=10k
+.param VREF=1.25 VOFFL=0 VOFFH=0 RFP=1 RFN=1 RSP=1 RSN=1
+VBIAS bias 0 {VBIAS}
+VREFSRC refsrc 0 {VREF}
+RREF bias forcep_i {RREF}
+RFPATH forcep_i sensorp {RFP}
+RRTD sensorp sensorn {RTD}
+RFNATH sensorn forcen_i {RFN}
+RRETURN forcen_i 0 1m
+RSPATH sensorp sensep {RSP}
+RSNATH sensorn sensem {RSN}
+RDIAGP bias sensep {RDIAG}
+RDIAGN bias sensem {RDIAG}
+CDIFF sensep sensem 1n
+RWINP sensep windowp 100k
+ILEAKMAX sensep 0 14n
+ILEAKN sensem 0 -14n
+ILEAKW windowp 0 20n
+ILEAKLOW lowth 0 10n
+ILEAKHIGH highth 0 10n
+RLOWTOPX refsrc lowth {RLOWTOP}
+RLOWBOTX lowth sensem {RLOWBOT}
+RHIGHTOPX refsrc highth {RHIGHTOP}
+RHIGHBOTX highth 0 {RHIGHBOT}
+BLOW lowok 0 V=(V(windowp)-V(lowth)-{VOFFL}>0) ? 3.3 : 0
+BHIGH highok 0 V=(V(highth)-V(windowp)-{VOFFH}>0) ? 3.3 : 0
+BWINDOW window 0 V=(V(lowok)>1.65 && V(highok)>1.65) ? 3.3 : 0
+.op
+.end

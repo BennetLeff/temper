@@ -1,0 +1,72 @@
+* D33 two-core driver stage, bounded RON/L/DCR; estimated leakage
+.include /Users/bennet/.codex/worktrees/ps-r17-d33/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D33/.models/PMEG10030ELP.txt
+.include ../common/options.inc
+.include params.inc
+Vraw vp 0 24.7
+Vc1 c1 0 PULSE(0 5 0 5n 5n 9.3e-07 2e-06)
+Vc2 c2 0 PULSE(0 5 1e-06 5n 5n 9.3e-07 2e-06)
+.model SW SW(RON=1 ROFF=1e9 VT=2.5 VH=.1)
+.model BODY D(IS=1n RS=.1)
+Vs1 d1 x1 0
+Vs2 d2 x2 0
+S1 x1 0 c1 0 SW
+S2 x2 0 c2 0 SW
+Dbody1 0 x1 BODY
+Dbody2 0 x2 BODY
+Rsn1 d1 sn1 680
+Csn1 sn1 vp 100p
+Rsn2 d2 sn2 680
+Csn2 sn2 vp 100p
+Rp1a d1 paa .287
+Lp1a paa vp 75u
+Lp2a vp pba 75u
+Rp2a pba d2 .287
+Ls1a saa 0 52.083333u
+Ls2a 0 sba 52.083333u
+Rs1a saa daa .203
+Rs2a sba dba .203
+Kpa Lp1a Lp2a .999999
+Ksa Ls1a Ls2a .999999
+K11a Lp1a Ls1a .984885
+K12a Lp1a Ls2a .984885
+K21a Lp2a Ls1a .984885
+K22a Lp2a Ls2a .984885
+Xd1a daa recta PMEG10030ELP
+Xd2a dba recta PMEG10030ELP
+Lfiltera recta lfa 80u
+Rfiltera lfa outa 1
+Couta outa 0 10u
+Bloada outa 0 I={.085*max(0,min(1,v(outa)/17))}
+.meas tran outa_min MIN v(outa) from=1m to=2m
+.meas tran outa_max MAX v(outa) from=1m to=2m
+.meas tran rectifiera_reverse MAX par('v(recta)-v(daa)') from=1m to=2m
+Rp1b d1 pab .287
+Lp1b pab vp 75u
+Lp2b vp pbb 75u
+Rp2b pbb d2 .287
+Ls1b sab 0 52.083333u
+Ls2b 0 sbb 52.083333u
+Rs1b sab dab .203
+Rs2b sbb dbb .203
+Kpb Lp1b Lp2b .999999
+Ksb Ls1b Ls2b .999999
+K11b Lp1b Ls1b .984885
+K12b Lp1b Ls2b .984885
+K21b Lp2b Ls1b .984885
+K22b Lp2b Ls2b .984885
+Xd1b dab rectb PMEG10030ELP
+Xd2b dbb rectb PMEG10030ELP
+Lfilterb rectb lfb 80u
+Rfilterb lfb outb 1
+Coutb outb 0 10u
+Bloadb outb 0 I={.085*max(0,min(1,v(outb)/17))}
+.meas tran outb_min MIN v(outb) from=1m to=2m
+.meas tran outb_max MAX v(outb) from=1m to=2m
+.meas tran rectifierb_reverse MAX par('v(rectb)-v(dab)') from=1m to=2m
+.tran 10n 2m 0 10n
+.meas tran switch1_max MAX i(Vs1) from=1m to=2m
+.meas tran switch2_max MAX i(Vs2) from=1m to=2m
+.meas tran drain1_max MAX v(d1) from=1m to=2m
+.meas tran drain2_max MAX v(d2) from=1m to=2m
+.meas tran input_w AVG par('-v(vp)*i(Vraw)') from=1m to=2m
+.end

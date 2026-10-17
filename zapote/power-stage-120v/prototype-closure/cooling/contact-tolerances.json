@@ -1,0 +1,74 @@
+{
+  "status": "DRAWING_DERIVED_INTERVALS_NOT_ASSEMBLED_MEASUREMENTS",
+  "units": "mm",
+  "conditions": [
+    "straight leads with centerlines at their PCB footprint datum",
+    "the flat package rear face oriented toward the sink as in the proposed installation",
+    "A1 and P run from the rear face to the NEAR lead edge; rear-to-center distance is A1+c/2 or P+R/2, so subtract both terms from board lead-center Y",
+    "independent worst-case dimensional corners; seating/lead-forming error not included"
+  ],
+  "sources": {
+    "ipw65r018cfd7.pdf": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2",
+    "gbj2510.pdf": "c7d9657711588ecf8d9adf4e1438435d488b21b7733e99caaead3c2490728a02"
+  },
+  "mos_formula": "board_back_y = 4.215 - A1 - c/2; A1=2.20..2.60, c=0.38..0.89",
+  "mos_back_board_y": [
+    1.17,
+    1.825
+  ],
+  "bridge_formula": "board_back_y = 4.6 - P - R/2; P=2.50..2.90, R=0.60..0.80",
+  "bridge_back_board_y": [
+    1.3,
+    1.8
+  ],
+  "bridge_minus_mos_plane_interval": [
+    -0.525,
+    0.63
+  ],
+  "generic_model_mos_y": 1.515,
+  "generic_model_bridge_y": 2.2,
+  "generic_model_step": 0.685,
+  "board_world_origin_y": 162,
+  "limitations": [
+    "Near-edge interpretation independently visually confirmed by reviewer and parent; bounds remain drawing-derived, not physical validation",
+    "No actual seated-height or lead-bend measurement",
+    "Identical rigid ceramic thickness on one common plane cannot absorb the full independent package tolerance without an explicit locating/adjustment method",
+    "Negative possible bridge step means even direction of the provisional raised boss is not guaranteed"
+  ],
+  "dimensional_inputs": {
+    "mos": {
+      "lead_center_board_y": 4.215,
+      "rear_to_near_lead_edge": [
+        2.2,
+        2.6
+      ],
+      "lead_thickness": [
+        0.38,
+        0.89
+      ]
+    },
+    "bridge": {
+      "lead_center_board_y": 4.6,
+      "rear_to_near_lead_edge": [
+        2.5,
+        2.9
+      ],
+      "lead_thickness": [
+        0.6,
+        0.8
+      ]
+    }
+  },
+  "mos_signed_gap_to_fixed_1mm_ceramic": [
+    -0.345,
+    0.31
+  ],
+  "signed_gap_convention": "Actual rear-plane Y minus fixed ceramic/device interface Y: negative is geometric interference; positive is gap",
+  "generic_model_mos_within_drawing_interval": true,
+  "review_erratum": "2026-10-04: prior +c/2 and +R/2 board formulas incorrectly treated the near edge as the far edge; corrected to subtract half thickness. See contact-plane-erratum.md.",
+  "bridge_signed_gap_to_fixed_1mm_ceramic": [
+    -0.9,
+    -0.4
+  ],
+  "generic_model_bridge_within_drawing_interval": false
+}

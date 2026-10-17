@@ -1,0 +1,62 @@
+{
+  "evidence_class": "simulation/model-based",
+  "exact_analytic_inductance_nH": 13.862943611198906,
+  "cut_scope": "four sampled circular cuts per mesh; extrema are not global bounds",
+  "cases": [
+    {
+      "label": "coax-port0p10-vol0p30",
+      "tetrahedra": 130430,
+      "min_jacobian_mm3": 0.000339442949542469,
+      "source_cut_currents_A": {
+        "r0.6_mm_A": 0.9984955317284225,
+        "r1_mm_A": 0.9999687672535457,
+        "r1.5_mm_A": 1.0000111513633454,
+        "r1.9_mm_A": 0.999873081730286
+      },
+      "source_current_sampled_range_A": [
+        0.9984955317284225,
+        1.0000111513633454
+      ],
+      "source_current_sampled_spread_A": 0.0015156196349228601,
+      "nominal_inductance_nH": 13.794462,
+      "current_normalized_inductance_sampled_range_nH": [
+        13.794154351030233,
+        13.836062517234721
+      ],
+      "error_sampled_range_pct": [
+        -0.4962096225588297,
+        -0.19390610477900694
+      ],
+      "full_sampled_current_2pct_criterion_pass": true
+    },
+    {
+      "label": "coax-port0p08-vol0p25",
+      "tetrahedra": 229668,
+      "min_jacobian_mm3": 0.00018510934799290362,
+      "source_cut_currents_A": {
+        "r0.6_mm_A": 1.0007100585386928,
+        "r1_mm_A": 0.9999670670863967,
+        "r1.5_mm_A": 0.9999939915077023,
+        "r1.9_mm_A": 1.000078096991342
+      },
+      "source_current_sampled_range_A": [
+        0.9999670670863967,
+        1.0007100585386928
+      ],
+      "source_current_sampled_spread_A": 0.0007429914522960601,
+      "nominal_inductance_nH": 13.813728,
+      "current_normalized_inductance_sampled_range_nH": [
+        13.794131763146943,
+        13.814637897569646
+      ],
+      "error_sampled_range_pct": [
+        -0.4963725596948576,
+        -0.3484520674976732
+      ],
+      "full_sampled_current_2pct_criterion_pass": true
+    }
+  ],
+  "fine_minus_coarse_nominal_nH": 0.019266000000000005,
+  "fine_minus_coarse_relative_pct": 0.13966474372106724,
+  "both_meshes_pass_full_sampled_current_2pct_criterion": true
+}

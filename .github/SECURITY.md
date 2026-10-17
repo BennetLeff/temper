@@ -23,7 +23,7 @@ Security reports are welcomed for any of the following:
   bypass) in `firmware/`
 - Safety-critical logic defects in the induction cooker state machine
 - Supply-chain risks in dependencies (Python, Rust, or ESP-IDF ecosystem)
-- Hardware design vulnerabilities in `pcb/` (unsafe isolation, thermal
+- Hardware design vulnerabilities in `zapote/` boards (unsafe isolation, thermal
   risks, electrical hazards)
 - CI/CD pipeline integrity issues in `.github/workflows/`
 

@@ -1,0 +1,3472 @@
+[
+{
+"ref": "J1",
+"path": "j_mains",
+"fp": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
+"w": 11.26,
+"h": 12.29,
+"ox": 2.545,
+"oy": -0.3,
+"group": "mains"
+},
+{
+"ref": "F1",
+"path": "f1",
+"fp": "Fuse:Fuseholder_Clip-6.3x32mm_Littelfuse_102071_Inline_P34.70x7.60mm_D2.00mm_Horizontal",
+"w": 38.29,
+"h": 8.51,
+"ox": 17.35,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "RV1",
+"path": "rv1",
+"fp": "temper:TMOV20RP_ReviewOnly",
+"w": 24.09,
+"h": 24.09,
+"ox": 3.749,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "C1",
+"path": "cx1",
+"fp": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+"w": 27.09,
+"h": 11.79,
+"ox": 11.25,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "C2",
+"path": "cx2",
+"fp": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+"w": 27.09,
+"h": 11.79,
+"ox": 11.25,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "R1",
+"path": "rb1a",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "R2",
+"path": "rb1b",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "R3",
+"path": "r_bus1",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R4",
+"path": "r_bus2",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R51",
+"path": "leg_a.bias_h.rdamp",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R52",
+"path": "leg_a.bias_l.rdamp",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R10",
+"path": "leg_a.r_gh",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R12",
+"path": "leg_a.r_gl",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R53",
+"path": "leg_a.roff_h",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R54",
+"path": "leg_a.roff_l",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R55",
+"path": "leg_b.bias_h.rdamp",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R56",
+"path": "leg_b.bias_l.rdamp",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R18",
+"path": "leg_b.r_gh",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R20",
+"path": "leg_b.r_gl",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R57",
+"path": "leg_b.roff_h",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R58",
+"path": "leg_b.roff_l",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R22",
+"path": "r_crb1",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R23",
+"path": "r_crb2",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R24",
+"path": "r_crb3",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R25",
+"path": "r_crb4",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R26",
+"path": "r_div1",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R27",
+"path": "r_div2",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R28",
+"path": "r_div3",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R29",
+"path": "r_div4",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R39",
+"path": "r_ct_burden",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R42",
+"path": "r_ct_series",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R59",
+"path": "monitor_ls.rref",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R61",
+"path": "bias_rsn1",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "R62",
+"path": "bias_rsn2",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "R63",
+"path": "bias_ha.monitor.rref",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R65",
+"path": "bias_hb.monitor.rref",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R67",
+"path": "line_zc.r1",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "R68",
+"path": "line_zc.r2",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "R69",
+"path": "line_zc.r3",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "R70",
+"path": "line_zc.r4",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "L1",
+"path": "l1",
+"fp": "temper:B82726S2_ReviewOnly",
+"w": 46.09,
+"h": 30.09,
+"ox": 5.0,
+"oy": 12.5,
+"group": "mains"
+},
+{
+"ref": "C3",
+"path": "cy1",
+"fp": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+"w": 12.59,
+"h": 5.59,
+"ox": 5.0,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "C4",
+"path": "cy2",
+"fp": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+"w": 12.59,
+"h": 5.59,
+"ox": 5.0,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "BR1",
+"path": "br1",
+"fp": "temper:Diode_Bridge_GBJ2510",
+"w": 30.09,
+"h": 5.09,
+"ox": 12.7,
+"oy": 0.0,
+"group": "mains"
+},
+{
+"ref": "C5",
+"path": "c_bus1",
+"fp": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+"w": 42.59,
+"h": 33.59,
+"ox": 18.75,
+"oy": 10.15,
+"group": "power_misc"
+},
+{
+"ref": "C6",
+"path": "c_bus2",
+"fp": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+"w": 42.59,
+"h": 33.59,
+"ox": 18.75,
+"oy": 10.15,
+"group": "power_misc"
+},
+{
+"ref": "R5",
+"path": "r_shunt",
+"fp": "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm",
+"w": 8.85,
+"h": 3.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "U1",
+"path": "leg_a.driver",
+"fp": "lib:SOIC16W_Isolated",
+"w": 11.99,
+"h": 10.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "U2",
+"path": "leg_b.driver",
+"fp": "lib:SOIC16W_Isolated",
+"w": 11.99,
+"h": 10.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C7",
+"path": "leg_a.c_vcci",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C8",
+"path": "leg_a.c_ls",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C50",
+"path": "leg_a.bias_h.cmid1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C51",
+"path": "leg_a.bias_h.cmid2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C52",
+"path": "leg_a.bias_l.cmid1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C53",
+"path": "leg_a.bias_l.cmid2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C54",
+"path": "leg_a.c_dis_or",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C55",
+"path": "leg_a.cgs_h",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C56",
+"path": "leg_a.cgs_l",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C14",
+"path": "leg_b.c_vcci",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C15",
+"path": "leg_b.c_ls",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C57",
+"path": "leg_b.bias_h.cmid1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C58",
+"path": "leg_b.bias_h.cmid2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C59",
+"path": "leg_b.bias_l.cmid1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C60",
+"path": "leg_b.bias_l.cmid2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C61",
+"path": "leg_b.c_dis_or",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C62",
+"path": "leg_b.cgs_h",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C63",
+"path": "leg_b.cgs_l",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C25",
+"path": "c_ldo_in",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C27",
+"path": "c_div",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C28",
+"path": "c_vs1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C29",
+"path": "c_vs2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C30",
+"path": "c_ocp_node",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C31",
+"path": "c_th",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C32",
+"path": "c_ocp_vcc",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C33",
+"path": "c_ovp_th",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C34",
+"path": "c_ovp_vcc",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C35",
+"path": "c_nand_vcc",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C36",
+"path": "c_iso1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C37",
+"path": "c_iso2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C44",
+"path": "c_ct_pos",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C45",
+"path": "c_ct_neg",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C46",
+"path": "c_ct_zc",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C47",
+"path": "c_fault_or",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C48",
+"path": "c_hot5_uv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C49",
+"path": "c_hot5_schmitt",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C64",
+"path": "bias_ls.cnr",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "C65",
+"path": "bias_ls.chf",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "C131",
+"path": "monitor_ls.cldo_in",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C133",
+"path": "monitor_ls.civcc1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C134",
+"path": "monitor_ls.civcc2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C66",
+"path": "monitor_ls.cuv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C67",
+"path": "monitor_ls.cov",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C68",
+"path": "monitor_ls.cspanuv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C69",
+"path": "monitor_ls.cspanov",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C70",
+"path": "monitor_ls.cmonitor",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C71",
+"path": "bias_chf",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C72",
+"path": "bias_csn1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C73",
+"path": "bias_csn2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C74",
+"path": "bias_ha.split.cnr",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C75",
+"path": "bias_ha.split.chf",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C135",
+"path": "bias_ha.monitor.cldo_in",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C137",
+"path": "bias_ha.monitor.civcc1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C138",
+"path": "bias_ha.monitor.civcc2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C76",
+"path": "bias_ha.monitor.cuv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C77",
+"path": "bias_ha.monitor.cov",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C78",
+"path": "bias_ha.monitor.cspanuv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C79",
+"path": "bias_ha.monitor.cspanov",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C80",
+"path": "bias_ha.monitor.cmonitor",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C81",
+"path": "bias_hb.split.cnr",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C82",
+"path": "bias_hb.split.chf",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C139",
+"path": "bias_hb.monitor.cldo_in",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C141",
+"path": "bias_hb.monitor.civcc1",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C142",
+"path": "bias_hb.monitor.civcc2",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C83",
+"path": "bias_hb.monitor.cuv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C84",
+"path": "bias_hb.monitor.cov",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C85",
+"path": "bias_hb.monitor.cspanuv",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C86",
+"path": "bias_hb.monitor.cspanov",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C87",
+"path": "bias_hb.monitor.cmonitor",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C143",
+"path": "c_bias_flt",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C144",
+"path": "c_bias_flt_vcc",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C88",
+"path": "bias_c_or",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C89",
+"path": "line_zc.cbuffer",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "Q1",
+"path": "leg_a.permit_fet",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "Q4",
+"path": "leg_b.permit_fet",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "U5",
+"path": "u_ref",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U16",
+"path": "bias_ls.shunt",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "U17",
+"path": "monitor_ls.reference",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "Q7",
+"path": "monitor_ls.qnotice",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "U18",
+"path": "bias_ha.split.shunt",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "U19",
+"path": "bias_ha.monitor.reference",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "Q8",
+"path": "bias_ha.monitor.qnotice",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "U20",
+"path": "bias_hb.split.shunt",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "U21",
+"path": "bias_hb.monitor.reference",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "Q9",
+"path": "bias_hb.monitor.qnotice",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R6",
+"path": "leg_a.r_permit",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R7",
+"path": "leg_a.r_permit_pd",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R8",
+"path": "leg_a.r_dis_pu",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R9",
+"path": "leg_a.r_dt",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R71",
+"path": "leg_a.bias_h.rbleed",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R72",
+"path": "leg_a.bias_l.rbleed",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R73",
+"path": "leg_a.r_driver_dis",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R11",
+"path": "leg_a.r_gh_pd",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R13",
+"path": "leg_a.r_gl_pd",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "R14",
+"path": "leg_b.r_permit",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R15",
+"path": "leg_b.r_permit_pd",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R16",
+"path": "leg_b.r_dis_pu",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R17",
+"path": "leg_b.r_dt",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R74",
+"path": "leg_b.bias_h.rbleed",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R75",
+"path": "leg_b.bias_l.rbleed",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R76",
+"path": "leg_b.r_driver_dis",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R19",
+"path": "leg_b.r_gh_pd",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R21",
+"path": "leg_b.r_gl_pd",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "R30",
+"path": "r_div_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R31",
+"path": "r_ref_bias",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R32",
+"path": "r_ocp_ref",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R33",
+"path": "r_ocp_sense",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R34",
+"path": "r_th_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R35",
+"path": "r_th_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R36",
+"path": "r_ovp_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R37",
+"path": "r_ovp_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R38",
+"path": "r_fe",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "R40",
+"path": "r_ct_bias_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R41",
+"path": "r_ct_bias_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R43",
+"path": "r_ct_hi_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R44",
+"path": "r_ct_hi_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R45",
+"path": "r_ct_lo_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R46",
+"path": "r_ct_lo_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R47",
+"path": "r_ct_mon",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "R48",
+"path": "r_hot5_uv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R49",
+"path": "r_hot5_uv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R50",
+"path": "r_hot5_uv_pull",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R77",
+"path": "bias_ls.rtop",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "R78",
+"path": "bias_ls.rbot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "R79",
+"path": "monitor_ls.rhalf_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R80",
+"path": "monitor_ls.rhalf_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R81",
+"path": "monitor_ls.ruv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R82",
+"path": "monitor_ls.ruv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R83",
+"path": "monitor_ls.rov_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R84",
+"path": "monitor_ls.rov_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R85",
+"path": "monitor_ls.rspanuv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R86",
+"path": "monitor_ls.rspanuv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R87",
+"path": "monitor_ls.rspanov_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R88",
+"path": "monitor_ls.rspanov_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R89",
+"path": "monitor_ls.rnotice",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R90",
+"path": "monitor_ls.rbase",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R91",
+"path": "monitor_ls.rpull",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R92",
+"path": "bias_rclk",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "R93",
+"path": "bias_rlim",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "R94",
+"path": "bias_rsr",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "R95",
+"path": "bias_ha.split.rtop",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R96",
+"path": "bias_ha.split.rbot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R97",
+"path": "bias_ha.monitor.rhalf_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R98",
+"path": "bias_ha.monitor.rhalf_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R99",
+"path": "bias_ha.monitor.ruv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R100",
+"path": "bias_ha.monitor.ruv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R101",
+"path": "bias_ha.monitor.rov_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R102",
+"path": "bias_ha.monitor.rov_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R103",
+"path": "bias_ha.monitor.rspanuv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R104",
+"path": "bias_ha.monitor.rspanuv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R105",
+"path": "bias_ha.monitor.rspanov_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R106",
+"path": "bias_ha.monitor.rspanov_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R107",
+"path": "bias_ha.monitor.rnotice",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R108",
+"path": "bias_ha.monitor.rbase",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R109",
+"path": "bias_ha.monitor.rpull",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R110",
+"path": "bias_hb.split.rtop",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R111",
+"path": "bias_hb.split.rbot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R112",
+"path": "bias_hb.monitor.rhalf_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R113",
+"path": "bias_hb.monitor.rhalf_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R114",
+"path": "bias_hb.monitor.ruv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R115",
+"path": "bias_hb.monitor.ruv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R116",
+"path": "bias_hb.monitor.rov_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R117",
+"path": "bias_hb.monitor.rov_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R118",
+"path": "bias_hb.monitor.rspanuv_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R119",
+"path": "bias_hb.monitor.rspanuv_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R120",
+"path": "bias_hb.monitor.rspanov_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R121",
+"path": "bias_hb.monitor.rspanov_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R122",
+"path": "bias_hb.monitor.rnotice",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R123",
+"path": "bias_hb.monitor.rbase",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R124",
+"path": "bias_hb.monitor.rpull",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R126",
+"path": "r_bias_flt",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "R125",
+"path": "line_zc.pullup",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "C9",
+"path": "leg_a.c_ls_bulk",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C90",
+"path": "leg_a.bias_h.clocal1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C91",
+"path": "leg_a.bias_h.clocal2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C92",
+"path": "leg_a.bias_l.clocal1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C93",
+"path": "leg_a.bias_l.clocal2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C16",
+"path": "leg_b.c_ls_bulk",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C94",
+"path": "leg_b.bias_h.clocal1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C95",
+"path": "leg_b.bias_h.clocal2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C96",
+"path": "leg_b.bias_l.clocal1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C97",
+"path": "leg_b.bias_l.clocal2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C24",
+"path": "c_v15",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C26",
+"path": "c_ldo_out",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "C98",
+"path": "bias_ls.cin",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "C99",
+"path": "bias_ls.cout1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "C100",
+"path": "bias_ls.cout2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "C132",
+"path": "monitor_ls.cldo_out",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "C101",
+"path": "bias_cin",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "C102",
+"path": "bias_ha.craw",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C103",
+"path": "bias_ha.split.cin",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C104",
+"path": "bias_ha.split.cout1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C105",
+"path": "bias_ha.split.cout2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C136",
+"path": "bias_ha.monitor.cldo_out",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "C106",
+"path": "bias_hb.craw",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C107",
+"path": "bias_hb.split.cin",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C108",
+"path": "bias_hb.split.cout1",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C109",
+"path": "bias_hb.split.cout2",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C140",
+"path": "bias_hb.monitor.cldo_out",
+"fp": "Capacitor_SMD:C_1210_3225Metric",
+"w": 4.69,
+"h": 3.29,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "C110",
+"path": "leg_a.bias_h.chf1",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C111",
+"path": "leg_a.bias_h.chf2",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C112",
+"path": "leg_a.bias_h.chf3",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C113",
+"path": "leg_a.bias_h.chf4",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C114",
+"path": "leg_a.bias_l.chf1",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C115",
+"path": "leg_a.bias_l.chf2",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C116",
+"path": "leg_a.bias_l.chf3",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C117",
+"path": "leg_a.bias_l.chf4",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C118",
+"path": "leg_b.bias_h.chf1",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C119",
+"path": "leg_b.bias_h.chf2",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C120",
+"path": "leg_b.bias_h.chf3",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C121",
+"path": "leg_b.bias_h.chf4",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C122",
+"path": "leg_b.bias_l.chf1",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C123",
+"path": "leg_b.bias_l.chf2",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C124",
+"path": "leg_b.bias_l.chf3",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C125",
+"path": "leg_b.bias_l.chf4",
+"fp": "Capacitor_SMD:C_0402_1005Metric",
+"w": 1.91,
+"h": 1.01,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C126",
+"path": "leg_a.bias_h.cbulk",
+"fp": "Capacitor_SMD:CP_Elec_6.3x5.9",
+"w": 9.69,
+"h": 7.19,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C127",
+"path": "leg_a.bias_l.cbulk",
+"fp": "Capacitor_SMD:CP_Elec_6.3x5.9",
+"w": 9.69,
+"h": 7.19,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C128",
+"path": "leg_b.bias_h.cbulk",
+"fp": "Capacitor_SMD:CP_Elec_6.3x5.9",
+"w": 9.69,
+"h": 7.19,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C129",
+"path": "leg_b.bias_l.cbulk",
+"fp": "Capacitor_SMD:CP_Elec_6.3x5.9",
+"w": 9.69,
+"h": 7.19,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "U22",
+"path": "leg_a.dis_or",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "U23",
+"path": "leg_b.dis_or",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "U3",
+"path": "u_ldo",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U6",
+"path": "u_ocp",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U7",
+"path": "u_ovp",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U10",
+"path": "u_ct_pos",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "U11",
+"path": "u_ct_neg",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "U12",
+"path": "u_ct_zc",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "U15",
+"path": "u_hot5_schmitt",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U37",
+"path": "monitor_ls.ldo5",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "U38",
+"path": "bias_ha.monitor.ldo5",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "U39",
+"path": "bias_hb.monitor.ldo5",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "U40",
+"path": "u_bias_flt",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "U24",
+"path": "line_zc.buffer",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+},
+{
+"ref": "D6",
+"path": "leg_a.doff_h",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "D7",
+"path": "leg_a.doff_l",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "D8",
+"path": "leg_b.doff_h",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "D9",
+"path": "leg_b.doff_l",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "D10",
+"path": "bias_ha.da",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "D11",
+"path": "bias_ha.db",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "D12",
+"path": "bias_hb.da",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "D13",
+"path": "bias_hb.db",
+"fp": "Diode_SMD:D_SOD-128",
+"w": 6.39,
+"h": 3.09,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "Q2",
+"path": "leg_a.q_high",
+"fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+"w": 16.49,
+"h": 5.62,
+"ox": 5.45,
+"oy": 0.185,
+"group": "leg_a"
+},
+{
+"ref": "Q3",
+"path": "leg_a.q_low",
+"fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+"w": 16.49,
+"h": 5.62,
+"ox": 5.45,
+"oy": 0.185,
+"group": "leg_a"
+},
+{
+"ref": "Q5",
+"path": "leg_b.q_high",
+"fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+"w": 16.49,
+"h": 5.62,
+"ox": 5.45,
+"oy": 0.185,
+"group": "leg_b"
+},
+{
+"ref": "Q6",
+"path": "leg_b.q_low",
+"fp": "Package_TO_SOT_THT:TO-247-3_Vertical",
+"w": 16.49,
+"h": 5.62,
+"ox": 5.45,
+"oy": 0.185,
+"group": "leg_b"
+},
+{
+"ref": "C12",
+"path": "leg_a.c_snub_h",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C13",
+"path": "leg_a.c_snub_l",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_a"
+},
+{
+"ref": "C19",
+"path": "leg_b.c_snub_h",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C20",
+"path": "leg_b.c_snub_l",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "leg_b"
+},
+{
+"ref": "C42",
+"path": "c_ct_burden",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C43",
+"path": "c_ct_bias",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C130",
+"path": "bias_css",
+"fp": "Capacitor_SMD:C_1206_3216Metric",
+"w": 4.69,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "T1",
+"path": "t_ct",
+"fp": "temper:CST3015",
+"w": 23.59,
+"h": 32.69,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "J2",
+"path": "j_coil",
+"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+"w": 10.17,
+"h": 10.17,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "J5",
+"path": "j_coil_return",
+"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+"w": 10.17,
+"h": 10.17,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "J7",
+"path": "link_pos.terminal_rect",
+"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+"w": 10.17,
+"h": 10.17,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "J8",
+"path": "link_pos.terminal_bus",
+"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+"w": 10.17,
+"h": 10.17,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "J9",
+"path": "link_neg.terminal_rect",
+"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+"w": 10.17,
+"h": 10.17,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "J10",
+"path": "link_neg.terminal_bus",
+"fp": "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR",
+"w": 10.17,
+"h": 10.17,
+"ox": 0.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C21",
+"path": "c_res1",
+"fp": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+"w": 46.79,
+"h": 27.59,
+"ox": 21.25,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C22",
+"path": "c_res2",
+"fp": "temper:CDE_942C_D26.5_L34.0_Axial_ReviewOnly",
+"w": 46.79,
+"h": 27.59,
+"ox": 21.25,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C23",
+"path": "c_res3",
+"fp": "temper:CDE_942C_D19.0_L34.0_Axial_ReviewOnly",
+"w": 46.59,
+"h": 20.09,
+"ox": 21.25,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "PS1",
+"path": "ps_selv",
+"fp": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+"w": 52.99,
+"h": 27.79,
+"ox": 22.8,
+"oy": 10.4,
+"group": "power_misc"
+},
+{
+"ref": "PS2",
+"path": "ps_gate",
+"fp": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+"w": 52.99,
+"h": 27.79,
+"ox": 22.8,
+"oy": 10.4,
+"group": "power_misc"
+},
+{
+"ref": "J3",
+"path": "j_tco",
+"fp": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+"w": 8.95,
+"h": 9.59,
+"ox": 1.98,
+"oy": 0.55,
+"group": "power_misc"
+},
+{
+"ref": "U4",
+"path": "u_vsense",
+"fp": "Package_SO:SOIC-8_7.5x5.85mm_P1.27mm",
+"w": 13.05,
+"h": 6.45,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U8",
+"path": "u_nand",
+"fp": "Package_TO_SOT_SMD:SOT-23-6",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U13",
+"path": "u_fault_or",
+"fp": "Package_TO_SOT_SMD:SOT-23-6",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "U14",
+"path": "u_hot5_uv",
+"fp": "Package_TO_SOT_SMD:SOT-23-6",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U25",
+"path": "bias_or",
+"fp": "Package_TO_SOT_SMD:SOT-23-6",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "U9",
+"path": "u_iso",
+"fp": "lib:SOIC16W_DW0016B_HV",
+"w": 11.99,
+"h": 10.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "U32",
+"path": "monitor_ls.iso",
+"fp": "lib:SOIC16W_DW0016B_HV",
+"w": 11.99,
+"h": 10.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "U33",
+"path": "bias_ha.monitor.iso",
+"fp": "lib:SOIC16W_DW0016B_HV",
+"w": 11.99,
+"h": 10.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "U34",
+"path": "bias_hb.monitor.iso",
+"fp": "lib:SOIC16W_DW0016B_HV",
+"w": 11.99,
+"h": 10.89,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "J4",
+"path": "j_selv",
+"fp": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
+"w": 29.25,
+"h": 9.87,
+"ox": 10.5,
+"oy": 1.92,
+"group": "power_misc"
+},
+{
+"ref": "D3",
+"path": "tvs_bus",
+"fp": "temper:MRT130KP_Axial_P20.00mm_ReviewOnly",
+"w": 23.79,
+"h": 8.47,
+"ox": 10.0,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "J6",
+"path": "j_pe",
+"fp": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+"w": 5.67,
+"h": 27.59,
+"ox": 0.0,
+"oy": 9.4,
+"group": "power_misc"
+},
+{
+"ref": "C38",
+"path": "c_hf_a1",
+"fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+"w": 18.59,
+"h": 9.59,
+"ox": 7.5,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C39",
+"path": "c_hf_a2",
+"fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+"w": 18.59,
+"h": 9.59,
+"ox": 7.5,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C40",
+"path": "c_hf_b1",
+"fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+"w": 18.59,
+"h": 9.59,
+"ox": 7.5,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "C41",
+"path": "c_hf_b2",
+"fp": "temper:TDK_B32652A0104K000_P15.00_ReviewOnly",
+"w": 18.59,
+"h": 9.59,
+"ox": 7.5,
+"oy": 0.0,
+"group": "power_misc"
+},
+{
+"ref": "D4",
+"path": "d_ct_hi",
+"fp": "Diode_SMD:D_SOD-123F",
+"w": 4.49,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "D5",
+"path": "d_ct_lo",
+"fp": "Diode_SMD:D_SOD-123F",
+"w": 4.49,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "U26",
+"path": "bias_ls.ldo",
+"fp": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+"w": 6.35,
+"h": 6.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ls"
+},
+{
+"ref": "U27",
+"path": "bias_ha.split.ldo",
+"fp": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+"w": 6.35,
+"h": 6.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "U28",
+"path": "bias_hb.split.ldo",
+"fp": "Package_DFN_QFN:Texas_RGW0020A_VQFN-20-1EP_5x5mm_P0.65mm_EP3.15x3.15mm",
+"w": 6.35,
+"h": 6.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "U29",
+"path": "monitor_ls.monitor",
+"fp": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+"w": 7.49,
+"h": 9.25,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "U30",
+"path": "bias_ha.monitor.monitor",
+"fp": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+"w": 7.49,
+"h": 9.25,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "U31",
+"path": "bias_hb.monitor.monitor",
+"fp": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+"w": 7.49,
+"h": 9.25,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "D14",
+"path": "monitor_ls.dnotice",
+"fp": "Diode_SMD:D_SOD-123",
+"w": 4.79,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "D15",
+"path": "bias_ha.monitor.dnotice",
+"fp": "Diode_SMD:D_SOD-123",
+"w": 4.79,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "D16",
+"path": "bias_hb.monitor.dnotice",
+"fp": "Diode_SMD:D_SOD-123",
+"w": 4.79,
+"h": 2.39,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "U35",
+"path": "bias_driver",
+"fp": "Package_SO:HVSSOP-10-1EP_3x3mm_P0.5mm_EP1.83x1.89mm",
+"w": 6.35,
+"h": 3.59,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_common"
+},
+{
+"ref": "T2",
+"path": "bias_ha.transformer",
+"fp": "temper:WE_750320775_EP7HV_ReviewOnly",
+"w": 14.15,
+"h": 12.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "T3",
+"path": "bias_hb.transformer",
+"fp": "temper:WE_750320775_EP7HV_ReviewOnly",
+"w": 14.15,
+"h": 12.05,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "L2",
+"path": "bias_ha.filter",
+"fp": "temper:WE_74404064101_6x6_ReviewOnly",
+"w": 6.99,
+"h": 6.59,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "L3",
+"path": "bias_hb.filter",
+"fp": "temper:WE_74404064101_6x6_ReviewOnly",
+"w": 6.99,
+"h": 6.59,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "U36",
+"path": "line_zc.opto",
+"fp": "temper:VOL628A_LSOP4_ReviewOnly",
+"w": 11.39,
+"h": 4.69,
+"ox": 0.0,
+"oy": 0.0,
+"group": "line_zc"
+}
+]

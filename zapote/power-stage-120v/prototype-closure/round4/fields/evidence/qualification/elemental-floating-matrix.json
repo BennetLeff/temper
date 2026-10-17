@@ -1,0 +1,43 @@
+{
+  "ports": [
+    "4"
+  ],
+  "port_identity": [
+    {
+      "physical": 4,
+      "name": "P1_floating",
+      "k_A_per_m": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "sif_sha256": "e75898d4092130c4c699b45c9f1eeb41ce97b42263b93edce8a0a4aee183e3b6"
+    }
+  ],
+  "mesh_sha256": "61f91bd5f267958c1789f8931fdbbdd4ce66e997315b70aba2c98ed2d38088a0",
+  "legacy_runs_without_receipt": [],
+  "L_nH": [
+    [
+      2.436459
+    ]
+  ],
+  "tets": 8027,
+  "partitions": 4,
+  "max_within_tet_spread": 7.833871182406609e-16,
+  "diagonal_vs_energy": [
+    {
+      "port": "4",
+      "L_from_B_nH": 2.436459,
+      "L_energy_nH": 2.436458,
+      "rel_diff": 3.688991222266035e-07
+    }
+  ],
+  "minimum_eigenvalue_nH": 2.436459,
+  "converged_run_receipts": [
+    {
+      "path": "output/temper-prototype-closure/round4/fields/elemental-floating-p4/result.json",
+      "sha256": "5f0d754fe68d4446e52cbdcff47f0b5f10b3f8728e18d97430b8a016a6c530f7"
+    }
+  ],
+  "classification": "simulated magnetostatic finite-closure matrix; no physical qualification"
+}

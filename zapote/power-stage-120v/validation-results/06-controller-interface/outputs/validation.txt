@@ -1,0 +1,9 @@
+interface_check.py: byte-identical replay PASS
+interface_numbers.py: byte-identical replay PASS
+Historical CT section: byte-identical to f9b13b4 PASS
+git diff --check: PASS
+Import gate command: UV_CACHE_DIR=/private/tmp/temper-r17-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/temper-r17-audit-tools PATH=/private/tmp/temper-r17-audit-tools/bin:$PATH PYTHONPATH=packages/temper-placer/src /private/tmp/temper-r17-audit-tools/bin/python scripts/import_linter_gate.py
+Import gate: 5 kept, 0 broken; 0 new violations PASS (after permitting cache writes in this worktree). Initial sandbox attempts were tool errors, not contract failures.
+Derived-artifact command: /private/tmp/temper-r17-audit-tools/bin/python scripts/regen_derived.py --check
+Derived artifacts: all consistent PASS; no mutating regeneration, Rust/native build or design edit.
+Operator: GPT-6 / Codex; Python 3.12.12. Electrical integration verdict: FAIL; physical tests NOT RUN.

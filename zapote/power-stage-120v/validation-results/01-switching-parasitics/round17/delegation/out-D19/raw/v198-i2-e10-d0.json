@@ -1,0 +1,47 @@
+{
+  "deck": "/Users/bennet/.codex/worktrees/ps-r17-d19/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D19/edge.cir",
+  "params": {
+    "LP1": "24.5969n",
+    "LP2": "23.8522n",
+    "LP3": "24.2606n",
+    "LP4": "35.6765n",
+    "K12": "0.632482752",
+    "K13": "0.165300953",
+    "K14": "0.185415768",
+    "K23": "0.160678209",
+    "K24": "0.196916347",
+    "K34": "-0.00889872432",
+    "VBUS": "198",
+    "IL": "2",
+    "DIR": "0",
+    "DT": "443n",
+    "LESL": "10n",
+    "TRMAX": "0.2n"
+  },
+  "aborted": false,
+  "returncode": 0,
+  "raw_returncode": 0,
+  "meas": {
+    "vds_ls_die_pk": 363.9161,
+    "vds_hs_die_pk": 199.6062,
+    "vgs_ls_die_max": 14.98306,
+    "vgs_ls_die_min": -1.538358,
+    "vgs_hs_die_max": 14.32883,
+    "vgs_hs_die_min": -0.01929328,
+    "vgs_ls_off_max": 2.122049,
+    "vgs_hs_off_max": 14.32883,
+    "vds_hs_at_on": 193.4695,
+    "vds_ls_at_on": 0.0283602,
+    "vgs_ls_at_partner": 1.009144,
+    "vgs_hs_at_partner": -0.009383965
+  },
+  "failed": [],
+  "log_tail": [
+    "DRAM currently available =  241.422 MB.",
+    "Maximum ngspice program size =   19.484 MB.",
+    "Current ngspice program size =   19.484 MB.",
+    "",
+    "Note: Starting dynamic gmin stepping",
+    "Note: Dynamic gmin stepping completed"
+  ]
+}

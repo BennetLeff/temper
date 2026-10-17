@@ -1,0 +1,27 @@
+{
+  "schema": "temper.round2.source-comment-equivalence.v1",
+  "change": "Remove unsupported PERMIT-to-DIS 0.35 us worst-case assertion in Atopile comment; circuit statements unchanged",
+  "previous_source_sha256": "5af1c357dbb3da65aa878f581e4ab4fc98f67b9ab981375e2ddca8a97fd642e8",
+  "current_source_sha256": "67dca81b67ec8a56d040a68f331de07a2cffc691b3f87fcda1db0c9b878cb498",
+  "compiler": "Atopile 0.2.69 offline",
+  "compiled_default_net": {
+    "current_sha256": "ab1fdc00d5a4c6eec097220a328fb361f176cdf49b5ec6a1a1888d4c97972ff8",
+    "native19_frozen_byte_equal": true
+  },
+  "compiled_default_csv": {
+    "current_sha256": "f9f8beb617460134d2fa67bd11dcbb2396972c1cf76e0b1b8299880fe5452257",
+    "native19_frozen_byte_equal": true
+  },
+  "resolved_components": {
+    "count": 142,
+    "components_array_equal_to_native19_frozen": true,
+    "current_sha256": "145d8c2cb27f316f85da334cf87746f1af03f337dc5ca007e48608bf1ae8fc45",
+    "native19_frozen_sha256": "0c789399ee6180ade023f5e468fa2ec887d3265d20adff4712e4041e093cc6e3",
+    "different_top_level_fields": ["build_sha256", "source_sha256"],
+    "note": "The current projection records the new source hash and a previous projection hash in build_sha256. The native19 frozen projection is intentionally preserved as its reviewed historical artifact. Component identity and compiled connectivity are unchanged."
+  },
+  "native19_board_or_schematic_edited": false,
+  "rust_source_audit_tests": "62 passed; 0 failed against preserved native19 frozen exports",
+  "current_compiled_export_audit": "PASS; 142 components, 89 nets",
+  "electrical_qualification": "UNCHANGED_AND_OPEN"
+}

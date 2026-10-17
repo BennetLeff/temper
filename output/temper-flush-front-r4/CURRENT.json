@@ -1,0 +1,12 @@
+{
+  "revision": "R4",
+  "status": "PROTOTYPE_NOMINAL_FIT_ONLY",
+  "units": "mm",
+  "build": "src/assembly.py",
+  "assembly": "STEP/assembly.step",
+  "panel": "STEP/front_panel.step",
+  "catalog": "catalog.json",
+  "review": "review.html",
+  "baseline": "../temper-front-panel-r3",
+  "drawings_status": "R2 PDFs inherited; front chamber roof and front panel unqualified, no released cassette drawing"
+}

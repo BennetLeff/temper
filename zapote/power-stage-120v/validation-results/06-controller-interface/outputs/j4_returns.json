@@ -1,0 +1,43 @@
+{
+ "assumptions": {
+  "R_wire_ohm": 0.20207999999999998,
+  "R_contact_ohm": 0.02,
+  "I_return_A": 1.441657
+ },
+ "native20_four_returns": {
+  "contacts": 4,
+  "per_contact_A": 0.36,
+  "offset_mV": 80.0,
+  "ct_mon_error_A": 5.34,
+  "margins_after_offset_V": {
+   "PWM low (VIL 0.8 V - controller VOL 0.3465 V)": 0.373,
+   "PWM high (controller VOH 2.508 V - VIH 2.3 V)": 0.128,
+   "BUS_FAULT low (receiver VIL 0.8 V assumed - 0.3 V)": 0.42,
+   "PERMIT (UCC21550 DIS path via AO3400A gate, Vth 0.65 V min)": 0.57
+  }
+ },
+ "native21_three_returns": {
+  "contacts": 3,
+  "per_contact_A": 0.481,
+  "offset_mV": 106.7,
+  "ct_mon_error_A": 7.11,
+  "margins_after_offset_V": {
+   "PWM low (VIL 0.8 V - controller VOL 0.3465 V)": 0.347,
+   "PWM high (controller VOH 2.508 V - VIH 2.3 V)": 0.101,
+   "BUS_FAULT low (receiver VIL 0.8 V assumed - 0.3 V)": 0.393,
+   "PERMIT (UCC21550 DIS path via AO3400A gate, Vth 0.65 V min)": 0.543
+  }
+ },
+ "native21_one_missing": {
+  "contacts": 2,
+  "per_contact_A": 0.721,
+  "offset_mV": 160.1,
+  "ct_mon_error_A": 10.67,
+  "margins_after_offset_V": {
+   "PWM low (VIL 0.8 V - controller VOL 0.3465 V)": 0.293,
+   "PWM high (controller VOH 2.508 V - VIH 2.3 V)": 0.048,
+   "BUS_FAULT low (receiver VIL 0.8 V assumed - 0.3 V)": 0.34,
+   "PERMIT (UCC21550 DIS path via AO3400A gate, Vth 0.65 V min)": 0.49
+  }
+ }
+}

@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "source_sha256": "1fa6ef4cb56f3bcd02ec7cf316a98c7aad449121aa3b18ddbe607291cb98a4aa",
+  "checks": [
+    {
+      "input": "r4_assembly_sha256",
+      "expected_rejection": "R4 identity drift",
+      "observed_rejection": "R4 identity drift"
+    },
+    {
+      "input": "native18_board_sha256",
+      "expected_rejection": "Native18 inventory identity drift",
+      "observed_rejection": "Native18 inventory identity drift"
+    },
+    {
+      "input": "board_thickness",
+      "expected_rejection": "Board thickness drift",
+      "observed_rejection": "Board thickness drift"
+    },
+    {
+      "input": "historical full-depth relief",
+      "expected_rejection": "Sink base/fin continuity lost",
+      "observed_rejection": "Sink base/fin continuity lost"
+    }
+  ]
+}

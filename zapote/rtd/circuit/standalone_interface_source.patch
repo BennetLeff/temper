@@ -1,0 +1,80 @@
+--- elec/src/components.ato
++++ elec/src/components.ato
+@@ -796,4 +796,26 @@
+     # Custom attribute for BOM generators to skip this component
+     bom_exclude = true
+     
++    signal p1 ~ pin 1
++
++component FTSH_105_01_F_D:
++    """Samtec FTSH-105-01-F-D, 10-pin 2x5 1.27 mm THT boundary header.
++
++    Pin numbers follow the manufacturer's pin-1 numbered view. The mating host
++    endpoint is outside the RTD unit and is intentionally not declared here.
++    """
++    designator_prefix = "J"
++    footprint = "Temper_RTD:FTSH-105-01-F-D_2x5_P1.27mm"
++    mpn = "FTSH-105-01-F-D"
++    manufacturer = "Samtec"
++
+     signal p1 ~ pin 1
++    signal p2 ~ pin 2
++    signal p3 ~ pin 3
++    signal p4 ~ pin 4
++    signal p5 ~ pin 5
++    signal p6 ~ pin 6
++    signal p7 ~ pin 7
++    signal p8 ~ pin 8
++    signal p9 ~ pin 9
++    signal p10 ~ pin 10
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -48,6 +48,7 @@
+ 
+ # Sensing components
+ import MAX31865 from "components.ato"
++import FTSH_105_01_F_D from "components.ato"
+ # ADUM1250 I2C isolator no longer needed for RTD isolation; the isolation
+ # barrier is between the HV power domain and the SELV control domain
+ # (Option A, plan 003). Component definition retained in components.ato
+@@ -3675,3 +3676,40 @@
+     i2c.scl ~ mcu.IO39
+     uart.tx ~ mcu.TXD0
+     uart.rx ~ mcu.RXD0
++
++module RTDUnit:
++    """Standalone RTD sensing unit and its explicit 2x5 host boundary.
++
++    This module is a source proposal only; no MCU, buck, or host harness is
++    connected. `rtd_pan` preserves the existing RTDSensing instance identity.
++    """
++    power = new ElectricPower
++    power.voltage = 3.3V
++    spi = new SPI
++    cs = new ElectricLogic
++    drdy = new ElectricLogic
++    rtd_hw_fault = new ElectricLogic
++    shared_ref_2v5 = new ElectricLogic
++
++    rtd_pan = new RTDSensing
++    rtd_pan.power.vcc ~ power.vcc
++    rtd_pan.power.gnd ~ power.gnd
++    rtd_pan.spi.sclk ~ spi.sclk
++    rtd_pan.spi.mosi ~ spi.mosi
++    rtd_pan.spi.miso ~ spi.miso
++    rtd_pan.cs.line ~ cs.line
++    rtd_pan.drdy.line ~ drdy.line
++    rtd_pan.rtd_hw_fault.line ~ rtd_hw_fault.line
++    rtd_pan.reference.VREF ~ shared_ref_2v5.line
++
++    unit_io = new FTSH_105_01_F_D
++    unit_io.p1 ~ power.vcc
++    unit_io.p2 ~ power.gnd
++    unit_io.p3 ~ power.gnd
++    unit_io.p4 ~ spi.sclk
++    unit_io.p5 ~ spi.mosi
++    unit_io.p6 ~ spi.miso
++    unit_io.p7 ~ cs.line
++    unit_io.p8 ~ drdy.line
++    unit_io.p9 ~ rtd_hw_fault.line
++    unit_io.p10 ~ shared_ref_2v5.line

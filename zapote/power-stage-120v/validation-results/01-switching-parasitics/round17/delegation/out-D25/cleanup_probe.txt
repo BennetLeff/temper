@@ -1,0 +1,16 @@
+After init and stop: GPIO output enables=1,1; original stub levels=0,0
+After deinit: both outputs DISABLED with pull-ups (same cleanup side effect).
+Initialization failure positions probed: 29
+failure=19 final_output_en=0,1 pullup=1,1 original_stub_level=0,0
+failure=20 final_output_en=0,1 pullup=1,1 original_stub_level=0,0
+failure=21 final_output_en=0,1 pullup=1,1 original_stub_level=0,0
+failure=22 final_output_en=0,1 pullup=1,1 original_stub_level=0,0
+failure=23 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+failure=24 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+failure=25 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+failure=26 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+failure=27 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+failure=28 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+failure=29 final_output_en=0,0 pullup=1,1 original_stub_level=0,0
+REPRODUCED: 11 failure positions leave at least one output disabled despite stub level 0.
+Pad voltage UNDETERMINED: pull-ups, external pull-downs and pad holds require hardware evidence.

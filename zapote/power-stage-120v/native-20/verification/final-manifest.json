@@ -1,0 +1,58 @@
+{
+ "schema": "temper.native20.engineering-candidate.v1",
+ "status": "DIGITAL_CANDIDATE_NOT_MANUFACTURING_RELEASE",
+ "derived_from": "native-19",
+ "native19_board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+ "board_sha256": "27657a0ebce66140b6ea6a0b84940dba420b3a187199798bce3c3d122abf9dae",
+ "schematic_sha256": "c7bd767e56127dd202ce908bcb940f76148c139c80eeb0cfb376c6233ab69b87",
+ "symbol_library_sha256": "cc345078c4f3efafa4e66115723d5c627173572e9de913c3ff51172d21d06c22",
+ "frozen_sha256": {
+  "default.net": "c279073268bf80808382e262f9e1cfbe0c574f5d04a54c735ce826f052c88e57",
+  "default.csv": "228e0d1467cfcccbd234d5f1e784fafca72af5590b529fe92c53c682879a9e58",
+  "resolved-components.json": "4630f7559c3f7e7b76bd3b5618f01ee06f2e54d2a0c9af8ad8d1f4c5a0576fd3"
+ },
+ "changes": {
+  "R8": [
+   "RC0603FR-071KL",
+   "RC0603FR-07330RL"
+  ],
+  "R16": [
+   "RC0603FR-071KL",
+   "RC0603FR-07330RL"
+  ],
+  "R34": [
+   "RT0603BRD0710K5L",
+   "RT0603BRD0710K6L"
+  ]
+ },
+ "builder": "prototype-closure/pcb/build_native20.py",
+ "components": 142,
+ "nets": 89,
+ "drc": {
+  "runs": 3,
+  "errors_each": 0,
+  "unconnected_each": 0,
+  "schematic_parity_findings_each": 0,
+  "warnings_each": {
+   "lib_footprint_mismatch": 36,
+   "silk_overlap": 3
+  }
+ },
+ "erc": {
+  "errors": 0,
+  "warnings": {
+   "ground_pin_not_ground": 3,
+   "isolated_pin_label": 13
+  }
+ },
+ "source_audit_tests": 66,
+ "source_audit": "PASS",
+ "source_frozen_copies_equal": true,
+ "board_diff_vs_native19_after_refill": "6 lines: Value and MPN of R8, R16, R34; copper byte-identical",
+ "power_regions": {
+  "A": "UNCHANGED",
+  "B": "UNCHANGED",
+  "reuse_native19_fem": "AUTHORIZED (leg-region-diff.json)"
+ },
+ "physical": "NOT_RUN"
+}

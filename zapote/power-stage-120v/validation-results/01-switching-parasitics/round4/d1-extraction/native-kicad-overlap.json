@@ -1,0 +1,36 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "board_sha256_after_in_memory_refill": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "kicad_version": "10.0.4",
+  "zone_uuid": "26fcc76c-3754-4241-8ae6-f6ddc92aace8",
+  "zone_net": "leg_ret",
+  "zone_net_code": 4,
+  "pad": "Q3.1",
+  "pad_net": "leg_a-gate_l",
+  "pad_net_code": 68,
+  "layer": "In1.Cu",
+  "sample_xy_mm": [
+    131.625,
+    2.0
+  ],
+  "before_refill": {
+    "zone_contains_sample": true,
+    "pad_contains_sample": true,
+    "pad_nominally_on_layer": true,
+    "pad_flash_layer": false,
+    "pad_remove_unconnected": true,
+    "intersection_area_mm2": 7.7719044954065,
+    "intersection_outline_count": 1
+  },
+  "in_memory_refill_succeeded": true,
+  "after_refill": {
+    "zone_contains_sample": true,
+    "pad_contains_sample": true,
+    "pad_nominally_on_layer": true,
+    "pad_flash_layer": false,
+    "pad_remove_unconnected": true,
+    "intersection_area_mm2": 7.7719044954065,
+    "intersection_outline_count": 1
+  },
+  "verdict": "NOMINAL_UNFLASHED_PAD_OVERLAP"
+}

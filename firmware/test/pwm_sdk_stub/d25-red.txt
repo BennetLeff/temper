@@ -1,0 +1,41 @@
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:92:gate_channel_remains_rejected:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:38:successful_deinit_reasserts_gpio_after_generator_reset:FAIL:  Expected TRUE Was FALSE
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:92:programmed_ticks_and_waveform:PASS
+Failure injection: 29 initialization API calls
+init failure=1 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=2 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=3 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=4 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=5 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=6 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=7 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=8 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=9 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=10 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=11 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=12 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=13 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=14 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=15 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=16 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=17 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=18 mode=1,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=19 mode=0,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=20 mode=0,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=21 mode=0,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=22 mode=0,1 pullup=1,1 pulldown=0,0 safe=0
+init failure=23 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+init failure=24 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+init failure=25 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+init failure=26 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+init failure=27 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+init failure=28 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+init failure=29 mode=0,0 pullup=1,1 pulldown=0,0 safe=0
+Init failures: 29 unsafe GPIO states; 11 disabled-output states
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:67:every_init_failure_is_off:FAIL: Expected 0 Was 29
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:92:partial_delay_update_invalidates:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:92:start_and_stop_failures_are_off:PASS
+/Users/bennet/.codex/worktrees/ps-r17-d21-cleanup/temper/firmware/test/test_pwm_esp32.c:92:invalid_inputs_and_period_failure:PASS
+-----------------------
+7 Tests 2 Failures 0 Ignored
+FAIL

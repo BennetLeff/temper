@@ -1,0 +1,36 @@
+{
+  "run_id": "offset_or_small_pan-low-108v-1710w",
+  "model": "ideal diagonal full bridge; no dead time",
+  "bridge_state": "s=sign(v(drv)); i_R5=s*i_tank; low-side source return through R5",
+  "dead_time_topology": "when all four gates are off, one high-side and one low-side body diode conduct; the low-side path still crosses R5, so the current-to-R5 magnitude factor remains one. Finite-dead-time changes to the tank waveform are not resolved by this ideal deck.",
+  "line_average_r5_rms_a": 44.69572123678045,
+  "crest_interval_r5_rms_a": 61.12692731738384,
+  "crest_interval_definition": "rectified line voltage >= 90% of its crest",
+  "crest_interval_s": [
+    0.0029702808905941146,
+    0.0053630524427392195
+  ],
+  "arithmetic_sample_rms_a_wrong": 44.69366542682036,
+  "time_step_min_s": 5e-10,
+  "time_step_max_s": 5.00000000010041e-08,
+  "tank_cap_peak_state": {
+    "time_s": 0.004187478894377884,
+    "tank_cap_voltage_v": 822.2968920148121,
+    "tank_current_a": -0.2715597786121111,
+    "line_bus_voltage_v": 152.73036356684588
+  },
+  "measurements": {
+    "i_rms": 44.6958,
+    "i_pk": 89.78643,
+    "vc_pk": 822.2969,
+    "vc_rms": 412.53,
+    "p_avg": 1708.801
+  },
+  "params": {
+    "VRMS": "108",
+    "FREQ": "31924.588804820854",
+    "LLOAD": "5.6e-05",
+    "RPAN40": "0.84",
+    "RCOIL": "0.105"
+  }
+}

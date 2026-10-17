@@ -1,0 +1,120 @@
+[
+  {
+    "file": "mcpwm_gen.c",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/esp_driver_mcpwm/src/mcpwm_gen.c",
+    "sha256": "a8e8e8206eca4e9461681f13b2342cfcbf2d550e193266480a85bff57a6f3c55"
+  },
+  {
+    "file": "mcpwm_gen.h",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/esp_driver_mcpwm/include/driver/mcpwm_gen.h",
+    "sha256": "710de8b09dee0650d48ebcc75f23fc8e5b90c8a839c2c844d288dfa06045bd73"
+  },
+  {
+    "file": "mcpwm_ll.h",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/hal/esp32s3/include/hal/mcpwm_ll.h",
+    "sha256": "7e41013edfb24efeff70be6ead8767971e3b37678952d7461e9747bc612cb3b9"
+  },
+  {
+    "file": "mcpwm_struct.h",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/soc/esp32s3/include/soc/mcpwm_struct.h",
+    "sha256": "c96feff3daa25053a0fdb5787b15b9eb20b6628265c2d3bd5ea83b0845ce30af"
+  },
+  {
+    "file": "mcpwm_hal.c",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/hal/mcpwm_hal.c",
+    "sha256": "54667e0ad320bbdb9e6cc36762c0d03ecad7590d404b64953bb1a67ebfe63fc2"
+  },
+  {
+    "file": "mcpwm_oper.c",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/esp_driver_mcpwm/src/mcpwm_oper.c",
+    "sha256": "31cc24b650423d5cb064daaa25d64c4df48feaddc75189432680e80abdb4c34d"
+  },
+  {
+    "file": "gpio.c",
+    "url": "https://raw.githubusercontent.com/espressif/esp-idf/e0991facf5ecb362af6aac1fae972139eb38d2e4/components/esp_driver_gpio/src/gpio.c",
+    "sha256": "63c8b46e0ead93d1c3d0c6a7018ed55a6df2c3532e31a707d2235cc07067dab1"
+  },
+  {
+    "file": "trm.pdf",
+    "url": "https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.pdf",
+    "sha256": "4484bf8a69035ec42a731c58c64ada6fbd1f1618c5559409f134d9ea083f444f"
+  },
+  {
+    "file": "qemu_esp32s3.c",
+    "url": "https://raw.githubusercontent.com/espressif/qemu/febae182e132e4055529be423a818225ebddaa3a/hw/xtensa/esp32s3.c",
+    "sha256": "bdb0748bcb529e99084554e728e3edd3b0cd17f3d125a48f9db8c5ddf8adcebd"
+  },
+  {
+    "file": "qemu-tree.json",
+    "url": "https://api.github.com/repos/espressif/qemu/git/trees/febae182e132e4055529be423a818225ebddaa3a?recursive=1",
+    "sha256": "d2f7689eca7aa093b9dae94d7afaccfd3e5ff71ffad14546fe39a98fac6c532d"
+  },
+  {
+    "file": "qemu-features.md",
+    "url": "https://raw.githubusercontent.com/espressif/esp-toolchain-docs/cdee381dce7b88b5207ec48c72984ca31d495dd3/qemu/README.md",
+    "sha256": "f636f5d9796f49376005d2fe8959579f2b922fa6050f1884b40acaeff52aa1f0"
+  },
+  {
+    "file": "d21/firmware/components/hal/esp32/hal_pwm_esp32.c",
+    "git_path": "firmware/components/hal/esp32/hal_pwm_esp32.c",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "fdfb249cd3ac1f081097a9d404192c37a7b208f97122a59202e872f768b3a9be",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/components/hal/esp32/hal_pwm_esp32.c"
+  },
+  {
+    "file": "d21/firmware/components/hal/include/hal_pwm.h",
+    "git_path": "firmware/components/hal/include/hal_pwm.h",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "77893b9c13299c749663e781e4c2f8ac5c918fd74bb7b06dba231aab3fe3a0fd",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/components/hal/include/hal_pwm.h"
+  },
+  {
+    "file": "d21/firmware/components/hal/include/hal_types.h",
+    "git_path": "firmware/components/hal/include/hal_types.h",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "382f8a1d2e1719185a7a068db8dde3093c522bbe932635ffd5c911f516991504",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/components/hal/include/hal_types.h"
+  },
+  {
+    "file": "d21/firmware/test/test_pwm_esp32.c",
+    "git_path": "firmware/test/test_pwm_esp32.c",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "9a57a8a5ef22326b718a2aed8621124e5db886818446d85f408c6f26b65071c5",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/test/test_pwm_esp32.c"
+  },
+  {
+    "file": "d21/firmware/test/pwm_sdk_stub/sdk_stub.c",
+    "git_path": "firmware/test/pwm_sdk_stub/sdk_stub.c",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "285d397cc6fc944da499e07580204c9d07cc7697f37cb3a7f3d12772b2afd97d",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/test/pwm_sdk_stub/sdk_stub.c"
+  },
+  {
+    "file": "d21/firmware/test/pwm_sdk_stub/sdk_stub.h",
+    "git_path": "firmware/test/pwm_sdk_stub/sdk_stub.h",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "a4dd9a81abf34e3801d1a1be3fe70ca38aa38bad08252a53bc8e07a91deef2c1",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/test/pwm_sdk_stub/sdk_stub.h"
+  },
+  {
+    "file": "d21/firmware/test/pwm_sdk_stub/esp_log.h",
+    "git_path": "firmware/test/pwm_sdk_stub/esp_log.h",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "2f7eb46b529917926d0610590eb5aa5f709425cd9d3af6f474bff1a392e1dd34",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/test/pwm_sdk_stub/esp_log.h"
+  },
+  {
+    "file": "d21/firmware/test/pwm_sdk_stub/driver/gpio.h",
+    "git_path": "firmware/test/pwm_sdk_stub/driver/gpio.h",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "f6f252b32eb400c2f20703fd3b1e96f55154fda01d523e88df23ff5ef1170b49",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/test/pwm_sdk_stub/driver/gpio.h"
+  },
+  {
+    "file": "d21/firmware/test/pwm_sdk_stub/driver/mcpwm_prelude.h",
+    "git_path": "firmware/test/pwm_sdk_stub/driver/mcpwm_prelude.h",
+    "commit": "9cddf149a1500896a7cf8fbca78ee2cc901f04ba",
+    "sha256": "6cf3918eb2836ab7b479138165f74093d0676c06343081423672f04f034715ca",
+    "url": "https://raw.githubusercontent.com/BennetLeff/temper/9cddf149a1500896a7cf8fbca78ee2cc901f04ba/firmware/test/pwm_sdk_stub/driver/mcpwm_prelude.h"
+  }
+]

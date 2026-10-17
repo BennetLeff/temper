@@ -1,0 +1,1054 @@
+{
+  "board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "service_state": "First-unit service fixture: lid/coil carrier removed, board restrained in an insulating fixture, underside accessible. Attach all probes with mains isolated and both DC buses measured discharged. No hand-held live probing.",
+  "status": "Candidate points only; copper/tip containment and actual mask-aperture containment NOT_CHECKED.",
+  "screen": "Mask layer membership and selected toe/annulus geometry from pcbnew; same-side Fab bounding box excludes obvious body obstruction. Neighbor hardware, solder meniscus, touch safety and fixture tolerances still require physical fit review.",
+  "signals": [
+    {
+      "name": "HOT5",
+      "pad": "C26.1",
+      "reference": "C26.2",
+      "side": "F",
+      "method": "paired microprobes at exposed capacitor pad toes",
+      "power_state": "isolated low-voltage gate-supply injection first",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "C26.1",
+          "net": "hot5",
+          "mask_open": true,
+          "pad_center_mm": [
+            57.5,
+            19.475
+          ],
+          "contact_center_mm": [
+            57.5,
+            19.85
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            56.15,
+            18.9,
+            2.7,
+            1.15
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C26.2",
+          "net": "ocp_kelvin_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            57.5,
+            16.525
+          ],
+          "contact_center_mm": [
+            57.5,
+            16.15
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            56.15,
+            15.95,
+            2.7,
+            1.15
+          ]
+        }
+      ],
+      "tip_separation_mm": 3.700000000000003
+    },
+    {
+      "name": "V15 gate supply",
+      "pad": "C24.1",
+      "reference": "C24.2",
+      "side": "F",
+      "method": "paired microprobes at exposed capacitor pad toes",
+      "power_state": "isolated low-voltage injection; reference is LEG_RET",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "C24.1",
+          "net": "v15_ls",
+          "mask_open": true,
+          "pad_center_mm": [
+            66.5,
+            19.475
+          ],
+          "contact_center_mm": [
+            66.5,
+            19.85
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            65.15,
+            18.9,
+            2.7,
+            1.15
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C24.2",
+          "net": "leg_ret",
+          "mask_open": true,
+          "pad_center_mm": [
+            66.5,
+            16.525
+          ],
+          "contact_center_mm": [
+            66.5,
+            16.15
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            65.15,
+            15.95,
+            2.7,
+            1.15
+          ]
+        }
+      ],
+      "tip_separation_mm": 3.700000000000003
+    },
+    {
+      "name": "HOT5 divider",
+      "pad": "R49.1",
+      "reference": "R49.2",
+      "side": "F",
+      "method": "high-impedance microprobe; characterize probe loading on divider",
+      "power_state": "low-voltage injection; vary HOT5 independently of V15",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "R49.1",
+          "net": "hot5_uv_sense",
+          "mask_open": true,
+          "pad_center_mm": [
+            55.175,
+            33.0
+          ],
+          "contact_center_mm": [
+            54.975,
+            33.0
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            54.775,
+            32.525,
+            0.8,
+            0.95
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "R49.2",
+          "net": "ocp_kelvin_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            56.825,
+            33.0
+          ],
+          "contact_center_mm": [
+            57.025,
+            33.0
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            56.425,
+            32.525,
+            0.8,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 2.049999999999997
+    },
+    {
+      "name": "HOT5 open-drain raw",
+      "pad": "R50.2",
+      "reference": "C49.2",
+      "side": "F",
+      "method": "high-impedance microprobe",
+      "power_state": "low-voltage injection",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "R50.2",
+          "net": "hot5_uv_raw",
+          "mask_open": true,
+          "pad_center_mm": [
+            56.825,
+            35.0
+          ],
+          "contact_center_mm": [
+            57.025,
+            35.0
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            56.425,
+            34.525,
+            0.8,
+            0.95
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C49.2",
+          "net": "ocp_kelvin_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            60.775,
+            39.5
+          ],
+          "contact_center_mm": [
+            61.025,
+            39.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            60.325,
+            39.025,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 6.020797289396148
+    },
+    {
+      "name": "HOT5_OK",
+      "pad": "U8.6",
+      "reference": "C49.2",
+      "side": "F",
+      "method": "0.2mm fixture microprobe on outward SOT23 pad toe; no clip lead",
+      "power_state": "low-voltage injection",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "U8.6",
+          "net": "hot5_ok_hot",
+          "mask_open": true,
+          "pad_center_mm": [
+            75.9375,
+            37.85
+          ],
+          "contact_center_mm": [
+            76.4,
+            37.85
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            75.275,
+            37.55,
+            1.325,
+            0.6
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C49.2",
+          "net": "ocp_kelvin_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            60.775,
+            39.5
+          ],
+          "contact_center_mm": [
+            61.025,
+            39.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            60.325,
+            39.025,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 15.463283124873584
+    },
+    {
+      "name": "BUS_FAULT_HOT",
+      "pad": "U8.4",
+      "reference": "C49.2",
+      "side": "F",
+      "method": "0.2mm fixture microprobe on outward SOT23 pad toe",
+      "power_state": "low-voltage injection",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "U8.4",
+          "net": "bus_fault_hot",
+          "mask_open": true,
+          "pad_center_mm": [
+            75.9375,
+            39.75
+          ],
+          "contact_center_mm": [
+            76.4,
+            39.75
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            75.275,
+            39.45,
+            1.325,
+            0.6
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C49.2",
+          "net": "ocp_kelvin_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            60.775,
+            39.5
+          ],
+          "contact_center_mm": [
+            61.025,
+            39.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            60.325,
+            39.025,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 15.377032385996989
+    },
+    {
+      "name": "BUS_FAULT",
+      "pad": "J4.10",
+      "reference": "J4.2",
+      "side": "B",
+      "method": "mating breakout connector preferred; underside annulus is fixture alternative",
+      "power_state": "controller SELV supply, then isolated gate supply",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "J4.10",
+          "net": "bus_fault",
+          "mask_open": true,
+          "pad_center_mm": [
+            115.5,
+            67.08
+          ],
+          "contact_center_mm": [
+            116.21,
+            67.08
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            114.7,
+            66.28,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "J4.2",
+          "net": "selv_gnd",
+          "mask_open": true,
+          "pad_center_mm": [
+            115.5,
+            64.08
+          ],
+          "contact_center_mm": [
+            116.21,
+            64.08
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            114.7,
+            63.28,
+            1.6,
+            1.6
+          ]
+        }
+      ],
+      "tip_separation_mm": 3.0
+    },
+    {
+      "name": "PERMIT",
+      "pad": "J4.9",
+      "reference": "J4.2",
+      "side": "B",
+      "method": "mating breakout connector preferred; assert only under interlocked test sequence",
+      "power_state": "controller SELV supply",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "J4.9",
+          "net": "permit",
+          "mask_open": true,
+          "pad_center_mm": [
+            112.5,
+            67.08
+          ],
+          "contact_center_mm": [
+            113.21,
+            67.08
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            111.7,
+            66.28,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "J4.2",
+          "net": "selv_gnd",
+          "mask_open": true,
+          "pad_center_mm": [
+            115.5,
+            64.08
+          ],
+          "contact_center_mm": [
+            116.21,
+            64.08
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            114.7,
+            63.28,
+            1.6,
+            1.6
+          ]
+        }
+      ],
+      "tip_separation_mm": 4.242640687119286
+    },
+    {
+      "name": "DIS_A",
+      "pad": "U1.5",
+      "reference": "C7.2",
+      "side": "F",
+      "method": "fixture microprobe at lead toe",
+      "power_state": "controller SELV supply",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "U1.5",
+          "net": "leg_a-dis",
+          "mask_open": true,
+          "pad_center_mm": [
+            148.635,
+            50.875
+          ],
+          "contact_center_mm": [
+            148.635,
+            51.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            148.335,
+            50.05,
+            0.6,
+            1.65
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C7.2",
+          "net": "selv_gnd",
+          "mask_open": true,
+          "pad_center_mm": [
+            141.275,
+            56.5
+          ],
+          "contact_center_mm": [
+            141.525,
+            56.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            140.825,
+            56.025,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 8.692071099571137
+    },
+    {
+      "name": "DIS_B",
+      "pad": "U2.5",
+      "reference": "C14.2",
+      "side": "F",
+      "method": "fixture microprobe at lead toe",
+      "power_state": "controller SELV supply",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "U2.5",
+          "net": "leg_b-dis",
+          "mask_open": true,
+          "pad_center_mm": [
+            104.635,
+            50.875
+          ],
+          "contact_center_mm": [
+            104.635,
+            51.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            104.335,
+            50.05,
+            0.6,
+            1.65
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C14.2",
+          "net": "selv_gnd",
+          "mask_open": true,
+          "pad_center_mm": [
+            97.275,
+            56.5
+          ],
+          "contact_center_mm": [
+            97.525,
+            56.5
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            96.825,
+            56.025,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 8.692071099571148
+    },
+    {
+      "name": "CT positive trip",
+      "pad": "U10.1",
+      "reference": "C44.2",
+      "side": "F",
+      "method": "fixture microprobe; injected isolated CT stimulus",
+      "power_state": "controller SELV supply",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "U10.1",
+          "net": "ct_oc_pos",
+          "mask_open": true,
+          "pad_center_mm": [
+            164.8625,
+            77.05
+          ],
+          "contact_center_mm": [
+            164.4,
+            77.05
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            164.2,
+            76.75,
+            1.325,
+            0.6
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C44.2",
+          "net": "selv_gnd",
+          "mask_open": true,
+          "pad_center_mm": [
+            168.675,
+            75.4
+          ],
+          "contact_center_mm": [
+            168.925,
+            75.4
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            168.225,
+            74.925,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 4.816443189740747
+    },
+    {
+      "name": "CT negative trip",
+      "pad": "U11.1",
+      "reference": "C45.2",
+      "side": "F",
+      "method": "fixture microprobe; injected isolated CT stimulus",
+      "power_state": "controller SELV supply",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "U11.1",
+          "net": "ct_oc_neg",
+          "mask_open": true,
+          "pad_center_mm": [
+            164.8625,
+            71.05
+          ],
+          "contact_center_mm": [
+            164.4,
+            71.05
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            164.2,
+            70.75,
+            1.325,
+            0.6
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "C45.2",
+          "net": "selv_gnd",
+          "mask_open": true,
+          "pad_center_mm": [
+            168.675,
+            69.4
+          ],
+          "contact_center_mm": [
+            168.925,
+            69.4
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            168.225,
+            68.925,
+            0.9,
+            0.95
+          ]
+        }
+      ],
+      "tip_separation_mm": 4.816443189740747
+    },
+    {
+      "name": "Kelvin differential",
+      "pad": "R5.2",
+      "reference": "R5.3",
+      "side": "F",
+      "method": "paired low-noise differential microprobes; no common ground tie across terminals",
+      "power_state": "cold resistance/current injection first; energized bus only in rated interlocked fixture",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "R5.2",
+          "net": "ocp_kelvin_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            125.23,
+            9.17
+          ],
+          "contact_center_mm": [
+            125.23,
+            8.67
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            124.85,
+            8.47,
+            0.76,
+            1.4
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "R5.3",
+          "net": "ocp_kelvin_n",
+          "mask_open": true,
+          "pad_center_mm": [
+            127.77,
+            16.03
+          ],
+          "contact_center_mm": [
+            127.77,
+            16.53
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            127.39,
+            15.33,
+            0.76,
+            1.4
+          ]
+        }
+      ],
+      "tip_separation_mm": 8.260217914801038
+    },
+    {
+      "name": "VGS_A_high",
+      "pad": "Q2.1",
+      "reference": "Q2.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli; probe common-mode/CMTI rating must cover switching node",
+      "power_state": "de-energized attach; low-energy bus test before mains",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "Q2.1",
+          "net": "leg_a-gate_h",
+          "mask_open": true,
+          "pad_center_mm": [
+            150.55,
+            4.215
+          ],
+          "contact_center_mm": [
+            151.5,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            149.3,
+            1.965,
+            2.5,
+            4.5
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "Q2.3",
+          "net": "sw_a",
+          "mask_open": true,
+          "pad_center_mm": [
+            161.45,
+            4.215
+          ],
+          "contact_center_mm": [
+            162.4,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            160.2,
+            1.965,
+            2.5,
+            4.5
+          ]
+        }
+      ],
+      "tip_separation_mm": 10.900000000000006
+    },
+    {
+      "name": "VGS_A_low",
+      "pad": "Q3.1",
+      "reference": "Q3.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli",
+      "power_state": "de-energized attach; low-energy bus test before mains",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "Q3.1",
+          "net": "leg_a-gate_l",
+          "mask_open": true,
+          "pad_center_mm": [
+            132.55,
+            4.215
+          ],
+          "contact_center_mm": [
+            133.5,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            131.3,
+            1.965,
+            2.5,
+            4.5
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "Q3.3",
+          "net": "leg_ret",
+          "mask_open": true,
+          "pad_center_mm": [
+            143.45,
+            4.215
+          ],
+          "contact_center_mm": [
+            144.4,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            142.2,
+            1.965,
+            2.5,
+            4.5
+          ]
+        }
+      ],
+      "tip_separation_mm": 10.900000000000006
+    },
+    {
+      "name": "VGS_B_high",
+      "pad": "Q5.1",
+      "reference": "Q5.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli; floating switching reference",
+      "power_state": "de-energized attach; low-energy bus test before mains",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "Q5.1",
+          "net": "leg_b-gate_h",
+          "mask_open": true,
+          "pad_center_mm": [
+            92.55,
+            4.215
+          ],
+          "contact_center_mm": [
+            93.5,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            91.3,
+            1.965,
+            2.5,
+            4.5
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "Q5.3",
+          "net": "sw_b",
+          "mask_open": true,
+          "pad_center_mm": [
+            103.45,
+            4.215
+          ],
+          "contact_center_mm": [
+            104.4,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            102.2,
+            1.965,
+            2.5,
+            4.5
+          ]
+        }
+      ],
+      "tip_separation_mm": 10.900000000000006
+    },
+    {
+      "name": "VGS_B_low",
+      "pad": "Q6.1",
+      "reference": "Q6.3",
+      "side": "B",
+      "method": "short differential spring-tip pair on underside annuli",
+      "power_state": "de-energized attach; low-energy bus test before mains",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "Q6.1",
+          "net": "leg_b-gate_l",
+          "mask_open": true,
+          "pad_center_mm": [
+            110.55,
+            4.215
+          ],
+          "contact_center_mm": [
+            111.5,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            109.3,
+            1.965,
+            2.5,
+            4.5
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "Q6.3",
+          "net": "leg_ret",
+          "mask_open": true,
+          "pad_center_mm": [
+            121.45,
+            4.215
+          ],
+          "contact_center_mm": [
+            122.4,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            120.2,
+            1.965,
+            2.5,
+            4.5
+          ]
+        }
+      ],
+      "tip_separation_mm": 10.900000000000006
+    },
+    {
+      "name": "VDS_A_high",
+      "pad": "Q2.2",
+      "reference": "Q2.3",
+      "side": "B",
+      "method": "rated high-voltage differential probe, with fixed guarded underside contacts",
+      "power_state": "de-energized attach; staged low-energy test before mains",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "Q2.2",
+          "net": "bus_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            156.0,
+            4.215
+          ],
+          "contact_center_mm": [
+            156.95,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            154.75,
+            1.965,
+            2.5,
+            4.5
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "Q2.3",
+          "net": "sw_a",
+          "mask_open": true,
+          "pad_center_mm": [
+            161.45,
+            4.215
+          ],
+          "contact_center_mm": [
+            162.4,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            160.2,
+            1.965,
+            2.5,
+            4.5
+          ]
+        }
+      ],
+      "tip_separation_mm": 5.450000000000017
+    },
+    {
+      "name": "VDS_B_high",
+      "pad": "Q5.2",
+      "reference": "Q5.3",
+      "side": "B",
+      "method": "rated high-voltage differential probe, with fixed guarded underside contacts",
+      "power_state": "de-energized attach; staged low-energy test before mains",
+      "contacts": [
+        {
+          "role": "pad",
+          "reference_pin": "Q5.2",
+          "net": "bus_p",
+          "mask_open": true,
+          "pad_center_mm": [
+            98.0,
+            4.215
+          ],
+          "contact_center_mm": [
+            98.95,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            96.75,
+            1.965,
+            2.5,
+            4.5
+          ]
+        },
+        {
+          "role": "reference",
+          "reference_pin": "Q5.3",
+          "net": "sw_b",
+          "mask_open": true,
+          "pad_center_mm": [
+            103.45,
+            4.215
+          ],
+          "contact_center_mm": [
+            104.4,
+            4.215
+          ],
+          "contact_diameter_mm": 0.2,
+          "outside_same_side_fab_body_bbox": true,
+          "pad_bbox_mm": [
+            102.2,
+            1.965,
+            2.5,
+            4.5
+          ]
+        }
+      ],
+      "tip_separation_mm": 5.450000000000003
+    }
+  ],
+  "physical": "NOT_RUN"
+}

@@ -1,0 +1,328 @@
+{
+  "schema": "temper-round3-integration-v1",
+  "date": "2026-10-04",
+  "status": "CROSS_REVIEWED_DESIGN_PROPOSAL_NOT_IMPLEMENTED_OR_RELEASED",
+  "baseline_commit": "3b8e64f51aac95bad4a4a6eaba216dd9e262a8bf",
+  "scope": "few guarded engineering prototypes, nominal120/127V60Hz,15ARMS whole inlet",
+  "inputs": [
+    {
+      "path": "firmware/components/hal/esp32/hal_pwm_esp32.c",
+      "sha256": "a3156054dac2dcb765705e993936fbb5d7f7d67dbafc834608a6e34566bf16c0",
+      "bytes": 15342
+    },
+    {
+      "path": "firmware/components/safety/pwm_guard.c",
+      "sha256": "6582d80dd445a2460a621787623216b02b3bb999b71598cdb5cf3700d9df221a",
+      "bytes": 4879
+    },
+    {
+      "path": "firmware/main/main.c",
+      "sha256": "acd398a76b3e1aa02de07a2955a507557410b6d25f4aed2a7b374ed3d81e8afb",
+      "bytes": 6259
+    },
+    {
+      "path": "firmware/main/state_handlers.c",
+      "sha256": "f722e64fc46969dee1ccdccd4bd11110d2f3bcc5a44a0a725fd18158d61f6a0c",
+      "bytes": 21557
+    },
+    {
+      "path": "firmware/transition_table.yaml",
+      "sha256": "8674ac9145e10e149f90899512cfbfd9186d01e4625efdd74d6224e24fd88682",
+      "bytes": 3707
+    },
+    {
+      "path": "output/temper-prototype-closure/round2/cooling/native19-r4-round2-cold.step",
+      "sha256": "8102ce63dbf9cad08b30b24fafba7527bb6616d36dadd479a71d8b2313fe50cd",
+      "bytes": 37141175
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/integration/catch.csv",
+      "sha256": "93efcf22a8d8b57eeff23b1023d95d3f6131c541fc411703654f4b294509f550",
+      "bytes": 15159
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/integration/energy-tests.txt",
+      "sha256": "137d98711ec8ff8ca649684992de576fe9f8f3b2f3594118b187cb5cd86327e8",
+      "bytes": 358
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/integration/energy-verifier-tests.txt",
+      "sha256": "aa2c40d2265753a525dce5dacb2b3fe280ec833ee5ce37782b541e08dae53a22",
+      "bytes": 234
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/integration/inlet-tests.txt",
+      "sha256": "0169c1a0b2464cd390acaed5f83b6b6fb0aa4e0dc8ac869f15e6af8a1e61a490",
+      "bytes": 667
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/integration/verification.json",
+      "sha256": "d123dc7e0e1c70b83329a0d65f067321456cb1bf8d7724e90c047e12534f5cf2",
+      "bytes": 269
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/barrier-parts-design-only.step",
+      "sha256": "4a28393bd9ba27f0491957955657a6c846d3529f033f865cb2c90ac25c1bd9af",
+      "bytes": 402784
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/catch-alternative-checks.json",
+      "sha256": "ee51c18a9ef4b9ef16f937360931f6ead4adb5214bedb8fdfc5da53dcbabff6e",
+      "bytes": 1474
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/checks.json",
+      "sha256": "e8eccd56cab6c49615e46064110ce3fa146dc32ccc2760dc5c66bce6c26df38b",
+      "bytes": 4503
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/pod-reservations-design-only.step",
+      "sha256": "51efc6bbe90a80826c3e11a30bc3dbf69d829cbc63d59dc45bcf38a1d2bb746d",
+      "bytes": 276705
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/r4-barrier-design-only.step",
+      "sha256": "5921406f7249cf716cdd2d20be8ae79215760f20cce1f01dda443be85356c1fa",
+      "bytes": 37281526
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/r4-catch-alternative-design-only.step",
+      "sha256": "44800fe207b7de12a2b993bff371fece61790fc0f37a4a427e982b05e11d9de5",
+      "bytes": 37587641
+    },
+    {
+      "path": "output/temper-prototype-closure/round3/packaging/verification.json",
+      "sha256": "a38c0e36a3f7f573aa34bffe6139dcd7e54467aeea2f8776391fd439c55c6a5d",
+      "bytes": 3175
+    },
+    {
+      "path": "zapote/power-stage-120v/elec/src/power_stage_120v.ato",
+      "sha256": "67dca81b67ec8a56d040a68f331de07a2cffc691b3f87fcda1db0c9b878cb498",
+      "bytes": 23346
+    },
+    {
+      "path": "zapote/power-stage-120v/native-19/section.kicad_pcb",
+      "sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+      "bytes": 1681067
+    },
+    {
+      "path": "zapote/power-stage-120v/native-19/section.kicad_sch",
+      "sha256": "29c4781b62930f03a067fc363fb36f5084a1eb454242812fb5d13ebc4e0ae22d",
+      "bytes": 314693
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/README.md",
+      "sha256": "df0efa540887737b8f68dd7097fcc9776970e90a0017bc08623356a567fd5c8c",
+      "bytes": 37069
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/catch-template.cir",
+      "sha256": "496e7d7fc5d7ab0b07b1a49a673a7879d341a27700af899c0e1526b4709ed18e",
+      "bytes": 2816
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/calculations.json",
+      "sha256": "4430a14f086c651732580abbc544ee770ea33feb4e30fdb812cad7ebc291ae52",
+      "bytes": 431
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/catch.csv",
+      "sha256": "93efcf22a8d8b57eeff23b1023d95d3f6131c541fc411703654f4b294509f550",
+      "bytes": 15159
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/decks-and-logs.tar.gz",
+      "sha256": "c81a2e85d1f63614fd4ec97a6f0260a24ce4eaee28f9c76418182232d51be1d8",
+      "bytes": 30643
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/negative-controls.json",
+      "sha256": "60e32d394d8870839ee4482e62dcc81a6552ff622788f432adc18ce68b9c50ea",
+      "bytes": 160
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/results.json",
+      "sha256": "014907cf36075c5ecb7509aa75abb8686d15080e3816f6164bf00ebf04700cfd",
+      "bytes": 213
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/study-tests.txt",
+      "sha256": "137d98711ec8ff8ca649684992de576fe9f8f3b2f3594118b187cb5cd86327e8",
+      "bytes": 358
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/verification-tests.txt",
+      "sha256": "dc7263cbfe22b1e73030d0b90c78b5daa2fc9e95ed47945544e101446c618da5",
+      "bytes": 234
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence/verification.json",
+      "sha256": "d123dc7e0e1c70b83329a0d65f067321456cb1bf8d7724e90c047e12534f5cf2",
+      "bytes": 269
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/evidence.sha256",
+      "sha256": "5ad19cc9392cc89fa9b6e9ed2860ddcb6483a49afa007be56c3d58fb35d0700b",
+      "bytes": 1375
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/interface.json",
+      "sha256": "138071ff0cc63f9ac1831628e24bb5944acdb3706041e2cecf20e1d6cfb397b8",
+      "bytes": 7972
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/run.sh",
+      "sha256": "9366ac31cd1ca5f81d581be9c120b5d2615a25041b9da5340dee292fcdf2128f",
+      "bytes": 858
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/source-inputs.sha256",
+      "sha256": "29b279900c98e3c8011c2dc2337ba07a33adb05000dc3681f05359aaf7d55c0e",
+      "bytes": 960
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/sources.json",
+      "sha256": "aab236fa56d9f0db76a4d640790e18c6b3c4c34aa1566caee7b23618e31fcc98",
+      "bytes": 2073
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/study.rs",
+      "sha256": "ec6ba674aa3f6a30da88c96ed5ae8e11eb5f79390e8f1f991d024d7e0e7bddeb",
+      "bytes": 8491
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/control-energy/verify.rs",
+      "sha256": "f93d15be216719100051de1994fd077d0cb8fbfeeb5a021ad00df2a1be5967e1",
+      "bytes": 3690
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/inlet/README.md",
+      "sha256": "028b20997bde4e7193136c6866322c6e6e1555e035c813dc0182ab9ee6d6a1bf",
+      "bytes": 26904
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/inlet/bom.csv",
+      "sha256": "fd6d208c750b34a67b2cf02690d0d259e9dd53cf6f57112bb0fb25553ad9aa1e",
+      "bytes": 3988
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/inlet/calculations.rs",
+      "sha256": "e5da942a30411fdce899f5b0b29ee646c1a69d6cd87800378087797e22ce45f8",
+      "bytes": 3809
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/inlet/terminals.csv",
+      "sha256": "c96ea5014eb4e6d966816ebdf52b5fc84cb5d897a7f16a077f8ee67134aad8de",
+      "bytes": 6090
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/integration/README.md",
+      "sha256": "df741c8ea3ebdfb034ec6648435552c007b6daf80e50dfee86e46c9e3715ba35",
+      "bytes": 15223
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/integration/adversarial-review.md",
+      "sha256": "2bb4bbea741d20b24f575ea2e171b8f9b72939a6bb9a2286bae8fc0f2afc916f",
+      "bytes": 6894
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/integration/catch-holder.md",
+      "sha256": "e26111ddd8f3ef4c70a484fed98c3eb9ba22a66c1560459be3c57c30d04859f5",
+      "bytes": 2750
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/integration/source-audit.md",
+      "sha256": "41bcc786f78fa93b33711bf07921d65b4688871ed55958989f92dfa58193e349",
+      "bytes": 5565
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/README.md",
+      "sha256": "8b750b31fb72db3943c37185c1e8fe2199a4fc20d0e7da5da0e84484c6b6b802",
+      "bytes": 18892
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/__pycache__/build_proposal.cpython-311.pyc",
+      "sha256": "2e2697054b107bbe105155936fc7f9b2e740f9ec2dff9a42b9ba6b7b332c4ce7",
+      "bytes": 21113
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/build_catch_alternative.py",
+      "sha256": "f863fb8708e410b330ee2088591abac4d7b49ca2740981d3fda072f9894da893",
+      "bytes": 3125
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/build_proposal.py",
+      "sha256": "c9f226d77f834bb5d9a256e77d2e2be7483ee4cc07acf7d009434d9444df6f0b",
+      "bytes": 12145
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/catch-alternative.json",
+      "sha256": "1fc0fc1aa95f2ee076c1c22d1914cf3aba67df5aaca101955f313bf9ddad4c58",
+      "bytes": 2998
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/catch-alternative.md",
+      "sha256": "f302b615e1474c8a430ce99e611540acbdb7c27e567362387745d2d7ef9ef279",
+      "bytes": 6813
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/cord-selection.md",
+      "sha256": "8aec260cfb7b667de696cd7169f7e4fa88c97fca0f611288d95d72cb4753e6e0",
+      "bytes": 2450
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/interface.json",
+      "sha256": "afa728c274b11c4e7a7c769ae43dbbb6de15e5d1e8934912482e9e6284df9409",
+      "bytes": 10188
+    },
+    {
+      "path": "zapote/power-stage-120v/prototype-closure/round3/packaging/operator-panel.md",
+      "sha256": "ec6b04006c0e514dd6fe13579e072d5bc89f6533603869c2b980ab57129c9c7f",
+      "bytes": 2437
+    }
+  ],
+  "checks": {
+    "inlet_rust_tests_passed": 8,
+    "energy_rust_tests_passed": 4,
+    "energy_verifier_rust_tests_passed": 3,
+    "rustc_version": "1.92.0 (ded5c06cf 2025-12-08)",
+    "retained_case_csv_numerical_verifier_replayed": true,
+    "new_transients_run_by_integration": 0,
+    "retained_case_count": 52,
+    "energy_source_input_hashes_checked": 8,
+    "packaging_export_hashes_match": true,
+    "catch_nominal_collision_sets_empty": 6,
+    "own_local_markdown_links_checked": 14,
+    "native19_board_hash_unchanged": true,
+    "final_round2_step_hash_corrected": true
+  },
+  "selected_catch_step": {
+    "path": "output/temper-prototype-closure/round3/packaging/r4-catch-alternative-design-only.step",
+    "sha256": "44800fe207b7de12a2b993bff371fece61790fc0f37a4a427e982b05e11d9de5",
+    "valid": true,
+    "solids": 572
+  },
+  "observed_limits": {
+    "conditional_main_bus_peak_v": 324.5694,
+    "conditional_main_catch_peak_v": 321.6036,
+    "conditional_tank_capacitor_peak_v": 1580.831,
+    "tank_peak_is_not_a_released_operating_prediction": true,
+    "complete_inlet_supervisor_native_circuit": false,
+    "four_output_control_firmware_implemented": false,
+    "full_catch_card_parts_layout_fits": false,
+    "insulation_thermal_fault_survival_qualified": false,
+    "manufacturing_release": false,
+    "powered_test_release": false
+  },
+  "cross_packet_corrections": [
+    "VLINE moved upstream K1/K2 for admission before first coil command",
+    "Three separate START/RESET/STOP operators; no reset-to-start path",
+    "Supervisor boots upstream; cooking controller boots PS1 after bypass with no J4.1 backfeed",
+    "Native AMC1311 approximate240V linear range not used as new600V supervisor channel",
+    "Electrical bypass proof requires actual proof current, not mirror opening",
+    "Three inlet fuseholders represented",
+    "Native440k/1.88M bleeds preserved; catch uses two4x100k strings",
+    "US141 old80x60x60box rejected; wider rotated carrier modeled, with conditional36x20mm sensecard",
+    "Finalround2STEP identity verified rather than stale integration hash"
+  ]
+}

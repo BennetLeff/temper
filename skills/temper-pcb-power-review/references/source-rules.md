@@ -1,0 +1,34 @@
+# Source-grounded review rules
+
+The links below are MIT OpenCourseWare course materials. Page numbers refer to PDF pages (the downloaded PDFs have no offset cover page). These are paraphrased teaching principles, not appliance safety requirements. MIT OCW generally labels its materials [CC BY-NC-SA 4.0 with possible item exceptions](https://ocw.mit.edu/pages/privacy-and-terms-of-use/); cite the original instead of copying it. The [6.622 video index](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/resources/lecture-videos/) was inventoried but neither videos nor transcripts were reviewed for this skill.
+
+## Switching paths
+
+- [6.622 Lecture 38, pp. 1–2](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec382.pdf): A loop carrying fast commutating current has parasitic inductance that contributes to transient overshoot, ringing and EMI. For a trace and its return, the teaching model links inductance to length, separation and width. Inspect the full physical return path; nearby copper with the wrong current path does not solve the loop. The lecture explicitly applies short, close drive/return paths to gate drive.
+- [6.622 Lecture 38, pp. 2–3](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec382.pdf): Extra conductor area at a fast voltage node raises coupling capacitance; a shield can reduce coupling to a particular sensitive node while increasing total capacitance. Review the tradeoff, not merely copper area. **Engineering extension:** inspect Kelvin/source-sense separation and reference routing in the actual topology; these implementation details are not a specific lecture prescription.
+
+## Stress and faults
+
+- [6.622 Lecture 15, pp. 1–4](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec152.pdf): Device loss includes conduction, transition, gate and parasitic contributions. Faster switching lowers some transition loss but can worsen overshoot and EMI. Snubbers can control switching stress while moving or increasing dissipation, including in the snubber resistor. Verify semiconductor switching locus/SOA and all dissipating parts.
+- [6.622 Lecture 35, pp. 1–4](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec352.pdf): Induction-heating inverters are an explicit application; resonant quality factor, voltage peaking and bandwidth vary with load. Sweep pan/coupling/detuning conditions against a cooker-specific model and measurement. A simple classroom RLC is not a validated pan model.
+- [2.996 Lecture 4, PDF pp. 23–30](https://www.ocw.mit.edu/courses/2-996-biomedical-devices-design-laboratory-fall-2007/095410522b047bebb91d8395943c60fd_lec4_pwr_suplies.pdf): The slides raise brownout, startup and supply sequencing. **Engineering extension:** determine safe gate/control output behavior when supply rails decay at different rates, power is interrupted, sensing is invalid, or a switching device fails. Obtain fault limits from current device data and applicable product requirements, not the 2007 slides.
+
+## Domain and EMI
+
+- [6.622 Lecture 28, pp. 1–3](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec282.pdf): Conducted-EMI measurement uses a defined source impedance such as a LISN; component ESR and filter-layout parasitics can dominate high-frequency attenuation. Analysis without representative measurement cannot establish emissions performance.
+- [6.622 Lecture 30, pp. 1–3](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec302.pdf): Separate common- and differential-mode currents and understand their return paths. Filter damping can matter with a converter's negative incremental input resistance. This lecture mentions historical classroom capacitor/leakage values; **do not use those as current safety or compliance limits**.
+- [2.996 Lab 3, p. 1](https://ocw.mit.edu/courses/2-996-biomedical-devices-design-laboratory-fall-2007/b44ec7a50730d04d90638927c85465d1_lab_handout3.pdf): DRC can catch board implementation errors once rules are configured. The handout's spacing numbers and PCB tool settings are for its 2007 low-voltage lab board. **Engineering extension:** derive insulation, earthing, leakage and accessibility criteria from the product's applicable requirements; a DRC pass only checks the supplied criteria.
+
+## Thermal and EMI
+
+- [6.622 Lecture 16, pp. 1–4](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec162.pdf): Model heat from junction through case, interface, sink and ambient. Datasheet headline power often assumes an impractical case temperature. Shared heat sources and pulsed operation require combined or transient thermal models. Validate estimates at specified ambient and duty with real temperature evidence; the lecture's sample component values are teaching examples.
+- [6.622 Lecture 15, pp. 1–4](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec152.pdf), [Lecture 28, pp. 1–3](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec282.pdf), [Lecture 30, pp. 1–3](https://ocw.mit.edu/courses/6-622-power-electronics-spring-2023/mit6_622_s23_lec302.pdf): Switching choices, loss, snubber heat and EMI are coupled. Review as one tradeoff and measure the resulting design.
+
+## Build and bring-up
+
+- [2.996 Lab 3, p. 1](https://ocw.mit.edu/courses/2-996-biomedical-devices-design-laboratory-fall-2007/b44ec7a50730d04d90638927c85465d1_lab_handout3.pdf): Place parts with routing in mind, keep decoupling local, account for solderability of copper pours, and run DRC before fabrication.
+- [2.996 Labs 1–2, pp. 1–2](https://ocw.mit.edu/courses/2-996-biomedical-devices-design-laboratory-fall-2007/1436eef787ff370957273273493a9007_lab_handout1_2.pdf), [Labs 4–6, p. 1](https://ocw.mit.edu/courses/2-996-biomedical-devices-design-laboratory-fall-2007/c2d886369f04b6abc8e3102717abfbba_lab_handout_456.pdf): Check practical component/footprint choices and stage assembly and verification. **Engineering extension:** use actual fabrication/assembly capability and production test strategy to evaluate footprint provenance, test access, fit and diagnostic coverage. The lab handouts cannot establish production yield or fault safety.
+
+## Evidence hierarchy for product decisions
+
+Course material suggests *what to ask*. The design artifact shows *what appears to be built*. Calculations/simulations predict behavior under stated assumptions. Current component datasheets and authoritative product requirements set limits. Calibrated, representative measurements test behavior. Keep these evidence classes separate and record artifact revision, assumptions and test conditions with each finding. A missing source creates an open verification item; it does not justify inventing a limit.

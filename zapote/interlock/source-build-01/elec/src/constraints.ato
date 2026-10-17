@@ -1,0 +1,148 @@
+# Net Class and Constraint Definitions for Temper
+# Reference: NET_CLASS_SPECIFICATION.md, PCB_SAFETY_DESIGN_RULES.md
+
+# Explicit top-level blocks are declared before the aggregator because Atopile
+# resolves `new` types in source order.
+module HighVoltageConstraints:
+    v_max = 400V
+    i_max = 25A
+
+module ACMainsConstraints:
+    v_max = 135V
+    i_max = 15A
+
+module GateDriveConstraints:
+    i_max = 4A
+
+module ThermalZonesConstraints:
+    igbt_derate_temp = 398.15K
+
+module Constraints:
+    high_voltage = new HighVoltageConstraints
+    ac_mains = new ACMainsConstraints
+    gate_drive = new GateDriveConstraints
+    thermal_zones = new ThermalZonesConstraints
+    # ===========================================================================
+    # NET CLASS DEFINITIONS
+    # ===========================================================================
+    
+    # High Voltage Domain (DC Bus, Switch Node)
+    # 340V DC max, 25A peak
+    module HighVoltage:
+        trace_width = 3.0mm
+        clearance = 2.0mm
+        v_max = 400V  # Absolute max
+        i_max = 25A
+        # IEC 60335-1 reinforced insulation creepage, PD3 (12.6mm) -- the
+        # as-built bar per docs/evidence/2026-08-15-pd2-pd3-data-driven-decision.md
+        # and PR #1229; aligned here 2026-08-15 to match the enforced
+        # HV_CREEPAGE_ENFORCED_MM (docs/evidence/2026-08-15-pending-decisions.md).
+        # (PD2 would be 8.0mm; it is conditional on a sealed compartment that
+        # does not exist on this board.)
+        creepage = 12.6mm
+        air_clearance = 6.0mm
+
+    # AC Mains Input
+    # 120V AC, 15A
+    module ACMains:
+        trace_width = 2.5mm
+        clearance = 3.0mm
+        v_max = 135V  # 120V + margin
+        i_max = 15A
+        creepage = 5.0mm
+        air_clearance = 3.0mm
+
+    # Isolated High Voltage (Bootstrap)
+    module HighVoltageIsolated:
+        trace_width = 2.0mm
+        clearance = 6.0mm
+        v_max = 20V  # Differential voltage
+        i_max = 2A
+        isolation_barrier = True
+
+    # Gate Drive Signals
+    module GateDrive:
+        trace_width = 0.5mm
+        clearance = 0.5mm
+        i_max = 4A  # Peak drive current
+
+    # Low Voltage Power (3.3V, 15V)
+    module Power:
+        trace_width = 1.0mm
+        clearance = 0.5mm
+        i_max = 3A
+
+    # Default Signal Class
+    module Default:
+        trace_width = 0.2mm
+        clearance = 0.2mm
+        i_max = 0.5A
+
+    # ===========================================================================
+    # INTER-DOMAIN CLEARANCE REQUIREMENTS
+    # Per IEC 60335-1 and IPC-2221B
+    # ===========================================================================
+    
+    # HighVoltage to Default: Reinforced insulation
+    # Requires 12.6mm creepage (PD3, the as-built bar per the 2026-08-15
+    # data-driven decision and PR #1229; PD2/8.0mm is conditional on a
+    # sealed compartment that does not exist), 6mm clearance, and isolation slot
+    module HV_to_LV:
+        min_clearance = 6.0mm
+        min_creepage = 12.6mm
+        requires_slot = True
+        slot_width = 1.0mm
+
+    # ACMains to Default: Basic insulation
+    module AC_to_LV:
+        min_clearance = 3.0mm
+        min_creepage = 5.0mm
+
+    # HighVoltage to HighVoltageIsolated: Across isolation barrier
+    module HV_to_ISO:
+        min_clearance = 6.0mm
+        min_creepage = 8.0mm
+        requires_slot = True
+
+    # ===========================================================================
+    # THERMAL CONSTRAINTS
+    # ===========================================================================
+    
+    module ThermalZones:
+        # IGBT zone - maximum heat generation
+        # 448.15K = 175 °C = IKW40N120H3 Tvj(max), the datasheet absolute
+        # survival limit (was 423.15K = 150 °C, which is the datasheet's
+        # STORAGE temperature Tstg, not a junction limit — decision doc
+        # 2026-08-15 §6.3).
+        igbt_max_temp = 448.15K
+        # 398.15K = 125 °C = the datasheet-recovery "design for ≤125 °C"
+        # junction limit (IKW40N120H3_Documentation.md §5.1.1) — correct
+        # as the derate figure.
+        igbt_derate_temp = 398.15K
+        
+        # Power inductor zone
+        inductor_max_temp = 398.15K
+        
+        # MCU zone - keep cool for reliability
+        mcu_max_temp = 358.15K
+        
+        # Electrolytic cap zone - life limited by temp
+        cap_max_temp = 378.15K
+
+    # ===========================================================================
+    # MECHANICAL CONSTRAINTS
+    # ===========================================================================
+    
+    module MechanicalLimits:
+        # Board dimensions (from PCB_SPECIFICATION.md)
+        board_width = 100mm
+        board_height = 150mm
+        board_thickness = 1.6mm
+        
+        # Keep-out zones
+        mounting_hole_keepout = 3.0mm
+        antenna_keepout = 15.0mm  # ESP32-S3 antenna area
+        
+        # Height constraints
+        max_component_height = 25mm  # Bus caps
+        standard_height_zone = 15mm

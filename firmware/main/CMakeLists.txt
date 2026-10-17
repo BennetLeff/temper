@@ -32,6 +32,7 @@ idf_component_register(
         driver
         temper_hal
         control
+        power
         nvs_flash
         esp_timer
         esp_driver_gpio

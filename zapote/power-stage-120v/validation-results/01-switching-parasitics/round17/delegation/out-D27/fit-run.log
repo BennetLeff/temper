@@ -1,0 +1,52 @@
+Reading pinned STEP
+Read 461 named shapes
+Checked catalog upright
+Checked catalog rotated
+{
+  "custom_intersections": 4,
+  "filter_intersections": 0,
+  "catalog_intersections": {
+    "upright": 21,
+    "rotated": 19
+  },
+  "D22": {
+    "bounds_mm": [
+      -140.0,
+      332.0,
+      12.0,
+      -30.0,
+      412.0,
+      62.0
+    ],
+    "context_intersections": [],
+    "left_exhaust_air_distance_mm": 1.0,
+    "left_exhaust_air_intersection_mm3": 0.0,
+    "left_duct_wall_distance_mm": 0.19999999999998863,
+    "regions": {
+      "A": {
+        "bounds_mm": [
+          -4.635000000000005,
+          146.215,
+          0.0,
+          74.1,
+          223.125,
+          120.0
+        ],
+        "D22_distance_mm": 111.79064741739356,
+        "D22_intersection_mm3": 0.0
+      },
+      "B": {
+        "bounds_mm": [
+          -42.099999999999994,
+          146.215,
+          0.0,
+          36.635000000000005,
+          223.125,
+          120.0
+        ],
+        "D22_distance_mm": 108.875,
+        "D22_intersection_mm3": 0.0
+      }
+    }
+  }
+}

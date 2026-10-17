@@ -1,0 +1,276 @@
+{
+ "solver": "Elmer 64-bit direct (Big Umfpack), /tmp/ps-r6-fem-elmer-install, first-order edge elements",
+ "section_exact_nH": 3.141592653589793,
+ "section_boundary_port_nH": 3.1415919999999997,
+ "section_interior_port_nH": 3.1415919999999997,
+ "two_port": {
+  "L11": 3.1415919999999997,
+  "L22": 1.8849555999999998,
+  "M": 1.8849562000000004,
+  "exact_L11": 3.141592653589793,
+  "exact_L22_and_M": 1.8849555921538759,
+  "M_error": 3.224723845353587e-07
+ },
+ "thick_plates": {
+  "h0p5_nH": 2.785094,
+  "h0p35_nH": 2.808988,
+  "richardson_h2_nH": 2.8319449803921564,
+  "upper_bound_nH": 3.141592653589793,
+  "wheeler_2d_nH": 2.8727709359655713,
+  "tets": [
+   153673,
+   402587
+  ],
+  "peak_memory_GB": [
+   2.93709676,
+   9.93361052
+  ],
+  "memory_exponent": 1.2652085285420622,
+  "note": "First-order energy converges from below; Richardson assumes the energy error ~ h^2. Estimate only."
+ },
+ "rings_rejected": {
+  "L11_pH": 22.683199999999996,
+  "L22_pH": 407.4006,
+  "M_pH": 1.2261000000000077,
+  "analytic_approx_pH": {
+   "M_aa": 41.78537,
+   "M_bb": 707.205,
+   "M_ab": 1.973921
+  },
+  "reason": "1 um zero-thickness strips meshed coarsely at their edges; first-order elements far under-resolved. Not a usable fixture."
+ },
+ "runs": [
+  {
+   "label": "section-boundary-port",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.763528224,
+   "max_rss_GB": 0.819953664,
+   "wall_s": 4.5,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "run": "sect-boundary"
+  },
+  {
+   "label": "section-interior-port",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.82536144,
+   "max_rss_GB": 0.88162304,
+   "wall_s": 4.45,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "run": "sect-interior"
+  },
+  {
+   "label": "sect2-L11",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.570796e-09,
+   "inductance_nH": 3.1415919999999997,
+   "peak_memory_GB": 0.782189576,
+   "max_rss_GB": 0.83853312,
+   "wall_s": 4.73,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "run": "sect2-11"
+  },
+  {
+   "label": "sect2-L22",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 9.424778e-10,
+   "inductance_nH": 1.8849555999999998,
+   "peak_memory_GB": 0.776750112,
+   "max_rss_GB": 0.833437696,
+   "wall_s": 4.59,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 5,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "run": "sect2-22"
+  },
+  {
+   "label": "sect2-both",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 4.39823e-09,
+   "inductance_nH": 8.79646,
+   "peak_memory_GB": 0.7645768,
+   "max_rss_GB": 0.821264384,
+   "wall_s": 4.75,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": 5,
+   "k2_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "scale_m": 0.001,
+   "run": "sect2-12"
+  },
+  {
+   "label": "thick-plates-m40-h0p5",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.392547e-09,
+   "inductance_nH": 2.785094,
+   "peak_memory_GB": 2.93709676,
+   "max_rss_GB": 3.054682112,
+   "wall_s": 61.6,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "run": "thick-h0p5"
+  },
+  {
+   "label": "thick-plates-m40-h0p35",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.404494e-09,
+   "inductance_nH": 2.808988,
+   "peak_memory_GB": 9.93361052,
+   "max_rss_GB": 6.273695744,
+   "wall_s": 417.21,
+   "k_A_per_m": [
+    0.0,
+    0.0,
+    100.0
+   ],
+   "pec": [
+    2
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 0.001,
+   "run": "thick-h0p35"
+  },
+  {
+   "label": "rings-L11",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 1.13416e-11,
+   "inductance_nH": 0.022683199999999997,
+   "peak_memory_GB": 1.262470488,
+   "max_rss_GB": 1.317650432,
+   "wall_s": 19.62,
+   "k_A_per_m": [
+    -399498.4292441337,
+    691951.5769947998,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 4,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 1e-06,
+   "run": "rings-11"
+  },
+  {
+   "label": "rings-L22",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 2.037003e-10,
+   "inductance_nH": 0.4074006,
+   "peak_memory_GB": 1.263125848,
+   "max_rss_GB": 1.318977536,
+   "wall_s": 20.69,
+   "k_A_per_m": [
+    -399994.99984374526,
+    692811.6625028718,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 5,
+   "port2": null,
+   "k2_A_per_m": null,
+   "scale_m": 1e-06,
+   "run": "rings-22"
+  },
+  {
+   "label": "rings-both",
+   "exit_code": 0,
+   "all_done": true,
+   "energy_J": 2.16268e-10,
+   "inductance_nH": 0.43253600000000003,
+   "peak_memory_GB": 1.256146264,
+   "max_rss_GB": 1.310523392,
+   "wall_s": 21.01,
+   "k_A_per_m": [
+    -399498.4292441337,
+    691951.5769947998,
+    0.0
+   ],
+   "pec": [
+    2,
+    3
+   ],
+   "port": 4,
+   "port2": 5,
+   "k2_A_per_m": [
+    -399994.99984374526,
+    692811.6625028718,
+    0.0
+   ],
+   "scale_m": 1e-06,
+   "run": "rings-12"
+  }
+ ]
+}

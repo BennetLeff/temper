@@ -1,0 +1,483 @@
+{
+  "status": "proposal, no circuit transient/startup/hardware qualification",
+  "variants": {
+    "2V": {
+      "raw_span_nominal_V": 21.022727272727273,
+      "raw_negative_nominal_V": -5.9969939879759515,
+      "positive_nominal_V": 15.025733284751322,
+      "negative_nominal_V": -1.9968479999999997,
+      "driver_span_nominal_V": 17.022581284751322,
+      "ldo_headroom_scenario_V": 3.856276182156312,
+      "ldo_required_accuracy_headroom_V": 1.0,
+      "minimum_negative_to_positive_cap_ratio": 2.756098579782791,
+      "selected_ratio_at_independent_tolerance_and_X7R_extremes_before_DC_bias": 3.023715415019763,
+      "nominal_monitor_thresholds_bias_low_high_span_low_high_V": [
+        1.798895,
+        2.198095,
+        16.2175,
+        17.839250000000003
+      ],
+      "scenarios": [
+        {
+          "frequency_Hz": 0,
+          "raw_span_current_sizing_A": 0.023899421328475133,
+          "module_output_power_sizing_W": 0.502431016564534,
+          "four_modules_input_at_45pct_W": 4.466053480573636,
+          "four_modules_input_at_35pct_W": 5.742068760737532,
+          "negative_ldo_heat_sizing_W": 0.10159816833002265,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        },
+        {
+          "frequency_Hz": 36000,
+          "raw_span_current_sizing_A": 0.03891223425472618,
+          "module_output_power_sizing_W": 0.8180412883095846,
+          "four_modules_input_at_45pct_W": 7.271478118307418,
+          "four_modules_input_at_35pct_W": 9.34904329496668,
+          "negative_ldo_heat_sizing_W": 0.1616516117251993,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        },
+        {
+          "frequency_Hz": 40000,
+          "raw_span_current_sizing_A": 0.040580324579865185,
+          "module_output_power_sizing_W": 0.8531090962812568,
+          "four_modules_input_at_45pct_W": 7.583191966944504,
+          "four_modules_input_at_35pct_W": 9.749818243214364,
+          "negative_ldo_heat_sizing_W": 0.16832421654688556,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        },
+        {
+          "frequency_Hz": 80000,
+          "raw_span_current_sizing_A": 0.057261227831255236,
+          "module_output_power_sizing_W": 1.2037871759979795,
+          "four_modules_input_at_45pct_W": 10.700330453315372,
+          "four_modules_input_at_35pct_W": 13.757567725691194,
+          "negative_ldo_heat_sizing_W": 0.2350502647637485,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        }
+      ],
+      "bom": [
+        {
+          "part": "1N4148W-7-F",
+          "qty": 4,
+          "unit_estimate_USD": "0.18",
+          "price_role": "silicon_diode"
+        },
+        {
+          "part": "C0603C102J5GACTU",
+          "qty": 4,
+          "unit_estimate_USD": "0.14",
+          "price_role": "cgs"
+        },
+        {
+          "part": "C0603C104K5RACTU",
+          "qty": 14,
+          "unit_estimate_USD": "0.077",
+          "price_role": "100n"
+        },
+        {
+          "part": "C0603C331J5GACTU",
+          "qty": 12,
+          "unit_estimate_USD": "0.070",
+          "price_role": "330p"
+        },
+        {
+          "part": "IRM-20-15",
+          "qty": 1,
+          "unit_estimate_USD": "9.50",
+          "price_role": "ps2"
+        },
+        {
+          "part": "LM339BIDR",
+          "qty": 4,
+          "unit_estimate_USD": "0.27",
+          "price_role": "monitor"
+        },
+        {
+          "part": "MMBT3904-7-F",
+          "qty": 4,
+          "unit_estimate_USD": "0.16",
+          "price_role": "npn"
+        },
+        {
+          "part": "PMEG6030EP,115",
+          "qty": 4,
+          "unit_estimate_USD": "0.76",
+          "price_role": "discharge_diode"
+        },
+        {
+          "part": "R15C2T25/R-R",
+          "qty": 4,
+          "unit_estimate_USD": "6.99",
+          "price_role": "module"
+        },
+        {
+          "part": "RC1206FR-071KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-071RL",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-07261RL",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-072K2L",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-072K7L",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RT0603BRD0710KL",
+          "qty": 42,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0711KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD07120KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD07133KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD071KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0731K6L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0749K9L",
+          "qty": 8,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD074K42L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0769K8L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD076K98L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD077K62L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "SN74LVC32APWR",
+          "qty": 2,
+          "unit_estimate_USD": "0.41",
+          "price_role": "logic"
+        },
+        {
+          "part": "TL431AIDBZR",
+          "qty": 4,
+          "unit_estimate_USD": "0.29",
+          "price_role": "reference"
+        },
+        {
+          "part": "TPS7A3001DGNR",
+          "qty": 4,
+          "unit_estimate_USD": "4.67",
+          "price_role": "negative_ldo"
+        },
+        {
+          "part": "UMK325AB7106KM-T",
+          "qty": 44,
+          "unit_estimate_USD": "0.89",
+          "price_role": "10u"
+        },
+        {
+          "part": "VO617A-3X017T",
+          "qty": 4,
+          "unit_estimate_USD": "0.44",
+          "price_role": "opto"
+        }
+      ],
+      "purchased_parts": 215,
+      "material_purchase_estimate_USD": "118.60",
+      "removed_parts": [
+        "PS2 IRM-05-15",
+        "D1 UF4007",
+        "D2 UF4007"
+      ],
+      "cost_note": "purchase estimate before removed-part credit, PCB, labor, qualification; resistor-family estimates explicitly marked in CSV"
+    },
+    "4V": {
+      "raw_span_nominal_V": 21.022727272727273,
+      "raw_negative_nominal_V": -5.9969939879759515,
+      "positive_nominal_V": 15.025733284751322,
+      "negative_nominal_V": -3.96312,
+      "driver_span_nominal_V": 18.988853284751322,
+      "ldo_headroom_scenario_V": 1.8369148381563125,
+      "ldo_required_accuracy_headroom_V": 1.0,
+      "minimum_negative_to_positive_cap_ratio": 2.756098579782791,
+      "selected_ratio_at_independent_tolerance_and_X7R_extremes_before_DC_bias": 3.023715415019763,
+      "nominal_monitor_thresholds_bias_low_high_span_low_high_V": [
+        3.580325,
+        4.403675,
+        18.33825,
+        19.58575
+      ],
+      "scenarios": [
+        {
+          "frequency_Hz": 0,
+          "raw_span_current_sizing_A": 0.025865693328475135,
+          "module_output_power_sizing_W": 0.5437674165645341,
+          "four_modules_input_at_45pct_W": 4.833488147240303,
+          "four_modules_input_at_35pct_W": 6.214484760737533,
+          "negative_ldo_heat_sizing_W": 0.05860455482972464,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        },
+        {
+          "frequency_Hz": 36000,
+          "raw_span_current_sizing_A": 0.04094929204672618,
+          "module_output_power_sizing_W": 0.8608657987095845,
+          "four_modules_input_at_45pct_W": 7.652140432974084,
+          "four_modules_input_at_35pct_W": 9.83846627096668,
+          "negative_ldo_heat_sizing_W": 0.08928269390784284,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        },
+        {
+          "frequency_Hz": 40000,
+          "raw_span_current_sizing_A": 0.04262524745986518,
+          "module_output_power_sizing_W": 0.8960989522812566,
+          "four_modules_input_at_45pct_W": 7.965324020277836,
+          "four_modules_input_at_35pct_W": 10.241130883214362,
+          "negative_ldo_heat_sizing_W": 0.09269137602763375,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        },
+        {
+          "frequency_Hz": 80000,
+          "raw_span_current_sizing_A": 0.05938480159125523,
+          "module_output_power_sizing_W": 1.2484304879979793,
+          "four_modules_input_at_45pct_W": 11.097159893315371,
+          "four_modules_input_at_35pct_W": 14.267777005691192,
+          "negative_ldo_heat_sizing_W": 0.12677819722554287,
+          "within_100mA_and_1_5W_at_90C_scenario": true
+        }
+      ],
+      "bom": [
+        {
+          "part": "1N4148W-7-F",
+          "qty": 4,
+          "unit_estimate_USD": "0.18",
+          "price_role": "silicon_diode"
+        },
+        {
+          "part": "C0603C102J5GACTU",
+          "qty": 4,
+          "unit_estimate_USD": "0.14",
+          "price_role": "cgs"
+        },
+        {
+          "part": "C0603C104K5RACTU",
+          "qty": 14,
+          "unit_estimate_USD": "0.077",
+          "price_role": "100n"
+        },
+        {
+          "part": "C0603C331J5GACTU",
+          "qty": 12,
+          "unit_estimate_USD": "0.070",
+          "price_role": "330p"
+        },
+        {
+          "part": "IRM-20-15",
+          "qty": 1,
+          "unit_estimate_USD": "9.50",
+          "price_role": "ps2"
+        },
+        {
+          "part": "LM339BIDR",
+          "qty": 4,
+          "unit_estimate_USD": "0.27",
+          "price_role": "monitor"
+        },
+        {
+          "part": "MMBT3904-7-F",
+          "qty": 4,
+          "unit_estimate_USD": "0.16",
+          "price_role": "npn"
+        },
+        {
+          "part": "R15C2T25/R-R",
+          "qty": 4,
+          "unit_estimate_USD": "6.99",
+          "price_role": "module"
+        },
+        {
+          "part": "RC1206FR-071KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-07261RL",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-072K2L",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RC1206FR-072K7L",
+          "qty": 4,
+          "unit_estimate_USD": "0.15",
+          "price_role": "power_resistor"
+        },
+        {
+          "part": "RT0603BRD0710KL",
+          "qty": 42,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0711KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD07137KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD07147KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0718K7L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD071KL",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0723K7L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0725K3L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0731K6L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0749K9L",
+          "qty": 8,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "RT0603BRD0769K8L",
+          "qty": 4,
+          "unit_estimate_USD": "0.10",
+          "price_role": "precision_resistor"
+        },
+        {
+          "part": "SN74LVC32APWR",
+          "qty": 2,
+          "unit_estimate_USD": "0.41",
+          "price_role": "logic"
+        },
+        {
+          "part": "TL431AIDBZR",
+          "qty": 4,
+          "unit_estimate_USD": "0.29",
+          "price_role": "reference"
+        },
+        {
+          "part": "TPS7A3001DGNR",
+          "qty": 4,
+          "unit_estimate_USD": "4.67",
+          "price_role": "negative_ldo"
+        },
+        {
+          "part": "UMK325AB7106KM-T",
+          "qty": 44,
+          "unit_estimate_USD": "0.89",
+          "price_role": "10u"
+        },
+        {
+          "part": "VO617A-3X017T",
+          "qty": 4,
+          "unit_estimate_USD": "0.44",
+          "price_role": "opto"
+        }
+      ],
+      "purchased_parts": 207,
+      "material_purchase_estimate_USD": "114.96",
+      "removed_parts": [
+        "PS2 IRM-05-15",
+        "D1 UF4007",
+        "D2 UF4007"
+      ],
+      "cost_note": "purchase estimate before removed-part credit, PCB, labor, qualification; resistor-family estimates explicitly marked in CSV"
+    }
+  }
+}

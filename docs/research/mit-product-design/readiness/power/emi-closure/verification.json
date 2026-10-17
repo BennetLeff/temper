@@ -1,0 +1,270 @@
+{
+  "status": "PASS",
+  "source_commit": "7d1c97b92c0ed42be1c28a32d4ccaadd512d2238",
+  "intake_runner_sha256": "7de5c1357721651a2447dbf32400268fa7057c7ee65d67e2eb3a1b598f7fc8a9",
+  "intake_manifest_sha256": "85ddb2410ea19d82eaf528147495231a1cb626afa754e9e170724de65ca5592b",
+  "intake_files_verified": 8,
+  "scope": "Full recorded source hashes; upstream tests; all 16 selected nonlinear captures and their refinement references replayed; archives verified; 12 selected AC decks freshly simulated. No new nonlinear transient simulation or physical measurement.",
+  "inputs_verified": 24,
+  "outputs_verified": 1420,
+  "source_provenance_sha256": "144fe215d3c27cc29010a4f95d91968eb22be6ec2260ecf5d522058a603658e9",
+  "raw_captures_replayed": [
+    {
+      "case": "envelope-v170-f35000-r100-e1.06-s0.1",
+      "raw_sha256": "0be875f29b57d111928f2490e1ad4198015d6289cf505be652dbf14267ff8380",
+      "fft_sha256": "69c23683aa8f666e9ff752bb8fae306465ee6085ca16649e86fcce07ed454d50"
+    },
+    {
+      "case": "envelope-v170-f35000-r100-e1.06-s0.25",
+      "raw_sha256": "e598fd63ad9bbf9fca2d89d680eff5972916ea8dfc15e270877baf9195f5b15b",
+      "fft_sha256": "dcc37a8c0cc838667c9d8322a4f46345a2ff4cce33b934a68c4e033683d9a204"
+    },
+    {
+      "case": "envelope-v170-f35000-r100-e10-s0.125",
+      "raw_sha256": "3a65682caa508157383fbdcc439cd5e5c02a07d3d0db814e5c0c532943ddb112",
+      "fft_sha256": "ede56b48eeaca624bf89f9699790113c688d6c82b58af0c41639a164b3d0db9d"
+    },
+    {
+      "case": "envelope-v170-f35000-r100-e10-s0.25",
+      "raw_sha256": "494eb7268a82674d8c324a4b8f8153274bec2588d909eb09a66c38ccad2e4ebf",
+      "fft_sha256": "53f553c9d39562b724cb97b9aa475cd8e0df7694c09b12c2e47500fcbeddb21f"
+    },
+    {
+      "case": "envelope-v170-f35000-r2-e1.06-c32-s0.0625",
+      "raw_sha256": "673c4b9901d87e7cf6e585c6e912c48573a8c692fe3c5a0051e674cae61362ca",
+      "fft_sha256": "542e17f571a2bfd0b1692ade04424ec307a4c2f2f5834fb42fc623fb7940eb98"
+    },
+    {
+      "case": "envelope-v170-f35000-r2-e1.06-c32-s0.125",
+      "raw_sha256": "15a36d37377438590c349ade775f02da7e4fdd817636c427a3cc331024c97cf1",
+      "fft_sha256": "f16c9d28d1ac37c1b2c84bec43b603b2adabc3f1e72397e2693fdd728c0fe3fd"
+    },
+    {
+      "case": "envelope-v170-f35000-r2-e10-c32-s0.05",
+      "raw_sha256": "b25755ebb0d0bac54504b7902fa8d1f84a9f8cb9739d942b5ac09771c6d77f2d",
+      "fft_sha256": "84d8a62807198606687cebc6c49d9cc5b12017983956ce56eaaab6375a4f1d1a"
+    },
+    {
+      "case": "envelope-v170-f35000-r2-e10-c32-s0.1",
+      "raw_sha256": "21aa7973ee1daf3ae3ac398450a7ea66340f62529707d0010fd7c5eee22a8689",
+      "fft_sha256": "d68bf5b06a7a882bb61aeb70bfefc97467c48c24b4840e5c291e8c58817e7745"
+    },
+    {
+      "case": "envelope-v170-f60000-r100-e1.06-s0.125",
+      "raw_sha256": "58b23c773467f207300028125a7e0ca2774bd076ee2f2dd3db104553b6574491",
+      "fft_sha256": "b0545e6318b6a0d250b03e4a82831628d71f632f07a2b0345ac7d49b0abec9cb"
+    },
+    {
+      "case": "envelope-v170-f60000-r100-e1.06-s0.25",
+      "raw_sha256": "39fabc64124822f32f1f89ec8e06690f478a9a8fd96d36abc2c7c4dd581dcbf4",
+      "fft_sha256": "eb41be15d0d0ecc6c3b801b2d8674eb1975d47aa2c479b72c27d1e64f540b488"
+    },
+    {
+      "case": "envelope-v170-f60000-r100-e10-s0.125",
+      "raw_sha256": "4b4518893225bb355ee2b46797dfacb041fbaf761db7c16378d99b96c40abe80",
+      "fft_sha256": "9ad3aec1f5ce3df3d7e742e2ee69e08057d3858594a3dcb48b909dfeeeda4a45"
+    },
+    {
+      "case": "envelope-v170-f60000-r100-e10-s0.25",
+      "raw_sha256": "6e2c8f689c5e34e27afc39f060a785c7754cbc7755ffa544dcb31028e1e4a23b",
+      "fft_sha256": "ad255c97b3df4ece2ab86ae52f6ff7229fbe18fcf541cae07bb511a37df951c8"
+    },
+    {
+      "case": "envelope-v170-f60000-r2-e1.06-s0.0625",
+      "raw_sha256": "6dcdfcb48690b64810f6e5d9b8c2f49be7cfda6072d465ca4354d8508f2d8431",
+      "fft_sha256": "e79c3bd30f943311d3784a1ed7a44d0f03600fb1cba905f6d202e355e924e216"
+    },
+    {
+      "case": "envelope-v170-f60000-r2-e1.06-s0.125",
+      "raw_sha256": "3bdc3f52a5c6c670b87b25dac87a34443015abc5e7f3da21ef7cf442c183450c",
+      "fft_sha256": "44b21c9e430f6d01d1e386c7ab5f17c7e1d7e1d2c98389e1e35668b3903a0fbe"
+    },
+    {
+      "case": "envelope-v170-f60000-r2-e10-s0.08",
+      "raw_sha256": "2cd6461617c53dd476dbe9b0f048d6c4d4970aa189b256e0e3cfb0d6874c349c",
+      "fft_sha256": "dd5f88ec5b3ddce256fe753bf48b61a479c0ec20f1197e706d1e22f89b757db3"
+    },
+    {
+      "case": "envelope-v170-f60000-r2-e10-s0.1",
+      "raw_sha256": "f524ce5660b28f91058505cafb699171bef56df0dfe376c5acffcbbd2c553650",
+      "fft_sha256": "b6b29ffd4bd9a14ec44eab910a9c9f656580c7505bd3224b5a606f1d489a16d4"
+    },
+    {
+      "case": "envelope-v198-f35000-r100-e1.06-s0.125",
+      "raw_sha256": "e8f35c9dc8464853de939dcfdd9502e66cfc5becff30a8e235a5c2da4c3297fb",
+      "fft_sha256": "5718176a4fc3e8f80e2529079d8b138fbf451d81d87b7afa5fe5e3991d36f4e8"
+    },
+    {
+      "case": "envelope-v198-f35000-r100-e1.06-s0.25",
+      "raw_sha256": "e6784b97d84cdba2978a92d12d08ea783a02c4048fbffb77d98c9e41e457429c",
+      "fft_sha256": "eb993d7fcb5b1aaaf1876ff5d6b5194b42e8fb4be84b442093ce53eca5a23424"
+    },
+    {
+      "case": "envelope-v198-f35000-r100-e10-s0.1",
+      "raw_sha256": "9112c5564235b5fd5ba4dcbbde4eb4ac04c590cfd82cdf60be0d1b56e6d73a58",
+      "fft_sha256": "344cceb78c4932fe2172cb86ddbc3bf13d42dbdf57a18603e3e41bedd4126fed"
+    },
+    {
+      "case": "envelope-v198-f35000-r100-e10-s0.25",
+      "raw_sha256": "5832a228f1e52b650fbde744cafc3bdd6d1723ce4681d6533dc57664b0391c18",
+      "fft_sha256": "f6c01e15554342f66b16a9aa1fe6339e462a59a133c4b19aa49ffb70a505c5fb"
+    },
+    {
+      "case": "envelope-v198-f35000-r2-e1.06-c32-s0.08",
+      "raw_sha256": "749755c49ec2953c0e075792bbc709c4266bf73578cf419822c290cd67deab37",
+      "fft_sha256": "5de1520ad90e0d48be0e3419ac4c700d90d93d07499df4bef3347286e56fa14c"
+    },
+    {
+      "case": "envelope-v198-f35000-r2-e1.06-c32-s0.25",
+      "raw_sha256": "ad86e77a50c41c011e5a63cbb6063fae064579554cb6b5f2376eea7718ee362a",
+      "fft_sha256": "9f2953106d7fa3de54c0b6f828980b4f5f341a5772648290f93a5622e24f744d"
+    },
+    {
+      "case": "envelope-v198-f35000-r2-e10-c32-s0.0625",
+      "raw_sha256": "9a680106bbc46c495143b37baf05a41d84a92500ef8d88b9fc258202b7b4bc39",
+      "fft_sha256": "07faa20fef715ba24c722eb6179f5f0543d1a21f45e3b67093aebaa59c50f30f"
+    },
+    {
+      "case": "envelope-v198-f35000-r2-e10-c32-s0.125",
+      "raw_sha256": "c617ef446ec90a1747eadd09ad48b445897744207d1b538e10f636e3cdec6b62",
+      "fft_sha256": "3a4a5ff366b2ab8695395d5606a85514464ed3961bbeaa7407bb66e327c728bb"
+    },
+    {
+      "case": "envelope-v198-f60000-r100-e1.06-s0.0625",
+      "raw_sha256": "42cc94da430b7623921c3c1dffb51e3ea2ffe5a06ca0ea5b9da12656da90168e",
+      "fft_sha256": "eda43101f4d47cfc1d87b043048d0eabe66f42da4c624bc76ade12de51c542db"
+    },
+    {
+      "case": "envelope-v198-f60000-r100-e1.06-s0.25",
+      "raw_sha256": "f6897bb3f19182228e7ec0dab2c24d54758fcb5b45be0045174a89a2469aa3ce",
+      "fft_sha256": "d684d3e67ab6c450f6abce48108fba0865e77da84d2072ee860f002350f71a89"
+    },
+    {
+      "case": "envelope-v198-f60000-r100-e10-s0.125",
+      "raw_sha256": "291ee2c24ccd4653c23fad26829dbcc6a8b479ab57f823568c9a7184ac514c66",
+      "fft_sha256": "b042d5d707d0284294358679fa4880dd5b41f3af7fde4e88ecfecc56510da23d"
+    },
+    {
+      "case": "envelope-v198-f60000-r100-e10-s0.25",
+      "raw_sha256": "2c99f8d9952b85e86b96816eb427929999f20dbfb8006740e26c85bab894e978",
+      "fft_sha256": "957fac3d01c2f3fb40e0bc63b82420c75e2aadd1c489419e2896ac363088fecd"
+    },
+    {
+      "case": "envelope-v198-f60000-r2-e1.06-s0.125",
+      "raw_sha256": "cb07e1d87c3b5e9c74c4b741b04b4a44eef62bf6f17dd443c3c874bcc2137813",
+      "fft_sha256": "effe696a78aab9f56f1047335221cea64fef9c79856086d18a7b8801a8d40c94"
+    },
+    {
+      "case": "envelope-v198-f60000-r2-e1.06-s0.25",
+      "raw_sha256": "a476e12289b3c9ca3e9455ee8fe65d03adadf97263b30a9b85bde693f79b84e0",
+      "fft_sha256": "0e3ebe74a2695ad95288287b10fa4833b2c40cd540afa9cb514c906462dddfb6"
+    },
+    {
+      "case": "envelope-v198-f60000-r2-e10-s0.0625",
+      "raw_sha256": "e19862fbf44bf42df155ad2c473e65e8e69409bf30ca43bba6d2ff5054400d92",
+      "fft_sha256": "26addf9f1c52586e52e419d79d6bfb32cfc662ee2212b52d43f1cc472cb383fa"
+    },
+    {
+      "case": "envelope-v198-f60000-r2-e10-s0.125",
+      "raw_sha256": "b5f6d0f752b2a7f4835dec5a935fe2b98957e21848694ea6f2617153204f10e8",
+      "fft_sha256": "1dc7cf8061c8ac88a2acf8489cd221b1955687040e54492036fcf9135e53ede7"
+    }
+  ],
+  "archives_verified": [
+    {
+      "archive": "exploratory-transfer.tar.gz",
+      "members_verified": 162
+    },
+    {
+      "archive": "exploratory-harmonic-transfer.tar.gz",
+      "members_verified": 504
+    },
+    {
+      "archive": "exploratory-harmonic-transfer-v2.tar.gz",
+      "members_verified": 972
+    },
+    {
+      "archive": "receiver-spectra.tar.gz",
+      "members_verified": 1708
+    }
+  ],
+  "fresh_AC_simulations": [
+    {
+      "case": "proposed_nominal-f35000-A",
+      "deck_sha256": "78500310cabfdd5e00a5140d657e7cd21f2d7afd1e12dbd1f10b5f6bd3cb0e20",
+      "raw_sha256": "4d7fb0a78247996d392fbc32e797d4e9572321e465465f26f5fcff8ee41063c1",
+      "status": "PASS"
+    },
+    {
+      "case": "proposed_nominal-f35000-B",
+      "deck_sha256": "74d39d964e356cbbcb50a14adf66bc89a7b7ff15e004679669fe8bdec8dfa54a",
+      "raw_sha256": "3708ab4bcd4e4ce4549a31878f41c3e27cf1e056246a25d0a44141a56637556c",
+      "status": "PASS"
+    },
+    {
+      "case": "proposed_nominal-f35000-DM",
+      "deck_sha256": "bb112867551e4abdb7f816c4dd7559add34e777ca858bf3e63e2f57ce5e8e99b",
+      "raw_sha256": "a6b5c8208636c82c433039264d7ba68727d8cae612dec6e0e8a7be2440264d10",
+      "status": "PASS"
+    },
+    {
+      "case": "proposed_nominal-f60000-A",
+      "deck_sha256": "275b6db6c042f5c7b5b3e91d4cacb3d7c3103f02485586077fa29b3aec6d2f04",
+      "raw_sha256": "476332e3d625000f1c45108be0392e9a6b51a7c42aaa301ba6e8d7fceca5271e",
+      "status": "PASS"
+    },
+    {
+      "case": "proposed_nominal-f60000-B",
+      "deck_sha256": "abe6130d95d17bf5995aec4a648a0e2d773104e102f66f0bded3facc049aeb03",
+      "raw_sha256": "02bfa4036b0f9ef4c3f70c3d178283a9532dad447062f04d1f5b060d07bc053d",
+      "status": "PASS"
+    },
+    {
+      "case": "proposed_nominal-f60000-DM",
+      "deck_sha256": "a6d92e179b61c4027e2f3940f766194fb54541d141148fc9f26959d83944a056",
+      "raw_sha256": "3a7c3b0cac3fde838a307861cbd7283749ec258600c6a95ec61c64f1ca016ee3",
+      "status": "PASS"
+    },
+    {
+      "case": "old_low_leakage-f35000-A",
+      "deck_sha256": "b1a4adcb01d08fde0843a9c27150b106d9273ff28ce50722935fe34c5108a02f",
+      "raw_sha256": "30ee6700dc7e8991c9d38fab2921187739f38e388dacf579d233d1deb4b522ac",
+      "status": "PASS"
+    },
+    {
+      "case": "old_low_leakage-f35000-B",
+      "deck_sha256": "b34d679a59c8ad341a24421e150980e267e29972868374bfff0b73338db78b98",
+      "raw_sha256": "d607c6918c92b2648fc69edb36756264f573c60c72666c281a066c1c8f0604c8",
+      "status": "PASS"
+    },
+    {
+      "case": "old_low_leakage-f35000-DM",
+      "deck_sha256": "729f7680cd1dafe124c88f80812e8107aa561ed5a7a83e686a3f17e7665f02a9",
+      "raw_sha256": "0ecf6a4ea82d798eac7e8562f7005e67745e70e6b51e6f01c169e776bd12147e",
+      "status": "PASS"
+    },
+    {
+      "case": "old_low_leakage-f60000-A",
+      "deck_sha256": "1d9abfac91a0ed9ad8b5ae07178a8a902b6acd3d5413356a4576a69de0a125bc",
+      "raw_sha256": "8257f25cdba02769286a3e3ffaf606c28232198d4215d913368ecaabfc3c925f",
+      "status": "PASS"
+    },
+    {
+      "case": "old_low_leakage-f60000-B",
+      "deck_sha256": "c2b4ae993be3643dbd3db85bd9138977ac1ff24155aa4b60eaa538808dacf3bb",
+      "raw_sha256": "c280b5fcf898ee4c42dbd96d20503e1684bd8621406554ac8b74d6ee57c99df6",
+      "status": "PASS"
+    },
+    {
+      "case": "old_low_leakage-f60000-DM",
+      "deck_sha256": "c678bbebeae874fb096fb13ca4947105744c0bd1e1f59a083ae39d5fb5c331cf",
+      "raw_sha256": "3d85a64bca6b53caa566a51c71dafa43aeabcf48b77ea438678b563ac40e5bcf",
+      "status": "PASS"
+    }
+  ],
+  "upstream_envelope_summary_sha256": "8b47ff7bff6de60cb50938d2b738e38dc80298531ebc79f7fda4cfd3f362c05d",
+  "upstream_numerically_qualified_cases": 16,
+  "upstream_minimum_proposed_AV_dB": 9.280141744742153,
+  "upstream_minimum_after_1dB_reserve": 8.280141744742153,
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n"
+}

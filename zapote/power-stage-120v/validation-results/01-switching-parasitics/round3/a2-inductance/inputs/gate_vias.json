@@ -1,0 +1,25 @@
+{
+  "board_sha256": "a3ac1249f5052afe52944804cdc3f6ef0e8f895668360e79c1fa7b6fb7322155",
+  "vias": [
+    {
+      "net": "leg_a-out_l",
+      "centre_mm": [
+        134.8,
+        17.5
+      ],
+      "drill_mm": 0.3,
+      "diameter_mm": 0.85,
+      "through": true
+    },
+    {
+      "net": "leg_a-out_l",
+      "centre_mm": [
+        151.8,
+        38.8
+      ],
+      "drill_mm": 0.3,
+      "diameter_mm": 0.85,
+      "through": true
+    }
+  ]
+}

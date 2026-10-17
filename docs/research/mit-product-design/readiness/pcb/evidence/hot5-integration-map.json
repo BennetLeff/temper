@@ -1,0 +1,258 @@
+{
+  "old_native18_board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "new_source_net_sha256": "26f95d5aa092d3aba2890421204d53aab16ce332c2e81d22990de64fb30ddb02",
+  "retained_reference_count": 135,
+  "changed_existing_components": {
+    "U8": {
+      "old": {
+        "path": "u_nand",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "attributes": {
+          "designator_prefix": "U",
+          "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+          "manufacturer": "Texas Instruments",
+          "mpn": "SN74LVC1G00DBVR"
+        }
+      },
+      "new": {
+        "path": "u_nand",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "attributes": {
+          "designator_prefix": "U",
+          "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+          "manufacturer": "Texas Instruments",
+          "mpn": "SN74LVC1G10DBVR"
+        }
+      }
+    }
+  },
+  "added_components": {
+    "C48": {
+      "path": "c_hot5_uv",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    "C49": {
+      "path": "c_hot5_schmitt",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "attributes": {
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "KEMET",
+        "mpn": "C0603C104K5RACTU",
+        "value": "100nF"
+      }
+    },
+    "R48": {
+      "path": "r_hot5_uv_top",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD07105KL",
+        "value": "105kohm"
+      }
+    },
+    "R49": {
+      "path": "r_hot5_uv_bot",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0710KL",
+        "value": "10kohm"
+      }
+    },
+    "R50": {
+      "path": "r_hot5_uv_pull",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "attributes": {
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0710KL",
+        "value": "10kohm"
+      }
+    },
+    "U15": {
+      "path": "u_hot5_schmitt",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    "U14": {
+      "path": "u_hot5_uv",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "attributes": {
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+        "manufacturer": "Texas Instruments",
+        "mpn": "TPS3700DDCR"
+      }
+    }
+  },
+  "changed_pins": [
+    {
+      "reference": "C48",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "v15_ls"
+    },
+    {
+      "reference": "C48",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "C49",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "hot5"
+    },
+    {
+      "reference": "C49",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "R48",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "hot5"
+    },
+    {
+      "reference": "R48",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "hot5_uv_sense"
+    },
+    {
+      "reference": "R49",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "hot5_uv_sense"
+    },
+    {
+      "reference": "R49",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "R50",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "hot5"
+    },
+    {
+      "reference": "R50",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "hot5_uv_raw"
+    },
+    {
+      "reference": "U14",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "hot5_uv_raw"
+    },
+    {
+      "reference": "U14",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "U14",
+      "pin": "3",
+      "old_net": null,
+      "new_net": "hot5_uv_sense"
+    },
+    {
+      "reference": "U14",
+      "pin": "4",
+      "old_net": null,
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "U14",
+      "pin": "5",
+      "old_net": null,
+      "new_net": "v15_ls"
+    },
+    {
+      "reference": "U14",
+      "pin": "6",
+      "old_net": null,
+      "new_net": "outb"
+    },
+    {
+      "reference": "U15",
+      "pin": "1",
+      "old_net": null,
+      "new_net": "u_hot5_schmitt-nc"
+    },
+    {
+      "reference": "U15",
+      "pin": "2",
+      "old_net": null,
+      "new_net": "hot5_uv_raw"
+    },
+    {
+      "reference": "U15",
+      "pin": "3",
+      "old_net": null,
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "U15",
+      "pin": "4",
+      "old_net": null,
+      "new_net": "hot5_ok_hot"
+    },
+    {
+      "reference": "U15",
+      "pin": "5",
+      "old_net": null,
+      "new_net": "hot5"
+    },
+    {
+      "reference": "U5",
+      "pin": "3",
+      "old_net": "nc",
+      "new_net": "u_ref-nc"
+    },
+    {
+      "reference": "U8",
+      "pin": "2",
+      "old_net": "ovp_ok_hot",
+      "new_net": "leg_ret"
+    },
+    {
+      "reference": "U8",
+      "pin": "3",
+      "old_net": "leg_ret",
+      "new_net": "ovp_ok_hot"
+    },
+    {
+      "reference": "U8",
+      "pin": "6",
+      "old_net": null,
+      "new_net": "hot5_ok_hot"
+    }
+  ]
+}

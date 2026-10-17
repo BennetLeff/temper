@@ -1,0 +1,52 @@
+Running FastHenry 3.0.1 (28May12)
+Source code fixes and compilation by FastFieldSolvers, 2012
+  Date: Sun Sep 27 18:19:37 2026
+  Host: Bennets-MacBook-Pro-2.local
+Solution technique: ITERATIVE
+Matrix vector product method: MULTIPOLE
+  Order of expansion: 2
+Preconditioner: ON
+Error tolerance: 0.001
+Reading from file: /Users/bennet/Desktop/temper/worktrees/ps-r3-integration/zapote/power-stage-120v/validation-results/01-switching-parasitics/round3/a2-inductance/fixtures/plane_pair_40.inp
+Title:
+* 10 x 50 mm finite copper plane pair, 0.5 mm dielectric gap
+
+all lengths multiplied by 0.001 to convert to meters
+Total number of filaments before multipole refine: 3320
+Total number of filaments after multipole refine: 3320
+
+Multipole Summary
+  Expansion order: 2
+  Number of partitioning levels: 5
+  Total number of filaments: 3320
+Percentage of multiplies done by multipole: 100%
+Scanning graph to find fundamental circuits...
+Number of Groundplanes : 2 
+Number of filaments:       3320
+Number of segments:        3320
+Number of nodes:           1722
+Number of meshes:          1601
+          ----from tree:                   1 
+          ----from planes: (before holes)  1600 
+Number of conductors:         1   (rows of matrix in Zc.mat) 
+Number of columns:            1   (columns of matrix in Zc.mat) 
+Number of real nodes:      1721
+filling M...
+filling R and L...
+Total Memory allocated: 16939 kilobytes
+Frequency = 1e+07
+Forming sparse matrix preconditioner..
+conductor 0 from node ng140_10
+Calling gmres...
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 
+
+All impedance matrices dumped to file Zc.mat
+
+Times:  Read geometry   0.00074
+        Multipole setup 0.047772
+        Scanning graph  2.5e-05
+        Form A M and Z  0.000157
+        form M'ZM       0
+        Form precond    0.096689
+        GMRES time      0.090172
+   Total:               0.235555

@@ -25,6 +25,7 @@
 #include "hal.h"
 #include "rtd_service.h"
 #include "board_power.h"
+#include "power_service.h"
 #include "../components/safety/safety.h"
 #include "../components/safety/wdi_supervisor.h"
 
@@ -83,6 +84,8 @@ static void control_task(void *arg) {
 
         /* Update state machine (handles PID, PLL internally) */
         state_machine_update();
+
+        power_service_tick();
 
         /* Progress for the WDI supervisor (zapote C42): one loop iteration,
          * and the newest RTD conversion this loop has seen. */
@@ -221,9 +224,13 @@ static void init_peripherals(void) {
     /* Initialize ADC for temperature sensing */
     /* adc_init(); */
     
+    /* Inhibited until a reviewed full-bridge board binding is installed. */
+    power_service_bootstrap();
+
     /* Power-stage side of the controller: gate commands held low, RUN_EN
      * low through power_gate, the PLL and pan-detect capture on CT_ZC. The
-     * native-21 gate generator is TODO(hardware) (board_power.c). */
+     * gate drive belongs to the power owner (power_service.c); its board
+     * binding is TODO(hardware) (board_power.c). */
     board_power_init();
     
     /* Board-owned SPI2/MAX31865 bootstrap. On zapote DRDY is TCA9555 P07,

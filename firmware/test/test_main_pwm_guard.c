@@ -12,6 +12,8 @@ extern void test_integrity_check_measured_pass(void);
 extern void test_integrity_check_measured_fail(void);
 extern void test_integrity_check_corruption(void);
 
+extern void test_guard_programmed_state_failures(void);
+
 int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test_validate_frequency_ok);
@@ -23,5 +25,6 @@ int main(void) {
     RUN_TEST(test_integrity_check_measured_pass);
     RUN_TEST(test_integrity_check_measured_fail);
     RUN_TEST(test_integrity_check_corruption);
+    RUN_TEST(test_guard_programmed_state_failures);
     return UnityEnd();
 }

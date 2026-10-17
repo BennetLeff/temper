@@ -1,0 +1,24 @@
+{
+  "checked_utc_date": "2026-10-05",
+  "source": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-idw40g65c5-ds-en.pdf",
+  "part": "IDW40G65C5",
+  "revision": "2.2, 2013-01-15",
+  "read_method": "official PDF text via web; original remains manufacturer-hosted",
+  "page_4": {
+    "continuous_a_at_case_below_110c": 40,
+    "sine_halfwave_10ms_peak_a_case25c": 182,
+    "sine_halfwave_10ms_peak_a_case150c": 153,
+    "nonrepetitive_10us_peak_a_case25c": 1432,
+    "i2t_a2s_10ms_case25c": 166,
+    "i2t_a2s_10ms_case150c": 118,
+    "reverse_repetitive_v": 650
+  },
+  "page_8_typical_simplified_forward_model": {
+    "current_validity_a_less_than": 80,
+    "temperature_validity_c_open_interval": [-55, 175],
+    "vth_formula_v": "1.04 - 0.001*Tj",
+    "rdiff_formula_ohm": "3.2e-7*Tj^2 + 3.2e-5*Tj + 0.012",
+    "limitations": "Typical simplified forward equation only, not a dynamic/hot-fault or production-limit model. The reduced ODE's ideal diode is not relabeled as this supplier model. Fault waveforms exceeding80A require additional applicable manufacturer data. Waveform-specific pulse ratings cannot be treated as an arbitrary-waveform fuse coordination proof."
+  },
+  "release": false
+}

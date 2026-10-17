@@ -1,0 +1,16 @@
+{
+  "log": "raw/coax-0p35-ams-singular.log",
+  "iterative": true,
+  "screen_scope": "nominal-1A numerical log only; source continuity and full fixture pipeline are separate",
+  "magnetic_energy_J": 1.025604e-05,
+  "nominal_inductance_nH": 20512.08,
+  "analytic_error_pct": 147863.38047158846,
+  "last_hypre_iteration": 2949,
+  "last_hypre_relative_residual": 9.723099,
+  "nominal_log_screen_pass": false,
+  "reasons": [
+    "last Hypre relative residual 9.7231 exceeds 1e-09",
+    "Hypre wrapper reports zero required iterations / norm 1",
+    "coax analytic error 147863.380% exceeds 2%"
+  ]
+}

@@ -1,0 +1,164 @@
+[
+  {
+    "campaign": "rail-qualified",
+    "case": "corner-30-150-1",
+    "step_50ps": {
+      "name": "corner-30-150-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678912,
+        "negmin": -2.250385,
+        "shuntmin": 0.001115108,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "step_25ps": {
+      "name": "refine-rail-qualified-corner-30-150-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678912,
+        "negmin": -2.250386,
+        "shuntmin": 0.001115108,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "negmax_difference_V": 0.0
+  },
+  {
+    "campaign": "rail-qualified",
+    "case": "corner-28-150-1",
+    "step_50ps": {
+      "name": "corner-28-150-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678917,
+        "negmin": -2.250391,
+        "shuntmin": 0.001061207,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "step_25ps": {
+      "name": "refine-rail-qualified-corner-28-150-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678918,
+        "negmin": -2.250392,
+        "shuntmin": 0.001061207,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "negmax_difference_V": 9.999999999177334e-07
+  },
+  {
+    "campaign": "rail-qualified",
+    "case": "corner-94-150-1",
+    "step_50ps": {
+      "name": "corner-94-150-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678917,
+        "negmin": -2.250391,
+        "shuntmin": 0.001115209,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "step_25ps": {
+      "name": "refine-rail-qualified-corner-94-150-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678918,
+        "negmin": -2.250391,
+        "shuntmin": 0.001115209,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "negmax_difference_V": 9.999999999177334e-07
+  },
+  {
+    "campaign": "rail-deep-bias",
+    "case": "corner-30-13-1",
+    "step_50ps": {
+      "name": "corner-30-13-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678614,
+        "negmin": -2.250987,
+        "shuntmin": 0.001089822,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "step_25ps": {
+      "name": "refine-rail-deep-bias-corner-30-13-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678614,
+        "negmin": -2.250988,
+        "shuntmin": 0.001089822,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "negmax_difference_V": 0.0
+  },
+  {
+    "campaign": "rail-deep-bias",
+    "case": "corner-28-13-1",
+    "step_50ps": {
+      "name": "corner-28-13-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.67862,
+        "negmin": -2.250993,
+        "shuntmin": 0.001033006,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "step_25ps": {
+      "name": "refine-rail-deep-bias-corner-28-13-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678621,
+        "negmin": -2.250994,
+        "shuntmin": 0.001033006,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "negmax_difference_V": 9.999999999177334e-07
+  },
+  {
+    "campaign": "rail-deep-bias",
+    "case": "corner-94-13-1",
+    "step_50ps": {
+      "name": "corner-94-13-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678621,
+        "negmin": -2.250994,
+        "shuntmin": 0.001089927,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "step_25ps": {
+      "name": "refine-rail-deep-bias-corner-94-13-1",
+      "complete": true,
+      "measurements": {
+        "negmax": -1.678621,
+        "negmin": -2.250994,
+        "shuntmin": 0.001089928,
+        "shuntmax": 0.001842726
+      },
+      "pass": true
+    },
+    "negmax_difference_V": 0.0
+  }
+]

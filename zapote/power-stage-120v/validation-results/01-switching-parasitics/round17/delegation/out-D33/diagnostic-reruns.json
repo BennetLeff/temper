@@ -1,0 +1,35 @@
+[
+  {
+    "name": "solver-direct",
+    "aborted": false,
+    "failed": [],
+    "measurements": {
+      "vds_ls_die_pk": 200.8435,
+      "vds_hs_die_pk": 477.24,
+      "vgs_ls_die_max": 13.69368,
+      "vgs_ls_die_min": -2.033388,
+      "vgs_hs_die_max": 14.98918,
+      "vgs_hs_die_min": -6.375967,
+      "vgs_ls_off_max": 13.69368,
+      "vgs_hs_off_max": -0.4089802,
+      "vds_hs_at_on": -0.2838424,
+      "vds_ls_at_on": 198.8769,
+      "vgs_ls_at_partner": -2.007777,
+      "vgs_hs_at_partner": -1.8667,
+      "e_l_pre": 1.18473e-06,
+      "e_l_post": 0.000617454,
+      "e_h_pre": 7.1054e-06,
+      "e_h_post": 0.000137397,
+      "st1l_min": 0.002681254,
+      "st1l_max": 0.003080733,
+      "nl_at_edge": -2.000015,
+      "nl_least_negative": -1.907479,
+      "nl_partner_max": -1.907479,
+      "st1h_min": 0.003575633,
+      "st1h_max": 0.004381278,
+      "nh_at_edge": -1.965429,
+      "nh_least_negative": -1.848934,
+      "nh_partner_max": -1.848934
+    }
+  }
+]

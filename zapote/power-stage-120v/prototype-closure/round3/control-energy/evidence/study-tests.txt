@@ -1,0 +1,9 @@
+
+running 4 tests
+test tests::isolated_catch_initial_charge_cannot_be_ignored ... ok
+test tests::single_open_bleed_doubles_discharge_time ... ok
+test tests::parser_rejects_missing_and_nonfinite ... ok
+test tests::tank_energy_matches_separate_storage_terms ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

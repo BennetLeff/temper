@@ -1,0 +1,49 @@
+{
+  "label": "envelope-v198-f35000-r100-e1.06-s0.5",
+  "identity": {
+    "config": {
+      "bus": 198,
+      "freq": 35000,
+      "resistance": 100,
+      "esl": 1.06,
+      "step": 0.5,
+      "cycles": 24,
+      "timeout": 2400,
+      "options": ""
+    },
+    "deck_sha256": "ed533e89139f29463998a026f8bddf91838ae5566f21ba47727aeba480075a34",
+    "vendor_sha256": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "common_options_sha256": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "simulator_sha256": "08c2c84bb215c54b8ba7ea030df71a2dc8fc33504a03180ea56f247d9f693560",
+    "params": {
+      "LP1": "24.5969n",
+      "LP2": "23.8522n",
+      "LP3": "24.2606n",
+      "LP4": "35.6765n",
+      "K12": "0.632482752",
+      "K13": "0.165300953",
+      "K14": "0.185415768",
+      "K23": "0.160678209",
+      "K24": "0.196916347",
+      "K34": "-0.00889872432",
+      "VBUS": "198",
+      "RTANK": "100",
+      "FREQ": "35000",
+      "DT": "443n",
+      "LESL": "1.06n",
+      "TRMAX": "0.5n",
+      "CYCLES": "24"
+    }
+  },
+  "status": "complete",
+  "returncode": 0,
+  "cycle_relative_RMS_change": {
+    "v(swa)": 1.625876475886232e-05,
+    "v(swb)": 1.601808855138803e-05,
+    "bus_current_A": 0.00028271987074310567
+  },
+  "end_time_s": 0.0006877142857142856,
+  "points": 116341,
+  "input_power_estimate_W": 393.54086822847376,
+  "elapsed_seconds": 679.2259314579424
+}

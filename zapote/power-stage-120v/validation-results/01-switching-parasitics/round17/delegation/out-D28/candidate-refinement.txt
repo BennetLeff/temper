@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/bennet/.codex/worktrees/ps-r17-d28-phase/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D28/run.py", line 127, in <module>
+    main()
+  File "/Users/bennet/.codex/worktrees/ps-r17-d28-phase/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D28/run.py", line 122, in main
+    cases=json.loads(args.campaign.read_text())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Miniforge3/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Miniforge3/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'candidate-refinement.json'

@@ -1,0 +1,17 @@
+lint-imports report: 5 kept, 0 broken (exit code 0).
+Import boundary enforcement — violations will block PR merge.
+
+Import boundary gate PASSED — 0 new violations
+
+D9 targeted evidence command (PASS, exit 0):
+PYTHONDONTWRITEBYTECODE=1 /Users/bennet/miniforge3/bin/python zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D9/reproduce.py
+Output: evidence.json. Exercises reviewed functions and matrix/correction CLIs;
+expensive simulator/campaign commands are stubbed, no FEM or SPICE execution.
+
+Import gate command (PASS, exit 0):
+PATH=/private/tmp/temper-r17-audit-tools/bin:$PATH PYTHONPATH=packages/temper-placer/src PYTHONDONTWRITEBYTECODE=1 /private/tmp/temper-r17-audit-tools/bin/python scripts/import_linter_gate.py
+
+Derived-artifact command (PASS, exit 0; full output in regen-check.txt):
+PYTHONDONTWRITEBYTECODE=1 /Users/bennet/miniforge3/bin/python scripts/regen_derived.py --check
+Mutating make regen deliberately not run: user limits writes to out-D9.
+No firmware, Rust, native bridge or extension build; review evidence only.

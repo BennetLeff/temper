@@ -1,0 +1,7 @@
+{
+  "ct_rows": 108,
+  "shunt_rows": 25,
+  "ct_conditional_max_abs_a": 61.148163887861074,
+  "shunt_conditional_max_a": 429.6062799679725,
+  "status": "20 mV plus 55 ns is conditional only: datasheet uses 20 mV step and 15 pF load, not arbitrary ramp"
+}

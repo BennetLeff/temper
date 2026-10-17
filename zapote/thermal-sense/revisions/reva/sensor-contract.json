@@ -1,0 +1,33 @@
+{
+  "schema": "zapote.thermal.sensor-contract.v1",
+  "mpn": "NTCALUG01A104GA",
+  "off_board": true,
+  "r25_ohm": 100000.0,
+  "r25_tolerance": 0.02,
+  "beta_k": 4190.0,
+  "beta_tolerance": 0.015,
+  "beta_interval_c": [
+    25.0,
+    85.0
+  ],
+  "temperature_rating_c": [
+    -55.0,
+    150.0
+  ],
+  "supply_v": [
+    3.135,
+    3.465
+  ],
+  "channels": {
+    "hs": {
+      "nominal_trip_c": 85.0,
+      "nominal_release_c": 70.0
+    },
+    "coil": {
+      "nominal_trip_c": 120.0,
+      "nominal_release_c": 100.0
+    }
+  },
+  "qualification": "indeterminate",
+  "temperature_rating_scope": "sensor assembly without connector"
+}

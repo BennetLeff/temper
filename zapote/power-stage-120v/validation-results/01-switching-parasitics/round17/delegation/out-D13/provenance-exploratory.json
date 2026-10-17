@@ -1,0 +1,12 @@
+{
+  "purpose": "Exploratory transfer only; no solver qualification; original campaign retained.",
+  "shared_physics_and_runner": "provenance-refine.json",
+  "changed_option": "itl4 200 -> 1000 or 10000; all tolerances and circuit unchanged",
+  "input_hashes": {
+    "exploratory.py": "c16790f40f84fb1ed8145407f3c5a5f58e872761e8738465312eb5204ad3ca2b",
+    "run.py": "852fc1f472fabdd01773f48efd5425ee39f32d8a482a1610fb190da1c6a50caa",
+    "decks/F6.cir": "ff3d358c5bba420dd27024126dc46f13707bd61859cdd3c9bb9ab93397d652b5",
+    "decks/F6-itl4-1000.cir": "a30acab8d31f582c44badc2188dbf276f2e1ffeabc2d5569d8ecd6e90522692f",
+    "decks/F6-itl4-10000.cir": "98fe956ecbb5d04ea0ef4ce64af9acec34a1ce6fea3263f84d4d1b4784b086fb"
+  }
+}

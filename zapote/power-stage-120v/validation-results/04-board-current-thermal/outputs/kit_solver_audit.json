@@ -1,0 +1,37 @@
+{
+  "kit_path": "/Users/bennet/Desktop/temper/worktrees/ps-sim-04/zapote/power-stage-120v/validation-plan/sim-kit/04-current/sheet_solver.py",
+  "four_layer_via": {
+    "kit_ohm": 0.001743310868097037,
+    "analytic_ohm": 0.0005811036226990141,
+    "ratio": 2.9999999999999907,
+    "current_edges_a": [
+      0.9999999999999991,
+      0.9999999999999972,
+      0.9999999999999946
+    ]
+  },
+  "unequal_sources": {
+    "kit_ohm": 0.003501961524227167,
+    "power_equivalent_ohm": 0.0028996410161514796,
+    "ratio": 1.2077224403712952,
+    "source_volts": [
+      0.007003923048454334,
+      0.004594641016151584
+    ]
+  },
+  "outside_copper_snap": {
+    "point_mm": [
+      1.1,
+      0.25
+    ],
+    "covered_by_polygon": false,
+    "accepted_node": 2
+  },
+  "disconnected_region": {
+    "resistance_ohm": "NaN",
+    "matrix_rank_warnings": [
+      "Matrix is exactly singular"
+    ]
+  },
+  "audit_reproduced": true
+}

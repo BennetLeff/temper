@@ -1,0 +1,528 @@
+{
+  "status": "NOMINAL_GEOMETRY_ONLY",
+  "cadquery": "2.6.1",
+  "source_step": "/Users/bennet/Desktop/temper/worktrees/mit-product-guidance/output/temper-prototype-closure/round3/packaging/r4-barrier-design-only.step",
+  "source_step_sha256": "5921406f7249cf716cdd2d20be8ae79215760f20cce1f01dda443be85356c1fa",
+  "named_shapes": 461,
+  "instrument_checks": "PASS",
+  "custom_sink_and_fans_intersections": [
+    {
+      "new": "BASE_R2_CUSTOM_SINK",
+      "context": "BASE_R2_SINK_M3_LEFT_22",
+      "volume_mm3": 12.95906969605786
+    },
+    {
+      "new": "BASE_R2_CUSTOM_SINK",
+      "context": "BASE_R2_SINK_M3_LEFT_62",
+      "volume_mm3": 12.959069696057853
+    },
+    {
+      "new": "BASE_R2_CUSTOM_SINK",
+      "context": "BASE_R2_SINK_M3_RIGHT_22",
+      "volume_mm3": 12.959069696057863
+    },
+    {
+      "new": "BASE_R2_CUSTOM_SINK",
+      "context": "BASE_R2_SINK_M3_RIGHT_62",
+      "volume_mm3": 12.959069696057853
+    }
+  ],
+  "retained_duct_intersections": [],
+  "left_exhaust_air_obstacles": [],
+  "distance_to_bottom_and_sidewalls_mm": {
+    "BASE_R2_CUSTOM_SINK": 2.0,
+    "BASE_R2_RIGHT_PUSH_FAN": 2.0,
+    "BASE_R2_LEFT_PULL_FAN": 2.0,
+    "D22": 2.0
+  },
+  "Fischer_LA6_body_plus_one_right_fan": {
+    "upright": {
+      "envelopes_mm": {
+        "body": [
+          -112.0,
+          99.9,
+          12.0,
+          88.0,
+          161.9,
+          86.0
+        ],
+        "right_fan": [
+          88.0,
+          99.9,
+          12.0,
+          113.0,
+          159.9,
+          72.0
+        ]
+      },
+      "envelope_intersections": [
+        {
+          "new": "body",
+          "context": "BASE_R4_coil_support_flat_routed_plate",
+          "volume_mm3": 207.0957611598879
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_DUCT_TOP",
+          "volume_mm3": 8639.99999999997
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_L20_PEEK_LOWER_SHOE",
+          "volume_mm3": 13.30695000000008
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_LEFT_22",
+          "volume_mm3": 42.41150082346218
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_LEFT_62",
+          "volume_mm3": 42.41150082346217
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_RIGHT_22",
+          "volume_mm3": 42.41150082346218
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_RIGHT_62",
+          "volume_mm3": 42.41150082346217
+        },
+        {
+          "new": "body",
+          "context": "PROPOSAL_ROOF",
+          "volume_mm3": 2370.0000000000014
+        },
+        {
+          "new": "body",
+          "context": "PROPOSAL_FRONT_PROFILE",
+          "volume_mm3": 3000.0
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+          "volume_mm3": 611.6831889245016
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_SINK_M3_RIGHT_22",
+          "volume_mm3": 78.41151399890333
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_SINK_M3_RIGHT_62",
+          "volume_mm3": 78.41151399890336
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_RIGHT_DUCT",
+          "volume_mm3": 90.59199999999994
+        },
+        {
+          "new": "right_fan",
+          "context": "PROPOSAL_FRONT_PROFILE",
+          "volume_mm3": 2056.167036504464
+        }
+      ]
+    },
+    "rotated": {
+      "envelopes_mm": {
+        "body": [
+          -112.0,
+          87.9,
+          12.0,
+          88.0,
+          161.9,
+          74.0
+        ],
+        "right_fan": [
+          88.0,
+          87.9,
+          12.0,
+          113.0,
+          147.9,
+          72.0
+        ]
+      },
+      "envelope_intersections": [
+        {
+          "new": "body",
+          "context": "BASE_R4_front_lid_M3x10_-103.0_87.0",
+          "volume_mm3": 56.03565654274448
+        },
+        {
+          "new": "body",
+          "context": "BASE_R4_front_lid_sealing_washer_-103.0_87.0",
+          "volume_mm3": 1.7545010406362431
+        },
+        {
+          "new": "body",
+          "context": "BASE_R4_front_lid_M3x10_33.0_87.0",
+          "volume_mm3": 56.03565654274202
+        },
+        {
+          "new": "body",
+          "context": "BASE_R4_front_lid_sealing_washer_33.0_87.0",
+          "volume_mm3": 1.7545010406362473
+        },
+        {
+          "new": "body",
+          "context": "BASE_R4_front_rear_lid",
+          "volume_mm3": 7.315605273684612
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_DUCT_TOP",
+          "volume_mm3": 9599.999999999965
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_L20_PEEK_LOWER_SHOE",
+          "volume_mm3": 13.30695000000008
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_LEFT_22",
+          "volume_mm3": 42.41150082346218
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_LEFT_62",
+          "volume_mm3": 42.41150082346217
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_RIGHT_22",
+          "volume_mm3": 42.41150082346218
+        },
+        {
+          "new": "body",
+          "context": "BASE_R2_SINK_M3_RIGHT_62",
+          "volume_mm3": 42.41150082346217
+        },
+        {
+          "new": "body",
+          "context": "PROPOSAL_FRONT_PROFILE",
+          "volume_mm3": 600.0
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_RIGHT_DUCT",
+          "volume_mm3": 38.1440000000004
+        }
+      ]
+    }
+  },
+  "source_adapters_sha256": {
+    "zapote/power-stage-120v/prototype-closure/round3/packaging/build_proposal.py": "c9f226d77f834bb5d9a256e77d2e2be7483ee4cc07acf7d009434d9444df6f0b",
+    "zapote/power-stage-120v/prototype-closure/round2/cooling/build_revision.py": "58fa37e7f9f4f9a243847da9a242dfaaff96980e4b8c18344797560368287126",
+    "zapote/power-stage-120v/prototype-closure/round2/cooling/interface.json": "0092d401cbafd5656d4ab4b2c31f55da0ef71971569fbaffcbda64e69290e438",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/scripts/mesh25d_hybrid.py": "60f3c94cac7a869bb59870587d6cae1d3a3adc941fc8edba1f511147314a52be"
+  },
+  "D22": {
+    "bounds_mm": [
+      -140.0,
+      332.0,
+      12.0,
+      -30.0,
+      412.0,
+      62.0
+    ],
+    "context_intersections": [],
+    "left_exhaust_air_distance_mm": 1.0,
+    "left_exhaust_air_intersection_mm3": 0.0,
+    "left_duct_wall_distance_mm": 0.19999999999998863,
+    "regions": {
+      "A": {
+        "bounds_mm": [
+          -4.635000000000005,
+          146.215,
+          0.0,
+          74.1,
+          223.125,
+          120.0
+        ],
+        "D22_distance_mm": 111.79064741739356,
+        "D22_intersection_mm3": 0.0
+      },
+      "B": {
+        "bounds_mm": [
+          -42.099999999999994,
+          146.215,
+          0.0,
+          36.635000000000005,
+          223.125,
+          120.0
+        ],
+        "D22_distance_mm": 108.875,
+        "D22_intersection_mm3": 0.0
+      }
+    }
+  },
+  "catalog_SFA2B1L_with_two_fans": {
+    "upright": {
+      "envelopes_mm": {
+        "sink": [
+          -164.5,
+          101.9,
+          12.0,
+          140.5,
+          161.9,
+          80.0
+        ],
+        "left_fan": [
+          -189.5,
+          101.9,
+          12.0,
+          -164.5,
+          161.9,
+          72.0
+        ],
+        "right_fan": [
+          140.5,
+          101.9,
+          12.0,
+          165.5,
+          161.9,
+          72.0
+        ]
+      },
+      "envelope_intersections": [
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_DUCT_TOP",
+          "volume_mm3": 8319.999999999969
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_L20_PEEK_LOWER_SHOE",
+          "volume_mm3": 28.60695000000018
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+          "volume_mm3": 1247.3663778490022
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_LEFT_22",
+          "volume_mm3": 127.82355109293549
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_LEFT_62",
+          "volume_mm3": 127.82355109293552
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_RIGHT_22",
+          "volume_mm3": 127.82355109293549
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_RIGHT_62",
+          "volume_mm3": 127.82355109293549
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_FLOOR_MOUNT_SCREW_5",
+          "volume_mm3": 50.265482457436725
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_CRADLE_M4_NUT_5",
+          "volume_mm3": 89.7945720212322
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_FLOOR_MOUNT_SCREW_7",
+          "volume_mm3": 49.93071406755678
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_CRADLE_M4_NUT_7",
+          "volume_mm3": 69.9107697322689
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_LEFT_DUCT",
+          "volume_mm3": 3222.9600000000096
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_RIGHT_DUCT",
+          "volume_mm3": 3738.192000000018
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_DEDICATED_PE_STUD",
+          "volume_mm3": 187.24017775333715
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_PE_BOND_ROUTE_ALLOCATION",
+          "volume_mm3": 53.28959624069494
+        },
+        {
+          "new": "sink",
+          "context": "PROPOSAL_LEFT_WALL",
+          "volume_mm3": 798.0928836109516
+        },
+        {
+          "new": "sink",
+          "context": "PROPOSAL_FRONT_PROFILE",
+          "volume_mm3": 7891.2368896092685
+        },
+        {
+          "new": "left_fan",
+          "context": "BASE_R4_two_bend_bottom_and_sides",
+          "volume_mm3": 7201.379045864787
+        },
+        {
+          "new": "left_fan",
+          "context": "BASE_R2_LEFT_DUCT",
+          "volume_mm3": 4348.800000000039
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_RIGHT_DUCT",
+          "volume_mm3": 2800.7679999999964
+        },
+        {
+          "new": "right_fan",
+          "context": "PROPOSAL_FRONT_PROFILE",
+          "volume_mm3": 87.9
+        }
+      ]
+    },
+    "rotated": {
+      "envelopes_mm": {
+        "sink": [
+          -164.5,
+          93.9,
+          12.0,
+          140.5,
+          161.9,
+          72.0
+        ],
+        "left_fan": [
+          -189.5,
+          93.9,
+          12.0,
+          -164.5,
+          153.9,
+          72.0
+        ],
+        "right_fan": [
+          140.5,
+          93.9,
+          12.0,
+          165.5,
+          153.9,
+          72.0
+        ]
+      },
+      "envelope_intersections": [
+        {
+          "new": "sink",
+          "context": "BASE_R2_L20_PEEK_LOWER_SHOE",
+          "volume_mm3": 28.60695000000018
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_CRADLE_CHASSIS_MOUNT",
+          "volume_mm3": 1247.3663778490004
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_LEFT_22",
+          "volume_mm3": 127.82355109293549
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_LEFT_62",
+          "volume_mm3": 127.82355109293552
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_RIGHT_22",
+          "volume_mm3": 127.82355109293549
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_M3_RIGHT_62",
+          "volume_mm3": 127.82355109293549
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_FLOOR_MOUNT_SCREW_5",
+          "volume_mm3": 50.265482457436725
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_CRADLE_M4_NUT_5",
+          "volume_mm3": 89.7945720212322
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_FLOOR_MOUNT_SCREW_7",
+          "volume_mm3": 49.93071406755678
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_CRADLE_M4_NUT_7",
+          "volume_mm3": 69.9107697322689
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_LEFT_DUCT",
+          "volume_mm3": 3574.9600000000137
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_RIGHT_DUCT",
+          "volume_mm3": 4090.1920000000146
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_SINK_DEDICATED_PE_STUD",
+          "volume_mm3": 187.24017775333715
+        },
+        {
+          "new": "sink",
+          "context": "BASE_R2_PE_BOND_ROUTE_ALLOCATION",
+          "volume_mm3": 53.28959624069494
+        },
+        {
+          "new": "sink",
+          "context": "PROPOSAL_LEFT_WALL",
+          "volume_mm3": 703.2928836109518
+        },
+        {
+          "new": "sink",
+          "context": "PROPOSAL_FRONT_PROFILE",
+          "volume_mm3": 4705.236889609348
+        },
+        {
+          "new": "left_fan",
+          "context": "BASE_R4_two_bend_bottom_and_sides",
+          "volume_mm3": 7201.379045864787
+        },
+        {
+          "new": "left_fan",
+          "context": "BASE_R2_LEFT_DUCT",
+          "volume_mm3": 4348.800000000038
+        },
+        {
+          "new": "right_fan",
+          "context": "BASE_R2_RIGHT_DUCT",
+          "volume_mm3": 2400.000000000002
+        }
+      ]
+    }
+  },
+  "scope": "Round3 R4 barrier STEP; later boards/catch/service wiring not assembled here. Catalog bodies are filled allocation boxes, not fin geometry. No pose optimization."
+}

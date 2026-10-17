@@ -1,0 +1,1845 @@
+{
+  "campaigns": {
+    "screen-3p-0p125n": {
+      "cases": 504,
+      "complete": 299,
+      "indeterminate": 205,
+      "candidate_pass": 299,
+      "max_off_V": 1.020663,
+      "max_die_VDS_V": 492.0922,
+      "least_negative_partner_window_V": -1.788605,
+      "results_sha256": "ec59c1b00c6cf4905adda0789e7689584a1aac0f1a7e8fdc700e89a45333faff"
+    },
+    "klu-3p-0p125n": {
+      "cases": 504,
+      "complete": 171,
+      "indeterminate": 333,
+      "candidate_pass": 171,
+      "max_off_V": 1.003374,
+      "max_die_VDS_V": 480.0848,
+      "least_negative_partner_window_V": -1.800385,
+      "results_sha256": "83e983d72acea43a163a04fcb43bcf77d05caf3b5fc8cd6f300dd37b4c773500"
+    }
+  },
+  "solver_comparison": {
+    "complete_in_both": 147,
+    "indeterminate_in_both": 181,
+    "max_off_difference_V": 0.001032300000000097,
+    "max_die_VDS_difference_V": 0.36959999999999127,
+    "max_partner_rail_difference_V": 0.00018399999999996197,
+    "candidate_verdict_disagreements": 0,
+    "still_indeterminate_cases": [
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 0,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 0,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 198,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S4",
+        "vbus": 280,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S1",
+        "vbus": 198,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S1",
+        "vbus": 280,
+        "il": 37,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S4",
+        "vbus": 170,
+        "il": -20,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S2",
+        "vbus": 280,
+        "il": 71,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "A",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 27,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 0,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 100,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 170,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 198,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 391,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 443,
+        "esl_nH": 10
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 1.06
+      },
+      {
+        "leg": "B",
+        "temp_C": 150,
+        "case": "S5",
+        "vbus": 280,
+        "il": 0,
+        "dir": 1,
+        "dt_ns": 498,
+        "esl_nH": 10
+      }
+    ]
+  },
+  "scope": "loaded local shunt rail and Thevenin upstream regulator; not full supply qualification"
+}

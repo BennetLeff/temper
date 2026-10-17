@@ -1,0 +1,76 @@
+{
+  "schema": "temper.power-stage-120v.review-receipt.v1",
+  "status": "prototype routing review; renewed D4 pending",
+  "board_sha256": "500cdb4b9f3491bfed2535099ad0ed2a59a461f12dd79a7aeedae18014b0f3fe",
+  "source_revision_parent": "49eb100b0",
+  "source_dirty_at_measurement": true,
+  "runtime": "KiCad 10.0.4; saved-board gates in Rust; native pcbnew adapters",
+  "agents": "gpt-6-sol, xhigh; isolated auxiliary routing and independent reviews",
+  "outline_mm": [
+    240,
+    160
+  ],
+  "copper_layers": 4,
+  "nominal_copper_um": [
+    70,
+    70,
+    70,
+    70
+  ],
+  "nominal_thickness_mm": 1.6,
+  "components": 114,
+  "source_nets": 75,
+  "source_pins": 313,
+  "copper_pads": 333,
+  "tracks": 560,
+  "vias": 141,
+  "drc": {
+    "sample_count": 3,
+    "board_unchanged": true,
+    "copper_violations_each": [
+      0,
+      0,
+      0
+    ],
+    "schematic_parity_each": [
+      0,
+      0,
+      0
+    ],
+    "unconnected_each": [
+      1,
+      1,
+      1
+    ],
+    "exception": "R5 internal LEG_RET current/sense connection; pad clusters retained",
+    "warnings_each": {
+      "lib_footprint_mismatch": 28,
+      "silk_overlap": 3
+    }
+  },
+  "barrier": {
+    "floor_mm": 8,
+    "violations": 0,
+    "cross_layer": 0
+  },
+  "terminal_hardware": {
+    "normal_surface_hits": 0,
+    "bring_up_surface_hits": 0,
+    "basis": "provisional plan-view envelopes, not measured assembly"
+  },
+  "erc": {
+    "errors": 0,
+    "warnings": 238
+  },
+  "tests": {
+    "source_audit": 48,
+    "board_tests": 43,
+    "rust_workspace": 325
+  },
+  "import_boundaries": "5 kept, 0 broken",
+  "derived_artifacts": "consistent",
+  "shared_unit_check": "indeterminate on 5 unchanged units; see linked evidence, not a passing suite",
+  "physical_tests": "NOT RUN",
+  "d4": "renewed written placement/routing review pending",
+  "fabrication": "not released"
+}

@@ -1,0 +1,1538 @@
+[
+  {
+    "name": "hot-load-1-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666829,
+      "negmin": -2.324146,
+      "shuntmin": 0.03220101,
+      "shuntmax": 0.0410338,
+      "negmax": -1.940387
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-1-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677432,
+      "negmin": -2.324146,
+      "shuntmin": 0.0334506,
+      "shuntmax": 0.03970769,
+      "negmax": -1.950472
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-3-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666834,
+      "negmin": -2.324146,
+      "shuntmin": 0.03221178,
+      "shuntmax": 0.04102559,
+      "negmax": -1.940391
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-3-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677442,
+      "negmin": -2.324146,
+      "shuntmin": 0.03348282,
+      "shuntmax": 0.03967635,
+      "negmax": -1.950476
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-5-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.6669,
+      "negmin": -2.324146,
+      "shuntmin": 0.03414485,
+      "shuntmax": 0.03716042,
+      "negmax": -1.940476
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-5-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677234,
+      "negmin": -2.324146,
+      "shuntmin": 0.0344495,
+      "shuntmax": 0.03681764,
+      "negmax": -1.950272
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-7-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666906,
+      "negmin": -2.324146,
+      "shuntmin": 0.03414841,
+      "shuntmax": 0.03715695,
+      "negmax": -1.940476
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-7-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677236,
+      "negmin": -2.324146,
+      "shuntmin": 0.03445766,
+      "shuntmax": 0.03680964,
+      "negmax": -1.950273
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-9-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643355,
+      "negmin": -2.302996,
+      "shuntmin": 0.02372474,
+      "shuntmax": 0.05728184,
+      "negmax": -1.916928
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-9-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65496,
+      "negmin": -2.302996,
+      "shuntmin": 0.02887625,
+      "shuntmax": 0.05204059,
+      "negmax": -1.927933
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-11-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.643371,
+      "negmin": -2.302996,
+      "shuntmin": 0.02374596,
+      "shuntmax": 0.05730248,
+      "negmax": -1.916882
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-11-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654965,
+      "negmin": -2.302996,
+      "shuntmin": 0.02900373,
+      "shuntmax": 0.05194784,
+      "negmax": -1.927929
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-13-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645133,
+      "negmin": -2.302996,
+      "shuntmin": 0.03162106,
+      "shuntmax": 0.0418097,
+      "negmax": -1.918647
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-13-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.655719,
+      "negmin": -2.302996,
+      "shuntmin": 0.0329334,
+      "shuntmax": 0.0404548,
+      "negmax": -1.928753
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-15-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645124,
+      "negmin": -2.302996,
+      "shuntmin": 0.03163363,
+      "shuntmax": 0.04179861,
+      "negmax": -1.918646
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-15-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.655716,
+      "negmin": -2.302996,
+      "shuntmin": 0.03296754,
+      "shuntmax": 0.04042308,
+      "negmax": -1.928766
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-17-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.672582,
+      "negmin": -2.324597,
+      "shuntmin": 0.03163759,
+      "shuntmax": 0.04290767,
+      "negmax": -1.943436
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-17-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681702,
+      "negmin": -2.324597,
+      "shuntmin": 0.0333551,
+      "shuntmax": 0.04100764,
+      "negmax": -1.952291
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-19-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.672593,
+      "negmin": -2.324597,
+      "shuntmin": 0.03165868,
+      "shuntmax": 0.04288873,
+      "negmax": -1.943446
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-19-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681711,
+      "negmin": -2.324597,
+      "shuntmin": 0.03339523,
+      "shuntmax": 0.04096727,
+      "negmax": -1.952297
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-21-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.672774,
+      "negmin": -2.324597,
+      "shuntmin": 0.03407701,
+      "shuntmax": 0.03744739,
+      "negmax": -1.943636
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-21-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681593,
+      "negmin": -2.324597,
+      "shuntmin": 0.03449441,
+      "shuntmax": 0.0369979,
+      "negmax": -1.952184
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-23-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.672785,
+      "negmin": -2.324597,
+      "shuntmin": 0.03408315,
+      "shuntmax": 0.03744126,
+      "negmax": -1.943631
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-23-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681587,
+      "negmin": -2.324597,
+      "shuntmin": 0.03450463,
+      "shuntmax": 0.03698781,
+      "negmax": -1.952176
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-25-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646878,
+      "negmin": -2.303447,
+      "shuntmin": 0.02127352,
+      "shuntmax": 0.06405572,
+      "negmax": -1.917703
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-25-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656884,
+      "negmin": -2.303447,
+      "shuntmin": 0.02848806,
+      "shuntmax": 0.05633587,
+      "negmax": -1.927499
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-27-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646908,
+      "negmin": -2.303447,
+      "shuntmin": 0.02133472,
+      "shuntmax": 0.06406181,
+      "negmax": -1.917719
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-27-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656908,
+      "negmin": -2.303447,
+      "shuntmin": 0.02864661,
+      "shuntmax": 0.05622739,
+      "negmax": -1.927502
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-29-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650525,
+      "negmin": -2.303447,
+      "shuntmin": 0.03135115,
+      "shuntmax": 0.04362253,
+      "negmax": -1.921384
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-29-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.659641,
+      "negmin": -2.303447,
+      "shuntmin": 0.03312383,
+      "shuntmax": 0.04198115,
+      "negmax": -1.930197
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-31-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.650514,
+      "negmin": -2.303447,
+      "shuntmin": 0.03137417,
+      "shuntmax": 0.04359628,
+      "negmax": -1.921381
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-31-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65965,
+      "negmin": -2.303447,
+      "shuntmin": 0.03316479,
+      "shuntmax": 0.04194302,
+      "negmax": -1.930199
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-33-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.66693,
+      "negmin": -2.323722,
+      "shuntmin": 0.03345731,
+      "shuntmax": 0.03919207,
+      "negmax": -1.970527
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-33-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669587,
+      "negmin": -2.323722,
+      "shuntmin": 0.03420256,
+      "shuntmax": 0.03844458,
+      "negmax": -1.973124
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-35-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666933,
+      "negmin": -2.323722,
+      "shuntmin": 0.03346958,
+      "shuntmax": 0.03918192,
+      "negmax": -1.97053
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-35-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669589,
+      "negmin": -2.323722,
+      "shuntmin": 0.03422115,
+      "shuntmax": 0.0384278,
+      "negmax": -1.973126
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-37-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666784,
+      "negmin": -2.323722,
+      "shuntmin": 0.03447876,
+      "shuntmax": 0.03675959,
+      "negmax": -1.970362
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-37-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669365,
+      "negmin": -2.323722,
+      "shuntmin": 0.03464737,
+      "shuntmax": 0.03655211,
+      "negmax": -1.97291
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-39-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666763,
+      "negmin": -2.323722,
+      "shuntmin": 0.03448218,
+      "shuntmax": 0.03675622,
+      "negmax": -1.970378
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-39-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669367,
+      "negmin": -2.323722,
+      "shuntmin": 0.03465209,
+      "shuntmax": 0.03654764,
+      "negmax": -1.972907
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-41-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644906,
+      "negmin": -2.302572,
+      "shuntmin": 0.02879022,
+      "shuntmax": 0.05048653,
+      "negmax": -1.948479
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-41-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647751,
+      "negmin": -2.302572,
+      "shuntmin": 0.03190736,
+      "shuntmax": 0.04698278,
+      "negmax": -1.951286
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-43-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64491,
+      "negmin": -2.302572,
+      "shuntmin": 0.02883542,
+      "shuntmax": 0.05044724,
+      "negmax": -1.948522
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-43-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647731,
+      "negmin": -2.302572,
+      "shuntmin": 0.03198041,
+      "shuntmax": 0.04692934,
+      "negmax": -1.951269
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-45-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645244,
+      "negmin": -2.302572,
+      "shuntmin": 0.03287496,
+      "shuntmax": 0.0402965,
+      "negmax": -1.94881
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-45-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647901,
+      "negmin": -2.302572,
+      "shuntmin": 0.03364021,
+      "shuntmax": 0.03948624,
+      "negmax": -1.951426
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-47-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645227,
+      "negmin": -2.302572,
+      "shuntmin": 0.03288765,
+      "shuntmax": 0.04028483,
+      "negmax": -1.948815
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-47-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647901,
+      "negmin": -2.302572,
+      "shuntmin": 0.03365804,
+      "shuntmax": 0.03946903,
+      "negmax": -1.951416
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-49-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668446,
+      "negmin": -2.324173,
+      "shuntmin": 0.03334509,
+      "shuntmax": 0.04009811,
+      "negmax": -1.971325
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-49-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670302,
+      "negmin": -2.324173,
+      "shuntmin": 0.03417442,
+      "shuntmax": 0.03925971,
+      "negmax": -1.973157
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-51-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.66845,
+      "negmin": -2.324173,
+      "shuntmin": 0.03336102,
+      "shuntmax": 0.04008572,
+      "negmax": -1.971326
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-51-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670306,
+      "negmin": -2.324173,
+      "shuntmin": 0.03419489,
+      "shuntmax": 0.03924139,
+      "negmax": -1.973157
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-53-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668362,
+      "negmin": -2.324173,
+      "shuntmin": 0.03450973,
+      "shuntmax": 0.03691432,
+      "negmax": -1.971226
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-53-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670161,
+      "negmin": -2.324173,
+      "shuntmin": 0.03469895,
+      "shuntmax": 0.03669102,
+      "negmax": -1.973012
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-55-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668357,
+      "negmin": -2.324173,
+      "shuntmin": 0.03451437,
+      "shuntmax": 0.03691042,
+      "negmax": -1.971232
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-55-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670158,
+      "negmin": -2.324173,
+      "shuntmin": 0.03470371,
+      "shuntmax": 0.0366861,
+      "negmax": -1.973008
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-57-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645324,
+      "negmin": -2.303023,
+      "shuntmin": 0.02802044,
+      "shuntmax": 0.05294934,
+      "negmax": -1.948192
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-57-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647276,
+      "negmin": -2.303023,
+      "shuntmin": 0.03142223,
+      "shuntmax": 0.04933609,
+      "negmax": -1.950133
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-59-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645321,
+      "negmin": -2.303023,
+      "shuntmin": 0.02806865,
+      "shuntmax": 0.05289239,
+      "negmax": -1.948195
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-59-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647276,
+      "negmin": -2.303023,
+      "shuntmin": 0.0314918,
+      "shuntmax": 0.04928052,
+      "negmax": -1.95016
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-61-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646467,
+      "negmin": -2.303023,
+      "shuntmin": 0.03302437,
+      "shuntmax": 0.04131335,
+      "negmax": -1.94934
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-61-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648344,
+      "negmin": -2.303023,
+      "shuntmin": 0.03387102,
+      "shuntmax": 0.04045458,
+      "negmax": -1.951173
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-63-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646483,
+      "negmin": -2.303023,
+      "shuntmin": 0.0330411,
+      "shuntmax": 0.04129746,
+      "negmax": -1.949337
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-63-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648324,
+      "negmin": -2.303023,
+      "shuntmin": 0.03389115,
+      "shuntmax": 0.04043574,
+      "negmax": -1.951154
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-65-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666323,
+      "negmin": -2.324146,
+      "shuntmin": 0.03219459,
+      "shuntmax": 0.04086317,
+      "negmax": -1.939871
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-65-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677342,
+      "negmin": -2.324146,
+      "shuntmin": 0.03345093,
+      "shuntmax": 0.03954197,
+      "negmax": -1.950375
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-67-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666324,
+      "negmin": -2.324146,
+      "shuntmin": 0.03220428,
+      "shuntmax": 0.04085749,
+      "negmax": -1.939871
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-67-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677348,
+      "negmin": -2.324146,
+      "shuntmin": 0.03348321,
+      "shuntmax": 0.03951217,
+      "negmax": -1.950374
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-69-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666653,
+      "negmin": -2.324146,
+      "shuntmin": 0.03427915,
+      "shuntmax": 0.03668674,
+      "negmax": -1.940215
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-69-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677399,
+      "negmin": -2.324146,
+      "shuntmin": 0.0345877,
+      "shuntmax": 0.03634914,
+      "negmax": -1.950436
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-71-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666654,
+      "negmin": -2.324146,
+      "shuntmin": 0.03428268,
+      "shuntmax": 0.03668341,
+      "negmax": -1.940219
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-71-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.677402,
+      "negmin": -2.324146,
+      "shuntmin": 0.0345961,
+      "shuntmax": 0.03634081,
+      "negmax": -1.950438
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-73-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642339,
+      "negmin": -2.302996,
+      "shuntmin": 0.02369511,
+      "shuntmax": 0.05663414,
+      "negmax": -1.915819
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-73-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654185,
+      "negmin": -2.302996,
+      "shuntmin": 0.02886762,
+      "shuntmax": 0.0514384,
+      "negmax": -1.92719
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-75-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.642363,
+      "negmin": -2.302996,
+      "shuntmin": 0.02371194,
+      "shuntmax": 0.05666307,
+      "negmax": -1.915823
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-75-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.654231,
+      "negmin": -2.302996,
+      "shuntmin": 0.02899343,
+      "shuntmax": 0.05134957,
+      "negmax": -1.927226
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-77-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644997,
+      "negmin": -2.302996,
+      "shuntmin": 0.03207149,
+      "shuntmax": 0.04144752,
+      "negmax": -1.918527
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-77-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656022,
+      "negmin": -2.302996,
+      "shuntmin": 0.03339424,
+      "shuntmax": 0.04003689,
+      "negmax": -1.92904
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-79-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645012,
+      "negmin": -2.302996,
+      "shuntmin": 0.03208462,
+      "shuntmax": 0.04143611,
+      "negmax": -1.918533
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-79-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656005,
+      "negmin": -2.302996,
+      "shuntmin": 0.03342874,
+      "shuntmax": 0.0400058,
+      "negmax": -1.929053
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-81-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.671796,
+      "negmin": -2.324597,
+      "shuntmin": 0.03163207,
+      "shuntmax": 0.04281592,
+      "negmax": -1.942572
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-81-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681077,
+      "negmin": -2.324597,
+      "shuntmin": 0.03335931,
+      "shuntmax": 0.04090927,
+      "negmax": -1.951639
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-83-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.671798,
+      "negmin": -2.324597,
+      "shuntmin": 0.03165264,
+      "shuntmax": 0.04279845,
+      "negmax": -1.942626
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-83-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.68104,
+      "negmin": -2.324597,
+      "shuntmin": 0.03339976,
+      "shuntmax": 0.04086985,
+      "negmax": -1.951649
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-85-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.672743,
+      "negmin": -2.324597,
+      "shuntmin": 0.03414646,
+      "shuntmax": 0.03728129,
+      "negmax": -1.943604
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-85-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681735,
+      "negmin": -2.324597,
+      "shuntmin": 0.03456752,
+      "shuntmax": 0.03683522,
+      "negmax": -1.952321
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-87-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.672749,
+      "negmin": -2.324597,
+      "shuntmin": 0.03415289,
+      "shuntmax": 0.03727544,
+      "negmax": -1.943609
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-87-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.681731,
+      "negmin": -2.324597,
+      "shuntmin": 0.03457767,
+      "shuntmax": 0.0368251,
+      "negmax": -1.952322
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-89-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64649,
+      "negmin": -2.303447,
+      "shuntmin": 0.02123161,
+      "shuntmax": 0.06370802,
+      "negmax": -1.917311
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-89-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.656601,
+      "negmin": -2.303447,
+      "shuntmin": 0.02848439,
+      "shuntmax": 0.05597922,
+      "negmax": -1.927119
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-91-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646486,
+      "negmin": -2.303447,
+      "shuntmin": 0.02129134,
+      "shuntmax": 0.06371905,
+      "negmax": -1.917278
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-91-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.65658,
+      "negmin": -2.303447,
+      "shuntmin": 0.02864175,
+      "shuntmax": 0.05587338,
+      "negmax": -1.927152
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-93-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.649925,
+      "negmin": -2.303447,
+      "shuntmin": 0.03157695,
+      "shuntmax": 0.04352694,
+      "negmax": -1.920761
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-93-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.659146,
+      "negmin": -2.303447,
+      "shuntmin": 0.03336213,
+      "shuntmax": 0.04172796,
+      "negmax": -1.929683
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-95-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.649932,
+      "negmin": -2.303447,
+      "shuntmin": 0.03160153,
+      "shuntmax": 0.04350221,
+      "negmax": -1.920718
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-95-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.659129,
+      "negmin": -2.303447,
+      "shuntmin": 0.03340393,
+      "shuntmax": 0.04169096,
+      "negmax": -1.929745
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-97-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666834,
+      "negmin": -2.323722,
+      "shuntmin": 0.03345493,
+      "shuntmax": 0.03897998,
+      "negmax": -1.970427
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-97-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669562,
+      "negmin": -2.323722,
+      "shuntmin": 0.03420578,
+      "shuntmax": 0.03826992,
+      "negmax": -1.973103
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-99-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666829,
+      "negmin": -2.323722,
+      "shuntmin": 0.03346712,
+      "shuntmax": 0.03896586,
+      "negmax": -1.97043
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-99-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669563,
+      "negmin": -2.323722,
+      "shuntmin": 0.03422413,
+      "shuntmax": 0.03825246,
+      "negmax": -1.973101
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-101-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666893,
+      "negmin": -2.323722,
+      "shuntmin": 0.03460541,
+      "shuntmax": 0.03632413,
+      "negmax": -1.97049
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-101-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669574,
+      "negmin": -2.323722,
+      "shuntmin": 0.03477681,
+      "shuntmax": 0.03612313,
+      "negmax": -1.973115
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-103-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.666901,
+      "negmin": -2.323722,
+      "shuntmin": 0.03460892,
+      "shuntmax": 0.0363208,
+      "negmax": -1.970494
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-103-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.669576,
+      "negmin": -2.323722,
+      "shuntmin": 0.03478181,
+      "shuntmax": 0.03611845,
+      "negmax": -1.973114
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-105-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64447,
+      "negmin": -2.302572,
+      "shuntmin": 0.02877003,
+      "shuntmax": 0.05025897,
+      "negmax": -1.948053
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-105-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647404,
+      "negmin": -2.302572,
+      "shuntmin": 0.03190631,
+      "shuntmax": 0.0466903,
+      "negmax": -1.950926
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-107-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.644431,
+      "negmin": -2.302572,
+      "shuntmin": 0.02881405,
+      "shuntmax": 0.05022324,
+      "negmax": -1.948061
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-107-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647429,
+      "negmin": -2.302572,
+      "shuntmin": 0.03197834,
+      "shuntmax": 0.04662073,
+      "negmax": -1.950942
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-109-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64551,
+      "negmin": -2.302572,
+      "shuntmin": 0.03337303,
+      "shuntmax": 0.0398185,
+      "negmax": -1.949086
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-109-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648236,
+      "negmin": -2.302572,
+      "shuntmin": 0.03414607,
+      "shuntmax": 0.03899005,
+      "negmax": -1.951782
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-111-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645491,
+      "negmin": -2.302572,
+      "shuntmin": 0.03338616,
+      "shuntmax": 0.0398065,
+      "negmax": -1.949098
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-111-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648243,
+      "negmin": -2.302572,
+      "shuntmin": 0.03416472,
+      "shuntmax": 0.03897182,
+      "negmax": -1.951769
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-113-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668277,
+      "negmin": -2.324173,
+      "shuntmin": 0.03334768,
+      "shuntmax": 0.03989816,
+      "negmax": -1.971142
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-113-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670178,
+      "negmin": -2.324173,
+      "shuntmin": 0.03417922,
+      "shuntmax": 0.03909778,
+      "negmax": -1.973033
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-115-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668305,
+      "negmin": -2.324173,
+      "shuntmin": 0.03336342,
+      "shuntmax": 0.03988648,
+      "negmax": -1.971186
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-115-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670181,
+      "negmin": -2.324173,
+      "shuntmin": 0.0342,
+      "shuntmax": 0.03908014,
+      "negmax": -1.973035
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-117-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668484,
+      "negmin": -2.324173,
+      "shuntmin": 0.03458193,
+      "shuntmax": 0.03671225,
+      "negmax": -1.971358
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-117-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670312,
+      "negmin": -2.324173,
+      "shuntmin": 0.03477246,
+      "shuntmax": 0.03648903,
+      "negmax": -1.973165
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-119-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.668483,
+      "negmin": -2.324173,
+      "shuntmin": 0.03458631,
+      "shuntmax": 0.03670811,
+      "negmax": -1.971357
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-119-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.670316,
+      "negmin": -2.324173,
+      "shuntmin": 0.03477804,
+      "shuntmax": 0.03648403,
+      "negmax": -1.973165
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-121-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645181,
+      "negmin": -2.303023,
+      "shuntmin": 0.02766231,
+      "shuntmax": 0.05284476,
+      "negmax": -1.948052
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-121-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647076,
+      "negmin": -2.303023,
+      "shuntmin": 0.03119143,
+      "shuntmax": 0.04902707,
+      "negmax": -1.949899
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-123-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.645182,
+      "negmin": -2.303023,
+      "shuntmin": 0.02770916,
+      "shuntmax": 0.05278954,
+      "negmax": -1.948058
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-123-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.647045,
+      "negmin": -2.303023,
+      "shuntmin": 0.03126033,
+      "shuntmax": 0.0489731,
+      "negmax": -1.949891
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-125-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64628,
+      "negmin": -2.303023,
+      "shuntmin": 0.03333346,
+      "shuntmax": 0.04108417,
+      "negmax": -1.949135
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-125-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.648151,
+      "negmin": -2.303023,
+      "shuntmin": 0.03418472,
+      "shuntmax": 0.04016773,
+      "negmax": -1.951003
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-127-33000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.646305,
+      "negmin": -2.303023,
+      "shuntmin": 0.03335082,
+      "shuntmax": 0.04106915,
+      "negmax": -1.949172
+    },
+    "pass": true
+  },
+  {
+    "name": "hot-load-127-80000",
+    "complete": true,
+    "measurements": {
+      "negmax_global": -1.64814,
+      "negmin": -2.303023,
+      "shuntmin": 0.03420612,
+      "shuntmax": 0.04014996,
+      "negmax": -1.951027
+    },
+    "pass": true
+  }
+]

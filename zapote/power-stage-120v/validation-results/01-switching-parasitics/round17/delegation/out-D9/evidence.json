@@ -1,0 +1,481 @@
+{
+  "actual_results": {
+    "A5_M34_absolute_change_nH": -0.0024069999999999925,
+    "A5_M34_relative_change_percent": 0.8134394938899077,
+    "A5_existing_diagonal_relative_changes_percent": [
+      0.011722724397585316,
+      0.03476195313723649,
+      0.01557064671500894,
+      0.013480981983060074
+    ],
+    "A5_existing_max_entry_relative_change_percent": 0.8134394938899077,
+    "A5_min_eigenvalue_nH": 11.666301827570653,
+    "case_comparisons": {
+      "bulk_ab": {
+        "cases": 32,
+        "off_gate_delta_V": [
+          -0.2883040000000001,
+          0.05179900000000037
+        ],
+        "pass_left": 9,
+        "pass_right": 10,
+        "vds_delta_V": [
+          -19.487900000000025,
+          1.2350000000000136
+        ],
+        "verdict_flips": 1
+      },
+      "bulk_ac": {
+        "cases": 32,
+        "off_gate_delta_V": [
+          -0.24026000000000014,
+          0.14540299999999995
+        ],
+        "pass_left": 9,
+        "pass_right": 10,
+        "vds_delta_V": [
+          -23.605099999999993,
+          7.250699999999995
+        ],
+        "verdict_flips": 1
+      },
+      "bulk_bc": {
+        "cases": 32,
+        "off_gate_delta_V": [
+          -0.11022700000000007,
+          0.28552900000000037
+        ],
+        "pass_left": 10,
+        "pass_right": 10,
+        "vds_delta_V": [
+          -22.65870000000001,
+          14.030700000000024
+        ],
+        "verdict_flips": 0
+      },
+      "crop": {
+        "cases": 240,
+        "off_gate_delta_V": [
+          -0.055223000000000244,
+          0.03652299999999986
+        ],
+        "pass_left": 88,
+        "pass_right": 88,
+        "vds_delta_V": [
+          -3.089300000000094,
+          0.9587999999999965
+        ],
+        "verdict_flips": 0
+      },
+      "curved": {
+        "cases": 32,
+        "off_gate_delta_V": [
+          0.04027199999999986,
+          0.1880670000000002
+        ],
+        "pass_left": 9,
+        "pass_right": 9,
+        "vds_delta_V": [
+          -25.46519999999998,
+          5.310000000000002
+        ],
+        "verdict_flips": 0
+      }
+    },
+    "committed_bulk_raw_waveforms": 0,
+    "committed_signed_pair_checks": [
+      {
+        "L_both_nH": 67.35112000000001,
+        "L_ii_nH": 31.835603,
+        "L_jj_nH": 28.020673,
+        "M_energy_nH": 3.747422,
+        "M_matrix_nH": 3.74741,
+        "abs_diff_nH": 1.2000000005674138e-05,
+        "pair": [
+          10,
+          12
+        ],
+        "rel_to_L_both": 1.7817075656164494e-07,
+        "same_sign": true,
+        "tag": "legA-h1-e1p0"
+      },
+      {
+        "L_both_nH": 65.41572,
+        "L_ii_nH": 28.020673,
+        "L_jj_nH": 37.986847,
+        "M_energy_nH": -0.2959,
+        "M_matrix_nH": -0.295904,
+        "abs_diff_nH": 3.999999996839865e-06,
+        "pair": [
+          12,
+          13
+        ],
+        "rel_to_L_both": 6.114738165138082e-08,
+        "same_sign": true,
+        "tag": "legA-h1-e1p0"
+      }
+    ],
+    "generated_deck_matches": true,
+    "grid_v2_counts": {
+      "S1": {
+        "250": [
+          0,
+          18
+        ],
+        "307": [
+          0,
+          18
+        ],
+        "348": [
+          18,
+          18
+        ],
+        "391": [
+          18,
+          18
+        ],
+        "450": [
+          18,
+          18
+        ]
+      },
+      "S2": {
+        "250": [
+          0,
+          12
+        ],
+        "307": [
+          0,
+          12
+        ],
+        "348": [
+          10,
+          12
+        ],
+        "391": [
+          12,
+          12
+        ],
+        "450": [
+          12,
+          12
+        ]
+      },
+      "S3": {
+        "250": [
+          0,
+          54
+        ],
+        "307": [
+          42,
+          54
+        ],
+        "348": [
+          54,
+          54
+        ],
+        "391": [
+          54,
+          54
+        ],
+        "450": [
+          54,
+          54
+        ]
+      },
+      "S4": {
+        "250": [
+          0,
+          18
+        ],
+        "307": [
+          0,
+          18
+        ],
+        "348": [
+          0,
+          18
+        ],
+        "391": [
+          0,
+          18
+        ],
+        "450": [
+          0,
+          18
+        ]
+      }
+    },
+    "grid_v2_summary_reproduced": {
+      "aborted": 0,
+      "cases": 510,
+      "fail_by_criterion": {
+        "pass_off_gate": 218,
+        "pass_vds": 39,
+        "pass_vgs_transient": 0
+      },
+      "off_gate_fail_causes": {
+        "aborted": 0,
+        "above_limit_at_partner_cmd": 116,
+        "later_peak": 102,
+        "unknown": 0
+      },
+      "off_gate_fails_by_dt_ns": {
+        "250": 102,
+        "307": 60,
+        "348": 20,
+        "391": 18,
+        "450": 18
+      },
+      "stress_fail": 218,
+      "stress_pass": 292,
+      "task_fail": 218,
+      "task_pass": 292,
+      "worst": {
+        "vds_pk": {
+          "case": "S4",
+          "dir": 0,
+          "dt_ns": 450,
+          "esl_nH": 20,
+          "il": -20,
+          "vbus": 170,
+          "vds_pk": 543.3696
+        },
+        "vgs_abs_max": {
+          "case": "S4",
+          "dir": 0,
+          "dt_ns": 250,
+          "esl_nH": 10,
+          "il": -20,
+          "vbus": 280,
+          "vgs_abs_max": 15.02275
+        },
+        "vgs_off_max": {
+          "case": "S2",
+          "dir": 0,
+          "dt_ns": 250,
+          "esl_nH": 5,
+          "il": 71,
+          "vbus": 280,
+          "vgs_off_max": 5.734807
+        }
+      },
+      "zvs_S1_at_348ns": {
+        "no": 0,
+        "yes": 18
+      }
+    }
+  },
+  "campaign": {
+    "manifest_keys": [
+      "closures-legA.json",
+      "inductance_matrix.py",
+      "mesh25d_hybrid.py",
+      "native17-all-copper.json.gz",
+      "run_elmer.py"
+    ],
+    "new_requested_tolerance": 1e-08,
+    "old_result_residual": 1e-05,
+    "old_result_reused_and_marked_converged": true,
+    "solver_calls": 0
+  },
+  "extractor": {
+    "exit_code": 0,
+    "invalid_unrelated_mesh_accepted": true,
+    "result": {
+      "L_nH": [
+        [
+          132.629119,
+          66.31456
+        ],
+        [
+          66.31456,
+          165.786399
+        ]
+      ],
+      "diagonal_vs_energy": [
+        {
+          "L_energy_nH": 132.62911924324612,
+          "L_from_B_nH": 132.629119,
+          "port": "10",
+          "rel_diff": 2.1429464051765033e-16
+        },
+        {
+          "L_energy_nH": 165.78639905405763,
+          "L_from_B_nH": 165.786399,
+          "port": "11",
+          "rel_diff": 0.0
+        }
+      ],
+      "max_within_tet_spread": 0.0,
+      "mesh_sha256": "84fab44e9ff7b2ffd1c6a3dd4ab4625ff193a80b9dacc0dc4aba8d29207b6e97",
+      "partitions": 1,
+      "port_identity": [
+        {
+          "k_A_per_m": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "name": "P1_test",
+          "physical": 10,
+          "sif_sha256": "ffec3ae23900d5a981dcac433ee6bcddf37142ad51c71e18ab7add4a4104d77b"
+        },
+        {
+          "k_A_per_m": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "name": "P2_test",
+          "physical": 11,
+          "sif_sha256": "681daba6e3fa7dff315cba03ec1a1f8193e57e4220f64f86a82872932dbc3b62"
+        }
+      ],
+      "ports": [
+        "10",
+        "11"
+      ],
+      "tets": 1
+    }
+  },
+  "grid": {
+    "fixed_matrix_change_reruns": true,
+    "fixed_missing_sample_unknown": true,
+    "fixed_non_zvs_rejected": true,
+    "hashed_paths": [
+      "leg_matrix.cir",
+      "run_d2.py",
+      "grid.py"
+    ],
+    "identical_inputs_reused": true,
+    "override_actual_parameters": {
+      "DIR": "1",
+      "DT": "348n",
+      "IL": "37",
+      "K12": "0",
+      "K13": "0",
+      "K14": "0",
+      "K23": "0",
+      "K24": "0",
+      "K34": "0",
+      "LESL": "10n",
+      "LP1": "1n",
+      "LP2": "1n",
+      "LP3": "1n",
+      "LP4": "1n",
+      "LSHUNT": "2n",
+      "TRMAX": "0.2n",
+      "VBUS": "170"
+    },
+    "override_saved_row": {
+      "aborted": false,
+      "case": "S1",
+      "dir": 0,
+      "dt_ns": 450,
+      "esl_nH": 10,
+      "identity": {
+        "deck": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+        "grid": "c26f0befd1b29d19e526bcf56c4b967fe47e845425e8a5643f1a7a8fa296887e",
+        "matrix": "eba91ea447c2a18c1510229bb460a99bcd030ed6bde4091c466992e0dbafb3d1",
+        "overrides": {
+          "DIR": "1",
+          "DT": "348n"
+        },
+        "run_d2": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+        "vendor_model": "missing"
+      },
+      "il": 37,
+      "off_gate_cause": null,
+      "pass": true,
+      "pass_off_gate": true,
+      "pass_vds": true,
+      "pass_vgs_transient": true,
+      "stress_pass": true,
+      "task_pass": true,
+      "vbus": 170,
+      "vds_incoming_at_on": 100.0,
+      "vds_pk": 200.0,
+      "vgs_abs_max": 15.0,
+      "vgs_off_at_partner_cmd": 2.0,
+      "vgs_off_max": 2.0,
+      "zvs": false
+    },
+    "simulator_identity_present": false,
+    "unhashed_dependencies": [
+      "validation-plan/sim-kit/common/options.inc",
+      "validation-plan/sim-kit/common/run_ngspice.py"
+    ]
+  },
+  "matrix": {
+    "accepted_M13_nH": -3.74741,
+    "margin_asymmetric_exit": 0,
+    "margin_asymmetric_matrix_nH": [
+      [
+        30.0,
+        8.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        30.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        30.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        30.0
+      ]
+    ],
+    "margin_claimed_min_eigenvalue_nH": 26.0,
+    "original_M13_nH": 3.74741,
+    "reversed_orientation_accepted_by_both_readers": true
+  },
+  "pair": {
+    "comparison": {
+      "L_both_nH": 58.0,
+      "L_ii_nH": 30,
+      "L_jj_nH": 20,
+      "M_energy_nH": 4.0,
+      "M_matrix_nH": 4,
+      "abs_diff_nH": 0.0,
+      "pair": [
+        10,
+        12
+      ],
+      "rel_to_L_both": 0.0,
+      "same_sign": true,
+      "tag": "/Users/bennet/.codex/worktrees/ps-r17-d9/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D9/tmprdyxcdts/pair"
+    },
+    "nonconverged_failed_pair_was_compared": true
+  },
+  "reviewed_revision": "f9b13b483d6d4ed52439d4da419c7670bab6966c",
+  "runtime": {
+    "meshio": "5.3.5",
+    "numpy": "2.4.6",
+    "python": "3.12.12"
+  },
+  "scope": "offline review; synthetic counterexamples do not establish current board errors",
+  "source_sha256": {
+    "d2/bulk_mode.py": "56cb915e9725d7210fa2cbdb74d494d089b6a7a9acb91ffda2bfd1fa1e91735c",
+    "d2/grid.py": "c26f0befd1b29d19e526bcf56c4b967fe47e845425e8a5643f1a7a8fa296887e",
+    "d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "d2/leg_matrix5.cir": "7a065bfc9ad738eac1e98d9e604d44feb17f0df2c140e39cf56c8f120e88d7ed",
+    "d2/run_d2.py": "411d78ce50ef13f8105de9c10623c5c5328bd06467ea96f2bd55ca6882a44c61",
+    "scripts/campaign.py": "e69fb5e9aaf70517f6bcb2fcbd170bebacc11b6c1ccc5068ba5522eda5b350e8",
+    "scripts/extrapolate.py": "adf363066ed3c94974e250aab57d253cd42be3ac2bebc7b78c1ce55b84d3fad7",
+    "scripts/inductance_matrix.py": "6967fa43f85288fa9472a54f3ffd695b438d74c300a5d2228da3ec2c095a7bfc",
+    "scripts/margin_correct.py": "66da102b7519e418e343d47f1e5d1c7ea45c58aa919d58a9495eab0e76cfa728",
+    "scripts/mesh25d_hybrid.py": "60f3c94cac7a869bb59870587d6cae1d3a3adc941fc8edba1f511147314a52be",
+    "scripts/pair_check.sh": "636f4ac9a62b5d2905ac94785ee418e2afe9ef6b79c8a285eeb3fc94607654a8"
+  }
+}

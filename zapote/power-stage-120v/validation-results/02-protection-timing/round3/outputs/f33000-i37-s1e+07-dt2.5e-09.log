@@ -1,0 +1,42 @@
+
+Note: Compatibility modes selected: ps a
+
+
+Circuit: * task 02: tank-ct detector front end (native-13 values), analog timing.
+
+ASCII raw file "waves.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+No. of Data Columns : 6  
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+ipri                                         0
+ct_s2                                     1.65
+ctx                                       1.65
+ct_s1                                     1.65
+vcc                                        3.3
+sense                                     1.65
+ref_hi                                 2.47748
+ref_lo                                0.822523
+bip#branch                                   0
+lmag#branch                         1.7979e-16
+vcc#branch                          -0.0021455
+
+ Reference value :  1.30218e-04
+No. of Data Rows : 80008
+
+Total analysis time (seconds) = 0.383384
+
+Total elapsed time (seconds) = 0.388 
+
+Total DRAM available = 32768.000 MB.
+DRAM currently available =  482.766 MB.
+Maximum ngspice program size =   10.219 MB.
+Current ngspice program size =   10.219 MB.
+
+

@@ -1,0 +1,53 @@
+R2.1 SENSOR VALIDATION PLAN — NO SENSOR GEOMETRY CHANGE
+
+PURPOSE
+Replace the assumed thermal conductances with measured behavior before changing
+cap thickness, spring preload or seal architecture. The previous 216 scenarios
+were sensitivity examples, not observed or predicted product accuracy.
+
+1. COLD FORCE / TRAVEL
+Use the adjustable sensor fixture with a displacement gauge and calibrated load
+cell. Record complete-cartridge force at 0,0.3,0.6,0.9,1.2 mm loading/unloading.
+Test with the diaphragm installed, because its force is absent from the spring
+formula. Establish allowable fixture/glass loads before choosing force levels.
+Record preload, friction/hysteresis, full-stroke clearance and repeatability.
+The spring-only model predicts force INCREASE, not total pan contact force.
+
+2. THERMAL CONTACT IDENTIFICATION
+Use an externally heated reference coupon initially; the earlier metal fixture
+was not an induction-coil fixture. Record independently measured temperature at
+or adjacent to the cap contact location, with the spatial reference offset and
+instrument uncertainty documented. Do not use stove setpoint as ground truth.
+Record raw RTD value, cap/reference temperature, housing/guide temperature, force,
+travel, bond material/thickness, lead route and ambient. Keep time bases aligned.
+Run repeated settled holds and temperature steps. Choose temperatures and force
+levels only within the selected components' documented ratings and cold-test
+limits. Repeat under distinct allowable contact forces and surface conditions.
+Fit effective pan conductance and parasitic losses using multiple temperatures,
+housing conditions and transients; one settled reading cannot identify them all.
+Hold out at least one condition/pan from fitting to test predictive usefulness.
+
+3. ACCURACY / RESPONSE
+Calculate steady error against the local calibrated reference, hysteresis and
+repeatability. Report t90 to the SENSOR'S final value separately from time to a
+specified band around true pan temperature. Include reference-placement gradients
+and calibration/readout error in the uncertainty budget. Agree numeric product
+accuracy/response targets before declaring any configuration acceptable.
+
+4. NEXT SIMULATION INPUTS
+Cap roof/lip: actual alloy/temper, preform, tooling radii, support and load cases.
+Diaphragm: compound, temperature-dependent elastic data, squeeze/friction and life.
+Spring: supplier force-length curve, free length, end treatment and tolerances.
+Wire: strand construction, minimum bend radius, slack/strain relief and cycles.
+Thermal model: measured contact vs force, bond properties and housing heat leaks.
+EM model: actual coil drive, frequency/current, ferrites, materials and geometry.
+
+DECISION RULE
+Change geometry only when a measured result or bounded requirement supports it.
+Examples: excessive lag with sufficient contact -> examine cap/attached mass;
+bias dependent on housing temperature -> reduce parasitic conduction; force
+variation -> revise spring/guide/diaphragm stack. Preserve cap capture and groove
+wall until strength/forming evidence supports an alternative.
+
+No leakage, fatigue, insulation, thermal accuracy or forming qualification is
+claimed by this plan or by the existing CAD interference checks.

@@ -1,0 +1,11 @@
+vendor/
+physics
+physics-tests
+*.dSYM/
+__pycache__/
+runs/*/waves.raw
+runs/*/wave.csv
+runs/*/IFX_CFD7_650V.lib
+tmp/
+.mpl-cache/
+runs/*/replay/wave.csv

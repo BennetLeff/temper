@@ -1,0 +1,46 @@
+{
+  "verified_grid_cases": 540,
+  "expected_grid_cases": 540,
+  "threshold_status_counts": {
+    "bracketed": 36,
+    "not_found_in_sampled_1_to_100A": 18
+  },
+  "max_sampled_threshold_change": {
+    "bus_v": 120,
+    "direction": 0,
+    "deadtime_ns": 348,
+    "board_l_scale": 3.0,
+    "absolute_percent": 6.039076376554176
+  },
+  "max_sampled_edge_changes": {
+    "edge_10_90_s": {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "current_a": 20.0,
+      "board_l_scale": 0.5,
+      "both_zvs": true,
+      "absolute_percent": 68.92034423495596
+    },
+    "peak_abs_dvdt_10_90_1ns_v_per_s": {
+      "bus_v": 120,
+      "direction": 1,
+      "deadtime_ns": 450,
+      "current_a": 4.0,
+      "board_l_scale": 3.0,
+      "both_zvs": false,
+      "absolute_percent": 50.685797751672965
+    },
+    "peak_abs_dvdt_full_1ns_v_per_s": {
+      "bus_v": 120,
+      "direction": 0,
+      "deadtime_ns": 450,
+      "current_a": 4.0,
+      "board_l_scale": 3.0,
+      "both_zvs": false,
+      "absolute_percent": 47.418251347981666
+    }
+  },
+  "max_vds_peak_timestep_relative_change": 0.006114268377230595,
+  "edge_independence_gate_passes": false
+}

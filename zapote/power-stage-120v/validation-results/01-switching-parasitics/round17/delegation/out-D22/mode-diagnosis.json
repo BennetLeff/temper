@@ -1,0 +1,58 @@
+[
+  {
+    "scenario": "original_combined",
+    "case": "v170-r2-e1.06-f35000-s0.5-c24",
+    "mode": "CM",
+    "margin": -5.644371611410492,
+    "Hz": 175000.0
+  },
+  {
+    "scenario": "original_combined",
+    "case": "v170-r2-e1.06-f35000-s0.5-c24",
+    "mode": "DM",
+    "margin": -24.11382216741191,
+    "Hz": 210000.0
+  },
+  {
+    "scenario": "original_combined",
+    "case": "v170-r2-e1.06-f60000-s0.5-c48",
+    "mode": "CM",
+    "margin": -10.060017485718916,
+    "Hz": 180000.0
+  },
+  {
+    "scenario": "original_combined",
+    "case": "v170-r2-e1.06-f60000-s0.5-c48",
+    "mode": "DM",
+    "margin": -16.024841681165086,
+    "Hz": 240000.0
+  },
+  {
+    "scenario": "dm18u_4p7_stress",
+    "case": "v170-r2-e1.06-f35000-s0.5-c24",
+    "mode": "CM",
+    "margin": -5.588143266795164,
+    "Hz": 175000.0
+  },
+  {
+    "scenario": "dm18u_4p7_stress",
+    "case": "v170-r2-e1.06-f35000-s0.5-c24",
+    "mode": "DM",
+    "margin": -6.484658584414554,
+    "Hz": 210000.0
+  },
+  {
+    "scenario": "dm18u_4p7_stress",
+    "case": "v170-r2-e1.06-f60000-s0.5-c48",
+    "mode": "CM",
+    "margin": -10.00441122027533,
+    "Hz": 180000.0
+  },
+  {
+    "scenario": "dm18u_4p7_stress",
+    "case": "v170-r2-e1.06-f60000-s0.5-c48",
+    "mode": "DM",
+    "margin": 2.292328238572466,
+    "Hz": 240000.0
+  }
+]

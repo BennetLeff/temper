@@ -1,0 +1,22 @@
+id,task,quantity,unit,item_or_candidate,selection_status,inventory_status,release_dependency,owner
+CF01-01,cold_fixture,1,assembly,Rigid nonconductive base nominal450x450mm and stable nonmetal supports,EXPERIMENTAL_GEOMETRY,UNKNOWN,H01 sample size and stability review,mechanical
+CF01-02,cold_fixture,1,sample,Actual selected coil with lead and terminal drawing,MPN_UNSELECTED,UNKNOWN,H01 coil vendor drawing and traceable identity,power
+CF01-03,cold_fixture,1,set,Actual matched ferrite and coil support,MPN_UNSELECTED,UNKNOWN,H01 material geometry retention and loss identity,power
+CF01-04,cold_fixture,1,panel,SCHOTT CERAN candidate glass ceramic nominal4mm,VARIANT_UNSELECTED,UNKNOWN,H01 actual stack drawing and sample availability,mechanical
+CF01-05,cold_fixture,1,set,Nonmetal adjustable glass supports and removable XY pan locators,CUSTOM_COLD_ONLY,UNKNOWN,H02 pan stability gap measurement and lead dressing,mechanical
+CF01-06,cold_fixture,5,identified_pan,Cast iron;carbon or430steel;clad;low-resistance compatible;smallest intended,EXACT_PANS_UNSELECTED,UNKNOWN,H01 named size material base and mass inventory,power
+CF01-07,measurement,1,instrument,Calibrated complex impedance analyzer20to60kHz with two amplitudes,MODEL_UNSELECTED,UNKNOWN,H01 calibration uncertainty reference plane and excitation review,test_lead
+CF01-08,measurement,1,set,Instrument-compatible four-terminal fixture and open-short references,MODEL_UNSELECTED,UNKNOWN,H01 instrument manual and terminal geometry,test_lead
+CF01-09,measurement,1,instrument,Four-wire DC resistance meter or validated equivalent,MODEL_UNSELECTED,UNKNOWN,H01 current and uncertainty review,test_lead
+CF01-10,measurement,1,set,Independent coil pan ferrite ambient temperature probes/logger,MODEL_UNSELECTED,UNKNOWN,H01 contact method uncertainty and calibration,test_lead
+CF01-11,measurement,1,set,Caliper depth/gap gauge and nonmetal XY reference,MODEL_UNSELECTED,UNKNOWN,H02 measured uncertainty sufficient for repeatability,mechanical
+UI01-01,cold_controls,3,switch,C&K PTS645SH43SMTR92LFS,CANDIDATE,UNKNOWN,Mechanical safe maximum stroke force confirmation,mechanical
+UI01-02,cold_controls,1,assembly,Fixture PCB and six labeled independent contact wires,COLD_BENCH_ONLY,UNKNOWN,Switch pin-pair continuity and approved footprint,firmware_electrical
+UI01-03,cold_controls,1,display,Newhaven NHD-3.12-25664UCW2,CANDIDATE,UNKNOWN,Header cable power pin and interface review,firmware_electrical
+MAT01-01,bond_coupon,6,specimen,DOWSIL7091 on actual lens-ring-glass-finish stack,CANDIDATE_NOT_QUALIFIED,UNKNOWN,Cure access and declared conditioning/load,process
+MAT01-02,bond_coupon,6,specimen,3M Scotch-Weld DP490 on actual stud-pad-finish stack,CANDIDATE_NOT_QUALIFIED,UNKNOWN,Hot creep peel process and declared conditioning/load,process
+MAT01-03,seal_coupon,6,specimen,Rogers BISCO HT-800 rear gasket non-PSA candidate,CANDIDATE_NOT_QUALIFIED,UNKNOWN,Converter thickness narrowland compression and leak protocol,process
+MAT01-04,control_coupon,6,specimen,Wacker ELASTOSIL LR3003/40AB actual membrane geometry,CANDIDATE_NOT_QUALIFIED,UNKNOWN,Molder cure shrinkage and force-return protocol,process
+FA01-01,first_article,1,set,Reconciled native PCBA and matched source-BOM-CPL-fab package,NOT_RELEASED,NOT_BUILT,H03-H04,electrical
+FA01-02,first_article,1,set,R4 enclosure with joined actual board cooling coil and harness,NOT_RELEASED,NOT_BUILT,H05,mechanical
+FA01-03,powered_testing,1,station,Qualified guarded instrumented test station,NOT_ACCEPTED,UNKNOWN,H06-H07,test_lead

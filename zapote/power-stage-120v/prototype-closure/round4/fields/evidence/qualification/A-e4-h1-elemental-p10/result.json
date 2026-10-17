@@ -1,0 +1,40 @@
+{
+  "label": "A-e4-h1",
+  "mesh": "output/temper-prototype-closure/round4/fields/A-e4-h1.msh",
+  "exit_code": 0,
+  "mesh_sha256": "a4973703e4371f8bef15d0260301fa17ea24545ed6360d1db97cf7ea3074b274",
+  "sif_sha256": "2a20bc063a696fe79d1e4bfa45db525e3ef65fe64899c00af37580f478f5861b",
+  "elmer_solver_sha256": "b60ae75db18b3c1102ee4f2155dcff7f26310ede453697215360f08a4b50b7ed",
+  "maxit": 18000,
+  "all_done": true,
+  "energy_J": 1.390901e-08,
+  "inductance_nH": 27.81802,
+  "peak_memory_GB": 0.007946864,
+  "max_rss_GB": 1.878573056,
+  "wall_s": 491.26,
+  "np": 4,
+  "solver": "iterative Hypre GMRES(100) + AMS",
+  "tol": 1e-07,
+  "solver_lines": [
+    "HYPRE GmRes Dimension = Integer 200"
+  ],
+  "tree_gauge": false,
+  "last_iteration": 5386,
+  "last_residual": 9.7871e-08,
+  "converged": true,
+  "k_A_per_m": [
+    -2500.0,
+    -0.0,
+    0.0
+  ],
+  "pec": [
+    2,
+    3
+  ],
+  "port": 10,
+  "port2": null,
+  "k2_A_per_m": null,
+  "scale_m": 0.001,
+  "postprocessor_profile": "elemental_B_only_no_nodal_projection",
+  "runner_adapter_sha256": "0bda0312916c63d6ff5e13daeced6666b19f4b4febd2b50c20b1a2f9855571d3"
+}

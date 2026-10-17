@@ -1,0 +1,492 @@
+{
+  "as_of": "2026-09-24",
+  "scope": "Exact source BOM identities only. Catalog search is an allocation lead, not an order confirmation or substitute approval.",
+  "parts": {
+    "61300211121": {
+      "manufacturer": "W\u00fcrth Elektronik",
+      "selected_mpn": "61300211121",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C2915055",
+      "catalog_stock_snapshot": 15888,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "AO3400A": {
+      "manufacturer": "Alpha & Omega Semiconductor",
+      "selected_mpn": "AO3400A",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C20917",
+      "catalog_stock_snapshot": 803155,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "B2B-XH-A(LF)(SN)": {
+      "manufacturer": "JST",
+      "selected_mpn": "B2B-XH-A(LF)(SN)",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C158012",
+      "catalog_stock_snapshot": 333680,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "B4B-XH-A(LF)(SN)": {
+      "manufacturer": "JST",
+      "selected_mpn": "B4B-XH-A(LF)(SN)",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C144395",
+      "catalog_stock_snapshot": 108768,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "B6B-XH-A(LF)(SN)": {
+      "manufacturer": "JST",
+      "selected_mpn": "B6B-XH-A(LF)(SN)",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C144397",
+      "catalog_stock_snapshot": 39924,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "B8B-XH-A(LF)(SN)": {
+      "manufacturer": "JST",
+      "selected_mpn": "B8B-XH-A(LF)(SN)",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C157972",
+      "catalog_stock_snapshot": 11658,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "BAT54H,115": {
+      "manufacturer": "Nexperia",
+      "selected_mpn": "BAT54H,115",
+      "channel": "LCSC live search",
+      "channel_sku": "C426769",
+      "catalog_stock_snapshot": 8354,
+      "stock_basis": "live LCSC query 2026-09-24; reserve/reconfirm at purchase",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "BLM18AG121SN1D": {
+      "manufacturer": "Murata",
+      "selected_mpn": "BLM18AG121SN1D",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C76892",
+      "catalog_stock_snapshot": 227872,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "C0603C102J5GACTU": {
+      "manufacturer": "KEMET",
+      "selected_mpn": "C0603C102J5GACTU",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C2181873",
+      "catalog_stock_snapshot": 9407,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "C0603C104K5RACTU": {
+      "manufacturer": "KEMET",
+      "selected_mpn": "C0603C104K5RACTU",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C127833",
+      "catalog_stock_snapshot": 12084,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "CD74HC30PWR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "CD74HC30PWR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C2866074",
+      "catalog_stock_snapshot": 227,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "CD74HC4075M96": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "CD74HC4075M96",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C6547",
+      "catalog_stock_snapshot": 938,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "CST3015-100ED": {
+      "manufacturer": "Coilcraft",
+      "selected_mpn": "CST3015-100ED",
+      "channel": "Coilcraft direct",
+      "channel_sku": "",
+      "catalog_stock_snapshot": null,
+      "stock_basis": "Official Coilcraft product page lists exact variant but selected configuration availability unclear",
+      "sourcing_status": "BLOCKED: obtain direct allocation/quote for exact reel variant"
+    },
+    "ERA-3AEB103V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA-3AEB103V",
+      "channel": "DigiKey catalog",
+      "channel_sku": "P10KDBCT-ND",
+      "catalog_stock_snapshot": 219134,
+      "stock_basis": "DigiKey exact-MPN page crawled 2026-09-24; reconfirm region/checkout",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "ERA-3AEB1652V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA-3AEB1652V",
+      "channel": "Mouser Canada catalog",
+      "channel_sku": "667-ERA-3AEB1652V",
+      "catalog_stock_snapshot": 1128,
+      "stock_basis": "Mouser API snapshot; reconfirm in shipping region before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "ERA-3AEB5901V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA-3AEB5901V",
+      "channel": "Mouser Canada catalog",
+      "channel_sku": "667-ERA-3AEB5901V",
+      "catalog_stock_snapshot": 40799,
+      "stock_basis": "Mouser API snapshot; reconfirm in shipping region before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "ERA-3AEB6192V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA-3AEB6192V",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C4019122",
+      "catalog_stock_snapshot": 195,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "ERA3AEB102V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA3AEB102V",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C190613",
+      "catalog_stock_snapshot": 17760,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "ERA3AEB103V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA3AEB103V",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C190610",
+      "catalog_stock_snapshot": 62689,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "ERA3AEB3741V": {
+      "manufacturer": "Panasonic Industry",
+      "selected_mpn": "ERA3AEB3741V",
+      "channel": "Mouser Canada candidate",
+      "channel_sku": "667-ERA-3AEB3741V",
+      "catalog_stock_snapshot": 2272,
+      "stock_basis": "Hyphenated MPN listing; source spelling differs",
+      "sourcing_status": "HOLD: manufacturer must confirm ERA3AEB3741V and ERA-3AEB3741V identical"
+    },
+    "FTSH-105-01-F-D": {
+      "manufacturer": "Samtec",
+      "selected_mpn": "FTSH-105-01-F-D",
+      "channel": "Mouser Canada catalog",
+      "channel_sku": "200-FTSH10501FD",
+      "catalog_stock_snapshot": 3633,
+      "stock_basis": "Mouser API snapshot; reconfirm in shipping region before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "GRM31C5C1H104JA01L": {
+      "manufacturer": "Murata",
+      "selected_mpn": "GRM31C5C1H104JA01L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C97946",
+      "catalog_stock_snapshot": 104911,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "GRM32ER71H106KA12L": {
+      "manufacturer": "Murata",
+      "selected_mpn": "GRM32ER71H106KA12L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C77102",
+      "catalog_stock_snapshot": 78167,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "MAX31865AAP+": {
+      "manufacturer": "Analog Devices",
+      "selected_mpn": "MAX31865AAP+",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C89608",
+      "catalog_stock_snapshot": 243,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-07100KL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-07100KL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C14675",
+      "catalog_stock_snapshot": 8557196,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0710KL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0710KL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C98220",
+      "catalog_stock_snapshot": 13757275,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0711K5L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0711K5L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C137802",
+      "catalog_stock_snapshot": 3868,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-071K21L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-071K21L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C137779",
+      "catalog_stock_snapshot": 2613,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-071KL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-071KL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C22548",
+      "catalog_stock_snapshot": 10940792,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0720KL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0720KL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C105575",
+      "catalog_stock_snapshot": 3658569,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-072K2L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-072K2L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C114662",
+      "catalog_stock_snapshot": 831071,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0733RL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0733RL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C108661",
+      "catalog_stock_snapshot": 174592,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0734K8L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0734K8L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C137741",
+      "catalog_stock_snapshot": 3434,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0739KL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0739KL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C163424",
+      "catalog_stock_snapshot": 320059,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-0742K2L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-0742K2L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C273741",
+      "catalog_stock_snapshot": 68,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-078K06L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-078K06L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C131052",
+      "catalog_stock_snapshot": 6228,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603FR-079K09L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603FR-079K09L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C185301",
+      "catalog_stock_snapshot": 33703,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC0603JR-071ML": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC0603JR-071ML",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C107698",
+      "catalog_stock_snapshot": 1079330,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC1206FR-071KL": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC1206FR-071KL",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C131398",
+      "catalog_stock_snapshot": 2806027,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC1206FR-071R5L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC1206FR-071R5L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C137360",
+      "catalog_stock_snapshot": 39514,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RC1206FR-073R9L": {
+      "manufacturer": "Yageo",
+      "selected_mpn": "RC1206FR-073R9L",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C137280",
+      "catalog_stock_snapshot": 2086,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "REF2025AIDDCR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "REF2025AIDDCR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C962078",
+      "catalog_stock_snapshot": 5432,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "RG2012V-431-W-T1": {
+      "manufacturer": "Susumu",
+      "selected_mpn": "RG2012V-431-W-T1",
+      "channel": "LCSC / Mouser catalog",
+      "channel_sku": "C4260028 / 754-RG2012V-431-W-T1",
+      "catalog_stock_snapshot": 0,
+      "stock_basis": "LCSC live zero; Mouser Canada zero/Obsolete; DigiKey exact listing Active but tape-reel 3000 minimum / 22-week stated lead time",
+      "sourcing_status": "BLOCKED for five-board lot: no practical exact-part allocation; no substitute approved"
+    },
+    "SN74LVC14ADR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "SN74LVC14ADR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C133541",
+      "catalog_stock_snapshot": 40908,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "SN74LVC1G08DBVR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "SN74LVC1G08DBVR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C7666",
+      "catalog_stock_snapshot": 145518,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "SN74LVC1G32DBVR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "SN74LVC1G32DBVR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C10096",
+      "catalog_stock_snapshot": 119893,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "SN74LVC1G38DBVR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "SN74LVC1G38DBVR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C2867613",
+      "catalog_stock_snapshot": 1939,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "SN74LVC1G74DCUR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "SN74LVC1G74DCUR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C70285",
+      "catalog_stock_snapshot": 12965,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "TLV3201AIDBVR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "TLV3201AIDBVR",
+      "channel": "LCSC live search",
+      "channel_sku": "C105188",
+      "catalog_stock_snapshot": 20451,
+      "stock_basis": "live LCSC query 2026-09-24; reserve/reconfirm at purchase",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "TLV9031DBVR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "TLV9031DBVR",
+      "channel": "LCSC live search",
+      "channel_sku": "C29777121",
+      "catalog_stock_snapshot": 203,
+      "stock_basis": "live LCSC query 2026-09-24; reserve/reconfirm at purchase",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "TPS3823-33DBVR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "TPS3823-33DBVR",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C7719",
+      "catalog_stock_snapshot": 54272,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "TPS389001DSER": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "TPS389001DSER",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C1509297",
+      "catalog_stock_snapshot": 586,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "UCC21550BDWKR": {
+      "manufacturer": "Texas Instruments",
+      "selected_mpn": "UCC21550BDWKR",
+      "channel": "Mouser Canada catalog",
+      "channel_sku": "595-UCC21550BDWKR",
+      "catalog_stock_snapshot": 550,
+      "stock_basis": "Mouser API snapshot; reconfirm in shipping region before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    },
+    "UF4007-E3/54": {
+      "manufacturer": "Vishay",
+      "selected_mpn": "UF4007-E3/54",
+      "channel": "LCSC catalog search",
+      "channel_sku": "C511041",
+      "catalog_stock_snapshot": 7193,
+      "stock_basis": "local catalog snapshot; reconfirm live before purchasing",
+      "sourcing_status": "exact MPN and manufacturer catalog match; allocation pending"
+    }
+  }
+}

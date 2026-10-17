@@ -24,8 +24,7 @@ body:
       label: Affected Component
       options:
         - firmware (ESP32-S3 state machine)
-        - placer (temper-placer JAX optimizer)
-        - pcb (KiCad design)
+        - zapote (board checks, units, 120 V power stage)
         - CI / workflows
         - documentation
         - other

@@ -1,0 +1,56 @@
+* Task 07: conducted-EMI transfer functions (small-signal AC), native-13 filter.
+* Run: python3 ../common/run_ngspice.py emi_transfer.cir MODE=0   (MODE 0 = DM, 1 = CM)
+*
+* Output: run with --raw; post_emi.py reads waves.raw (complex AC data) and
+* takes |v(lisn_l)|, |v(lisn_n)| per 1 V of noise source. (.meas cannot return
+* AC magnitude here: vm()/vdb() do not parse, v() gives only the real part.) Multiply by the
+* switch-node spectrum (see the runbook) to predict dBuV at each LISN.
+* Every FILL_ME value must be replaced from a datasheet before results count;
+* the defaults only make the deck run.
+.include ../common/options.inc
+.param MODE=0
+* L1 B82726S2203A020 current-compensated choke (FILL_ME from TDK datasheet)
+.param LCM=2m LLEAK=20u RCHOKE=10m CCHOKE=15p
+* X caps C1/C2 (R463N410000N1M 1 uF) ESR/ESL (FILL_ME), Y caps C3/C4 2.2 nF
+.param CX=1u ESLX=15n ESRX=10m CY=2.2n
+* Bus capacitance, switch-node to PE (heatsink) coupling through the pads (FILL_ME)
+.param CBUS=5.8u CPE=60p
+.include params.inc
+
+* ---- two LISNs (CISPR 16-1-2 V-network, 50 uH || 50 ohm), mains shorted
+Lln mains_l l_in 50u
+Cln l_in lisn_l 0.1u
+Rln lisn_l 0 50
+Lnn mains_n n_in 50u
+Cnn n_in lisn_n 0.1u
+Rnn lisn_n 0 50
+Vml mains_l 0 0
+Vmn mains_n 0 0
+* ---- X cap at the input (C1)
+Cx1 l_in x1 {CX}
+Lx1 x1 x2 {ESLX}
+Rx1 x2 n_in {ESRX}
+* ---- common-mode choke L1: coupled windings (k from LLEAK)
+Lcm1 l_in l_f {LCM}
+Lcm2 n_in n_f {LCM}
+Kcm Lcm1 Lcm2 {1-LLEAK/LCM}
+Ccm1 l_in l_f {CCHOKE}
+Ccm2 n_in n_f {CCHOKE}
+* ---- X cap after the choke (C2) and Y caps to PE (PE = node 0 here)
+Cx2 l_f x3 {CX}
+Lx2 x3 x4 {ESLX}
+Rx2 x4 n_f {ESRX}
+Cy1 l_f 0 {CY}
+Cy2 n_f 0 {CY}
+* ---- rectifier assumed conducting (worst-case coupling; see runbook)
+Rbl l_f bus_p 0.05
+Rbn n_f bus_n 0.05
+Cbus bus_p bus_n {CBUS}
+* ---- noise sources: DM across the bus, CM from switch node to PE
+Vdm bus_p sw_dm DC 0 AC {1-MODE}
+Rdm sw_dm bus_n 0.1
+Vcm swcm 0 DC 0 AC {MODE}
+Ccpe swcm bus_n {CPE}
+
+.ac dec 50 10k 30meg
+.end

@@ -1,0 +1,25 @@
+{
+  "schema": "rtd_transient_timestep_convergence.v1",
+  "case": "SENSE+ open from healthy 100 ohm",
+  "rdiag_ohm": 1057000.0,
+  "rwin_ohm": 102000.0,
+  "results": [
+    {
+      "dt_us": 1.0,
+      "crossing_ms": 0.37,
+      "final_margin_v": -1.086793277906417
+    },
+    {
+      "dt_us": 0.5,
+      "crossing_ms": 0.3695,
+      "final_margin_v": -1.086864759641671
+    },
+    {
+      "dt_us": 0.25,
+      "crossing_ms": 0.36925,
+      "final_margin_v": -1.0869005021030593
+    }
+  ],
+  "crossing_spread_ms": 0.0007499999999999729,
+  "scope": "one selected numerical-discretization check; not a PVT or whole-unit acceptance proof"
+}

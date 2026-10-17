@@ -1,0 +1,15 @@
+{
+  "components": 142,
+  "pins": 390,
+  "pin_type_counts": {
+    "passive": 295,
+    "input": 28,
+    "power_in": 44,
+    "output": 15,
+    "power_out": 6,
+    "open_collector": 2
+  },
+  "connectivity_authority": "frozen/default.net",
+  "annotation_authority": "../prototype-closure/pcb/pin-functions.json",
+  "physical": "NOT_RUN"
+}

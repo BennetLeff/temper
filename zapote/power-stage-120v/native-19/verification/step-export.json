@@ -1,0 +1,13 @@
+{
+  "step_sha256": "b4b9edb5ad9c4b0aa4e1b69158abb6be8b9ce203b561c1d34a58e88812a8fa4c",
+  "board_sha256": "3557aa444873fa8b45eb7e0ae8ec3a4bc2b5cd526826b338b58d50e57747430b",
+  "read_success": true,
+  "transferred_roots": 1,
+  "shape_valid": true,
+  "solids": 216,
+  "expected_component_references": 142,
+  "top_level_expected_references_found": 142,
+  "missing_component_references": [],
+  "physical": "NOT_RUN",
+  "limitation": "STEP import/validity and reference completeness only;24package envelopes provisional. No interference or product qualification."
+}

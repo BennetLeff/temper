@@ -1,0 +1,65 @@
+{
+ "a": "legB-corr-n19",
+ "b": "legB-best-n19",
+ "cases": 96,
+ "verdict_flips": [],
+ "by_case": {
+  "S1": {
+   "vgs_off_max": {
+    "delta_min": -0.0178,
+    "delta_max": 0.0071,
+    "b_max": 1.009
+   },
+   "vds_pk": {
+    "delta_min": -0.5331,
+    "delta_max": 0.3269,
+    "b_max": 383.5114
+   }
+  },
+  "S2": {
+   "vgs_off_max": {
+    "delta_min": -0.0329,
+    "delta_max": 0.0054,
+    "b_max": 1.2821
+   },
+   "vds_pk": {
+    "delta_min": -0.1979,
+    "delta_max": 0.9261,
+    "b_max": 353.9361
+   }
+  },
+  "S4": {
+   "vgs_off_max": {
+    "delta_min": -0.0257,
+    "delta_max": 0.027,
+    "b_max": 4.2564
+   },
+   "vds_pk": {
+    "delta_min": -0.6921,
+    "delta_max": 5.0128,
+    "b_max": 525.1238
+   }
+  }
+ },
+ "pass_counts": {
+  "S1": {
+   "a": 36,
+   "b": 36,
+   "of": 36
+  },
+  "S2": {
+   "a": 24,
+   "b": 24,
+   "of": 24
+  },
+  "S4": {
+   "a": 0,
+   "b": 0,
+   "of": 36
+  }
+ },
+ "zvs_S1_b": {
+  "yes": 12,
+  "of": 12
+ }
+}

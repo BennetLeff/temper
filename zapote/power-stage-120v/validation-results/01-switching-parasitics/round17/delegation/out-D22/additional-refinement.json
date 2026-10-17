@@ -1,0 +1,15 @@
+[
+  {
+    "label": "envelope-v170-f35000-r2-e10-c32-s0.05",
+    "config": {
+      "bus": 170,
+      "freq": 35000,
+      "resistance": 2,
+      "esl": 10,
+      "step": 0.05,
+      "cycles": 32,
+      "timeout": 14400,
+      "reference_label": "envelope-v170-f35000-r2-e10-c32-s0.1"
+    }
+  }
+]

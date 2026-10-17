@@ -1,0 +1,27 @@
+--- elec/src/modules.ato
++++ elec/src/modules.ato
+@@ -2017,18 +2017,21 @@
+     high_window.VCC ~ fb_power.p2
+     low_window.GND ~ power.gnd
+     high_window.GND ~ power.gnd
+-    adc.REFIN_N ~ low_window.INP
++    # Both analogue comparators observe the RTDIN+ endpoint.  The low
++    # divider bottom is referenced to RTDIN- so an open SENSE- raises its
++    # threshold above the intact SENSE+ endpoint.
++    adc.RTDIN_P ~ low_window.INP
+     reference.VBIAS ~ r_low_top.p1
+     r_low_top.p2 ~ low_window.INN
+     low_window.INN ~ r_low_bottom.p1
+-    r_low_bottom.p2 ~ power.gnd
++    r_low_bottom.p2 ~ adc.RTDIN_N
+     # Invert the high comparison so both outputs are high only inside the
+     # permitted RTD voltage window.
+     reference.VBIAS ~ r_high_top.p1
+     r_high_top.p2 ~ high_window.INP
+     high_window.INP ~ r_high_bottom.p1
+     r_high_bottom.p2 ~ power.gnd
+-    adc.REFIN_N ~ high_window.INN
++    adc.RTDIN_P ~ high_window.INN
+ 
+     window_and = new SN74LVC1G08
+     window_and.VCC ~ fb_power.p2

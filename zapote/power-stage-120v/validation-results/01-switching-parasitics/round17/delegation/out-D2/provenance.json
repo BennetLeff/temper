@@ -1,0 +1,42 @@
+{
+  "source_revision": "67aec36f8c876a7026c07ce3752105ab34d3ce46",
+  "model_provider": "GPT-6 Astra / OpenAI",
+  "python": "3.12.12",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "ngspice": "******\n** ngspice-45.2 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******\n",
+  "inputs_sha256": {
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/run_d2.py": "1ea37c6c1b23c51e5dc694935c3d90336f45892432e17949d75df6a4d19e6579",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/leg_matrix.cir": "b2dd2eaaa0c338a0ad982568b3bed5cbf5d974320dc49c0a9a9c2c8ab1d5a607",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/run_ngspice.py": "e518996d3c4050f3fbbb109abbf116a23b010612dd073bea860d3db613f758b0",
+    "zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc": "ae752d460d50fdbbcaaf03b29871b3b039cf27f018707efe4aa50d0fc3529330",
+    "zapote/power-stage-120v/validation-plan/sim-kit/models/vendor/IFX_CFD7_650V.lib": "02ac6634f47c25be04e8de3c6eec4ec8cf403b659001b7f176c8f98bb6e9ce3b",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h1-e0p35.matrix.txt": "2a3f4f428cda463412f3d26464d5c6b8b21dde846b348a5385011f8e31b1b5f0",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legA-h0-lin12.matrix.txt": "22a9129a291bf7de52e81ab37e3e51871c9e17882882034e67df446679429d00",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D2/run_cases.py": "4044d315d4c91959f29a403837a703751cbf3c196b97f8af37313c8f18ac02cb",
+    "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/delegation/out-D2/leg_matrix.cir": "6f42bf5e5e52d95c33c18f3c0dbdbb24c3c64c01ef02c8da5e2f86bb09b5be96"
+  },
+  "variants": {
+    "baseline": {
+      "ROH": "5",
+      "ROL": "0.55",
+      "TCMD": "5n"
+    },
+    "boost": {
+      "ROH": "1.13601236476",
+      "ROL": "0.55",
+      "TCMD": "5n"
+    },
+    "weak_sink": {
+      "ROH": "1.13601236476",
+      "ROL": "0.75",
+      "TCMD": "5n"
+    },
+    "slow_edge": {
+      "ROH": "1.13601236476",
+      "ROL": "0.75",
+      "TCMD": "10n"
+    }
+  },
+  "status": "complete",
+  "completed_runs": 24
+}

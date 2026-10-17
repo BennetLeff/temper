@@ -1,0 +1,144 @@
+{
+  "evidence_class": "vendor typical model, not mounted-assembly measurement or production bound",
+  "archive_sha256": "5eb5219af01c3fdaf80e68343fe9815960cc9d6696e216eccc9ddb78d9574df2",
+  "member_sha256": {
+    "Readme.txt": "66ca317b0b5626a8d852772df958f02daea618a953c1b57fe8bfbb8fc81d5cc5",
+    "History.txt": "27592169124895c7a4f32b8e5d976eae805ea0f82e4479f54485cf276c3bdb46",
+    "Disclaimer.txt": "1ce928ef6b677d59d73f2fdfcebfb85cd0f31e9de978364460702163d73e69d8",
+    "TDK_B32651-8.lib": "c3c59e7ab7bdaa8e8baeecfc34eed84c1757b9b27b398ff412798bedab970e8b"
+  },
+  "library_version": "1.10",
+  "library_date": "2025-03-21",
+  "topology": "BASE1 series RC dispersion, two R||L branches, Cs1 and Ls1; whole path shunted by Rp1",
+  "parts": [
+    {
+      "model": "B32652A0104K",
+      "nominal_capacitance_f": 1e-07,
+      "subcircuit_lines": [
+        269,
+        282
+      ],
+      "model_series_capacitance_f": 1.0004e-07,
+      "inductor_parameters_nh": {
+        "Ls1": 0.56365,
+        "Lp61": 0.95082,
+        "Lp71": 2.12
+      },
+      "rl_branch_resistors_ohm": {
+        "Rp61": 0.0037462,
+        "Rp71": 0.11376
+      },
+      "low_frequency_inductor_sum_nh": 3.6344700000000003,
+      "model_first_srf_mhz": 15.45822492950999,
+      "srf_equivalent_esl_nominal_c_nh": 1.0600369860128476,
+      "z_at_srf_real_ohm": 0.10591675764491941,
+      "z_at_srf_imag_ohm": 2.7755575615591698e-17,
+      "reading_uncertainty": "none: analytic evaluation of pinned typical model; model/assembly uncertainty unspecified"
+    },
+    {
+      "model": "B32656G0275J",
+      "nominal_capacitance_f": 2.7e-06,
+      "subcircuit_lines": [
+        9287,
+        9300
+      ],
+      "model_series_capacitance_f": 2.7013e-06,
+      "inductor_parameters_nh": {
+        "Ls1": 11.364,
+        "Lp61": 4.1527,
+        "Lp71": 7.930400000000001
+      },
+      "rl_branch_resistors_ohm": {
+        "Rp61": 0.0041465,
+        "Rp71": 0.18227
+      },
+      "low_frequency_inductor_sum_nh": 23.4471,
+      "model_first_srf_mhz": 0.6990207206815674,
+      "srf_equivalent_esl_nominal_c_nh": 19.19978653274989,
+      "z_at_srf_real_ohm": 0.01291947815874208,
+      "z_at_srf_imag_ohm": 6.9388939039066175e-18,
+      "reading_uncertainty": "none: analytic evaluation of pinned typical model; model/assembly uncertainty unspecified"
+    }
+  ],
+  "ngspice_check": {
+    "version": "** ngspice-45.2 : Circuit level simulation program",
+    "points_per_model": 6001,
+    "frequency_hz": [
+      1000.0,
+      999999999.9996796
+    ],
+    "points_per_decade": 1000,
+    "relative_agreement_acceptance": 1e-05,
+    "library_unmodified": true,
+    "ngbehavior": "ps",
+    "log_sha256": "9e5b8e99f35be9db0ef62e268eaa1c4b42d0303160185397e6151c3865b94f6c",
+    "parts": [
+      {
+        "model": "B32652A0104K",
+        "ngspice_interpolated_srf_mhz": 15.4582333015868,
+        "srf_relative_difference": 5.415936725761128e-07,
+        "maximum_complex_impedance_relative_error": 5.537724671505798e-09,
+        "samples": [
+          {
+            "frequency_hz": 9999.99999999948,
+            "ngspice_z_real_ohm": 0.0582711100004271,
+            "ngspice_z_imag_ohm": -159.2190587455584
+          },
+          {
+            "frequency_hz": 99999.99999998961,
+            "ngspice_z_real_ohm": 0.01782821095525442,
+            "ngspice_z_imag_ohm": -15.92602246428085
+          },
+          {
+            "frequency_hz": 999999.9999998407,
+            "ngspice_z_real_ohm": 0.0192830341285379,
+            "ngspice_z_imag_ohm": -1.574592899860636
+          },
+          {
+            "frequency_hz": 9999999.999997878,
+            "ngspice_z_real_ohm": 0.08453264739822647,
+            "ngspice_z_imag_ohm": -0.06746790301107304
+          },
+          {
+            "frequency_hz": 99999999.99997348,
+            "ngspice_z_real_ohm": 0.1317018999634855,
+            "ngspice_z_imag_ohm": 0.347890715449574
+          }
+        ]
+      },
+      {
+        "model": "B32656G0275J",
+        "ngspice_interpolated_srf_mhz": 0.6990212103921197,
+        "srf_relative_difference": 7.005665751957935e-07,
+        "maximum_complex_impedance_relative_error": 3.0715858782165683e-06,
+        "samples": [
+          {
+            "frequency_hz": 9999.99999999948,
+            "ngspice_z_real_ohm": 0.003893778624571039,
+            "ngspice_z_imag_ohm": -5.897859280895046
+          },
+          {
+            "frequency_hz": 99999.99999998961,
+            "ngspice_z_real_ohm": 0.003898060457646648,
+            "ngspice_z_imag_ohm": -0.5760626586564179
+          },
+          {
+            "frequency_hz": 999999.9999998407,
+            "ngspice_z_real_ohm": 0.01927383948206823,
+            "ngspice_z_imag_ohm": 0.05940254781628725
+          },
+          {
+            "frequency_hz": 9999999.999997878,
+            "ngspice_z_real_ohm": 0.167459244676941,
+            "ngspice_z_imag_ohm": 0.766991752104532
+          },
+          {
+            "frequency_hz": 99999999.99997348,
+            "ngspice_z_real_ohm": 0.1887275045551065,
+            "ngspice_z_imag_ohm": 7.146286845627237
+          }
+        ]
+      }
+    ]
+  }
+}

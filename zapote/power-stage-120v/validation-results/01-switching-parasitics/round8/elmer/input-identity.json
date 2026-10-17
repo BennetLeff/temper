@@ -1,0 +1,40 @@
+{
+  "round7_root": "/Users/bennet/.codex/worktrees/ps-r4-integration/temper/zapote/power-stage-120v/validation-results/01-switching-parasitics/round7/d1-fem",
+  "round8_root": ".",
+  "cases": [
+    {
+      "label": "coax-port0p10-vol0p30",
+      "mesh_file_sha256": {
+        "mesh.nodes": "c39f2c38175bdb8e028555d03a753a2b77d46ecfa8e1003c23797fd9db066b15",
+        "mesh.elements": "e6d9de6e46114ba2062ca0c070009c31a1a954436d489fbd792cf6b40965e8cf",
+        "mesh.boundary": "d5768d08e8cd703c9a0c1528403e0bb6f6edc001ae028fa8c5357875a149a896",
+        "mesh.header": "5f1f573cba5bdec203091476a9ba437a623d9cb1147b8a61e802bcac9ae7af1b",
+        "mesh.names": "aa55d2ee3c52fdebe4203833cb563bb6cc474afb8d23ed3fed4c92cd53c7eeda"
+      },
+      "sif_change": "backend and result path only"
+    },
+    {
+      "label": "coax-port0p08-vol0p25",
+      "mesh_file_sha256": {
+        "mesh.nodes": "1c19cbdc3354ef5b0b7b2676c0158532011aabbd152a38e48aa6acec0fa27845",
+        "mesh.elements": "0c711913256f3d17a15f3d4357d4a2a8b8d28717dcfaf33c53275530094bb353",
+        "mesh.boundary": "1d571616827e5551791f0838391301ecf97ae3aa8ef9edcc43f8f70e774ad955",
+        "mesh.header": "a84e6e454e08a2c20ad7513c0ac230848e8bacc6cc5fe9b938a10d1eb4b7478e",
+        "mesh.names": "aa55d2ee3c52fdebe4203833cb563bb6cc474afb8d23ed3fed4c92cd53c7eeda"
+      },
+      "sif_change": "backend and result path only"
+    },
+    {
+      "label": "plates-box0p4-far4-m20",
+      "mesh_file_sha256": {
+        "mesh.nodes": "9a514d77fc04fb22a2d5585a4978352692b58fee131d4ce700966b6c428dae29",
+        "mesh.elements": "124efaf7cc26ebf05626bc533a8f74d56c30e1435ad9a35837007ee7d54772a1",
+        "mesh.boundary": "8aad112e370a6f553b0004321b9933cd7947cdbfc383ffd570512b559eaa3917",
+        "mesh.header": "9429d8487bae87f04959ccb404578b56026c336d00487d75f611aaa7ca1b653a",
+        "mesh.names": "aa55d2ee3c52fdebe4203833cb563bb6cc474afb8d23ed3fed4c92cd53c7eeda"
+      },
+      "sif_change": "backend and result path only"
+    }
+  ],
+  "all_inputs_matched": true
+}

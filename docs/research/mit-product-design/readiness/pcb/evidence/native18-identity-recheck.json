@@ -1,0 +1,18 @@
+{
+  "pass": true,
+  "native17_board_sha256": "16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162",
+  "native18_board_sha256": "fb113d95819f1ea7cd8c27f929f7e88308eff44b663af85f71cd6f2bca5a0002",
+  "checks": [
+    "section.kicad_pcb: only 4 intended MPN substitutions",
+    "section.kicad_sch: only 2 intended MPN substitutions",
+    "all inherited libraries, route receipts and design sidecars byte-identical",
+    "fresh resolved source matches manifest; only R9/R17 attributes and BOM row changed; netlist identical after source-path normalization",
+    "copper.json: identical apart from ('board_path', 'board_sha256')",
+    "connectivity.json: identical apart from ('board_sha256',)",
+    "geometry-via.json: identical apart from ('board_sha256',)",
+    "west-parallel.json: identical apart from ('board_sha256',)",
+    "hardware-surface.json: identical apart from no fields",
+    "bus-sheet output and placement metrics identical (excluding board path)",
+    "four DRC runs: exact same violation lists and no schematic mismatch; open representative varies, full pad clusters identical"
+  ]
+}

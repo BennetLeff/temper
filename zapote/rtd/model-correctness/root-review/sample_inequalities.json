@@ -1,0 +1,40 @@
+{
+  "seed": 39165,
+  "parameter_draws": 500,
+  "fault_evaluations": 2500,
+  "scope": "sample falsification only; exact zero separately checked by ngspice; continuous coverage requires analytic proof",
+  "network_source_sha256": "10bf20d877af0a7d50773bd3d7d43278b06fc7445e8b15003f151a67ad686554",
+  "maxima": {
+    "FORCE+": {
+      "energy_fraction": 0.0002564990747825327,
+      "dual_fraction": 0.6211998321479957,
+      "final_margin_v": -0.1666475735183011,
+      "delta_fraction": 0.35453480867495984
+    },
+    "FORCE-": {
+      "energy_fraction": 0.0008879215393001231,
+      "dual_fraction": 0.999994169696131,
+      "final_margin_v": -1.1514354819024941,
+      "delta_fraction": 0.9762278897987734
+    },
+    "SENSE+": {
+      "energy_fraction": 0.6648619954345778,
+      "dual_fraction": 1.000000000000001,
+      "final_margin_v": -1.1209964906145702,
+      "delta_fraction": 0.8196825387191309
+    },
+    "SENSE-": {
+      "energy_fraction": 0.26296919989294976,
+      "dual_fraction": 0.9976125248331227,
+      "final_margin_v": -0.5475594289663497,
+      "delta_fraction": 0.6336786326580705
+    },
+    "SHORT": {
+      "energy_fraction": 0.030723460244147297,
+      "dual_fraction": 0.3892648694868552,
+      "final_margin_v": -0.09728165971638875,
+      "delta_fraction": 0.3033192200273786
+    }
+  },
+  "status": "no counterexample found"
+}

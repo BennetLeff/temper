@@ -1,0 +1,53 @@
+{
+ "cases": 306,
+ "aborted": 6,
+ "pass": 162,
+ "fail": 144,
+ "fail_by_criterion": {
+  "pass_vds": 39,
+  "pass_off_gate": 144,
+  "pass_vgs_transient": 6
+ },
+ "off_gate_fail_causes": {
+  "deadtime_too_short": 84,
+  "rebound": 60
+ },
+ "off_gate_fails_by_dt_ns": {
+  "250": 102,
+  "348": 22,
+  "450": 20
+ },
+ "zvs_S1_at_348ns": {
+  "yes": 18,
+  "no": 0
+ },
+ "worst": {
+  "vds_pk": {
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 450,
+   "esl_nH": 10,
+   "vds_pk": 544.0543
+  },
+  "vgs_off_max": {
+   "case": "S2",
+   "vbus": 280,
+   "il": 71,
+   "dir": 0,
+   "dt_ns": 250,
+   "esl_nH": 5,
+   "vgs_off_max": 5.716304
+  },
+  "vgs_abs_max": {
+   "case": "S4",
+   "vbus": 170,
+   "il": -20,
+   "dir": 0,
+   "dt_ns": 250,
+   "esl_nH": 5,
+   "vgs_abs_max": 15.02291
+  }
+ }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "proposed_nominal",
+    "damped": false,
+    "peak_DC_port_impedance_Ohm": 254.13925568791603,
+    "Hz": 3828.634522379468
+  },
+  {
+    "scenario": "proposed_nominal",
+    "damped": true,
+    "peak_DC_port_impedance_Ohm": 29.64527154086326,
+    "Hz": 3373.067307130132
+  },
+  {
+    "scenario": "old_low_leakage",
+    "damped": false,
+    "peak_DC_port_impedance_Ohm": 211.68556326794155,
+    "Hz": 4126.245667902854
+  },
+  {
+    "scenario": "old_low_leakage",
+    "damped": true,
+    "peak_DC_port_impedance_Ohm": 27.98610779099764,
+    "Hz": 3656.259711218528
+  },
+  {
+    "scenario": "all_high_parasitics",
+    "damped": false,
+    "peak_DC_port_impedance_Ohm": 211.70492582776606,
+    "Hz": 4126.245667902854
+  },
+  {
+    "scenario": "all_high_parasitics",
+    "damped": true,
+    "peak_DC_port_impedance_Ohm": 27.85685525873722,
+    "Hz": 3656.259711218528
+  }
+]
