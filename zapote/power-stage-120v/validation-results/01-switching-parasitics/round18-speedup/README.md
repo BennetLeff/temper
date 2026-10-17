@@ -260,6 +260,21 @@ is never OOM'd; option 1 or 2 is the user's call.
 ~57 GB estimate most likely). `scripts/variant2.sh` now also holds experiments during any
 `-e0p*` case, not only `e0p35`.
 
+**Outcome (2026-10-16).** B21's 0.35 mm fine case fitted (9,074,474 tets; v2 solved it).
+A21 at 0.45 mm: 8,001,795 tets, peak 47.2-47.5 GB (5.9 kB/tet), 7325-8838 iterations
+per port, 2.8-3.4 h per port with scaling off; matrix `matrices/legA21-h1-e0p45-n21`
+(B vs energy <= 1.2e-7). The box went down twice during P4:
+- 2026-10-10 ~14:57 UTC: the journal stops mid-session with no OOM, panic or shutdown
+  record. Cause unknown.
+- 2026-10-16 16:25 UTC: OOM. Another session's task-04 batch (8 x ~5 GB `run_board.py`)
+  started beside the 47 GB solve; with 2 GB swap the box thrashed and dropped off
+  Tailscale ~17:52.
+
+Each time P1-P3 were reused by receipt and only P4 was redone. A heavy run now leaves
+`~/temper-fem/HEAVY-RUN.txt` on the box. Both legs' decision cases are in
+`../round17/d2/README.md` (native-21 sections): **both legs pass with F6 at the -1.6 V
+bound**.
+
 ## 6. The Mac as a second node (estimate)
 
 `scripts/mac_estimate.py` (`logs/mac_estimate.txt`). Round 17's only Mac board solves
