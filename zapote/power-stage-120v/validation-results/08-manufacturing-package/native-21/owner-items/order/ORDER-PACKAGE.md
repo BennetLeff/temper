@@ -1,12 +1,17 @@
 # Native-21 prototype lot at JLCPCB: order package for owner approval
 
-> **Superseded (2026-10-15):** the current order plan is `../../PROTOTYPE-LOT.md`, regenerated for s43. Do not order from this file.
-
-> **Superseded in part, 2026-10-09:** this package describes stage 11/12. The order must be regenerated from **stage 13** before it is placed.
-> - **BOM simplification:** `../../bom-simplification/` (66 → 45 Extended types). It also clears three blockers listed below: R34 → 12.4 k / 11.7 k, R77/R95/R110 → 6.2 k, R87/R105/R120 → Viking ARG03BTC1333.
-> - **Resonant bank:** C21–C23 (942C) become **5 × TDK B32654A1104K000**.
+> **Current for s52 (2026-10-16). Prepared, NOT ordered.** Nothing was ordered, carted, logged into or submitted. The order plan is
+> `../../PROTOTYPE-LOT.md`. This package supplies its files:
+> - `proto-stock-s52-20boards.csv`: every fitted BOM line against 20 boards, 0 short, on the scorecard's stock-gate rules
+>   (`scripts/proto_stock.py`);
+> - `CPL-PREVIEW-CHECKLIST.md`: the 23 NEEDS-PREVIEW parts to confirm in JLC's CPL preview (`scripts/cpl_preview_checklist.py`);
+> - board `5e7c12c144b6…` (SHA-256 `5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34`), gerbers
+>   `fab/native-21-gerbers.zip` SHA-256 `ad585c16167e33a8cdd87b8bc9f2e1ca718432fd8fa09390f0c9849fe43797e2` (FAB-NOTE.md);
+> - consigned or hand-assembled: the bank (TDK B32643H8104J000, DigiKey 306 against 100) and L1 (B82726S2243A020, Mouser 62 /
+>   DigiKey 29 against 20), with F1, C1 / C2, C5 / C6, J3 / J11, D3 / D17 and U41 / U42.
 >
-> The stock tables below are the 2026-10-08 survey. Use `CODEX-PROCUREMENT-TASK.md` (updated) for the current part list.
+> The text below is the stage 11/12 survey of 2026-10-08, kept as history: its stock tables, part choices and "NO-GO" verdict
+> are not the s52 state. Ordering is a purchase and needs the owner.
 
 Prepared 2026-10-08 (US time; fetches stamped 2026-10-09 04:29 UTC). **Nothing was ordered, carted, logged into or submitted.** This is preparation only. The owner approves and places the order.
 
