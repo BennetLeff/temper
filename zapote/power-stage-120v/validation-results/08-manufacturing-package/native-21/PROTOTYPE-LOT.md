@@ -5,7 +5,7 @@ Regenerated for s52 on 2026-10-16 and re-pointed to s53 (integration board `82af
 | Block | Committed source |
 | --- | --- |
 | Board, fab, via covering, laminate, finish | `fab/FAB-NOTE.md` (s52), `../../../native-21/stackup.json`, DECISIONS 40, 41, 44 |
-| BOM and CPL | `fab/bom-jlcpcb.csv` (95 lines), `fab/cpl-jlcpcb.csv` (372 rows), `cpl-rotation-audit/audit.csv` |
+| BOM and CPL | `fab/bom-jlcpcb.csv` (95 lines), **`fab/cpl-jlcpcb-order.csv`** (372 rows, the file to upload to JLC: rotation-corrected and Y-negated), `fab/cpl-jlcpcb.csv` (the uncorrected positive-Y source), `cpl-rotation-audit/audit.csv` |
 | Stock at 20 boards | `owner-items/order/proto-stock-s52-20boards.csv`, from `owner-items/order/scripts/proto_stock.py` (asserts agreement with the scorecard's `bom_lines_short_proto`); dated reads `sourcing/STOCK-2026-10-16.csv`, `STOCK-2026-10-16-bank-s52.csv` over `SNAPSHOT-2026-10-15.csv` |
 | Bank, L1, Y caps, EMI, 24 A ceiling | DECISIONS 74; `../../11-candidates/s52-proto-bom/README.md` |
 | Scorecard | `../../10-benchmark/scorecard-native21s53.json` |
@@ -30,7 +30,7 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
 | Via covering | **Epoxy-filled and capped (POFV) for every 0.3 mm via, no exceptions**; the ten 1.6/0.8 mm current vias stay tented | FAB-NOTE |
 | Stencil | J2 / J5 want 150 µm paste; fine-pitch stencil not chosen (B6, decide at order) | OPEN-ITEMS B6 |
 | Quoted bare board | $17.28 per board at 500 (4 L, JLC041622-7628 pinned); no prototype-quantity figure on record for the s52 spec | DECISIONS 40 |
-| SMT assembly | From `fab/bom-jlcpcb.csv` + `fab/cpl-jlcpcb.csv`: **95 BOM lines, 372 CPL rows.** 87 lines are marked JLC (19 Basic, 68 Extended); **8 are consigned or hand-assembled**: F1, C1 / C2, **L1**, C5 / C6, **the bank C21–C23 / C151 / C152**, J3 / J11, D3 / D17, U41 / U42. How many boards JLC assembles is the owner's choice inside the lot; the stock bound is 20 | BOM Assembly column |
+| SMT assembly | From `fab/bom-jlcpcb.csv` + `fab/cpl-jlcpcb-order.csv` (upload this one: `fab/cpl-jlcpcb.csv` previews mirrored off the board in JLC's viewer): **95 BOM lines, 372 CPL rows.** 87 lines are marked JLC (19 Basic, 68 Extended); **8 are consigned or hand-assembled**: F1, C1 / C2, **L1**, C5 / C6, **the bank C21–C23 / C151 / C152**, J3 / J11, D3 / D17, U41 / U42. How many boards JLC assembles is the owner's choice inside the lot; the stock bound is 20 | BOM Assembly column |
 | CPL | OK 300 / CORRECTED 32 / NEEDS-PREVIEW **23** / excluded 17. Confirm the 23 in JLC's preview with `owner-items/order/CPL-PREVIEW-CHECKLIST.md` before confirming the order | `cpl-rotation-audit/audit.csv` |
 
 **Consigned or hand-assembled in this lot.**

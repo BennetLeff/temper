@@ -171,7 +171,7 @@ If either option is greyed out, ask JLC; don't drop the requirement.
 | PCBA qty | **2** |
 | Tooling holes | Added by JLCPCB. The board has 3 fiducials |
 | Confirm parts placement | **Yes**. Check every rotation (FAB-NOTE, M9) |
-| Files | `fab/bom-jlcpcb.csv` and `fab/cpl-jlcpcb.csv` |
+| Files | `fab/bom-jlcpcb.csv` and `fab/cpl-jlcpcb.csv` (**s53: upload `fab/cpl-jlcpcb-order.csv` instead**; the old file previews mirrored off the board) |
 | BOM confirmation step | Apply the 3 swaps in 1a. **Untick every THT line** (hand-soldered in house) and every zero-stock or consigned SMD line (U1/U2, T1, T2/T3, R34, ISO7710 ×4, VOL628A, WSK R5, the 6.12 kΩ parts) |
 
 ## 2a. Cost estimate (ESTIMATE, not a JLC quote)

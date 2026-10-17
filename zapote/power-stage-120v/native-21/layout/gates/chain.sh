@@ -131,6 +131,9 @@ P_FIT=$!
   ( cd validation-results/08-manufacturing-package/native-21/cpl-rotation-audit && python3 -I extract_kicad.py $BP >/dev/null && python3 -I audit.py | tail -1 ) || exit 1
   python3 -c "import csv;import json;A='validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/';lc={d.strip():r['LCSC Part #'].strip() for r in csv.DictReader(open('$O/bom-jlcpcb.csv')) for d in r['Designator'].split(',')};a={r['designator'] for r in csv.DictReader(open(A+'audit.csv'))}|{x['designator'] for x in json.load(open(A+'audit.json'))['excluded'] if not lc.get(x['designator'])};c={r['Designator'] for r in csv.DictReader(open('$O/cpl-jlcpcb.csv'))};m=sorted(c-a);print('CPL audit covers',len(c&a),'of',len(c));assert not m,('CPL lines not audited (or excluded although they now have an LCSC code)',m)" || exit 1
   python3 native-21/layout/gates/bom_cpl_check.py $O/bom-jlcpcb.csv $O/cpl-jlcpcb.csv validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected.csv || exit 1
+  # stage 53 (JLC viewer, 2026-10-17): JLC's frame has the board at Y 0..-190, so the file to UPLOAD is the rotation-corrected, Y-negated CPL;
+  # fab/cpl-jlcpcb.csv (Y positive, uncorrected) previews mirrored off the board. Ship it next to the BOM as the order file.
+  cp validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected-ynegated.csv $O/cpl-jlcpcb-order.csv || exit 1
   $KC pcb export pdf --mode-multipage --scale 0 --output $O/assembly-drawing.pdf --layers F.Fab,F.Silkscreen,Edge.Cuts --cl Edge.Cuts --sketch-pads-on-fab-layers --black-and-white $BP >/dev/null 2>&1
   python3 validation-results/08-manufacturing-package/native-21/scripts/review_fab.py $O/gerbers validation-results/08-manufacturing-package/native-21/review.json | tail -1
   grep "Total plated\|Total unplated" $O/drill-report.txt
