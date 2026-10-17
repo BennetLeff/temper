@@ -1,3 +1,9 @@
+> **s52 status (2026-10-16): the body below is the 2026-10-08 MDA-25-R inquiry and is not yet rewritten.** On the board of record F1 is the
+> Littelfuse KLDR025.TXP (UL Class CC, 600 Vac, 200 kA) in 2 x 01250003H open clips (FAB-NOTE.md); there is no inlet fuse and F1 never
+> opens at 15-25 A (CERTIFIER-CHECKLIST.md entries 11 and 13). Ask the lab: the open-clip acceptance (01250003H voltage rating and agency
+> file), the tank-voltage RMS convention, and the abnormal-operation test with the firmware limit defeated. Drop the MDA-25-R
+> interrupting-rating questions. Rewrite before sending; not sent.
+
 # [Nameplate decided 2026-10-08: **120–127 V~ 60 Hz, US/Canada and Mexico from day 1**. Keep the 127 V-nominal questions, and add NOM (ANCE/NYCE) to the scope. **F1 is now a UL Class CC Littelfuse KLDR025.TXP (600 Vac, 200 kA, UL Listed) in 2 × Littelfuse 01250003H open PCB clips.** The interrupting-rating-at-127 V questions are moot; rewrite them to state the Class CC fuse. Keep the open-clip acceptance question (01250003H's voltage rating and agency file), and the heatsink-grade and tank-RMS questions.]
 
 # Inquiry 2: F1 fuse interrupting rating at 127 V, to a certification lab

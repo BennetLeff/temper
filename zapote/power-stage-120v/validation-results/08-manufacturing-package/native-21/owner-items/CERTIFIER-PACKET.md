@@ -1,6 +1,8 @@
 # Certifier and owner question packet (native-21), 2026-10-14
 
-Status: **draft, not sent.** One index of every open question the design is waiting on, so the outreach round is one
+Status: **draft, not sent. Refreshed to s52 on 2026-10-16** (board of record, DECISIONS 74; the original text is 2026-10-14). The
+touch-current, PS1 / PS2 / PS3, U44 and bank figures below are the s52 ones; `CERTIFIER-CHECKLIST.md` is the ranked list.
+ One index of every open question the design is waiting on, so the outreach round is one
 email per recipient. Each line points at the record that holds the evidence and the full wording; send those, not this
 summary. The `$` column is the per-board effect at 500 where a record computes one.
 
@@ -9,9 +11,9 @@ summary. The `$` column is the per-board effect at 500 where a record computes o
 ### A1. Touch current (F5), which decides how far candidate 23 must go
 | # | Question | Effect | Record |
 |---|---|---|---|
-| 1 | Limit class: portable 0.5 mA or stationary 0.75 mA (countertop cooker, cord and plug) | 0.419 mA after cand. 23 passes either | `validation-results/12-decisions/F5-LEAKAGE-DECISION.md` §1 |
+| 1 | Limit class: portable 0.5 mA or stationary 0.75 mA (countertop cooker, cord and plug) | **0.2412 mA as built since s38** (budget 0.25, margin 8.8 µA; S1, DECISIONS 50; s52 Y caps DE1E3RA222MJ4BH01F keep it) passes either | `validation-results/12-decisions/F5-LEAKAGE-DECISION.md` §1 |
 | 2 | Supply-module leakage: measured on the product, or taken at the datasheet maximum (< 0.25 mA / 277 Vac) | sets Test A vs Test B | same, §2 |
-| 3 | PS2's output is HOT-referenced (no PE bond): does its Y current count in the PE path? | 0.419 -> 0.276 mA | `11-candidates/g06-g08-g10-supplies-sense-io/PROPOSALS.md` P3 |
+| 3 | PS2's output is HOT-referenced (no PE bond): does its Y current count in the PE path? | was 0.419 -> 0.276 mA at the 2026-10-14 draft; 0.2412 mA total as built | `11-candidates/g06-g08-g10-supplies-sense-io/PROPOSALS.md` P3 |
 | 4 | Test voltage and meter network for a 120 V product (model uses 132 V; HF weighting would help the coil term) | small | F5 record §1 |
 
 ### A2. Fusing
@@ -29,9 +31,9 @@ summary. The `$` column is the per-board effect at 500 where a record computes o
 | 10 | Same-layer inner paths count as solid insulation (reinforced, 2 mm per IEC 60335-1 29.3); all inner RES_A copper is >= 8.0 mm in plan view | release; also the basis for any 6-layer build | `fab/FAB-NOTE.md:22`; DECISIONS.md:756 |
 | 11 | Working voltage on the coil lanes: line-cycle RMS or carrier-crest RMS | crest RMS = board-wide re-layout | DECISIONS.md:255, 489 |
 | 12 | PD2 for the potted winding system | release | DECISIONS.md:489 |
-| 13 | Potted PS1: pins and joints as the clearance reference instead of the courtyard | **moot if candidate 23 lands** | DECISIONS.md:676 |
-| 14 | **New:** PS1 / PS2 / PS3 (Mean Well IRM-20 / IRM-60) are approved to UL 62368-1 / IEC 61558 (OVC II under 62368), not to an appliance standard: accepted as components in a UL 1026 product? | release | IRM-20-SPEC 2025-11-21 p.2 "SAFETY STANDARDS"; ledger entries IRM-20-15 / IRM-20-24 |
-| 15 | UL files from datasheets, not yet looked up: Chipanalog E511334 (U9 / U32 / U44), RECOM E542996 (U41 / U42) | release | DECISIONS.md:1163; `11-candidates/c31-bom/README.md` |
+| 13 | Potted PS1 (**PS1 is deleted since s38; no longer asked**): pins and joints as the clearance reference instead of the courtyard | **moot if candidate 23 lands** | DECISIONS.md:676 |
+| 14 | **New:** PS2 (MEAN WELL MPM-20-24, on board) and PS3 (MPM-65-15ST, off-board, controller side; formerly IRM-20 / IRM-60) are approved to UL 62368-1 / IEC 61558 (OVC II under 62368), not to an appliance standard: accepted as components in a UL 1026 product? | release | IRM-20-SPEC 2025-11-21 p.2 "SAFETY STANDARDS"; ledger entries IRM-20-15 / IRM-20-24 |
+| 15 | UL files from datasheets, not yet looked up: Chipanalog E511334 (U9 / U32; U44 is a second ISO6721FB since DECISIONS stage 40), RECOM E542996 (U41 / U42) | release | DECISIONS.md:1163; `11-candidates/c31-bom/README.md` |
 | 16 | A SELV controller powered from a chassis Class II module (PS3) through a 292 mm harness | candidate 23 | PROPOSALS.md P1 "SAFETY" |
 | 17 | Removing R1 / R2 | small | DECISIONS.md:352 |
 

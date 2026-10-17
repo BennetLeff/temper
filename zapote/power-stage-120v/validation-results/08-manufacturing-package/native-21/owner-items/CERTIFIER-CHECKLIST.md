@@ -1,4 +1,4 @@
-# Certifier pre-review checklist: Temper 120 V induction cooktop power board (native-21, board of record s51)
+# Certifier pre-review checklist: Temper 120 V induction cooktop power board (native-21, board of record s52)
 
 Date 2026-10-16. Desk compilation from the repo, read-only. Nothing was sent, no one was contacted, no calculation was rerun.
 PS = `zapote/power-stage-120v` in the ps-integrate worktree. FW = `firmware/` at the ps-integrate worktree root.
@@ -11,7 +11,7 @@ Size: BOM-only / layout stage / new board / enclosure. Board: power (PS), contro
 Caveat on the packet. `PS/validation-results/08-manufacturing-package/native-21/owner-items/CERTIFIER-PACKET.md` (draft 2026-10-14, not sent)
 predates s38 to s51. Items to refresh before anything is sent: touch current is now 0.2412 mA (packet says 0.419); PS1 is deleted;
 PS2 is now MEAN WELL MPM-20-24 and PS3 (off-board, controller side) MPM-65-15ST, not IRM-20/IRM-60 (packet item 14);
-the CA-IS3720 on U44 became a second ISO6721FB (DECISIONS stage 40); the bank is now MMK104J3DF1KN208G2 (DECISIONS 73).
+the CA-IS3720 on U44 became a second ISO6721FB (DECISIONS stage 40); the prototype bank is now TDK B32643H8104J000, L1 B82726S2243A020 and the Y caps DE1E3RA222MJ4BH01F (DECISIONS 74).
 The packet's standard is "UL 1026 appliance"; S15 cites UL 858 25.3.1. Which standard governs is itself the first question (entry 0).
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -159,8 +159,9 @@ The packet's standard is "UL 1026 appliance"; S15 cites UL 858 25.3.1. Which sta
 
 ### 11. Abnormal operation with the firmware current limit defeated (A2 item 9)
 - **Topic / clause:** UL 1026 / UL 858 abnormal-operation test; clause to confirm. IEC analog: clause 19 (not cited by number for this case).
-- **Design now:** no hardware line-current sensing; the <= 15 A input limit is a firmware estimate (`firmware/components/power/input_limits.{c,h}`): hold 11.1 A power-stage,
-  trip 12.45 A, e_est 10 % provisional (DECISIONS 2026-10-08; aux allowance B11 applied, bench RMS check open: `output/temper-aux-load-r1/BENCH-RMS.md`). F1 never opens at 15-25 A.
+- **Design now:** no hardware line-current sensing; the <= 15 A input limit is a firmware estimate (`firmware/components/power/input_limits.{c,h}`): hold 11.47-12.04 A power-stage
+  (I_aux 0.887-0.26 A; the earlier 11.1 A / 12.45 A used the old 1.3 A aux figure), firmware trip 12.83-13.40 A of estimated I_ps
+  (`11-candidates/c53-line-current-f1/README.md`, `line_current_bounds.txt`), e_est 10 % provisional (DECISIONS 2026-10-08; aux allowance B11 applied, bench RMS check open: `output/temper-aux-load-r1/BENCH-RMS.md`). F1 never opens at 15-25 A.
   External review finding #11: "If it fails, add hardware line-current sensing or fit a larger J1".
 - **Assumed:** the lab will accept the branch breaker plus a firmware estimate, or will not defeat the firmware limit. RELIANT.
 - **If the lab disagrees:** a line-current sensor (new sense channel, layout stage on the power board, and an interface change to the controller) or, as the review noted, a
