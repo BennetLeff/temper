@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "outputs"
 UNIT = HERE.parents[3]
-GEOM = UNIT / "native-21/verification/native21s52-all-copper.json.gz"
+GEOM = UNIT / "native-21/verification/native21s53-all-copper.json.gz"
 HEAT = HERE / "inputs/native21-board-heat-sources.json"
 HEAT_C28 = HERE / "inputs/native21-board-heat-sources-c28.json"   # make_heat_sources.py, stage 15
 # The board's line-path current (J1 -> F1 -> L1 -> BR1) at the ceiling cases, one value for every B3 consumer (OPS c28

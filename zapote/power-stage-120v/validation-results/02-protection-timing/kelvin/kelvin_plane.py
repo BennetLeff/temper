@@ -57,7 +57,9 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            # stage 51 (c51-bank-source): divider unchanged from s49
            "native21s51": (16e3, 11e3, 10e3, 7.5e3),
            # stage 52 (prototype BOM): divider unchanged from s49
-           "native21s52": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s52": (16e3, 11e3, 10e3, 7.5e3),
+           # stage 53 (c53-cert-provisions): divider unchanged from s49 (the copper edit is on ovp_ok_hot, not an OCP net)
+           "native21s53": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -120,7 +122,8 @@ def main() -> None:
               "native21s49": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466",
               "native21s50": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f",
               "native21s51": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a",
-              "native21s52": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"}
+              "native21s52": "32665572a65177f49076586cd87eb783c2baf1d39900ca776f09037996a5afc8",
+              "native21s53": "2c2f222346288b0a414417c110640475db27ef60efdd899061690496b2b3a217"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     # stage 33: copper z and thickness from the board's stackup.json (the native-20 export: native-20's; every
     # native21* tag: native-21's single layer-stack source). Same 70 / 61 um and JLC041622-7628 z as the old literals.
