@@ -72,7 +72,7 @@ stock-gate rules (buildable = the larger of JLC library stock and one authorised
 | L1 | **B82726S2243A020** | 20 | 0 | Mouser 62 / DigiKey 29 (read 2026-10-16T19:12Z) | **Consign / hand-assemble.** Production part stays B82726S2203A020 (owner pre-order, 29 weeks) |
 | C3, C4 | **DE1E3RA222MJ4BH01F** (Y1 400 V) | 40 | 104 (C7170908) | JLC | JLC assembles |
 | D6–D9 | PMEG6030EP,115 | 80 | 9,298 | JLC | JLC assembles (read 2026-10-16) |
-| Q2, Q3, Q5, Q6 | IPW65R018CFD7 | 80 | 4 | DigiKey 459 | Buy 80 or more from one recorded lot (D-8 asks for lot traceability) |
+| Q2, Q3, Q5, Q6 | IPW65R018CFD7 | 80 | 4 | DigiKey 459 (read 2026-10-17) | **Buy 120 from DigiKey in one recorded lot** (D-8 lot traceability); 80 for the build, 40 spare. Consign to JLC if JLC places the TO-247 row, otherwise hand-solder. Pricing below |
 | C5, C6 | B32676G1905K000 | 40 | 0 | DigiKey 547, 27 week | Consign |
 | C1, C2 | R463N410050N1K | 40 | 46 | DigiKey 945, 24 week | Consign |
 | F1 | KLDR025.TXP | 20 | 0 | 300 distributor | Consign |
@@ -83,6 +83,17 @@ stock-gate rules (buildable = the larger of JLC library stock and one authorised
 | U41, U42 | R24C2T25/R-R | 40 | 0 | distributor 1,185 | **Hand-solder with hot air** (owner decision 2026-10-16): SMD, SSOP-36 at 0.65 mm pitch, so buy and keep them; JLC does not place them |
 | T1 | CST3015-200ED | 20 | 64 | JLC | Coilcraft direct has no distributor listing; JLC covers the lot |
 | U5 | LM4050AEM3-2.5/NOPB | 20 | 50 | JLC | Covers the lot; 500 boards need the owner pre-order |
+
+**IPW65R018CFD7 purchase decision.** DigiKey 448-IPW65R018CFD7XKSA1 (IPW65R018CFD7XKSA1), read live 2026-10-17: in stock 459,
+standard lead 8 weeks, tube of 30. USD ladder: 1 $19.72, 30 $12.30267, 60 $11.42050, 120 $10.67925, 510 $10.17612 (tariff may
+apply when shipping to the US; shipping not priced). JLC's own BOM-review page the same day priced the same line at $412.864 for
+20 parts (about $20.64 each) with 6 in JLC stock and 14 short, for 5 boards.
+
+- The lot needs 80 (4 per board x 20 boards). 80 at the 60-break is $11.4205 each = $913.64. Buying 120 costs $1,281.51, so the
+  extra 40 cost $367.87 ($9.20 each, below the 80-part price). Recommended: the MOSFETs are the parts most likely to be destroyed
+  in bring-up and the D-8 double-pulse bench, and the lot guidance asks for one recorded lot (D-8 lot traceability).
+- Consign them to JLC if JLC places the TO-247 row, otherwise hand-solder.
+- The saving against JLC's $20.64 is about $37 per board at 80 parts (4 x ($20.64 - $11.42)).
 
 Every other line is covered by JLC stock at 20 boards (CSV). **Fixings:** M3 nylon (UL94 V-0) screws, washers and standoffs for
 H2–H7, the whole chain insulating (BRINGUP-PROBES.md, FAB-NOTE); one metal M3 for H1 (chassis / PE).
