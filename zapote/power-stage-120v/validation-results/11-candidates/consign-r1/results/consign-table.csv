@@ -1,0 +1,31 @@
+line,designators,role,mpn,need,target_2x,jlc_code,jlc_stock,jlc_assembly_mode,jlc_read_utc,best_auth_dist,best_auth_stock,brand_filter,best_auth_mfr,octopart_read_utc,one_source_ge_2x,jlc_ge_2x
+U41/U42,"U41,U42",fitted,R24C2T25/R-R,40,80,C9900245652,0,smtWeld,2026-10-18T19:33:52Z,Mouser,1006,Recom,Recom Power,2026-10-18T19:39:37Z,True,False
+U41/U42,"U41,U42","trap: JLC auto-match, non-/R series",R24C2T25-R,40,80,C22466894,0,smtWeld,2026-10-18T19:39:10Z,,,,,,False,False
+U41/U42,"U41,U42",THT alt (ALT-BIAS A3),MGJ2D242005SC,40,80,,,,,Newark,107,Murata,Murata Power Solutions,2026-10-18T19:43:52Z,True,False
+U41/U42,"U41,U42","SMD second source (basic, 18-25 V)",UCC14240QDWNRQ1,40,80,,,,,Mouser,3056,Texas,Texas Instruments,2026-10-18T19:43:47Z,True,False
+Q2/Q3/Q5/Q6,"Q2,Q3,Q5,Q6",fitted,IPW65R018CFD7XKSA1,80,160,C3289047,6,manualWeld,2026-10-18T19:30:02Z,Mouser,470,,Infineon,2026-10-18T19:40:26Z,True,False
+bank,"C21,C22,C23,C151,C152",fitted,B32643H8104J000,100,200,,,,,Mouser,1736,,TDK,2026-10-18T19:39:43Z,True,False
+bank,"C21,C22,C23,C151,C152","fallback (27.5 mm hole, 22 A)",MMK104J3DF1KN208G2,100,200,C528962,3952,manualWeld,2026-10-18T19:30:59Z,,,,,,True,True
+C5/C6,"C5,C6",fitted,B32676G1905K000,40,80,C3802167,0,smtWeld,2026-10-18T19:29:59Z,DigiKey,547,,TDK,2026-10-18T19:39:54Z,True,False
+L1,L1,fitted,B82726S2243A020,20,40,C7084710,0,manualWeld,2026-10-18T19:29:59Z,Mouser,62,,EPCOS,2026-10-18T19:39:48Z,True,False
+D3/D17,"D3,D17",fitted,30KPA150CA,40,80,C19111562,0,manualWeld,2026-10-18T19:30:00Z,DigiKey,1750,Good-Ark,Good-Ark,2026-10-18T19:39:59Z,True,False
+C1/C2,"C1,C2",fitted,R463N410050N1K,40,80,C3299886,46,manualWeld,2026-10-18T19:29:58Z,Newark,1298,,Yageo Group,2026-10-18T19:40:32Z,True,False
+C1/C2,"C1,C2",alt,B32923C3105M189,40,80,C3299462,1000,manualWeld,2026-10-18T19:35:35Z,Arrow Electronics,18900,,TDK,2026-10-18T19:40:37Z,True,True
+J3/J11,"J3,J11",fitted,B2P3-VH(LF)(SN),40,80,C160745,0,manualWeld,2026-10-18T19:30:00Z,Arrow Electronics,29176,,JST,2026-10-18T19:41:15Z,True,False
+J3/J11,"J3,J11","alt (gray, colour only)",B2P3-VH-H(LF)(SN),40,80,C160900,5610,manualWeld,2026-10-18T19:35:37Z,,,,,,True,True
+J3/J11,"J3,J11",alt (PBT-GF body),B2P3-VH-B(LF)(SN),40,80,C158010,10635,manualWeld,2026-10-18T19:35:37Z,,,,,,True,True
+F1,F1,"fitted (cartridge, inserted)",KLDR025.TXP,20,40,C187688,0,smtWeld,2026-10-18T19:29:58Z,Future Electronics,300,,Littelfuse,2026-10-18T19:40:05Z,True,False
+F1 clips,F1-CLIP,fitted (no CPL row),01250003H,40,80,C223911,101,manualWeld,2026-10-18T19:30:04Z,Future Electronics,3868,,Littelfuse,2026-10-18T19:41:04Z,True,True
+F2,F2,fitted,3403.0279.23,20,40,C3163739,0,smtWeld,2026-10-18T19:30:03Z,Rutronik,1500,,Schurter,2026-10-18T19:40:10Z,True,False
+J2/J5,"J2,J5",fitted,7466004R,40,80,C6708126,0,smtWeld,2026-10-18T19:30:02Z,DigiKey,8856,,Wurth Elektronik,2026-10-18T19:40:15Z,True,False
+J6,J6,fitted,1704004,20,40,C5481600,0,manualWeld,2026-10-18T19:30:03Z,Amar Radio Corporation,48,,Phoenix Contact,2026-10-18T19:40:21Z,True,False
+RV1,RV1,"fitted (deselected, hand-fit)",TMOV20RP175E,20,40,C1527834,114,manualWeld,2026-10-18T19:30:01Z,Newark,1200,,Littelfuse,2026-10-18T19:41:09Z,True,True
+T1,T1,fitted,CST3015-200ED,20,40,C50132500,64,smtWeld,2026-10-18T19:30:01Z,,,,,,True,True
+BR1,BR1,fitted (owner fits at heatsink step),GBJ2510-F,20,40,C526644,1579,manualWeld,2026-10-18T19:30:56Z,,,,,,True,True
+J1,J1,fitted,1714971,20,40,C92145,159,manualWeld,2026-10-18T19:30:56Z,,,,,,True,True
+C3/C4,"C3,C4",fitted,DE1E3RA222MJ4BH01F,40,80,C7170908,104,manualWeld,2026-10-18T19:30:57Z,,,,,,True,True
+C38-C41,"C38,C39,C40,C41",fitted,B32652A0104K000,80,160,C125402,309,manualWeld,2026-10-18T19:30:57Z,,,,,,True,True
+R130,R130,fitted,AC05000001507JAC00,20,40,C1382388,225,manualWeld,2026-10-18T19:30:58Z,,,,,,True,True
+PS2,PS2,fitted,MPM-20-24,20,40,C6675337,5047,manualWeld,2026-10-18T19:30:58Z,,,,,,True,True
+J4,J4,fitted,0430451612,20,40,C491447,7748,manualWeld,2026-10-18T19:30:58Z,,,,,,True,True
+controller R39,R39,"fitted (controller, 3-5 boards)",RG2012V-431-W-T1,5,10,C4260028,0,smtWeld,2026-10-18T19:30:59Z,,0,,,2026-10-18T19:40:43Z,False,False

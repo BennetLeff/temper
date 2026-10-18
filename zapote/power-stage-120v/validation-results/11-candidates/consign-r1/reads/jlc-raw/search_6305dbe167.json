@@ -1,0 +1,446 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 8271997,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "MGJ3T24150505MC-R7",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_murata-electronics-mgj3t24150505mc-r7_C7301750.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 18.5079
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 18.5079
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 206,
+       "productPrice": 18.5079
+      },
+      {
+       "startNumber": 207,
+       "endNumber": 505,
+       "productPrice": 7.3856
+      },
+      {
+       "startNumber": 506,
+       "endNumber": 988,
+       "productPrice": 7.1391
+      },
+      {
+       "startNumber": 989,
+       "endNumber": -1,
+       "productPrice": 7.0166
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 506,
+       "endNumber": 988,
+       "productPrice": 6.8771
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 206,
+       "productPrice": 17.8287
+      },
+      {
+       "startNumber": 207,
+       "endNumber": 505,
+       "productPrice": 7.1145
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 17.8287
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 17.8287
+      },
+      {
+       "startNumber": 989,
+       "endNumber": -1,
+       "productPrice": 6.7591
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "8271997-MGJ3T24150505MCR7/C7301750",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 23,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 18.5079,
+     "componentCode": "C7301750",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "MGJ3T24150505MC-R7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308111534_Murata-Electronics-MGJ3T24150505MC-R7_C7301750.pdf",
+     "dataManualFileAccessId": "8597540731523514368",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata MGJ3T24150505MC-R7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-10V\u300115V 120mA 18V~36V 2 3W 5.2kV 81% - Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "120mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "3W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5.2kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "81%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "25.4mm"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "120uF\u3001220uF"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "18V~36V"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "10.2mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Overload protection\u3001External clock synchronization"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "12.7mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-10V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "83mVp-p\u300183mVp-p\u3001135mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>MGJ3T24</span>150505MC-R7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8194935,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "MGJ3T24150505MC-R13",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_murata-electronics-mgj3t24150505mc-r13_C7226236.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 17.7161
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 17.7161
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 183,
+       "productPrice": 17.7161
+      },
+      {
+       "startNumber": 184,
+       "endNumber": 459,
+       "productPrice": 7.0689
+      },
+      {
+       "startNumber": 460,
+       "endNumber": 1011,
+       "productPrice": 6.8338
+      },
+      {
+       "startNumber": 1012,
+       "endNumber": -1,
+       "productPrice": 6.7162
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 183,
+       "productPrice": 17.066
+      },
+      {
+       "startNumber": 460,
+       "endNumber": 1011,
+       "productPrice": 6.583
+      },
+      {
+       "startNumber": 1012,
+       "endNumber": -1,
+       "productPrice": 6.4698
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 17.066
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 17.066
+      },
+      {
+       "startNumber": 184,
+       "endNumber": 459,
+       "productPrice": 6.8094
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "8194935-MGJ3T24150505MCR13/C7226236",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 92,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 17.7161,
+     "componentCode": "C7226236",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "MGJ3T24150505MC-R13",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308111338_Murata-Electronics-MGJ3T24150505MC-R13_C7226236.pdf",
+     "dataManualFileAccessId": "8600683856890638336",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata MGJ3T24150505MC-R13",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-10V\u300115V 120mA 18V~36V 2 3W 5.2kV 81% - Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "120mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "3W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5.2kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "81%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "120uF\u3001220uF"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "18V~36V"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Overload protection\u3001External clock synchronization"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-10V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "200mVp-p\u3001200mVp-p\u3001275mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>MGJ3T24</span>150505MC-R13",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "MGJ3T24"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:37:16Z"
+}

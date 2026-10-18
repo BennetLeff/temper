@@ -1,0 +1,2571 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 570,
+   "list": [
+    {
+     "componentId": 6212901,
+     "componentLibraryType": "expand",
+     "stockCount": 450,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "IGBT\u9a71\u52a8\u5668\u4e13\u7528DC/DC\u6a21\u5757\u7535\u6e90\uff0c\u6548\u7387\u9ad8\uff0c\u5177\u5907\u77ed\u8def\u4fdd\u62a4\u548c\u7a7a\u8f7d\u4f7f\u7528\u529f\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-qa01_C5369859.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.4323
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 3.7891
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 3.4071
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 3.0202
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.8423
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.7623
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 3.2821
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.738
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.2697
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 3.6501
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.9094
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.6609
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 443,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA01/C5369859",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 14.7,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.4323,
+     "componentCode": "C5369859",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA01",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585844928638935040",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304071000_YLPTEC-QA01_C5369859.pdf",
+     "dataManualFileAccessId": "8603145319295168512",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA01",
+     "minImage": "",
+     "minImageAccessId": "8585844929587523584",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -8.7V\u300115V 1.54W 100kHz 100mVp-p 12.5mm 14.5V~15.5V 19.5mm 2 220uF 3kV 40mA\u300180mA 80% 9.8mm Short Circuit Protection\u3001Automatic fault recovery SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "1.54W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "80%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "14.5V~15.5V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8.7V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6212903,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "IGBT\u9a71\u52a8\u5668\u4e13\u7528DC/DC\u6a21\u5757\u7535\u6e90\uff0c\u6548\u7387\u9ad8\uff0c\u5177\u5907\u77ed\u8def\u4fdd\u62a4\u548c\u7a7a\u8f7d\u4f7f\u7528\u529f\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-qa02_C5369861.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.9654
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 3.4022
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 3.0676
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.7296
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.5729
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.5027
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.955
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.4785
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.8199
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 3.2774
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.6295
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.4109
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA02/C5369861",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 12.86358,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.9654,
+     "componentCode": "C5369861",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA02",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585844929470353408",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304071000_YLPTEC-QA02_C5369861.pdf",
+     "dataManualFileAccessId": "8603145321077747712",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA02",
+     "minImage": "",
+     "minImageAccessId": "8585844930502017024",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -8.7V\u300115V 1.5W 100kHz 100mVp-p 11.6V~12.4V 12.5mm 19.5mm 2 220uF 3kV 40mA\u300180mA 80% 9.8mm Short Circuit Protection\u3001Automatic fault recovery SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "1.5W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "80%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "11.6V~12.4V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8.7V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>2",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6212904,
+     "componentLibraryType": "expand",
+     "stockCount": 230,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 IGBT\u9a71\u52a8\u5668\u4e13\u7528DC/DC\u6a21\u5757\u7535\u6e90\uff0c\u6548\u7387\u9ad8\uff0c\u5177\u5907\u77ed\u8def\u4fdd\u62a4\u548c\u7a7a\u8f7d\u4f7f\u7528\u529f\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-qa03_C5369862.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4178
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.0342
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 1.8954
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.6505
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 1.5395
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 1.4905
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 1.483
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 1.4358
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 1.9595
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3291
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 1.8258
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.59
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 223,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA03/C5369862",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 7.8,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.4178,
+     "componentCode": "C5369862",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA03",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585195552988672000",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304071000_YLPTEC-QA03_C5369862.pdf",
+     "dataManualFileAccessId": "8590902862472441856",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA03",
+     "minImage": "",
+     "minImageAccessId": "8585195553893830656",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP-5",
+     "describe": "-40mA\u300180mA -40\u2103~+105\u2103 -8.7V\u300115V 1.5W 100kHz 100mVp-p 12.5mm 19.5mm 2 220uF 23.3V~24.7V 3kV@AC 80% 9.8mm Short Circuit Protection SIP-5 Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "1.5W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "80%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "23.3V~24.7V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8.7V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8423016,
+     "componentLibraryType": "expand",
+     "stockCount": 402,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 IGBT\u9a71\u52a8\u5668\u4e13\u7528DC/DC\u6a21\u5757\u7535\u6e90\uff0c\u6548\u7387\u9ad8\uff0c\u5177\u5907\u77ed\u8def\u4fdd\u62a4\u548c\u7a7a\u8f7d\u4f7f\u7528\u529f\u80fd",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-qa04_C7428271.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1884
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.7068
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.5843
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2954
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.1615
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.1011
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.024
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2111
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.4895
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.6074
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0714
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.0822
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 401,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA04/C7428271",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 10.99819,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.1884,
+     "componentCode": "C7428271",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA04",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585200563402756096",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311301057_YLPTEC-QA04_C7428271.pdf",
+     "dataManualFileAccessId": "8590903788242874368",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA04",
+     "minImage": "",
+     "minImageAccessId": "8585200564380164096",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -80mA\u3001100mA -8V\u300115V 100kHz 12.5mm 19.5mm 2 220uF 2W 3kV@AC 80% 9.8mm 9V~15V Short Circuit Protection SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "80mA\u3001100mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "2W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "80%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "9V~15V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8580418,
+     "componentLibraryType": "expand",
+     "stockCount": 181,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 14.5V~15.5V8.7V 80mA",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_evisun-qa01_C7500954.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7704
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.408
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.1827
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9509
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8448
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.8007
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7771
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.1026
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6688
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7346
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.8793
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3196
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 181,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "EVISUN-QA01/C7500954",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10,
+     "shopCostPrice": 9.05324,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.7704,
+     "componentCode": "C7500954",
+     "componentBrandEn": "EVISUN",
+     "componentModelEn": "QA01",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585204844273537024",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2309121406_EVISUN-QA01_C7500954.pdf",
+     "dataManualFileAccessId": "8590904462108684288",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "EVISUN QA01",
+     "minImage": "",
+     "minImageAccessId": "8585204845208461312",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -8.7V\u300115V 12.5mm 14.5V~15.5V 19.5mm 2 200mVp-p 20mA 220uF 300kHz 3kV@AC 40mA\u300180mA 9.8mm 90% Short Circuit Protection \u5851\u5c01\u578b SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "90%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Plastic encapsulated type"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "14.5V~15.5V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "300kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8.7V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "200mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "20mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8580419,
+     "componentLibraryType": "expand",
+     "stockCount": 151,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 23.3V~24.7V 15V 40mA",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_evisun-qa03_C7500955.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7884
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.346
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.0701
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.786
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6571
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.6032
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5962
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.9941
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6861
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5444
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7205
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2599
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 151,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "EVISUN-QA03/C7500955",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10,
+     "shopCostPrice": 9.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.7884,
+     "componentCode": "C7500955",
+     "componentBrandEn": "EVISUN",
+     "componentModelEn": "QA03",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585204844202233856",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308311727_EVISUN-QA03_C7500955.pdf",
+     "dataManualFileAccessId": "8590904462200823808",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "EVISUN QA03",
+     "minImage": "",
+     "minImageAccessId": "8585204845141217280",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 100Hz 100mVp-p 12.5mm 15V 19.5mm 2 20mA 220uF 24.7V 3kV 40mA\u300180mA 9.8mm 90% Short Circuit Protection \u5851\u5c01\u578b SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "90%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Plastic encapsulated type"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "24.7V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100Hz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "15V"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "20mA"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8580420,
+     "componentLibraryType": "expand",
+     "stockCount": 286,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 9V~15V8V 80mA",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_evisun-qa04_C7500956.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9549
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5125
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2366
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9525
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8236
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7681
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7567
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.1545
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8465
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7032
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.8809
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4203
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 284,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "EVISUN-QA04/C7500956",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10,
+     "shopCostPrice": 9.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.9549,
+     "componentCode": "C7500956",
+     "componentBrandEn": "EVISUN",
+     "componentModelEn": "QA04",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585204844193304576",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308311727_EVISUN-QA04_C7500956.pdf",
+     "dataManualFileAccessId": "8590904462158475264",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "EVISUN QA04",
+     "minImage": "",
+     "minImageAccessId": "8585204845121056768",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -8V\u300115V 100Hz 12.5mm 19.5mm 2 200mVp-p 20mA 220uF 3kV@AC 80mA\u3001100mA 9.8mm 90% 9V~15V Short Circuit Protection SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "80mA\u3001100mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "90%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "9V~15V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100Hz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "200mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "20mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20408562,
+     "componentLibraryType": "expand",
+     "stockCount": 21,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 11.6V~12.4V8.7V 80mA",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_evisun-qa02_C19188305.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2684
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7917
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.5076
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2219
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.088
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.0293
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.1404
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.4156
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1484
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9548
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0114
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.6892
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 21,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "EVISUN-QA02/C19188305",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10,
+     "shopCostPrice": 10.90323,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.2684,
+     "componentCode": "C19188305",
+     "componentBrandEn": "EVISUN",
+     "componentModelEn": "QA02",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585218597124263936",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311101847_EVISUN-QA02_C19188305.pdf",
+     "dataManualFileAccessId": "8590907127454658560",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "EVISUN QA02",
+     "minImage": "",
+     "minImageAccessId": "8585218598109384704",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -8.7V\u300115V 100mVp-p 11.6V~12.4V 12.5mm 19.5mm 2 220uF 300kHz 3kV@AC 40mA\u300180mA 9.8mm 90% Short Circuit Protection \u5851\u5c01\u578b \u7a33\u538b\u578b SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "Regulated type"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "90%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Plastic encapsulated type"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "11.6V~12.4V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "300kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8.7V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "100mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>2",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21959011,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "19.5x9.8mm",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_lztec-qa03_C20608936.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3173
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 35,
+       "productPrice": 2.8357
+      },
+      {
+       "startNumber": 36,
+       "endNumber": 107,
+       "productPrice": 2.55
+      },
+      {
+       "startNumber": 108,
+       "endNumber": 503,
+       "productPrice": 2.2611
+      },
+      {
+       "startNumber": 504,
+       "endNumber": 899,
+       "productPrice": 2.1272
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 2.0668
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 36,
+       "endNumber": 107,
+       "productPrice": 2.4565
+      },
+      {
+       "startNumber": 504,
+       "endNumber": 899,
+       "productPrice": 2.0492
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1956
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 35,
+       "productPrice": 2.7317
+      },
+      {
+       "startNumber": 108,
+       "endNumber": 503,
+       "productPrice": 2.1781
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 1.991
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "LZTEC-QA03/C20608936",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 18,
+     "shopCostPrice": 11.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.3173,
+     "componentCode": "C20608936",
+     "componentBrandEn": "LZTEC",
+     "componentModelEn": "QA03",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585269771063058432",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401191744_LZTEC-QA03_C20608936.pdf",
+     "dataManualFileAccessId": "8590922647649792001",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "LZTEC QA03",
+     "minImage": "",
+     "minImageAccessId": "8585269772020305920",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40mA\u300180mA -40\u2103~+105\u2103 -8.7V\u300115V 12.5mm 19.5mm 2 200mVp-p 20mA 220uF 23.3V~24.7V 260kHz 3.5kV 82% 9.8mm Short Circuit Protection \u5851\u5c01\u578b SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "40mA\u300180mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "82%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Molded type"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "23.3V~24.7V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "260kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8.7V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "200mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "20mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58553254,
+     "componentLibraryType": "expand",
+     "stockCount": 16,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "QA03",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7402
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 35,
+       "productPrice": 3.2096
+      },
+      {
+       "startNumber": 36,
+       "endNumber": 107,
+       "productPrice": 2.8945
+      },
+      {
+       "startNumber": 108,
+       "endNumber": 485,
+       "productPrice": 2.5745
+      },
+      {
+       "startNumber": 486,
+       "endNumber": 971,
+       "productPrice": 2.4276
+      },
+      {
+       "startNumber": 972,
+       "endNumber": -1,
+       "productPrice": 2.3607
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 36,
+       "endNumber": 107,
+       "productPrice": 2.7883
+      },
+      {
+       "startNumber": 486,
+       "endNumber": 971,
+       "productPrice": 2.3385
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 35,
+       "productPrice": 3.0918
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.6029
+      },
+      {
+       "startNumber": 972,
+       "endNumber": -1,
+       "productPrice": 2.274
+      },
+      {
+       "startNumber": 108,
+       "endNumber": 485,
+       "productPrice": 2.4801
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 16,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HENIPER-QA03/C54973632",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 18,
+     "shopCostPrice": 12.1338,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.7402,
+     "componentCode": "C54973632",
+     "componentBrandEn": "HENIPER",
+     "componentModelEn": "QA03",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769101285956575232",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HENIPER QA03",
+     "minImage": "",
+     "minImageAccessId": "8769101287071854592",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6212905,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 IGBT\u9a71\u52a8\u5668\u4e13\u7528DC/DC\u6a21\u5757\u7535\u6e90",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-qa04_C5369863.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.79
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.3721
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.1109
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.8432
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7224
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.6701
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7755
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.2851
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6876
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6592
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.6088
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.0334
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA04/C5369863",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 8.5,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.79,
+     "componentCode": "C5369863",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA04",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585200763853684736",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304071000_YLPTEC-QA04_C5369863.pdf",
+     "dataManualFileAccessId": "8590903806194495488",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA04",
+     "minImage": "",
+     "minImageAccessId": "8585200764813774848",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP-5",
+     "describe": "-40\u2103~+105\u2103 -8V\u300115V 100Hz 2 2.14W 20mA 220uF 3kV@AC 80% 80mA\u3001100mA 9V~15V Short Circuit Protection SIP-5 Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "80mA\u3001100mA"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "80%"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "2.14W"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "9V~15V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "100Hz"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8V\u300115V"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "20mA"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8423759,
+     "componentLibraryType": "expand",
+     "stockCount": 93,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "DC/DC\u6a21\u5757\u7535\u6e90\uff0cSiCMOSFET\u9a71\u52a8\u5668\u4e13\u7528\u7535\u6e90",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3728
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.8912
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.6055
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.3166
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.1827
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.1223
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 2.5099
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.1026
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2491
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 2.7851
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.2316
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.0444
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 93,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA01C/C7428398",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 11.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.3728,
+     "componentCode": "C7428398",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA01C",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA01C",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA0</span>1C",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 48,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "QA0"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:37:20Z"
+}

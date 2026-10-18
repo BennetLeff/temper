@@ -1,0 +1,2399 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 206,
+   "list": [
+    {
+     "componentId": 6212916,
+     "componentLibraryType": "expand",
+     "stockCount": 261,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 IGBT\u9a71\u52a8\u5668\u4e13\u7528DC/DC\u6a21\u5757\u7535\u6e90",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-qa241_C5369874.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.287
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 3.6438
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 3.4545
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 3.0676
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.8896
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.808
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 1199,
+       "productPrice": 2.7836
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 24,
+       "productPrice": 3.5101
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.1297
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.955
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.7049
+      },
+      {
+       "startNumber": 25,
+       "endNumber": 99,
+       "productPrice": 3.3277
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 253,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-QA241/C5369874",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 14.7,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.287,
+     "componentCode": "C5369874",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "QA241",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8763263554076463104",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304071000_YLPTEC-QA241_C5369874.pdf",
+     "dataManualFileAccessId": "8590903344204898304",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC QA241",
+     "minImage": "",
+     "minImageAccessId": "8763263555229626368",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP-5",
+     "describe": "-120mA\u3001120mA -40\u2103~+105\u2103 -8V\u300115V 1000uF 12.5mm 19.5mm 2 200kHz 200mVp-p 22.8V~25.2V 30mA 3kV@AC 81% 9.8mm Short Circuit Protection \u5851\u5c01\u578b SIP-5 Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "120mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "81%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Plastic encapsulated type"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "22.8V~25.2V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "1000uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "200kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "200mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "30mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA2</span>41",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8580422,
+     "componentLibraryType": "expand",
+     "stockCount": 291,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011 22.8V~25.2V 15V 120mA",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_evisun-qa241_C7500958.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9974
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5598
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.3003
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.0374
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.9166
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.8611
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.8463
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2159
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8874
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7928
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.9627
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4659
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 290,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "EVISUN-QA241/C7500958",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10,
+     "shopCostPrice": 10.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.9974,
+     "componentCode": "C7500958",
+     "componentBrandEn": "EVISUN",
+     "componentModelEn": "QA241",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585204844466069504",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308311759_EVISUN-QA241_C7500958.pdf",
+     "dataManualFileAccessId": "8590904462120861696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "EVISUN QA241",
+     "minImage": "",
+     "minImageAccessId": "8585204845414928384",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SIP,19.5x9.8mm",
+     "describe": "-40\u2103~+105\u2103 -8V\u300115V 1000uF 12.5mm 120mA 19.5mm 2 200kHz 200mVp-p 22.8V~25.2V 30mA 3kV@AC 87% 9.8mm Short Circuit Protection SIP,19.5x9.8mm Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "120mA"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "87%"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "19.5mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "22.8V~25.2V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "1000uF"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "200kHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "12.5mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "9.8mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-8V\u300115V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "200mVp-p"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "30mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>QA2</span>41",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3101,
+     "componentLibraryType": "expand",
+     "stockCount": 104,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "FQA28N50",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_onsemi-fqa28n50_C2720.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.8878
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.1809
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 3.5018
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 509,
+       "productPrice": 3.0773
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 1199,
+       "productPrice": 2.8814
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.7933
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.7084
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.0275
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 1199,
+       "productPrice": 2.7757
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 509,
+       "productPrice": 2.9644
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 2.6908
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 3.3733
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "c379c2fda52a490e92606b90e6c81760",
+     "canPresaleNumber": 104,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "onsemi-FQA28N50/C2720",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 16.1364,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 4.8878,
+     "componentCode": "C2720",
+     "componentBrandEn": "onsemi",
+     "componentModelEn": "FQA28N50",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583303229769986048",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809111815_onsemi-FQA28N50_C2720.pdf",
+     "dataManualFileAccessId": "8588896257900728320",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "onsemi FQA28N50",
+     "minImage": "",
+     "minImageAccessId": "8583303230680150016",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-3P-3",
+     "describe": "-55\u2103~+150\u2103 1 N-channel 140nC@10V 160m\u03a9@10V 28.4A 310W 5.6nF 500V 5V 80pF 830pF N-Channel TO-3P-3 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Vgs",
+       "attribute_value_name": "\u00b130V"
+      },
+      {
+       "attribute_name_en": "Configuration",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "140nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "80pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "28.4A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Output Capacitance(Coss)",
+       "attribute_value_name": "830pF"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "160m\u03a9@10V"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "N-Channel"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "5.6nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "5V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "310W"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "F<span class='lucene_highlight_class'>QA2</span>8N50",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 326939,
+     "componentLibraryType": "expand",
+     "stockCount": 6,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "FQA24N60",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_onsemi-fqa24n60_C350838.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.6339
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.8062
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 4.3017
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 3.8773
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 3.8773
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 3.8773
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.4271
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.6298
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 3.735
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 4.1439
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 3.735
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 3.735
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "c379c2fda52a490e92606b90e6c81760",
+     "canPresaleNumber": 6,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "onsemi-FQA24N60/C350838",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 22.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 5.6339,
+     "componentCode": "C350838",
+     "componentBrandEn": "onsemi",
+     "componentModelEn": "FQA24N60",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583296745488437248",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912111437_onsemi-FQA24N60_C350838.pdf",
+     "dataManualFileAccessId": "8588895132964040704",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "onsemi FQA24N60",
+     "minImage": "",
+     "minImageAccessId": "8583296746483298304",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-3PN",
+     "describe": "-55\u2103~+150\u2103 1 N-channel 145nC@10V 23.5A 240m\u03a9@10V 310W 5.5nF 5V 600V 720pF 75pF N-Channel TO-3PN MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "N-Channel"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "5.5nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "5V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "145nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "75pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "23.5A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "600V"
+      },
+      {
+       "attribute_name_en": "Output Capacitance(Coss)",
+       "attribute_value_name": "720pF"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "310W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "240m\u03a9@10V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "F<span class='lucene_highlight_class'>QA2</span>4N60",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 488378,
+     "componentLibraryType": "expand",
+     "stockCount": 21,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "VBQA2305",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_vbsemi-elec-vbqa2305_C481052.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7354
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.502
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.373
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.2293
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8408
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8114
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6717
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4469
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.3226
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1842
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7816
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8099
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "c379c2fda52a490e92606b90e6c81760",
+     "canPresaleNumber": 19,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "VBsemiElec-VBQA2305/C481052",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 3.97,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.7354,
+     "componentCode": "C481052",
+     "componentBrandEn": "VBsemi Elec",
+     "componentModelEn": "VBQA2305",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583408157242220544",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2308161401_VBsemi-Elec-VBQA2305_C481052.pdf",
+     "dataManualFileAccessId": "8609160776884645888",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VBsemi Elec VBQA2305",
+     "minImage": "",
+     "minImageAccessId": "8583408158194327552",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN5x6-8",
+     "describe": "-55\u2103~+150\u2103 1 P-Channel 1.215nF 1.375nF 110W 120A 1V\u30013V 30V 4m\u03a9@10V\u30016m\u03a9@4.5V 7.05nF 78nC@4.5V\u3001130nC@10V P-Channel DFN5x6-8 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "7.05nF"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "P-Channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "1V\u30013V"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 P-Channel"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "78nC@4.5V\u3001130nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "1.215nF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "120A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "30V"
+      },
+      {
+       "attribute_name_en": "Output Capacitance(Coss)",
+       "attribute_value_name": "1.375nF"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "110W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "4m\u03a9@10V\u30016m\u03a9@4.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "VB<span class='lucene_highlight_class'>QA2</span>305",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 488379,
+     "componentLibraryType": "expand",
+     "stockCount": 50,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "VBQA2309",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_vbsemi-elec-vbqa2309_C481053.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9045
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7379
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6547
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5714
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4735
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4474
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8713
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7109
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6307
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5505
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4309
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4561
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "c379c2fda52a490e92606b90e6c81760",
+     "canPresaleNumber": 49,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "VBsemiElec-VBQA2309/C481053",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 2.36,
+     "preMinPurchaseNum": 13,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.9045,
+     "componentCode": "C481053",
+     "componentBrandEn": "VBsemi Elec",
+     "componentModelEn": "VBQA2309",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583408157305810944",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2308161401_VBsemi-Elec-VBQA2309_C481053.pdf",
+     "dataManualFileAccessId": "8609160788884279296",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VBsemi Elec VBQA2309",
+     "minImage": "",
+     "minImageAccessId": "8583408158219358208",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN5x6-8",
+     "describe": "-55\u2103~+150\u2103 1 P-Channel 3.1W 30V 4.62nF 47.3A 66nC@5V 820pF 8m\u03a9@10V DFN5x6-8 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "4.62nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 P-Channel"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "66nC@5V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "820pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "47.3A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "30V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "3.1W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "8m\u03a9@10V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "VB<span class='lucene_highlight_class'>QA2</span>309",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8426443,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "VBQA2412",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_vbsemi-elec-vbqa2412_C7429161.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1836
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9975
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.9028
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8114
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5698
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.542
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5489
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8697
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1402
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9609
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.7816
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5222
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "c379c2fda52a490e92606b90e6c81760",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "VBsemiElec-VBQA2412/C7429161",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 2.65,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.1836,
+     "componentCode": "C7429161",
+     "componentBrandEn": "VBsemi Elec",
+     "componentModelEn": "VBQA2412",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2408141048_VBsemi-Elec-VBQA2412_C7429161.pdf",
+     "dataManualFileAccessId": "8603095369207197696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VBsemi Elec VBQA2412",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN5x6-8",
+     "describe": "-55\u2103~+150\u2103 1 P-Channel 10m\u03a9@10V\u300112m\u03a9@4.5V 2.3V@250uA 3.65nF@20V 350pF@20V 40A 40V 42.6nC@4.5V\u300186nC@10V 5W P-Channel DFN5x6-8 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "P-Channel"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "3.65nF@20V"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 P-Channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "2.3V@250uA"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "42.6nC@4.5V\u300186nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "350pF@20V"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "40A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "40V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "5W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "10m\u03a9@10V\u300112m\u03a9@4.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "VB<span class='lucene_highlight_class'>QA2</span>412",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3100,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "FQA24N50",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_onsemi_fqa24n50_C2719.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.2332
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.6504
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.3059
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.9549
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.7933
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.7215
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.0778
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.5164
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.1846
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.6908
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.8465
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.6216
+      }
+     ],
+     "firstSortAccessId": "268f4926a47b46d88d13ed2961731f51",
+     "secondSortAccessId": "ddf0056ef7c94d4fb214aa681f5dbc74",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "onsemi-FQA24N50/C2719",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 30.67568,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 4.2332,
+     "componentCode": "C2719",
+     "componentBrandEn": "onsemi",
+     "componentModelEn": "FQA24N50",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583336380046430208",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/1809111813_onsemi-FQA24N50_C2719.pdf",
+     "dataManualFileAccessId": "8588897144888053760",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "onsemi FQA24N50",
+     "minImage": "",
+     "minImageAccessId": "8583336380978106368",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-3P",
+     "describe": "-55\u2103~+150\u2103 1 N-channel 120nC@10V 200m\u03a9@10V 24A 290W 4.5nF 500V 5V 670pF 70pF N-Channel TO-3P MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "N-Channel"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "4.5nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "5V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "120nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "70pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "24A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Output Capacitance(Coss)",
+       "attribute_value_name": "670pF"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "290W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "200m\u03a9@10V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "F<span class='lucene_highlight_class'>QA2</span>4N50",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 762433,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Solid State Relays (Triac Output)",
+     "erpComponentName": "AQA211VL",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/solid-state-relays-triac-output_panasonic-aqa211vl_C719574.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 15.5906
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 15.0747
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 14.1834
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 13.4602
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 13.4602
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 13.4602
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 13.6629
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 15.0185
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 12.9662
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 12.9662
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 12.9662
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 14.5215
+      }
+     ],
+     "firstSortAccessId": "a58143ad35f044349ebe6571c800fb5e",
+     "secondSortAccessId": "74fdcbe9446c4324aff7dd3a3c260bc2",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "PANASONIC-AQA211VL/C719574",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2,
+     "shopCostPrice": 63.2,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 15.5906,
+     "componentCode": "C719574",
+     "componentBrandEn": "PANASONIC",
+     "componentModelEn": "AQA211VL",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583811829428994049",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2011062008_PANASONIC-AQA211VL_C719574.pdf",
+     "dataManualFileAccessId": "8590163026251972609",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "PANASONIC AQA211VL",
+     "minImage": "",
+     "minImageAccessId": "8583811830360264704",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-20\u2103~+80\u2103 1 1 Form A (SPST-NO) 150A 15A 75V~250V DC Yes Zero-crossing trigger\u3001Reverse polarity protection - Solid State Relays (Triac Output) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Load Current",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-20\u2103~+80\u2103"
+      },
+      {
+       "attribute_name_en": "Load Voltage",
+       "attribute_value_name": "75V~250V"
+      },
+      {
+       "attribute_name_en": "Forward Current(If)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Input Type",
+       "attribute_value_name": "DC"
+      },
+      {
+       "attribute_name_en": "Zero Crossing Circuit",
+       "attribute_value_name": "Yes"
+      },
+      {
+       "attribute_name_en": "Holding Current (Ih)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Forward voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of  Channels",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Repetitive peak OFF-state voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Form",
+       "attribute_value_name": "1 Form A (SPST-NO)"
+      },
+      {
+       "attribute_name_en": "Current - Surge(Itsm)",
+       "attribute_value_name": "150A"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Zero-crossing trigger\u3001Reverse polarity protection"
+      },
+      {
+       "attribute_name_en": "Static dv/dt",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Solid State Relays (Triac Output)",
+     "secondSortName": "Optoisolators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "A<span class='lucene_highlight_class'>QA2</span>11VL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 963654,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "FQA27N25",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_onsemi_fqa27n25_C898217.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0057
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8147
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.72
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 449,
+       "productPrice": 0.6253
+      },
+      {
+       "startNumber": 450,
+       "endNumber": 899,
+       "productPrice": 0.5682
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.5388
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.519
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7848
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6936
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9688
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 449,
+       "productPrice": 0.6024
+      },
+      {
+       "startNumber": 450,
+       "endNumber": 899,
+       "productPrice": 0.5473
+      }
+     ],
+     "firstSortAccessId": "268f4926a47b46d88d13ed2961731f51",
+     "secondSortAccessId": "ddf0056ef7c94d4fb214aa681f5dbc74",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "onsemi-FQA27N25/C898217",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 450,
+     "shopCostPrice": 7.32844,
+     "preMinPurchaseNum": 9,
+     "minPurchaseNum": 9,
+     "initialPrice": 1.0057,
+     "componentCode": "C898217",
+     "componentBrandEn": "onsemi",
+     "componentModelEn": "FQA27N25",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2108140930_onsemi-FQA27N25_C898217.pdf",
+     "dataManualFileAccessId": "8588929025905733632",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "onsemi FQA27N25",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-3P",
+     "describe": "-55\u2103~+150\u2103 1 N-channel 210W 250V 27A 49pF 50nC@10V 5V 83m\u03a9@10V TO-3P MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "5V"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "50nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "49pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "27A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "210W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "83m\u03a9@10V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "F<span class='lucene_highlight_class'>QA2</span>7N25",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 963655,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "FQA28N15",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_onsemi-fqa28n15_C898218.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.3489
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.4755
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.9564
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 4.4323
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.1907
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.0813
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 3.9316
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.7745
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 4.2697
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.1159
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.0369
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.2746
+      }
+     ],
+     "firstSortAccessId": "af6f8457ec9d400e9ccbfa9dd9889152",
+     "secondSortAccessId": "c379c2fda52a490e92606b90e6c81760",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "onsemi-FQA28N15/C898218",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 7.91,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 6.3489,
+     "componentCode": "C898218",
+     "componentBrandEn": "onsemi",
+     "componentModelEn": "FQA28N15",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583509663786938368",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2309151233_onsemi-FQA28N15_C898218.pdf",
+     "dataManualFileAccessId": "8588929178863747072",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "onsemi FQA28N15",
+     "minImage": "",
+     "minImageAccessId": "8583509664709820416",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-3P",
+     "describe": "-55\u2103~+175\u2103 1 N-channel 1.6nF 150V 227W 33A 4V 50pF 52nC@10V 67m\u03a9@10V TO-3P MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "1.6nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "4V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "52nC@10V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "50pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "33A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "150V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "227W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "67m\u03a9@10V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "F<span class='lucene_highlight_class'>QA2</span>8N15",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1616600,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Solid State Relays (Triac Output)",
+     "erpComponentName": "AQA221VL",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/photoelectric thyristor (solid state relays)_panasonic_aqa221vl_C1525801.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 44.1074
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 44.1074
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 44.1074
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 17.0697
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 16.4689
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 16.1734
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 15.5799
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 16.4433
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 42.4888
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 42.4888
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 15.8645
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 42.4888
+      }
+     ],
+     "firstSortAccessId": "ef5403b59739412887bcc83a3044ab7f",
+     "secondSortAccessId": "8c4f53c59c644064be2fd7185c4f7f0c",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "PANASONIC-AQA221VL/C1525801",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 44.1074,
+     "componentCode": "C1525801",
+     "componentBrandEn": "PANASONIC",
+     "componentModelEn": "AQA221VL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "PANASONIC AQA221VL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "1 Form A (SPST-NO) 15A 75V~250V - Solid State Relays (Triac Output) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Load Current",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Load Voltage",
+       "attribute_value_name": "75V~250V"
+      },
+      {
+       "attribute_name_en": "Input Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Contact Form",
+       "attribute_value_name": "1 Form A (SPST-NO)"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Solid State Relays (Triac Output)",
+     "secondSortName": "Optoisolators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "A<span class='lucene_highlight_class'>QA2</span>21VL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 18,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "QA2"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:37:21Z"
+}

@@ -1,0 +1,1168 @@
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                  DC/DC Converter
+FEATURES
+
+
+• 2.5W isolated DC/DC converter
+• Programmable asymmetrical output voltages
+• 21 - 27VDC input voltage range
+• For IGBT/Si/SiC/Cascode GaN gate drive bias
+voltages
+• High 5kVAC/1min reinforced isolation / 1.4kVDC
+working voltage
+• High dV/dt immunity with 150kV/μs CMTI
+• 1.5W at -40°C to +100°C
+• Less than 3.5pF isolation capacitance
+• Compact 7.5x12.83mm SMD package
+• 3 year warranty
+                                                                                                                                 Dimensions (LxWxH): 12.83 x 7.5 x 3.55mm (0.51 x 0.30 x 0.14 inch)
+                                                                                                                                                     0.1g (0.0032 oz)
+APPLICATIONS                                                                                                               SAFETY & EMC
+   INDUSTRIAL & AUTOMATION   BUILDING & HOMEAUTOMATION        ENERGY       DATACOM & TELECOM   INFRASTRUCTURE
+
+
+
+
+                                                                                                                                                               E542996
+
+
+
+
+DESCRIPTION
+The R24C2T25/R 2.5W isolated DC/DC converter is a versatile solution designed for isolated gate bias voltages, particularly for transistors such as IGBTs,
+Si and SiC MOSFETs, and Cascode GaNs. This compact converter features a wide input voltage range of 21 - 27VDC and programmable asymmetrical
+output voltages, ensuring precise control and performance optimization for power electronics applications. With high 5kVAC/1min isolation, 1.4kVDC
+working voltage, high 150kV/μs CMTI, and remarkable stability up to 125°C (>0.5W), it offers superior reliability, even under harsh high power, high
+frequency switching environments. The ultra-low isolation capacitance, less than 3.5pF, ensures minimal noise propagation across the isolation barrier. All
+of these exceptional features are packaged in a compact 7.5 x 12.83mm SMD form factor, making it an ideal choice for all isolated gate bias voltage needs.
+
+
+
+SELECTION GUIDE
+Part                                                                   Input Voltage                               Output Voltage                 Output Current                   Efficiency
+Number                                                                    Range                                       Range(1)                        max.                             typ.
+                                                                           [VDC]                                       [VDC]                          [mA]                             [%]
+                                                                                                                   VOUT+= 2.5 - 22.5
+                                                                                                                                                   IOUT+= +100mA
+R24C2T25/R                                                                  21 - 27                             VOUT-= (-2.5) - (-22.5)(2)                                             53
+                                                                                                                                                     IOUT-= -12mA
+                                                                                                                    VTOTAL= 15 - 25
+
+                                    Note1:               VOUT+ and VOUT- can be set from 2.5VDC to 22.5VDC or -2.5VDC to -22.5VDC respectively but the total
+                                                         must be within the range of 15VDC to 25VDC. For more information see „Typical Application“ below.
+                                    Note2:               For VOUT- between 0V and -2.5V please contact techsupport@recom-power.com
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                                               Rev. 1-2024                                                                    Page 1
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                             DC/DC Converter
+ABSOLUTE MAXIMUM RATINGS (measured @ TAMB= 25°C, nom. VIN, full load and after warm-up unless otherwise stated)
+Parameter                                                                                             Symbol                                                                Min.            Typ.           Max.
+                                                                                                    VIN to PGND                                                           -0.3VDC                         32VDC
+Absolute maximum voltage                                                                        CTRL, PG to PGND                                                          -0.3VDC                          7VDC
+                                                                                        VOUT+, COM, FBVOUT+, FBVOUT- to VOUT-                                             -0.3VDC                         32VDC
+Maximum internal power losses(3)                                                                  TAMB = +25°C                                                                                            2.45W
+Maximum output power                                                                    VTOTAL= VOUT+ to VOUT-, TAMB = +25°C                                                                               2.5W
+Junction Temperature                                                                                                                                                       -40°C                         +150°C
+Storage Temperature                                                                                                                                                        -65°C                         +150°C
+                                                  Note3:        Exceeding maximum allowable power dissipation causes the device to enter thermal shut		
+                                                                down which protects the device from permanent damage.
+
+BASIC CHARACTERISTICS (measured @ TAMB= 25°C, nom. VIN, full load and after warm-up unless otherwise stated)
+Parameter                                                             Symbol                                    Condition                                                   Min.            Typ.           Max.
+Input Voltage Range                                                     VIN                            refer to „Derating Graph“                                           21VDC           24VDC          27VDC
+                                                                                                                              rising                                       19VDC           20VDC          21VDC
+Under Voltage Lockout (UVLO)
+                                                                                                                            falling                                        17VDC           18VDC          19VDC
+                                                                                                                              rising                                      29.5VDC          31VDC         32.5VDC
+Over Voltage Lockout (OVLO)
+                                                                                                                            falling                                       27.5VDC          29VDC         30.5VDC
+Soft Start Time                                                                                                                                                                             3ms
+Standby Current                                                         IQ                       VCTRL= 0VDC, VIN= 21VDC to 27VDC                                                                         700µA
+Quiescent Current                                                                                VCTRL= 5VDC, VIN= 21VDC to 27VDC                                                                         35mA
+Power Dissipation                                                                                     refer to „Power Dissipation“                                                         1.7W
+Switching Frequency                                                                                           VTOTAL= 25VDC                                                11MHz           13MHz          16MHz
+
+                                                 Efficiency vs. Output current                                                                                    Power Dissipation
+                         100                                                                                                              2
+                                                                                                                                                         21Vin
+                          90                                                                                                             1.8
+                                                                                                                                                         22.5Vin
+                          80                                                                                                             1.6             24Vin
+                                                                                                                                                         25.5Vin
+                          70                                                                                                             1.4
+                                                                                                                 Power Dissipation [W]
+
+
+
+
+                                                                                                                                                         27Vin
+        Efficiency [%]
+
+
+
+
+                          60                                                                                                             1.2
+                          50                                                                                                              1
+                          40                                                                                                             0.8
+                          30                                                        21Vin                                                0.6
+                                                                                    22.5Vin
+                          20                                                        24Vin                                                0.4
+                                                                                    25.5Vin
+                          10                                                                                                             0.2
+                                                                                    27Vin
+                           0                                                                                                              0
+                               0      10    20     30      40    50    60     70   80     90    100                                            0   10   20   30     40    50    60    70    80      90   100
+                                                        Output Load [%]                                                                                             Output Load [%]
+
+
+
+REGULATIONS
+Parameter                                                             Symbol                                    Condition                                                   Min.            Typ.           Max.
+Feedback Voltage(4)                                                     VFB                              VOUT+ to VOUT- in regulation                                    2.4675VDC         2.5VDC        2.533VDC
+Feedback VOUT+ Hysteresis                                                                             hysteresis at the FBVOUT+ pin                                         9mV            10mV           12.3mV
+Output Voltage Accuracy                                                                                   0.1% of FB resistors                                             -1.5%                           1.5%
+
+                                   Note4:    For isolated gate driver applications, one positive and one negative output are needed. In this case, VOUT+ to VOUT- is the
+                                             total output voltage, and the middle point becomes the reference point. Because the total voltage between VOUT+ and
+                                             VOUT- is always regulated through the FBVOUT+ feedback, the COM pin only must regulate the middle point voltage so that
+                                             it can give the correct positive and negative voltages. The COM control is achieved through FBVOUT- pin as described in
+                                             „Adjustability“ section.
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                                   Rev. 1-2024                                                                                              Page 2
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                                 DC/DC Converter
+BASIC CHARACTERISTICS (measured @ TAMB= 25°C, nom. VIN, full load and after warm-up unless otherwise stated)
+   Derating Graph                                                               4
+
+                                                                               3.5
+
+                                                                                3
+
+
+
+
+                                                            Output Power [W]
+                                                                               2.5
+
+                                                                                2
+
+                                                                               1.5
+
+                                                                                1
+                                                                                               Maximum Recommended
+                                                                                                   Average Power
+                                                                               0.5
+
+                                                                                0
+                                                                                -40          -25   0      25             50        75        100        125   150
+                                                                                                                                        82
+                                                                                                       Ambient Temperature [°C]
+
+                                     Note5:             Exceeding maximum allowable power dissipation causes device to enter thermal shutdown
+                                                        which protects device from permanent damage.
+                                   Note6:               Keep the average power at 2W max. or peak power 2.5W for 5 seconds max.
+                             Note7 Note7:               Test with Recom 50x50mm standard EVM board with 70µm copper, double layer
+
+
+ADJUSTABILITY
+Parameter                                                                                                                     Condition                                        Min.       Typ.      Max.
+                                                                                                                          VOUT+ to VOUT-                                      15VDC                25VDC
+Output Voltage Trimming
+                                                                                                                          AGND to VOUT-                                       2.5VDC             VOUT+ to VOUT-
+
+   The R24C2T25/R module creates two regulated outputs. It can be configured as a single output converter, VOUT+ to VOUT- only, or a dual-output
+   converter, VOUT+ to VOUT- and COM to VOUT-. Even though the module uses VOUT- as the reference point to create two positive output voltages, the
+   outputs can use COM as the reference point and become a positive and a negative output.
+
+   These two outputs are controlled independently through hysteresis control. Furthermore, the VOUT+ to VOUT- is the main output, and COM to VOUT- uses
+   the main output as its input to create a second regulated output voltage.
+   Typical Application
+   VTOTAL= 15-25VDC, PMAX= 2 watts
+
+                                         VIN+                                         PVIN                       VOUT+                                                        VOUT+
+
+                                                                                      AVIN                                              R1
+
+                                                 22µF      100nF                                                                                              COUT1   COUT2
+                                                                                                           FBVOUT+
+
+                                                                                              R24C2T25/R                        RLIM
+                                          VIN-                                        PGND                      COM                                                           AGND
+
+                                                                                                                                                   R3
+
+                                                                                      CTRL                     FBVOUT-                                                COUT3
+
+                                                                                                                                        R2         R4
+
+                                                                                      PG                         VOUT-                                                        VOUT-
+
+
+                                                                                                               FBCOM
+
+
+   Example
+   To set the device into dual configuration, for example to +15/-9V, start to define main output voltage as the sum of both desired voltages
+   (|15V| + |-9V| = 24V). 24V are VOUT+ to VOUT-. Then set the negative output.
+   +15/-9       VTOTAL= 24VDC, VOUT-= -9VDC
+   +20/-5       VTOTAL= 25VDC, VOUT-= -5VDC
+   +15/-3       VTOTAL= 18VDC, VOUT-= -3VDC
+   +15/-4       VTOTAL= 19VDC, VOUT-= -4VDC
+
+                                                 Note8:                Set VTOTAL first and afterwards VOUT-. VTOTAL must be between 15VDC and 25VDC
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                                       Rev. 1-2024                                                                                    Page 3
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                              DC/DC Converter
+TRIM FUNCTION
+
+   Setting the Main Output - Single Configuration
+   The VOUT+ to VOUT- output is the primary module output, regulated by the sensed voltage on FBVOUT+ pin. The VOUT+ to VOUT- voltage is sensed through
+   a voltage divider (R1 and R2). When FBVOUT+ voltage is below the turn-off threshold (approx. 10mV above the 2.5V reference), the power stage
+   operates, raising the output voltage. Once the output reaches the turn-off threshold, the power stage turns off, causing the voltage to drop
+   due to load current. When the output voltage falls below the turn-on threshold (approx. 10 mV below the 2.5V reference), the power stage is
+   reactivated. Precise voltage reference and hysteresis control ensure accurate regulation. For enhanced noise immunity, add a 330pF capacitor
+   between FBVOUT+ and VOUT- pins, avoiding excessive capacitance to prevent output voltage ripple or stability issues. If only a single output is
+   required, connect FBVOUT- to FBVOUT+ and leave COM pin open.
+                                                                                                                                            Recommended resistor values for common VOUT+:
+
+                                                                                                                                                VOUT+ [VDC]     R2 [Ω]            R1 [Ω]
+        VOUT+                                              VOUT+   Calculation                                                                      15                            54k9
+                           Setting the main output (Vout+ to Vout-)
+                                  R1                                                                                                                16                             59k
+                                                                                (𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂+ − 𝑉𝑉𝑉𝑉𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟 )
+                                                                   𝑹𝑹𝑹𝑹𝟏𝟏𝟏𝟏 =                                           × 𝑅𝑅𝑅𝑅2                     17                            63k4
+                                                 10µF                                          𝑉𝑉𝑉𝑉𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟
+      FBVOUT+
+                                                                                                                                                    18                            68k1
+                      330pF       R2                         Example
+                                       Example Setting the main output (Vout+ to Vout-)                                                             19                            73k2
+                                                                                                                                                    20           11k              76k8
+        VOUT-                                              VOUT-                (18𝑉𝑉𝑉𝑉 − 2.5𝑉𝑉𝑉𝑉)
+                                                                   𝑹𝑹𝑹𝑹𝟏𝟏𝟏𝟏 =                      × 11𝑘𝑘𝑘𝑘Ω = 𝟔𝟔𝟔𝟔𝟔𝟔𝟔𝟔𝒌𝒌𝒌𝒌𝟐𝟐𝟐𝟐Ω                    21                            80k6
+                                                                                   (2.5𝑉𝑉𝑉𝑉)
+                                                                                                                                                    22                            86k6
+                                                                                                                                                    23                            90k9
+                                                                                                                                                    24                            95k3
+                                                                                                                                                    25                            100k
+                                                                                                                                                         *(according to E96)
+
+   Setting the Second Output - Dual Configuration
+   For isolated gate drivers, VOUT+ to VOUT- provides the regulated total voltage with the midpoint as the reference. The COM pin regulates the midpoint
+   voltage for accurate positive and negative outputs based on FBVOUT+ feedback.
+
+   In Figure below, COM to VOUT- is monitored through R3 and R4 on FBVOUT-. A 330pF capacitor on FBVOUT- filters noise. Charging resistor activation,
+   controlled by FBVOUT-, raises COM to VOUT- voltage. After reaching the stop charging threshold, the charging resistor turns off. The discharge resistor,
+   with a 20mV hysteresis, is then controlled by FBVOUT-.
+
+   The COM to VOUT- regulator protects against prolonged high-side FET activation during a COM to VOUT- short. It monitors COM pin voltage, adjusting
+   the high-side FET duty ratio. If COM pin voltage is below 0.645V while FBVOUT- is under 2.48V, a 20% duty ratio control overrides normal hysteresis.
+   When COM pin voltage exceeds 0.73V, duty ratio control is disabled, and normal operation resumes.
+
+           VOUT+                                        VOUT+      Calculation                                                                    Recommended resistor values for common VOUT-:
+                             Setting the dual output
+                                                 10µF
+                                                                                (𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂− − 𝑉𝑉𝑉𝑉𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟 )                               VOUT- [VDC]        R4 [Ω]            R3 [Ω]
+                           RLIM                                    𝑹𝑹𝑹𝑹𝟑𝟑𝟑𝟑 =                                           × 𝑅𝑅𝑅𝑅4
+          COM                                           AGND                                   𝑉𝑉𝑉𝑉𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟                                            3                                10k
+                                       R3                                                                                                                  4                               30k1
+                                                                                                                                                                         49k9
+         FBVOUT-
+                                                 33µF              Example                                                                                 5                               49k9
+                                        Example Setting the dual output
+                   330pF               R4                                                                                                                  9                               130k
+                                                                                (5𝑉𝑉𝑉𝑉 − 2.5𝑉𝑉𝑉𝑉)
+           VOUT-                                        VOUT-      𝑹𝑹𝑹𝑹𝟑𝟑𝟑𝟑 =                              × 49𝑘𝑘𝑘𝑘9Ω = 𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒𝟒Ω                      *(according to E96)
+                                                                                       2.5𝑉𝑉𝑉𝑉
+
+
+                                       Note9:   To achieve -2.5V on the VOUT- output remove R4 and use a value between 10kΩ and 100kΩ for R3.
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                                         Rev. 1-2024                                                                             Page 4
+          Technical Data Sheet
+          R24C2T25/R Series / Power Module
+          2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                             DC/DC Converter
+          CAPACITOR SELECTION
+
+             For CIN place a 10-μF or more and a 0.1-μF high-frequency decoupling capacitor in parallel close to VIN pins. A capacitance greater than 10uF can
+             be used to reduce the voltage ripple when the series impedance from the voltage source to the VIN pins is large. For COUT1 add a 2.2μF or more
+             and a 100nF capacitor for high-frequency decoupling of VOUT+ to VOUT-. Place the capacitors close to the VOUT+ and VOUT- pins. A capacitance
+             greater than 2.2μF can be used to reduce the output voltage ripple. The selection of COUT2 and COUT3 is based on the gate charge requirement
+             for the gate driver load, the charge balancing during the start-up, and the expected maximum current loading. COUT2 and COUT3 capacitors should
+             be placed close to the load. Calculate COUT2 first.
+
+          Minimal COUT2 Calculation
+ection Cout2                                                                                                                                              Parameter               Unit
+                                                                 𝑄𝑄𝑄𝑄                                                                             Q            gate charge        nC
+                           𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =
+                                                                        𝑉𝑉𝑉𝑉                                                                      VPP        accepted Ripple       %
+                                                     𝑉𝑉𝑉𝑉𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜+ ∗ 𝑝𝑝𝑝𝑝𝑝𝑝𝑝𝑝
+                                                                        100
+                                                                                                                                                 VOUT+       output voltage +     VDC
+
+             Recommended COUT2 value is about 10 times higher than the calculated minimum. For simplification, it is recommended to use values
+             for COUT2 between 2.2uF and 10uF. Use the following simplified formula to calculate minimal value of COUT3:
+r SelectionCalculation
+           Cout3
+                                                      𝑉𝑉𝑉𝑉𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜+
+                            𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =                      × 1.1 × 𝐶𝐶𝐶𝐶𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂2
+                                                      𝑉𝑉𝑉𝑉𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜𝑜−
+
+
+             Example +15/-3 Outputs                                                                                                                       Parameter                    Value
+Cout2
+                                                       55𝑛𝑛𝑛𝑛𝐶𝐶𝐶𝐶
+                                                                                                                                                   Q             gate charge           55nC
+                          𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =                  = 0.366µ𝐹𝐹𝐹𝐹                      user selected COUT2 = 4.7µF                    VPP         accepted Ripple           1%
+                                                              1%
+                                                     15𝑉𝑉𝑉𝑉 ∗
+                                                              100                                                                                 VOUT+        output voltage +     15VDC
+                                                                                                                                                  VOUT-        output voltage -        3VDC
+                                                     𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂+
+                          𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =                       × 1.1 × 𝐶𝐶𝐶𝐶𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂2
+                                                     𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂−
+Example
+                                                    15𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝐶𝐶𝐶𝐶
+                          𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =                   × 1.1 × 4.7µ𝐹𝐹𝐹𝐹 = 25.85µ𝐹𝐹𝐹𝐹                 user selected COUT3 = 3x10µF
+                                                    3𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝐶𝐶𝐶𝐶
+
+
+
+
+                                                                                                                                                             recommended recommended
+                                           CIN                          min. COUT1 (VOUT+ to VOUT-)                  VOUT+ to COM       VOUT- to COM
+                                                                                                                                                                 COUT2       COUT3
+                             10µF + 100nF                                              2.2µF + 100nF                     20VDC                  5VDC             4.7µF            22µF
+                             10µF + 100nF                                              2.2µF + 100nF                     15VDC                  9VDC             4.7µF            10µF
+                             10µF + 100nF                                              2.2µF + 100nF                     15VDC                  3VDC             4.7µF            3x10µF
+                             10µF + 100nF                                              2.2µF + 100nF                     15VDC                  4VDC             4.7µF            22µF
+                         Note10:                   (VOUT+/VOUT-)*1.1 defines the minimal COUT3 to COUT2 ratio. Consider all capacitace connected to VOUT+ to COM in the 		
+                                                   system as COUT2 and then calculate the minimal COUT3. If COUT3 in the system is lower than the calculated minimum, the
+                                                   device may not start.
+
+
+
+
+          copyright © RECOM Power GmbH, all rights reserved
+          www.recom-power.com                                                                                            Rev. 1-2024                                                           Page 5
+           Technical Data Sheet
+           R24C2T25/R Series / Power Module
+           2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                DC/DC Converter
+           CAPACITOR SELECTION
+
+              Typical gate drive application
+
+                      VIN+                                              PVIN                             VOUT+                                               VOUT+
+
+                                                                        AVIN                                                    R1
+
+                              22µF                     100nF                                                                                     COUT1
+                                                                                                       FBVOUT+
+
+                                                                                R24C2T25/R                          RLIM
+                       VIN-                                             PGND                            COM                                                  AGND
+
+                                                                                                                                        R3
+
+                                                                        CTRL                           FBVOUT-
+
+                                                                                                                                R2      R4
+
+                                                                        PG                               VOUT-                                               VOUT-
+
+
+                                                                                                        FBCOM
+
+
+
+
+                                                                                                                   COUT1_Load
+                                                                                                                     optional
+
+                                                                        VCC                              VDD
+
+                                                                               Driver (general)                            COUT1_LOAD    COUT2
+                                                                                                                                                                      D
+                                                                                                                                                         RGATE            SiC
+                                                                                                                                                                  G
+                                                                        IN                               OUT                                                              Mosfet
+
+
+                                                                                                                                         COUT3
+                                                                                                                                                                      S
+
+                                                                        GND                              VEE
+
+
+
+              In order to reduce the number of capacitors needed for COUT2 and COUT3, an additional capacitor COUT1_LOAD can be added at the
+              load (driver circuit in the figure above) between VOUT+ and VOUT- rails.
+
+                          COUT1_LOAD value                               COUT2 value                 COUT3 value
+                                [uF]                                        [%]                         [%]
+                                       Not used                                100%                     100%
+                                           4.7uF                                60%                      60%
+                                            10uF                                40%                      40%
+                                            22uF                                30%                      30%
+
+
+              Example
+                      For +15V/-3V configuration without using COUT1_LOAD capacitor the recommended values of COUT2 = 4.7uF and COUT3 = 3 x 10uF.
+                      By using 10uF as COUT1_LOAD, the value of COUT2 can be reduced to 40% of its original value. COUT2 can be then reduced from
+                      4.7uF to 2.2uF. The minimal ratio of COUT3 to COUT2 has to fulfilled, so the same equation as before applies to COUT3 calculation.
+
+                            𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂+
+                              𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =
+                                              × 1.1 × 𝐶𝐶𝐶𝐶𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂2
+                            𝑉𝑉𝑉𝑉
+acitor Selection Cout3 Example𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂−
+
+
+                                                       15𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝐶𝐶𝐶𝐶
+                              𝑪𝑪𝑪𝑪𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶𝑶 =                  × 1.1 × 2.2µ𝐹𝐹𝐹𝐹 = 12.1µ𝐹𝐹𝐹𝐹
+                                                       3𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝑉𝐶𝐶𝐶𝐶
+
+
+                      The closest higher value is 15uF. The number of COUT3 capacitors have been reduced from 3 pieces to 1 piece. In total the design
+                      contains 1 capacitor less.
+
+
+
+           copyright © RECOM Power GmbH, all rights reserved
+           www.recom-power.com                                                                                   Rev. 1-2024                                                       Page 6
+          Technical Data Sheet
+          R24C2T25/R Series / Power Module
+          2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                                                                   DC/DC Converter
+          DEFINING RLIM
+             When the device has been configured to dual positive or dual negative configuration, set up the RLIM resistor as the maximum
+             load current (IOUT-_max) needed for VOUT- to COM path using following equation:
+etting the dual output       Calculation                                                                                     Example Setting the dual output
+                                                                                                                                                        Example RLIM for VOUT-= 5VDC
+                                                              𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂−                                                                                                     5𝑉𝑉𝑉𝑉
+                             𝑹𝑹𝑹𝑹𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳 =                                    − 𝑅𝑅𝑅𝑅𝐿𝐿𝐿𝐿𝐼𝐼𝐼𝐼𝐿𝐿𝐿𝐿_𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑚𝑚𝑚𝑚𝑖𝑖𝑖𝑖                        𝑹𝑹𝑹𝑹𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳 =               − 30Ω = 𝟑𝟑𝟑𝟑𝟑𝟑𝟑𝟑𝟑𝟑𝟑𝟑Ω
+                                                  𝐼𝐼𝐼𝐼𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂 − _𝑚𝑚𝑚𝑚𝑚𝑚𝑚𝑚𝑚𝑚𝑚𝑚                                                                                                 12𝑚𝑚𝑚𝑚𝐴𝐴𝐴𝐴
+
+                             * RLIM_internal = 30Ω                                                                                                          * IOUT-_max has been defined as 12mA for the target application
+                             * IOUT-_max = depends on application
+             When the device has been configured to dual output configuration with one positive and one negative output, set up the RLIM
+             resistor using following equation:
+      Setting the single output
+                          Calculation                                                                                                   Example Setting the single output
+                                                                                                                                                         Example    RLIM for V                               = 5V and COUT3 = 40uF
+                                                                                                                                                                                                      OUT-
+                                       (11)
+                                                                       𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂−                                                                                                     5𝑉𝑉𝑉𝑉
+                             𝑹𝑹𝑹𝑹𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳 =                                                    − 𝑅𝑅𝑅𝑅𝐿𝐿𝐿𝐿𝐿𝐿𝐿𝐿𝐿𝐿𝐿𝐿_𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖       𝑹𝑹𝑹𝑹𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳𝑳 =                                  − 30Ω = 367Ω
+                                                38 × 𝑉𝑉𝑉𝑉𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂𝑂− × 𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶𝐶3 + 0.005                                                                             38 × 5𝑉𝑉𝑉𝑉 × 0.00004𝐹𝐹𝐹𝐹 + 0.005
+
+                                                                                                                                                            * selected RLIM 10% lower=332 Ohm
+                         Note11:                  The equation assumes 15% tolerance of the COUT3 capacitor and certain response time to transient conditions and load for the
+                                                  driver circuit. Higher value of the limiting resistor can be used in case the power losses have to be minimized. Contact RECOM for
+                                                  further assistance to calculate the right RLIM value for your application.
+
+          CONTROL FUNCTION
+          Parameter                                                                                                                                                         Condition                                      Min.        Typ.        Max.
+          Control Pin Voltage                                                                                                                                     CTRL pin to PGND                                         0VDC                   5.5VDC
+                                                                                                                                                                                   rising                                                         2.1VDC
+          ON/OFF CTRL
+                                                                                                                                                                                   falling                                0.8VDC
+                                                                                                                                                                                  no load                                                         35mA
+          Input Current
+                                                                                                                                                                                  full load                                                       250mA
+          Input Current of CTRL Pin                                                                                                                                       VCTRL= 5.0V                                                  5µA         10µA
+
+          POWER GOOD OPERATING CONDITIONS
+          Parameter                                                                                                                                                         Condition                                      Min.        Typ.        Max.
+          PowerGood threshold                                                                                                                                          PG of negated                                     90% of VFB             110% of VFB
+          PowerGood pin voltage                                                                                                                                      PG pin to PGND                                        0VDC                   5.5VDC
+                                                                                                                                            Timer begins when VIN > UVLO and CTRL= High and
+          Primary side soft start time out                                                                                                                                                                                             16ms
+                                                                                                                                                reset when Powergood pin indicates Good
+
+          AGND REGULATIONS HYSTERESIS
+          Parameter                                                                                                                                                         Condition                                      Min.        Typ.        Max.
+          Feedback regulation reference voltage                                                                                                                         AGND to VOUT-                                   2.4675VDC     2.5VDC    2.5325VDC
+          COM pin Short Charge comparator rising threshold to exit PWM                                                                                                             rising                                             0.73VDC
+          On-Time during COM pin Short Charge PWM mode                                                                                       COM pin < 0.645VDC, while FBVOUT- pin < 2.48VDC                                           1.2µs
+          Off-Time during COM pin Short Charge PWM mode                                                                                      COM pin < 0.645VDC, while FBVOUT- pin < 2.48VDC                                            5µs
+
+          OUTPUT UNDER VOLTAGE LOCKOUT
+          Parameter                                                                                                                                                         Condition                                      Min.        Typ.        Max.
+          UVLO rising threshold (VOUT+ to VOUT-)                                                                                                                   Voltage at FBVOUT+                                                 0.9VDC
+          UVLO hysteresis (VOUT+ to VOUT-)                                                                                                                         Voltage at FBVOUT+                                                 0.2VDC
+
+          OUTPUT OVER VOLTAGE LOCKOUT
+          Parameter                                                                                                                                                         Condition                                      Min.        Typ.        Max.
+          OVLO rising threshold                                                                                                                         Voltage from VOUT+ to VOUT-, rising                              29.45VDC     31VDC     32.55VDC
+          OVLO falling threshold                                                                                                                        Voltage from VOUT+ to VOUT-, falling                             27.55VDC     29VDC     30.45VDC
+
+          COMMON MODE TRANSIENT IMMUNITY (CMTI)
+          Parameter                                                                                                                                                         Condition                                      Min.        Typ.        Max.
+          Common Mode Transient Immunity                                                                                                                                                                                                        ±150V/ns
+
+          copyright © RECOM Power GmbH, all rights reserved
+          www.recom-power.com                                                                                                                            Rev. 1-2024                                                                                  Page 7
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                      DC/DC Converter
+PROTECTIONS
+Parameter                                                                                    Condition                               Min.             Typ.         Max.
+Over Power Protection (OPP)                                                                                                                                          latch-off
+Over Temperature Protection(12) (OTP)                                                                                                                                latch-off
+Over Temperature Shutdown Setpoint                                                                                                             160°C±10°C
+Over Temperature Shutdown Hysteresis                                     cool down after latch-off before restart is enabled                     20°C±5°C
+
+                  Note12:      The R24C2T25/R integrates power stages with over-temperature protection. If temperatures exceed limits, it stops switching
+                               and enters a latch-off protection mode.
+
+
+
+
+THERMAL OPERATING CONDITIONS
+Parameter                                                                            Condition                                       Min.             Typ.         Max.
+                                                                                  junction to case                                                   16.6K/W
+Thermal Impedance                                                                 junction to board                                                  25.9K/W
+                                                                         case to ambient, refer to „Note7“                                           30K/W
+                                                             Human-body model (HBM), per ANSI/ESDA/JEDEC JS-001                                                        ±2kV
+ESD
+                                                       Charged-device model (CDM), per JEDEC specification JESD22-C101                                                ±500V
+Moisture Sensitive Level                                                                                                                               Level 3, 260°C, 168hrs
+
+
+
+
+ISOLATION CAPABILITIES
+Parameter                                                                            Condition                                       Min.             Typ.         Max.
+Comparative tracking index (CTI)                                     DIN EN 60112 (VDE 0303-11); IEC 60112                                                           600VDC
+                                                                          Rated mains voltage ≤ 300 VRMS                                                                    I-IV
+Overvoltage Category                                                     Rated mains voltage ≤ 600 VRMS                                                                     I-IV
+                                                                         Rated mains voltage ≤ 1000 VRMS                                                                    I-III
+                                                                               tested in qualification                                                          5kVAC/1min.
+Isolation Voltage(13)
+                                                                                tested in production                                                            6kVAC/1sec.
+Repetitive peak isolation voltage                                               AC voltage (bipolar)                                                               1.4kVp
+                                                                  AC voltage (sine wave) Time dependent dielectric
+                                                                                                                                                                 1000VRMS
+Working isolation voltage                                                      breakdown (TDDB) test
+                                                                                     DC voltage                                                                  1.4kVDC
+                                                                               tested in qualification                                                            7kVp/1min.
+Transient isolation voltage
+                                                                                tested in production                                                            8.4kVp/1sec.
+Impulse voltage                                                             waveform per IEC 62368-1                                                              7.6kVp
+Surge isolation voltage                                                     waveform per IEC 62368-1                                                              10kVp
+                                                                                       VIO= 500VDC, TA= 25°C                       1000GΩ
+Isolation Resistance                                   input to output           VIO= 500VDC, 100°C ≤ TA ≤ 125°C                    100GΩ
+                                                                                     VIO= 500VDC at TS= 150°C                        1GΩ
+Isolation Capacitance                                                              input to output                                                                 3.5pF
+External Clearance                                                                                                                   8mm
+External Creepage                                                                                                                    8mm
+                  Note13:      High voltage isolation testing of a barrier component can degrade isolation capability. RECOM therefore strongly 		
+                               advises against repeated high-voltage isolation testing. If required, reduce specified retest voltage by 20%.
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                Rev. 1-2024                                                                         Page 8
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                      DC/DC Converter
+APPLICATION INFORMATION
+   Dual Output (one positive, one negative)
+                                              VIN+                  PVIN                  VOUT+                                                     VOUT+
+
+                                                                    AVIN                                        R1
+
+                                                     22µF   100nF                                                           COUT1           COUT2
+                                                                                       FBVOUT+
+
+                                                                           R24C2T25/R                RLIM
+                                              VIN-                  PGND                 COM                                                        AGND
+
+                                                                                                                     R3
+
+                                                                    CTRL                FBVOUT-                                             COUT3
+
+                                                                                                                R2   R4
+
+                                                                    PG                    VOUT-                                                     VOUT-
+
+
+                                                                                         FBCOM
+
+
+
+   Single Output (positive)
+                                              VIN+                  PVIN                  VOUT+                                        VOUT+
+
+                                                                    AVIN                                        R1
+
+                                                     22µF   100nF                                            (14)
+                                                                                        FBVOUT+
+                                                                                                  optional or
+                                                                           R24C2T25/R             leave open
+                                                                                                      RLIM
+                                                                                                                          COUT1
+                                              VIN-                  PGND                 COM
+
+
+
+                                                                    CTRL                FBVOUT-
+
+                                                                                                                R2
+
+                                                                    PG                    VOUT-
+
+                                                                                                                                     AGND
+                                                                                         FBCOM
+
+
+
+   Single Output (negative)
+                                              VIN+                  PVIN                  VOUT+
+
+                                                                    AVIN                                        R1                   AGND
+                                                     22µF   100nF                                            (14)
+                                                                                        FBVOUT+
+                                                                                                  optional or
+                                                                           R24C2T25/R             leave open
+                                                                                                      RLIM
+                                                                                                                          COUT1
+                                              VIN-                  PGND                 COM
+
+
+
+                                                                    CTRL                FBVOUT-
+
+                                                                                                                R2
+
+                                                                    PG                    VOUT-                                        VOUT-
+
+
+                                                                                         FBCOM
+
+
+                          Note14:       Use RLIM only for very low load cases (<15mA) and when very high switching frequency is used (>250kHz)
+                                        the RLIM value should be at least 1kΩ.
+
+   Dual Output (both positive)
+                                              VIN+                  PVIN                  VOUT+                                                     VOUT+1
+
+                                                                    AVIN                                        R1
+
+                                                     22µF   100nF                                                            COUT1          COUT2
+                                                                                        FBVOUT+
+
+                                                                           R24C2T25/R                 RLIM
+                                              VIN-                  PGND                 COM                                                        VOUT+2
+                                                                                                                     R3
+
+                                                                    CTRL                FBVOUT-                                             COUT3
+
+                                                                                                                R2   R4
+
+                                                                    PG                    VOUT-
+
+                                                                                                                                               AGND
+                                                                                         FBCOM
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                               Rev. 1-2024                                                                           Page 9
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                                   DC/DC Converter
+APPLICATION INFORMATION
+   Dual Output (both negative)
+
+                                                VIN+                       PVIN                       VOUT+
+
+                                                                           AVIN                                                      R1                                        AGND
+                                                       22µF   100nF                                                                                               COUT1      COUT2
+                                                                                                    FBVOUT+
+
+                                                                                  R24C2T25/R                               RLIM
+                                                VIN-                       PGND                      COM                                                                             VOUT-2
+
+                                                                                                                                                  R3
+
+                                                                           CTRL                     FBVOUT-                                                                  COUT3
+
+                                                                                                                                     R2           R4
+
+                                                                           PG                         VOUT-                                                                          VOUT-1
+
+
+                                                                                                     FBCOM
+
+
+
+
+APPLICATION EXAMPLES
+   Dual Output (one positive, one negative)
+   VOUT+= 15VDC, VOUT-= 3VDC, VTOTAL= 18VDC
+
+                                 VIN+                           PVIN                  VOUT+                                                                                                      VOUT+
+                                                                                                                                                                                                +15VDC
+                                                                                                                            R1
+                                                                AVIN                                                      68k1Ω
+                                         22µF    100nF                                                                                                            100nF     COUT1       COUT2
+                                                                                    FBVOUT+                                                                                 10µF        4.7µF
+
+                                                                       R24C2T25/R                  RLIM
+                                                                                                  287Ω
+                                  VIN-                          PGND                  COM                                                                                                        AGND
+                                                                                                                                                    R3
+                                                                                                                                                   10kΩ
+                                                                CTRL                FBVOUT-                                                                                             COUT3
+                                                                                                          330pF                           330pF                                         3x 10µF
+                                                                                                                            R2                      R4
+                                                                                                                           11kΩ                   49k9Ω
+
+                                                                PG                    VOUT-                                                                                                      VOUT-
+                                                                                                                                                                                                -3VDC
+
+                                                                                     FBCOM
+
+
+
+
+   Dual Output (one positive, one negative) - RDR configuration
+   VOUT+= 15VDC, VOUT-= 3VDC, VTOTAL= 18VDC
+
+                                 VIN+                           PVIN                  VOUT+                                                                                                                               VOUT+
+                                                                                                                                                                                                                         +15VDC
+                                                                                                                                                            R1
+                                                                AVIN                                                                                      68k1Ω
+                                         22µF    100nF                                                                                                                                        100nF      COUT1   COUT2
+                                                                                    FBVOUT+                                                                                                              10µF    4.7µF
+
+                                                                       R24C2T25/R                                 RLIM1
+                                                                                                                  3kΩ
+                                                                                                                            (15)
+                                  VIN-                          PGND                 COM                                                                                                                                  AGND
+                                                                                                                                  RLIM2
+                                                                                                     DS1                          287Ω                                       R3
+                                                                                                                                                                            10kΩ
+                                                                CTRL                FBVOUT-                                                                                                                      COUT3
+                                                                                                                                             330pF                  330pF                                        3x 10µF
+                                                                                                                                                            R2                R4
+                                                                                                                                                           11kΩ             49k9Ω
+
+                                                                PG                    VOUT-                                                                                                                               VOUT-
+                                                                                                                                                                                                                         -3VDC
+
+                                                                                     FBCOM
+
+
+
+
+                          Note15:          Using a Schottky diode and a resistor in paralel with a resistor allows programming the charge and discharge
+                                           current independently. This RDR configuration greatly reduces power losses of the device.
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                           Rev. 1-2024                                                                                                                         Page 10
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                 DC/DC Converter
+APPLICATION EXAMPLES
+   Dual Output (one positive, one negative)
+   VOUT+= 20VDC, VOUT-= -5VDC, VTOTAL= 25VDC
+                                              VIN+                   PVIN                   VOUT+                                                                                        VOUT+
+                                                                                                                                                                                        +20VDC
+                                                                                                                          R1
+                                                                     AVIN                                               100kΩ
+                                                      22µF   100nF                                                                                            100nF     COUT1   COUT2
+                                                                                         FBVOUT+                                                                        10µF    4.7µF
+
+                                                                            R24C2T25/R                   RLIM
+                                                                                                        487Ω
+                                               VIN-                  PGND                  COM                                                                                           AGND
+                                                                                                                                             R3
+                                                                                                                                           49k9Ω
+                                                                     CTRL                FBVOUT-                                                                                COUT3
+                                                                                                                330pF              330pF                                        22µF
+                                                                                                                          R2                 R4
+                                                                                                                         11kΩ              49k9Ω
+
+                                                                     PG                     VOUT-                                                                                        VOUT-
+                                                                                                                                                                                        -5VDC
+
+                                                                                          FBCOM
+
+
+
+
+   Dual Output (one positive, one negative)
+   VOUT+= 15VDC, VOUT-= -9VDC, VTOTAL= 24VDC
+                                              VIN+                   PVIN                   VOUT+                                                                                        VOUT+
+                                                                                                                                                                                        +15VDC
+                                                                                                                          R1
+                                                                     AVIN                                               95k3Ω
+                                                      22µF   100nF                                                                                            100nF     COUT1   COUT2
+                                                                                         FBVOUT+                                                                        10µF    4.7µF
+
+                                                                            R24C2T25/R                   RLIM
+                                                                                                        681Ω
+                                               VIN-                  PGND                  COM                                                                                           AGND
+                                                                                                                                             R3
+                                                                                                                                           130kΩ
+                                                                     CTRL                FBVOUT-                                                                                COUT3
+                                                                                                                330pF              330pF                                        22µF
+                                                                                                                          R2                 R4
+                                                                                                                         11kΩ              49k9Ω
+
+                                                                     PG                     VOUT-                                                                                        VOUT-
+                                                                                                                                                                                        -9VDC
+
+                                                                                          FBCOM
+
+
+
+
+   Single Output (positive)
+   VOUT= 24VDC
+                                              VIN+                   PVIN                  VOUT+                                                               VOUT+
+                                                                                                                                                              +24VDC
+                                                                                                              R1
+                                                                     AVIN                                   86k6Ω
+                                                      22µF   100nF
+                                                                                       FBVOUT+
+
+                                                                            R24C2T25/R                                                COUT1A       COUT1B
+                                                                                                                           100nF
+                                              VIN-                   PGND                 COM         NC                              2.2µF        10µF
+
+
+
+                                                                     CTRL                FBVOUT-
+                                                                                                    330pF
+                                                                                                              R2
+                                                                                                             10kΩ
+
+                                                                     PG                    VOUT-
+
+                                                                                                                                                            AGND
+                                                                                         FBCOM
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                               Rev. 1-2024                                                                                                    Page 11
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                              DC/DC Converter
+DIMENSION & PHYSICAL CHARACTERISTICS
+Parameter                                                                                 Type                                                                             Value
+                                                                                                                                                         12.83 x 7.5 x 3.55mm
+Dimension (LxWxH)
+                                                                                                                                                        0.51 x 0.30 x 0.14 inch
+                                                                                                                                                                       0.1g typ.
+Weight
+                                                                                                                                                                      0.0032 oz
+
+
+   Dimension Drawing (mm)
+                                             7.5±0.10
+
+
+
+                                             PIN1 ID          12.83±0.10
+                                                                                                        DETAIL A
+
+
+                                           Top View
+
+
+
+
+                                                                                                                    3.18
+                                                                                                                           0.20±0.10
+                                                                                           0.80±0.15
+
+
+
+
+                                                                                                                                        3.55 MAX.
+                              DETAIL A
+                                                                                                       Side View
+                                                              0.254 TYP.
+
+
+
+
+                                           Front View
+                                                                             0.1
+
+
+
+
+                                                                                             36X 0.315±0.075       34X 0.65
+
+                                                                                        Recommended Footprint Details
+                                                                                                (Top View)
+                                            10.30±0.33                     36X 1.85                      SYMM
+                                                                                                                                       R0.05 TYP.
+                                      18                 19                                     1                  36
+                                                                             36X 0.45
+
+
+
+
+                                                                                                                                       SYMM
+                                                                11.05
+
+
+
+
+                                          Bottom View
+                                                                             34X 0.65
+
+
+
+
+                                                                                               18                  19
+                                      1                  36                                                                                                      Tolerances:
+                                                                                                          9.95                                                x.x= ±0.1mm
+                                                                                                                                                           x.xx= ±0.05mm
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                     Rev. 1-2024                                                                      Page 12
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                     DC/DC Converter
+DIMENSION & PHYSICAL CHARACTERISTICS
+
+             Pad Information
+                   Pad #           Function                                                              Description
+              1, 2, 5, 8, 9, 10,
+              11, 12, 13, 14,       PGND                               Primary side power ground. Place several vias to copper pours for thermal relief.
+               15, 16, 17, 18
+                      3              PG                        Power good open-drain output. Low when UVLO, OVLO, UVP, OVP, and OTP are not triggered.
+                      4             CTRL                                   Pull high to enable the device. Connect to ground to disable the device.
+                      6              AVIN               Primary side analog input. Connect a 330pF ceramic capacitor between AVIN and pin 5. Connect pin6 to pin7.
+                      7              PVIN                            Primary side power input. Connect a 0.1µF and a 22µF ceramic capacitor to pin 8.
+              19, 20, 21, 22,
+              23, 24, 25, 26,        VOUT-                                                 Secondary side negative output voltage.
+              27, 30, 31, 36
+                   28, 29           VOUT+           Secondary side positive output voltage. Connect a 10µF or more and 0.1µF ceramic capacitor between VOUT+ and VOUT-.
+                     32             COM                Connect current limiting resistor to COM node of circuit. See application example or „Defining RLIM“ section.
+                     33            FBVOUT-                  FBVOUT Feedback (COM – VOUT-) output voltage sense pin used to set the output (COM – VOUT-) voltage.
+                     34            FBVOUT+                  FBVOUT Feedback (VOUT+ – VOUT-) output voltage sense pin used to set the output (VOUT+ – VOUT-) voltage.
+                     35             FBCOM                                                 Use as reference for FBVOUT+ and FBVOUT-.
+
+
+
+
+LAYOUT GUIDELINES
+   The R24C2T25/R integrated isolated power solution simplifies system design and reduces board area usage. Follow these guidelines for proper PCB layout to
+   achieve optimal performance:
+
+   •            Place decoupling capacitors as close as possible to the device pins. On the primary side, place the capacitors between pin 7 (power VIN) and pins 		
+                8–18 (power GND). Optionally, place a capacitor between pin 6 (analog VIN) and pins 1, 2, and 5 (analog GNDP). Always put lower values and smaller
+                packages as close to the IC pins as possible.
+
+   •            For the isolated secondary side, place the capacitors between pin 28, 29 (VOUT+) and pins 19–25, 30–31, 35–36 (VOUT-). Put capacitors between 		
+                VOUT+ and VOUT- close to the IC.
+
+   •            The capacitors between VOUT+/COM and COM/VOUT- should be placed near the output device (gate driver input).
+
+   •            Connection of Feedback circuit to FBCOM (pin 35) should be separated from VOUT- plane. Use one short trace to connect this pin to the feedback 		
+                low-side resistors. Place FB resistors and capacitors close to each other and close to the IC.
+
+   •            Separate the traces from the COM pin and the FBVout- pin while routing. If possible, use a via near the FBVout- pin to route the feedback connection 		
+                through a different layer.
+
+   •            Sense connections should be connected to the capacitors at the output device (gate drivers).
+
+   •            The package of the module dissipates heat through the GNDP and VOUT- pins. Ensure sufficient copper around the IC, preferably connected to
+                the ground plane through multiple vias, is present on the GNDP and VOUT- pins. A minimum of four layers and using 2oz copper in internal layers are
+                recommended for optimal thermal PCB design.
+
+   •            We recommend connecting the VIN, GND, VOUT+, and VOUT- pins to internal ground or power planes through multiple vias. Alternatively, make the 		
+                traces connected to these pins as wide as possible to minimize losses.
+
+   •            Pay close attention to the spacing between the primary side and the output signals on the outer layers of the PCB. The effective creepage and
+                clearance of the system are reduced if the gap between the primary and isolated sides is smaller than that of the R24C2T25/R package pins.
+                Avoid placing any traces under the module.
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                      Rev. 1-2024                                                                      Page 13
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                                                                          DC/DC Converter
+EMC FILTERING SUGGESTIONS ACCORDING TO EN55032
+   The successful EMC filtering of the R24C2T25/R requires the selection of suitable components, correct PCB layout, and mechanical shielding of the application
+   where the module is used. Here are some additional notes for the PCB layout:
+
+   •                   Optionally, inner layers can be used to create a high-frequency bypass capacitor between GNDP and VOUT- to mitigate radiated emissions.
+                       Overlapping these layers can be beneficial for reducing radiated emissions. However, this solution might not be suitable for applications requiring fast
+                       dV/dt switching. Suitable core thickness and material can help set the correct minimum allowed capacitance between primary and secondary side.
+
+   •                   If the isolation requirements permit, place the internal ground power plane (GNDP) under the module package area. This can serve as partial shielding
+                       for the device, helping to reduce radiated emissions.
+
+   •                   If the primary side and isolated secondary output ground planes cannot overlap (as per previous notes), mechanical shielding may be necessary to 		
+                       meet EN55032 Class B requirements. We recommend connecting the metal shielded box to the primary GND.
+
+
+
+
+DESIGN & LAYOUT EXAMPLE
+   This design is created for application with supply 21-27VIN and +15/-5V Output voltage.
+
+                                                                                                                                                                         place these caps close to IC               place these caps close to load circuitry
+                                                                                                                                                                                                          VOUT+
+                                                                                                                                                                                                                                                               +VOUT
+                                                                                                                                U1
+                                                                                            place these caps close to IC
+                                                                                                                                                                        C12       C13        C14
+               VIN+                                  L1                                                                         AVIN                VOUT+   R5          0603      0603       0805                        C16
+                                                                                                                                PVIN
+                                                                                                                                                                                                                         0805
+
+                                C1         C2                                   C4    C5      C6          C7      C8                           FBVOUT+
+               VIN-                                                                                                             PGND
+
+                                                                VIN-                               CTRL                                                          R9
+                                                                                                                                       R24C2T25/R                0805                                                                                          COM
+                                                                                                                                                     COM                         R6
+                                                                                                                                CTRL
+                                                                                                                                                FBVOUT-
+                   VIN+                                                   R3                                                                                                                              C18     C19
+                                                                                                                                                            R8          C11      R7         C10           1206    1206
+                                                                                                     R4
+                                                                                                                                PG                                                                        VOUT-
+                                                                                                                                                    VOUT-                                                                                                      -VOUT
+                         R1
+
+                                                                    VBIAS           VBIAS                                                                   FB connection directly to R7/C10 and R8/C11
+                                                                                                                                                    FBCOM
+                                                          VBIAS
+                                                                                                                           PG
+                         R2          DS1
+                                                C9
+
+
+
+                   VIN-
+   Optional for supplying from single source. See datasheet for CTRL and PG info.
+
+
+
+
+                                                                                    Note16:         For different Output Voltage levels and setting correct resistor values
+
+
+   Spectrum Overview
+   Common mode LISN -24VIN, Full Load
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                                                                       Rev. 1-2024                                                                                                            Page 14
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                        DC/DC Converter
+DESIGN & LAYOUT EXAMPLE
+
+   Radiated Emissions
+   Common mode LISN -24VIN, Full Load
+
+                                    Full Load, No Shielding                 Full Load, Shielding in metal box connected to VIN-
+
+
+
+
+                                            Top Layer                                         Inner Layer 1
+
+
+
+
+                                          Inner Layer 2                                       Bottom Layer
+
+
+
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                           Rev. 1-2024                                                         Page 15
+Technical Data Sheet
+R24C2T25/R Series / Power Module
+2.5W / 21V-27VDC / 36 Pin SSOP Package                                                                                                                                                      DC/DC Converter
+BOM
+                                        Designator                                                                              Description
+                               C1, C4, C5, C6, C18, C19                                                     CAP,CER,X7R,10UF,50VDC,-10%,+10%,1206
+                                     C2, C7, C9, C13                                                  CAP,CER,X7R,100NF,100VDC,-10%,+10%,0603, CAP
+                                      C8, C10, C11                                                        CAP,CER,X7R,330PF,50VDC,-10%,+10%,0603
+
+                                            C12                                                           CAP,CER,X7R,100PF,50VDC,-10%,+10%,0603
+
+                                            C14                                                            CAP,CER,X7R,2.2UF,50VDC,-10%,+10%,0805
+                                            C16                                                            CAP,CER,X7R,4.7UF,50VDC,-10%,+10%,0805
+                                             D1                                                                  DIODE ZENER 5.1V 500MW SOD123
+                                             L1                                                            SMT Common Mode Line Filter 1.3uH 1A 1812
+                                           R1, R4                                                          RES,DIS,THICK,100K,0.1W,1%,100PPM,0603
+                                             R2                                                             RES,DIS,THIN,24K,0.1W,0.1%,25PPM,0603
+                                             R5                                                            RES,DIS,THICK,76K8,0.1W,1%,100ppm,0603
+                                           R6, R7                                                          RES,DIS,THICK,49K9,0.1W,1%,100ppm,0603
+                                             R8                                                             RES,DIS,THICK,11K,0.1W,1%,100ppm,0603
+                                             R9                                                              RES,DIS,THICK,1K,0.1W,1%,100ppm,0805
+                                             U1                                                                    R24C2T25R 2.5W, Isolated DCDC
+
+
+
+
+PACKAGING INFORMATION
+Parameter                                                                                                         Type                                                                                                              Value
+                                                                                                                                                                                                    330.2mm + 24.4mm height
+                                                                                  Suffix -R: tape and reel                reel diameter + width
+                                                                                                                                                                                                      13inch + 0.96inch height
+Packaging Dimension (LxWxH)
+                                                                                                                                                                                                             100 x 150 x 30 mm
+                                                                                               Suffix -CT: moisture barrier bag
+                                                                                                                                                                                                          3.94 x 5.90 x 1.18 inch
+                                                                                                     Suffix -R: tape and reel                                                                                                    750pcs
+Packaging Quantity
+                                                                                               Suffix -CT: moisture barrier bag                                                                                                    10pcs
+Storage Temperature Range                                                                                                                                                                                          -40°C to +125°C
+Storage Humidity                                                                                          non-condensing                                                                                         5% - 95% RH max.
+
+
+
+
+The product information and specifications may be subject to changes even without prior written notice.The product has been designed for various applications; its suitability lies in the responsibility of each customer. The products
+ are not authorized for use in safety-critical applications without RECOM’s explicit written consent. A safety-critical application is an application where a failure may reasonably be expected to endanger or cause loss of life, inflict
+      bodily harm or damage property. The applicant shall indemnify and hold harmless RECOM, its affiliated companies and its representatives against any damage claims in connection with the unauthorized use of RECOM
+                                                                                               products in such safety-critical applications.
+
+copyright © RECOM Power GmbH, all rights reserved
+www.recom-power.com                                                                                            Rev. 1-2024                                                                                                       Page 16
+

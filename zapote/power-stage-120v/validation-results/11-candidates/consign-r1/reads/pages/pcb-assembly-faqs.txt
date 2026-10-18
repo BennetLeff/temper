@@ -1,0 +1,229 @@
+PCB Assembly FAQs
+Account Restriction Notice 
+Get Coupon Here 
+ Coupons
+Country / Region 
+Language 
+undefined
+Currency 
+USD $
+The currency you select is for reference only, payments must be made in US dollars. 
+ Save
+Language Coming Soon 
+Ship to 
+ JLCPCB 
+PCB Service 
+ FR-4 PCBs
+ Flexible PCBs
+ Metal Core PCBs
+ High-Frequency PCBs
+PCBA Service 
+ PCB Assembly
+ Parts Library
+More 
+ SMT Stencil
+ PCB Layout 
+Mechanical Services 
+JLC3DP - 3D Printing
+JLCCNC - CNC Machining
+JLCCNC - Sheet Metal
+JLCMC - Mechanical Components
+Tools 
+EasyEDA - PCB Design Tool
+JLCDFM - DFM Check
+Impedance Calculator
+PI Stiffener Calculator
+More 
+OSHWLAB - Open Source Hardware
+JLCPCB - Flexible Heater 
+ Products
+ Capabilities 
+Contact Us 
+ Online Chat>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+ Email Us>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+ WhatsApp>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8 
+Support 
+Help Center 
+Get instant answers. 24/7 Available.
+Blog 
+Community 
+ Support
+About Us 
+JLCPCB delivers one-stop electronic and mechanical manufacturing solutions to empower hardware innovators worldwide. 
+Explore Us 
+Why JLCPCB?
+Quality Assurance
+How We Work
+Certifications
+Company News 
+ About Us
+ Search
+0 Order Now 
+ Sign In
+ Sign In
+ Help Center 
+ Help Center
+ PCB Assembly FAQs
+ PCB Assembly FAQs
+Help Center 
+ Get Started
+ Register
+ Know Before Ordering
+ Account Setting
+ Ordering
+ PCB Ordering
+ PCB Assembly Ordering
+ PCB Stencil Ordering
+ PCB Manufacturing
+ PCB Files Preparation
+ PCB Capabilities & Instructions
+ PCB Technical Guidelines
+ PCB Assembly
+ PCB Assembly FAQs
+ PCBA Price Details
+ PCBA Parts Sourcing
+ PCBA Capabilities & Instructions
+ PCBA Technical Guidelines
+ PCBA Files Preparation
+ PCBA Lead Time
+ PCBA After-Sale
+ FPC Manufacturing
+ FPC Materials & Options
+ FPC Design Guidelines
+ SMT Stencil
+ Stencil Ordering
+ Stencil Technical Guidelines
+ PCB Layout
+ PCB Layout Ordering
+ PCB Layout FAQs
+ JLCDFM Tool
+ DFM Tool Help
+ DFM FAQs
+ JLCONE
+ JLCONE FAQs
+ JLCONE Download and Installation
+ Shipping & Delivery
+ Shipping Policies
+ Shipping Instructions
+ Payment & Invoice
+ Payments
+ Collab & Activities
+ JLCPCB API
+ Coupons & Promotions
+ Policies & Certifications
+ Policies
+ Certifications
+ Information
+ Notice
+ Flexible Heater
+ Flexible Heater Ordering
+ PCB Assembly FAQs
+ Last updated on Sep 09, 2026
+1. What does your quoted price include?
+The PCB assembly price including:
+Setup fee: $8.00
+Stencil: $1.50
+SMT Assembly: $0.0017 per joint
+Hand-soldering labor fee: $3.5
+Manual Assembly: $0.0173 per joint
+Components cost: Based on the components you choose for assembly
+Our online quotes will show the exact assembly fee and components cost after you select the parts for assembly.
+2. What's your wave soldering service?
+Now JLCPCB can support through-hole components by offering wave soldering services, like connectors. The part's assembly type marked with "wave soldering" in our assembly parts library will be assembled manually.
+Cost: $3.5 hand-soldering labor fee + $0.0173 manual assembly fee per joint
+Build time: SMT assembly service time + 1 more day
+Ordering process: The same as SMT assembly. 
+3. Do you accept the components supplied by customers themselves?
+Yes. Customers have the option to consign their own parts to our stock and use them when placing PCBA orders. Click here to learn more about how to consign parts to JLCPCB.
+4.  Will all parts be populated on my board?
+It depends. The PCB system will try to search and match the parts in your BOM against our library, only the matched parts will be populated.
+5. How many kinds of components are available now?
+Currently, about 40k+ kinds of components are available, including 698 kinds of basic components and 300k+ extended components. You can explore our in-stock parts in our Parts Library.  And we also provide Global parts sourcing channel for customers, we are keeping extending the library. 
+6. What are "Basic components" and "Extended components"?
+Basic components are those frequently used parts like chip resistors, chip capacitors etc. They have already been loaded on P&P machines and occupy the same feeder, so the operator don't need to keep swapping them in and out, thus there's no labor cost.
+When a part from the Extended Components Library is used, the operator needs to mount the feeders manually, which increases the labor cost, we charge $3 per extended component.
+7. What are "Preferred Extended Parts"?
+"Preferred Extended Parts" refers to some of the components that are manually loaded onto the P&P (Pick and Place) machines for assembly.
+These parts were previously classified as Basic parts, but they have now been categorized as Extended (Preferred) parts. The advantage of Preferred Extended Parts is that they are exempt from the Feeders Loading fee for Economic PCB assembly.
+8. What files are required for a PCB assembly order?
+Gerber file, it is used for PCB production.
+BOM file(Bill of Materials). View Sample BOM. 
+CPL file(Component Placement List / Pick & Place File (PNP) file), it is used by our automated SMT Assembly machines to determine where each part should be located on the board. View Sample CPL. 
+9. How do I place a PCB assembly order?
+Upload Gerber files -->Upload BOM/CPL files --> Select the parts you want to assemble-->Get a quote. 
+10. I want to order more than 30 pieces boards, what can I do?
+You can panelize your boards to realize a quantity of more than 30 pieces, please note there is a panel size limit of not bigger than 250x250mm. Besides, you can select Standard PCB Assembly, where there is no restriction on quantity.
+11. What are your requirements for the panelized board?
+Mouse-bites and V-cut are available, for Economic assembly, please panelize your boards with mouse-bites. for Standard assembly, you can panelize with mouse-bites or V-cut.
+12. Do I need to add fiducial marks myself?
+No, you don't have to. We'll add fiducial marks for SMT assembly.
+13. How do you determine the turn-time?
+Assembly turn-time begins immediately after the PCB turn-time and 90% of PCB assembly orders can be finished within 24 hours, 48 hours at most. We prepare all necessary materials for PCB assembly like PCBA engineering data, components and solder paste stencil while PCB production, so assembly can begin immediately after completing the PCB fabrication.
+Below is a gantt chart that illustrates our project schedule.  
+14. Do you offer assembly on boards fabricated by another company?
+Unfortunately, we do not. To maintain our quality standards, we only assemble PCB's that we fabricate.
+15. Do you support BGA components assembly?
+Yes
+ Online Chat >
+Chat with our live agent for fast reply. 
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+ Email Us >
+Contact us at supportjlcpcb.com 
+Typically reply within hours.
+ Help Center >
+Get instant answers. 
+24/7 Available. 
+Products 
+FR-4 PCBs
+Flexible PCBs
+Metal Core PCBs
+High-Frequency PCBs
+PCBA Service
+PCB Layout
+SMT Stencil
+Flex Heater
+Support 
+Help Center
+Contact Us
+Community
+Shipping & Delivery
+Payment Methods
+How to Order
+How to Track
+After-Sales Service
+Blog
+Company 
+About Us
+Quality Assurance
+How We Work
+Certifications
+Security
+Environment
+JLCAPI
+News
+Cooperation
+Electronics 
+EasyEDA
+JLCPCB
+JLCDFM
+LCSC
+OSHWLAB
+Mechanical 
+JLC3DP
+JLCCNC
+JLCMC
+CONNECT WITH US 
+© 2026 JLCPCB.COM All Rights Reserved. 
+ Privacy Policy
+ Terms & Conditions
+ Cookies Policy
+ Get Coupon >
+ Live Chat >
+ Home
+ Cart
+ Files
+ Message
+ Me

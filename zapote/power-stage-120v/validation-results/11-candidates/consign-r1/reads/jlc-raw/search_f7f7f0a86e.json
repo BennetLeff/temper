@@ -1,0 +1,210 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 21043386,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "IB2415XT-1WR3",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_ylptec-ib2415xt-1wr3_C19724312.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.4951
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.4951
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 194,
+       "productPrice": 5.4951
+      },
+      {
+       "startNumber": 195,
+       "endNumber": 506,
+       "productPrice": 2.1942
+      },
+      {
+       "startNumber": 507,
+       "endNumber": 779,
+       "productPrice": 2.1207
+      },
+      {
+       "startNumber": 780,
+       "endNumber": -1,
+       "productPrice": 2.0831
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 780,
+       "endNumber": -1,
+       "productPrice": 2.0067
+      },
+      {
+       "startNumber": 507,
+       "endNumber": 779,
+       "productPrice": 2.0429
+      },
+      {
+       "startNumber": 195,
+       "endNumber": 506,
+       "productPrice": 2.1136
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 194,
+       "productPrice": 5.2935
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 5.2935
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.2935
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "YLPTEC-IB2415XT1WR3/C19724312",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 39,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 5.4951,
+     "componentCode": "C19724312",
+     "componentBrandEn": "YLPTEC",
+     "componentModelEn": "IB2415XT-1WR3",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2312290924_YLPTEC-IB2415XT-1WR3_C19724312.pdf",
+     "dataManualFileAccessId": "8604440577593393152",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YLPTEC IB2415XT-1WR3",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD-6P",
+     "describe": "-40\u2103~+85\u2103 1 1.5kV 15V 1W 22.8V~25.2V 220uF 67mA 71% Short Circuit Protection SMD-6P Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "67mA"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "71%"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "1W"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "22.8V~25.2V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "220uF"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Automatic fault recovery"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "15V"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "I<span class='lucene_highlight_class'>B2415XT-1WR3</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "B2415XT-1WR3"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:37:25Z"
+}

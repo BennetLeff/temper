@@ -1,0 +1,492 @@
+                                          • Qualified with 65kV/µs @ common mode =1KV
+ Features                                 • Isolation 6.4kVDC
+                                          • Optional continuous short circuit protection                                    DC/DC Converter
+                                          • Unique transformer system
+ Unregulated                              • Compact SIP7 package
+ Converters                               • /X2 version with >9mm input/output clearance
+                                                                                                                             RxxP2xx
+                                          • Very low isolation capacitance
+
+Description                                                                                                                 2 Watt
+The RxxP2xxS_D series of DC/DC converters are certified to UL/CSA60950-1 and UL/CSA62368-1
+as well as IEC/EN62368-1. This makes them ideal for safety applications where approved isolation is                         SIP7        3
+required. The /X2 version has an input/output clearance of more than 9mm.
+                                                                                                                            Single and Dual
+Selection Guide
+                                                                                                                            Output
+Part                                nom. Input          Output          Output          Efficiency   max. Capacitive
+Number                               Voltage            Voltage         Current           typ. (1)      Load (2)
+                                      [VDC]              [VDC]           [mA]               [%]           [µF]
+RxxP23.3S (3,4)                    5, 12, 15, 24          3.3             600                70           3300
+RxxP205S (3,4)                     5, 12, 15, 24           5              400              70 - 75        1200
+RxxP209S (3,4)                     5, 12, 15, 24           9              222              70 - 75        1200
+RxxP212S (3,4)                     5, 12,15, 24           12              167              70 - 75        680
+RxxP215S   (3,4)
+                                   5, 12, 15, 24          15              133              75 - 80        680
+RxxP23.3D (3,4)                    5, 12, 15, 24         ±3.3            ±300                70          ±1500
+RxxP205D (3,4)                     5, 12, 15, 24          ±5             ±200              70 - 75       ±470                        O
+                                                                                                                                         M
+                                                                                                                                             C O N V ER
+                                                                                                                                                          T                 O
+                                                                                                                                                                                M
+                                                                                                                                                                                    CO NVE R
+                                                                                                                                                                                               T
+                                                                                                                                 C                                      C
+
+
+
+
+                                                                                                                                                                                               E
+                                                                                                                                                          E
+RxxP209D                           5, 12, 15, 24          ±9             ±111              70 - 75       ±470
+
+
+
+
+                                                                                                                                                                   RE
+                                                                                                                            RE
+           (3,4)
+
+
+
+
+                                                                                                                                                                                                   R
+                                                                                                                                                              R
+
+
+
+
+                                                                                                                                                                                                   S
+                                                                                                                                                              S
+                                                                                                                                  RoHS 2 +                              REACH
+                                                                                                                                   compliant
+RxxP212D (3,4)                     5, 12,15, 24          ±12              ±83              70 - 75       ±330                            10 from 10
+                                                                                                                                                                                    compliant
+
+
+
+
+                                                                                                                                                                   CO
+                                                                                                                            CO
+
+
+
+
+                                                                                                                                                                                                   TS
+                                                                                                                                                              TS
+                                                                                                                              M                                     M
+
+
+
+
+                                                                                                                                                                                               C
+                                                                                                                                                          C
+                                                                                                                                  PL                      U             P                 U
+
+RxxP215D   (3,4)
+                                   5, 12, 15, 24         ±15              ±66              75 - 80       ±330                            IA N       D                       LIA         D
+                                                                                                                                              T PRO                             N T PRO
+
+
+
+
+            Notes:
+                Note1: Efficiency is tested at nominal input and full load at +25°C ambient                                E224736
+                Note2: Max. Capacitive Load is defined as the capacitive load that will allow start up
+                                                                                                                                                IEC/EN62368-1 certified
+            		         in under 1 second without damage to the converter
+                                                                                                                                                UL/CSA60950-1 certified
+                                                                                                                                                UL/CSA62368-1 certified
+                                                                                                                                                EN55032 compliant
+                                                                                                                                                CB Report
+Model Numbering
+
+                                      R__P2 __ _/P/X2
+                         Input Voltage                                          “Pinout (3)”
+                        Output Power                                            “Protection (4)”
+                       Output Voltage                                           Single or Dual
+
+
+                   Notes:
+                       Note3: add suffix „/X2“ for single output with alternative pinout
+                                                                                                                                                              REM2
+                       Note4: add suffix „/P“ for continuous short circuit protection
+
+
+  Ordering Examples:
+  R05P205S/P = 5V Input, 5V Output, Single Output, Continuous Short Circuit Protection
+  R05P23.3D/P = 5V Input, 3.3V Output, Dual Output, Continuous Short Circuit Protection
+  R05P205S/P/X2 = 5V Input, 5V Output, Single Output, Continuous Short Circuit Protection, Alternative Pinout
+
+
+
+
+                                                                                                                       www.recom-power.com/eval-ref-boards                              www.recom-power.com/bier
+
+www.recom-power.com                                                               REV.: 9-2024                                                                                                             ECO-1
+                                                                                                                                                     RxxP2xx
+DC/DC Converter                                                                                                                                                             Series
+Specifications (measured @ Ta= 25°C, nom. Vin, full load and after warm-up unless otherwise stated)
+BASIC CHARACTERISTICS
+Parameter                                                                   Condition                                                   Min.                   Typ.               Max.
+Input Voltage Range                                                                                                                                            ±10%
+Minimum Load                                                                                                                                                    0%
+Internal Operating Frequency                                                                                                           20kHz                   50kHz              85kHz
+Output Ripple and Noise              (5)
+                                                                            20MHz BW                                                                                             200mVp-p
+                                                        Notes:
+                                                            Note5: Measurements are made with a 0.1µF MLCC across output (low ESR)
+ Efficiency vs. Load
+                                       RxxP205S and RxxP209S                                                                          RxxP205D and RxxP209D
+                      100                                                                                              100
+                       90                                                                                               90
+                       80                                                                                               80
+                       70                                                                                               70
+     Efficiency [%]
+
+
+
+
+                       60                                                                             Efficiency [%]    60
+                       50                                                                                               50
+                       40                                                                                               40
+                       30                                                                                               30
+                                                                       R05P205S                                                                                         R05P205D
+                       20                                              and R12P205S                                     20                                              and R12P205D
+                                                                       R05P209S                                                                                         R05P209D
+                       10                                              R12P209S                                         10                                              R12P209D
+                        0                                                                                                0
+                            0   10    20     30    40     50    60   70     80   90     100                                  0   10    20      30    40   50    60     70   80   90    100
+                                                  Output Load [%]                                                                                   Output Load [%]
+                                       RxxP212S and RxxP215S                                                                          RxxP212D and RxxP215D
+                      100                                                                                              100
+                       90                                                                                               90
+                       80                                                                                               80
+                       70                                                                                               70
+     Efficiency [%]
+
+
+
+
+                                                                                                      Efficiency [%]
+
+
+
+
+                       60                                                                                               60
+                       50                                                                                               50
+                       40                                                                                               40
+                       30                                                                                               30
+                                                                            R05P212S                                                                                        R05P212D
+                       20                                                   R12P212S                                    20                                                  R12P212D
+                                                                            R05P215S                                                                                        R05P215D
+                       10                                                   R12P215S                                    10                                                  R12P215D
+                        0                                                                                                0
+                            0   10    20     30    40     50    60   70     80   90     100                                  0   10    20      30    40   50    60     70   80   90    100
+                                                  Output Load [%]                                                                                   Output Load [%]
+
+
+REGULATIONS
+Parameter                                                                                 Condition                                                                                       Value
+Output Accuracy                                                                                                                                                                    ±5.0% max.
+Line Regulation                                                                  low line to high line, full load                                                           1.2%/1% of Vin typ.
+                                                                                                              3.3, 5VDC                                                                15% typ.
+Load Regulation (6)                                                       10% to 100% load
+                                                                                                             9, 12, 15VDC                                                              10% typ.
+                                           Notes:
+                                               Note6: Operation below 10% load will not harm the converter, but specifications may not be met
+
+www.recom-power.com                                                                      REV.: 9-2024                                                                                     ECO-2
+                                                                                                                                                                  RxxP2xx
+DC/DC Converter                                                                                                                                                                          Series
+Specifications (measured @ Ta= 25°C, nom. Vin, full load and after warm-up unless otherwise stated)
+ Tolerance Envelope
+
+
+
+                                                                               +10%
+
+
+
+
+                                                          Output Voltage [%]
+                                                                               +5%               Typical L                                           +5%
+                                                                                                           oad Line
+                                                                               Vnom                                                                  -1.5%
+
+                                                                                                                                                     -5%
+
+
+
+
+                                                                                  10                           50                                  100
+                                                                                                      Load [%]
+
+
+ Deviation vs. Load
+
+
+                                   RxxP205S and RxxP209S                                                                                                 RxxP205D and RxxP209D
+                    25                                                                                                              25
+
+                    20                                                                                                              20
+
+                    15                                                                                                              15
+    Deviation [%]
+
+
+
+
+                                                                                                                    Deviation [%]
+
+
+
+
+                    10                                                                                                              10
+
+                     5                                                                                                               5
+
+                     0                                                                                                               0
+                                   R05P205S                                                                                                          R05P205D
+                     -5            R05P209S                                                                                          -5              R05P209D
+                    -10            R12P205S                                                                                         -10              R12P205D
+                                   R12P209S                                                                                                          R12P209D
+                    -15                                                                                                             -15
+                          0   10   20   30    40   50    60                70         80   90   100                                       0   10     20      30   40   50    60     70   80   90   100
+                                              Output Load [%]                                                                                                     Output Load [%]
+
+
+
+                                   RxxP212S and RxxP215S                                                                                                 RxxP212D and RxxP215D
+                    25                                                                                                              25
+
+                    20                                                                                                              20
+
+                    15                                                                                                              15
+    Deviation [%]
+
+
+
+
+                                                                                                                    Deviation [%]
+
+
+
+
+                    10                                                                                                              10
+
+                     5                                                                                                               5
+
+                     0                                                                                                               0
+                                   R05P212S                                                                                                          R05P212D
+                     -5            R05P215S                                                                                          -5              R05P215D
+                    -10            R12P212S                                                                                         -10              R12P212D
+                                   R12P215S                                                                                                          R12P215D
+                    -15                                                                                                             -15
+                          0   10   20   30    40   50    60                70         80   90   100                                       0   10     20      30   40   50    60     70   80   90   100
+                                              Output Load [%]                                                                                                     Output Load [%]
+
+
+
+
+www.recom-power.com                                                                                REV.: 9-2024                                                                                      ECO-3
+                                                                                                                                               RxxP2xx
+DC/DC Converter                                                                                                                                         Series
+Specifications (measured @ Ta= 25°C, nom. Vin, full load and after warm-up unless otherwise stated)
+PROTECTIONS
+Parameter                                                                                               Type                                                      Value
+                                                                                                  without Suffix “/P”                                          1 second
+Short Circuit Protection (SCP)
+                                                                                                   with Suffix “/P”                                           continuous
+                                                                                                                  tested for 1 second                           6.4kVDC
+Isolation Voltage   (7)
+                                                                                     I/P to O/P                    rated for 1 minute                     3.2kVAC/60Hz
+                                                                                                                    working voltage                          250VACrms
+Isolation Resistance                                                                                                                                          15GΩ min.
+Isolation Capacitance                                                                                                                             1.5pF min. / 10pF max.
+Insulation Grade                                                                             according to 62368-1                                                    basic
+                          Notes:
+                              Note7: For repeat Hi-Pot testing, reduce the time and/or the test voltage
+                              Note8: Refer to local safety regulations if input over-current protection is required. Recommended fuse: slow blow type
+
+
+
+
+ENVIRONMENTAL
+Parameter                                                                                            Condition                                                    Value
+Operating Temperature Range                                                    without derating @ free air convection (see graph)                        -40°C to +95°C
+Maximum Case Temperature                                                                                                                                        +105°C
+                                                                                             according to 62368-1                                                2000m
+Operating Altitude
+                                                                                             according to 60601-1                                                3000m
+Operating Humidity                                                                                 non-condensing                                          95% RH max.
+Pollution Degree                                                                                                                                                      PD2
+                                                                                                                                      Single            2113 x 10 hours
+                                                                                                                                                                 3
+                                                                                                                    +25°C
+                                                                                                                                       Dual             2434 x 103 hours
+MTBF                                                                     according to MIL-HDBK-217F, G.B.
+                                                                                                                                      Single             299 x 103 hours
+                                                                                                                    +85°C
+                                                                                                                                       Dual              334 x 103 hours
+
+ Derating Graph
+ (@ Chamber and free air convection)
+                                                                         100
+                                                                          90
+                                                                          80
+                                                                          70
+                                                       Output Load [%]
+
+
+
+
+                                                                          60
+                                                                          50
+                                                                          40
+                                                                          30
+                                                                          20
+                                                                          10
+                                                                           0
+                                                                           -40 -30 -20 -10 0 10 20 30 40 50 60 70 80 90 100 110
+                                                                                                                       95
+                                                                                             Ambient Temperature [°C]
+
+www.recom-power.com                                                                           REV.: 9-2024                                                           ECO-4
+                                                                                                                           RxxP2xx
+DC/DC Converter                                                                                                                                     Series
+Specifications (measured @ Ta= 25°C, nom. Vin, full load and after warm-up unless otherwise stated)
+SAFETY AND CERTIFICATIONS
+Certificate Type (Safety)                                                       Report / File Number                                                        Standard
+                                                                                                                                      UL60950-1, 2nd Edition, 2014
+Information Technology Equipment, General Requirements for Safety                  E224736-A56-UL
+                                                                                                                       CAN/CSA C22.2 No. 60950-1, 2nd Edition, 2014
+                                                                                                                                       EN60950-1:2006 + A2:2013
+Information Technology Equipment - General Requirements for Safety                   LVD1602031
+                                                                                                                             IEC60950-1:2005 2nd Edition + A2:2013
+Audio/video, information and communication technology equipment.                                                                      UL62368-1, 2nd Edition, 2014
+                                                                                   E224736-A56-UL
+Safety requirements                                                                                                    CAN/CSA C22.2 No. 62368-1, 2nd Edition, 2014
+Audio/video, information and communication technology equipment.
+                                                                                                                                       EN62368-1:2014 +A11:2017
+Safety requirements
+                                                                                    ATTCB106076
+Audio/video, information and communication technology equipment.
+                                                                                                                                       IEC62368-1:2014, 2nd Edition
+Safety requirements (CB Scheme)
+Medical electrical equipment Part 1: General requirements for basic                                                                    IEC 60601-1:1988 + A2:1995
+                                                                                     SPC1007090
+safety and essential performance                                                                                                      EN 60601-1:1990 + A13 :1996
+EAC                                                                                RU-AT.49.09571                                                     TP TC 004/2011
+RoHS2                                                                                                                               RoHS-2011/65/EU + AM2015/863
+
+EMC Compliance                                                                         Condition                                                Standard / Criterion
+Electromagnetic compatibility of multimedia equipment -
+                                                                                   with external filter                                         EN55032, Class A and B
+Emission requirements
+
+
+  EMC Filtering Suggestions according to EN55032 Class A and Class B
+                                                                                             C3
+                                                                      L1                                                                                      L1
+                                               +VIN                                                            +VOUT                    +VIN
+
+
+                                                           C1              C2                                                                        C1             C2
+                                               -VIN                                                            -VOUT                     -VIN
+
+
+        Component List Class A                                             Component List Class B
+               C1              C2         L1          C3                           C1                     C2                   L1                   C3
+        10µF 100V MLCC          -          -           -                                                                  12µH choke
+                                                                           10µF 100V MLCC 10µF 100V MLCC                                         2n2F 8kV
+                                                                                                                        WE 744 045 120
+
+
+
+
+DIMENSION AND PHYSICAL CHARACTERISTICS
+Parameter                                                                       Type                                                                            Value
+                                                                                 case                                         non-conductive black plastic, (UL94 V-0)
+Material                                                                        potting                                                             epoxy, (UL94 V-0)
+                                                                                 PCB                                                                  FR4, (UL94 V-0)
+Package Dimension (LxWxH)                                                                                                                         19.5 x 9.8 x 12.5mm
+Package Weight                                                                                                                                                4.3g typ.
+
+                                                                      continued on next page
+
+www.recom-power.com                                                         REV.: 9-2024                                                                           ECO-5
+                                                                                                                                                                           RxxP2xx
+DC/DC Converter                                                                                                                                                                                               Series
+ Specifications (measured @ Ta= 25°C, nom. Vin, full load and after warm-up unless otherwise stated)
+
+   Dimension Drawing (mm)
+
+
+
+
+                                                                        embossed logo
+
+                                    19.5                                                    9.8
+                                                                                                                                                               Pin Connection
+                                                                                                                                                                Pin # Single                   Dual             /X2
+                                                                                                                                                               1		      +Vin                   +Vin             +Vin
+                                                                                                                                                                2		     -Vin                    -Vin            -Vin
+                                                                 12.5
+
+
+
+
+                                                                                 Marking
+                                                                                                                                                                5		    -Vout                   -Vout           No Pin
+                                                                                                                                                                6		    No Pin                  Com             -Vout
+    0.51
+
+
+
+
+                                                                                                                                                                7		    +Vout                   +Vout           +Vout
+                                                                                                                                                               Tolerance:       xx.x= ±0.5mm
+                                                                                                                                                                               xx.xx= ±0.25mm
+                      0.50+0.10/-0.05                                                                   0.25±0.05
+                                                                 4.10
+
+
+
+
+                                                                                                  Recommended Footprint Details
+
+
+                           Bottom View
+                                                                                                    1 2                 5 6 7
+                                                                                     2.54
+                                                                 2.4
+
+
+
+
+                  1 2                       5     6 7                                                            Top View
+
+                          3x2.54= 7.62
+                                                                                                        2.54
+       1.9                  6x2.54= 15.24
+
+
+
+
+ PACKAGING INFORMATION
+ Parameter                                                                                                        Type                                                                                                           Value
+ Packaging Dimension (LxWxH)                                                                                       tube                                                                                 520.0 x 22.3 x 12.0mm
+ Packaging Quantity                                                                                                                                                                                                               25pcs
+ Storage Temperature Range                                                                                                                                                                                       -55°C to +125°C
+ Storage Humidity                                                                                                                                                                                                      95% RH max.
+
+
+
+
+The product information and specifications may be subject to changes even without prior written notice.The product has been designed for various applications; its suitability lies in the responsibility of each customer. The products
+ are not authorized for use in safety-critical applications without RECOM’s explicit written consent. A safety-critical application is an application where a failure may reasonably be expected to endanger or cause loss of life, inflict
+      bodily harm or damage property. The applicant shall indemnify and hold harmless RECOM, its affiliated companies and its representatives against any damage claims in connection with the unauthorized use of RECOM
+                                                                                               products in such safety-critical applications.
+www.recom-power.com                                                                                         REV.: 9-2024                                                                                                          ECO-6
+

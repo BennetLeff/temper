@@ -1,0 +1,1346 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 8,
+   "list": [
+    {
+     "componentId": 136716,
+     "componentLibraryType": "expand",
+     "stockCount": 81,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 305V \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105m026_C125439.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5698
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4506
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 299,
+       "productPrice": 0.3984
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.3347
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 0.307
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.2906
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 299,
+       "productPrice": 0.3838
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5489
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 0.2957
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.28
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.3224
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4341
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": -4,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105M026/C125439",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 1.45,
+     "preMinPurchaseNum": 21,
+     "minPurchaseNum": 21,
+     "initialPrice": 0.4506,
+     "componentCode": "C125439",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105M026",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583078302085500928",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_TDK-B32923C3105M026_C125439.pdf",
+     "dataManualFileAccessId": "8557981535245651968",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105M026",
+     "minImage": "",
+     "minImageAccessId": "8583078303065886720",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1uF 305V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>M026",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3864051,
+     "componentLibraryType": "expand",
+     "stockCount": 1000,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 305V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105m189_C3299462.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.622
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5029
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4425
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 349,
+       "productPrice": 0.3837
+      },
+      {
+       "startNumber": 350,
+       "endNumber": 1049,
+       "productPrice": 0.3478
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 0.3298
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4844
+      },
+      {
+       "startNumber": 350,
+       "endNumber": 1049,
+       "productPrice": 0.335
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4262
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 0.3177
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 349,
+       "productPrice": 0.3696
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5992
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 980,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105M189/C3299462",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 350,
+     "shopCostPrice": 1.69342,
+     "preMinPurchaseNum": 18,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.622,
+     "componentCode": "C3299462",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105M189",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8769091475827105792",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031334_TDK-B32923C3105M189_C3299462.pdf",
+     "dataManualFileAccessId": "8590289692898713600",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105M189",
+     "minImage": "",
+     "minImageAccessId": "8769091476963897344",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 305V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>M189",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 136715,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 305V \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://lcsc.comhttps://lcsc.com/product-detail/Suppression-Capacitors_TDK-B32923C3105M000_C125438.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5633
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4572
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4131
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 509,
+       "productPrice": 0.3559
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 1019,
+       "productPrice": 0.3315
+      },
+      {
+       "startNumber": 1020,
+       "endNumber": -1,
+       "productPrice": 0.3168
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5426
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4404
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3979
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 509,
+       "productPrice": 0.3429
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 1019,
+       "productPrice": 0.3193
+      },
+      {
+       "startNumber": 1020,
+       "endNumber": -1,
+       "productPrice": 0.3051
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "47fa244a3f2d4887b64a2c90660790dc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105M000/C125438",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 510,
+     "shopCostPrice": 1.276,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 20,
+     "initialPrice": 0.4572,
+     "componentCode": "C125438",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105M000",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583078301753880576",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/1810311710_TDK-B32923C3105M000_C125438.pdf",
+     "dataManualFileAccessId": "8588889740288397312",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105M000",
+     "minImage": "",
+     "minImageAccessId": "8583078302726283264",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 305V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>M000",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 318554,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011B32923C3105M000",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105m000_C341262.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3021
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2319
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2188
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2074
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2008
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.1976
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.196
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.1943
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2108
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.1888
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.291
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1935
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1998
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2234
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.1872
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.1903
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "C125438",
+     "urlSuffix": "TDK-B32923C3105M000/C341262",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "C125438",
+     "replaceUrlSuffix": "TDK-B32923C3105M000/C125438",
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 510,
+     "shopCostPrice": 0.85,
+     "preMinPurchaseNum": 42,
+     "minPurchaseNum": 42,
+     "initialPrice": 0.2188,
+     "componentCode": "C341262",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105M000",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583609678068244480",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105M000",
+     "minImage": "",
+     "minImageAccessId": "8583609678895468544",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Through Hole",
+     "describe": "Through Hole Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>M000",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3861094,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 305V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105k289_C3296505.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2993
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2993
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2993
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 369,
+       "productPrice": 0.1158
+      },
+      {
+       "startNumber": 370,
+       "endNumber": 1109,
+       "productPrice": 0.1117
+      },
+      {
+       "startNumber": 1110,
+       "endNumber": -1,
+       "productPrice": 0.1098
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 370,
+       "endNumber": 1109,
+       "productPrice": 0.1076
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 369,
+       "productPrice": 0.1115
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2883
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2883
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2883
+      },
+      {
+       "startNumber": 1110,
+       "endNumber": -1,
+       "productPrice": 0.1057
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105K289/C3296505",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 370,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 31,
+     "minPurchaseNum": 31,
+     "initialPrice": 0.2993,
+     "componentCode": "C3296505",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105K289",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031322_TDK-B32923C3105K289_C3296505.pdf",
+     "dataManualFileAccessId": "8590307739663831040",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105K289",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 305V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>K289",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3861131,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 305V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105k189_C3296542.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4604
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3674
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3282
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 349,
+       "productPrice": 0.2776
+      },
+      {
+       "startNumber": 350,
+       "endNumber": 1049,
+       "productPrice": 0.2564
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 0.2417
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 349,
+       "productPrice": 0.2674
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 0.2328
+      },
+      {
+       "startNumber": 350,
+       "endNumber": 1049,
+       "productPrice": 0.2469
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3161
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4435
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3539
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105K189/C3296542",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 350,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 25,
+     "minPurchaseNum": 25,
+     "initialPrice": 0.3674,
+     "componentCode": "C3296542",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105K189",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031322_TDK-B32923C3105K189_C3296542.pdf",
+     "dataManualFileAccessId": "8590302070910980096",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105K189",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 305V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>K189",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3862744,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 305V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105m289_C3298155.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2377
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2377
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2377
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 369,
+       "productPrice": 0.092
+      },
+      {
+       "startNumber": 370,
+       "endNumber": 1109,
+       "productPrice": 0.0889
+      },
+      {
+       "startNumber": 1110,
+       "endNumber": -1,
+       "productPrice": 0.0872
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 370,
+       "endNumber": 1109,
+       "productPrice": 0.0856
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 369,
+       "productPrice": 0.0886
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.229
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.229
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.229
+      },
+      {
+       "startNumber": 1110,
+       "endNumber": -1,
+       "productPrice": 0.084
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105M289/C3298155",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 370,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 38,
+     "minPurchaseNum": 38,
+     "initialPrice": 0.2377,
+     "componentCode": "C3298155",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105M289",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031329_TDK-B32923C3105M289_C3298155.pdf",
+     "dataManualFileAccessId": "8590395829032165376",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105M289",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 305V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>M289",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3864086,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 305V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_tdk-b32923c3105k000_C3299497.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2485
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2485
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2485
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 509,
+       "productPrice": 0.0962
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 1019,
+       "productPrice": 0.0928
+      },
+      {
+       "startNumber": 1020,
+       "endNumber": -1,
+       "productPrice": 0.0911
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 509,
+       "productPrice": 0.0927
+      },
+      {
+       "startNumber": 1020,
+       "endNumber": -1,
+       "productPrice": 0.0878
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2394
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2394
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 1019,
+       "productPrice": 0.0894
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2394
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B32923C3105K000/C3299497",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 510,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 37,
+     "minPurchaseNum": 37,
+     "initialPrice": 0.2485,
+     "componentCode": "C3299497",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B32923C3105K000",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031334_TDK-B32923C3105K000_C3299497.pdf",
+     "dataManualFileAccessId": "8590353154862198784",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B32923C3105K000",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 305V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "305V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B32923C3105</span>K000",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "B32923C3105"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:35:20Z"
+}

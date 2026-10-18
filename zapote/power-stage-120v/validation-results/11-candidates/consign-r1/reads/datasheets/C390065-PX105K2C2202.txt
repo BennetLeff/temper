@@ -1,0 +1,548 @@
+                                  东莞市科雅电子科技有限公司
+
+                                 规                格                承                认                书
+                                 SPECIFICATIONS FOR APPROVAL
+                                 TEL0769-83919069 FAX:0769-83500269
+               客户名称
+                                        立创商城
+               CUSTOMER
+               规格类别
+                                        MKP-X2 抑制电源电磁干扰用固定电容器
+               DESCRIPTION
+               科雅料号
+                                        PX105K2C2202
+               CHIEFCON P/N
+               规格描述
+                                        X2-1.0UF310VAC ±10% P22.5
+               CUSTOMER P/N
+               承认编号
+                                        2019041202
+               APPROVAL NO
+               发行日期
+                                        2019/04/12
+               ISSUED DATE
+
+                东莞市科雅电子科技有限公司
+                广东省东莞市常平镇朗贝村常泰新村 4 街 128 号四楼
+                  TEL：0769-83919069 FAX：0769-83500269
+                 Website : HTTP://www.dgkeya.com
+
+
+
+
+                               客户承认栏 CUSTOMER APPROVAL
+      製作 PREPARED BY                                       審核 CHECKED BY                                核準 APPROVAL BY
+
+
+
+
+This specification will be invalidated assuming that it is not accepted when it is not returned within sixth months from the date of issue.
+此承认书若未在发行日期起二个月内签回，将视为无效。
+东莞市科雅电子科技有限公司                                                                                                                            1/12
+           SPECIFICATION                                             CHIEFCON ELECTRONICS CO LTD
+                客户名称                                             立创商城
+                CUSTOMER
+                科雅型号                                           MKP-X2
+                KYET     TYPE
+产品尺寸图 PRODUCT DIMENSIONS
+
+
+                                                                                                Marking   激光印字：
+
+
+
+
+                                                                       尺寸毫米为单位
+ 客户产品料号 容值 CAP. 规格 误差 电压                                             Dimensions in mm
+ CUSTOMER P/N     (UF)
+                      R.V.
+                           Symbol   Tol. ±%             宽  W    高 H     厚 脚距 线径φd 脚长 L
+                                                                         T          P                      测试       科雅产品型号
+                                               (VAC)
+                                                       ±0.5mm ±0.5mm ±0.5mm ±0.5mm      ±0.05     min     电压 VDC    CHIEFCON P/N
+
+                  1.0       105      10       310VAC 26.5       17      8.5    22.5     0.8       16       900     PX105K2C2202
+
+
+
+
+东莞市科雅电子科技有限公司                                                                                                                2/12
+产品编码对照表 PRODUCT CODE COMPARATIVE TABLE                                                                                                                   型号 MKP-X2
+                                                                                                                                                                 :
+
+产品编码 Product coding                                                                                                                                      TYPE:
+
+
+
+
+○产品类别 Type of capacitor
+ 1
+     类别 model          MPP          MMKP      CBB21      CBB22               MER       CL21          PPS        CBB81      CBB28           PPN     CBB13             X2           MPB
+     代码 Code              KP          KP          KP          KP             PE         PE           PS            PS          PS          PN           PN           PX            PC
+     型号 model
+     代码 Code
+○产品容量代码 Capacitance code (EIA Code)
+ 2
+ 代码 Code              容量换算 Capacitance                   代码 Code                   容量换算 Capacitance                     代码 Code                  容量换算 Capacitance
+      101           100pF        0.1nF       0.0001uF         103            10,000pF         10nF        0.01uF          105         1,000,000pF            1,000nF             1uF
+      102          1,000pF           1nF     0.001uF          104            100,000pF 100nF               0.1uF          106        10,000,000pF        10,000nF                10uF
+○产品容量误差 Tolerance (EIA Code)
+ 3
+ 误差 Tol.           ±1%         ±2%         ±3%         ±5%    ±10%           ±20%       –10%~ 0%               0%~+10%         –5%~+10%          –10%~+5%                 0%~+20%
+ 代码 Code            F           G           I           J       K              M            L                     P                U                 V                       W
+○产品额定电压 Rated Voltage
+ 4
+
+电压 Voltage           63        100     125       250    275        310       350       380     400     450         630     800      1000    1200    1250      1600        2000     3000
+
+代码 Code              1J        2A      2B        2E      2C        2C        2W        2w      2G         2K       2J      2D       3A      3I      3B         3C         3F       3G
+
+○产品本体脚距 Lead Space
+ 5
+     本体脚距 Lead Space                  5           7.5             10              15          20           22.5           24          25           26           27.5              31
+     代码 Code                          05          07              10              15          20            22            24          25           26            27               31
+○辅助码(内部识别码） Accessories Yards
+ 6
+
+     NO.     说 明 Descriptions
+      1     每个规格第一料号时用“01" Each specification first edit with" 01"
+      2
+            同种规格原料、外观及尺寸有差异时用“01，02，03．．．”进行区分
+            The same specifications appearance and size differ with non-simultaneous 01, 02, 03 to distinguish
+Guideline of notabilia for the usage of plastic film capacitors
+塑胶薄膜电容器的使用上注意事项及指导
+Plastic film capacitors use organic films for their dielectrics, thus the capacitors may fume of flame, depending on the circuit conditions they are in, when they are
+damaged by applying over-voltage or over-current.
+塑胶薄膜电容器使用有机薄膜为介质，当使用超过额定电压及额定电流，可能产生火焰，导致电容损坏，故请使用于正确的电路。
+1. Circuit Design 电路设计
+     ① Please use capacitors within the range of their characteristic ratings, only after confirming their operating and mounting
+       environments.
+          请确认电容器的使用范围仅止于明定之额定特性规范，请先确认电容器使用之环境是否符合规范。
+     ② In case of selecting a capacitor, please select the most suitable one which fits to your operating conditions.
+          请依照适合的作业条件选择相对应的电容器使用。
+     ③ An applying voltage to a capacitor, including the peak of surge and ripple voltage (D.C. voltage + A.C. Peak), cannot be exceeded the
+       rating voltage.
+          电容器之应用电压，包括突波和纹波电压的峰值 直流电压 交流峰值 不可超过额定电压。           (              +          )
+
+     ④ Do not apply a current over its permissible level. Also, make sure the check the surrounding temperature and inherent temperature
+       rise of a capacitor since a permissible current can be restricted by those factors.
+          切勿使用超出电容器可承载之电流并检查电容器周围之温度，因有许多因素会影响电流之变化，进而造成电容器之温度上升。
+     ⑤ Do not conduct a rapid charge and discharge to a capacitor which may lead to characteristics degradations or break down of the
+       capacitor.
+       请不要对电容器进行快速的充电和放电，此可能会导致电容器之特性退化或损坏。
+2. Mounting   安装
+   ① Do not apply any exceeding tension or torsion to lead wires of a capacitor, during the mounting process.
+       请不要使用任何超过电容导线可承受之张力进行插件。
+   ② Please mount a capacitor where it dose not contact any other heating parts, high voltage parts and other parts.
+       请确认电容器使用环境，避免接触任何其他升温热物件 高压和其他部分料件。                               ,
+
+   ③ Please conduct soldering process by strictly following the specified conditions.
+       进行焊接过程时，请严格遵循指定之焊接条件。
+3.Storing and handling 储存和处理
+   ① A storage needs to be kept indoors at -10～+30℃ and relative humidity of under 75% without any sudden temperature changes,
+      direct sunlight and corrosive gas around.
+      需保存于       -10 ~ 30℃   ，相对湿度低于 并确保没有任何突然的温度变化，避免直接阳光之曝晒及接触腐蚀性气体之环境。
+                                                  75%
+
+   ② Do not apply and exceeding vibration, shock (dropping) and pressure.
+    不应过度震动、碰撞和及外力的冲击。
+   ③ According to normal conditions, the storage time exceeds 3 months, and all capacitor characteristics must be checked before production and use.
+     按正常条件储存时间超出 3 个月时间，生产使用前需全部检查电容器特。
+东莞市科雅电子科技有限公司                                                                                                                                                                     3/12
+产品规格说明                                                                                       型号    :
+                                                                                                         MKP-X2
+PRODUCT SPECIFICATIONS                                                                          TYPE:
+NO. 项目 ITEM                             说明 DESCRIPTIONS
+                                        本规格适用于科雅之要求
+                                        This specifications cover the requirements of KYET
+
+1
+      承认范围                              金属化聚丙烯薄膜
+                                        Metallized Polypropylene Film
+      SCOPE
+                                        交流电容器 (抑制电源电磁干扰用固定电容器）等级-X2
+                                        AC Capacitor (Interference Suppressors Class-X2).
+
+2     各测量皆于标准大气下进行 STANDARD ATMOSPHERIC CONDITIONS FOR MAKING MEASUREMENTS
+                                        15℃   至 35℃ (如对结果有任何疑问，该测量环境温度应为+20 ± 5℃之间)
+2.1   环境温度 AMBIENT TEMPERATURE          15℃ to 35℃ (If there is any doubt on the results, the measurements shall be made
+                                        at +20 ± 5℃)
+
+                                            至
+                                        45% 75% (     如对结果有任何疑问，该测量相对湿度应为                           60% to 70%之间    )
+2.2   相对湿度 RELATIVE HUMIDITY(R.H.)      45%to 75% (If there is any doubt on the results, the measurements shall be made at
+                                        60% to 70%)
+
+
+2.3   大气压力 AIR PRESSURE                 86 千帕至     106 千帕之
+                                        86 kpa to 106 kpa
+
+
+      工作温度范围                            于-40℃至+110℃间，电容可在额定电压下持续运作
+2.4                                     -40℃ to +110℃ for which the capacitor can be operated continuously at rated
+      OPERATING TEMPERATURE RANGE
+                                        voltage.
+
+3     结构 CONSTRUCTION
+3.1   电介质 DIELECTRIC                    金属化聚丙烯薄膜 Metallized Polypropylene Film
+3.2   喷金层 METAL SPRAY                   锌锡合金     Special Solder
+
+3.3   导线   LEAD WIRE                    镀锡铜包钢线 Copper-clad Steel Wire
+3.4   环氧树脂 EPOXY RESIN                  V-0 耐燃等级
+
+3.5   塑料外壳 PLASTIC CASE                 V-0 耐燃等级
+
+4     打印 MARKING
+4.1   制造商标志 MANUFACTURER'S SYMBOL                 表示为”科雅电子有限公司 KYET ELECTRONICS CO., LTD”
+                                        “MKP”代表“X2”类型
+4.2   型号或材质 TYPE OR MATERIAL            “MKP” stands for “X2” type
+
+4.3   电容类别        CAPACITOR CLASS
+                                        “X2”  代表 等级
+                                                  “X2”
+                                        “X2stands for “X2” class
+                                                                                                   范例 example
+4.4   静电容量        NOMINAL CAPACITANCE
+                                        容量用 三码表示EIA
+                                        Capacitance Expressed in 3-digit (EIA) code.
+
+4.5   容量容许差值 TOLERANCE                  J (±5%) , K(±10%) , M(±20%)
+
+
+4.6   额定电压        RATED VOLTAGE
+                                        交流电压
+                                        310-350-380V in VAC rating. (50/60Hz)
+
+
+4.7
+      电容气候类别                            40/110/21/B
+      CLIMATIC CATEGORY
+
+4.8   国际认证        APPROVAL MARKS        cULus / ENEC / CQC
+
+4.9   制造番号        MANUFACTURE CODE      182235--2018   年第 2235 制造批次
+东莞市科雅电子科技有限公司                                                                                                         4/12
+                                                                                             型号:
+产品规格说明                                                                                         TYPE:          MKP-X2
+PRODUCT SPECIFICATIONS
+5   电气特性       ELECTRICAL CHARACTERISTICS
+NO. 项目 ITEM                                    说明 DESCRIPTIONS
+                                                                       施加 4.3 倍额定直流电压测试 60 秒(电压应
+                                               应无异常                    以不超过 150V/s 的速率从零升高到试验电
+                                               Shall be no abnormality 压，时间应从达到电压时计算，在结束时，
+                                               非标准小型化产品施加 1.5-2 倍 电压应减少到接近零，并且电容器应通过一
+                           端子之间                额定直流电压，测试 60 秒          个适当的电阻放电)
+                                               Non-standard miniaturized          Apply 4.3*Ur (DC) for 60 sec (Should be no
+                           Between Terminals
+
+5.1
+      耐压 (TV)                                  products apply 1.5-2 times
+                                                                                  more than 150V/s rate increased from zero to
+                                                                                  the test voltage, testing time, meets the test
+      Withstand                                rated DC voltage for 60            voltage should be calculated at the end of the
+      Voltage                                                                     trial, the voltage should be reduced to zero
+                                               seconds                            and the capacitor through a resistor of
+                                                                                  appropriate discharge.
+
+
+                                                                                  2 倍额定电压+1,500VAC，测试 2 到 5 秒
+                           端子与外壳之间             应无异常                               最小值 2,000VAC
+                           Between Terminals
+                                               Shall be no abnormality            Apply 2*Ur+1,500VAC for 2 to 5 sec.
+                           &Enclosure
+                                                                                  Min. 2,000VAC
+
+
+      介质损耗 (DF)                                于 1KHz 时 ≤ 0.001(0.1%)             测量频率    : ±2% ;  测量电压    : ≤1 rms
+5.2                                                                               Measuring Frequency: ±2%
+      Dissipation Factor                       ≤ 0.001(0.1%) at 1 KHz
+                                                                                  Measuring Voltage: ≤1 Vrms..
+
+
+      容量 (CAP)                                 偏差值如标示(于+20 ± 5℃)。                 测量频率    : ±2% ;  测量电压    : ≤1 rms
+5.3                                            Within the tolerance specified     Measuring Frequency: ±2%
+      Capacitance
+                                               (at +20 ± 5℃).                     Measuring Voltage: ≤1 Vrms..
+
+
+                                               ≥15,000 Mohm (C≤0.33uf)
+                                               容值  ≤0.33uf   时，绝缘电阻               应加电压 100 伏
+5.4
+      绝缘电阻 (I.R.)                              ≥15,000M  Ω                        充电时间 60±5 秒。
+      Insulation Resistance                    ≥5,000 Mohm*uF/C (C>0.33uf)
+                                               容值  >0.33uf   时，绝缘电阻               Vt=100 VDC
+                                                                                  Charge Time : 60±5 sec.
+                                                       Ω
+                                               ≥5,000M *uF / C
+
+
+                                               焊料覆盖面积应超过导线表面                      焊接温度为: +265 ± 5℃
+      焊料附着性                                    圆周 90%。                            浸焊时间为: 3 ± 0.5 秒
+5.5                                            More than 90% of circumferential
+      Soldering Property                                                          Soldering temperature: +265 ± 5℃
+                                               surface of lead wire shall be
+                                               covered with new solder.           Immersion duration: 3 ± 0.5 sec.
+
+6     机械特性 MECHANICAL CHARACTERISTICS
+                                                                                  沿着轴向和引出方向，施加 1 公斤力量，保
+                                                                                  持 10±1 秒。
+      端子强度                 引张强度                应无异常。                              Apply 1.0Kg for 10 ± 1 sec. to the terminal in
+6.1   Terminal                                                                    the axial direction and acting in a direction
+                           Tensile Strength    Shall be no abnormality
+      Strength                                                                    away from the body.
+
+
+
+
+东莞市科雅电子科技有限公司                                                                                                               5/12
+产品规格说明                                                                                          型号:
+PRODUCT SPECIFICATIONS                                                                            TYPE:           MKP-X2
+7     耐久性特性 ENDURANCE CHARACTERISTICS
+NO.   项目 ITEM                               说明 DESCRIPTIONS
+                    外观                      应当无显著变化                               共 5 次温度循环测试，循环条件:
+                    Appearance              Shall be no remarkable change         1. +20 ± 2℃ 持续 3 分钟
+                                                                                  2. -40 ± 3℃ 持续 30 分钟
+                                                                                  3. +20 ± 2℃ 持续 3 分钟
+                    耐压                      应满足      NO.5.1
+                    Withstand Voltage       shall satisfy NO.5.1                  4. +110 ± 2℃ 持续 30 分钟
+                                                                                  5. +20 ± 2℃ 持续 3 分钟
+             容值变化率 (△C/C)                   变化率小于                                 试验后放置于室内 1.5 ± 0.5 小时后再进行量
+      温度变化循环 Capacitance Change
+                                                        ±5%
+                                            Within ±5% of the value before test
+                                                                                  测。
+7.1          Rate
+      Temperature                                                                 Test Temperature Cycle: Total 5 cycles.
+      Cycle                                                                       Each cycle includes
+                    介质损耗                    于 1KHz 时: 最大值为 0.002 (0.2%)           1. 20 ± 2℃ for 3 min.
+                    Dissipation Factor      @ 1KHz: 0.002 (0.2%) max.             2. -40 ± 3℃ for 30 min.
+                                                                                  3. +20 ± 2℃ for 3 min.
+                                                                                  4.+110 ± 2℃ for 30min.
+                    绝缘电阻 (I.R.)             ≥50% 的限制值在         NO.5.4             5. +20 ± 2℃ for 3 min.
+                    Insulation Resistance   ≥50% of the limit value of NO.5.4     After test, allow it stay alone for 1.5 ± 0.5 Hrs.
+                                                                                  at ordinary condition before making
+                                                                                  measurements.
+
+                    外观                      应当无显著变化
+                    Appearance              Shall be no remarkable change
+
+
+                    耐压                      应满足      NO.5.1
+                    Withstand Voltage       Shall satisfy NO.5.1
+                                                                                  试验温度: +110 ± 2℃
+      耐干热试验         容值变化率 △      ( C/C)
+                                            变化率小于       ±5%
+                                                                                  测试时间: 16 + 1/-0 小时
+7.2   Dry Heat      Capacitance Change                                            Test Temperature: +110 ± 2℃
+                                            Within ±5% of the value before test
+      Resistance    Rate                                                          Test Duration: 16 + 1/-0 hrs.
+
+                    介质损耗                    于 1KHz : 时 最大值为       0.002 (0.2%)
+                    Dissipation Factor      @ 1KHz: 0.002 (0.2%) max.
+
+
+                    绝缘电阻 (I.R.)             ≥50% 的限制值在         NO.5.4
+                    Insulation Resistance   ≥50% of the limit value of NO.5.4
+
+
+                    外观                      应当无显著变化
+                    Appearance              Shall be no remarkable change
+
+
+                    耐压                      应满足      NO.5.1
+                    Withstand Voltage       Shall satisfy NO.5.1
+                    容值变化率 (△C/C)                                                  试验温度: -40 ± 3℃
+      耐干寒试验         Capacitance Change
+                                            变化率小于 ±5%                             测试时间: 2 ± 1 小时
+7.3   Cold                                  Within ±5% of the value before test
+      Resistance    Rate                                                          Test Temperature: -40 ± 3℃
+                                                                                  Test Duration: 2 ± 1 hrs.
+                    介质损耗                    于 1KHz : 时 最大值为       0.002 (0.2%)
+                    Dissipation Factor      @ 1KHz: 0.002 (0.2%) max.
+
+
+                    绝缘电阻 (I.R.)             ≥50% 的限制值在         NO.5.4
+                    Insulation Resistance   ≥50% of the limit value of NO.5.4
+
+东莞市科雅电子科技有限公司                                                                                                                 6/12
+                                                                                                  型号
+产品规格说明
+                                                                                                        :
+
+                                                                                                       TYPE:        MKP-X2
+PRODUCT SPECIFICATIONS
+NO.   项目 ITEM                               说明 DESCRIPTIONS
+                    外观                      应当无显著变化
+                    Appearance              Shall be no remarkable change
+                                                                                    试验温度：+40 ± 2℃
+                    耐压                      应满足 NO.5.1                              试验湿度：90％至 95％相对湿度
+                    Withstand Voltage       Shall satisfy NO.5.1
+                                                                                    试验时间： 天      21
+
+                    容值变化率 △      ( C/C)
+                                            变化率小于                                   试验后放置于室内 1.5 ± 0.5 小时后再进行量
+      耐湿绝缘          Capacitance Change
+                                                       ±5%
+                                                                                    测。
+                                                                                    Test Temperature: +40 ± 2℃.
+7.4                                         Within ±5% of the value before test
+      Damp Heat     Rate
+                                                                                    Test Humidity: 90% to 95% R.H.
+                    介质损耗                    于 1KHz : 时 最大值为       0.002 (0.2%)      Test Duration: 21 days.
+                                                                                    After test, allow it stay alone for 1.5 ± 0.5 Hrs.
+                    Dissipation Factor      @ 1KHz: 0.002 (0.2%) max.
+                                                                                    at ordinary condition before making
+                                                                                    measurements.
+                    绝缘电阻 (I.R.)             ≥50% 的限制值在         NO.5.4
+                    Insulation Resistance   ≥50% of the limit value of NO.5.4
+
+
+
+                    外观                      应无机械性损伤                                 频率变化: 10-55-10Hz
+                    Appearance              Shall be no mechanical damage.          振动距离: 1.5 毫米.
+      振动试验                                                                          试验方向: X,Y,Z
+7.5   Vibration                                                                     试验时间:每个方向 2+1/-0 小时
+      Resistance                            不得为短路或开路连接。                             Frequency Change : 10-55-10 Hz
+                    连接强度                    连接点应稳定。                                 Vibration Distance:1.5 mm.
+                                                                                    Test Direction : X,Y,Z
+                    Connection strength     Shall be no short-circuiting or open.
+                                                                                    Test Duration : 2+1/-0 hrs each direction
+                                            The connection shall be stable.
+
+
+
+                                            应当无显著变化
+                    外观                      印字标志应清晰
+                    Appearance              Shall be no remarkable change.
+                                            The marking shall be legible.
+                                                                                    预热温度: 100 ~120℃
+                                                                                    预热时间:最大为 60 秒
+                    端子间的耐电压值                应满足      NO.5.1                         温度升高:最大为 3℃/秒
+                    Withstand Voltage
+                    Between Terminals
+                                            Shall satisfy NO.5.1                    锡炉温度: +260 ± 5℃
+                                                                                    浸焊时间: 3 ± 1 秒
+                    容值变化率 △                                                         浸焊深度:导线根部 4 ± 0.8 毫米
+      焊接耐热
+                                 ( C/C)
+                    Capacitance Change
+                                            变化率小于       ±5%                         试验后放置于室内 1.5 ± 0.5 小时后再进行量
+7.6
+      Soldering     Rate
+                                            Within ±5% of the value before test     测。
+      Heat                                                                          Preheat Temp. : 100~120℃
+      Resistance                                                                    Preheat Duration : 60 sec. max.
+                    介质损耗                    于 1KHz 时: 最大值为 0.002 (0.2%)             Temperature Increase by 3℃/sec. max.
+                    Dissipation Factor      @ 1KHz: 0.002 (0.2%) max.
+                                                                                    Soldering Temperature : +260 ± 5℃
+                                                                                    Immersion Duration : 3 ± 1sec.
+
+                    绝缘电阻 (I.R.)             ≥50% 的限制值在         NO.5.4
+                                                                                    Immersion Depth : 4 ± 0.8mm from roots.
+                                                                                    After test, allow it stay alone for 1.5 ± 0.5 Hrs.
+                    Insulation Resistance   ≥50% of the limit value of NO.5.4       at ordinary condition before making
+                                                                                    measurements.
+
+                   连接元件                     应稳定
+                   Connection of Element    Shall be stable
+
+
+
+
+东莞市科雅电子科技有限公司                                                                                                                   7/12
+产品规格说明                                                                                       型号   :                 MKP-X2
+PRODUCT SPECIFICATIONS                                                                                TYPE:
+NO.   项目 ITEM                                性能 PERFORMANCE                         测试条件 TEST CONDITIONS
+                  外观                         应当无显著变化
+                  Appearance                 Shall be no remarkable change          试验温度: +110 ± 2℃
+                  耐压                         应满足 NO.5.1                             测试电压: 1.25 倍的额定电压
+                  Withstand Voltage          Shall satisfy NO.5.1                   试验时间 1,000 小时
+                                                                                              :
+
+                  容值变化率 (△C/C)               变化率小于                                  每小时将电压升至 1,000VAC，持续 0.1 秒
+      耐久寿命
+                  Capacitance Change
+                  Rate
+                                                         ±10%
+                                             Within±10% of the value before test    每个电容分别通过一个 47Ω±5 %.电阻。
+7.7                                                                                 Test Temperature: +110 ± 2℃
+      Endurance
+                  介质损耗                       于 1KHz 时: 最大值为@ 1KHz                   Test Voltage: 125% * rated voltage.
+                                             Cr ≤1uF : 0.008 (0.8%) max.            Test Duration: 1,000 Hrs.
+                  Dissipation Factor
+                                             Cr >1uF : 0.005 (0.5%) max.            Once every hour the voltage is increased to
+                                                                                    1000 V rms. For 0.1 sec. The test voltage is
+                  绝缘电阻 (I.R.)                ≥50% 的限制值在         NO.5.4              applied to each capacitor individually through
+                                                                                    a resistor of 47Ω±5 %.
+                  Insulation Resistance      ≥50% of the limit value of NO.5.4
+
+                  外观                         应当无显著变化                                试验温度: +40 ± 2℃.
+                  Appearance                 Shall be no remarkable change
+                                                                                    试验湿度: 87%至 93%相对湿度
+                  耐压                         应满足 NO.5.1                             测试电压: 额定电压
+                  Withstand Voltage
+                  容值变化率 (△C/C)
+                                             Shall satisfy NO.5.1
+                                                                                    试验时间 500 小时
+                                             变化率小于 ±5%
+                                                                                              :
+
+
+
+      耐湿负荷                                                                          试验后放置于室内 1.5 ± 0.5 小时后再进行量
+7.8   Moisture
+                  Capacitance Change
+                  Rate
+                                             Within ±5% of the value before test    测。
+      Resistant                                                                     Test Temperature: +40 ± 2℃.
+      Loading     介质损耗                       于 1KHz 时: 最大值为 0.002 (0.2%)            Test Humidity: 87% to 93% R.H.
+                  Dissipation Factor         @ 1KHz: 0.002 (0.2%) max.              Test Voltage: rated voltage.
+                                                                                    Test Duration: 500 Hrs.
+                  绝缘电阻 (I.R.)                ≥50% 的限制值在         NO.5.4
+                                                                                    After test, allow it stay alone for 1.5 ± 0.5 Hrs.
+                                                                                    at ordinary condition before making
+                  Insulation Resistance      ≥50% of the limit value of NO.5.4
+                                                                                    measurements.
+
+产品安规认証
+PRODUCT SAFETY APPROVALS
+标 志 Mark        认证单位 Agent                应用标准 Standard               规格范围 Specification                证书号码 Certificate No.
+                  美国 / 加拿大                UL EN 60384-14:2013
+                                                                      X2, 310/ 350/380 VAC
+                  UL / CUL
+                                          (AMD2016)
+                                          CSA E60384-14
+                                                                             μ      μ
+                                                                      0.001 F to 4.7 F
+                                                                                                        E502709
+
+
+
+
+                  欧盟                      EN 60384-14:2013            X2, 310/ 350/380 VAC
+                  ENEC                    (AMD2016)                          μ      μ
+                                                                      0.001 F to 4.7 F
+                                                                                                        ENEC-02253-M1
+
+
+
+
+                  中国                      IEC 60384-14: 2005          X2, 310/ 350/380 VAC
+                  CQC                     GB/T 6346.14-2015                  μ      μ
+                                                                      0.001 F to 4.7 F
+                                                                                                        CQC18001207926
+
+
+
+
+                                          IEC 60384-14: 2005          X2, 310/ 350/380 VAC
+                  IECEE
+                                          GB/T 6346.14-2015                  μ      μ
+                                                                      0.001 F to 4.7 F
+                                                                                                        CN44127
+
+
+
+
+东莞市科雅电子科技有限公司                                                                                                                   8/12
+

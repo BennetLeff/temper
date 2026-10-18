@@ -1,0 +1,229 @@
+PCB Assembly FAQs (Part 2)
+Account Restriction Notice 
+Get Coupon Here 
+ Coupons
+Country / Region 
+Language 
+undefined
+Currency 
+USD $
+The currency you select is for reference only, payments must be made in US dollars. 
+ Save
+Language Coming Soon 
+Ship to 
+ JLCPCB 
+PCB Service 
+ FR-4 PCBs
+ Flexible PCBs
+ Metal Core PCBs
+ High-Frequency PCBs
+PCBA Service 
+ PCB Assembly
+ Parts Library
+More 
+ SMT Stencil
+ PCB Layout 
+Mechanical Services 
+JLC3DP - 3D Printing
+JLCCNC - CNC Machining
+JLCCNC - Sheet Metal
+JLCMC - Mechanical Components
+Tools 
+EasyEDA - PCB Design Tool
+JLCDFM - DFM Check
+Impedance Calculator
+PI Stiffener Calculator
+More 
+OSHWLAB - Open Source Hardware
+JLCPCB - Flexible Heater 
+ Products
+ Capabilities 
+Contact Us 
+ Online Chat>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+ Email Us>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+ WhatsApp>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8 
+Support 
+Help Center 
+Get instant answers. 24/7 Available.
+Blog 
+Community 
+ Support
+About Us 
+JLCPCB delivers one-stop electronic and mechanical manufacturing solutions to empower hardware innovators worldwide. 
+Explore Us 
+Why JLCPCB?
+Quality Assurance
+How We Work
+Certifications
+Company News 
+ About Us
+ Search
+0 Order Now 
+ Sign In
+ Sign In
+ Help Center 
+ Help Center
+ PCB Assembly FAQs
+ PCB Assembly FAQ (Part 2)
+Help Center 
+ Get Started
+ Register
+ Know Before Ordering
+ Account Setting
+ Ordering
+ PCB Ordering
+ PCB Assembly Ordering
+ PCB Stencil Ordering
+ PCB Manufacturing
+ PCB Files Preparation
+ PCB Capabilities & Instructions
+ PCB Technical Guidelines
+ PCB Assembly
+ PCB Assembly FAQs
+ PCBA Price Details
+ PCBA Parts Sourcing
+ PCBA Capabilities & Instructions
+ PCBA Technical Guidelines
+ PCBA Files Preparation
+ PCBA Lead Time
+ PCBA After-Sale
+ FPC Manufacturing
+ FPC Materials & Options
+ FPC Design Guidelines
+ SMT Stencil
+ Stencil Ordering
+ Stencil Technical Guidelines
+ PCB Layout
+ PCB Layout Ordering
+ PCB Layout FAQs
+ JLCDFM Tool
+ DFM Tool Help
+ DFM FAQs
+ JLCONE
+ JLCONE FAQs
+ JLCONE Download and Installation
+ Shipping & Delivery
+ Shipping Policies
+ Shipping Instructions
+ Payment & Invoice
+ Payments
+ Collab & Activities
+ JLCPCB API
+ Coupons & Promotions
+ Policies & Certifications
+ Policies
+ Certifications
+ Information
+ Notice
+ Flexible Heater
+ Flexible Heater Ordering
+ PCB Assembly FAQ (Part 2)
+ Last updated on Sep 09, 2026
+1. Does the red dot means pin 1 in the placement previewer?
+Generally, we do not call the red dot pin 1, but a marking only, which is used to indicate the orientation of the components. As shown below, basically, there will be a dot on the component itself, and there will also be a dot on the PCB (silkscreen), when they match, that means the component is placed correctly.
+Figure 1. The dots on PCB and components
+Figure 2. The red dots
+2. What if the orientation for the component showing wrong in the placement preview?
+The 0 degree that you defined for your design may be different with the one that we defined, but we both use the same rotation. So, sometimes you will find that there are some components in the wrong orientation. In this case, you can modify the rotation in your pick&place file and get it corrected. If you don’t know how to change the file, please just place your order, our engineers will review and fix the rotation and polarity of the components based on the silkscreen markings before assembly.
+3. About the "0" degree for the package
+There is only one simple rule: Zero orientation for PCB library should match the component orientation in the packaging(tape/reel).
+In most datasheets, how components are placed in the package is described. Please also note that some manufacturers put this information in a separate file, just google manufacturer name with "tape and reel" you can find the PDF. For example, if you search "on semiconductor tape and reel", you can find Tape & Reel Packaging Standards. Some examples are listed here.
+Figure 3. Zero degree of SOT23-3 (ON-Semi)
+Figure 4. Zero degree of SOT23-5 (ON-Semi)
+Figure 5. Zero degree of SOIC-8
+Even for the same package from the same manufacturer, they may have different orientations in the tape for different components, please pay attention to the part number and refer to the tape & reel packaging standards provided by the manufacturer.
+4. The reasons of different price for the component
+For most of the SMD components, it requires a minimum quantity to process PCB assembly, or extra parts to cover possible attrition during assembly process, so there is a minimum order quantity required. When the quantity of the components you required does not reach the minimum quantity, it will charge the fixed fee as the minimum Qty required. Please note that unused parts will not be sent because they are discarded directly in the production process.
+5. When the components will be restocked?
+Usually our purchasing department will have their own purchasing plan, they will evaluate the purchase time based on the remaining inventory. However, since the delivery date is unpredictable, we don’t know the specific arrival time either, but you can check it on the website regularly. If you are in a hurry to place an order, it is recommended that you first check whether the component is in stock or not.
+6. Why there is in stock on LCSC website but not in JLCPCB library?
+The reason is that our components sources are from LCSC, and LCSC has two warehouses located in Jiangsu and Shenzhen. So sometimes the components are shown available on LCSC website, but it shows 0 when you are placing an order. This situation is caused by different warehouses sources, and we have no way to transfer them.
+7. What components will we assemble?
+Generally, we only assemble those components which you have confirmed when ordering. If you haven’t click the “confirm” button for the components, even if they occurs in the BOM file, we will not assemble them for you. Please kindly check and make sure you have not missed any components when placing the order.
+8. About the +/- symbol in the DFM
+There is always a marking in the components which is very important in the DFM ANALYSE. For diodes, '+' indicates the anode and '-' indicates the cathode. For polarized capacitor, '+' indicates the anode. Also, the red dot indicates the marking on IC.
+9. Why PCBA order does not support Review Before Payment?
+Usually, when you place a PCB assembly order, the system will occupy the components first, and other customers can no longer use the components you occupied. Due to various problems such as jet lag, once the order cannot be paid in time, the components will be occupied continuously, which will hold up the resources and other people will not be able to use them. So the assembly order needs to be paid first. 
+10. How do we judge the polarity for the components?
+There are 2 situations:
+Basically, we will judge them according to your silk layer. If there is no silk layer or no points for us to judge how the components should be on your PCB, we cannot recognize the correct polarity. Then we will confirm with you via email. Due to the time difference and other uncontrolled issues, it will cause production delays. Therefore, we recommend you add silkscreen layer to your PCB so that we can confirm them easier and faster to avoid production delay.
+2. When there is a mark point in the silkscreen layer, but it is inconsistent with your CPL file. In this case, we will make the placement according to the silkscreen layer by default. Thus please make sure your file is correct to avoid misunderstanding.
+Generally speaking, for Diodes component, we recommend that customers design the silkscreen accroding to the following image to indicate polarity. There are two kinds silkscreen indication. One is adding a triangle to point to cathode, the other is to add a band to the side of cathode.
+11. Why the components price is different from last order?
+As you know, some of our components resource is from LCSC, since we have different purchasing channels, times and quantities, sometimes the price of components will be different between JLCPCB and LCSC. Meanwhile, we have our own parts warehouse, each time we restock the components, the price will be different as well due to the three conditions mentioned above. Please refer to the price on the website at the time of the ordering. And considering the drop rate during production, we will prepare some spare components for assembly. Usually, the spare components fees will be included in the total components' fee too.
+12. Reflow soldering component
+Components cannot be put into the SMT machine directly and shall be manually placed, such as rough surface of components/high height of components/failure of nozzle to suck components, etc.
+13. Can you program the components？
+We support program some parts. If it is needed, please provide us with part information,  the board image and specific programming methods. We will provide a detailed quotation after verifying the feasibility with the engineering team.
+14. Reminder for economic assembly design
+For economic assembly, as boards will be panelised and put into production at one time, so we need to separate the boards after assembly. There will be a tolerance of about 0.2mm when routing the boards for depanelizing. Therefore, we suggest that when choosing Economy assembly, please take the tolerance of depaneling into consideration in your design. We suggest that the edges of the traces and components must be more than 0.3mm away from the edge of the board. 
+15. Reminder for unpopulated compoment
+Due to Customs regulation requirements, we do not support the unassembled compoments to be sent with the completed PCBA order.
+JLCPCB suggests customer check alternative and contact our customer service to work with, please note that there will be supplement due to the additional labor costs.
+16. About 01005 footprint compoment
+JLC supports using 01005 footpnint components. But to ensure better soldering, we suggest customer considering if step stenc is needed for SiMT soldering. If the parts used have quite diferent footprint. Step stenci is highly suggested to ensure each kind of part has suitable amount of solder paste.
+17. Soldering issue about vias on the pads
+If there are vias on the pads in customer's design, the solder flows into the vias and may cause weak soldering after reflowing. To avoid delays in delivery, we will continue to proceed with the order and arrange for delivery by default. If we notice the design issue in production, we will try to email and inform our customers to consider optimizing design in the future orders. Customer can also try choosing more suitable vias covering option for PCB production to avoid the soldering issue.
+ Online Chat >
+Chat with our live agent for fast reply. 
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+ Email Us >
+Contact us at supportjlcpcb.com 
+Typically reply within hours.
+ Help Center >
+Get instant answers. 
+24/7 Available. 
+Products 
+FR-4 PCBs
+Flexible PCBs
+Metal Core PCBs
+High-Frequency PCBs
+PCBA Service
+PCB Layout
+SMT Stencil
+Flex Heater
+Support 
+Help Center
+Contact Us
+Community
+Shipping & Delivery
+Payment Methods
+How to Order
+How to Track
+After-Sales Service
+Blog
+Company 
+About Us
+Quality Assurance
+How We Work
+Certifications
+Security
+Environment
+JLCAPI
+News
+Cooperation
+Electronics 
+EasyEDA
+JLCPCB
+JLCDFM
+LCSC
+OSHWLAB
+Mechanical 
+JLC3DP
+JLCCNC
+JLCMC
+CONNECT WITH US 
+© 2026 JLCPCB.COM All Rights Reserved. 
+ Privacy Policy
+ Terms & Conditions
+ Cookies Policy
+ Get Coupon >
+ Live Chat >
+ Home
+ Cart
+ Files
+ Message
+ Me
