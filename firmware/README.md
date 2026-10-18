@@ -42,8 +42,7 @@ The firmware targets the integrated SELV controller. Its single pin map is
 `tools/check_controller_pinmap.py` checks both against the controller ato
 (snapshot in `test/fixtures/controller-layout/`, or `--git-ref controller-layout`),
 and `test/test_controller_pins.c` pins the rules below. Every module GPIO is
-used; there is no spare pin (see "BIAS_GOOD read-back" for the one proposed
-re-allocation, GPIO35).
+used (GPIO35 is the J4.1 BIAS_GOOD input on the J13-merge controller; see "BIAS_GOOD read-back").
 
 - **RUN_EN = GPIO14** (DECISIONS C23). PERMIT = interlock latch AND RUN_EN
   (U37). 4.7 k pull-down, no internal pull-up; preset low before the pad
@@ -164,16 +163,13 @@ state. Coverage of the H2 chain rows: 36.9 % (c50 §3, `fmea-s47-2026-10-15` §4
 - Not implemented: the c50 optional checks (d) (GPIO35 high 50–406 µs after RUN_EN
   rises = read-back bypassed) and (e) (high ~0.5 ms after a PERMIT fall = slow hold
   decay, warning only); both need sub-tick sampling.
-- **Not fitted yet.** No controller branch routes J4.1 to the MCU: on every one
-  (up to `controller-c1-crs`, C47) J4.1 is still the controller's **15 V input**
-  `v15_selv`, and all 36 module GPIOs are used. Until `controller_pins.h`
-  defines `CTRL_GPIO_BIAS_GOOD_RB`, `platform_esp32.c` reads NOT_FITTED and
-  checks 1 and 3 pass, and the binding keeps the C39 start order and wait but
-  reads nothing (nothing is claimed). The GPIO35 routing may land together with
-  power-board stage 50; it must not land on a board without it (as built,
-  BIAS_GOOD is high at idle and check 1 would latch). The controller change is an owner
-  item: `zapote/power-stage-120v/validation-results/11-candidates/c23-supply-topology/CONTROLLER-REQUEST.md`
-  addendum 3.
+- **Fitted (2026-10-18; J13 rail merge).** `controller_pins.h` now defines `CTRL_GPIO_BIAS_GOOD_RB` = 35, so
+  `platform_esp32.c` and the binding read J4.1 and checks 1 and 3 run. This firmware **targets the controller on branch
+  `controller-j13-merge`** (J4.1 → 10 k → GPIO35, RAIL_OK_RB on expander P02). It does **not** match the C48 controller
+  (`controller-c1-crs`), where GPIO35 is RAIL_OK_RB and J4.1 is the 15 V input. It also needs a power board with stage 50
+  (U46.A drives BIAS_GOOD from PERMIT); on a board without it BIAS_GOOD is high at idle and check 1 would latch.
+  RAIL_OK is read from the expander cache (freshness-checked like SUP_RUN_OK); it is hardware-latched (RAIL_FAULT), so no
+  protection moves. Guard: `tools/check_controller_pinmap.py` against `test/fixtures/controller-layout/`.
 - **Proposed pin: GPIO35**, freed by moving RAIL_OK_RB (U9 Y1_4, push-pull) to
   the spare TCA9555 **P02**, as C27 moved SUP_RUN_OK to P14. GPIO35 is
   input-capable, not a strap (0, 3, 45, 46), has no ADC (so no ADC2 / Wi-Fi

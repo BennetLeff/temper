@@ -1,8 +1,8 @@
 {
-  "branch": "controller-layout",
-  "commit": "6e4cac49f20689ea87d3587be26a3697c3b5dcd4",
-  "commit_subject": "controller stage 16: blower buck fed from PS3 via J13 (V15_BLW), BLW_PG on P16",
+  "branch": "controller-j13-merge",
+  "commit": "59ff40af5993b707a2739f57b073f194c7b30198",
+  "commit_subject": "controller C49: J13 rail merge, BIAS_GOOD on J4.1 (GPIO35), RAIL_OK_RB on expander P02",
   "path": "zapote/controller/elec/src/controller.ato",
-  "git_blob": "69b30a296ee2280beab64b9910ac176e18eb36e4",
-  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. Stage 16 head (C33): the only pin-map change from layout L3 (4bed3716a) is expander P16 = blw_pg; V15_BLW / J13 are not pin-map facts. Layout L2 (bdddaee88) differs from L3 only in GPIO46 (fan_off on L2, fan_pwm on L3) and expander P15 (fan_off, L3 only). Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
+  "git_blob": "97eda33ecca54746763a038ba60f4ed41888533f",
+  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. C49 (J13 rail merge): GPIO35 = bias_good_rb (J4.1 BIAS_GOOD), expander P02 = rail_ok_rb, P00/P01 = cm_ha_ok_rb / cm_la_ok_rb. Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
 }

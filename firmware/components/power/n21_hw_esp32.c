@@ -611,14 +611,14 @@ static bool hw_read_status(void *ctx, n21_status_rb_t *s)
     /* GPIO36 is the final PERMIT (after U37) = latch AND RUN_EN (C23): low whenever RUN_EN is. */
     s->permit_rb = gpio_get_level(N21_GPIO_PERMIT_RB) == 1;
     s->bus_fault = gpio_get_level(N21_GPIO_BUS_FAULT_RB) == 1;
-    s->rail_ok = gpio_get_level(N21_GPIO_RAIL_OK_RB) == 1;
-    /* SUP_RUN_OK is expander P14 (C27) and the latch state P10 LATCHED_FAULT_RB (interlock QBAR),
+    /* RAIL_OK is expander P02 (J13 rail merge) and SUP_RUN_OK expander P14 (C27) and the latch state P10 LATCHED_FAULT_RB (interlock QBAR),
      * the only read-back of the latch alone once RUN_EN gates PERMIT. A stale or failed snapshot
      * is a failed read, which the binding treats as an input fault. */
     ctrl_exp_cache_t c;
     (void)ctrl_board_expander(&c);
     bool fresh = ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(), CTRL_EXP_MAX_AGE_US);
     ctrl_exp_inputs_t in = ctrl_exp_decode(c.raw);
+    s->rail_ok = fresh && in.rail_ok;
     s->sup_run_ok = fresh && in.sup_run_ok;
     s->latch_ok = fresh && !in.latched_fault;
     return fresh;
@@ -663,8 +663,7 @@ static bool hw_interlock_reset_pulse(void *ctx)
 
 static bool gpio_create(void)
 {
-    gpio_config_t in = {.pin_bit_mask = (1ULL << N21_GPIO_PERMIT_RB) | (1ULL << N21_GPIO_BUS_FAULT_RB) |
-                                        (1ULL << N21_GPIO_RAIL_OK_RB),
+    gpio_config_t in = {.pin_bit_mask = (1ULL << N21_GPIO_PERMIT_RB) | (1ULL << N21_GPIO_BUS_FAULT_RB),
                         .mode = GPIO_MODE_INPUT};
     gpio_config_t zc = {.pin_bit_mask = 1ULL << N21_GPIO_LINE_ZC, .mode = GPIO_MODE_INPUT,
                         .intr_type = GPIO_INTR_ANYEDGE};

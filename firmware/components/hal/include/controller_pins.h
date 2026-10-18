@@ -43,7 +43,9 @@
                                          * (R102); high = permitted. Output, push-pull, preset low.
                                          * Firmware can only REMOVE permission with it. */
 #define CTRL_GPIO_BUS_FAULT_RB     21   /* via SN74LVC244A, high = fault */
-#define CTRL_GPIO_RAIL_OK_RB       35   /* TPS3703 window, high = ok */
+#define CTRL_GPIO_BIAS_GOOD_RB     35   /* J4.1 from the power board (BIAS_GOOD = bias_ok AND PERMIT): 10 k series, 1 nF at the pin,
+                                         * 1 M pull-down at J4. High-Z input, never an internal pull (power-stage DECISIONS 67).
+                                         * Moved here from RAIL_OK_RB (now expander P02) by the J13 rail merge. */
 #define CTRL_GPIO_PERMIT_RB        36   /* final PERMIT (after U37), high = permitted */
 
 /* ---------------------------------------------------------------- RTD / MCP3202 bus, SPI2 (C20) */
@@ -100,6 +102,10 @@
 #define CTRL_CONSOLE_UART0_ALLOWED  0
 
 /* ---------------------------------------------------------------- TCA9555 bits (C23, C26-C28, C33) */
+#define CTRL_EXP_CM_HA_OK_RB        0   /* P00, C39 capacitive-mode detector, leg A high side: 1 = healthy (diagnostic) */
+#define CTRL_EXP_CM_LA_OK_RB        1   /* P01, C39, leg A low side: 1 = healthy (diagnostic) */
+#define CTRL_EXP_RAIL_OK_RB         2   /* P02, TPS3703 window, high = ok (moved off GPIO35 by the J13 rail merge). RAIL_OK is
+                                         * hardware-latched (RAIL_FAULT); this is the read-back only, read from the expander cache. */
 #define CTRL_EXP_RTD_DRDY           7   /* P07, MAX31865 DRDY, active low (moved off GPIO14, C23) */
 #define CTRL_EXP_LATCHED_FAULT_RB   8   /* P10, high = latched fault (interlock QBAR) */
 #define CTRL_EXP_RTD_FAULT_RB       9   /* P11, high = RTD_HW_FAULT */

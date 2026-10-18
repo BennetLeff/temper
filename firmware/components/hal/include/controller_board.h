@@ -111,6 +111,7 @@ typedef struct {
     bool hs_fault;      /* P12 high */
     bool coil_fault;    /* P13 high */
     bool sup_run_ok;    /* P14 high */
+    bool rail_ok;       /* P02 high: 3.3 V window supervisor (TPS3703) in range */
     bool blw_pg;        /* P16 high: PS3 present (raw level, one read; use the debounced cache) */
 } ctrl_exp_inputs_t;
 

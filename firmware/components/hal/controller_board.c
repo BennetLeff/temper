@@ -22,7 +22,7 @@ const ctrl_pin_t ctrl_pins[] = {
     ROW(CTRL_GPIO_IL_WDI, "il_wdi", CTRL_FN_GPIO_OUT, CTRL_OWNER_SAFETY, CTRL_PULL_NONE, CTRL_PULL_NONE, 0, true),
     ROW(CTRL_GPIO_RUN_EN, "run_en", CTRL_FN_GPIO_OUT, CTRL_OWNER_BOARD, CTRL_PULL_NONE, CTRL_PULL_DOWN, 0, true),
     ROW(CTRL_GPIO_BUS_FAULT_RB, "bus_fault_rb", CTRL_FN_GPIO_IN, CTRL_OWNER_N21, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
-    ROW(CTRL_GPIO_RAIL_OK_RB, "rail_ok_rb", CTRL_FN_GPIO_IN, CTRL_OWNER_N21, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
+    ROW(CTRL_GPIO_BIAS_GOOD_RB, "bias_good_rb", CTRL_FN_GPIO_IN, CTRL_OWNER_N21, CTRL_PULL_NONE, CTRL_PULL_DOWN, -1, false),
     ROW(CTRL_GPIO_PERMIT_RB, "permit_rb", CTRL_FN_GPIO_IN, CTRL_OWNER_N21, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
     /* RTD / MCP3202 bus (SPI2) */
     ROW(CTRL_GPIO_RTD_CS_N, "rtd_cs_n", CTRL_FN_SPI, CTRL_OWNER_RTD, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
@@ -36,7 +36,7 @@ const ctrl_pin_t ctrl_pins[] = {
     /* ADC1 */
     ROW(CTRL_GPIO_CT_MON_ADC, "ct_mon_adc", CTRL_FN_ADC, CTRL_OWNER_N21, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
     ROW(CTRL_GPIO_VBUS_ADC, "vbus_adc", CTRL_FN_ADC, CTRL_OWNER_N21, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
-    ROW(CTRL_GPIO_HS_ADC, "hs_adc", CTRL_FN_ADC, CTRL_OWNER_THERMAL, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
+    ROW(CTRL_GPIO_HS_ADC, "hs_adc", CTRL_FN_ADC, CTRL_OWNER_THERMAL, CTRL_PULL_NONE, CTRL_PULL_DOWN, -1, false),
     ROW(CTRL_GPIO_COIL_ADC, "coil_adc", CTRL_FN_ADC, CTRL_OWNER_THERMAL, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
     ROW(CTRL_GPIO_M12_ADC, "m12_adc", CTRL_FN_ADC, CTRL_OWNER_THERMAL, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
     ROW(CTRL_GPIO_RIM_ADC, "rim_adc", CTRL_FN_ADC, CTRL_OWNER_THERMAL, CTRL_PULL_NONE, CTRL_PULL_NONE, -1, false),
@@ -150,6 +150,7 @@ ctrl_exp_inputs_t ctrl_exp_decode(uint16_t raw)
         .hs_fault = (raw & CTRL_EXP_BIT(CTRL_EXP_HS_FAULT_RB)) != 0,
         .coil_fault = (raw & CTRL_EXP_BIT(CTRL_EXP_COIL_FAULT_RB)) != 0,
         .sup_run_ok = (raw & CTRL_EXP_BIT(CTRL_EXP_SUP_RUN_OK_RB)) != 0,
+        .rail_ok = (raw & CTRL_EXP_BIT(CTRL_EXP_RAIL_OK_RB)) != 0,
         .blw_pg = (raw & CTRL_EXP_BIT(CTRL_EXP_BLW_PG)) != 0,
     };
 }

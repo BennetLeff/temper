@@ -68,27 +68,19 @@ def test_parse_reads_the_l2_moves():
 
 
 def test_live_branch_matches_firmware_map():
-    if not _has_ref("controller-layout"):
-        pytest.skip("controller-layout branch not in this clone")
-    assert guard.main(["--git-ref", "controller-layout"]) == guard.EXIT_OK
+    if not _has_ref("controller-j13-merge"):
+        pytest.skip("controller-j13-merge branch not in this clone")
+    assert guard.main(["--git-ref", "controller-j13-merge"]) == guard.EXIT_OK
 
 
-def test_layout_l2_commit_differs_only_by_the_l3_blower_lines():
-    ref = "bdddaee88"
+def test_c48_controller_differs_only_by_the_j13_merge_pins():
+    # C48 (controller-c1-crs head): GPIO35 is RAIL_OK_RB and J4.1 is the 15 V input. The J13 merge (C49) moved RAIL_OK_RB to
+    # expander P02 and put BIAS_GOOD on GPIO35; nothing else in the pin map changed, so every disagreement names one of them.
+    ref = "e9a384d93"
     if not _has_ref(ref):
-        pytest.skip("layout L2 commit not in this clone")
+        pytest.skip("controller C48 commit not in this clone")
     errors = _run(guard.load_git_ref(ref), sources={})
-    assert errors and all("fan_off" in e or "fan_pwm" in e or "FAN_PWM" in e or "FAN_OFF" in e
-                          or "BLW_PG" in e for e in errors), errors
-
-
-def test_layout_l3_commit_differs_only_by_blw_pg():
-    # Stage 16 (C33) added expander P16 = blw_pg and nothing else to the pin map.
-    ref = "4bed3716a"
-    if not _has_ref(ref):
-        pytest.skip("layout L3 commit not in this clone")
-    errors = _run(guard.load_git_ref(ref), sources={})
-    assert errors and all("BLW_PG" in e for e in errors), errors
+    assert errors and all(any(k in e for k in ("BIAS_GOOD", "bias_good", "RAIL_OK", "rail_ok")) for e in errors), errors
 
 
 def test_parse_reads_blw_pg():

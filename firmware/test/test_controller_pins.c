@@ -88,6 +88,10 @@ static void test_expander_bits_unique(void)
     /* The pins that moved onto the expander in L2 are no longer GPIOs. */
     assert(ctrl_pin_by_net("rtd_drdy") == NULL);
     assert(ctrl_pin_by_net("sup_run_ok_rb") == NULL);
+    /* J13 rail merge: RAIL_OK_RB moved to expander P02, and GPIO35 is the J4.1 BIAS_GOOD input. */
+    assert(ctrl_pin_by_net("rail_ok_rb") == NULL);
+    assert(ctrl_pin_by_net("bias_good_rb") != NULL && CTRL_GPIO_BIAS_GOOD_RB == 35);
+    assert(CTRL_EXP_RAIL_OK_RB == 2 && CTRL_EXP_CM_HA_OK_RB == 0 && CTRL_EXP_CM_LA_OK_RB == 1); /* P02, P00, P01 */
     assert(CTRL_EXP_RTD_DRDY == 7);       /* P07 */
     assert(CTRL_EXP_SUP_RUN_OK_RB == 12); /* P14 */
     assert(CTRL_EXP_FAN_OFF == 13);       /* P15 */
@@ -314,6 +318,8 @@ static void test_expander_plan_and_decode(void)
     assert(!in.rtd_drdy && in.sup_run_ok && !in.latched_fault && !in.rtd_fault && !in.hs_fault && !in.coil_fault);
     in = ctrl_exp_decode(0x0000);
     assert(in.rtd_drdy && !in.sup_run_ok);
+    assert(!in.rail_ok && ctrl_exp_decode(CTRL_EXP_BIT(CTRL_EXP_RAIL_OK_RB)).rail_ok);
+    assert(!ctrl_exp_decode((uint16_t)~CTRL_EXP_BIT(CTRL_EXP_RAIL_OK_RB)).rail_ok);
     in = ctrl_exp_decode(CTRL_EXP_BIT(CTRL_EXP_HS_FAULT_RB));
     assert(in.hs_fault && !in.coil_fault && in.rtd_drdy && !in.sup_run_ok);
 
