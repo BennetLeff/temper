@@ -64,3 +64,23 @@ These are the raw values as read. "Stock" is the distributor's on-hand quantity 
 - **datasheets.com:** 403.
 - **DigiKey product-detail URLs guessed by ID** returned unrelated parts. Every DigiKey read above came from a keyword search page or a product page reached from one.
 - **Microtemp (Thermodisc) G4A:** no DigiKey listing. The only rating seen was in a search-result snippet (G4A01121C: Tf 121 °C, Th 106 °C). It was not used for any number.
+
+## Revision 2 reads (2026-10-18): JLC process and the soldered-row tolerance stack
+
+| tag | page | what was read |
+|---|---|---|
+| [JLC] | <https://jlcpcb.com/capabilities/pcb-capabilities> | Plated through-hole diameter tolerance +0.13 / −0.08 mm. Hole position ±0.075 mm. Routed-edge tolerance ±0.2 mm. Board thickness ±10 % (≥ 1.0 mm). No bow/twist figure on the page. |
+| [JLC] | <https://jlcpcb.com/capabilities/pcb-assembly-capabilities> | THT parts are wave soldered. Unused through-holes are protected from solder ingress. Wire soldering and stacked parts are handled through order remarks. **No THT seating, lean or coplanarity rule.** |
+| [JLCF] | <https://jlcpcb.com/help/article/98-PCB-Assembly-FAQs> | Parts marked "wave soldering" are assembled manually; the hand-soldering labour fee and the per-joint fee apply. Consigned parts are allowed. No IPC-A-610 class is stated. |
+| [JLCB] | <https://jlcpcb.com/blog/pcb-warpage-control> (via search result) | Quotes the IPC limits: 0.75 % for boards with SMT and 1.5 % without. This is a JLC blog, not a guarantee. The study uses 0.75 % of the diagonal. |
+| – | Web searches for JLC's THT tilt/seating policy and for IPC-A-610's vertical-part tilt figure | Nothing citable was found. Both are treated as unknown: the lean is an inspection limit, not a JLC promise. |
+
+**Other revision-2 inputs.**
+- **TO-247 footprint.** `Package_TO_SOT_THT:TO-247-3_Vertical` (KiCad library, as in `native-21/layout/parts.json`), pads 2.5 × 4.5 mm, drill 1.5 mm. Copy read: `.claude/worktrees/sensor-manifest/.../native-09/candidate-libs/Package_TO_SOT_THT.pretty/TO-247-3_Vertical.kicad_mod`, sha256 cac3a8e7…
+- **[IPW] p.12, read again.** b1 1.60–2.41, b2 2.57–3.43, L 19.80–20.40.
+- **[GBJ] p.4, read again from the rendered drawing.**
+  - N 3.10–3.40 is the mounting-hole diameter. Revision 1 wrongly took M (3.40–3.80) as the hole; M is a thickness.
+  - S 10.80–11.20 is the hole centre above the body bottom (side view).
+  - R 0.60–0.80 is the lead thickness, I 0.90–1.10 the lead width.
+  - H 2.00–2.40 is a lead feature wider than the 1.6 mm hole, whose position along the lead is not dimensioned.
+- **Board size.** 290 × 190 mm, from `fab/FAB-NOTE.md` 'Size'.

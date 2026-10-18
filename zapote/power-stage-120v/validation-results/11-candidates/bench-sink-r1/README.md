@@ -7,399 +7,401 @@ Study, 2026-10-18. Branch `study/bench-sink-r1`, from `codex/power-stage-integra
 - on the native-21 stage-53 board;
 - without the production M11 AlN stack.
 
+**Owner decisions, 2026-10-18 (revision 2 of this study).**
+1. **JLC solders Q2, Q3, Q5 and Q6** (consigned from one DigiKey lot). The sink, strip and clamp are fitted to the soldered devices afterwards. This replaces revision 1's "seat on the sink, then solder".
+2. **BR1 is DNP at JLC.** The owner fits it (through-hole) before COMMISSIONING step 5, on a board whose FETs are already soldered and possibly already clamped. While BR1 is out, PS2 runs from the isolation transformer and the bus from the isolated DC supply, with no back-feed path.
+3. **Bench TCO: the DF110S on the sink, with spares** (it is one-shot).
+
 **Status.** No hardware has been built or bought. No supplier was contacted, nothing was pushed, and no Rust or layout build was run.
 
 **Rule for this file.** Every number below comes from a committed tool, named in its row, or is a parameter in `scripts/bench_params.py`. Parameters carry a source tag (`sources/SOURCES.md`) or are marked EST.
 
-| tool (run from this folder) | output | runtime |
-|---|---|---|
-| `python3 -I scripts/bench_thermal.py` | `results/thermal.md`, `.json` | < 1 s |
-| `python3 -I scripts/bench_insulation.py` (exits 1 on any fail) | `results/insulation.md`, `.json` | < 1 s |
-| `python3 -I scripts/bench_cad.py` | `results/bench-sink-r1.dxf`, `.svg`, `results/drill-table.md` | < 1 s |
+| tool (run from this folder) | output |
+|---|---|
+| `python3 -I scripts/bench_tolerance.py` (exits 1 if anything fails to close) | `results/tolerance.md`, `.json` |
+| `python3 -I scripts/bench_thermal.py` | `results/thermal.md`, `.json` |
+| `python3 -I scripts/bench_insulation.py` (exits 1 on any fail) | `results/insulation.md`, `.json` |
+| `python3 -I scripts/bench_cad.py` | `results/bench-sink-r1.dxf`, `.svg`, `results/drill-table.md` |
+| `python3 -I scripts/shim_select.py gaps.csv` (at assembly; exits 1 on a reject) | the fit sheet for the measured board (`example-gaps.csv` shows the format) |
 
-All three scripts use the standard library only. `bench_thermal.py` imports the device study's `thermal.py` loss models, and asserts on their constants.
+All tools use the standard library only and each runs in about a second. `bench_thermal.py` imports the device study's `thermal.py` loss models and asserts on their constants. `bench_mech.py` holds the soldered-lead mechanics shared by the others.
 
 ## 0. Answer
 
-**The mount, one line per part.**
-- **Sink.** One **Wakefield-Vette 511-3M** bonded-fin sink:
-  - fins vertical, base face 1.581 mm inside the board's rear edge (`insulation.md`, Geometry line);
-  - lower edge 4.5 ± 0.3 mm above the board top, set with a gauge;
-  - bonded to **PE**.
-- **Insulator.** One continuous **SIL PAD 2000 (0.010 in) strip**, 114.5 × 30 mm, behind Q5, Q6, Q3, Q2 and BR1. It hangs 2.5 mm below the sink edge.
-- **BR1.** Sits on a greased 0.508 mm aluminium shim under the strip, and is held by one M3 screw.
-- **FET clamp: screwless.**
+**Does the SIL PAD 2000 strip plus the spring clamp still close every JLC-soldered tab? No. With a selected shim per device, yes.**
+
+Source: `results/tolerance.md`.
+
+- **Per-device tab offset.** A soldered TO-247's tab plane sits up to **± 0.900 mm** from the footprint. The terms are:
+  - JLC hole position ± 0.075;
+  - lead play in the 1.5 mm hole, ± 0.265–0.625 (finished hole 1.42–1.63, lead thickness 0.38–0.89);
+  - package A1, ± 0.20.
+- **Spread across the four FETs** (what one flat sink face must meet):
+  - **0.270–0.570 mm** if JLC honours the order remark (§2);
+  - **1.500–1.800 mm** if it does not.
+- **What can close a gap once the device is soldered: 0.0195 mm.** That is 0.010 of strip compliance (EST) plus 0.0095 of elastic lead translation. A soldered device is up to 11 924 N/mm stiff in translation, so the clamp cannot move it.
+- **The fix.** A shim under the strip at each device, selected from feeler-gauge measurements in 0.025 mm steps, leaves ≤ 0.0125 mm: it closes. Clamp force is kept inside 60–102 N by choosing the FR-4 pad per device:
+  - 1.6 mm pad for shims 0–0.897 mm;
+  - 0.8 mm pad for 0.596–1.467 mm;
+  - no pad for 1.306–2.337 mm.
+
+  Together these cover the worst 1.800 mm spread.
+- **Lean.** The clamp straightens lean elastically. The inspection limit is **0.0112 rad (0.64°) per device relative to the row mean**, which is a 0.179 mm gap difference between the gauge heights. At that limit the strip still sees ≥ 45.0 N. Board bow is common to all four devices, up to 0.0547 rad; a floating sink takes it.
+
+**Thermal: the bound case still runs.** The bound is the design shim (2.0 mm, three greased faces) at the lowest guaranteed force (45 N) on every FET at once (`results/thermal.md`). Results at 30 °C ambient, natural convection, ZVS loss basis D:
+
+| ceiling | sink | Tj FET (bound) | Tj BR1 |
+|---|---|---|---|
+| **17.5 A** (ships) | **72.8 °C** | **87.1 °C** | 97.3 °C |
+| 17.5 A at 40 °C ambient | 83.8 °C, so **fan** | 99.1 °C | 108.4 °C |
+| **22 A** (headroom) | 85.6 °C, so **fan** | 111.4 °C | 110.2 °C |
+| 28 A | 125.5 °C without a fan | 182.8 °C: **not allowed without the fan and a measured interface** | 150.1 °C |
+
+- **Fan rule.** To hold the sink ≤ 80 °C (6 K under the TCO's 86 °C hold), R_SA must be ≤ 1.073 / 0.825 / 0.564 °C/W at 17.5 / 22 / 28 A. The 511-3M is 0.90 °C/W without a fan, so the fan is needed above 17.5 A.
+- **28 A** needs the fan, and needs §7's measured Rcs to beat the bound. With the sink held at 86 °C the bound gives 132.5 °C; at the 95 °C firmware trip it gives 144.0 °C.
+- **Lost ZVS.** The sink-sensed trips do not protect the junction: the bound Tj is 178.6 °C at the 95 °C firmware trip, 17.5 A. Step 4's ZVS check and the lag latch protect that case.
+
+**Insulation (`results/insulation.md`).** Everything passes:
+- with the sink face anywhere in **0.681–2.481 mm**;
+- with shims under the strip;
+- with bodies floated up to 1.0 mm;
+- with any of the three pad options.
+
+Tightest values: creepage 4.2 mm (floor 4.0); clearance 3.334 mm for the spring with no pad (floor 1.3); BR1 lead 3.789 mm. The SIL PAD 2000 is rated 9.1× the 622.4 V peak stress.
+
+**BR1 fit with the FETs in place (§6.3).** BR1 is seated on the strip by its own screw before it is soldered, so its fit needs no tolerance from JLC. Its shim behind the strip ranges from −0.460 to 1.340 mm; a negative value is taken by leaning BR1 back 0.0075 rad in its holes. **Preheat: a benchtop hot-air bottom preheater** under a window extension beside BR1, with the board bottom at BR1 held at 100–110 °C (`bench_params.PREHEAT_BOARD_C`). The TCO comes off the sink while soldering.
+
+**Commits.**
+- revision 1: c5a448069, 21aa9ed23, 878ffc59d, 49a5de610;
+- revision 2: a4e1f3ae5 (tools and results), then the README/BOM/sources commit (see the git log).
+
+## 1. The mount
+
+- **Sink.** Wakefield-Vette **511-3M**, fins vertical, bonded to **PE**.
+  - It **floats** on two brackets: an M4 pivot through each outer fin in a Ø8 hole with a fender washer, plus a second M4 in a Ø8 hole to lock the tilt.
+  - The clamp pulls it onto the soldered row, and it settles on the most-proud tab. Then it is locked.
+  - Lower edge 4.5 ± 0.3 mm above the board top, set with a gauge.
+  - Face y between 0.681 and 2.481 depending on the row; nominal 1.581 (`tolerance.md`).
+- **Insulator.** One continuous **SIL PAD 2000 (0.010 in)** strip, 114.5 × 30 mm, behind Q5, Q6, Q3, Q2 and BR1. It hangs 2.5 mm below the sink's lower edge.
+- **Shims.**
+  - A **selected shim under the strip at each FET**: 16 × 22 mm, ≤ 3 layers, greased, lower edge 1.0 mm above the sink edge.
+  - **BR1's shim** (28 × 17 mm) is selected at its dry fit.
+  - `shim_select.py` turns the measured gaps into shim thicknesses and pad choices.
+- **Clamp.** Screwless.
   - A 6061 3/8 × 1 in bar on two 10 mm spacers.
-  - Four Lee LC 055E 03 S springs in 7 mm pockets in the bar.
-  - FR-4 pads on the package fronts.
-- **Sensors.** A Vishay NTCALUG01A NTC on M3. A real **Cantherm DF110S TCO** in the J3 loop, under 2 layers of Kapton and a loop clamp.
-- **Fan.** 120 mm, used above 17.5 A or above a 30 °C ambient.
+  - Four Lee LC 055E 03 S springs in 7 mm pockets.
+  - FR-4 pads of 1.6 mm, 0.8 mm or none on the package fronts.
+  - A 6.5 mm slot in the bar gives a driver access to BR1's screw.
+- **BR1.** M3 × 10 SHCS into a tapped sink hole, ≤ 0.56 N·m. The hole is drilled at the measured seat height of a loose part plus the GBJ's S (hole centre 10.8–11.2 mm above the body bottom) plus 0.2 mm.
+- **Sensors.**
+  - Vishay NTCALUG01A NTC on M3, on the sink face.
+  - **Cantherm DF110S** TCO in the J3 loop, under two layers of 3M 5413 and a cushioned loop clamp.
+  - Order 1 + 4 spares.
+- **Fan.** 120 mm, used above 17.5 A or above 30 °C ambient. It is never credited for a pass.
+- **Base.** Plywood baseplate.
+  - Nylon M3 standoffs at H1 and H3–H8; H2, H9 and H10 empty.
+  - A window under the device row, plus an extension beside BR1 (x 75–115, y 22–45) for the bottom preheater.
 
-**Fixing chain (FAB-NOTE hole rules).** The sink and board both sit on a plywood baseplate:
-- nylon M3 standoffs at H1 and H3–H8;
-- H2, H9 and H10 empty;
-- a window under the device row for soldering.
+The drawing is `results/bench-sink-r1.dxf` (and `.svg`); dimensions are in `results/drill-table.md`.
 
-**Key numbers.** Ambient 30 °C, natural convection, ZVS loss basis D, worst FET, worst tab-area corner, 60 kHz:
+## 2. JLC order: remark and BOM changes
 
-| ceiling | sink | Tj FET | Tj BR1 | tool |
-|---|---|---|---|---|
-| **17.5 A** (ships) | **72.1 °C** | **79.7 °C** | 91.4 °C | `thermal.md` |
-| 17.5 A at 40 °C ambient | 83.1 °C | 91.2 °C | 102.4 °C | `thermal.md` |
-| **22 A** (headroom) | 83.1 °C, above the 80 °C TCO limit, **so the fan is needed** | 96.1 °C | 102.4 °C | `thermal.md` |
-| 28 A | 114.2 °C, **fan needed** | 140.8 °C | 133.5 °C | `thermal.md` |
+**What JLC publishes (read 2026-10-18; `sources/SOURCES.md`).**
+- Its assembly capabilities page says THT parts are assembled using wave soldering, and that unused holes are protected from solder ingress.
+- Its assembly FAQ says parts marked "wave soldering" are assembled manually.
+- **No published THT seating, lean or coplanarity rule was found.** Two searches and the capabilities and FAQ pages were checked. So nothing in this design relies on JLC's seating. The remark below narrows the spread if honoured; the shims close it either way.
 
-- **Fan requirement.** To keep the sink ≤ 80 °C at 30 °C ambient, R_SA must be ≤ 1.092 / 0.857 / 0.613 °C/W at 17.5 / 22 / 28 A. The 511-3M's natural 0.90 °C/W meets only the 17.5 A figure. Source: `thermal.md`, forced-air table.
-- **D-36.** The interface Rcs is 0.954–1.155 °C/W per FET, so the bench mount **does not meet D-36 (≤ 0.7)**. No catalogue silicone pad does: K-10 gives 1.216–1.661 and 900S 1.739–2.166 (`thermal.md`). The bench accepts this because the junction stays below the 125 °C design target at 17.5 A and 22 A (rows above). D-36 stays an M11 (production) requirement.
-- **Clamp force.** **68.4–85.4 N per TO-247** (nominal 76.9 N). That is inside the 45–102 N acceptance band and ≥ 60 N. Spring solid-height margin is ≥ 1.33 mm (`thermal.md`, Clamp).
-- **Insulation and spacing.** All pass (`insulation.md`):
-  - SIL PAD 2000 carries **9.1× the 622.4 V peak bound**, and its rating is 3.2× the 1250 V AC basic type-test level;
-  - tightest creepage: **4.2 mm vs 4.0 mm**, sink edge to the edge pours across the hanging strip;
-  - tightest clearance: **4.13 mm vs 1.3 mm**.
-- **The sink-sensed trips do not protect the junction when ZVS is lost.** At 17.5 A, basis A (the D-18 hard-switching proxy), Tj is (`thermal.md`, trip table):
-  - **139.3 °C** with the sink held at the 95 °C firmware trip;
-  - **149.3 °C** at the 104.6 °C top of the hardware band;
-  - **155.0 °C** at the TCO's 110 °C.
+**Remark to add to the PCBA order** (owner to submit):
 
-  Lost ZVS is caught by step 4's ZVS check and by the loop's lag latch, not by the sink. The sink-sensed chain is the backstop for the ZVS (D) case only: Tj 103.6 / 113.7 / 119.4 °C at the same three sink temperatures.
+> Q2, Q3, Q5, Q6 (TO-247, consigned): please insert each fully, body resting on its lead shoulders and standing perpendicular to the board. Before soldering, push each one toward the board's rear edge (the side its metal tab faces) so the leads bear on that side of their holes, and hold it there while soldering; a straight bar laid across the four tab faces is ideal. Required: tab faces coplanar within 0.2 mm and perpendicular within 1°. Do not bend or trim the leads above the board. BR1: do not fit (DNP); leave its four holes free of solder.
 
-**Commits on this branch:**
-- c5a448069: parameters, thermal and clamp;
-- 21aa9ed23: insulation;
-- 878ffc59d: drawing and drill tables;
-- this README, the BOM and the sources: the final commit (see the git log).
+**JLC BOM.** Deselect BR1 (DNP). The prototype lot's BR1 parts are kept for the owner's fit.
 
-## 1. Geometry and the board-side constraints
+**If the remark is honoured,** the spread is 0.270 mm with lot A1 and 0.570 mm with datasheet A1. One or two shim layers and the 1.6 mm pad cover it (`tolerance.md`).
 
-Frame (the M11 frame, from `bench_params.py`):
-- x runs along the rear edge;
-- y runs into the board, with y = 0 at the edge;
-- z runs up from the board top.
-
-| item | value | source |
-|---|---|---|
-| Device centres x | Q5 9.95, Q6 27.95, Q3 50.05, Q2 68.05; BR1 94.2 (body 79.6–109.2) | `[CPL]` |
-| Tab nets | Q5, Q2 bus_p (HS); Q6 sw_b, Q3 sw_a (LS, switching) | params |
-| FET tab plane / BR1 back | y 1.835 / 2.30 | `[M11]` |
-| HOT pour edge (all layers) / nearest FET pad edge | y 0.6 / 1.965 | `[M11]` |
-| Tab metal (IPW p.12 corners) | z 5.55–25.49 | `insulation.md` |
-| Sink face | y 1.581 = tab plane − 0.254 strip | `insulation.md` |
-
-**Why the sink sits only 1.581 mm inside the edge.** The TO-247s are not formed. They stand on their lead shoulders, with the tab plane where the footprint puts it. The sink face therefore sits exactly one strip thickness behind the tabs. No lead forming means no lead stress and no height uncertainty from bends.
-
-**BR1.** Its back sits 0.465 mm behind the tab plane, and the 0.508 mm shim plus grease fills that. The remaining interference is taken up by BR1's lead play in its 1.6 mm holes.
-
-**Why the strip hangs below the sink.** The sink edge is 4.5 mm over the board top and only 0.98 mm in from the HOT edge pours. Without the strip, the edge would face pour copper with less than the 4.0 mm creepage floor.
-
-The 2.5 mm overhang does three things:
-- it makes the creepage path run round the strip's free edge;
-- it closes the narrow gap below the sink, so it counts as bridged under the X = 1.5 mm rule;
-- it keeps every path ≥ 4.2 mm at the worst corner of sink height (±0.3) and overhang (±0.3) (`insulation.md`, rows C1–C3).
-
-The gauge tolerance (Z_SINK_TOL 0.3) was tightened from 0.5 because C3 sat at exactly 4.0 mm with ±0.5.
-
-## 2. Decisions
+## 3. Decisions
 
 Each decision gives what was chosen, the data behind it, and what would reverse it.
 
-### D1. Sink: Wakefield-Vette 511-3M, fins vertical, bolted to the baseplate by two angle brackets
+### D1. Sink: Wakefield-Vette 511-3M on floating brackets
 
 - **Data.**
-  - The 511-3M's 132.33 mm width covers the whole row: −12.0 to 120.33 against devices spanning x ≈ 2 to 109.2 `[WAK]`.
-  - The 76.2 mm cut length points up, so the fins are vertical and the 0.90 °C/W natural rating applies.
-  - A milled base (0.15 mm/mm flatness class) suits the 0.254 mm pad.
-  - DigiKey had 25 in stock at $40.69 (read 2026-10-18).
-  - It meets the 17.5 A ceiling without a fan (`thermal.md`).
-- **Rejected.**
-  - The production M11 extrusion: not available, and needs the AlN stack.
-  - One small sink per device: the 18 mm FET pitch leaves no room.
-  - The 511-6M (152.4 mm, 0.65 °C/W): worth it only if the bench must run 22 A without a fan.
+  - 132.33 mm wide `[WAK]`, so it covers the whole row (−12.0 to 120.33).
+  - 76.2 mm long along z, fins vertical, 0.90 °C/W natural.
+  - Milled base.
+  - DigiKey had 25 at $40.69.
+- **Why it floats.** The soldered row sets where the sink face must be: anywhere in 0.681–2.481, with up to 0.0547 rad of common tilt (`tolerance.md`). A sink that floats in y and tilt during clamping finds that position itself. The clamp loop is internal: bar, springs, devices, strip, sink. The sink is locked afterwards.
 - **Reverses if:**
-  - stock runs out: take the 511-6M, same profile, nothing else changes;
-  - the measured natural R_SA (§6, T0) is above 1.092 °C/W: run the fan at 17.5 A too.
+  - stock runs out: use the 511-6M, same profile;
+  - §7's natural R_SA is above 1.073 °C/W: run the fan at 17.5 A too.
 
-### D2. Insulator: SIL PAD 2000, 0.010 in, one continuous strip
+### D2. Insulator: SIL PAD 2000, one strip, with selected shims under it
 
-| strip | Rcs °C/W | Tj at 17.5 A, 30 °C | breakdown | tool |
-|---|---|---|---|---|
-| **SIL PAD 2000 0.254** | 0.954–1.155 | **79.7** | 4000 V AC | `thermal.md`, `[HNK]` |
-| K-10 0.152 | 1.216–1.661 | 82.5 | 6000 V AC | `thermal.md`, `[HNK]` |
-| 900S 0.229 | 1.739–2.166 | 85.5 | 5500 V AC | `thermal.md`, `[HNK]` |
+- **Data.** Under the bound, Tj at 17.5 A and 30 °C (`thermal.md`):
 
-- **Why SIL PAD 2000.** It has the lowest Rcs at the clamp's 82 psi. Its rating to peak stress is 9.1×, and its rating is 3.2× the 1250 V AC basic test level (`insulation.md`). The fibreglass carrier tolerates the bar's spring loading and hand placement.
-- **Why one strip rather than one pad per device.**
-  - Catalogue TO-247 ceramic or pad cut-outs (Fischer AOS 247 at 20 × 23 mm, Boyd 4180G at 23.24 × 18.8 mm) are wider than the 18 mm pitch.
-  - A strip has no gaps between devices, so there is no creepage path between pads.
-  - A strip is one part to place.
-- **Why not ceramic (AlN or Al₂O₃) on the bench.** It is not catalogue-available at this pitch. It needs grease on both faces and a flat, controlled clamp. Its Rcs advantage is not needed to meet the bench Tj.
-- **Cost.** One 12 × 12 in sheet ($171.85; DigiKey had 28) cuts 2 × 10 = 20 strips of 114.5 × 30 mm.
+  | strip | Tj | Rcs, strip only |
+  |---|---|---|
+  | SIL PAD 2000 | 87.1 °C | 0.876–1.489 °C/W |
+  | K-10 | 89.4 °C | – |
+
+  The shim stack adds 0.941 °C/W (small tab) or 0.592 °C/W (large tab). SP2000's rating is 9.1× the peak stress.
+- **Why shims rather than a thicker conformable pad.**
+  - A gap filler thick enough to absorb the 1.8 mm worst spread would itself add more than the shim stack.
+  - Its compression would vary with each device's gap, so the pressure would too.
+  - Shims are flat, conductive, cheap, and re-selectable at every refit.
+- **Where the shims go.** Under the strip, on the sink face: they are PE. The strip stays one continuous piece over them, so no new creepage edge appears. Every shim-related path passes (`insulation.md`): tab bottom edge to shim lower edge 6.104 mm, tab top to shim top 9.264 mm.
 - **Reverses if:**
-  - the SP2000 sheet is gone: use K-10 2165804 (+2.8 K Tj at 17.5 A; it has an adhesive side, so place it adhesive-to-sink);
-  - the 500 V DC IR test (§5 step 10) fails: re-cut, inspect for burrs on the sink face.
+  - the remark is honoured and §7's gaps all come out ≤ 0.0195 mm: no shims (unlikely, from the stack);
+  - a large step creases the strip at assembly: lay a second strip over the creased zone, or reduce the step with the remark.
 
-### D3. Screwless spring clamp: bar, four springs, FR-4 pads
+### D3. Screwless spring clamp, with a pad chosen per device
 
-- **Why no screw through the tab.** A screw through the TO-247 tab hole would leave only about 0.25 mm of pad between the tab and the sink at the hole edge. It would also put a PE screw head against a HOT package front. It would need a shoulder washer and a second insulator at each device. Four such stacks multiply the creepage paths.
-- **What the springs give** (`thermal.md`, Clamp):
-  - force independent of the operator: 68.4–85.4 N, set by the spacer length and pocket depth, not by torque;
-  - end-screw loads of 192.1 and 115.5 N on two M4 screws;
-  - 0.072 mm bar deflection, costing 1.34 N at the middle.
-- **Clearance to the board.** The bar's back face is 2.299 mm from the C38–C41 film-cap courtyard (`thermal.md`). The bar underside clears the tallest HOT SMD part under it by 4.9 mm (`insulation.md`).
-- **Bar potential.** The bar is PE: it is screwed to the sink. All its paths to HOT pass (`insulation.md`):
-  - spring to tab metal: clearance 4.419 mm, creepage 7.495 mm;
-  - spacer to edge pours: 15.63 mm.
-
-  The FR-4 pads are credited for nothing (`insulation.md`). They only spread the spring load over the package front.
-- **Reverses if:**
-  - the springs cannot be bought (Lee sells direct): any spring that fits the 9.53 mm pocket and gives 60–102 N at the installed length `bench_thermal.py` computes. Rerun `bench_thermal.py` with the new `SPRING`.
-  - §6 measures a per-device ΔT spread suggesting uneven pressure: shim the pad.
+- **Data.** Zero-shim device: 68.4–85.4 N. A shim moves the package front toward the bar, adding 18.51 N/mm (`tolerance.md`). The three pad options keep 60–102 N and stay off solid over 0–2.337 mm of shim.
+- **Lean.** Straightening a device to the inspection limit costs 13.7 N of spring force, leaving ≥ 45.0 N on the strip (acceptance 45–102).
+- **Insulation.** The spring-to-tab paths pass with every pad option. The tightest is 3.334 mm clearance with no pad (`insulation.md`).
+- **Bar access slot at BR1.** It sits beyond the last spring, between Q2's pocket and the right end screw, where the bar carries only the end reaction.
+- **Reverses if:** §7 shows uneven pressure. Re-gauge, and re-select that device's shim.
 
 ### D4. Sink potential: bonded to PE
 
-Options considered:
+Unchanged from revision 1.
+- A strip fault on the isolated secondary earths one point, which the power-on line-to-PE check finds.
+- The touchable sink stays at PE, and the NTC sees no HOT stress.
+- Floating and HOT-tied sinks were rejected; see revision 1 in git (49a5de610).
+- Tab-to-PE capacitance is 21.1–33.5 pF per tab (`insulation.md`), so the bench's common-mode readings are pessimistic for production.
 
-| option | single-fault result | verdict |
-|---|---|---|
-| **PE-bonded** (chosen) | A strip fault takes the faulted HOT net to PE. On the isolated secondary this earths one point, and the power-on DMM check (§5 step 12) finds it. The touchable sink stays at PE. The NTC's 1500 V AC insulation `[NTC]` sees no HOT stress. | chosen: same potential as production M11, so the measured common-mode and the NTC stress are representative |
-| Floating | A strip fault puts a touchable, unlabelled sink at HOT with no indication. The NTC lug then carries HOT against SELV across one basic layer. | rejected |
-| Tied to a HOT net | The tabs are on three different nets (bus_p, sw_a, sw_b), so the strip is still needed under two of them. The sink is then HOT and touchable. | rejected |
+### D5. TCO: Cantherm DF110S on the sink, in the J3 loop; 1 fitted + 4 spare
 
-- **Bond.** 14 AWG green/yellow from the sink's M4 bond hole to the bench PE stud, star-connected with the board's J6 PE lead. Verify the bond resistance (§5 step 9).
-- **Isolation transformer.** It remains the second measure for the operator. The PE bond protects against a strip fault; the transformer protects against a touch on board HOT.
-- **Cost of bonding.** It adds 21.1–33.5 pF from each tab to PE (`insulation.md`; production AlN: 5.8–9.1 pF). The two switching tabs (Q3, Q6) inject C·dv/dt into the bench PE. Common-mode and EMI readings taken on this bench are therefore pessimistic for production.
-- **Reverses if:** never on this bench without a second insulation layer.
-
-### D5. TCO: a real Cantherm DF110S in the J3 loop, not a jumper
-
-- **Why a real part.** J3's loop (l_filt–tco_l) feeds PS2's mains input, so opening it removes all gate drive. It is the one cut-out that works without the firmware, the controller or the NTC. It still works if the NTC lug comes loose. A jumper removes the only sink protection that survives a controller fault during the first powered runs.
-- **Rating.** DF110S (`[CAN]`, `bench_params.py`):
-  - Tf 110 °C, tolerance +0/−5, so 105–110 °C. That is above the 104.6 °C top of the hardware comparator band, so the ladder stays ordered: firmware 95 → hardware 98.3–104.6 → TCO 105–110.
-  - Th 86 °C. A TCO held above Th drifts toward opening, so the bench keeps the sink ≤ 80 °C (6 K under Th). That is the source of the fan rule in D6.
-- **Insulation.** The TCO case is live (TCO_L, line side). It gets 2 layers of 3M 5413 (106× peak stress, `insulation.md`) and a cushioned loop clamp. Bends ≥ 3 mm from the body; crimp, don't solder, near the body `[CAN]`.
-- **DigiKey read.** 1,377 in stock, $0.87.
-- **Reverses if:**
-  - production picks the Microtemp G4A from the R43 BOM: match its Tf/Th. The one G4A rating seen (G4A01121C, Tf 121 / Th 106) was a search snippet and is not used. A 121 °C part would leave a gap above the hardware band.
-  - the owner decides the bench TCO belongs on the glass rather than the sink (open question Q4).
+- **Ratings.** Tf 110 °C (+0/−5), so it trips at 105–110 °C, above the hardware band's 104.6 °C top. Th is 86 °C, so the sink stays ≤ 80 °C.
+- **Why spares.** It is one-shot: an over-temperature trip, or overheating it while soldering (the limit is Tf − 24 °C, `[CAN]`), consumes one. Four spares cost $3.48 at the 2026-10-18 read.
+- **During BR1 soldering** it comes off the sink (§6.3).
+- **Reverses if:** production fixes a Microtemp G4A rating. Then match the bench part to it.
 
 ### D6. Fan: 120 mm Cooltron, never credited
 
-- **Rule.** Run the fan for any run above 17.5 A, or with ambient above 30 °C.
-  - At 22 A the natural sink reaches 83.1 °C, above the 80 °C TCO limit (`thermal.md`).
-  - At 17.5 A and 40 °C ambient it also reaches 83.1 °C.
-- **What it needs to achieve.** R_SA ≤ 0.857 °C/W at 22 A and ≤ 0.613 at 28 A (30 °C ambient). Wakefield's shrouded 100 CFM figure (0.120) is far below that, but an unshrouded 120 mm fan at the fin tips is not that case. No pass claim uses the fan. §6's T0 run measures R_SA with it.
-- **Reverses if:** the T0 measurement shows R_SA with the fan > 0.613 °C/W. Then 28 A needs a shroud or the 511-6M.
+Required for any run above 17.5 A or above 30 °C ambient. R_SA needed for an 80 °C sink: 0.825 °C/W at 22 A and 0.564 °C/W at 28 A (`thermal.md`).
 
-### D7. NTC on the sink face
+### D7. NTC on the sink face at (77.8, 40)
 
-- **Where.** M3 tapped at x 77.8, z 40.0, between Q2 and BR1 above the strip. That is where production's controller would read the hottest sink region. It is next to the TCO.
-- **Why this NTC.** The NTCALUG01A lug is rated 1500 V AC terminal-to-lug `[NTC]`, but with the sink at PE it carries no HOT stress (`insulation.md`).
+Unchanged. No HOT stress on it.
 
-### D8. Baseplate, standoffs, brackets, window
+### D8. JLC solders the FETs; the sink comes afterwards (owner decision 1)
 
-- **Baseplate and standoffs.** 18 mm plywood, 400 × 300 mm. Nylon M3 × 15 male-female standoffs at H1 and H3–H8. H1 may take metal, but nylon is used for uniformity. **H2, H9 and H10 are left empty** (FAB-NOTE).
-- **Brackets.** Two 1-1/2 × 1-1/2 × 1/8 in aluminium angles, bolted through the sink's outermost fins and slotted for y/z adjustment. They stay ≥ 5 mm behind the board edge: clearance 5.6 mm to edge copper (`insulation.md`).
-- **Window.** Cut in the baseplate under board x −2 to 112, y −2 to 22. It gives iron and preheat access to the device leads, so the devices can be **seated on the sink and clamped before they are soldered**, as PROTOTYPE-LOT plans.
-- **Reverses if:** JLC solders the TO-247 row (open question Q1). Then the devices arrive fixed. The sink is brought to the tab plane with a feeler stack, and the bracket slots absorb the difference.
+**Consequence.** There is no seat-before-solder any more. Seating, lean and coplanarity become inspection items.
 
-## 3. Thermal results (abridged; full tables in `results/thermal.md`)
+**Seating.**
+- The b1 and b2 shoulder widths (1.60–2.41 and 2.57–3.43 mm) cannot enter the 1.42–1.63 mm finished hole, so a fully pushed body stands at L1 (3.85–4.50 mm).
+- A body floating up is accepted to 1.0 mm. The strip-top creepage allows 2.26 mm (`tolerance.md`).
 
-**Inputs.**
-- Loss basis D: ZVS, from the device study's energy grid. Loss basis A: the D-18 hard-switching proxy, i.e. the lost-ZVS fault.
-- I_t = 1.05 × ceiling.
-- Bus at 132 V × √2.
-- BR1 loss 25.52 W at 13.5 A line.
-- RthJC 0.28 °C/W `[IPW]`.
-- Spreading per device from the Lee et al. average form.
+**Inspection on receipt.** Per FET, check:
+- body height;
+- lean relative to the row mean ≤ 0.0112 rad;
+- then the shim fit, with `shim_select.py`.
 
-**The sink-temperature model.** It is one lumped sink temperature. It does not resolve the gradient along the row; for example, Q2 sits next to BR1. §6 measures that gradient.
+A device outside the lean limit is re-seated by the owner (§6.2, last step), or the board goes back to JLC.
 
-| strip | ceiling | basis | amb | sink | P_FET | P_sink | Tj FET | Tcase | Tj BR1 |
-|---|---|---|---|---|---|---|---|---|---|
-| SP2000 | 17.5 | D | 30 | 72.1 | 4.83 | 44.8 | 79.7 | 78.3 | 91.4 |
-| SP2000 | 17.5 | D | 40 | 83.1 | 5.16 | 46.2 | 91.2 | 89.7 | 102.4 |
-| SP2000 | 22 | D | 30 | 83.1 | 8.36 | 59.0 | 96.1 | 93.8 | 102.4 |
-| SP2000 | 22 | D | 40 | 95.3 | 8.98 | 61.4 | 109.3 | 106.8 | 114.6 |
-| SP2000 | 28 | D | 30 | 114.2 | 17.03 | 93.5 | 140.8 | 136.1 | 133.5 |
-| SP2000 | 17.5 | A | 30 | 160.8 | 30.31 | 145.4 | 208.2 | 199.7 | 180.2 |
+### D9. BR1 DNP, owner-fitted before step 5 (owner decision 2)
 
-**Tj with the sink held at each trip** (SP2000, worst FET; `thermal.md`):
+- **Hole position.** The sink's BR1 hole is drilled at machining time from a loose part's measured seat height, not match-drilled in place. That avoids chips near the board and works with the FETs already clamped.
+- **Shim.** BR1's shim is selected at its dry fit.
+- **Driver access.** Through the bar's slot.
+- **Preheat.** From below, through the window extension, while the iron works the leads in the main window.
 
-| ceiling | basis | sink 86 (Th) | 95 (firmware) | 104.6 (hardware top) | 110 (TCO Tf) |
+## 4. Thermal results
+
+Bound case: every FET carries the 2.0 mm design shim (brass, three faces greased at the conservative 0.413 °C·cm²/W) at the worst pressure corner. Full tables are in `results/thermal.md`. The most-proud FET has no shim and does better; §7 measures each device.
+
+| strip | ceiling | basis | ambient | sink | P_FET | P_sink | Tj FET | Tj BR1 |
+|---|---|---|---|---|---|---|---|---|
+| SP2000 | 17.5 | D | 30 | 72.8 | 5.04 | 45.7 | 87.1 | 97.3 |
+| SP2000 | 17.5 | D | 40 | 83.8 | 5.39 | 47.1 | 99.1 | 108.4 |
+| SP2000 | 22 | D | 30 | 85.6 | 9.08 | 61.8 | 111.4 | 110.2 |
+| SP2000 | 22 | D | 40 | 98.1 | 9.75 | 64.5 | 125.7 | 122.6 |
+| SP2000 | 28 | D | 30 | 125.5 | 20.19 | 106.2 | 182.8 | 150.1 |
+
+**Tj with the sink held at each trip** (bound):
+
+| ceiling | basis | sink 86 | 95 | 104.6 | 110 |
 |---|---|---|---|---|---|
-| 17.5 | D | 94.2 | 103.6 | 113.7 | 119.4 |
-| 17.5 | A | 129.8 | 139.3 | 149.3 | 155.0 |
-| 22 | D | 99.3 | 109.0 | 119.4 | 125.2 |
-| 28 | D | 108.8 | 119.0 | 129.9 | 136.1 |
+| 17.5 | D | 101.5 | 111.3 | 121.8 | 127.7 |
+| 17.5 | A (lost ZVS) | 168.8 | 178.6 | 189.0 | 194.9 |
+| 22 | D | 111.8 | 122.2 | 133.3 | 139.5 |
+| 28 | D | 132.5 | 144.0 | 156.3 | 163.1 |
 
 **Reading the tables.**
-- **Normal operation.** At 17.5 A and 22 A (ZVS) the FETs stay well inside 150 °C and under the 125 °C target, at any sink temperature up to the TCO.
-- **28 A.** It needs the fan, which holds the sink at or below 86 °C (Tj 108.8 °C there).
-- **Lost ZVS.** At steady state it would overheat everything (row A). The sink trips bound Tj at 139–155 °C only if the sink actually reaches them. They are not the protection for this case.
+- **17.5 A and 22 A:** with the fan holding the sink ≤ 86 °C, Tj stays ≤ 111.8 °C under the bound.
+- **28 A:** stays under 150 °C only while the sink is held ≤ 95 °C, and above the 125 °C target in the bound. Go to 28 A only after §7 has measured the real stack.
 
-**BR1 stack.** 0.457 °C/W in total: strip 0.364, shim 0.0064, grease 0.087, at 50 psi (`thermal.md`).
+**BR1 stack:** 0.663 °C/W in total (strip 0.364, shim 0.0385, grease 0.260).
 
-## 4. Insulation and spacing (abridged; full table in `results/insulation.md`)
+## 5. Insulation (`results/insulation.md`)
 
-**Stress bound.** Tab to PE sink: 435.7 V worst die VDS (OPEN-ITEMS S3) + 186.7 V line peak (132 V RMS) = **622.4 V peak**. This is above the 190 V line-only peak and the step-3 300 V DC test.
+**Stress bound:** 622.4 V peak (435.7 V worst die VDS + 186.7 V line peak). **Floors:** basic, creepage 4.0 mm, clearance 1.3 mm, 1250 V AC.
 
-**Floors.** Basic: creepage 4.0 mm, clearance 1.3 mm, type test 1250 V AC (M11 RECOMMENDATION §2, basic reference).
-
-| insulator | rating / peak stress | rating / 1250 V AC | field |
-|---|---|---|---|
-| SP2000 strip, FET tab → sink | 9.1 | 3.20 | 2.45 kV/mm peak |
-| SP2000 + GBJ case behind BR1 | 49.2 | 5.20 | 0.73 kV/mm |
-| GBJ case alone at the M3 screw | 18.9 | 2.00 | – |
-| 2 × 3M 5413 on the TCO | 106.1 | 11.20 | 1.35 kV/mm |
-
-**Spacing.**
-
-| path | value | floor |
-|---|---|---|
-| Tightest creepage: sink edge → strip → board over the edge pours | 4.2 mm | 4.0 mm |
-| Tab bottom edge → strip bottom → sink | 5.404 mm | 4.0 mm |
-| Q5's left tab edge → strip end → sink | 5.479 mm | 4.0 mm |
-| Tightest clearance: sink edge → F.Cu edge pour | 4.13 mm | 1.3 mm |
-
-**Not assessed.** Partial discharge in the 0.254 mm strip under the low-side tabs' 33–60 kHz swing. The bench runs are short, and the 500 V DC IR test before power plus the monitoring in §6 are the checks. M11's thick AlN is the production answer.
-
-## 5. Assembly procedure
-
-Drill and cut dimensions are in `results/drill-table.md`; views are in `results/bench-sink-r1.dxf` (and `.svg`). Hand tools and a drill press only.
-
-1. **Machine the sink** (drill-table, front face):
-   - M4 bar-screw holes at u 5.0 and 127.5, v 14.2;
-   - M3 NTC and TCO-clamp holes;
-   - M4 PE-bond hole.
-
-   Deburr the face and stone it flat where the strip lies. A burr is the likeliest way to puncture 0.254 mm.
-2. **Machine the bar.** Cut to 130.5 mm. Pockets: 3/8 in flat-bottom, 7.0 mm deep, at u 20.95 / 38.95 / 61.05 / 79.05, v 9.0. Ends: Ø4.5 through at u 4.0 and 126.5. Break all edges.
-3. **Cut the parts.**
-   - Strip, 114.5 × 30.0. Scribe a line 2.5 mm above one long edge; that edge hangs below the sink.
-   - Shim, 28 × 17 × 0.508.
-   - Four FR-4 pads, 14 × 16.
-   - Baseplate: window and standoff holes.
-   - Brackets, 70 mm tall, slotted.
-4. **Board onto the baseplate.** Nylon M3 standoffs and nylon screws at H1 and H3–H8. Nothing in H2, H9, H10.
-5. **Sink onto the brackets.** Bolt the brackets through the outer fins (match-drill). Set the lower edge with a 4.5 mm gauge (drill shank) at both ends, then lock the brackets.
-6. **BR1 hole (first build only).** Stand BR1 in its holes, hold its back against the bare sink at its natural seated height, and transfer-punch through its hole. Remove BR1. Drill 2.5 and tap M3.
-7. **Stack the sink face.**
-   - Thin film of 120-SA grease, then the shim, centred on BR1 (u 106.2).
-   - Then the strip, with its scribed line on the sink's lower edge, left end at u 9.0, held by two Kapton tabs above z 32.
-   - Punch a Ø4 hole in the strip at the BR1 screw.
-8. **Devices and clamp.**
-   - Insert Q5, Q6, Q3, Q2 with their tabs toward the sink, leads straight, seated on the lead shoulders. Insert BR1.
-   - Fit BR1's M3 screw with a flat washer, at ≤ 0.56 N·m (`[GBJ]` 5 in-lb).
-   - Place the FR-4 pads on the four package fronts, springs in the pockets, bar onto the two 10 mm spacers. Tighten the M4 × 25 screws until each spacer is clamped.
-   - Spring force is now set by geometry: 68.4–85.4 N. Check each pad gap by eye, and check that all four devices stand square with a square from the board.
-9. **Solder.** Stand the fixture on its left end so the window faces you. Preheat the board through the window: power pins are solid, rework at ≥ 100 °C board temperature (PROTOTYPE-LOT). Solder the TO-247 and BR1 leads and trim to ≤ 2.5 mm.
-10. **IR test before any bond.** With the PE lead off the sink, short together every lead of Q2, Q3, Q5, Q6 and BR1 on the unpowered board. These are nets bus_p, sw_a, sw_b, leg_ret, l_filt, n_filt and hv_ret (`native-21/layout/pads.json`). Apply **500 V DC** from an insulation tester between that short and the sink, then between it and the bar.
-    - Pass: ≥ 100 MΩ. This is the NTC datasheet's own IR criterion, used here as the bench criterion. It is not a computed value.
-    - Do not hipot at 1250 V AC on the board: the board's Y-caps and suppressors are on these nets.
-11. **TCO.**
-    - Bend the leads ≥ 3 mm from the body. Wrap the body in 2 layers of 3M 5413 with ≥ 50 % overlap.
-    - Lay it along x above BR1 (x 94.2, z 40). Hold it with a nylon-cushioned loop clamp on the M3 hole at z 47.
-    - Crimp the leads to 18 AWG 200 °C wire with butt splices; never solder near the body.
-    - Terminate in a JST VHR-3N with SVH-21T-P1.1 contacts in positions 1 and 3 for J3. Repeat the IR test of step 10 with J3 plugged.
-12. **NTC.** M3 screw with a star washer into the tapped hole at (77.8, 40). Route its leads to the controller's sink-NTC input away from the HOT leads.
-13. **PE bond.** 14 AWG green/yellow ring lug with a star washer on the M4 bond hole, to the bench PE stud, star-connected with the J6 PE lead.
-    - Measure sink → PE stud and bar → PE stud with a 4-wire ohmmeter.
-    - Pass: ≤ 0.1 Ω. This is the IEC 60335-1 cl. 27.5 limit, quoted from memory (EST).
-14. **Power-on check, every session, on the isolated secondary.** With the board idle, measure the AC voltage from each secondary line to PE with a DMM. A collapsed reading on one line means a HOT-to-PE fault (strip, BR1 case or TCO wrap): stop.
-15. **Fan.** 12 V bench supply, on a stand behind the fins, blowing into them. Switch it on for any run above 17.5 A, or with ambient above 30 °C.
-16. **Touch.** The sink, bar and brackets are PE and may be touched. Everything on the board is HOT. Above 50 V, put the clear cover (polycarbonate on the baseplate, standoff-mounted) over the board, and fix the probes before energising (COMMISSIONING ground rules).
-
-## 6. What the bench run measures
-
-The aim is to turn the models above into measured numbers for M11.
-
-**T0: thermal calibration, board unpowered, before step 3.** The FET's own body diode is the heater and the sensor (the JEDEC electrical-test method).
-1. **Calibrate V_SD.** Bring the whole clamped assembly to two or three uniform temperatures in a warm room or under a cover, waiting for the sink thermocouples to agree. At each, record V_SD at a small sense current. This gives the V_SD(T) slope per device.
-2. **Interface per device.** Drive a DC current through one FET's body diode from an isolated ≤ 2 V supply:
-   - Q3: source+ at pin 3 (leg_ret), return at pin 2 (sw_a);
-   - the other three analogously;
-   - before connecting, check each net's other DC paths.
-
-   Choose the current so that I × V_SD is close to that device's P_FET at the ceiling being prepared (4.83 W at 17.5 A, `thermal.md`). At steady state, interrupt for a few ms and read V_SD at the sense current to get Tj. Then:
-   - Rcs = (Tj − Tsink)/P − RthJC;
-   - Tsink comes from a thermocouple on the sink face directly above that device (z 33, x = device centre).
-
-   Compare with the model's 0.954–1.155 °C/W. Expect Tcase − Tsink ≈ 6.2 K at 4.83 W (`thermal.md`: 78.3 − 72.1).
-3. **R_SA.** Heat all four FETs, and BR1 from its − (hv_ret) to + (bus_p) terminals, together at a known total power near P_sink (44.8 W at 17.5 A). Record R_SA natural, and with the fan. Compare with 0.90 natural and with the 1.092 / 0.857 / 0.613 requirements.
-
-**During steps 6 and 8.**
-- Thermocouples: six type-K on the sink face above Q5, Q6, Q3, Q2, BR1 and beside the NTC, logged with the firmware's sink reading. **No thermocouple on any tab or lead.**
-- An IR thermometer or camera on the plastic package fronts. This gives a case-side estimate. It is not a pass criterion.
-- **Loss basis.** Total sink power = (T_sink,avg − T_amb) / R_SA(T0). If it is close to basis D's P_sink (44.8 W at 17.5 A), the ZVS loss model holds. A large excess means hard-switching edges (basis A).
-- **Along-row gradient.** Is Q2, next to BR1, the hottest?
-- **NTC versus the thermocouple beside it.** The offset feeds the trip ladder.
-
-**After each session.** Repeat the 500 V DC IR test whenever the clamp has been opened.
-
-**Record.** One CSV per session in the COMMISSIONING record, with columns: ceiling, f, ambient, per-device sink thermocouples, NTC, fan on/off, P_line. Plus T0's Rcs per device and R_SA.
-
-## 7. Hand-off to M11
-
-| bench output | used by M11 for |
+| insulator | rating / peak stress |
 |---|---|
-| Measured Rcs per device for SP2000 at 82 psi | Calibrating the interface model (`interface_thermal.py`) against Henkel's D5470 numbers. If the measured value beats the catalogue, the D-36 thin-pad route (THIN-PAD-ROUTE) gains evidence; if it is worse, the AlN stack's grease/pressure assumptions need the same correction. |
-| Spring clamp at 68.4–85.4 N, uniform across four devices | Confirms the 45–102 N comb acceptance band and the ≥ 60 N target with a real package front. The per-device ΔT spread tests uniformity. |
-| Seated tab plane (no lead forming) and the 4.5 mm sink-edge gauge | Confirms M11's tab-plane datum y 1.835 on built boards. Measure the actual tab plane at Q5 and Q2 with a feeler before the strip goes on, and report it. |
-| BR1's seated height and screw-hole position (measured at step 6) | M11's BR1 pocket and screw location: the GBJ drawing has no seating shoulder. |
-| Total sink power at 17.5 A against basis D | The loss basis M11's sink is sized for. |
-| NTC − thermocouple offset; sink gradient Q2 vs Q5 | The production NTC location and the trip ladder's sensor offset. |
-| Whether the sink stays ≤ 80 °C at the run points (TCO Th margin) | The production TCO rating (Microtemp G4A choice). |
+| SP2000 at a FET | 9.1 |
+| SP2000 + GBJ case at BR1 | 49.2 |
+| GBJ case alone at the screw | 18.9 |
+| TCO under 2 × 5413 | 106.1 |
 
-**Does not transfer:**
-- R_SA (a different sink);
-- the insulation: bench basic SP2000 at PE, versus the production AlN stack and its own basis;
-- common-mode current: 21.1–33.5 pF versus AlN's 5.8–9.1 pF per tab (`insulation.md`).
+**New rows in revision 2:**
+- sink face anywhere in its range: K3, 4.13 mm;
+- shim lower and top edges: 6.104 and 9.264 mm;
+- a floated body at the strip top: 5.264 mm;
+- the three pad options: clearance 4.419 / 3.84 / 3.334 mm, creepage 7.495 / 6.765 / 6.055 mm;
+- BR1 using its full lead play: 3.789 mm.
 
-## 8. BOM (reads 2026-10-18; raw reads and blocked sites in `sources/SOURCES.md`)
+All pass.
+
+## 6. Assembly procedure
+
+Hand tools and a drill press. Dimensions are in `results/drill-table.md`.
+
+### 6.1 Before the board arrives
+
+1. **Measure a loose BR1.** Find its seated height: the distance from the body bottom to the underside of the lead feature that stops in a 1.6 mm hole. That is the 2.0–2.4 mm-wide H feature on the GBJ drawing.
+2. **Machine the sink.**
+   - M4 bar-screw holes, M3 NTC and TCO-clamp holes, M4 bond hole.
+   - The BR1 M3 hole at v = (seat + 11.0 + 0.2) − 4.5.
+   - Deburr and stone the face; a burr is the likeliest way to puncture 0.254 mm.
+3. **Machine the bar:** pockets, end holes, and the 6.5 mm BR1 driver slot.
+4. **Brackets:** Ø8 holes (pivot and lock).
+5. **Baseplate:** window plus extension; standoff holes.
+6. **Cut parts:**
+   - the strip;
+   - FR-4 pads, 4 × 1.6 mm and 4 × 0.8 mm;
+   - punch the strip's Ø4 BR1 hole at the drilled position.
+
+### 6.2 FET fit (JLC-soldered board)
+
+1. **Receipt inspection.** For each FET, record:
+   - body bottom height, which must be ≤ L1 max + 1.0;
+   - visible lean.
+
+   The JLC remark asks for coplanarity within 0.2 mm.
+2. **Board onto the baseplate.** Nylon standoffs at H1 and H3–H8.
+3. **Gauge the row.**
+   - Hang the sink on its brackets, bolts loose. Bare face: no strip, no shims, no bar.
+   - Set the lower edge with the 4.5 mm gauge. Push the sink lightly onto the row by hand.
+   - At each FET, feeler-gauge the gap between the sink face and the package back at z 6.50 and z 22.55 (`tolerance.md`), from the side between packages.
+   - Write `gaps.csv` (format: `example-gaps.csv`).
+   - **Never tighten the clamp on an un-shimmed row.** A spring pushing a gapped device bends its leads far past their elastic limit (`bench_mech.py`).
+4. **Run `python3 -I scripts/shim_select.py gaps.csv`.** It prints each device's shim (0.025 mm steps), its pad, and its predicted spring force, and checks lean against 0.0112 rad.
+   - On a REJECT: re-seat that device, or return the board.
+   - Re-seating: preheat the board (§6.3, step 4), melt the device's three joints together with a wide tip or one iron per joint, stand it against a square, and let it cool.
+5. **Stack the sink face.**
+   - Grease and lay each FET's shim stack, deburred, lower edge 1.0 mm above the sink edge.
+   - Lay the strip over all of them: scribed line on the sink's lower edge, left end at u 9.0, Kapton tabs above z 32.
+   - Leave BR1's position bare for now.
+6. **Clamp.** Pads and springs per the fit sheet, bar onto its spacers, M4 × 25 screws tight.
+   - Keep the bracket bolts loose while doing this: the floating sink settles on the row.
+   - Then lock the pivot and tilt bolts.
+   - Check that the lower edge is still 4.5 ± 0.3 mm.
+7. **IR test before any bond.** With the PE lead off, short all three leads of each of the four FETs together on the unpowered board. Test at 500 V DC to the sink and to the bar.
+   - Pass: ≥ 100 MΩ. This is the NTC datasheet's criterion, used as the bench criterion.
+   - No 1250 V AC hipot on the board.
+8. **Sensors and bond.**
+   - TCO and NTC fitted as in revision 1: Kapton ×2, bends ≥ 3 mm from the body, crimp splices, VHR-3N to J3.
+   - PE bond, then measure it. Pass: ≤ 0.1 Ω (IEC 60335-1 cl. 27.5, quoted from memory, EST).
+   - Run the power-on line-to-PE check every session.
+
+### 6.3 BR1 fit (before COMMISSIONING step 5; the FETs stay soldered and may stay clamped)
+
+1. **Clear the holes.** BR1's four holes must be free of solder; JLC protects unused holes.
+   - The bench-DC steps must not feed the bus through BR1's holes: heavy-copper holes are hard to clear (open question Q9).
+2. **Remove the TCO from the sink.** Loosen the loop clamp and let it hang on its leads, away from the sink. Its limit while soldering is Tf − 24 = 86 °C `[CAN]`. The bench keeps the sink ≤ 80 °C anyway.
+3. **Dry-fit and shim.**
+   - Lower BR1 vertically between the strip and the bar; there is room in y.
+   - Feeler-gauge the gap between its back and the strip with BR1 vertical and its leads centred in their holes.
+   - Run `shim_select.py` with a `BR1,g,` row to get the shim, rounded down.
+   - Lift the strip's free right end, slide in the greased BR1 shim stack (Ø3.5 hole at the screw), and lay the strip back.
+4. **Screw.** Fit BR1 with its M3 × 10 SHCS and flat washer through the bar slot, using a 2.5 mm ball-end hex driver, ≤ 0.56 N·m.
+   - BR1 hangs on the screw, with ≥ 0.2 mm under its seat features.
+   - If the strip face lies beyond BR1's free position (negative shim), the screw leans BR1 back in its holes: up to 0.0075 rad, against 0.423 rad available.
+5. **Preheat.**
+   - Stand the fixture on its left end.
+   - Put the hot-air nozzle of a **benchtop hot-air bottom preheater** at the window extension (x 75–115, y 22–45).
+     - Class: a PCB preheater with ≥ 600 W of heater, adjustable air temperature, and an input for a board thermocouple (EST spec).
+   - Bring the board bottom beside BR1 to **100–110 °C** on a thermocouple taped to the board bottom 10 mm from pin 4. The ≥ 100 °C is from PROTOTYPE-LOT / FAB-NOTE; the 110 °C cap is EST, for the film caps.
+   - Watch a sink thermocouple: it must stay ≤ 80 °C. Heat leaks into the sink through the clamped FETs. If it climbs, pause, or unclamp the bar for the soldering.
+6. **Solder.**
+   - Work through the main window: BR1's leads are at y 4.6, inside the window's y −2..22.
+   - Use a temperature-controlled iron with a large chisel tip (EST spec: ≥ 80 W class), flux, and fill each barrel.
+   - Trim the leads to ≤ 2.5 mm.
+7. **Cool, then finish.**
+   - Re-check the BR1 screw torque.
+   - Refit the TCO; replace it from spares if it saw more than 86 °C or its continuity is in doubt.
+   - Repeat the 500 V DC IR test, now with BR1's leads in the short, before step 5.
+
+## 7. What the bench run measures
+
+Revision 1's plan stands:
+- **T0, body-diode heating.** Per-device Rcs and R_SA with and without the fan, before step 3.
+- **During runs.** Sink thermocouples per device, IR on the package fronts, and total sink power to tell loss basis A from D.
+
+Added in revision 2:
+- **Per-device Rcs against its shim thickness** from the fit sheet. This shows whether the shim stack costs less than the bound's 0.941 °C/W, which decides whether 28 A is runnable.
+- **Re-gauge after the first hot run.** Repeat the feeler gauging (clamp off) after the first 10-minute step-8 session. If any gap moved by more than 0.0195 mm, re-select.
+- **Clamp check.** Measure the bar-to-package-front distance beside each pad with calipers. With the pocket depth and pad thickness this gives the spring's installed length; compare it with the fit sheet.
+
+## 8. Hand-off to M11
+
+Revision 1's items stand: Rcs calibration, clamp force uniformity, BR1 seat, loss basis, NTC offset, TCO margin. New:
+- **Production must also meet a JLC-soldered row.** This study's stack says a single flat sink face cannot meet four soldered TO-247s in 1.5 mm holes: 0.270–1.800 mm spread against 0.0195 mm of compliance. M11's AlN stack therefore needs either:
+  - per-device compliance (individually sprung insulators or tiles); or
+  - an assembly step that fixes the tab plane before soldering: a soldering fixture or comb.
+
+  The bench's measured gaps (the `gaps.csv` files) give M11 the real spread for JLC's process.
+- **Where the order remark ends up.** Whether JLC honoured it (the measured spread against 0.270 / 1.500 mm) decides whether a remark is enough for production, or whether M11 needs a fixture.
+
+## 9. BOM
+
+Reads are from 2026-10-18; the raw reads and the blocked sites are in `sources/SOURCES.md`. Changes from revision 1 are in bold.
 
 | # | part | qty | source / PN | stock read | unit price |
 |---|---|---|---|---|---|
 | 1 | Heatsink, Wakefield-Vette 511-3M | 1 | DigiKey 345-1205-ND | 25 | $40.69 |
 | 2 | SIL PAD 2000, 0.010 in, 12 × 12 in sheet | 1 | DigiKey, Bergquist SP2000-0.010-00-1212 | 28 | $171.85 |
-| 3 | Compression spring, Lee LC 055E 03 S (stainless) | 6 (4 + 2 spare) | leespring.com, direct | not shown | $8.04 |
+| 3 | Spring, Lee LC 055E 03 S | 6 | leespring.com, direct | not shown | $8.04 |
 | 4 | 6061 flat bar 3/8 × 1 in, 6 in | 1 | DigiKey (marketplace), Remington 0.375X1.0FLT6061T6511-6 | 50 | $11.83 |
 | 5 | G-10/FR-4 sheet 1/16 in, 6 × 6 in | 1 | DigiKey (marketplace), USA Industrials BULK-CS-GFR4-54 | 3 | $15.53 |
-| 6 | Spacer, M4 × 10 mm aluminium round, RAF M0539-4-AL | 4 (2 + 2) | DigiKey | 223 | $1.29 |
-| 7 | Thermal grease, Wakefield 120-SA | 1 | DigiKey 345-1006-ND | 4,984 | $5.55 |
-| 8 | TCO, Cantherm SDF-DF110S | 3 (1 + 2) | DigiKey 317-1131-ND | 1,377 | $0.87 |
-| 9 | NTC lug, Vishay NTCALUG01A104GA | 2 (1 + 1) | DigiKey 56-NTCALUG01A104GA-ND | 770 | $2.19 |
-| 10 | Polyimide tape 3M 5413, 1/2 in × 5 yd | 1 | DigiKey, 5413-0.5-5 | 23 | $33.04 |
-| 11 | JST VHR-3N housing | 2 | DigiKey | not shown | $0.10 |
-| 12 | JST SVH-21T-P1.1 contact | 6 | DigiKey | not shown | $0.042 |
-| 13 | Fan, Cooltron FD1225B12W2-61-2NC1, 120 mm 12 V | 1 | DigiKey (marketplace) | 36 | $22 (qty 2) |
-| 14 | Aluminium angle 1-1/2 × 1-1/2 × 1/8 in, 6061, 2 × 70 mm | 1 length | McMaster, **PN not read** (site blocked) | – | – |
-| 15 | Aluminium sheet 0.020 in (shim) | 1 | McMaster, **PN not read** | – | – |
-| 16 | Nylon M3 × 15 male-female standoffs, nylon M3 screws and nuts | 7 each | McMaster, **PN not read** | – | – |
-| 17 | Steel: M4 × 25 SHCS (2), M4 × 10 + star washer (bond), M3 × 10 + washer (BR1), M3 × 8 + star washer (NTC, loop clamp), M4 bracket bolts + nuts (4) | – | any; McMaster **PN not read** | – | – |
-| 18 | Nylon-cushioned steel loop clamp, ~6 mm ID, M3 tab | 1 | McMaster, **PN not read** | – | – |
-| 19 | 14 AWG green/yellow wire, M4 ring lugs; 18 AWG 200 °C silicone wire; crimp butt splices | – | stock / McMaster | – | – |
-| 20 | 18 mm plywood 400 × 300; clear polycarbonate cover and standoffs | – | local | – | – |
-| 21 | Type-K thermocouples × 6 with logger; insulation tester (500 V DC); 4-wire ohmmeter | – | owner's bench | – | – |
+| 6 | **G-10/FR-4 sheet 1/32 in (0.8 mm pads)** | 1 | **not read**; any 1/32 in G-10 | – | – |
+| 7 | Spacer, M4 × 10 mm aluminium, RAF M0539-4-AL | 4 | DigiKey | 223 | $1.29 |
+| 8 | Thermal grease, Wakefield 120-SA | 1 | DigiKey 345-1006-ND | 4,984 | $5.55 |
+| 9 | **TCO, Cantherm SDF-DF110S: 1 + 4 spare** | **5** | DigiKey 317-1131-ND | 1,377 | $0.87 |
+| 10 | NTC lug, Vishay NTCALUG01A104GA | 2 | DigiKey 56-NTCALUG01A104GA-ND | 770 | $2.19 |
+| 11 | Polyimide tape 3M 5413, 1/2 in × 5 yd | 1 | DigiKey 5413-0.5-5 | 23 | $33.04 |
+| 12 | JST VHR-3N / SVH-21T-P1.1 | 2 / 6 | DigiKey | not shown | $0.10 / $0.042 |
+| 13 | Fan, Cooltron FD1225B12W2-61-2NC1 | 1 | DigiKey (marketplace) | 36 | $22 (qty 2) |
+| 14 | **Shim stock assortment, brass (or aluminium): 0.001–0.010 in in 0.001 steps, plus 0.015, 0.020, 0.030, 0.040, 0.050 in** | 1 set | McMaster, **PN not read** (site blocked) | – | – |
+| 15 | **Feeler gauge set, 0.02–1.00 mm, blades ≥ 12.7 mm wide, long blades** | 1 | owner's tools, or local | – | – |
+| 16 | **Benchtop hot-air bottom preheater** (class in §6.3) | 1 | owner's choice, **not read** | – | – |
+| 17 | Aluminium angle 1-1/2 × 1-1/2 × 1/8 in, 2 × 70 mm; **M4 fender washers** | – | McMaster, **PN not read** | – | – |
+| 18 | Nylon M3 × 15 male-female standoffs, nylon screws and nuts | 7 | McMaster, **PN not read** | – | – |
+| 19 | Steel fasteners (as revision 1), **plus M3 × 10 SHCS + washer for BR1 and a 2.5 mm ball-end hex driver** | – | any | – | – |
+| 20 | Loop clamp, wire, lugs, splices, plywood, polycarbonate cover, thermocouples, insulation tester, 4-wire ohmmeter | – | as revision 1 | – | – |
 
-**Totals.** The DigiKey and Lee lines above total about $360 at these reads. Most of that is the SP2000 sheet. This is quoted from the rows, not from a tool. Re-price at order.
+- **Removed:** the single 0.020 in aluminium BR1 shim. It is replaced by the selected shim stock.
+- **Totals:** the DigiKey and Lee lines come to about $360 at these reads (arithmetic on the rows, not a tool). The preheater and shim set are not priced.
 
-## 9. Owner's next steps
+## 10. Owner's next steps
 
-1. Answer **Q1**: who solders the TO-247 and BR1 row. This design assumes in-house, seated before soldering.
-2. Order BOM lines 1–13; buy 14–20 locally or from McMaster.
-3. Build per §5. Report:
-   - the measured tab plane at Q5 and Q2;
-   - BR1's seated height and hole position;
-   - the measured bar-to-film-cap gap: 2.299 mm modelled, so check it on the built board.
-4. Run T0 (§6) before COMMISSIONING step 3, and file the Rcs per device and R_SA.
-5. Run steps 3–8 at 17.5 A without the fan at ≤ 30 °C ambient, with the fan otherwise. Check the IR test and the power-on line-to-PE check every session.
+1. Add the remark in §2 to the JLC PCBA order. Set BR1 to DNP. Consign the four FETs from the one DigiKey lot.
+2. Measure a loose BR1's seat height. Then machine the sink, bar, brackets and baseplate (§6.1).
+3. Order BOM lines 1–13. Obtain the shim set, feeler gauges and a bottom preheater.
+4. When the boards arrive: §6.2, saving `gaps.csv` and the `shim_select.py` sheet per board.
+5. Run T0 (§7), then steps 3–4 with BR1 out. Then §6.3, then step 5.
 
-## 10. Open questions
+## 11. Open questions
 
-- **Q1. TO-247 / BR1 assembly.** PROTOTYPE-LOT and the r2-dfm proposals say in-house, but `bom-jlcpcb.csv` lists these parts for JLC. This design works either way (D8), but seat-before-solder is only possible in-house.
-- **Q2. TCO equivalence.** The bench Cantherm DF110S (Tf 110 / Th 86) against the R43 BOM's Microtemp G4A "rating to select". No G4A datasheet was read: the Farnell/Newark pages timed out.
-- **Q3. GBJ seating.** The datasheet gives no seating shoulder, so BR1's height (EST z 2.2–22.2) and the shim position are set from the part.
-- **Q4.** Does the bench also need the glass TCO (R43 enclosure) for the pan runs, or only the sink TCO?
-- **Q5. Gap-bridging width.** X = 1.5 mm (PD3) was quoted from memory. C3 (4.2 mm) depends on the strip-to-board gap being treated as bridged.
-- **Q6. Unverified fit.** The McMaster part numbers were not read (site blocked), and the 511-3M's outer-fin construction for the bracket bolts is unverified until the part arrives.
-- **Q7. Stock.** SP2000 had only 28 sheets at DigiKey. K-10 is the fallback (D2).
-- **Q8. Partial discharge.** Not assessed in the thin strip under the switching tabs (§4).
+- **Q1. Lean and shims if the remark is ignored.** Will JLC honour the coplanarity remark? No published rule was found. If not, expect shims of up to 1.8 mm and the no-pad option on some devices.
+- **Q2. TCO equivalence.** DF110S against the R43 Microtemp G4A. No G4A datasheet was read.
+- **Q3. GBJ seat.** The seating feature's position is not on the drawing; measure a part (§6.1, step 1).
+- **Q4.** Glass TCO on the bench, or the sink TCO only? The owner chose sink-only for the bench.
+- **Q5. Gap-bridging width.** X = 1.5 mm was quoted from memory; C3 at 4.2 mm depends on it.
+- **Q6. Unverified fit.** The McMaster part numbers are unread, and the 511-3M's outer-fin bolt fit is unverified.
+- **Q7. Stock.** DigiKey had 28 SP2000 sheets; K-10 is the fallback (+2.3 K under the bound at 17.5 A).
+- **Q8. Partial discharge** in the thin strip under the switching tabs was not assessed.
+- **Q9. Bench-DC feed point.** With BR1 out, where does the isolated DC supply connect for steps 3–4? Not through BR1's holes, which must stay clear. This is for the commissioning plan.
+- **Q10. Soldered-lead mechanics.** The lead modulus, the allowed lead stress (200 MPa), the pivot at the board and the strip compliance are all EST. The lean limit and the "cannot close" verdict rest on them. The verdict holds across a wide margin (spread ≥ 0.270 mm against a budget of 0.0195 mm). The lean limit is the sensitive one.

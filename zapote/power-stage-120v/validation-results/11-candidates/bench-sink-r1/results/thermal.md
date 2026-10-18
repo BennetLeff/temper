@@ -2,7 +2,7 @@
 
 ## Clamp (Lee Spring LC 055E 03 S, 10.0 mm spacers, 7.0 mm pockets, strip SIL PAD 2000 0.254 mm)
 
-Force per TO-247 over A 4.70-5.30 mm x FR-4 1.44-1.76 mm: **68.4-85.4 N** (nominal 76.9 N); acceptance 45-102 N: True; >= 60 N: True; spring solid-height margin >= 1.33 mm. Bar deflection 0.0722 mm (-1.34 N). End-screw loads (192.1, 115.5) N. Bar back face y 21.106 vs film-row courtyard 23.405 (2.299 mm).
+Force per TO-247 at the zero-shim device (shimmed devices and the lean allowance: tolerance.md) over A 4.70-5.30 mm x FR-4 1.44-1.76 mm: **68.4-85.4 N** (nominal 76.9 N); acceptance 45-102 N: True; >= 60 N: True; spring solid-height margin >= 1.33 mm. Bar deflection 0.0722 mm (-1.34 N). End-screw loads (192.1, 115.5) N. Bar back face y 21.106 vs film-row courtyard 23.405 (2.299 mm).
 
 ## Steady state, natural convection (no fan credited)
 

@@ -248,7 +248,7 @@ def main():
         out["clamp"][pad] = clamp(pad)
     cl = out["clamp"][P.PAD_CHOICE]
     md += [f"## Clamp ({P.SPRING['pn']}, {P.SPACER_L} mm spacers, {P.POCKET_DEPTH} mm pockets, strip {P.PAD_CHOICE})", "",
-           f"Force per TO-247 over A 4.70-5.30 mm x FR-4 1.44-1.76 mm: **{cl['F_min']}-{cl['F_max']} N** (nominal {cl['F_nom']} N); "
+           f"Force per TO-247 at the zero-shim device (shimmed devices and the lean allowance: tolerance.md) over A 4.70-5.30 mm x FR-4 1.44-1.76 mm: **{cl['F_min']}-{cl['F_max']} N** (nominal {cl['F_nom']} N); "
            f"acceptance 45-102 N: {cl['within_acceptance']}; >= 60 N: {cl['meets_60N']}; spring solid-height margin >= "
            f"{cl['solid_margin_min']} mm. Bar deflection {cl['bar_deflection_max_mm']} mm (-{cl['force_loss_from_deflection_N']} N). "
            f"End-screw loads {cl['screw_loads_N']} N. Bar back face y {cl['bar_back_y']} vs film-row courtyard {cl['film_row_courtyard_y']} "
