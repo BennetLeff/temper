@@ -265,10 +265,12 @@ def render() -> tuple[str, list[str]]:
     bom, nets = load_board()
     ohm = {d: mpn_ohms(p) for d, p in bom.items()}
     findings: list[str] = []
-    rows: list[tuple[str, str, str, str]] = []
 
     # --- threshold engine (CT band, nominal OCP / OVP), with the board's parts
     thr = load_module("thr_cbt", THRESHOLDS)
+    for f in ("default.csv", "default.net"):   # the engine's validate_inputs reads the unit-level frozen copy
+        if _sha(PS / "frozen" / f) != _sha(FROZEN / f):
+            raise GateError(f"zapote/power-stage-120v/frozen/{f} differs from native-21/frozen/{f}")
     over = {r: bom[r] for r in ("R5", "R32", "R33", "R34", "R35", "R39", "R43", "R46")}
     thr.validate_inputs(overrides=over)
     rt = (0.001, 25e-6)
@@ -532,7 +534,7 @@ _UNIT = {"mΩ": 1e-3, "Ω": 1.0, "kΩ": 1e3, "k": 1e3, "MΩ": 1e6, "M": 1e6}
 
 def split_doc(text: str) -> tuple[str, str, str]:
     if text.count(BEGIN) != 1 or text.count(END) != 1:
-        raise GateError(f"{rel(DOC)} must hold the board-table markers exactly once")
+        raise GateError("COMMISSIONING.md must hold the board-table markers exactly once")
     head, rest = text.split(BEGIN, 1)
     block, tail = rest.split(END, 1)
     return head, BEGIN + block + END + "\n", tail.lstrip("\n")
@@ -547,7 +549,15 @@ def check_text(text: str, rendered: str, stage: str, bom: dict, kc: dict, fw_tex
     intro = head.split("\n## ", 1)[0]
     if not re.search(rf"\bstage {stage}\b", intro):
         errs.append(f"the introduction does not name the board of record (stage {stage})")
-    for n, line in enumerate(prose.splitlines(), 1):
+    lines, inside = [], False                       # (file line number, text) outside the block
+    for n, line in enumerate(text.splitlines(), 1):
+        if line == BEGIN:
+            inside = True
+        if not inside:
+            lines.append((n, line))
+        if line == END:
+            inside = False
+    for n, line in lines:
         for m in STAGE_CLAIM.finditer(line):
             st = m.group(1) or m.group(2)
             if st != stage:
@@ -589,18 +599,20 @@ def main(argv: list[str] | None = None) -> int:
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--write", action="store_true")
     g.add_argument("--check", action="store_true")
+    ap.add_argument("--doc", type=Path, default=None, help="check / write this file instead of COMMISSIONING.md")
     a = ap.parse_args(argv)
+    doc = a.doc or DOC
     try:
         rendered, findings = render()
         if a.write:
-            head, _, tail = split_doc(read(DOC))
-            DOC.write_text(head + rendered + "\n" + tail)
-            print(f"wrote {rel(DOC)}")
+            head, _, tail = split_doc(doc.read_text())
+            doc.write_text(head + rendered + "\n" + tail)
+            print(f"wrote {doc}")
         elif a.check:
             stage = board_of_record()["stage"]
             bom, _ = load_board()
             fw = "\n".join(p.read_text(errors="replace") for p in FW_SOURCES if p.exists())
-            errs = check_text(read(DOC), rendered, stage, bom, kconfig(), fw)
+            errs = check_text(doc.read_text(), rendered, stage, bom, kconfig(), fw)
             for e in errs:
                 print(f"FAIL: {e}")
             if errs:
