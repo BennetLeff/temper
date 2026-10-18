@@ -1,2 +1,2 @@
 Comment,Designator,Footprint,LCSC Part #,Manufacturer Part Number,Mount,Assembly
-"Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)",F1-CLIP,,C223911,01250003H,THT,"hand-solder, 2 per board (not a source component)"
+"Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)",F1-CLIP,,C223911,01250003H,THT,"owner hand-solders, 2 per board, bottom preheat >= 100 C (not a source component, so no JLC line; splitting the clips into BOM components is deferred: consign-r1 candidate (c), owner 2026-10-18)"

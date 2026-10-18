@@ -280,9 +280,27 @@ if (SRC / "STOCK-2026-10-16-bank-s52.csv").exists() and BOM52.exists():
     m52 = {l["mpn"] for l in g52["bom_short_lines_proto"]}
     check("s52 with the default --stock list: no line short at 20 boards (bank DigiKey 306 dated read, L1 Mouser 62 / "
           "DigiKey 29, C3/C4 JLC 104)", m52 == set() and g52["bom_lines_short_proto"] == 0, sorted(m52))
-    check("s52: the bank's dated read is the one in STOCK-2026-10-16-bank-s52.csv",
-          str(g52["bom_stock_read_overrides"].get("B32643H8104J000", "")).startswith("STOCK-2026-10-16-bank-s52.csv"),
-          g52["bom_stock_read_overrides"])
+    # the stage-52 claim is about the reads that existed then: later dated reads (consign-r1, 2026-10-18) override the
+    # same MPN by design, so this check runs on the stock list cut at 2026-10-16
+    DEF16 = ",".join(x for x in DEF.split(",") if Path(x).name < "STOCK-2026-10-17")
+    g52_16 = sc.stock_gate(BOM52, SNAPD, DEF16)
+    check("s52 (reads up to 2026-10-16): the bank's dated read is the one in STOCK-2026-10-16-bank-s52.csv",
+          str(g52_16["bom_stock_read_overrides"].get("B32643H8104J000", "")).startswith("STOCK-2026-10-16-bank-s52.csv")
+          and g52_16["bom_lines_short_proto"] == 0, g52_16["bom_stock_read_overrides"])
+
+# ---- consign-r1 (2026-10-18): the order BOM with the Global Sourcing / consignment plan and the J3 / J11 order variant
+CR1 = SRC / "STOCK-2026-10-18-consign-r1.csv"
+FABBOM = sc.FAB / "bom-jlcpcb.csv"
+if CR1.exists():
+    gcr = sc.stock_gate(FABBOM, SNAPD, DEF)
+    ov = gcr["bom_stock_read_overrides"]
+    check("consign-r1: the current order BOM has no line short at 20 boards on the default --stock list",
+          gcr["bom_lines_short_proto"] == 0, [l["mpn"] for l in gcr["bom_short_lines_proto"]])
+    check("consign-r1: the bank, the RECOM modules and the J3 / J11 order variant take the 2026-10-18 read",
+          all(str(ov.get(m, "")).startswith(CR1.name) for m in ("B32643H8104J000", "R24C2T25/R-R", "B2P3-VH-H(LF)(SN)")), ov)
+    sr = {r["mpn"]: r for r in csv.DictReader(open(CR1))}
+    check("consign-r1: D3 / D17's read counts only the Good-Ark offer (not the Littelfuse listing)",
+          sr["30KPA150CA"]["best_auth_moq_le_need"].startswith("DigiKey"), sr["30KPA150CA"])
 
 print("PASS" if not fails else f"{fails} FAILED")
 sys.exit(1 if fails else 0)

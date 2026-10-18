@@ -5135,7 +5135,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; the current sheet points UL/CSA terms to JST's 'List of Registered Overseas Standards' (not obtained); at 1.3-1.42 A of 10 A the own rise is small and not added"
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: the old gap 'J11 bounded by F2 which fails its breaking capacity' is closed: F2 is the UMT-H 3403.0279.23 (1.5 kA UL, VERIFIED) with R130 bounding the J11 fault at 980 A; JST gives no short-time current rating, the let-through is F2's <= 117 A2s."
+   "notes": "2026-10-15 batch B: the old gap 'J11 bounded by F2 which fails its breaking capacity' is closed: F2 is the UMT-H 3403.0279.23 (1.5 kA UL, VERIFIED) with R130 bounding the J11 fault at 980 A; JST gives no short-time current rating, the let-through is F2's <= 117 A2s. 2026-10-18 consign-r1 (owner accepted): the order files buy the grey B2P3-VH-H(LF)(SN), C160900 (colour suffix only, eVH.pdf p.4); see alternates['B2P3-VH-H(LF)(SN)']. This entry stays keyed on the frozen MPN."
   },
   "MPM-20-24": {
    "mpn": "MPM-20-24",
@@ -14215,6 +14215,157 @@
    "finding": null,
    "notes": "Resolved: the exact MPN is X1 440 V / Y1 300 V (UL E37921), not the 250 V of the BN01F sibling.",
    "status_as_alternate": "NOT FITTED. Stage 52 (DECISIONS-DRAFT 74): the A4 long-lead form of the same Y1 disc (Y1 300 V on its own P01F spec; Mouser 773 on 2026-10-16); same pads, S1 unchanged. The gate does not read `alternates`."
+  },
+  "B2P3-VH-H(LF)(SN)": {
+   "mpn": "B2P3-VH-H(LF)(SN)",
+   "designators": [
+    "J3",
+    "J11"
+   ],
+   "class": "SAFETY",
+   "function": "Mains tap headers J3 (PS2 TCO loop) and J11 (blower tap), JST VH; grey housing order variant (LCSC C160900)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://www.jst-mfg.com/product/pdf/eng/eVH.pdf",
+    "revision": "JST VH connector catalogue eVH.pdf (current, same file as 2026-10-13); approvals from the older JST catalogue VH page 190 (RS copy https://docs.rs-online.com/422a/0900766b8082f571.pdf)",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "eVH.pdf p.1: 10 A AC/DC with AWG #16 (standard header), 7 A AC/DC with AWG #18 (shrouded header), 250 V AC/DC, -40..+105 C incl. temperature rise, 1,500 VAC 1 min. Older catalogue p.190 (sha256 dd4cad3c4a2e3e6f): 'Recognized E60389', 'Certified LR20812', TUV R75122, 'Maximum temperature registered in UL is 105 C'; it gives the file numbers but not the file's recognised ratings. UL Product iQ and database.ul.com returned 403 on 2026-10-15.",
+    "sha256_prefix16": "d51e669c597988b2"
+   },
+   "ratings": [
+    {
+     "parameter": "I rated AWG 18",
+     "datasheet_limit": 7,
+     "unit": "A",
+     "basis": "7 A AC/DC 'when using AWG #18 with the shrouded type header'; used for the unshrouded header because J11 is crimped with 18 AWG (parts.ato MainsTapHeader) and JST prints no AWG 18 figure for it",
+     "source": "eVH.pdf p.1 Specifications"
+    },
+    {
+     "parameter": "I rated AWG 16",
+     "datasheet_limit": 10,
+     "unit": "A",
+     "basis": "10 A AC/DC 'when using AWG #16 with the standard type header'",
+     "source": "eVH.pdf p.1"
+    },
+    {
+     "parameter": "V rated",
+     "datasheet_limit": 250,
+     "unit": "V",
+     "basis": "250 V AC/DC",
+     "source": "eVH.pdf p.1"
+    },
+    {
+     "parameter": "Temperature rating (connector incl. temperature rise)",
+     "datasheet_limit": 105.0,
+     "unit": "C",
+     "basis": "Temperature range -40..+105 C including temperature rise in applying electrical current; legacy catalogue: 'Maximum temperature registered in UL is 105 C' (E60389), general range then -25..+85 C [temp-ratings 2026-10-15]",
+     "source": "JST eVH.pdf (2026-01) p.1 Specifications (sha d51e669c597988b2); legacy JST catalogue p.190 (RS copy, sha dd4cad3c4a2e3e6f)"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "I J11 bounded by F2",
+     "worst_case_value": 3.15,
+     "unit": "A",
+     "condition": "F2 UMT-H 3.15 A T upstream (continuous load 1.42 A, PS3 at 108 V)",
+     "evidence": "DECISIONS.md:1017; validation-results/11-candidates/c28-f2/bounds.py:8"
+    },
+    {
+     "parameter": "I J3 bounded by I_aux",
+     "worst_case_value": 1.3,
+     "unit": "A",
+     "condition": "PS2 input through the TCO loop; I_aux 1.3 A was sized for two IRM-20 modules and bounds the one MPM-20-24 (0.75 A typ at 115 VAC, MPM-20-SPEC p.2)",
+     "evidence": "DECISIONS.md:171"
+    },
+    {
+     "parameter": "V line high",
+     "worst_case_value": 139.7,
+     "unit": "V",
+     "condition": "127 V +10 %",
+     "evidence": "DECISIONS.md:306"
+    },
+    {
+     "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
+     "worst_case_value": 68.9,
+     "unit": "C",
+     "condition": "J3: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 68.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s52 5e7c12c1 (S18 B3 model)",
+     "evidence": [
+      "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
+     ]
+    },
+    {
+     "parameter": "Local temperature, c28_h10 @ 55 C",
+     "worst_case_value": 65.1,
+     "unit": "C",
+     "condition": "J3: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 65.1 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s52 5e7c12c1 (S18 B3 model)",
+     "evidence": [
+      "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
+     ]
+    }
+   ],
+   "derating_rule": "Current <= 80 % of the connector rating for the wire gauge used; voltage <= 80 %.",
+   "checks": [
+    {
+     "id": "I J11",
+     "rating": "I rated AWG 18",
+     "stress": "I J11 bounded by F2",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "45 % of 7 A (32 % of 10 A)",
+     "ratio": 0.45
+    },
+    {
+     "id": "I J3",
+     "rating": "I rated AWG 18",
+     "stress": "I J3 bounded by I_aux",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "19 %",
+     "ratio": 0.1857
+    },
+    {
+     "id": "V",
+     "rating": "V rated",
+     "stress": "V line high",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "56 %",
+     "ratio": 0.5588
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "rating": "Temperature rating (connector incl. temperature rise)",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "68.9 C <= 105.0 C (J3)",
+     "ratio": 0.6562
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "rating": "Temperature rating (connector incl. temperature rise)",
+     "stress": "Local temperature, c28_h10 @ 55 C",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "65.1 C <= 105.0 C (J3); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.62
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "J3 copper gap with 2.7 mm pads is 5.22 mm at line voltage",
+     "enforced_by": "native-21/verification/d5_audit.py"
+    }
+   ],
+   "gaps": [
+    "certifier: UL E60389 / CSA LR20812 are named in JST's catalogue, but the recognised current, voltage and wire range of B2P3-VH in those files were not read (UL Product iQ / database.ul.com 403 on 2026-10-15; the current eVH.pdf defers approvals to JST's website list). Confirm the file ratings cover 250 V / 3.15 A with 18 AWG.",
+    "bench: housing temperature at J3 / J11 against the 105 C rating (including self-heating) is not in the B3 model; IR at first power.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; the current sheet points UL/CSA terms to JST's 'List of Registered Overseas Standards' (not obtained); at 1.3-1.42 A of 10 A the own rise is small and not added"
+   ],
+   "finding": null,
+   "notes": "JST eVH.pdf (sha d51e669c, the copy this entry already cites) p.4 model-number allocation, Header (Standard type) B 2P - VH -: 'Color: No indication...Natural (White), ... H...Gray'; the H suffix changes the housing colour only (same body material, pins, footprint, drawing and the p.1 ratings this entry carries). LCSC C160900 detail and datasheet text: validation-results/11-candidates/consign-r1/reads/jlc-raw/detail_C160900.json, reads/datasheets/C160900-B2P3-VH-H_LF__SN_.txt (JLC 5,610 on 2026-10-18). Copied from the B2P3-VH(LF)(SN) entry on 2026-10-18: 2026-10-15 batch B: the old gap 'J11 bounded by F2 which fails its breaking capacity' is closed: F2 is the UMT-H 3403.0279.23 (1.5 kA UL, VERIFIED) with R130 bounding the J11 fault at 980 A; JST gives no short-time current rating, the let-through is F2's <= 117 A2s.",
+   "status_as_alternate": "ORDERED order-file variant (consign-r1, owner 2026-10-18): fab/bom-jlcpcb.csv orders J3/J11 as B2P3-VH-H(LF)(SN), C160900, because the natural B2P3-VH(LF)(SN) had 0 JLC stock on 2026-10-18 (983 on 10-15). The source and frozen netlist keep B2P3-VH(LF)(SN), so the gated entry stays on that MPN; apply_lcsc.py ORDER_VARIANT does the swap. Re-key the main entry only if parts.ato changes the MPN at a later stage. The gate does not read `alternates`."
   }
  }
 }

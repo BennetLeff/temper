@@ -1,11 +1,11 @@
 {
  "meta": {
   "lines_in_cpl": 372,
-  "lines_placed_by_jlc": 355,
-  "lines_excluded_not_placed": 17,
+  "lines_placed_by_jlc": 362,
+  "lines_excluded_not_placed": 10,
   "counts": {
-   "OK": 300,
-   "NEEDS-PREVIEW": 23,
+   "NEEDS-PREVIEW": 31,
+   "OK": 299,
    "CORRECTED": 32
   },
   "controls": {
@@ -89,23 +89,42 @@
  },
  "lines": [
   {
-   "designator": "BR1",
-   "footprint": "Diode_Bridge_GBJ2510",
-   "lcsc": "C526644",
+   "designator": "C1",
+   "footprint": "KEMET_R463N410000N1M_P22.50_ReviewOnly",
+   "lcsc": "C3299886",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
-   "class": "OK",
+   "class": "NEEDS-PREVIEW",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "GBJ_4P-L30.0-W4.8_GBJ8XXX",
-   "easyeda_offset": "0",
-   "easyeda_rot": "0",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-13.12,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "C2",
+   "footprint": "KEMET_R463N410000N1M_P22.50_ReviewOnly",
+   "lcsc": "C3299886",
+   "mount": "THT",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
    "designator": "C3",
@@ -144,6 +163,44 @@
    "fit_rms_mm": 0.0,
    "pin1_evidence": "KiCad pad 1 at (+5.00,+0.00) mm = right of centre at board rotation 180",
    "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 10.00 mm = datasheet lead spacing 10.0 +- 0.8 mm, no polarity; the leads fit only pads 1 / 2, so rot 180 and 0 are the same part (sources/pin-evidence.json: Murata reference specification Type RA (Jun. 2023, EGD08G), LCSC copy sha256 c95...)"
+  },
+  {
+   "designator": "C5",
+   "footprint": "TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+   "lcsc": "C3802167",
+   "mount": "THT",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-18.75,-10.15) mm = up-left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "C6",
+   "footprint": "TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+   "lcsc": "C3802167",
+   "mount": "THT",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-18.75,-10.15) mm = up-left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
    "designator": "C7",
@@ -3376,6 +3433,25 @@
    "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
+   "designator": "J3",
+   "footprint": "JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+   "lcsc": "C160900",
+   "mount": "THT",
+   "kicad_rot": 90,
+   "proposed_jlc_rot": 90,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.00,+3.96) mm = down of centre at board rotation 90",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
    "designator": "J4",
    "footprint": "Molex_Micro-Fit_3.0_43045-1612_2x08_P3.00mm_Vertical",
    "lcsc": "C491447",
@@ -3430,6 +3506,44 @@
    "fit_method": "",
    "fit_rms_mm": "",
    "pin1_evidence": "KiCad pad 1 at (-7.62,-0.00) mm = left of centre at board rotation 90",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "J11",
+   "footprint": "JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+   "lcsc": "C160900",
+   "mount": "THT",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-3.96,+0.00) mm = left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "L1",
+   "footprint": "B82726S2_ReviewOnly",
+   "lcsc": "C7084710",
+   "mount": "THT",
+   "kicad_rot": 0,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-5.00,-12.50) mm = up of centre at board rotation 0",
    "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
@@ -6074,25 +6188,6 @@
    "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
   },
   {
-   "designator": "RV1",
-   "footprint": "TMOV20RP_ReviewOnly",
-   "lcsc": "C1527834",
-   "mount": "THT",
-   "kicad_rot": 270,
-   "proposed_jlc_rot": 270,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "RES-TH_L21.0-W9.0-P8.50-D0.9-S4.25",
-   "easyeda_offset": "",
-   "easyeda_rot": "",
-   "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 2.305,
-   "pin1_evidence": "KiCad pad 1 at (+0.00,-3.75) mm = up of centre at board rotation 270",
-   "reason": "no DB rule and pad layouts do not match well enough (best rms 2.30 mm at 0 deg, next 4.51 mm)"
-  },
-  {
    "designator": "T1",
    "footprint": "CST3015",
    "lcsc": "C50132500",
@@ -6758,6 +6853,44 @@
    "reason": "EasyEDA footprint fit needs offset [180] deg, unique; pin numbering confirmed by the datasheet (sources/pin-evidence.json: TI SCES351Y (Jul 2001, rev. Oct 2025), p.3 section 4 'Pin Configuration and Func...); DB rule '^SOT-23' -90 overridden"
   },
   {
+   "designator": "U41",
+   "footprint": "RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
+   "lcsc": "C9900245652",
+   "mount": "SMD",
+   "kicad_rot": 270,
+   "proposed_jlc_rot": 270,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (+5.53,-4.97) mm = up-right of centre at board rotation 270",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "U42",
+   "footprint": "RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
+   "lcsc": "C9900245652",
+   "mount": "SMD",
+   "kicad_rot": 270,
+   "proposed_jlc_rot": 270,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "",
+   "db_offset": "",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": "",
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (+5.53,-4.97) mm = up-right of centre at board rotation 270",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
+  },
+  {
    "designator": "U43",
    "footprint": "SOIC-8_3.9x4.9mm_P1.27mm",
    "lcsc": "C5216431",
@@ -6836,36 +6969,12 @@
  ],
  "excluded": [
   {
-   "designator": "C1",
-   "footprint": "KEMET_R463N410000N1M_P22.50_ReviewOnly",
+   "designator": "BR1",
+   "footprint": "Diode_Bridge_GBJ2510",
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "C2",
-   "footprint": "KEMET_R463N410000N1M_P22.50_ReviewOnly",
-   "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "C5",
-   "footprint": "TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
-   "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "C6",
-   "footprint": "TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
-   "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "DNP at JLC: the owner hand-solders BR1 before mains (bottom preheat >= 100 C; the only mains-to-bus path, left out on bench-bus boards, ASSEMBLY.md)"
   },
   {
    "designator": "C21",
@@ -6873,7 +6982,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing (Mouser 1,736 / DigiKey 306); no public JLC number: select the private-library stock at the BOM step; JLC hand-solders it into the 22.5 mm holes, the five x 190.5 holes stay open; tick H"
   },
   {
    "designator": "C22",
@@ -6881,7 +6990,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing (Mouser 1,736 / DigiKey 306); no public JLC number: select the private-library stock at the BOM step; JLC hand-solders it into the 22.5 mm holes, the five x 190.5 holes stay open; tick H"
   },
   {
    "designator": "C23",
@@ -6889,7 +6998,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing (Mouser 1,736 / DigiKey 306); no public JLC number: select the private-library stock at the BOM step; JLC hand-solders it into the 22.5 mm holes, the five x 190.5 holes stay open; tick H"
   },
   {
    "designator": "C151",
@@ -6897,7 +7006,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing (Mouser 1,736 / DigiKey 306); no public JLC number: select the private-library stock at the BOM step; JLC hand-solders it into the 22.5 mm holes, the five x 190.5 holes stay open; tick H"
   },
   {
    "designator": "C152",
@@ -6905,7 +7014,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing (Mouser 1,736 / DigiKey 306); no public JLC number: select the private-library stock at the BOM step; JLC hand-solders it into the 22.5 mm holes, the five x 190.5 holes stay open; tick H"
   },
   {
    "designator": "D3",
@@ -6913,7 +7022,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing of the Good-Ark part (DigiKey 164 / 1,750 reel), not JLC's Littelfuse-branded C19111562: select the private-library stock at the BOM step; JLC hand-solders; first article: P600 lead bend"
   },
   {
    "designator": "D17",
@@ -6921,7 +7030,7 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "JLC (Extended), Global Sourcing of the Good-Ark part (DigiKey 164 / 1,750 reel), not JLC's Littelfuse-branded C19111562: select the private-library stock at the BOM step; JLC hand-solders; first article: P600 lead bend"
   },
   {
    "designator": "F1",
@@ -6929,47 +7038,15 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "not soldered: the owner inserts the F1 cartridge into the hand-soldered clips after cleaning"
   },
   {
-   "designator": "J3",
-   "footprint": "JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+   "designator": "RV1",
+   "footprint": "TMOV20RP_ReviewOnly",
    "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 90,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "J11",
-   "footprint": "JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
-   "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "L1",
-   "footprint": "B82726S2_ReviewOnly",
-   "mount": "THT",
-   "lcsc": "",
-   "kicad_rot": 0,
-   "reason": "consign or hand-assemble (JLC C7084710 holds 0 on 2026-10-16; buy Mouser / DigiKey, hand-solder or consign / JLC global sourcing)"
-  },
-  {
-   "designator": "U41",
-   "footprint": "RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
-   "mount": "SMD",
    "lcsc": "",
    "kicad_rot": 270,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "U42",
-   "footprint": "RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
-   "mount": "SMD",
-   "lcsc": "",
-   "kicad_rot": 270,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+   "reason": "DNP at JLC: the owner hand-solders RV1 (form lead 2 in line, FOOTPRINTS F4; decision 2026-10-17)"
   }
  ]
 }

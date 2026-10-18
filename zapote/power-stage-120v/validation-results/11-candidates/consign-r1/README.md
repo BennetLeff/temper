@@ -1,5 +1,9 @@
 # consign-r1: what can leave the consign / hand-solder list, and THT options for the rest
 
+> **Status 2026-10-18: accepted by the owner with changes and applied to the order package** (FETs consigned and soldered by
+> JLC; BR1 Do Not Place, fitted by the owner before mains; RV1 and the F1 clips stay with the owner; candidate (c) deferred).
+> The decisions and what reverses each: `DECISIONS-DRAFT.md`. The tables below are the study as delivered.
+
 Analysis lane, 2026-10-18. Board of record: native-21 **s53** (integration board `82af7bd93e62…`, BOM = s52, `fab/bom-jlcpcb.csv`
 95 lines). Controller: `controller-c1-crs:zapote/controller/ORDER.md`. **Nothing on the board, BOM, netlist or copper was
 changed.** Nothing was carted, ordered, logged into or sent. No supplier or lab was contacted, and no bot check was bypassed.

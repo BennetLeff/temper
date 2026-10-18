@@ -1,14 +1,29 @@
 # Native-21 prototype lot at JLCPCB: order package for owner approval
 
-> **Current for s53 (BOM = s52; 2026-10-16). Prepared, NOT ordered.** Nothing was ordered, carted, logged into or submitted. The order plan is
-> `../../PROTOTYPE-LOT.md`. This package supplies its files:
+> **Current for s53 (BOM = s52; 2026-10-16), with the consign-r1 assembly routes (owner 2026-10-18). Prepared, NOT ordered.**
+> Nothing was ordered, carted, logged into or submitted. The order plan is `../../PROTOTYPE-LOT.md`; the routes are written into
+> `fab/bom-jlcpcb.csv` by `../../scripts/apply_lcsc.py` (ORDER_PLAN). This package supplies its files:
 > - `proto-stock-s52-20boards.csv`: every fitted BOM line against 20 boards, 0 short, on the scorecard's stock-gate rules
->   (`scripts/proto_stock.py`);
-> - `CPL-PREVIEW-CHECKLIST.md`: the 23 NEEDS-PREVIEW parts to confirm in JLC's CPL preview (`scripts/cpl_preview_checklist.py`);
+>   (`scripts/proto_stock.py`; dated read `../../sourcing/STOCK-2026-10-18-consign-r1.csv`);
+> - `CPL-PREVIEW-CHECKLIST.md`: the 31 NEEDS-PREVIEW parts to confirm in JLC's CPL preview, and the two JLC lines with no LCSC
+>   number (the bank, D3 / D17) to place in it (`scripts/cpl_preview_checklist.py`);
 > - board `82af7bd93e62…` (SHA-256 `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`), gerbers
 >   `fab/native-21-gerbers.zip` SHA-256 `a6afd37a4f4e0039de8de7fd86755ff65328f21e43501a23d0904e78ffbd4ddc` (FAB-NOTE.md);
-> - consigned or hand-assembled: the bank (TDK B32643H8104J000, DigiKey 306 against 100) and L1 (B82726S2243A020, Mouser 62 /
->   DigiKey 29 against 20), with F1, C1 / C2, C5 / C6, J3 / J11, D3 / D17 and U41 / U42.
+> - **JLC assembles 92 of the 95 BOM lines**, every fitted THT part included (J1 and C38–C41 too). Routes:
+>   - **JLC Global Sourcing** (in JLC's warehouse before the PCBA order): U41 / U42 RECOM R24C2T25/R-R (C9900245652; **reject
+>     the auto-match C22466894**; MSL 3 bake), the bank TDK B32643H8104J000 (private-library stock, no public number), C5 / C6,
+>     L1, D3 / D17 (**Good-Ark**, not C19111562), F2, J2 / J5, and J6 if JLC lists a supplier;
+>   - **consigned:** Q2 / Q3 / Q5 / Q6 IPW65R018CFD7, 84 from the single 120-piece DigiKey lot; JLC hand-solders all 80
+>     placements from it;
+>   - **JLC pre-order reserve:** C1 / C2, T1, U5;
+>   - **order-file variant:** J3 / J11 as the grey JST B2P3-VH-H(LF)(SN), C160900;
+> - **left to the owner (through-hole, bottom preheat ≥ 100 °C):** BR1 (Do Not Place at JLC; fitted before mains, since it is the
+>   only mains-to-bus path and bring-up runs the bus from a bench DC supply), RV1 (Do Not Place), the two F1 clips
+>   (`../../fab/hand-assembly-extras.csv`) and the F1 cartridge; J6 too if Global Sourcing offers no supplier;
+> - **order remarks:** "Q2/Q3/Q5/Q6 (TO-247): seat the package on the lead shoulders, not flush on the board. Trim every
+>   through-hole lead to 2.5 mm or less below the board bottom after soldering. The bank C21–C23/C151/C152 goes in the 22.5 mm
+>   holes (pad 2 at x 185.5); leave the five x 190.5 holes open and unsoldered. BR1 is Do Not Place: leave BR1, RV1 and the F1
+>   clips unfitted. Tick H on the bank-fit silk mark."
 >
 > The text below is the stage 11/12 survey of 2026-10-08, kept as history: its stock tables, part choices and "NO-GO" verdict
 > are not the s52 state. Ordering is a purchase and needs the owner.
@@ -172,7 +187,8 @@ If either option is greyed out, ask JLC; don't drop the requirement.
 | Tooling holes | Added by JLCPCB. The board has 3 fiducials |
 | Confirm parts placement | **Yes**. Check every rotation (FAB-NOTE, M9) |
 | Files | `fab/bom-jlcpcb.csv` and `fab/cpl-jlcpcb.csv` (**s53: upload `fab/cpl-jlcpcb-order.csv` instead**; the old file previews mirrored off the board) |
-| BOM confirmation step | Apply the 3 swaps in 1a. **Untick every THT line** (hand-soldered in house) and every zero-stock or consigned SMD line (U1/U2, T1, T2/T3, R34, ISO7710 ×4, VOL628A, WSK R5, the 6.12 kΩ parts) |
+| Remarks (s53, consign-r1) | The order remarks in the header block above, pasted verbatim |
+| BOM confirmation step | **s53 (consign-r1, owner 2026-10-18):** keep every THT line ticked (JLC hand-solders them) except **BR1, RV1 and F1: Do Not Place**. For U41 / U42 confirm C9900245652 and reject C22466894. For the bank and D3 / D17 select the Global Sourcing / private-library stock (no LCSC number in the BOM). For Q2 / Q3 / Q5 / Q6 select the consigned stock only. For J6 select Global Sourcing if offered, else Do Not Place. Check each Assembly-column instruction in `fab/bom-jlcpcb.csv`. *2026-10-08 survey (history):* Apply the 3 swaps in 1a. Untick every THT line (hand-soldered in house) and every zero-stock or consigned SMD line (U1/U2, T1, T2/T3, R34, ISO7710 ×4, VOL628A, WSK R5, the 6.12 kΩ parts) |
 
 ## 2a. Cost estimate (ESTIMATE, not a JLC quote)
 
