@@ -8,9 +8,11 @@ reported with exact float32 C inputs and the complete probe window. Full-run
 traces stay in memory and are not emitted. Production D1 is unchanged; the
 shape-guard diagnostics describe a rejected counterfactual candidate only.
 
---check compares every value and source hash exactly, ignoring only explicitly
-listed toolchain strings. It never writes evidence. --lib uses a caller-built
-library, accepted only if its bytes match the fresh build from these sources.
+--check compares every value and the input hashes (apparatus.input_sha256) exactly,
+ignoring only explicitly listed toolchain strings. It never writes evidence. --lib uses
+a caller-built library, accepted only if its bytes match the fresh build from these sources.
+The input hashes cover the closure in leak-barrier/input_manifest.py (F1_INPUTS); the run
+passes only if they are unchanged when the sweep ends (apparatus.source_inputs_unchanged).
 """
 from __future__ import annotations
 
@@ -36,8 +38,10 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
+sys.path.insert(0, str(HERE.parent / "leak-barrier"))
 import cosim  # noqa: E402
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
+import input_manifest as IM  # noqa: E402  (content-hash manifest of the study inputs)
 import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 from ref import es  # noqa: E402
@@ -427,39 +431,6 @@ def run_case(case):
     return result, detail
 
 
-def source_hashes():
-    inputs = {
-        HERE / name for name in ("d1_nuisance.py", "cosim.py", "cosim_shim.c", "ref.py", "leak_checks.py",
-                                "rim_limit.py", "xcheck_cosim.py", "rim_ntc.py", "rail_adc.py", "build_lib.sh")
-    }
-    inputs.update((REPO / "firmware/components/control").glob("*.[ch]"))
-    inputs.update((REPO / "firmware/components/sensors").glob("*.c"))
-    inputs.update((REPO / "firmware/components/sensors/include").glob("*.h"))
-    inputs.update((REPO / "firmware/components/sensors").glob("*.h"))
-    inputs.update({
-        HERE.parent / "screen.py", HERE.parent / "contact_model.py", HERE.parent / "robustness/shift_kf.py",
-        HERE.parent / "cad/thermal-axisym.json", HERE.parent.parent / "temper-sensor-r2/estimator_study.py",
-        REPO / "firmware/config.h",
-    })
-    return {str(path.relative_to(REPO)): hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in sorted(inputs)}
-
-
-def changed_from_base(hashes):
-    """Compare actual bytes with the task base, independently of HEAD or dirty state."""
-    base_names = set(subprocess.check_output(
-        ["git", "ls-tree", "-r", "--name-only", BASE_REVISION], cwd=REPO, text=True).splitlines())
-    changed = []
-    for name, digest in sorted(hashes.items()):
-        if name not in base_names:
-            changed.append(name)
-            continue
-        original = subprocess.check_output(["git", "show", f"{BASE_REVISION}:{name}"], cwd=REPO)
-        if hashlib.sha256(original).hexdigest() != digest:
-            changed.append(name)
-    return changed
-
-
 def build_library(directory, supplied=None):
     """A supplied library cannot silently disagree with the recorded source hashes."""
     subprocess.run([str(HERE / "build_lib.sh"), str(directory)], check=True)
@@ -511,9 +482,9 @@ def controller_params(lib_path):
 
 
 def run(jobs, lib_path):
-    hashes = source_hashes()
-    result = {"schema": 1, "toolchain": toolchain(), "base_revision": BASE_REVISION, "source_sha256": hashes,
-                  "source_changed_from_base": changed_from_base(hashes),
+    manifest = IM.sha256_manifest(REPO, IM.F1_INPUTS)
+    result = {"schema": 1, "toolchain": toolchain(), "base_revision": BASE_REVISION,
+                  "apparatus": {"input_sha256": manifest},
                   "d1_params": controller_params(lib_path), "caps": {}, "notes": [
         "Every case is the unchanged rim_limit.stress_benign factory, capped with setpoint_cap semantics.",
         "The LC latches remain passive as in leak_checks.run_case; its supervisor still overrides power.",
@@ -549,7 +520,10 @@ def run(jobs, lib_path):
                           f"rms={d['C']['decay_rms_K']:.6f} change={d['C']['decay_change_K']:.6f} "
                           f"off={episode['zero_power_after_lost_s']:.1f}s "
                           f"censored={episode['right_censored']}", flush=True)
-    result["gate"] = all(value["gate"] for value in result["caps"].values())
+    # Input drift during the sweep fails the gate (the same rule as T2 and T3).
+    result["apparatus"]["source_inputs_unchanged"] = IM.unchanged(manifest, REPO)
+    result["gate"] = (all(value["gate"] for value in result["caps"].values())
+                      and result["apparatus"]["source_inputs_unchanged"])
     return result
 
 

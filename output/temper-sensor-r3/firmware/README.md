@@ -221,10 +221,15 @@ python3 d1_nuisance.py --check         # rerun and compare without rewriting it
 `--out PATH` selects another evidence file; `--jobs N` changes concurrency.
 Every invocation rebuilds the C library. `run.sh` step 4b invokes `--check`
 without `--lib`, keeping the fresh build portable across host toolchains.
-The comparison is exact for every count, float, and source-content hash; it
+The comparison is exact for every count, float, and input hash; it
 ignores only the six strings `python`, `numpy`, `scipy`, `matplotlib`, `machine`,
-and `compiler` inside the `toolchain` object. Source provenance includes the
-fixed task base and content changes from that base, independent of HEAD.
+and `compiler` inside the `toolchain` object. Input provenance is
+`apparatus.input_sha256`, the content-hash manifest `F1_INPUTS` in
+`leak-barrier/input_manifest.py`: the C files that `build_lib.sh` compiles with
+their headers, the Python modules the script imports, and the geometry JSON
+`rim_limit` reads at import. Unrelated firmware edits (for example
+`pll_control.c`) do not change it. The run also fails if a listed input changes
+during the sweep (`apparatus.source_inputs_unchanged`).
 
 A transparent proxy reruns cases containing LOST and records every LOST event,
 trigger source, complete 181-sample decision window, original C `d`, `d_exp`,
