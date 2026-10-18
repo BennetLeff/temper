@@ -9,7 +9,7 @@
 <line x1="689.3" y1="1102.0" x2="689.3" y2="797.2" stroke="#108040" stroke-width="1"/>
 <line x1="689.3" y1="797.2" x2="160.0" y2="797.2" stroke="#108040" stroke-width="1"/>
 <line x1="160.0" y1="797.2" x2="160.0" y2="1102.0" stroke="#108040" stroke-width="1"/>
-<text x="168.0" y="813.2" font-family="sans-serif" font-size="7.2" fill="#108040">Wakefield-Vette 511-3M (PE), face y 1.581</text>
+<text x="168.0" y="813.2" font-family="sans-serif" font-size="7.2" fill="#108040">Wakefield-Vette 511-3M (PE), face y 1.581 nominal; floats 0.68..2.48 onto the soldered row</text>
 <line x1="196.0" y1="1112.0" x2="654.0" y2="1112.0" stroke="#c06000" stroke-width="1"/>
 <line x1="654.0" y1="1112.0" x2="654.0" y2="992.0" stroke="#c06000" stroke-width="1"/>
 <line x1="654.0" y1="992.0" x2="196.0" y2="992.0" stroke="#c06000" stroke-width="1"/>
@@ -32,6 +32,10 @@
 <line x1="275.8" y1="1028.0" x2="219.8" y2="1028.0" stroke="#c06000" stroke-width="1"/>
 <line x1="219.8" y1="1028.0" x2="219.8" y2="1092.0" stroke="#c06000" stroke-width="1"/>
 <text x="235.8" y="1014.9" font-family="sans-serif" font-size="6.4" fill="#444">Q5 bus_p</text>
+<line x1="215.8" y1="1098.0" x2="279.8" y2="1098.0" stroke="#108040" stroke-width="1"/>
+<line x1="279.8" y1="1098.0" x2="279.8" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="279.8" y1="1010.0" x2="215.8" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="215.8" y1="1010.0" x2="215.8" y2="1098.0" stroke="#108040" stroke-width="1"/>
 <line x1="288.0" y1="1103.3" x2="351.6" y2="1103.3" stroke="#222" stroke-width="1"/>
 <line x1="351.6" y1="1103.3" x2="351.6" y2="1018.9" stroke="#222" stroke-width="1"/>
 <line x1="351.6" y1="1018.9" x2="288.0" y2="1018.9" stroke="#222" stroke-width="1"/>
@@ -49,6 +53,10 @@
 <line x1="347.8" y1="1028.0" x2="291.8" y2="1028.0" stroke="#c06000" stroke-width="1"/>
 <line x1="291.8" y1="1028.0" x2="291.8" y2="1092.0" stroke="#c06000" stroke-width="1"/>
 <text x="307.8" y="1014.9" font-family="sans-serif" font-size="6.4" fill="#444">Q6 sw_b</text>
+<line x1="287.8" y1="1098.0" x2="351.8" y2="1098.0" stroke="#108040" stroke-width="1"/>
+<line x1="351.8" y1="1098.0" x2="351.8" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="351.8" y1="1010.0" x2="287.8" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="287.8" y1="1010.0" x2="287.8" y2="1098.0" stroke="#108040" stroke-width="1"/>
 <line x1="376.4" y1="1103.3" x2="440.0" y2="1103.3" stroke="#222" stroke-width="1"/>
 <line x1="440.0" y1="1103.3" x2="440.0" y2="1018.9" stroke="#222" stroke-width="1"/>
 <line x1="440.0" y1="1018.9" x2="376.4" y2="1018.9" stroke="#222" stroke-width="1"/>
@@ -66,6 +74,10 @@
 <line x1="436.2" y1="1028.0" x2="380.2" y2="1028.0" stroke="#c06000" stroke-width="1"/>
 <line x1="380.2" y1="1028.0" x2="380.2" y2="1092.0" stroke="#c06000" stroke-width="1"/>
 <text x="396.2" y="1014.9" font-family="sans-serif" font-size="6.4" fill="#444">Q3 sw_a</text>
+<line x1="376.2" y1="1098.0" x2="440.2" y2="1098.0" stroke="#108040" stroke-width="1"/>
+<line x1="440.2" y1="1098.0" x2="440.2" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="440.2" y1="1010.0" x2="376.2" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="376.2" y1="1010.0" x2="376.2" y2="1098.0" stroke="#108040" stroke-width="1"/>
 <line x1="448.4" y1="1103.3" x2="512.0" y2="1103.3" stroke="#222" stroke-width="1"/>
 <line x1="512.0" y1="1103.3" x2="512.0" y2="1018.9" stroke="#222" stroke-width="1"/>
 <line x1="512.0" y1="1018.9" x2="448.4" y2="1018.9" stroke="#222" stroke-width="1"/>
@@ -83,20 +95,25 @@
 <line x1="508.2" y1="1028.0" x2="452.2" y2="1028.0" stroke="#c06000" stroke-width="1"/>
 <line x1="452.2" y1="1028.0" x2="452.2" y2="1092.0" stroke="#c06000" stroke-width="1"/>
 <text x="468.2" y="1014.9" font-family="sans-serif" font-size="6.4" fill="#444">Q2 bus_p</text>
-<line x1="526.4" y1="1111.2" x2="644.8" y2="1111.2" stroke="#222" stroke-width="1"/>
-<line x1="644.8" y1="1111.2" x2="644.8" y2="1031.2" stroke="#222" stroke-width="1"/>
-<line x1="644.8" y1="1031.2" x2="526.4" y2="1031.2" stroke="#222" stroke-width="1"/>
-<line x1="526.4" y1="1031.2" x2="526.4" y2="1111.2" stroke="#222" stroke-width="1"/>
+<line x1="448.2" y1="1098.0" x2="512.2" y2="1098.0" stroke="#108040" stroke-width="1"/>
+<line x1="512.2" y1="1098.0" x2="512.2" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="512.2" y1="1010.0" x2="448.2" y2="1010.0" stroke="#108040" stroke-width="1"/>
+<line x1="448.2" y1="1010.0" x2="448.2" y2="1098.0" stroke="#108040" stroke-width="1"/>
+<line x1="526.4" y1="1110.4" x2="644.8" y2="1110.4" stroke="#222" stroke-width="1"/>
+<line x1="644.8" y1="1110.4" x2="644.8" y2="1030.4" stroke="#222" stroke-width="1"/>
+<line x1="644.8" y1="1030.4" x2="526.4" y2="1030.4" stroke="#222" stroke-width="1"/>
+<line x1="526.4" y1="1030.4" x2="526.4" y2="1110.4" stroke="#222" stroke-width="1"/>
 <line x1="528.8" y1="1100.0" x2="640.8" y2="1100.0" stroke="#108040" stroke-width="1"/>
 <line x1="640.8" y1="1100.0" x2="640.8" y2="1032.0" stroke="#108040" stroke-width="1"/>
 <line x1="640.8" y1="1032.0" x2="528.8" y2="1032.0" stroke="#108040" stroke-width="1"/>
 <line x1="528.8" y1="1032.0" x2="528.8" y2="1100.0" stroke="#108040" stroke-width="1"/>
-<circle cx="584.8" cy="1071.2" r="6.8" fill="none" stroke="#108040" stroke-width="1"/>
-<text x="530.4" y="1027.2" font-family="sans-serif" font-size="6.4" fill="#444">BR1 (case = basic), 0.508 shim behind strip</text>
-<line x1="534.8" y1="1111.2" x2="534.8" y2="1126.4" stroke="#222" stroke-width="1"/>
-<line x1="574.8" y1="1111.2" x2="574.8" y2="1126.4" stroke="#222" stroke-width="1"/>
-<line x1="604.8" y1="1111.2" x2="604.8" y2="1126.4" stroke="#222" stroke-width="1"/>
-<line x1="634.8" y1="1111.2" x2="634.8" y2="1126.4" stroke="#222" stroke-width="1"/>
+<circle cx="584.8" cy="1066.4" r="6.8" fill="none" stroke="#108040" stroke-width="1"/>
+<text x="530.4" y="1026.4" font-family="sans-serif" font-size="6.4" fill="#444">BR1 (owner-fitted; case = basic), selected shim behind strip</text>
+<text x="316.0" y="1150.0" font-family="sans-serif" font-size="5.6" fill="#108040">green under each FET: selected shim (0-2.0 mm) under the strip</text>
+<line x1="534.8" y1="1110.4" x2="534.8" y2="1126.4" stroke="#222" stroke-width="1"/>
+<line x1="574.8" y1="1110.4" x2="574.8" y2="1126.4" stroke="#222" stroke-width="1"/>
+<line x1="604.8" y1="1110.4" x2="604.8" y2="1126.4" stroke="#222" stroke-width="1"/>
+<line x1="634.8" y1="1110.4" x2="634.8" y2="1126.4" stroke="#222" stroke-width="1"/>
 <line x1="164.0" y1="1096.0" x2="686.0" y2="1096.0" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
 <line x1="686.0" y1="1096.0" x2="686.0" y2="994.4" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
 <line x1="686.0" y1="994.4" x2="164.0" y2="994.4" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
@@ -106,6 +123,10 @@
 <circle cx="180.0" cy="1045.2" r="12.0" fill="none" stroke="#108040" stroke-width="1"/>
 <circle cx="670.0" cy="1045.2" r="8.0" fill="none" stroke="#108040" stroke-width="1"/>
 <circle cx="670.0" cy="1045.2" r="12.0" fill="none" stroke="#108040" stroke-width="1"/>
+<line x1="571.8" y1="1082.4" x2="597.8" y2="1082.4" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
+<line x1="597.8" y1="1082.4" x2="597.8" y2="1050.4" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
+<line x1="597.8" y1="1050.4" x2="571.8" y2="1050.4" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
+<line x1="571.8" y1="1050.4" x2="571.8" y2="1082.4" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
 <circle cx="519.2" cy="960.0" r="6.0" fill="none" stroke="#108040" stroke-width="1"/>
 <text x="495.2" y="948.0" font-family="sans-serif" font-size="6.4" fill="#444">NTC M3</text>
 <line x1="562.8" y1="968.0" x2="606.8" y2="968.0" stroke="#c06000" stroke-width="1"/>
@@ -263,6 +284,11 @@
 <line x1="656.0" y1="1752.0" x2="656.0" y2="1848.0" stroke="#0060c0" stroke-width="1"/>
 <line x1="656.0" y1="1848.0" x2="200.0" y2="1848.0" stroke="#0060c0" stroke-width="1"/>
 <line x1="200.0" y1="1848.0" x2="200.0" y2="1752.0" stroke="#0060c0" stroke-width="1"/>
+<line x1="508.0" y1="1848.0" x2="668.0" y2="1848.0" stroke="#0060c0" stroke-width="1"/>
+<line x1="668.0" y1="1848.0" x2="668.0" y2="1940.0" stroke="#0060c0" stroke-width="1"/>
+<line x1="668.0" y1="1940.0" x2="508.0" y2="1940.0" stroke="#0060c0" stroke-width="1"/>
+<line x1="508.0" y1="1940.0" x2="508.0" y2="1848.0" stroke="#0060c0" stroke-width="1"/>
+<text x="512.0" y="1932.0" font-family="sans-serif" font-size="5.6" fill="#0060c0">extension: bottom preheater for BR1</text>
 <text x="204.0" y="1860.0" font-family="sans-serif" font-size="6.4" fill="#0060c0">baseplate window (solder / rework access)</text>
 <line x1="184.7" y1="1367.5" x2="664.7" y2="1367.5" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
 <line x1="664.7" y1="1367.5" x2="664.7" y2="1467.5" stroke="#888" stroke-width="1" stroke-dasharray="6,4"/>
@@ -288,8 +314,8 @@
 <text x="640.8" y="468.0" font-family="sans-serif" font-size="5.6" fill="#444">TCO loop-clamp tab, M3</text>
 <circle cx="696.0" cy="370.0" r="8.0" fill="none" stroke="#108040" stroke-width="1"/>
 <text x="706.0" y="368.0" font-family="sans-serif" font-size="5.6" fill="#444">PE bond, M4</text>
-<circle cx="632.8" cy="609.2" r="6.0" fill="none" stroke="#108040" stroke-width="1"/>
-<text x="640.8" y="607.2" font-family="sans-serif" font-size="5.6" fill="#444">BR1 screw, M3 (MATCH)</text>
+<circle cx="632.8" cy="604.4" r="6.0" fill="none" stroke="#108040" stroke-width="1"/>
+<text x="640.8" y="602.4" font-family="sans-serif" font-size="5.6" fill="#444">BR1 screw, M3</text>
 <line x1="244.0" y1="650.0" x2="702.0" y2="650.0" stroke="#c06000" stroke-width="1"/>
 <line x1="702.0" y1="650.0" x2="702.0" y2="530.0" stroke="#c06000" stroke-width="1"/>
 <line x1="702.0" y1="530.0" x2="244.0" y2="530.0" stroke="#c06000" stroke-width="1"/>
@@ -311,12 +337,14 @@
 <text x="852.0" y="577.0" font-family="sans-serif" font-size="5.6" fill="#444">end hole 1</text>
 <circle cx="1354.0" cy="589.2" r="9.0" fill="none" stroke="#108040" stroke-width="1"/>
 <text x="1342.0" y="577.0" font-family="sans-serif" font-size="5.6" fill="#444">end hole 2</text>
+<circle cx="1268.8" cy="610.4" r="13.0" fill="none" stroke="#108040" stroke-width="1"/>
+<text x="1256.8" y="594.2" font-family="sans-serif" font-size="5.6" fill="#444">BR1 driver slot</text>
 <text x="208.0" y="40.0" font-family="sans-serif" font-size="10.0" fill="#444">F  CUT PARTS</text>
 <line x1="208.0" y1="200.0" x2="666.0" y2="200.0" stroke="#c06000" stroke-width="1"/>
 <line x1="666.0" y1="200.0" x2="666.0" y2="80.0" stroke="#c06000" stroke-width="1"/>
 <line x1="666.0" y1="80.0" x2="208.0" y2="80.0" stroke="#c06000" stroke-width="1"/>
 <line x1="208.0" y1="80.0" x2="208.0" y2="200.0" stroke="#c06000" stroke-width="1"/>
-<circle cx="596.8" cy="159.2" r="8.0" fill="none" stroke="#c06000" stroke-width="1"/>
+<circle cx="596.8" cy="154.4" r="8.0" fill="none" stroke="#c06000" stroke-width="1"/>
 <text x="216.0" y="96.0" font-family="sans-serif" font-size="6.0" fill="#444">strip 114.5 x 30.0, SIL PAD 2000 0.254 mm; scribe a line 2.5 mm above the bottom edge (sink edge); BR1 hole punched on assembly</text>
 <line x1="706.0" y1="200.0" x2="818.0" y2="200.0" stroke="#108040" stroke-width="1"/>
 <line x1="818.0" y1="200.0" x2="818.0" y2="132.0" stroke="#108040" stroke-width="1"/>
@@ -327,5 +355,10 @@
 <line x1="902.0" y1="200.0" x2="902.0" y2="136.0" stroke="#c06000" stroke-width="1"/>
 <line x1="902.0" y1="136.0" x2="846.0" y2="136.0" stroke="#c06000" stroke-width="1"/>
 <line x1="846.0" y1="136.0" x2="846.0" y2="200.0" stroke="#c06000" stroke-width="1"/>
-<text x="846.0" y="128.0" font-family="sans-serif" font-size="6.0" fill="#444">FR-4 pad x4 14.0 x 16.0 x 1.6</text>
+<text x="846.0" y="128.0" font-family="sans-serif" font-size="6.0" fill="#444">FR-4 pad 14.0 x 16.0 x 1.6 or 0.8</text>
+<line x1="926.0" y1="200.0" x2="990.0" y2="200.0" stroke="#108040" stroke-width="1"/>
+<line x1="990.0" y1="200.0" x2="990.0" y2="112.0" stroke="#108040" stroke-width="1"/>
+<line x1="990.0" y1="112.0" x2="926.0" y2="112.0" stroke="#108040" stroke-width="1"/>
+<line x1="926.0" y1="112.0" x2="926.0" y2="200.0" stroke="#108040" stroke-width="1"/>
+<text x="926.0" y="104.0" font-family="sans-serif" font-size="6.0" fill="#444">FET shim 16.0 x 22.0 x selected</text>
 </svg>

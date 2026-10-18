@@ -38,8 +38,11 @@ Y_EDGE_COPPER = 0.6                 # HOT pours on all four layers come to 0.6 m
 X_BOARD_MIN = 0.0
 
 # TO-247 outline, [IPW] p.12 (min, max)
-TO247 = dict(A=(4.70, 5.30), A1=(2.20, 2.60), A2=(1.50, 2.50), b=(1.00, 1.40), c=(0.38, 0.89), D=(20.70, 21.50),
-             D1=(13.08, 17.65), D2=(0.51, 1.35), E=(15.50, 16.30), E1=(12.38, 14.15), L1=(3.85, 4.50))
+TO247 = dict(A=(4.70, 5.30), A1=(2.20, 2.60), A2=(1.50, 2.50), b=(1.00, 1.40), b1=(1.60, 2.41), b2=(2.57, 3.43),
+             c=(0.38, 0.89), D=(20.70, 21.50), D1=(13.08, 17.65), D2=(0.51, 1.35), E=(15.50, 16.30), E1=(12.38, 14.15),
+             L=(19.80, 20.40), L1=(3.85, 4.50))
+# b = lead width in the hole, b1 / b2 = outer / centre lead width above the shoulder (both wider than the 1.42-1.63 mm
+# finished hole even on the diagonal with c), so the body seats on its shoulders at L1 when pushed fully down.
 TAB_AREA = (151.2, 240.1)           # exposed drain metal, [T03]
 RTH_JC_FET = 0.28                   # max, [IPW] p.3
 TJ_MAX_FET = 150.0                  # [IPW] p.3
@@ -47,7 +50,11 @@ TJ_TARGET_FET = 125.0               # power-stage design target (docs/evidence/2
 LEAD_X_PLAY = None                  # not used: x is set by the 5.44 pitch in 1.5 mm holes
 
 # GBJ2510, [GBJ]
-GBJ = dict(A=(29.70, 30.30), B=(19.70, 20.30), L=(4.40, 4.80), lead_t=(0.60, 0.80))
+GBJ = dict(A=(29.70, 30.30), B=(19.70, 20.30), L=(4.40, 4.80), lead_t=(0.60, 0.80), lead_w=(0.90, 1.10),
+           hole=(3.10, 3.40), S=(10.80, 11.20), H=(2.00, 2.40))
+# [GBJ] p.4 read from the drawing: R lead thickness, I lead width, N mounting-hole diameter, S hole centre above the body
+# bottom, H a 2.0-2.4 mm wide lead feature (wider than the 1.6 mm hole, so BR1 seats on it) whose position along the
+# lead is NOT dimensioned: BR1's seated height is measured on a loose part (README section 5).
 BR1_AREA = 29.70 * 19.70            # rear face, min outline (as stack_calc.py)
 RTH_JC_BR1_ELEM = 1.0               # typ per element, [GBJ] p.2
 TJ_MAX_BR1 = 150.0                  # [GBJ] (as stack_calc.py)
@@ -144,7 +151,7 @@ NTC_XZ = (77.8, 40.0)               # M3 tapped, front face, between Q2 and BR1 
 TCO_XZ = (94.2, 40.0)               # TCO body centre (horizontal along x), above BR1, the largest heat source
 TCO_CLAMP_SCREW_XZ = (94.2, 47.0)   # M3 tapped for the cushioned loop clamp's tab
 BOND_XZ = (110.0, 72.0)             # M4 tapped, PE bond ring lug (14 AWG G/Y)
-BR1_SCREW = "M3, match-drilled through BR1's hole (GBJ M 3.4-3.8 mm)"
+BR1_SCREW = "M3 x 10 SHCS + flat washer into the sink's tapped hole, through BR1's 3.1-3.4 mm hole (GBJ N)"
 BRACKET = dict(angle=(38.1, 38.1, 3.175), height=70.0)   # 1-1/2 x 1-1/2 x 1/8 in aluminium angle, one per sink end
 STANDOFF_H = 15.0                   # nylon M3 male-female at H1, H3-H8; board top = 15 + 1.6 above the baseplate
 BOARD_T = 1.6
@@ -155,3 +162,41 @@ MOUNT_HOLES = {"H1": (285.0, 135.0, "metal allowed (nylon used)"), "H3": (6.0, 1
                "H8": (194.0, 130.0, "nylon"), "H2": (223.0, 135.0, "EMPTY"), "H9": (142.0, 4.0, "EMPTY"),
                "H10": (152.0, 122.0, "EMPTY")}  # native-21/layout/board_only21.json; FAB-NOTE (H2, H9, H10 empty)
 FAN = dict(pn="Cooltron FD1225B12W2-61-2NC1", size=120.0, depth=25.0, gap_to_fins=15.0)
+
+# ---------------------------------------------------------------- owner decisions 2026-10-18: JLC solders the TO-247s
+# JLC fabrication and assembly, read 2026-10-18 ([JLC] jlcpcb.com/capabilities/pcb-capabilities and
+# /capabilities/pcb-assembly-capabilities; [JLCF] jlcpcb.com/help/article/98-PCB-Assembly-FAQs; [JLCB] JLC warpage blog)
+PTH_TOL = (-0.08, 0.13)             # finished plated-hole diameter about the drill, [JLC]
+HOLE_POS_TOL = 0.075                # hole position, [JLC]
+FET_DRILL = 1.5                     # KiCad Package_TO_SOT_THT:TO-247-3_Vertical, all three pads
+BOW_TWIST = 0.0075                  # IPC bow/twist limit for SMT boards, as quoted by [JLCB]; no JLC guarantee was found
+BOARD_XY = (290.0, 190.0)           # FAB-NOTE 'Size' (L-shaped outline; the bounding box is used)
+A1_LOT_TOL = 0.05                   # EST: within-lot spread of A1 (one DigiKey lot, D-8); the datasheet range is the bound
+HOLE_DIA_LOCAL_TOL = 0.02           # EST: hole-diameter spread inside one board (same drill, same plating)
+FET_FLOAT_MAX = 1.0                 # acceptance: body bottom <= L1 max + 1.0 mm above the board (unseated float)
+
+# soldered-lead mechanics (bench_mech.py)
+E_LEAD = 117.0e3                    # N/mm2, EST: copper lead frame (C194 class)
+SIGMA_LEAD_ALLOW = 200.0            # N/mm2, EST: ~0.55 x a 360 MPa C194 H02 yield; the clamp must stay under it
+Z_PIVOT = 0.0                       # EST: a soldered TO-247 rotates about its leads at the board top
+PAD_COMPLIANCE = 0.010              # mm, EST: SIL PAD 2000 thickness change over the clamp's force range (no catalogue data)
+
+# per-device shims (selected at fit, under the strip, greased), and the selectable FR-4 pad
+SHIM_STEP = 0.025                   # 0.001 in: shim stock steps
+SHIM_LAYERS_MAX = 3                 # at most three layers, each face greased (thermal model takes all three)
+K_SHIM_FET = 109.0                  # W/mK, EST: brass shim stock (aluminium 167 is better; brass is the bound)
+SHIM_MAX_DESIGN = 2.0               # mm: thermal model's thickest FET shim; bench_tolerance.py asserts it covers the stack
+SHIM_FET_SIZE = (16.0, 22.0)        # x, z: covers E1 max x D1 max; inside the 18 mm pitch with 2 mm to spare
+SHIM_FET_Z0 = Z_SINK_BOTTOM + 1.0   # shim lower edge 1.0 mm above the sink's lower edge (creepage rows stay sink-limited)
+FR4_THIN_T = (0.71, 0.87)           # 1/32 in sheet, +/-10 % (EST) for devices whose shim would over-compress the spring
+
+# BR1 (DNP at JLC; fitted by the owner before COMMISSIONING step 5)
+BR1_DRILL_FIN = (1.6 + PTH_TOL[0], 1.6 + PTH_TOL[1])
+BR1_SEAT_Z_EST = 2.2                # EST seated height of the body bottom (on the H feature): MEASURE a loose part first
+BR1_LIFT = 0.2                      # drill the sink hole this much high, so BR1 hangs on its screw, never on its leads
+BR1_HOLE_Z = BR1_SEAT_Z_EST + sum(GBJ["S"]) / 2 + BR1_LIFT
+BAR_SLOT = dict(x=BR1_X, w=6.5, z=(BR1_HOLE_Z - 4.0, BR1_HOLE_Z + 4.0))   # driver access to BR1's screw through the bar
+WINDOW_BR1 = dict(x=(75.0, 115.0), y=(22.0, 45.0))   # window extension: bottom preheat beside BR1 while the iron works
+PREHEAT_BOARD_C = (100.0, 110.0)    # board bottom at BR1: >= 100 C (PROTOTYPE-LOT / FAB-NOTE); 110 cap (EST, film caps)
+SINK_MAX_DURING_SOLDER_C = 80.0     # TCO off the sink, or the sink kept <= Tf - 24 = 86 C ([CAN]); 80 keeps the bench rule
+TCO_QTY = dict(fitted=1, spare=4)   # one-shot part: a trip or a solder overheat consumes one

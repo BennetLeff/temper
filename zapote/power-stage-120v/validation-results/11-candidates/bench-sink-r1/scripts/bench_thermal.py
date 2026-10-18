@@ -18,7 +18,13 @@ A fan is NOT credited anywhere: the bench measures R_SA with its fan (README sec
 Spreading in the 5.6 mm base: Lee, Song, Au & Moran (1995) average-temperature form, source = tab (or BR1) area,
 plate = that device's share of the base (EST model).
 Interface: Bergquist SIL PAD thermal impedance at the clamp pressure (log-linear interpolation of the catalogue rows),
-divided by the tab area (151.2-240.1 mm2). The strip runs behind BR1 too, over a greased 0.508 mm aluminium shim.
+divided by the tab area (151.2-240.1 mm2). The strip runs behind BR1 too, over a greased shim.
+
+JLC-soldered devices (owner decision 2026-10-18; bench_tolerance.py): each FET sits on a selected shim under the strip.
+Every FET is modelled with the thickest design shim (SHIM_MAX_DESIGN, brass, SHIM_LAYERS_MAX greased faces at the
+conservative grease value) and at the worst pressure corner: both tab areas against both the lowest strip force the
+tolerance tool guarantees (45 N, after straightening the worst accepted lean) and the zero-shim highest force.
+This bounds every device; the most-proud device (no shim, no lean) is better.
 """
 from __future__ import annotations
 
@@ -140,14 +146,21 @@ def rsa_nat(rise):
     return P.RSA_NAT * (P.RSA_NAT_RISE / rise) ** 0.25 if 0 < rise < P.RSA_NAT_RISE else P.RSA_NAT
 
 
+def shim_stack(area_mm2, t_mm=None):
+    """Selected shim under the strip: bulk (brass bound) + SHIM_LAYERS_MAX greased faces (conservative grease)."""
+    t_mm = P.SHIM_MAX_DESIGN if t_mm is None else t_mm
+    bulk = t_mm * 1e-3 / (P.K_SHIM_FET * area_mm2 * 1e-6)
+    grease = P.SHIM_LAYERS_MAX * P.GREASE_CM2[1] / (area_mm2 / 100)
+    return bulk + grease, dict(bulk=bulk, grease=grease)
+
+
 def br1_stack(pad):
-    """BR1 case -> sink: strip (at 50 psi: one central M3 screw on a plastic body, EST) + shim + one grease layer."""
+    """BR1 case -> sink: strip (at 50 psi: one central M3 screw on a plastic body, EST) + selected shim stack."""
     a = P.BR1_AREA
     z = P.PADS[pad]["z"][50]
     r_pad = z * IN2 / a
-    r_shim = P.SHIM_T * 1e-3 / (P.K_SHIM * P.SHIM_SIZE[0] * P.SHIM_SIZE[1] * 1e-6)
-    r_grease = P.GREASE_CM2[1] / (P.SHIM_SIZE[0] * P.SHIM_SIZE[1] / 100)
-    return r_pad + r_shim + r_grease, dict(pad=r_pad, shim=r_shim, grease_cons=r_grease)
+    r_sh, parts = shim_stack(P.SHIM_SIZE[0] * P.SHIM_SIZE[1])
+    return r_pad + r_sh, dict(pad=r_pad, shim=parts["bulk"], grease_cons=parts["grease"])
 
 
 # ------------------------------------------------------------------------------------------------ solve
@@ -174,11 +187,21 @@ def p_fet(ref, tj, ceil, f, basis):
     return cond + a + (b - a) * x
 
 
-def solve(pad, ceil, f, basis, t_amb, area_case, rsa_fixed=None):
-    """area_case: 'small' = 151.2 mm2 tab at the highest spring force, 'large' = 240.1 mm2 at the lowest (both corners)."""
+CORNERS = [(a, fc) for a in ("small", "large") for fc in ("low", "high")]
+
+
+def corner(pad, area_case, force_case):
+    """(area, force) of a pressure corner: tab area 151.2 / 240.1 mm2; force 45 N (JLC-fit floor) / zero-shim maximum."""
     cl = clamp(pad)
-    area, force = (P.TAB_AREA[0], cl["F_max"]) if area_case == "small" else (P.TAB_AREA[1], cl["F_min"])
+    area = P.TAB_AREA[0] if area_case == "small" else P.TAB_AREA[1]
+    force = P.CLAMP_ACCEPT_N[0] if force_case == "low" else cl["F_max"]
+    return area, force
+
+
+def solve(pad, ceil, f, basis, t_amb, area_case, rsa_fixed=None, force_case="low"):
+    area, force = corner(pad, area_case, force_case)
     rcs, psi = r_interface(pad, force, area)
+    rcs += shim_stack(area)[0]
     rbr1, _ = br1_stack(pad)
     pbr1 = p_br1()
     tj = {r: t_amb + 30 for r in P.FET_X}
@@ -204,11 +227,11 @@ def solve(pad, ceil, f, basis, t_amb, area_case, rsa_fixed=None):
                 tj_br1=tc_br1 + pbr1 / 4 * P.RTH_JC_BR1_ELEM, tc_br1=tc_br1)
 
 
-def tj_at_sink(pad, ceil, f, basis, t_sink, area_case="small"):
+def tj_at_sink(pad, ceil, f, basis, t_sink, area_case="small", force_case="low"):
     """Junction temperature with the sink held at a trip temperature (what the sink-sensed trips protect)."""
-    cl = clamp(pad)
-    area, force = (P.TAB_AREA[0], cl["F_max"]) if area_case == "small" else (P.TAB_AREA[1], cl["F_min"])
+    area, force = corner(pad, area_case, force_case)
     rcs, _ = r_interface(pad, force, area)
+    rcs += shim_stack(area)[0]
     rsp = r_spread(area, 18.0 * P.SINK_LEN, P.RSA_NAT * P.SINK_WIDTH / 18.0)
     tj = {r: t_sink + 20 for r in P.FET_X}
     for _ in range(200):
@@ -232,7 +255,7 @@ def main():
            f"({cl['bar_to_film_courtyard_mm']} mm).", ""]
     rbr1, rbr1_parts = br1_stack(P.PAD_CHOICE)
     out["br1_stack_C_per_W"] = dict(total=rbr1, **rbr1_parts)
-    hdr = "| strip | ceiling A | basis | f kHz | ambient C | sink C | R_SA | P_FET max W | P_sink W | Rcs (tab corner) | Tj FET max C | Tcase max C | Tj BR1 C | Rcs <= 0.7 (D-36) |"
+    hdr = "| strip | ceiling A | basis | f kHz | ambient C | sink C | R_SA | P_FET max W | P_sink W | Rcs + shim (corner) | Tj FET max C | Tcase max C | Tj BR1 C | Rcs <= 0.7 (D-36) |"
     md += ["## Steady state, natural convection (no fan credited)", "", hdr, "|" + "---|" * 14]
     for pad in P.PADS:
         rows = []
@@ -241,12 +264,12 @@ def main():
                 for t_amb in AMBIENTS:
                     worst = None
                     for f in FREQS:
-                        for ac in ("small", "large"):
-                            r = solve(pad, ceil, f, basis, t_amb, ac)
+                        for ac, fc in CORNERS:
+                            r = solve(pad, ceil, f, basis, t_amb, ac, force_case=fc)
                             if r is None:
-                                cand = dict(runaway=True, f=f, area=ac)
+                                cand = dict(runaway=True, f=f, area=ac + "/" + fc)
                             else:
-                                cand = dict(f=f, area=ac, ts=r["ts"], rsa=r["rsa"], pmax=max(r["p"].values()), ptot=r["ptot"],
+                                cand = dict(f=f, area=ac + "/" + fc, ts=r["ts"], rsa=r["rsa"], pmax=max(r["p"].values()), ptot=r["ptot"],
                                             rcs=r["rcs"], psi=r["psi"], rsp=r["rsp_fet"], tj=max(r["tj"].values()),
                                             tc=max(r["tcase"].values()), tj_br1=r["tj_br1"],
                                             tj_each={k: round(v, 1) for k, v in r["tj"].items()},
@@ -263,19 +286,18 @@ def main():
                                   f"{worst['psi']:.0f} psi) | **{worst['tj']:.1f}** | {worst['tc']:.1f} | {worst['tj_br1']:.1f} | "
                                   f"{worst['rcs'] <= 0.7} |")
         # interface range over both tab corners (for the D-36 line)
-        rc = [r_interface(pad, out['clamp'][pad]['F_max'], P.TAB_AREA[0])[0],
-              r_interface(pad, out['clamp'][pad]['F_min'], P.TAB_AREA[1])[0]]
+        rc = [r_interface(pad, corner(pad, a, fc)[1], corner(pad, a, fc)[0])[0] for a, fc in CORNERS]
         out["pads"][pad] = dict(rows=rows, rcs_range=[min(rc), max(rc)], d36_pass_all=max(rc) <= 0.7)
     md += ["", "Basis D = ZVS operation (deck energy grid). Basis A = D-18 hard-switching proxy = **lost-ZVS fault**, not an operating point.", ""]
     # trip ladder: Tj when the sink sits at each sink-sensed trip
-    md += ["## Junction at the sink-sensed trips (sink held at the trip; worst FET, small-tab corner)", "",
+    md += ["## Junction at the sink-sensed trips (sink held at the trip; worst FET, worst pressure corner, design shim)", "",
            "| strip | ceiling A | basis | sink 86 (TCO Th) | sink 95 (firmware) | sink 104.6 (HW band top) | sink 110 (TCO Tf) |",
            "|---|---|---|---|---|---|---|"]
     for pad in P.PADS:
         out["trip_ladder"][pad] = {}
         for ceil in CEILINGS:
             for basis in ("D", "A"):
-                vals = [max(tj_at_sink(pad, ceil, f, basis, ts) for f in FREQS) for ts in (86.0, P.FW_TRIP_C, P.HW_TRIP_BAND_C[1], P.TCO["Tf"])]
+                vals = [max(tj_at_sink(pad, ceil, f, basis, ts, a, fc) for f in FREQS for a, fc in CORNERS) for ts in (86.0, P.FW_TRIP_C, P.HW_TRIP_BAND_C[1], P.TCO["Tf"])]
                 out["trip_ladder"][pad][f"{ceil}|{basis}"] = vals
                 md.append(f"| {pad} | {ceil} | {basis} | " + " | ".join(f"{v:.1f}" for v in vals) + " |")
     # fan requirement: R_SA that keeps the sink <= 80 C (6 K under the TCO holding temperature) at 30 / 40 C ambient
@@ -287,17 +309,20 @@ def main():
             lo, hi = 0.01, 3.0          # bisection on R_SA so that the self-consistent sink sits at 80 C
             for _ in range(60):
                 mid = (lo + hi) / 2
-                r = solve(P.PAD_CHOICE, ceil, 60e3, "D", t_amb, "small", rsa_fixed=mid)
+                r = solve(P.PAD_CHOICE, ceil, 60e3, "D", t_amb, "small", rsa_fixed=mid, force_case="low")
                 lo, hi = (mid, hi) if r and r["ts"] < 80.0 else (lo, mid)
             need[t_amb] = (lo, r["ptot"])
         out["fan_requirement"][str(ceil)] = dict(P_sink=need[30.0][1], RSA_need_30=need[30.0][0], RSA_need_40=need[40.0][0])
         md.append(f"| {ceil} | {need[30.0][1]:.1f} | {need[30.0][0]:.3f} | {need[40.0][0]:.3f} | {P.RSA_NAT <= need[30.0][0]} |")
-    md += ["", f"BR1 stack (strip at 50 psi + 0.508 mm shim + conservative grease): {rbr1:.3f} C/W "
+    md += ["", f"BR1 stack (strip at 50 psi + {P.SHIM_MAX_DESIGN} mm design shim, {P.SHIM_LAYERS_MAX} greased faces, conservative grease): {rbr1:.3f} C/W "
            f"(strip {rbr1_parts['pad']:.3f}, shim {rbr1_parts['shim']:.4f}, grease {rbr1_parts['grease_cons']:.3f}); "
            f"P_BR1 {p_br1():.2f} W at {I_LINE_A} A line.", ""]
-    md += ["## Interface range per strip over both tab-area corners (D-36 budget <= 0.7 C/W per FET)", "", "| strip | Rcs C/W | all corners <= 0.7 |", "|---|---|---|"]
+    md += ["## Interface range per strip over the four pressure corners (D-36 budget <= 0.7 C/W per FET)", "",
+           "| strip | Rcs strip only C/W | + design shim stack C/W (small / large tab) | all corners <= 0.7 |", "|---|---|---|---|"]
     for pad, d in out["pads"].items():
-        md.append(f"| {pad} | {d['rcs_range'][0]:.3f}-{d['rcs_range'][1]:.3f} | {d['d36_pass_all']} |")
+        md.append(f"| {pad} | {d['rcs_range'][0]:.3f}-{d['rcs_range'][1]:.3f} | +{shim_stack(P.TAB_AREA[0])[0]:.3f} / "
+                  f"+{shim_stack(P.TAB_AREA[1])[0]:.3f} | {d['d36_pass_all']} |")
+    out["shim_stack_C_per_W"] = dict(small=shim_stack(P.TAB_AREA[0]), large=shim_stack(P.TAB_AREA[1]))
     (STUDY / "results").mkdir(exist_ok=True)
     (STUDY / "results" / "thermal.json").write_text(json.dumps(out, indent=1, default=float) + "\n")
     (STUDY / "results" / "thermal.md").write_text("\n".join(md) + "\n")

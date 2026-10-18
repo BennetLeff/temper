@@ -7,7 +7,10 @@
 Views (mm, board frame of bench_params.py): A front (x-z, looking at the sink face from the board), B section at Q3
 (y-z), C plan (x-y), D sink front-face drilling, E clamp-bar drilling, F strip / shim / pad cut sizes.
 Stdlib only: the DXF is written by hand (LINE, CIRCLE, TEXT; layers OUTLINE, HIDDEN, INSUL, DIM, NOTE).
-Positions marked 'match' are drilled on assembly from the part itself (BR1 hole, bracket bolts through the outer fins).
+Positions marked 'match' are drilled on assembly from the part itself (bracket bolts through the outer fins). The BR1 hole
+is drilled at machining from a loose part's measured seat height (GBJ S = hole centre above the body bottom).
+Owner decisions 2026-10-18: JLC solders the TO-247s (per-device shims under the strip, bench_tolerance.py); BR1 is fitted
+later by the owner (bar access slot, window extension for the bottom preheater).
 """
 from __future__ import annotations
 
@@ -20,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 STUDY = HERE.parent
 sys.path.insert(0, str(HERE))
 import bench_params as P  # noqa: E402
+import bench_mech as M  # noqa: E402
 
 ENT = []          # (kind, layer, data)
 COLORS = {"OUTLINE": "#222", "HIDDEN": "#888", "INSUL": "#c06000", "DIM": "#0060c0", "NOTE": "#444", "PE": "#108040"}
@@ -63,10 +67,12 @@ STRIP_Z = (P.Z_SINK_BOTTOM - P.STRIP_OVERHANG, P.STRIP_TOP_Z)
 BODY_Z = (NOM["L1"], NOM["L1"] + NOM["D"])
 METAL_TOP = NOM["L1"] + NOM["D"] - NOM["D2"]
 METAL_BOT = METAL_TOP - NOM["D1"]
-BR1_Z = (2.2, 22.2)      # EST seated height of the GBJ body (no lead shoulder in DS21221 p.4): measure on the part
+BR1_Z = (P.BR1_SEAT_Z_EST + P.BR1_LIFT, P.BR1_SEAT_Z_EST + P.BR1_LIFT + sum(P.GBJ["B"]) / 2)   # EST: measure the seat
 SHIM_X = (P.BR1_X - P.SHIM_SIZE[0] / 2, P.BR1_X + P.SHIM_SIZE[0] / 2)
 SHIM_Z = (P.Z_SINK_BOTTOM + 0.5, P.Z_SINK_BOTTOM + 0.5 + P.SHIM_SIZE[1])
-BR1_HOLE_EST = (P.BR1_X, 12.2)
+BR1_HOLE_EST = (P.BR1_X, P.BR1_HOLE_Z)
+SHIM_FET = {r: (x - P.SHIM_FET_SIZE[0] / 2, x + P.SHIM_FET_SIZE[0] / 2) for r, x in P.FET_X.items()}
+SHIM_FET_Z = (P.SHIM_FET_Z0, P.SHIM_FET_Z0 + P.SHIM_FET_SIZE[1])
 
 
 def view_front(ox, oy):
@@ -75,7 +81,7 @@ def view_front(ox, oy):
     line(*o(0, 0), *o(125, 0)); text(*o(126, 0), "board top", 1.6)
     line(*o(0, 0), *o(0, -1.6)); line(*o(0, -1.6), *o(125, -1.6))
     rect(*o(SINK_X[0], SINK_Z[0]), *o(SINK_X[1], SINK_Z[1]), "PE")
-    text(*o(SINK_X[0] + 2, SINK_Z[1] - 4), f"{P.SINK_PN} (PE), face y {Y_FACE:.3f}", 1.8, "PE")
+    text(*o(SINK_X[0] + 2, SINK_Z[1] - 4), f"{P.SINK_PN} (PE), face y {Y_FACE:.3f} nominal; floats {M.sink_face_range()[0]:.2f}..{M.sink_face_range()[2]:.2f} onto the soldered row", 1.8, "PE")
     rect(*o(P.STRIP_X[0], STRIP_Z[0]), *o(P.STRIP_X[1], STRIP_Z[1]), "INSUL")
     text(*o(P.STRIP_X[0] + 1, STRIP_Z[1] + 1), f"{P.PAD_CHOICE} strip {P.STRIP_X[1] - P.STRIP_X[0]:.1f} x {STRIP_Z[1] - STRIP_Z[0]:.1f}", 1.6, "INSUL")
     for ref, xc in P.FET_X.items():
@@ -86,16 +92,20 @@ def view_front(ox, oy):
         circle(*o(xc, P.SPRING_Z), P.SPRING["OD"] / 2, "HIDDEN")
         rect(*o(xc - P.FR4_PAD[0] / 2, P.SPRING_Z - P.FR4_PAD[1] / 2), *o(xc + P.FR4_PAD[0] / 2, P.SPRING_Z + P.FR4_PAD[1] / 2), "INSUL")
         text(*o(xc - 3, BODY_Z[1] + 1), f"{ref} {P.TAB_NET[ref]}", 1.6)
+        rect(*o(SHIM_FET[ref][0], SHIM_FET_Z[0]), *o(SHIM_FET[ref][1], SHIM_FET_Z[1]), "PE")
     rect(*o(P.BR1_X_SPAN[0], BR1_Z[0]), *o(P.BR1_X_SPAN[1], BR1_Z[1]))
-    rect(*o(*[SHIM_X[0], SHIM_Z[0]]), *o(SHIM_X[1], SHIM_Z[1]), "PE")
+    rect(*o(SHIM_X[0], SHIM_Z[0]), *o(SHIM_X[1], SHIM_Z[1]), "PE")
     circle(*o(*BR1_HOLE_EST), 1.7, "PE")
-    text(*o(P.BR1_X_SPAN[0] + 1, BR1_Z[1] + 1), "BR1 (case = basic), 0.508 shim behind strip", 1.6)
+    text(*o(P.BR1_X_SPAN[0] + 1, BR1_Z[1] + 1), "BR1 (owner-fitted; case = basic), selected shim behind strip", 1.6)
+    text(*o(P.STRIP_X[0] + 30, STRIP_Z[0] - 9.5), "green under each FET: selected shim (0-2.0 mm) under the strip", 1.4, "PE")
     for dx in (0, 10, 17.5, 25):
         line(*o(81.7 + dx, BR1_Z[0]), *o(81.7 + dx, -1.6))
     rect(*o(P.BAR["x"][0], P.BAR["z"][0]), *o(P.BAR["x"][1], P.BAR["z"][1]), "HIDDEN")
     text(*o(P.BAR["x"][0] + 1, P.BAR["z"][0] + 0.8), "clamp bar 3/8 x 1 in 6061 (in front of the packages)", 1.4, "HIDDEN")
     for x in P.BAR_SCREW_X:
         circle(*o(x, P.BAR_SCREW_Z), 2.0, "PE"); circle(*o(x, P.BAR_SCREW_Z), 3.0, "PE")
+    sl = P.BAR_SLOT
+    rect(*o(sl["x"] - sl["w"] / 2, sl["z"][0]), *o(sl["x"] + sl["w"] / 2, sl["z"][1]), "HIDDEN")
     circle(*o(*P.NTC_XZ), 1.5, "PE"); text(*o(P.NTC_XZ[0] - 6, P.NTC_XZ[1] + 3), "NTC M3", 1.6)
     rect(*o(P.TCO_XZ[0] - 5.5, P.TCO_XZ[1] - 2), *o(P.TCO_XZ[0] + 5.5, P.TCO_XZ[1] + 2), "INSUL")
     circle(*o(*P.TCO_CLAMP_SCREW_XZ), 1.5, "PE"); text(*o(P.TCO_XZ[0] + 7, P.TCO_XZ[1]), "TCO DF110S, 2x Kapton, loop clamp", 1.6)
@@ -155,6 +165,8 @@ def view_plan(ox, oy):
     rect(*o(SINK_X[1], -45), *o(SINK_X[1] + a[2], -5), "PE")
     text(*o(SINK_X[0] - 30, -25), "bracket", 1.6, "PE"); text(*o(SINK_X[1] + 5, -25), "bracket", 1.6, "PE")
     rect(*o(P.WINDOW["x"][0], P.WINDOW["y"][0]), *o(P.WINDOW["x"][1], P.WINDOW["y"][1]), "DIM")
+    rect(*o(P.WINDOW_BR1["x"][0], P.WINDOW_BR1["y"][0]), *o(P.WINDOW_BR1["x"][1], P.WINDOW_BR1["y"][1]), "DIM")
+    text(*o(P.WINDOW_BR1["x"][0] + 1, P.WINDOW_BR1["y"][1] - 2), "extension: bottom preheater for BR1", 1.4, "DIM")
     text(*o(P.WINDOW["x"][0] + 1, P.WINDOW["y"][1] + 3), "baseplate window (solder / rework access)", 1.6, "DIM")
     fy = Y_FACE - P.SINK_HEIGHT - P.FAN["gap_to_fins"]
     xc = (SINK_X[0] + SINK_X[1]) / 2
@@ -193,7 +205,9 @@ def view_cuts(ox, oy):
     rect(ox + w + 10, oy, ox + w + 10 + P.SHIM_SIZE[0], oy + P.SHIM_SIZE[1], "PE")
     text(ox + w + 10, oy + P.SHIM_SIZE[1] + 2, f"shim {P.SHIM_SIZE[0]} x {P.SHIM_SIZE[1]} x {P.SHIM_T}", 1.5)
     rect(ox + w + 45, oy, ox + w + 45 + P.FR4_PAD[0], oy + P.FR4_PAD[1], "INSUL")
-    text(ox + w + 45, oy + P.FR4_PAD[1] + 2, f"FR-4 pad x4 {P.FR4_PAD[0]} x {P.FR4_PAD[1]} x 1.6", 1.5)
+    text(ox + w + 45, oy + P.FR4_PAD[1] + 2, f"FR-4 pad {P.FR4_PAD[0]} x {P.FR4_PAD[1]} x 1.6 or 0.8", 1.5)
+    rect(ox + w + 65, oy, ox + w + 65 + P.SHIM_FET_SIZE[0], oy + P.SHIM_FET_SIZE[1], "PE")
+    text(ox + w + 65, oy + P.SHIM_FET_SIZE[1] + 2, f"FET shim {P.SHIM_FET_SIZE[0]} x {P.SHIM_FET_SIZE[1]} x selected", 1.5)
 
 
 def write_dxf(path):
@@ -245,12 +259,16 @@ def main():
              ("NTC lug, M3", u(P.NTC_XZ[0]), v(P.NTC_XZ[1]), 3.0, "drill 2.5 x 6 deep, tap M3 5 deep"),
              ("TCO loop-clamp tab, M3", u(P.TCO_CLAMP_SCREW_XZ[0]), v(P.TCO_CLAMP_SCREW_XZ[1]), 3.0, "drill 2.5 x 6 deep, tap M3 5 deep"),
              ("PE bond, M4", u(P.BOND_XZ[0]), v(P.BOND_XZ[1]), 4.0, "drill 3.3 x 7 deep, tap M4 5 deep"),
-             ("BR1 screw, M3 (MATCH)", u(BR1_HOLE_EST[0]), v(BR1_HOLE_EST[1]), 3.0, "transfer-punch through BR1's hole on assembly; drill 2.5, tap M3 5 deep")]
+             ("BR1 screw, M3", u(BR1_HOLE_EST[0]), v(BR1_HOLE_EST[1]), 3.0,
+              f"v = (measured seat height of a loose BR1 + {sum(P.GBJ['S']) / 2:.1f} + {P.BR1_LIFT}) - {P.Z_SINK_BOTTOM}; shown at the EST seat {P.BR1_SEAT_Z_EST}. Drill 2.5, tap M3 5 deep")]
     xb0 = P.BAR["x"][0]
     bar_holes = [(f"pocket {r}", P.FET_X[r] - xb0, P.SPRING_Z - P.BAR["z"][0], P.SPRING["hole"],
                   f"3/8 in flat-bottom, {P.POCKET_DEPTH} deep (twist drill + 3/8 in counterbore, or end mill)") for r in P.FET_X]
     bar_holes += [(f"end hole {i}", x - xb0, P.BAR_SCREW_Z - P.BAR["z"][0], 4.5, "through 4.5 (M4 clearance)")
                   for i, x in enumerate(P.BAR_SCREW_X, 1)]
+    sl = P.BAR_SLOT
+    bar_holes += [("BR1 driver slot", sl["x"] - xb0, sum(sl["z"]) / 2 - P.BAR["z"][0], sl["w"],
+                   f"through slot {sl['w']} wide, v {sl['z'][0] - P.BAR['z'][0]:.1f}..{sl['z'][1] - P.BAR['z'][0]:.1f} (two {sl['w']} holes + file)")]
     view_front(0, 0)
     view_section(220, 0)
     view_plan(0, -160)
@@ -272,13 +290,15 @@ def main():
     md += [f"| {n} | {a:.2f} | {b:.2f} | {d} | {how} |" for n, a, b, d, how in bar_holes]
     md += ["", "| cut part | size mm | from |", "|---|---|---|",
            f"| insulator strip | {P.STRIP_X[1] - P.STRIP_X[0]:.1f} x {STRIP_Z[1] - STRIP_Z[0]:.1f} | {P.PADS[P.PAD_CHOICE]['pn']} |",
-           f"| BR1 shim | {P.SHIM_SIZE[0]} x {P.SHIM_SIZE[1]} x {P.SHIM_T} | 0.020 in aluminium sheet |",
-           f"| FR-4 pressure pads x 4 | {P.FR4_PAD[0]} x {P.FR4_PAD[1]} x 1.6 | 1/16 in G-10/FR-4 sheet |",
+           f"| BR1 shim (selected at the BR1 dry fit, Ø3.5 hole at the screw) | {P.SHIM_SIZE[0]} x {P.SHIM_SIZE[1]} x 0-{P.SHIM_MAX_DESIGN} | shim stock, <= {P.SHIM_LAYERS_MAX} layers |",
+           f"| FET shims (selected by shim_select.py) | {P.SHIM_FET_SIZE[0]} x {P.SHIM_FET_SIZE[1]} x 0-{P.SHIM_MAX_DESIGN}, lower edge at v {P.SHIM_FET_Z0 - P.Z_SINK_BOTTOM:.1f} | shim stock, <= {P.SHIM_LAYERS_MAX} layers, deburred |",
+           f"| FR-4 pressure pads x 4 (+ spares) | {P.FR4_PAD[0]} x {P.FR4_PAD[1]} x 1.6, or x 0.8 per shim_select.py | 1/16 and 1/32 in G-10/FR-4 sheet |",
            f"| spacers x 2 | {P.SPACER_L} long, OD 6, ID 4.3 | RAF M0539-4-AL |", "",
            f"Strip placement on the sink face: left end at u {P.STRIP_X[0] - SINK_X[0]:.1f}, lower edge {P.STRIP_OVERHANG} below the sink's lower edge, "
            f"top at v {P.STRIP_TOP_Z - SINK_Z[0]:.1f}. Shim centred at u {P.BR1_X - SINK_X[0]:.1f}, v {SHIM_Z[0] - SINK_Z[0]:.1f}..{SHIM_Z[1] - SINK_Z[0]:.1f}, under the strip.",
-           "", f"BR1 seated height and hole position are estimates (z {BR1_Z}, hole z {BR1_HOLE_EST[1]}): the GBJ drawing gives no seating "
-           "shoulder, so the shim and the BR1 hole are placed from the part on assembly."]
+           "", f"BR1 seated height is an estimate (body z {BR1_Z[0]:.1f}.., hole z {BR1_HOLE_EST[1]:.1f}): the GBJ drawing does not place "
+           "the lead feature it seats on, so measure a loose part before drilling. Brackets: M4 pivot through the outer fin in a "
+           "Ø8 hole with a fender washer (y and z float), second M4 in a Ø8 hole to lock the tilt."]
     (STUDY / "results" / "drill-table.md").write_text("\n".join(md) + "\n")
     print("\n".join(md))
     print(f"\n{len(ENT)} entities -> results/bench-sink-r1.dxf, .svg")

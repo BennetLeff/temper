@@ -24,17 +24,23 @@ Tab -> PE capacitance through the SIL PAD 2000 0.254 mm strip: 21.1-33.5 pF per 
 | sink lower edge -> strip outer face -> (gap < X bridged) -> board over edge pours | creepage | 4.2 | 4.0 | True | z_sink 4.2, strip bottom 1.4, gap 1.4 | worst of z_sink x overhang corners |
 | sink lower edge -> edge pour below (F.Cu y >= 0.6) | clearance | 4.13 | 1.3 | True | z_sink 4.2, strip bottom 1.4 | worst of z_sink x overhang corners |
 | sink lower edge -> round strip bottom -> lead | clearance | 4.209 | 1.3 | True | z_sink 4.2, strip bottom 2.0 | worst of z_sink x overhang corners |
-| sink lower edge -> FET lead pad copper | clearance | 4.148 | 1.3 | True | z_sink 4.2, strip bottom 1.4 | worst of z_sink x overhang corners |
+| sink lower edge -> FET lead pad copper (sink face anywhere in its range) | clearance | 4.13 | 1.3 | True | z_sink 4.2, strip bottom 1.4, face y 2.48 | worst of z_sink x overhang corners |
+| tab-metal bottom edge -> strip bottom -> shim lower edge (shimmed device) | creepage | 6.104 | 4.0 | True | z_sink 4.8, strip bottom 2.6 | worst of z_sink x overhang corners |
 | Q5 tab-metal left edge -> strip left end -> sink face | creepage | 5.479 | 4.0 | True | strip 0.5 mm short | E1 max, device -0.15 |
-| tab-metal top edge -> strip top -> sink face | creepage | 6.264 | 4.0 | True | strip 0.5 mm low | L1, D max, D2 min |
+| tab-metal top edge -> strip top -> sink face | creepage | 5.264 | 4.0 | True | strip 0.5 mm low, body floated 1.0 mm | L1, D max, D2 min |
+| tab-metal top edge -> strip top -> down the strip back -> shim top edge | creepage | 9.264 | 4.0 | True | shim top z 27.5 | shim inside the strip outline |
 | Q2 tab-metal right edge -> strip right end (beyond BR1) | creepage | 35.979 | 4.0 | True | strip 0.5 mm short | E1 max |
 | clamp bar underside -> tallest HOT SMD part under it (SOD-128) | clearance | 4.9 | 1.3 | True | bar z 6.0 | EST part height 1.1 mm |
-| spring end -> tab-metal side edge (through air, round the package side) | clearance | 4.419 | 1.3 | True | A min, A2 max, E1 max |  |
-| spring -> FR-4 pad face/edge -> package front and side -> tab-metal edge | creepage | 7.495 | 4.0 | True | A min, A2 max, E min, E1 max |  |
+| spring end -> tab-metal side edge (through air, round the package side), FR-4 1.6 | clearance | 4.419 | 1.3 | True | A min, A2 max, E1 max |  |
+| spring -> pad / package front and side -> tab-metal edge, FR-4 1.6 | creepage | 7.495 | 4.0 | True | A min, A2 max, E min, E1 max |  |
+| spring end -> tab-metal side edge (through air, round the package side), FR-4 0.8 | clearance | 3.84 | 1.3 | True | A min, A2 max, E1 max |  |
+| spring -> pad / package front and side -> tab-metal edge, FR-4 0.8 | creepage | 6.765 | 4.0 | True | A min, A2 max, E min, E1 max |  |
+| spring end -> tab-metal side edge (through air, round the package side), no pad | clearance | 3.334 | 1.3 | True | A min, A2 max, E1 max |  |
+| spring -> pad / package front and side -> tab-metal edge, no pad | creepage | 6.055 | 4.0 | True | A min, A2 max, E min, E1 max |  |
 | bar end spacer (x 115.5) -> board edge pours below | clearance | 15.63 | 1.3 | True | spacer OD 6.0 at z 18.7 |  |
 | sink brackets / fins -> board-edge copper (plan view) | clearance | 5.6 | 1.3 | True | brackets kept >= 5 mm off-board |  |
-| sink lower edge -> round strip bottom -> BR1 lead | clearance | 4.819 | 1.3 | True | overhang 2.2 | BR1 back plastic; its case is the basic barrier |
+| sink lower edge -> round strip bottom -> BR1 lead | clearance | 3.789 | 1.3 | True | overhang 2.2, BR1 using its full lead play | BR1 back plastic; its case is the basic barrier |
 
 All paths >= floor and every rated insulator >= 4x its peak stress: **True**
 
-Geometry: sink face y 1.581; tab metal z 5.55..25.49; tab plane -> nearest lead surface 1.755 mm.
+Geometry: sink face y 1.581 nominal, 0.681..2.481 with JLC-soldered devices; tab metal z 5.55..25.49; tab plane -> nearest lead surface 1.755 mm.

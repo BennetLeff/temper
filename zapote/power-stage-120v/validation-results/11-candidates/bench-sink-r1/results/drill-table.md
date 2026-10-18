@@ -9,7 +9,7 @@ Sink Wakefield-Vette 511-3M: front face 132.33 (u) x 76.2 (v), u from the face's
 | NTC lug, M3 | 89.80 | 35.50 | 3.0 | drill 2.5 x 6 deep, tap M3 5 deep |
 | TCO loop-clamp tab, M3 | 106.20 | 42.50 | 3.0 | drill 2.5 x 6 deep, tap M3 5 deep |
 | PE bond, M4 | 122.00 | 67.50 | 4.0 | drill 3.3 x 7 deep, tap M4 5 deep |
-| BR1 screw, M3 (MATCH) | 106.20 | 7.70 | 3.0 | transfer-punch through BR1's hole on assembly; drill 2.5, tap M3 5 deep |
+| BR1 screw, M3 | 106.20 | 8.90 | 3.0 | v = (measured seat height of a loose BR1 + 11.0 + 0.2) - 4.5; shown at the EST seat 2.2. Drill 2.5, tap M3 5 deep |
 
 Bracket bolts (2 per end, M4 through the outermost fin, nut in the first fin channel): MATCH-drill with the sink set on its gauges; brackets stay >= 5 mm behind the board edge (y <= -5).
 
@@ -23,14 +23,16 @@ Clamp bar: 6061 3/8 x 1 in, cut 130.5 mm; u from the bar's left end (board x -11
 | pocket Q2 | 79.05 | 9.00 | 9.53 | 3/8 in flat-bottom, 7.0 deep (twist drill + 3/8 in counterbore, or end mill) |
 | end hole 1 | 4.00 | 12.70 | 4.5 | through 4.5 (M4 clearance) |
 | end hole 2 | 126.50 | 12.70 | 4.5 | through 4.5 (M4 clearance) |
+| BR1 driver slot | 105.20 | 7.40 | 6.5 | through slot 6.5 wide, v 3.4..11.4 (two 6.5 holes + file) |
 
 | cut part | size mm | from |
 |---|---|---|
 | insulator strip | 114.5 x 30.0 | Bergquist SP2000-0.010-00-1212 (304.8 x 304.8 mm) |
-| BR1 shim | 28.0 x 17.0 x 0.508 | 0.020 in aluminium sheet |
-| FR-4 pressure pads x 4 | 14.0 x 16.0 x 1.6 | 1/16 in G-10/FR-4 sheet |
+| BR1 shim (selected at the BR1 dry fit, Ø3.5 hole at the screw) | 28.0 x 17.0 x 0-2.0 | shim stock, <= 3 layers |
+| FET shims (selected by shim_select.py) | 16.0 x 22.0 x 0-2.0, lower edge at v 1.0 | shim stock, <= 3 layers, deburred |
+| FR-4 pressure pads x 4 (+ spares) | 14.0 x 16.0 x 1.6, or x 0.8 per shim_select.py | 1/16 and 1/32 in G-10/FR-4 sheet |
 | spacers x 2 | 10.0 long, OD 6, ID 4.3 | RAF M0539-4-AL |
 
 Strip placement on the sink face: left end at u 9.0, lower edge 2.5 below the sink's lower edge, top at v 27.5. Shim centred at u 106.2, v 0.5..17.5, under the strip.
 
-BR1 seated height and hole position are estimates (z (2.2, 22.2), hole z 12.2): the GBJ drawing gives no seating shoulder, so the shim and the BR1 hole are placed from the part on assembly.
+BR1 seated height is an estimate (body z 2.4.., hole z 13.4): the GBJ drawing does not place the lead feature it seats on, so measure a loose part before drilling. Brackets: M4 pivot through the outer fin in a Ø8 hole with a fender washer (y and z float), second M4 in a Ø8 hole to lock the tilt.
