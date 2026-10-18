@@ -134,6 +134,13 @@ def build(name, pan=False, h=1.0, winding=G.R43):
     return meta
 
 
+def winding_for(layout):
+    if not layout or layout == "R43_21.93":
+        return G.R43
+    c = json.loads((HERE.parent / "results" / "free_air.json").read_text())["candidates"][layout]
+    return G.Winding(sections=tuple(G.Section(s["r0"], s["r1"], s["turns"]) for s in c["sections"]), name=layout)
+
+
 def _planar(tag, phi):
     """Is surface `tag` flat in the meridian plane at angle phi (all its bounding points on it)?"""
     xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.getBoundingBox(2, tag)
@@ -155,5 +162,6 @@ if __name__ == "__main__":
     ap.add_argument("name")
     ap.add_argument("--pan", action="store_true")
     ap.add_argument("--h", type=float, default=1.0)
+    ap.add_argument("--layout", default=None, help="a candidate key in results/free_air.json (default R43)")
     a = ap.parse_args()
-    print(json.dumps(build(a.name, pan=a.pan, h=a.h)))
+    print(json.dumps(build(a.name, pan=a.pan, h=a.h, winding=winding_for(a.layout))))

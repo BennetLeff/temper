@@ -1,0 +1,5369 @@
+{
+ "assumptions": "System check of the coil against the native-21 power stage and the firmware loop.\n\nTank: series R-L-C, first-harmonic, line-cycle averaged, the same plant the firmware host tests use\n(firmware/test/test_tank_freq.c: V1 = 0.9 x V_line, peak = 2.17 x line-RMS tank current).\n  C     : 5 x TDK B32643H8104J000 100 nF +/-5 % (prototype lot, power-stage DECISIONS 74) = 0.50 uF (0.475-0.525)\n  L, R  : installed loaded L and reflected R from run_pans.py (3D-corrected), f-interpolated, plus the Litz R_ac of the\n          winding at 100 C (run_free_air.py)\n  loop  : tank_freq.h - start at 60 kHz, step down to the lowest f in 35-60 kHz that keeps\n          f >= 1.05 f_res, lag >= zvs_lag_deg (45), tank RMS <= ceiling, delivered power <= hold\n  hold  : 11.1 A input at the line voltage x eta 0.93 (round 5's 1239 W at 120 V)\n  trips : firmware peak trip min(2.17 c + 3, 62) A; CT band 64.55-76.09 A (stage 15); RMS trip 1.05 c\nTwo pan bases are run: MODEL (this study's FEM pans, mu low/nominal/high) and PRIORS (coil_mc.rs / round-4 classes:\nkL and r = R_pan/L at 40 kHz, R ~ sqrt(f)), so the recommendation does not rest on one set of assumptions.\nRun: .venv/bin/python model/system_check.py -> model/results/system.json\n",
+ "70uH_out6.46": {
+  "model_17.5A_lag45": {
+   "n": 108,
+   "full_power_share": 0.32407407407407407,
+   "over_limit_at_fmax": 14,
+   "P_min_W": 712.5235734449515,
+   "P_median_W": 1084.43254324467,
+   "f_op_kHz": [
+    38.35,
+    60.0
+   ],
+   "f_res_kHz": [
+    29.772559362111828,
+    44.45827392833693
+   ],
+   "f_over_fres_min": 1.2597895086467474,
+   "lag_min_deg": 45.00804159404605,
+   "I_pk_max": 50.06806057151931,
+   "Vc_rms_max": 131.67831435370462,
+   "Vc_pk_max": 285.741942147539,
+   "limits": {
+    "ceiling": 44,
+    "hold": 20,
+    "lag": 30,
+    "over_limit_at_f_max": 14
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 921,
+     "f_kHz": 58.05,
+     "I": 17.5,
+     "lag": 60.8,
+     "limit": "ceiling"
+    },
+    "ss430/nom": {
+     "P": 1237,
+     "f_kHz": 45.25,
+     "I": 16.7,
+     "lag": 46.8,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1091,
+     "f_kHz": 39.5,
+     "I": 14.3,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/lo": {
+     "P": 939,
+     "f_kHz": 58.15,
+     "I": 17.5,
+     "lag": 60.2,
+     "limit": "ceiling"
+    },
+    "triply/nom": {
+     "P": 1238,
+     "f_kHz": 45.45,
+     "I": 16.9,
+     "lag": 47.4,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1128,
+     "f_kHz": 39.45,
+     "I": 14.8,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "cast_iron/lo": {
+     "P": 1050,
+     "f_kHz": 54.2,
+     "I": 17.5,
+     "lag": 56.2,
+     "limit": "ceiling"
+    },
+    "cast_iron/nom": {
+     "P": 1239,
+     "f_kHz": 47.4,
+     "I": 17.3,
+     "lag": 48.5,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1097,
+     "f_kHz": 40.25,
+     "I": 14.4,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 936,
+     "f_kHz": 60.0,
+     "I": 20.0,
+     "lag": 64.3,
+     "limit": "over_limit_at_f_max"
+    },
+    "carbon_steel/nom": {
+     "P": 936,
+     "f_kHz": 57.8,
+     "I": 17.5,
+     "lag": 60.3,
+     "limit": "ceiling"
+    },
+    "carbon_steel/hi": {
+     "P": 1220,
+     "f_kHz": 48.8,
+     "I": 17.5,
+     "lag": 49.8,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "model_17.5A_lag30": {
+   "n": 108,
+   "full_power_share": 0.5277777777777778,
+   "over_limit_at_fmax": 14,
+   "P_min_W": 712.5235734449515,
+   "P_median_W": 1112.7719872537937,
+   "f_op_kHz": [
+    36.15,
+    60.0
+   ],
+   "f_res_kHz": [
+    29.52949540086253,
+    44.45827392833693
+   ],
+   "f_over_fres_min": 1.211622915021242,
+   "lag_min_deg": 38.71630457377441,
+   "I_pk_max": 50.06806057151931,
+   "Vc_rms_max": 133.19779208595102,
+   "Vc_pk_max": 289.0392088265137,
+   "limits": {
+    "ceiling": 44,
+    "hold": 50,
+    "over_limit_at_f_max": 14
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 921,
+     "f_kHz": 58.05,
+     "I": 17.5,
+     "lag": 60.8,
+     "limit": "ceiling"
+    },
+    "ss430/nom": {
+     "P": 1237,
+     "f_kHz": 45.25,
+     "I": 16.7,
+     "lag": 46.8,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1234,
+     "f_kHz": 38.1,
+     "I": 15.4,
+     "lag": 42.2,
+     "limit": "hold"
+    },
+    "triply/lo": {
+     "P": 939,
+     "f_kHz": 58.15,
+     "I": 17.5,
+     "lag": 60.2,
+     "limit": "ceiling"
+    },
+    "triply/nom": {
+     "P": 1238,
+     "f_kHz": 45.45,
+     "I": 16.9,
+     "lag": 47.4,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1235,
+     "f_kHz": 38.45,
+     "I": 15.6,
+     "lag": 43.0,
+     "limit": "hold"
+    },
+    "cast_iron/lo": {
+     "P": 1050,
+     "f_kHz": 54.2,
+     "I": 17.5,
+     "lag": 56.2,
+     "limit": "ceiling"
+    },
+    "cast_iron/nom": {
+     "P": 1239,
+     "f_kHz": 47.4,
+     "I": 17.3,
+     "lag": 48.5,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1236,
+     "f_kHz": 38.85,
+     "I": 15.5,
+     "lag": 42.2,
+     "limit": "hold"
+    },
+    "carbon_steel/lo": {
+     "P": 936,
+     "f_kHz": 60.0,
+     "I": 20.0,
+     "lag": 64.3,
+     "limit": "over_limit_at_f_max"
+    },
+    "carbon_steel/nom": {
+     "P": 936,
+     "f_kHz": 57.8,
+     "I": 17.5,
+     "lag": 60.3,
+     "limit": "ceiling"
+    },
+    "carbon_steel/hi": {
+     "P": 1220,
+     "f_kHz": 48.8,
+     "I": 17.5,
+     "lag": 49.8,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "model_24A_lag45": {
+   "n": 108,
+   "full_power_share": 0.7870370370370371,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 867.1759089697557,
+   "P_median_W": 1235.1684969181647,
+   "f_op_kHz": [
+    38.35,
+    59.15
+   ],
+   "f_res_kHz": [
+    29.772559362111828,
+    44.41664029631487
+   ],
+   "f_over_fres_min": 1.2597895086467474,
+   "lag_min_deg": 45.00804159404605,
+   "I_pk_max": 52.063255108801314,
+   "Vc_rms_max": 135.71811905824205,
+   "Vc_pk_max": 294.50831835638525,
+   "limits": {
+    "ceiling": 3,
+    "hold": 75,
+    "lag": 30
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1235,
+     "f_kHz": 54.05,
+     "I": 20.6,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1237,
+     "f_kHz": 45.25,
+     "I": 16.7,
+     "lag": 46.8,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1091,
+     "f_kHz": 39.5,
+     "I": 14.3,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 54.3,
+     "I": 20.4,
+     "lag": 55.9,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1238,
+     "f_kHz": 45.45,
+     "I": 16.9,
+     "lag": 47.4,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1128,
+     "f_kHz": 39.45,
+     "I": 14.8,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "cast_iron/lo": {
+     "P": 1236,
+     "f_kHz": 52.0,
+     "I": 19.2,
+     "lag": 53.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1239,
+     "f_kHz": 47.4,
+     "I": 17.3,
+     "lag": 48.5,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1097,
+     "f_kHz": 40.25,
+     "I": 14.4,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 1236,
+     "f_kHz": 56.55,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 54.0,
+     "I": 20.5,
+     "lag": 56.0,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1239,
+     "f_kHz": 48.6,
+     "I": 17.7,
+     "lag": 49.5,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_24A_lag30": {
+   "n": 108,
+   "full_power_share": 0.9907407407407407,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 1110.2297778782904,
+   "P_median_W": 1235.7132044497896,
+   "f_op_kHz": [
+    36.15,
+    59.15
+   ],
+   "f_res_kHz": [
+    29.52949540086253,
+    44.41664029631487
+   ],
+   "f_over_fres_min": 1.211622915021242,
+   "lag_min_deg": 38.71630457377441,
+   "I_pk_max": 52.063255108801314,
+   "Vc_rms_max": 135.71811905824205,
+   "Vc_pk_max": 294.50831835638525,
+   "limits": {
+    "ceiling": 3,
+    "hold": 105
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1235,
+     "f_kHz": 54.05,
+     "I": 20.6,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1237,
+     "f_kHz": 45.25,
+     "I": 16.7,
+     "lag": 46.8,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1234,
+     "f_kHz": 38.1,
+     "I": 15.4,
+     "lag": 42.2,
+     "limit": "hold"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 54.3,
+     "I": 20.4,
+     "lag": 55.9,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1238,
+     "f_kHz": 45.45,
+     "I": 16.9,
+     "lag": 47.4,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1235,
+     "f_kHz": 38.45,
+     "I": 15.6,
+     "lag": 43.0,
+     "limit": "hold"
+    },
+    "cast_iron/lo": {
+     "P": 1236,
+     "f_kHz": 52.0,
+     "I": 19.2,
+     "lag": 53.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1239,
+     "f_kHz": 47.4,
+     "I": 17.3,
+     "lag": 48.5,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1236,
+     "f_kHz": 38.85,
+     "I": 15.5,
+     "lag": 42.2,
+     "limit": "hold"
+    },
+    "carbon_steel/lo": {
+     "P": 1236,
+     "f_kHz": 56.55,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 54.0,
+     "I": 20.5,
+     "lag": 56.0,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1239,
+     "f_kHz": 48.6,
+     "I": 17.7,
+     "lag": 49.5,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_28A_lag45": {
+   "n": 108,
+   "full_power_share": 0.7962962962962963,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 867.1759089697557,
+   "P_median_W": 1235.1684969181647,
+   "f_op_kHz": [
+    38.35,
+    58.9
+   ],
+   "f_res_kHz": [
+    29.772559362111828,
+    44.40428870637857
+   ],
+   "f_over_fres_min": 1.2597895086467474,
+   "lag_min_deg": 45.00804159404605,
+   "I_pk_max": 53.148379156813,
+   "Vc_rms_max": 137.85656501400985,
+   "Vc_pk_max": 299.1487460804014,
+   "limits": {
+    "hold": 78,
+    "lag": 30
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1235,
+     "f_kHz": 54.05,
+     "I": 20.6,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1237,
+     "f_kHz": 45.25,
+     "I": 16.7,
+     "lag": 46.8,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1091,
+     "f_kHz": 39.5,
+     "I": 14.3,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 54.3,
+     "I": 20.4,
+     "lag": 55.9,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1238,
+     "f_kHz": 45.45,
+     "I": 16.9,
+     "lag": 47.4,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1128,
+     "f_kHz": 39.45,
+     "I": 14.8,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "cast_iron/lo": {
+     "P": 1236,
+     "f_kHz": 52.0,
+     "I": 19.2,
+     "lag": 53.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1239,
+     "f_kHz": 47.4,
+     "I": 17.3,
+     "lag": 48.5,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1097,
+     "f_kHz": 40.25,
+     "I": 14.4,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 1236,
+     "f_kHz": 56.55,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 54.0,
+     "I": 20.5,
+     "lag": 56.0,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1239,
+     "f_kHz": 48.6,
+     "I": 17.7,
+     "lag": 49.5,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_28A_lag30": {
+   "n": 108,
+   "full_power_share": 1.0,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 1110.2297778782904,
+   "P_median_W": 1235.7132044497896,
+   "f_op_kHz": [
+    36.15,
+    58.9
+   ],
+   "f_res_kHz": [
+    29.52949540086253,
+    44.40428870637857
+   ],
+   "f_over_fres_min": 1.211622915021242,
+   "lag_min_deg": 38.71630457377441,
+   "I_pk_max": 53.148379156813,
+   "Vc_rms_max": 137.85656501400985,
+   "Vc_pk_max": 299.1487460804014,
+   "limits": {
+    "hold": 108
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1235,
+     "f_kHz": 54.05,
+     "I": 20.6,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1237,
+     "f_kHz": 45.25,
+     "I": 16.7,
+     "lag": 46.8,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1234,
+     "f_kHz": 38.1,
+     "I": 15.4,
+     "lag": 42.2,
+     "limit": "hold"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 54.3,
+     "I": 20.4,
+     "lag": 55.9,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1238,
+     "f_kHz": 45.45,
+     "I": 16.9,
+     "lag": 47.4,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1235,
+     "f_kHz": 38.45,
+     "I": 15.6,
+     "lag": 43.0,
+     "limit": "hold"
+    },
+    "cast_iron/lo": {
+     "P": 1236,
+     "f_kHz": 52.0,
+     "I": 19.2,
+     "lag": 53.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1239,
+     "f_kHz": 47.4,
+     "I": 17.3,
+     "lag": 48.5,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1236,
+     "f_kHz": 38.85,
+     "I": 15.5,
+     "lag": 42.2,
+     "limit": "hold"
+    },
+    "carbon_steel/lo": {
+     "P": 1236,
+     "f_kHz": 56.55,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 54.0,
+     "I": 20.5,
+     "lag": 56.0,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1239,
+     "f_kHz": 48.6,
+     "I": 17.7,
+     "lag": 49.5,
+     "limit": "hold"
+    }
+   }
+  },
+  "priors_17.5A_lag45": {
+   "n": 180,
+   "full_power_share": 0.005555555555555556,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 262.83689341484484,
+   "P_median_W": 657.9781681302088,
+   "f_op_kHz": [
+    35.95,
+    53.4
+   ],
+   "f_res_kHz": [
+    28.463584937425793,
+    37.276034295638496
+   ],
+   "f_over_fres_min": 1.2201019812782352,
+   "lag_min_deg": 50.05404465817314,
+   "I_pk_max": 37.974851201911214,
+   "Vc_rms_max": 156.71480026964036,
+   "Vc_pk_max": 340.0711165851196,
+   "limits": {
+    "ceiling": 180
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 780,
+     "f_kHz": 42.6,
+     "I": 17.5,
+     "lag": 65.6,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1099,
+     "f_kHz": 41.35,
+     "I": 17.5,
+     "lag": 54.4,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 749,
+     "f_kHz": 38.8,
+     "I": 17.5,
+     "lag": 66.6,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1055,
+     "f_kHz": 37.85,
+     "I": 17.5,
+     "lag": 56.1,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 661,
+     "f_kHz": 46.2,
+     "I": 17.5,
+     "lag": 69.5,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 914,
+     "f_kHz": 45.3,
+     "I": 17.5,
+     "lag": 61.0,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 621,
+     "f_kHz": 40.95,
+     "I": 17.4,
+     "lag": 70.7,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 861,
+     "f_kHz": 40.3,
+     "I": 17.5,
+     "lag": 62.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 425,
+     "f_kHz": 46.75,
+     "I": 17.5,
+     "lag": 77.0,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 726,
+     "f_kHz": 46.0,
+     "I": 17.5,
+     "lag": 67.4,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 396,
+     "f_kHz": 40.7,
+     "I": 17.4,
+     "lag": 77.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 680,
+     "f_kHz": 40.15,
+     "I": 17.5,
+     "lag": 68.9,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 488,
+     "f_kHz": 50.75,
+     "I": 17.5,
+     "lag": 75.0,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 690,
+     "f_kHz": 50.15,
+     "I": 17.5,
+     "lag": 68.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 463,
+     "f_kHz": 45.8,
+     "I": 17.5,
+     "lag": 75.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 654,
+     "f_kHz": 45.35,
+     "I": 17.5,
+     "lag": 69.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 279,
+     "f_kHz": 41.45,
+     "I": 17.5,
+     "lag": 81.5,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 482,
+     "f_kHz": 41.2,
+     "I": 17.5,
+     "lag": 75.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 270,
+     "f_kHz": 38.45,
+     "I": 17.5,
+     "lag": 81.8,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 466,
+     "f_kHz": 38.25,
+     "I": 17.5,
+     "lag": 75.7,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "priors_17.5A_lag30": {
+   "n": 180,
+   "full_power_share": 0.005555555555555556,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 262.83689341484484,
+   "P_median_W": 657.9781681302088,
+   "f_op_kHz": [
+    35.95,
+    53.4
+   ],
+   "f_res_kHz": [
+    28.463584937425793,
+    37.276034295638496
+   ],
+   "f_over_fres_min": 1.2201019812782352,
+   "lag_min_deg": 50.05404465817314,
+   "I_pk_max": 37.974851201911214,
+   "Vc_rms_max": 156.71480026964036,
+   "Vc_pk_max": 340.0711165851196,
+   "limits": {
+    "ceiling": 180
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 780,
+     "f_kHz": 42.6,
+     "I": 17.5,
+     "lag": 65.6,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1099,
+     "f_kHz": 41.35,
+     "I": 17.5,
+     "lag": 54.4,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 749,
+     "f_kHz": 38.8,
+     "I": 17.5,
+     "lag": 66.6,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1055,
+     "f_kHz": 37.85,
+     "I": 17.5,
+     "lag": 56.1,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 661,
+     "f_kHz": 46.2,
+     "I": 17.5,
+     "lag": 69.5,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 914,
+     "f_kHz": 45.3,
+     "I": 17.5,
+     "lag": 61.0,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 621,
+     "f_kHz": 40.95,
+     "I": 17.4,
+     "lag": 70.7,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 861,
+     "f_kHz": 40.3,
+     "I": 17.5,
+     "lag": 62.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 425,
+     "f_kHz": 46.75,
+     "I": 17.5,
+     "lag": 77.0,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 726,
+     "f_kHz": 46.0,
+     "I": 17.5,
+     "lag": 67.4,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 396,
+     "f_kHz": 40.7,
+     "I": 17.4,
+     "lag": 77.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 680,
+     "f_kHz": 40.15,
+     "I": 17.5,
+     "lag": 68.9,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 488,
+     "f_kHz": 50.75,
+     "I": 17.5,
+     "lag": 75.0,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 690,
+     "f_kHz": 50.15,
+     "I": 17.5,
+     "lag": 68.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 463,
+     "f_kHz": 45.8,
+     "I": 17.5,
+     "lag": 75.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 654,
+     "f_kHz": 45.35,
+     "I": 17.5,
+     "lag": 69.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 279,
+     "f_kHz": 41.45,
+     "I": 17.5,
+     "lag": 81.5,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 482,
+     "f_kHz": 41.2,
+     "I": 17.5,
+     "lag": 75.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 270,
+     "f_kHz": 38.45,
+     "I": 17.5,
+     "lag": 81.8,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 466,
+     "f_kHz": 38.25,
+     "I": 17.5,
+     "lag": 75.7,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "priors_24A_lag45": {
+   "n": 180,
+   "full_power_share": 0.45555555555555555,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 391.437571469239,
+   "P_median_W": 1108.0166631457441,
+   "f_op_kHz": [
+    35.0,
+    48.3
+   ],
+   "f_res_kHz": [
+    28.463584937425793,
+    37.276034295638496
+   ],
+   "f_over_fres_min": 1.182989302257819,
+   "lag_min_deg": 49.59236981858839,
+   "I_pk_max": 52.07425707940417,
+   "Vc_rms_max": 226.7650915200876,
+   "Vc_pk_max": 492.08024859859006,
+   "limits": {
+    "ceiling": 102,
+    "f_min": 7,
+    "hold": 71
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1238,
+     "f_kHz": 39.6,
+     "I": 22.4,
+     "lag": 59.2,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1236,
+     "f_kHz": 40.45,
+     "I": 18.6,
+     "lag": 52.1,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 1236,
+     "f_kHz": 36.1,
+     "I": 22.9,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1234,
+     "f_kHz": 36.85,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1184,
+     "f_kHz": 42.15,
+     "I": 23.9,
+     "lag": 62.7,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1230,
+     "f_kHz": 42.95,
+     "I": 20.5,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1122,
+     "f_kHz": 37.65,
+     "I": 23.9,
+     "lag": 64.2,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1235,
+     "f_kHz": 38.05,
+     "I": 21.2,
+     "lag": 57.4,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 766,
+     "f_kHz": 42.8,
+     "I": 24.0,
+     "lag": 72.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1237,
+     "f_kHz": 42.2,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 722,
+     "f_kHz": 37.55,
+     "I": 24.0,
+     "lag": 73.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1220,
+     "f_kHz": 36.95,
+     "I": 23.9,
+     "lag": 61.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 872,
+     "f_kHz": 46.2,
+     "I": 23.9,
+     "lag": 70.3,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1236,
+     "f_kHz": 45.45,
+     "I": 24.0,
+     "lag": 61.5,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 834,
+     "f_kHz": 41.95,
+     "I": 23.9,
+     "lag": 71.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1178,
+     "f_kHz": 41.4,
+     "I": 23.9,
+     "lag": 62.9,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 503,
+     "f_kHz": 38.3,
+     "I": 23.9,
+     "lag": 78.8,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 866,
+     "f_kHz": 38.0,
+     "I": 23.9,
+     "lag": 70.4,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 486,
+     "f_kHz": 35.7,
+     "I": 23.9,
+     "lag": 79.1,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 847,
+     "f_kHz": 35.4,
+     "I": 24.0,
+     "lag": 70.9,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "priors_24A_lag30": {
+   "n": 180,
+   "full_power_share": 0.45555555555555555,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 391.437571469239,
+   "P_median_W": 1108.0166631457441,
+   "f_op_kHz": [
+    35.0,
+    48.3
+   ],
+   "f_res_kHz": [
+    28.463584937425793,
+    37.276034295638496
+   ],
+   "f_over_fres_min": 1.182989302257819,
+   "lag_min_deg": 49.59236981858839,
+   "I_pk_max": 52.07425707940417,
+   "Vc_rms_max": 226.7650915200876,
+   "Vc_pk_max": 492.08024859859006,
+   "limits": {
+    "ceiling": 102,
+    "f_min": 7,
+    "hold": 71
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1238,
+     "f_kHz": 39.6,
+     "I": 22.4,
+     "lag": 59.2,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1236,
+     "f_kHz": 40.45,
+     "I": 18.6,
+     "lag": 52.1,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 1236,
+     "f_kHz": 36.1,
+     "I": 22.9,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1234,
+     "f_kHz": 36.85,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1184,
+     "f_kHz": 42.15,
+     "I": 23.9,
+     "lag": 62.7,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1230,
+     "f_kHz": 42.95,
+     "I": 20.5,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1122,
+     "f_kHz": 37.65,
+     "I": 23.9,
+     "lag": 64.2,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1235,
+     "f_kHz": 38.05,
+     "I": 21.2,
+     "lag": 57.4,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 766,
+     "f_kHz": 42.8,
+     "I": 24.0,
+     "lag": 72.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1237,
+     "f_kHz": 42.2,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 722,
+     "f_kHz": 37.55,
+     "I": 24.0,
+     "lag": 73.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1220,
+     "f_kHz": 36.95,
+     "I": 23.9,
+     "lag": 61.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 872,
+     "f_kHz": 46.2,
+     "I": 23.9,
+     "lag": 70.3,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1236,
+     "f_kHz": 45.45,
+     "I": 24.0,
+     "lag": 61.5,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 834,
+     "f_kHz": 41.95,
+     "I": 23.9,
+     "lag": 71.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1178,
+     "f_kHz": 41.4,
+     "I": 23.9,
+     "lag": 62.9,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 503,
+     "f_kHz": 38.3,
+     "I": 23.9,
+     "lag": 78.8,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 866,
+     "f_kHz": 38.0,
+     "I": 23.9,
+     "lag": 70.4,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 486,
+     "f_kHz": 35.7,
+     "I": 23.9,
+     "lag": 79.1,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 847,
+     "f_kHz": 35.4,
+     "I": 24.0,
+     "lag": 70.9,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "priors_28A_lag45": {
+   "n": 180,
+   "full_power_share": 0.65,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 391.437571469239,
+   "P_median_W": 1123.7116745552044,
+   "f_op_kHz": [
+    35.0,
+    47.1
+   ],
+   "f_res_kHz": [
+    28.463584937425793,
+    37.276034295638496
+   ],
+   "f_over_fres_min": 1.1642763916321326,
+   "lag_min_deg": 49.59236981858839,
+   "I_pk_max": 60.75785839215215,
+   "Vc_rms_max": 266.02127734294993,
+   "Vc_pk_max": 577.2661718342014,
+   "limits": {
+    "ceiling": 51,
+    "f_min": 15,
+    "hold": 114
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1238,
+     "f_kHz": 39.6,
+     "I": 22.4,
+     "lag": 59.2,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1236,
+     "f_kHz": 40.45,
+     "I": 18.6,
+     "lag": 52.1,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 1236,
+     "f_kHz": 36.1,
+     "I": 22.9,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1234,
+     "f_kHz": 36.85,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1237,
+     "f_kHz": 41.9,
+     "I": 24.5,
+     "lag": 62.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1230,
+     "f_kHz": 42.95,
+     "I": 20.5,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1225,
+     "f_kHz": 37.25,
+     "I": 25.0,
+     "lag": 63.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1235,
+     "f_kHz": 38.05,
+     "I": 21.2,
+     "lag": 57.4,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 1019,
+     "f_kHz": 41.35,
+     "I": 27.9,
+     "lag": 70.2,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1237,
+     "f_kHz": 42.2,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 965,
+     "f_kHz": 36.4,
+     "I": 27.9,
+     "lag": 71.3,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1234,
+     "f_kHz": 36.9,
+     "I": 24.0,
+     "lag": 61.6,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1172,
+     "f_kHz": 44.45,
+     "I": 28.0,
+     "lag": 67.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1236,
+     "f_kHz": 45.45,
+     "I": 24.0,
+     "lag": 61.5,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 1119,
+     "f_kHz": 40.5,
+     "I": 27.9,
+     "lag": 68.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1232,
+     "f_kHz": 41.15,
+     "I": 24.5,
+     "lag": 62.3,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 679,
+     "f_kHz": 37.1,
+     "I": 28.0,
+     "lag": 77.0,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 1170,
+     "f_kHz": 36.75,
+     "I": 28.0,
+     "lag": 67.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 589,
+     "f_kHz": 35.0,
+     "I": 26.4,
+     "lag": 78.1,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 940,
+     "f_kHz": 35.0,
+     "I": 25.3,
+     "lag": 69.9,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_28A_lag30": {
+   "n": 180,
+   "full_power_share": 0.65,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 391.437571469239,
+   "P_median_W": 1123.7116745552044,
+   "f_op_kHz": [
+    35.0,
+    47.1
+   ],
+   "f_res_kHz": [
+    28.463584937425793,
+    37.276034295638496
+   ],
+   "f_over_fres_min": 1.1642763916321326,
+   "lag_min_deg": 49.59236981858839,
+   "I_pk_max": 60.75785839215215,
+   "Vc_rms_max": 266.02127734294993,
+   "Vc_pk_max": 577.2661718342014,
+   "limits": {
+    "ceiling": 51,
+    "f_min": 15,
+    "hold": 114
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1238,
+     "f_kHz": 39.6,
+     "I": 22.4,
+     "lag": 59.2,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1236,
+     "f_kHz": 40.45,
+     "I": 18.6,
+     "lag": 52.1,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 1236,
+     "f_kHz": 36.1,
+     "I": 22.9,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1234,
+     "f_kHz": 36.85,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1237,
+     "f_kHz": 41.9,
+     "I": 24.5,
+     "lag": 62.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1230,
+     "f_kHz": 42.95,
+     "I": 20.5,
+     "lag": 56.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1225,
+     "f_kHz": 37.25,
+     "I": 25.0,
+     "lag": 63.1,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1235,
+     "f_kHz": 38.05,
+     "I": 21.2,
+     "lag": 57.4,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 1019,
+     "f_kHz": 41.35,
+     "I": 27.9,
+     "lag": 70.2,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1237,
+     "f_kHz": 42.2,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 965,
+     "f_kHz": 36.4,
+     "I": 27.9,
+     "lag": 71.3,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1234,
+     "f_kHz": 36.9,
+     "I": 24.0,
+     "lag": 61.6,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1172,
+     "f_kHz": 44.45,
+     "I": 28.0,
+     "lag": 67.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1236,
+     "f_kHz": 45.45,
+     "I": 24.0,
+     "lag": 61.5,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 1119,
+     "f_kHz": 40.5,
+     "I": 27.9,
+     "lag": 68.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1232,
+     "f_kHz": 41.15,
+     "I": 24.5,
+     "lag": 62.3,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 679,
+     "f_kHz": 37.1,
+     "I": 28.0,
+     "lag": 77.0,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 1170,
+     "f_kHz": 36.75,
+     "I": 28.0,
+     "lag": 67.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 589,
+     "f_kHz": 35.0,
+     "I": 26.4,
+     "lag": 78.1,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 940,
+     "f_kHz": 35.0,
+     "I": 25.3,
+     "lag": 69.9,
+     "limit": "f_min"
+    }
+   }
+  },
+  "special_loads": {
+   "no_pan": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 5.578139690948084,
+     "I_pk": 12.104563129357341,
+     "f_res_kHz": 28.38858194819844,
+     "Q": 238.21902721822622,
+     "R_total": 0.1047162127362343
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 5.429009350156889,
+     "I_pk": 11.78095028984045,
+     "f_res_kHz": 27.00292763277802,
+     "Q": 238.21902721822622,
+     "R_total": 0.1047162127362343
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 6.135953660042892,
+     "I_pk": 13.315019442293076,
+     "f_res_kHz": 28.38858194819844,
+     "Q": 238.21902721822622,
+     "R_total": 0.1047162127362343
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 5.971910285172578,
+     "I_pk": 12.959045318824494,
+     "f_res_kHz": 27.00292763277802,
+     "Q": 238.21902721822622,
+     "R_total": 0.1047162127362343
+    }
+   },
+   "aluminium_240": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 50.76223030611097,
+     "I_pk": 110.1540397642608,
+     "f_res_kHz": 51.1012855282184,
+     "Q": 32.40256623996419,
+     "R_total": 0.23759358693815347
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 40.65118057944145,
+     "I_pk": 88.21306185738794,
+     "f_res_kHz": 48.607018046140084,
+     "Q": 32.40256623996419,
+     "R_total": 0.23759358693815347
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 55.83845333672206,
+     "I_pk": 121.16944374068687,
+     "f_res_kHz": 51.1012855282184,
+     "Q": 32.40256623996419,
+     "R_total": 0.23759358693815347
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 44.71629863738559,
+     "I_pk": 97.03436804312673,
+     "f_res_kHz": 48.607018046140084,
+     "Q": 32.40256623996419,
+     "R_total": 0.23759358693815347
+    }
+   },
+   "aluminium_180": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 22.566385054970212,
+     "I_pk": 48.96905556928536,
+     "f_res_kHz": 44.043801553407086,
+     "Q": 40.87014874682062,
+     "R_total": 0.2535723874778434
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 20.312002727144524,
+     "I_pk": 44.07704591790362,
+     "f_res_kHz": 41.89401176111097,
+     "Q": 40.87014874682062,
+     "R_total": 0.2535723874778434
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 24.82302356046723,
+     "I_pk": 53.86596112621389,
+     "f_res_kHz": 44.043801553407086,
+     "Q": 40.87014874682062,
+     "R_total": 0.2535723874778434
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 22.343202999858974,
+     "I_pk": 48.484750509693974,
+     "f_res_kHz": 41.89401176111097,
+     "Q": 40.87014874682062,
+     "R_total": 0.2535723874778434
+    }
+   },
+   "carbon_steel_lo_180": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 15.0408981509898,
+     "I_pk": 32.638748987647865,
+     "f_res_kHz": 40.16857701753251,
+     "Q": 6.015869874785764,
+     "R_total": 2.071125637511727
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 14.042033437031643,
+     "I_pk": 30.471212558358665,
+     "f_res_kHz": 38.20793797644884,
+     "Q": 6.015869874785764,
+     "R_total": 2.071125637511727
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 16.54498796608878,
+     "I_pk": 35.90262388641265,
+     "f_res_kHz": 40.16857701753251,
+     "Q": 6.015869874785764,
+     "R_total": 2.071125637511727
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 15.446236780734806,
+     "I_pk": 33.51833381419453,
+     "f_res_kHz": 38.20793797644884,
+     "Q": 6.015869874785764,
+     "R_total": 2.071125637511727
+    }
+   }
+  }
+ },
+ "80uH_out6.46": {
+  "model_17.5A_lag45": {
+   "n": 108,
+   "full_power_share": 0.25925925925925924,
+   "over_limit_at_fmax": 1,
+   "P_min_W": 777.121978073554,
+   "P_median_W": 1037.6575324069886,
+   "f_op_kHz": [
+    35.55,
+    60.0
+   ],
+   "f_res_kHz": [
+    27.502473692970813,
+    41.68438319520646
+   ],
+   "f_over_fres_min": 1.2546504587300875,
+   "lag_min_deg": 45.02808405692027,
+   "I_pk_max": 39.287339864735046,
+   "Vc_rms_max": 129.033488968327,
+   "Vc_pk_max": 280.00267106126955,
+   "limits": {
+    "ceiling": 45,
+    "hold": 19,
+    "lag": 43,
+    "over_limit_at_f_max": 1
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1002,
+     "f_kHz": 52.2,
+     "I": 17.5,
+     "lag": 57.9,
+     "limit": "ceiling"
+    },
+    "ss430/nom": {
+     "P": 1199,
+     "f_kHz": 41.4,
+     "I": 15.7,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "ss430/hi": {
+     "P": 995,
+     "f_kHz": 36.6,
+     "I": 13.0,
+     "lag": 45.0,
+     "limit": "lag"
+    },
+    "triply/lo": {
+     "P": 1027,
+     "f_kHz": 52.15,
+     "I": 17.5,
+     "lag": 57.0,
+     "limit": "ceiling"
+    },
+    "triply/nom": {
+     "P": 1230,
+     "f_kHz": 41.3,
+     "I": 16.1,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/hi": {
+     "P": 1027,
+     "f_kHz": 36.55,
+     "I": 13.5,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "cast_iron/lo": {
+     "P": 1142,
+     "f_kHz": 48.55,
+     "I": 17.5,
+     "lag": 52.8,
+     "limit": "ceiling"
+    },
+    "cast_iron/nom": {
+     "P": 1238,
+     "f_kHz": 43.1,
+     "I": 16.6,
+     "lag": 46.3,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 997,
+     "f_kHz": 37.35,
+     "I": 13.1,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 804,
+     "f_kHz": 57.4,
+     "I": 17.5,
+     "lag": 64.8,
+     "limit": "ceiling"
+    },
+    "carbon_steel/nom": {
+     "P": 1017,
+     "f_kHz": 51.95,
+     "I": 17.5,
+     "lag": 57.4,
+     "limit": "ceiling"
+    },
+    "carbon_steel/hi": {
+     "P": 1236,
+     "f_kHz": 44.25,
+     "I": 16.9,
+     "lag": 47.3,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_17.5A_lag30": {
+   "n": 108,
+   "full_power_share": 0.48148148148148145,
+   "over_limit_at_fmax": 1,
+   "P_min_W": 777.121978073554,
+   "P_median_W": 1112.0520023819815,
+   "f_op_kHz": [
+    35.0,
+    60.0
+   ],
+   "f_res_kHz": [
+    27.43830265277487,
+    41.68438319520646
+   ],
+   "f_over_fres_min": 1.1966170652818013,
+   "lag_min_deg": 36.62117447389944,
+   "I_pk_max": 39.287339864735046,
+   "Vc_rms_max": 142.52816691667698,
+   "Vc_pk_max": 309.286122209189,
+   "limits": {
+    "ceiling": 45,
+    "f_min": 16,
+    "hold": 46,
+    "over_limit_at_f_max": 1
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1002,
+     "f_kHz": 52.2,
+     "I": 17.5,
+     "lag": 57.9,
+     "limit": "ceiling"
+    },
+    "ss430/nom": {
+     "P": 1236,
+     "f_kHz": 41.05,
+     "I": 16.0,
+     "lag": 44.4,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1158,
+     "f_kHz": 35.0,
+     "I": 14.3,
+     "lag": 41.4,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1027,
+     "f_kHz": 52.15,
+     "I": 17.5,
+     "lag": 57.0,
+     "limit": "ceiling"
+    },
+    "triply/nom": {
+     "P": 1235,
+     "f_kHz": 41.25,
+     "I": 16.2,
+     "lag": 45.0,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1194,
+     "f_kHz": 35.0,
+     "I": 14.7,
+     "lag": 41.4,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1142,
+     "f_kHz": 48.55,
+     "I": 17.5,
+     "lag": 52.8,
+     "limit": "ceiling"
+    },
+    "cast_iron/nom": {
+     "P": 1238,
+     "f_kHz": 43.1,
+     "I": 16.6,
+     "lag": 46.3,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1236,
+     "f_kHz": 35.05,
+     "I": 14.9,
+     "lag": 39.8,
+     "limit": "hold"
+    },
+    "carbon_steel/lo": {
+     "P": 804,
+     "f_kHz": 57.4,
+     "I": 17.5,
+     "lag": 64.8,
+     "limit": "ceiling"
+    },
+    "carbon_steel/nom": {
+     "P": 1017,
+     "f_kHz": 51.95,
+     "I": 17.5,
+     "lag": 57.4,
+     "limit": "ceiling"
+    },
+    "carbon_steel/hi": {
+     "P": 1236,
+     "f_kHz": 44.25,
+     "I": 16.9,
+     "lag": 47.3,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_24A_lag45": {
+   "n": 108,
+   "full_power_share": 0.6481481481481481,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 789.1589733324109,
+   "P_median_W": 1223.8277263359287,
+   "f_op_kHz": [
+    35.55,
+    54.4
+   ],
+   "f_res_kHz": [
+    27.502473692970813,
+    41.41405895261269
+   ],
+   "f_over_fres_min": 1.2546504587300875,
+   "lag_min_deg": 45.02808405692027,
+   "I_pk_max": 50.66863235624312,
+   "Vc_rms_max": 142.1689693185608,
+   "Vc_pk_max": 308.5066634212769,
+   "limits": {
+    "hold": 65,
+    "lag": 43
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1238,
+     "f_kHz": 49.65,
+     "I": 19.7,
+     "lag": 54.4,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1199,
+     "f_kHz": 41.4,
+     "I": 15.7,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "ss430/hi": {
+     "P": 995,
+     "f_kHz": 36.6,
+     "I": 13.0,
+     "lag": 45.0,
+     "limit": "lag"
+    },
+    "triply/lo": {
+     "P": 1237,
+     "f_kHz": 49.85,
+     "I": 19.4,
+     "lag": 53.8,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1230,
+     "f_kHz": 41.3,
+     "I": 16.1,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/hi": {
+     "P": 1027,
+     "f_kHz": 36.55,
+     "I": 13.5,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "cast_iron/lo": {
+     "P": 1235,
+     "f_kHz": 47.6,
+     "I": 18.3,
+     "lag": 51.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1238,
+     "f_kHz": 43.1,
+     "I": 16.6,
+     "lag": 46.3,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 997,
+     "f_kHz": 37.35,
+     "I": 13.1,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 52.25,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 49.6,
+     "I": 19.5,
+     "lag": 54.2,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1236,
+     "f_kHz": 44.25,
+     "I": 16.9,
+     "lag": 47.3,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_24A_lag30": {
+   "n": 108,
+   "full_power_share": 0.8703703703703703,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 868.9117333614862,
+   "P_median_W": 1235.4763486660188,
+   "f_op_kHz": [
+    35.0,
+    54.4
+   ],
+   "f_res_kHz": [
+    27.43830265277487,
+    41.41405895261269
+   ],
+   "f_over_fres_min": 1.1966170652818013,
+   "lag_min_deg": 36.62117447389944,
+   "I_pk_max": 50.66863235624312,
+   "Vc_rms_max": 142.52816691667698,
+   "Vc_pk_max": 309.286122209189,
+   "limits": {
+    "f_min": 16,
+    "hold": 92
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1238,
+     "f_kHz": 49.65,
+     "I": 19.7,
+     "lag": 54.4,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1236,
+     "f_kHz": 41.05,
+     "I": 16.0,
+     "lag": 44.4,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1158,
+     "f_kHz": 35.0,
+     "I": 14.3,
+     "lag": 41.4,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1237,
+     "f_kHz": 49.85,
+     "I": 19.4,
+     "lag": 53.8,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1235,
+     "f_kHz": 41.25,
+     "I": 16.2,
+     "lag": 45.0,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1194,
+     "f_kHz": 35.0,
+     "I": 14.7,
+     "lag": 41.4,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1235,
+     "f_kHz": 47.6,
+     "I": 18.3,
+     "lag": 51.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1238,
+     "f_kHz": 43.1,
+     "I": 16.6,
+     "lag": 46.3,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1236,
+     "f_kHz": 35.05,
+     "I": 14.9,
+     "lag": 39.8,
+     "limit": "hold"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 52.25,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 49.6,
+     "I": 19.5,
+     "lag": 54.2,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1236,
+     "f_kHz": 44.25,
+     "I": 16.9,
+     "lag": 47.3,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_28A_lag45": {
+   "n": 108,
+   "full_power_share": 0.6481481481481481,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 789.1589733324109,
+   "P_median_W": 1223.8277263359287,
+   "f_op_kHz": [
+    35.55,
+    54.4
+   ],
+   "f_res_kHz": [
+    27.502473692970813,
+    41.41405895261269
+   ],
+   "f_over_fres_min": 1.2546504587300875,
+   "lag_min_deg": 45.02808405692027,
+   "I_pk_max": 50.66863235624312,
+   "Vc_rms_max": 142.1689693185608,
+   "Vc_pk_max": 308.5066634212769,
+   "limits": {
+    "hold": 65,
+    "lag": 43
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1238,
+     "f_kHz": 49.65,
+     "I": 19.7,
+     "lag": 54.4,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1199,
+     "f_kHz": 41.4,
+     "I": 15.7,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "ss430/hi": {
+     "P": 995,
+     "f_kHz": 36.6,
+     "I": 13.0,
+     "lag": 45.0,
+     "limit": "lag"
+    },
+    "triply/lo": {
+     "P": 1237,
+     "f_kHz": 49.85,
+     "I": 19.4,
+     "lag": 53.8,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1230,
+     "f_kHz": 41.3,
+     "I": 16.1,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/hi": {
+     "P": 1027,
+     "f_kHz": 36.55,
+     "I": 13.5,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "cast_iron/lo": {
+     "P": 1235,
+     "f_kHz": 47.6,
+     "I": 18.3,
+     "lag": 51.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1238,
+     "f_kHz": 43.1,
+     "I": 16.6,
+     "lag": 46.3,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 997,
+     "f_kHz": 37.35,
+     "I": 13.1,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 52.25,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 49.6,
+     "I": 19.5,
+     "lag": 54.2,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1236,
+     "f_kHz": 44.25,
+     "I": 16.9,
+     "lag": 47.3,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_28A_lag30": {
+   "n": 108,
+   "full_power_share": 0.8703703703703703,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 868.9117333614862,
+   "P_median_W": 1235.4763486660188,
+   "f_op_kHz": [
+    35.0,
+    54.4
+   ],
+   "f_res_kHz": [
+    27.43830265277487,
+    41.41405895261269
+   ],
+   "f_over_fres_min": 1.1966170652818013,
+   "lag_min_deg": 36.62117447389944,
+   "I_pk_max": 50.66863235624312,
+   "Vc_rms_max": 142.52816691667698,
+   "Vc_pk_max": 309.286122209189,
+   "limits": {
+    "f_min": 16,
+    "hold": 92
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1238,
+     "f_kHz": 49.65,
+     "I": 19.7,
+     "lag": 54.4,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1236,
+     "f_kHz": 41.05,
+     "I": 16.0,
+     "lag": 44.4,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 1158,
+     "f_kHz": 35.0,
+     "I": 14.3,
+     "lag": 41.4,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1237,
+     "f_kHz": 49.85,
+     "I": 19.4,
+     "lag": 53.8,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1235,
+     "f_kHz": 41.25,
+     "I": 16.2,
+     "lag": 45.0,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 1194,
+     "f_kHz": 35.0,
+     "I": 14.7,
+     "lag": 41.4,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1235,
+     "f_kHz": 47.6,
+     "I": 18.3,
+     "lag": 51.3,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1238,
+     "f_kHz": 43.1,
+     "I": 16.6,
+     "lag": 46.3,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 1236,
+     "f_kHz": 35.05,
+     "I": 14.9,
+     "lag": 39.8,
+     "limit": "hold"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 52.25,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1235,
+     "f_kHz": 49.6,
+     "I": 19.5,
+     "lag": 54.2,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1236,
+     "f_kHz": 44.25,
+     "I": 16.9,
+     "lag": 47.3,
+     "limit": "hold"
+    }
+   }
+  },
+  "priors_17.5A_lag45": {
+   "n": 180,
+   "full_power_share": 0.022222222222222223,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 220.28125221106316,
+   "P_median_W": 716.6902510392151,
+   "f_op_kHz": [
+    35.0,
+    48.65
+   ],
+   "f_res_kHz": [
+    26.593152111020817,
+    34.826507353124505
+   ],
+   "f_over_fres_min": 1.2146293261801975,
+   "lag_min_deg": 47.311417481652306,
+   "I_pk_max": 37.97174565368145,
+   "Vc_rms_max": 166.6979162274695,
+   "Vc_pk_max": 361.73447821360884,
+   "limits": {
+    "ceiling": 160,
+    "f_min": 17,
+    "hold": 3
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 851,
+     "f_kHz": 38.9,
+     "I": 17.4,
+     "lag": 63.1,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1195,
+     "f_kHz": 37.6,
+     "I": 17.4,
+     "lag": 50.6,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 817,
+     "f_kHz": 35.5,
+     "I": 17.5,
+     "lag": 64.3,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1057,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 54.1,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 720,
+     "f_kHz": 42.2,
+     "I": 17.4,
+     "lag": 67.5,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 996,
+     "f_kHz": 41.25,
+     "I": 17.5,
+     "lag": 58.1,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 681,
+     "f_kHz": 37.45,
+     "I": 17.5,
+     "lag": 68.8,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 938,
+     "f_kHz": 36.8,
+     "I": 17.4,
+     "lag": 60.1,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 464,
+     "f_kHz": 42.75,
+     "I": 17.5,
+     "lag": 75.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 789,
+     "f_kHz": 42.0,
+     "I": 17.4,
+     "lag": 65.2,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 433,
+     "f_kHz": 37.3,
+     "I": 17.4,
+     "lag": 76.7,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 741,
+     "f_kHz": 36.75,
+     "I": 17.4,
+     "lag": 66.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 531,
+     "f_kHz": 46.35,
+     "I": 17.5,
+     "lag": 73.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 749,
+     "f_kHz": 45.75,
+     "I": 17.4,
+     "lag": 66.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 508,
+     "f_kHz": 41.85,
+     "I": 17.5,
+     "lag": 74.4,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 716,
+     "f_kHz": 41.4,
+     "I": 17.5,
+     "lag": 67.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 304,
+     "f_kHz": 38.0,
+     "I": 17.5,
+     "lag": 80.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 525,
+     "f_kHz": 37.75,
+     "I": 17.4,
+     "lag": 73.8,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 293,
+     "f_kHz": 35.3,
+     "I": 17.4,
+     "lag": 81.1,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 511,
+     "f_kHz": 35.05,
+     "I": 17.5,
+     "lag": 74.3,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "priors_17.5A_lag30": {
+   "n": 180,
+   "full_power_share": 0.022222222222222223,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 220.28125221106316,
+   "P_median_W": 716.6902510392151,
+   "f_op_kHz": [
+    35.0,
+    48.65
+   ],
+   "f_res_kHz": [
+    26.593152111020817,
+    34.826507353124505
+   ],
+   "f_over_fres_min": 1.2146293261801975,
+   "lag_min_deg": 47.311417481652306,
+   "I_pk_max": 37.97174565368145,
+   "Vc_rms_max": 166.6979162274695,
+   "Vc_pk_max": 361.73447821360884,
+   "limits": {
+    "ceiling": 160,
+    "f_min": 17,
+    "hold": 3
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 851,
+     "f_kHz": 38.9,
+     "I": 17.4,
+     "lag": 63.1,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1195,
+     "f_kHz": 37.6,
+     "I": 17.4,
+     "lag": 50.6,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 817,
+     "f_kHz": 35.5,
+     "I": 17.5,
+     "lag": 64.3,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1057,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 54.1,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 720,
+     "f_kHz": 42.2,
+     "I": 17.4,
+     "lag": 67.5,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 996,
+     "f_kHz": 41.25,
+     "I": 17.5,
+     "lag": 58.1,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 681,
+     "f_kHz": 37.45,
+     "I": 17.5,
+     "lag": 68.8,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 938,
+     "f_kHz": 36.8,
+     "I": 17.4,
+     "lag": 60.1,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 464,
+     "f_kHz": 42.75,
+     "I": 17.5,
+     "lag": 75.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 789,
+     "f_kHz": 42.0,
+     "I": 17.4,
+     "lag": 65.2,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 433,
+     "f_kHz": 37.3,
+     "I": 17.4,
+     "lag": 76.7,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 741,
+     "f_kHz": 36.75,
+     "I": 17.4,
+     "lag": 66.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 531,
+     "f_kHz": 46.35,
+     "I": 17.5,
+     "lag": 73.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 749,
+     "f_kHz": 45.75,
+     "I": 17.4,
+     "lag": 66.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 508,
+     "f_kHz": 41.85,
+     "I": 17.5,
+     "lag": 74.4,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 716,
+     "f_kHz": 41.4,
+     "I": 17.5,
+     "lag": 67.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 304,
+     "f_kHz": 38.0,
+     "I": 17.5,
+     "lag": 80.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 525,
+     "f_kHz": 37.75,
+     "I": 17.4,
+     "lag": 73.8,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 293,
+     "f_kHz": 35.3,
+     "I": 17.4,
+     "lag": 81.1,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 511,
+     "f_kHz": 35.05,
+     "I": 17.5,
+     "lag": 74.3,
+     "limit": "ceiling"
+    }
+   }
+  },
+  "priors_24A_lag45": {
+   "n": 180,
+   "full_power_share": 0.38333333333333336,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 220.28125221106316,
+   "P_median_W": 1021.9077732227377,
+   "f_op_kHz": [
+    35.0,
+    44.25
+   ],
+   "f_res_kHz": [
+    26.593152111020817,
+    34.826507353124505
+   ],
+   "f_over_fres_min": 1.1802910624726033,
+   "lag_min_deg": 47.311417481652306,
+   "I_pk_max": 52.079194447797974,
+   "Vc_rms_max": 227.07755526281284,
+   "Vc_pk_max": 492.75829492030385,
+   "limits": {
+    "ceiling": 48,
+    "f_min": 67,
+    "hold": 65
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1230,
+     "f_kHz": 36.75,
+     "I": 21.2,
+     "lag": 57.6,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1238,
+     "f_kHz": 37.35,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 898,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 63.1,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1057,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 54.1,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1232,
+     "f_kHz": 38.9,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1239,
+     "f_kHz": 39.7,
+     "I": 19.7,
+     "lag": 54.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1113,
+     "f_kHz": 35.0,
+     "I": 22.7,
+     "lag": 63.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1237,
+     "f_kHz": 35.25,
+     "I": 20.2,
+     "lag": 55.5,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 833,
+     "f_kHz": 39.35,
+     "I": 23.9,
+     "lag": 71.1,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1233,
+     "f_kHz": 39.15,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 707,
+     "f_kHz": 35.0,
+     "I": 22.6,
+     "lag": 73.2,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1043,
+     "f_kHz": 35.0,
+     "I": 20.9,
+     "lag": 62.5,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 960,
+     "f_kHz": 42.35,
+     "I": 24.0,
+     "lag": 68.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1235,
+     "f_kHz": 42.15,
+     "I": 22.8,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 912,
+     "f_kHz": 38.55,
+     "I": 23.9,
+     "lag": 69.3,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1229,
+     "f_kHz": 38.2,
+     "I": 23.3,
+     "lag": 60.8,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 553,
+     "f_kHz": 35.25,
+     "I": 24.0,
+     "lag": 77.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 937,
+     "f_kHz": 35.0,
+     "I": 23.7,
+     "lag": 68.5,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 312,
+     "f_kHz": 35.0,
+     "I": 18.0,
+     "lag": 80.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 516,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 74.2,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_24A_lag30": {
+   "n": 180,
+   "full_power_share": 0.38333333333333336,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 220.28125221106316,
+   "P_median_W": 1021.9077732227377,
+   "f_op_kHz": [
+    35.0,
+    44.25
+   ],
+   "f_res_kHz": [
+    26.593152111020817,
+    34.826507353124505
+   ],
+   "f_over_fres_min": 1.1802910624726033,
+   "lag_min_deg": 47.311417481652306,
+   "I_pk_max": 52.079194447797974,
+   "Vc_rms_max": 227.07755526281284,
+   "Vc_pk_max": 492.75829492030385,
+   "limits": {
+    "ceiling": 48,
+    "f_min": 67,
+    "hold": 65
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1230,
+     "f_kHz": 36.75,
+     "I": 21.2,
+     "lag": 57.6,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1238,
+     "f_kHz": 37.35,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 898,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 63.1,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1057,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 54.1,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1232,
+     "f_kHz": 38.9,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1239,
+     "f_kHz": 39.7,
+     "I": 19.7,
+     "lag": 54.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1113,
+     "f_kHz": 35.0,
+     "I": 22.7,
+     "lag": 63.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1237,
+     "f_kHz": 35.25,
+     "I": 20.2,
+     "lag": 55.5,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 833,
+     "f_kHz": 39.35,
+     "I": 23.9,
+     "lag": 71.1,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1233,
+     "f_kHz": 39.15,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 707,
+     "f_kHz": 35.0,
+     "I": 22.6,
+     "lag": 73.2,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1043,
+     "f_kHz": 35.0,
+     "I": 20.9,
+     "lag": 62.5,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 960,
+     "f_kHz": 42.35,
+     "I": 24.0,
+     "lag": 68.2,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1235,
+     "f_kHz": 42.15,
+     "I": 22.8,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 912,
+     "f_kHz": 38.55,
+     "I": 23.9,
+     "lag": 69.3,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1229,
+     "f_kHz": 38.2,
+     "I": 23.3,
+     "lag": 60.8,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 553,
+     "f_kHz": 35.25,
+     "I": 24.0,
+     "lag": 77.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 937,
+     "f_kHz": 35.0,
+     "I": 23.7,
+     "lag": 68.5,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 312,
+     "f_kHz": 35.0,
+     "I": 18.0,
+     "lag": 80.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 516,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 74.2,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_28A_lag45": {
+   "n": 180,
+   "full_power_share": 0.5055555555555555,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 220.28125221106316,
+   "P_median_W": 1111.3740020732803,
+   "f_op_kHz": [
+    35.0,
+    43.65
+   ],
+   "f_res_kHz": [
+    26.593152111020817,
+    34.826507353124505
+   ],
+   "f_over_fres_min": 1.168537329607283,
+   "lag_min_deg": 47.311417481652306,
+   "I_pk_max": 60.73133691599985,
+   "Vc_rms_max": 266.23569760641334,
+   "Vc_pk_max": 577.731463805917,
+   "limits": {
+    "ceiling": 18,
+    "f_min": 78,
+    "hold": 84
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1230,
+     "f_kHz": 36.75,
+     "I": 21.2,
+     "lag": 57.6,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1238,
+     "f_kHz": 37.35,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 898,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 63.1,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1057,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 54.1,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1232,
+     "f_kHz": 38.9,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1239,
+     "f_kHz": 39.7,
+     "I": 19.7,
+     "lag": 54.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1113,
+     "f_kHz": 35.0,
+     "I": 22.7,
+     "lag": 63.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1237,
+     "f_kHz": 35.25,
+     "I": 20.2,
+     "lag": 55.5,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 1119,
+     "f_kHz": 38.05,
+     "I": 27.9,
+     "lag": 68.2,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1233,
+     "f_kHz": 39.15,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 707,
+     "f_kHz": 35.0,
+     "I": 22.6,
+     "lag": 73.2,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1043,
+     "f_kHz": 35.0,
+     "I": 20.9,
+     "lag": 62.5,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1233,
+     "f_kHz": 41.05,
+     "I": 27.4,
+     "lag": 65.4,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1235,
+     "f_kHz": 42.15,
+     "I": 22.8,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 1218,
+     "f_kHz": 37.3,
+     "I": 27.8,
+     "lag": 66.1,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1229,
+     "f_kHz": 38.2,
+     "I": 23.3,
+     "lag": 60.8,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 592,
+     "f_kHz": 35.0,
+     "I": 24.8,
+     "lag": 77.3,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 937,
+     "f_kHz": 35.0,
+     "I": 23.7,
+     "lag": 68.5,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 312,
+     "f_kHz": 35.0,
+     "I": 18.0,
+     "lag": 80.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 516,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 74.2,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_28A_lag30": {
+   "n": 180,
+   "full_power_share": 0.5055555555555555,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 220.28125221106316,
+   "P_median_W": 1111.3740020732803,
+   "f_op_kHz": [
+    35.0,
+    43.65
+   ],
+   "f_res_kHz": [
+    26.593152111020817,
+    34.826507353124505
+   ],
+   "f_over_fres_min": 1.168537329607283,
+   "lag_min_deg": 47.311417481652306,
+   "I_pk_max": 60.73133691599985,
+   "Vc_rms_max": 266.23569760641334,
+   "Vc_pk_max": 577.731463805917,
+   "limits": {
+    "ceiling": 18,
+    "f_min": 78,
+    "hold": 84
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1230,
+     "f_kHz": 36.75,
+     "I": 21.2,
+     "lag": 57.6,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1238,
+     "f_kHz": 37.35,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 898,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 63.1,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 1057,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 54.1,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1232,
+     "f_kHz": 38.9,
+     "I": 23.3,
+     "lag": 60.6,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1239,
+     "f_kHz": 39.7,
+     "I": 19.7,
+     "lag": 54.3,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 1113,
+     "f_kHz": 35.0,
+     "I": 22.7,
+     "lag": 63.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 1237,
+     "f_kHz": 35.25,
+     "I": 20.2,
+     "lag": 55.5,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 1119,
+     "f_kHz": 38.05,
+     "I": 27.9,
+     "lag": 68.2,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1233,
+     "f_kHz": 39.15,
+     "I": 22.2,
+     "lag": 59.0,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 707,
+     "f_kHz": 35.0,
+     "I": 22.6,
+     "lag": 73.2,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 1043,
+     "f_kHz": 35.0,
+     "I": 20.9,
+     "lag": 62.5,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1233,
+     "f_kHz": 41.05,
+     "I": 27.4,
+     "lag": 65.4,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1235,
+     "f_kHz": 42.15,
+     "I": 22.8,
+     "lag": 60.0,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 1218,
+     "f_kHz": 37.3,
+     "I": 27.8,
+     "lag": 66.1,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1229,
+     "f_kHz": 38.2,
+     "I": 23.3,
+     "lag": 60.8,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 592,
+     "f_kHz": 35.0,
+     "I": 24.8,
+     "lag": 77.3,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 937,
+     "f_kHz": 35.0,
+     "I": 23.7,
+     "lag": 68.5,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 312,
+     "f_kHz": 35.0,
+     "I": 18.0,
+     "lag": 80.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 516,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 74.2,
+     "limit": "f_min"
+    }
+   }
+  },
+  "special_loads": {
+   "no_pan": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 4.696925597979435,
+     "I_pk": 10.192328547615373,
+     "f_res_kHz": 26.52307780710973,
+     "Q": 254.98596509241602,
+     "R_total": 0.11207626696742141
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 4.5907428831275405,
+     "I_pk": 9.961912056386762,
+     "f_res_kHz": 25.228479250242206,
+     "Q": 254.98596509241602,
+     "R_total": 0.11207626696742141
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 5.166618157777378,
+     "I_pk": 11.21156140237691,
+     "f_res_kHz": 26.52307780710973,
+     "Q": 254.98596509241602,
+     "R_total": 0.11207626696742141
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 5.049817171440295,
+     "I_pk": 10.958103262025439,
+     "f_res_kHz": 25.228479250242206,
+     "Q": 254.98596509241602,
+     "R_total": 0.11207626696742141
+    }
+   },
+   "aluminium_240": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 34.23683730234042,
+     "I_pk": 74.2939369460787,
+     "f_res_kHz": 47.9940225284515,
+     "Q": 32.99894969741568,
+     "R_total": 0.2644864047386595
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 29.310071748307408,
+     "I_pk": 63.602855693827074,
+     "f_res_kHz": 45.65142138858887,
+     "Q": 32.99894969741568,
+     "R_total": 0.2644864047386595
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 37.66052103257446,
+     "I_pk": 81.72333064068657,
+     "f_res_kHz": 47.9940225284515,
+     "Q": 32.99894969741568,
+     "R_total": 0.2644864047386595
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 32.24107892313815,
+     "I_pk": 69.96314126320978,
+     "f_res_kHz": 45.65142138858887,
+     "Q": 32.99894969741568,
+     "R_total": 0.2644864047386595
+    }
+   },
+   "aluminium_180": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 18.469018917598603,
+     "I_pk": 40.07777105118897,
+     "f_res_kHz": 41.947614827212625,
+     "Q": 40.437004431828285,
+     "R_total": 0.282542805821612
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 16.930799516015142,
+     "I_pk": 36.739834949752854,
+     "f_res_kHz": 39.900140472453266,
+     "Q": 40.437004431828285,
+     "R_total": 0.282542805821612
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 20.315920809358463,
+     "I_pk": 44.085548156307865,
+     "f_res_kHz": 41.947614827212625,
+     "Q": 40.437004431828285,
+     "R_total": 0.282542805821612
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 18.623879467616657,
+     "I_pk": 40.41381844472814,
+     "f_res_kHz": 39.900140472453266,
+     "Q": 40.437004431828285,
+     "R_total": 0.282542805821612
+    }
+   },
+   "carbon_steel_lo_180": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 12.475373663353103,
+     "I_pk": 27.071560849476235,
+     "f_res_kHz": 38.04212859867361,
+     "Q": 5.701199506198967,
+     "R_total": 2.436586955673536
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 11.779304251841193,
+     "I_pk": 25.561090226495388,
+     "f_res_kHz": 36.185282076479645,
+     "Q": 5.701199506198967,
+     "R_total": 2.436586955673536
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 13.722911029688413,
+     "I_pk": 29.778716934423855,
+     "f_res_kHz": 38.04212859867361,
+     "Q": 5.701199506198967,
+     "R_total": 2.436586955673536
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 12.957234677025312,
+     "I_pk": 28.117199249144925,
+     "f_res_kHz": 36.185282076479645,
+     "Q": 5.701199506198967,
+     "R_total": 2.436586955673536
+    }
+   }
+  }
+ },
+ "R43_21.93": {
+  "model_17.5A_lag45": {
+   "n": 108,
+   "full_power_share": 0.2037037037037037,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 685.262842790193,
+   "P_median_W": 1075.1285448131848,
+   "f_op_kHz": [
+    35.0,
+    56.65
+   ],
+   "f_res_kHz": [
+    26.1408506422858,
+    39.664650236505615
+   ],
+   "f_over_fres_min": 1.2500777185622554,
+   "lag_min_deg": 45.004085490393855,
+   "I_pk_max": 37.97062254701462,
+   "Vc_rms_max": 134.24509937635605,
+   "Vc_pk_max": 291.31186564669264,
+   "limits": {
+    "ceiling": 42,
+    "f_min": 15,
+    "hold": 16,
+    "lag": 35
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1060,
+     "f_kHz": 48.45,
+     "I": 17.5,
+     "lag": 55.8,
+     "limit": "ceiling"
+    },
+    "ss430/nom": {
+     "P": 1118,
+     "f_kHz": 39.4,
+     "I": 14.7,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "ss430/hi": {
+     "P": 906,
+     "f_kHz": 35.0,
+     "I": 12.0,
+     "lag": 45.7,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1093,
+     "f_kHz": 48.25,
+     "I": 17.5,
+     "lag": 54.6,
+     "limit": "ceiling"
+    },
+    "triply/nom": {
+     "P": 1146,
+     "f_kHz": 39.3,
+     "I": 15.0,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/hi": {
+     "P": 929,
+     "f_kHz": 35.0,
+     "I": 12.3,
+     "lag": 45.9,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1204,
+     "f_kHz": 44.95,
+     "I": 17.5,
+     "lag": 50.4,
+     "limit": "ceiling"
+    },
+    "cast_iron/nom": {
+     "P": 1219,
+     "f_kHz": 40.45,
+     "I": 16.0,
+     "lag": 45.0,
+     "limit": "lag"
+    },
+    "cast_iron/hi": {
+     "P": 936,
+     "f_kHz": 35.4,
+     "I": 12.3,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 851,
+     "f_kHz": 53.45,
+     "I": 17.5,
+     "lag": 63.2,
+     "limit": "ceiling"
+    },
+    "carbon_steel/nom": {
+     "P": 1076,
+     "f_kHz": 48.2,
+     "I": 17.5,
+     "lag": 55.3,
+     "limit": "ceiling"
+    },
+    "carbon_steel/hi": {
+     "P": 1234,
+     "f_kHz": 41.4,
+     "I": 16.4,
+     "lag": 45.8,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_17.5A_lag30": {
+   "n": 108,
+   "full_power_share": 0.37962962962962965,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 685.262842790193,
+   "P_median_W": 1104.6356167874096,
+   "f_op_kHz": [
+    35.0,
+    56.65
+   ],
+   "f_res_kHz": [
+    26.1408506422858,
+    39.664650236505615
+   ],
+   "f_over_fres_min": 1.2143249484965133,
+   "lag_min_deg": 39.3648859271163,
+   "I_pk_max": 37.97062254701462,
+   "Vc_rms_max": 137.46482925246897,
+   "Vc_pk_max": 298.29867947785766,
+   "limits": {
+    "ceiling": 42,
+    "f_min": 27,
+    "hold": 39
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1060,
+     "f_kHz": 48.45,
+     "I": 17.5,
+     "lag": 55.8,
+     "limit": "ceiling"
+    },
+    "ss430/nom": {
+     "P": 1235,
+     "f_kHz": 38.3,
+     "I": 15.6,
+     "lag": 42.7,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 906,
+     "f_kHz": 35.0,
+     "I": 12.0,
+     "lag": 45.7,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1093,
+     "f_kHz": 48.25,
+     "I": 17.5,
+     "lag": 54.6,
+     "limit": "ceiling"
+    },
+    "triply/nom": {
+     "P": 1234,
+     "f_kHz": 38.5,
+     "I": 15.7,
+     "lag": 43.3,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 929,
+     "f_kHz": 35.0,
+     "I": 12.3,
+     "lag": 45.9,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1204,
+     "f_kHz": 44.95,
+     "I": 17.5,
+     "lag": 50.4,
+     "limit": "ceiling"
+    },
+    "cast_iron/nom": {
+     "P": 1236,
+     "f_kHz": 40.3,
+     "I": 16.1,
+     "lag": 44.7,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 971,
+     "f_kHz": 35.0,
+     "I": 12.6,
+     "lag": 44.3,
+     "limit": "f_min"
+    },
+    "carbon_steel/lo": {
+     "P": 851,
+     "f_kHz": 53.45,
+     "I": 17.5,
+     "lag": 63.2,
+     "limit": "ceiling"
+    },
+    "carbon_steel/nom": {
+     "P": 1076,
+     "f_kHz": 48.2,
+     "I": 17.5,
+     "lag": 55.3,
+     "limit": "ceiling"
+    },
+    "carbon_steel/hi": {
+     "P": 1234,
+     "f_kHz": 41.4,
+     "I": 16.4,
+     "lag": 45.8,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_24A_lag45": {
+   "n": 108,
+   "full_power_share": 0.5740740740740741,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 685.262842790193,
+   "P_median_W": 1125.3014772578608,
+   "f_op_kHz": [
+    35.0,
+    51.4
+   ],
+   "f_res_kHz": [
+    26.1408506422858,
+    39.40763974387815
+   ],
+   "f_over_fres_min": 1.2500777185622554,
+   "lag_min_deg": 45.004085490393855,
+   "I_pk_max": 48.992675889648766,
+   "Vc_rms_max": 145.40438638039385,
+   "Vc_pk_max": 315.52751844545463,
+   "limits": {
+    "f_min": 15,
+    "hold": 58,
+    "lag": 35
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1234,
+     "f_kHz": 46.75,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1118,
+     "f_kHz": 39.4,
+     "I": 14.7,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "ss430/hi": {
+     "P": 906,
+     "f_kHz": 35.0,
+     "I": 12.0,
+     "lag": 45.7,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 46.8,
+     "I": 18.7,
+     "lag": 52.3,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1146,
+     "f_kHz": 39.3,
+     "I": 15.0,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/hi": {
+     "P": 929,
+     "f_kHz": 35.0,
+     "I": 12.3,
+     "lag": 45.9,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1238,
+     "f_kHz": 44.65,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1219,
+     "f_kHz": 40.45,
+     "I": 16.0,
+     "lag": 45.0,
+     "limit": "lag"
+    },
+    "cast_iron/hi": {
+     "P": 936,
+     "f_kHz": 35.4,
+     "I": 12.3,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 49.35,
+     "I": 21.5,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1236,
+     "f_kHz": 46.65,
+     "I": 18.9,
+     "lag": 52.7,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1234,
+     "f_kHz": 41.4,
+     "I": 16.4,
+     "lag": 45.8,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_24A_lag30": {
+   "n": 108,
+   "full_power_share": 0.75,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 685.262842790193,
+   "P_median_W": 1233.7505477605591,
+   "f_op_kHz": [
+    35.0,
+    51.4
+   ],
+   "f_res_kHz": [
+    26.1408506422858,
+    39.40763974387815
+   ],
+   "f_over_fres_min": 1.2143249484965133,
+   "lag_min_deg": 39.3648859271163,
+   "I_pk_max": 48.992675889648766,
+   "Vc_rms_max": 145.40438638039385,
+   "Vc_pk_max": 315.52751844545463,
+   "limits": {
+    "f_min": 27,
+    "hold": 81
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1234,
+     "f_kHz": 46.75,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1235,
+     "f_kHz": 38.3,
+     "I": 15.6,
+     "lag": 42.7,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 906,
+     "f_kHz": 35.0,
+     "I": 12.0,
+     "lag": 45.7,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 46.8,
+     "I": 18.7,
+     "lag": 52.3,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1234,
+     "f_kHz": 38.5,
+     "I": 15.7,
+     "lag": 43.3,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 929,
+     "f_kHz": 35.0,
+     "I": 12.3,
+     "lag": 45.9,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1238,
+     "f_kHz": 44.65,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1236,
+     "f_kHz": 40.3,
+     "I": 16.1,
+     "lag": 44.7,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 971,
+     "f_kHz": 35.0,
+     "I": 12.6,
+     "lag": 44.3,
+     "limit": "f_min"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 49.35,
+     "I": 21.5,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1236,
+     "f_kHz": 46.65,
+     "I": 18.9,
+     "lag": 52.7,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1234,
+     "f_kHz": 41.4,
+     "I": 16.4,
+     "lag": 45.8,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_28A_lag45": {
+   "n": 108,
+   "full_power_share": 0.5740740740740741,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 685.262842790193,
+   "P_median_W": 1125.3014772578608,
+   "f_op_kHz": [
+    35.0,
+    51.4
+   ],
+   "f_res_kHz": [
+    26.1408506422858,
+    39.40763974387815
+   ],
+   "f_over_fres_min": 1.2500777185622554,
+   "lag_min_deg": 45.004085490393855,
+   "I_pk_max": 48.992675889648766,
+   "Vc_rms_max": 145.40438638039385,
+   "Vc_pk_max": 315.52751844545463,
+   "limits": {
+    "f_min": 15,
+    "hold": 58,
+    "lag": 35
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1234,
+     "f_kHz": 46.75,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1118,
+     "f_kHz": 39.4,
+     "I": 14.7,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "ss430/hi": {
+     "P": 906,
+     "f_kHz": 35.0,
+     "I": 12.0,
+     "lag": 45.7,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 46.8,
+     "I": 18.7,
+     "lag": 52.3,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1146,
+     "f_kHz": 39.3,
+     "I": 15.0,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "triply/hi": {
+     "P": 929,
+     "f_kHz": 35.0,
+     "I": 12.3,
+     "lag": 45.9,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1238,
+     "f_kHz": 44.65,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1219,
+     "f_kHz": 40.45,
+     "I": 16.0,
+     "lag": 45.0,
+     "limit": "lag"
+    },
+    "cast_iron/hi": {
+     "P": 936,
+     "f_kHz": 35.4,
+     "I": 12.3,
+     "lag": 45.1,
+     "limit": "lag"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 49.35,
+     "I": 21.5,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1236,
+     "f_kHz": 46.65,
+     "I": 18.9,
+     "lag": 52.7,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1234,
+     "f_kHz": 41.4,
+     "I": 16.4,
+     "lag": 45.8,
+     "limit": "hold"
+    }
+   }
+  },
+  "model_28A_lag30": {
+   "n": 108,
+   "full_power_share": 0.75,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 685.262842790193,
+   "P_median_W": 1233.7505477605591,
+   "f_op_kHz": [
+    35.0,
+    51.4
+   ],
+   "f_res_kHz": [
+    26.1408506422858,
+    39.40763974387815
+   ],
+   "f_over_fres_min": 1.2143249484965133,
+   "lag_min_deg": 39.3648859271163,
+   "I_pk_max": 48.992675889648766,
+   "Vc_rms_max": 145.40438638039385,
+   "Vc_pk_max": 315.52751844545463,
+   "limits": {
+    "f_min": 27,
+    "hold": 81
+   },
+   "per_pan_120V_nomC": {
+    "ss430/lo": {
+     "P": 1234,
+     "f_kHz": 46.75,
+     "I": 19.0,
+     "lag": 53.1,
+     "limit": "hold"
+    },
+    "ss430/nom": {
+     "P": 1235,
+     "f_kHz": 38.3,
+     "I": 15.6,
+     "lag": 42.7,
+     "limit": "hold"
+    },
+    "ss430/hi": {
+     "P": 906,
+     "f_kHz": 35.0,
+     "I": 12.0,
+     "lag": 45.7,
+     "limit": "f_min"
+    },
+    "triply/lo": {
+     "P": 1238,
+     "f_kHz": 46.8,
+     "I": 18.7,
+     "lag": 52.3,
+     "limit": "hold"
+    },
+    "triply/nom": {
+     "P": 1234,
+     "f_kHz": 38.5,
+     "I": 15.7,
+     "lag": 43.3,
+     "limit": "hold"
+    },
+    "triply/hi": {
+     "P": 929,
+     "f_kHz": 35.0,
+     "I": 12.3,
+     "lag": 45.9,
+     "limit": "f_min"
+    },
+    "cast_iron/lo": {
+     "P": 1238,
+     "f_kHz": 44.65,
+     "I": 17.8,
+     "lag": 49.8,
+     "limit": "hold"
+    },
+    "cast_iron/nom": {
+     "P": 1236,
+     "f_kHz": 40.3,
+     "I": 16.1,
+     "lag": 44.7,
+     "limit": "hold"
+    },
+    "cast_iron/hi": {
+     "P": 971,
+     "f_kHz": 35.0,
+     "I": 12.6,
+     "lag": 44.3,
+     "limit": "f_min"
+    },
+    "carbon_steel/lo": {
+     "P": 1234,
+     "f_kHz": 49.35,
+     "I": 21.5,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "carbon_steel/nom": {
+     "P": 1236,
+     "f_kHz": 46.65,
+     "I": 18.9,
+     "lag": 52.7,
+     "limit": "hold"
+    },
+    "carbon_steel/hi": {
+     "P": 1234,
+     "f_kHz": 41.4,
+     "I": 16.4,
+     "lag": 45.8,
+     "limit": "hold"
+    }
+   }
+  },
+  "priors_17.5A_lag45": {
+   "n": 180,
+   "full_power_share": 0.016666666666666666,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 158.61478280602174,
+   "P_median_W": 714.1969924169863,
+   "f_op_kHz": [
+    35.0,
+    45.65
+   ],
+   "f_res_kHz": [
+    25.362386919370994,
+    33.214691919661895
+   ],
+   "f_over_fres_min": 1.2038569839445243,
+   "lag_min_deg": 45.42259673885451,
+   "I_pk_max": 37.97434941970831,
+   "Vc_rms_max": 166.4417386438885,
+   "Vc_pk_max": 361.17857285723807,
+   "limits": {
+    "ceiling": 112,
+    "f_min": 65,
+    "hold": 3
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 908,
+     "f_kHz": 36.5,
+     "I": 17.5,
+     "lag": 61.2,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1235,
+     "f_kHz": 35.35,
+     "I": 17.2,
+     "lag": 48.3,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 643,
+     "f_kHz": 35.0,
+     "I": 14.8,
+     "lag": 66.4,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 786,
+     "f_kHz": 35.0,
+     "I": 13.7,
+     "lag": 58.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 768,
+     "f_kHz": 39.6,
+     "I": 17.5,
+     "lag": 66.0,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1058,
+     "f_kHz": 38.65,
+     "I": 17.5,
+     "lag": 55.9,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 727,
+     "f_kHz": 35.2,
+     "I": 17.5,
+     "lag": 67.3,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 920,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 59.3,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 492,
+     "f_kHz": 40.2,
+     "I": 17.4,
+     "lag": 74.9,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 841,
+     "f_kHz": 39.4,
+     "I": 17.5,
+     "lag": 63.5,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 462,
+     "f_kHz": 35.1,
+     "I": 17.4,
+     "lag": 75.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 724,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 66.3,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 566,
+     "f_kHz": 43.5,
+     "I": 17.5,
+     "lag": 72.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 797,
+     "f_kHz": 42.9,
+     "I": 17.4,
+     "lag": 65.0,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 540,
+     "f_kHz": 39.35,
+     "I": 17.5,
+     "lag": 73.4,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 759,
+     "f_kHz": 38.9,
+     "I": 17.4,
+     "lag": 66.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 322,
+     "f_kHz": 35.8,
+     "I": 17.4,
+     "lag": 80.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 561,
+     "f_kHz": 35.5,
+     "I": 17.5,
+     "lag": 72.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 219,
+     "f_kHz": 35.0,
+     "I": 14.4,
+     "lag": 81.9,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 367,
+     "f_kHz": 35.0,
+     "I": 14.2,
+     "lag": 76.1,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_17.5A_lag30": {
+   "n": 180,
+   "full_power_share": 0.016666666666666666,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 158.61478280602174,
+   "P_median_W": 714.1969924169863,
+   "f_op_kHz": [
+    35.0,
+    45.65
+   ],
+   "f_res_kHz": [
+    25.362386919370994,
+    33.214691919661895
+   ],
+   "f_over_fres_min": 1.2038569839445243,
+   "lag_min_deg": 45.42259673885451,
+   "I_pk_max": 37.97434941970831,
+   "Vc_rms_max": 166.4417386438885,
+   "Vc_pk_max": 361.17857285723807,
+   "limits": {
+    "ceiling": 112,
+    "f_min": 65,
+    "hold": 3
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 908,
+     "f_kHz": 36.5,
+     "I": 17.5,
+     "lag": 61.2,
+     "limit": "ceiling"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1235,
+     "f_kHz": 35.35,
+     "I": 17.2,
+     "lag": 48.3,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 643,
+     "f_kHz": 35.0,
+     "I": 14.8,
+     "lag": 66.4,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 786,
+     "f_kHz": 35.0,
+     "I": 13.7,
+     "lag": 58.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 768,
+     "f_kHz": 39.6,
+     "I": 17.5,
+     "lag": 66.0,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1058,
+     "f_kHz": 38.65,
+     "I": 17.5,
+     "lag": 55.9,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 727,
+     "f_kHz": 35.2,
+     "I": 17.5,
+     "lag": 67.3,
+     "limit": "ceiling"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 920,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 59.3,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 492,
+     "f_kHz": 40.2,
+     "I": 17.4,
+     "lag": 74.9,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 841,
+     "f_kHz": 39.4,
+     "I": 17.5,
+     "lag": 63.5,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 462,
+     "f_kHz": 35.1,
+     "I": 17.4,
+     "lag": 75.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 724,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 66.3,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 566,
+     "f_kHz": 43.5,
+     "I": 17.5,
+     "lag": 72.6,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 797,
+     "f_kHz": 42.9,
+     "I": 17.4,
+     "lag": 65.0,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 540,
+     "f_kHz": 39.35,
+     "I": 17.5,
+     "lag": 73.4,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 759,
+     "f_kHz": 38.9,
+     "I": 17.4,
+     "lag": 66.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 322,
+     "f_kHz": 35.8,
+     "I": 17.4,
+     "lag": 80.2,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 561,
+     "f_kHz": 35.5,
+     "I": 17.5,
+     "lag": 72.7,
+     "limit": "ceiling"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 219,
+     "f_kHz": 35.0,
+     "I": 14.4,
+     "lag": 81.9,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 367,
+     "f_kHz": 35.0,
+     "I": 14.2,
+     "lag": 76.1,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_24A_lag45": {
+   "n": 180,
+   "full_power_share": 0.3055555555555556,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 158.61478280602174,
+   "P_median_W": 914.6595856870043,
+   "f_op_kHz": [
+    35.0,
+    41.7
+   ],
+   "f_res_kHz": [
+    25.362386919370994,
+    33.214691919661895
+   ],
+   "f_over_fres_min": 1.183359920800657,
+   "lag_min_deg": 45.42259673885451,
+   "I_pk_max": 52.07757916764593,
+   "Vc_rms_max": 220.5453779036704,
+   "Vc_pk_max": 478.58347005096476,
+   "limits": {
+    "ceiling": 26,
+    "f_min": 99,
+    "hold": 55
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1195,
+     "f_kHz": 35.0,
+     "I": 20.2,
+     "lag": 56.8,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1235,
+     "f_kHz": 35.35,
+     "I": 17.2,
+     "lag": 48.3,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 643,
+     "f_kHz": 35.0,
+     "I": 14.8,
+     "lag": 66.4,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 786,
+     "f_kHz": 35.0,
+     "I": 13.7,
+     "lag": 58.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1237,
+     "f_kHz": 36.9,
+     "I": 22.5,
+     "lag": 59.5,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1229,
+     "f_kHz": 37.65,
+     "I": 18.9,
+     "lag": 53.0,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 756,
+     "f_kHz": 35.0,
+     "I": 17.8,
+     "lag": 66.9,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 920,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 59.3,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 890,
+     "f_kHz": 37.1,
+     "I": 23.9,
+     "lag": 69.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1230,
+     "f_kHz": 37.15,
+     "I": 21.4,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 471,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 75.7,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 724,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 66.3,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1022,
+     "f_kHz": 39.9,
+     "I": 24.0,
+     "lag": 66.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1232,
+     "f_kHz": 40.0,
+     "I": 22.1,
+     "lag": 58.9,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 972,
+     "f_kHz": 36.35,
+     "I": 23.9,
+     "lag": 67.9,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1232,
+     "f_kHz": 36.25,
+     "I": 22.6,
+     "lag": 59.7,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 381,
+     "f_kHz": 35.0,
+     "I": 19.1,
+     "lag": 79.3,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 621,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 71.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 219,
+     "f_kHz": 35.0,
+     "I": 14.4,
+     "lag": 81.9,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 367,
+     "f_kHz": 35.0,
+     "I": 14.2,
+     "lag": 76.1,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_24A_lag30": {
+   "n": 180,
+   "full_power_share": 0.3055555555555556,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 158.61478280602174,
+   "P_median_W": 914.6595856870043,
+   "f_op_kHz": [
+    35.0,
+    41.7
+   ],
+   "f_res_kHz": [
+    25.362386919370994,
+    33.214691919661895
+   ],
+   "f_over_fres_min": 1.183359920800657,
+   "lag_min_deg": 45.42259673885451,
+   "I_pk_max": 52.07757916764593,
+   "Vc_rms_max": 220.5453779036704,
+   "Vc_pk_max": 478.58347005096476,
+   "limits": {
+    "ceiling": 26,
+    "f_min": 99,
+    "hold": 55
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1195,
+     "f_kHz": 35.0,
+     "I": 20.2,
+     "lag": 56.8,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1235,
+     "f_kHz": 35.35,
+     "I": 17.2,
+     "lag": 48.3,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 643,
+     "f_kHz": 35.0,
+     "I": 14.8,
+     "lag": 66.4,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 786,
+     "f_kHz": 35.0,
+     "I": 13.7,
+     "lag": 58.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1237,
+     "f_kHz": 36.9,
+     "I": 22.5,
+     "lag": 59.5,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1229,
+     "f_kHz": 37.65,
+     "I": 18.9,
+     "lag": 53.0,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 756,
+     "f_kHz": 35.0,
+     "I": 17.8,
+     "lag": 66.9,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 920,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 59.3,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 890,
+     "f_kHz": 37.1,
+     "I": 23.9,
+     "lag": 69.8,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1230,
+     "f_kHz": 37.15,
+     "I": 21.4,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 471,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 75.7,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 724,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 66.3,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1022,
+     "f_kHz": 39.9,
+     "I": 24.0,
+     "lag": 66.8,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1232,
+     "f_kHz": 40.0,
+     "I": 22.1,
+     "lag": 58.9,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 972,
+     "f_kHz": 36.35,
+     "I": 23.9,
+     "lag": 67.9,
+     "limit": "ceiling"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1232,
+     "f_kHz": 36.25,
+     "I": 22.6,
+     "lag": 59.7,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 381,
+     "f_kHz": 35.0,
+     "I": 19.1,
+     "lag": 79.3,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 621,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 71.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 219,
+     "f_kHz": 35.0,
+     "I": 14.4,
+     "lag": 81.9,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 367,
+     "f_kHz": 35.0,
+     "I": 14.2,
+     "lag": 76.1,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_28A_lag45": {
+   "n": 180,
+   "full_power_share": 0.40555555555555556,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 158.61478280602174,
+   "P_median_W": 1031.36207909438,
+   "f_op_kHz": [
+    35.0,
+    41.4
+   ],
+   "f_res_kHz": [
+    25.362386919370994,
+    33.214691919661895
+   ],
+   "f_over_fres_min": 1.1642218702246714,
+   "lag_min_deg": 45.42259673885451,
+   "I_pk_max": 60.7340756723609,
+   "Vc_rms_max": 254.6329116739099,
+   "Vc_pk_max": 552.5534183323845,
+   "limits": {
+    "ceiling": 9,
+    "f_min": 101,
+    "hold": 70
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1195,
+     "f_kHz": 35.0,
+     "I": 20.2,
+     "lag": 56.8,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1235,
+     "f_kHz": 35.35,
+     "I": 17.2,
+     "lag": 48.3,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 643,
+     "f_kHz": 35.0,
+     "I": 14.8,
+     "lag": 66.4,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 786,
+     "f_kHz": 35.0,
+     "I": 13.7,
+     "lag": 58.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1237,
+     "f_kHz": 36.9,
+     "I": 22.5,
+     "lag": 59.5,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1229,
+     "f_kHz": 37.65,
+     "I": 18.9,
+     "lag": 53.0,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 756,
+     "f_kHz": 35.0,
+     "I": 17.8,
+     "lag": 66.9,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 920,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 59.3,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 1202,
+     "f_kHz": 35.9,
+     "I": 28.0,
+     "lag": 66.6,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1230,
+     "f_kHz": 37.15,
+     "I": 21.4,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 471,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 75.7,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 724,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 66.3,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1232,
+     "f_kHz": 39.0,
+     "I": 26.5,
+     "lag": 64.5,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1232,
+     "f_kHz": 40.0,
+     "I": 22.1,
+     "lag": 58.9,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 1235,
+     "f_kHz": 35.4,
+     "I": 27.1,
+     "lag": 65.0,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1232,
+     "f_kHz": 36.25,
+     "I": 22.6,
+     "lag": 59.7,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 381,
+     "f_kHz": 35.0,
+     "I": 19.1,
+     "lag": 79.3,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 621,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 71.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 219,
+     "f_kHz": 35.0,
+     "I": 14.4,
+     "lag": 81.9,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 367,
+     "f_kHz": 35.0,
+     "I": 14.2,
+     "lag": 76.1,
+     "limit": "f_min"
+    }
+   }
+  },
+  "priors_28A_lag30": {
+   "n": 180,
+   "full_power_share": 0.40555555555555556,
+   "over_limit_at_fmax": 0,
+   "P_min_W": 158.61478280602174,
+   "P_median_W": 1031.36207909438,
+   "f_op_kHz": [
+    35.0,
+    41.4
+   ],
+   "f_res_kHz": [
+    25.362386919370994,
+    33.214691919661895
+   ],
+   "f_over_fres_min": 1.1642218702246714,
+   "lag_min_deg": 45.42259673885451,
+   "I_pk_max": 60.7340756723609,
+   "Vc_rms_max": 254.6329116739099,
+   "Vc_pk_max": 552.5534183323845,
+   "limits": {
+    "ceiling": 9,
+    "f_min": 101,
+    "hold": 70
+   },
+   "per_pan_120V_nomC": {
+    "cast_iron/kl0.74_r0.036": {
+     "P": 1195,
+     "f_kHz": 35.0,
+     "I": 20.2,
+     "lag": 56.8,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.74_r0.052": {
+     "P": 1235,
+     "f_kHz": 35.35,
+     "I": 17.2,
+     "lag": 48.3,
+     "limit": "hold"
+    },
+    "cast_iron/kl0.86_r0.036": {
+     "P": 643,
+     "f_kHz": 35.0,
+     "I": 14.8,
+     "lag": 66.4,
+     "limit": "f_min"
+    },
+    "cast_iron/kl0.86_r0.052": {
+     "P": 786,
+     "f_kHz": 35.0,
+     "I": 13.7,
+     "lag": 58.0,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.66_r0.029": {
+     "P": 1237,
+     "f_kHz": 36.9,
+     "I": 22.5,
+     "lag": 59.5,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.66_r0.041": {
+     "P": 1229,
+     "f_kHz": 37.65,
+     "I": 18.9,
+     "lag": 53.0,
+     "limit": "hold"
+    },
+    "carbon_or_430_steel/kl0.8_r0.029": {
+     "P": 756,
+     "f_kHz": 35.0,
+     "I": 17.8,
+     "lag": 66.9,
+     "limit": "f_min"
+    },
+    "carbon_or_430_steel/kl0.8_r0.041": {
+     "P": 920,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 59.3,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.66_r0.018": {
+     "P": 1202,
+     "f_kHz": 35.9,
+     "I": 28.0,
+     "lag": 66.6,
+     "limit": "ceiling"
+    },
+    "triply_clad_GUESS/kl0.66_r0.032": {
+     "P": 1230,
+     "f_kHz": 37.15,
+     "I": 21.4,
+     "lag": 57.9,
+     "limit": "hold"
+    },
+    "triply_clad_GUESS/kl0.82_r0.018": {
+     "P": 471,
+     "f_kHz": 35.0,
+     "I": 17.6,
+     "lag": 75.7,
+     "limit": "f_min"
+    },
+    "triply_clad_GUESS/kl0.82_r0.032": {
+     "P": 724,
+     "f_kHz": 35.0,
+     "I": 16.7,
+     "lag": 66.3,
+     "limit": "f_min"
+    },
+    "low_R_silargan_like/kl0.58_r0.02": {
+     "P": 1232,
+     "f_kHz": 39.0,
+     "I": 26.5,
+     "lag": 64.5,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.58_r0.029": {
+     "P": 1232,
+     "f_kHz": 40.0,
+     "I": 22.1,
+     "lag": 58.9,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.02": {
+     "P": 1235,
+     "f_kHz": 35.4,
+     "I": 27.1,
+     "lag": 65.0,
+     "limit": "hold"
+    },
+    "low_R_silargan_like/kl0.68_r0.029": {
+     "P": 1232,
+     "f_kHz": 36.25,
+     "I": 22.6,
+     "lag": 59.7,
+     "limit": "hold"
+    },
+    "offset_or_small_pan/kl0.8_r0.012": {
+     "P": 381,
+     "f_kHz": 35.0,
+     "I": 19.1,
+     "lag": 79.3,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.8_r0.022": {
+     "P": 621,
+     "f_kHz": 35.0,
+     "I": 18.4,
+     "lag": 71.8,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.012": {
+     "P": 219,
+     "f_kHz": 35.0,
+     "I": 14.4,
+     "lag": 81.9,
+     "limit": "f_min"
+    },
+    "offset_or_small_pan/kl0.9_r0.022": {
+     "P": 367,
+     "f_kHz": 35.0,
+     "I": 14.2,
+     "lag": 76.1,
+     "limit": "f_min"
+    }
+   }
+  },
+  "special_loads": {
+   "no_pan": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 4.180429864401675,
+     "I_pk": 9.071532805751634,
+     "f_res_kHz": 25.295555744131633,
+     "Q": 267.2863139763356,
+     "R_total": 0.11754728425717793
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 4.096106106624149,
+     "I_pk": 8.888550251374404,
+     "f_res_kHz": 24.060872869102084,
+     "Q": 267.2863139763356,
+     "R_total": 0.11754728425717793
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 4.5984728508418415,
+     "I_pk": 9.978686086326796,
+     "f_res_kHz": 25.295555744131633,
+     "Q": 267.2863139763356,
+     "R_total": 0.11754728425717793
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 4.505716717286564,
+     "I_pk": 9.777405276511843,
+     "f_res_kHz": 24.060872869102084,
+     "Q": 267.2863139763356,
+     "R_total": 0.11754728425717793
+    }
+   },
+   "aluminium_240": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 27.192367160722778,
+     "I_pk": 59.007436738768426,
+     "f_res_kHz": 45.89150726273981,
+     "Q": 33.44430741054288,
+     "R_total": 0.285424285049624
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 23.987548016366482,
+     "I_pk": 52.05297919551526,
+     "f_res_kHz": 43.65153045812882,
+     "Q": 33.44430741054288,
+     "R_total": 0.285424285049624
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 29.911603876795056,
+     "I_pk": 64.90818041264527,
+     "f_res_kHz": 45.89150726273981,
+     "Q": 33.44430741054288,
+     "R_total": 0.285424285049624
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 26.38630281800313,
+     "I_pk": 57.25827711506679,
+     "f_res_kHz": 43.65153045812882,
+     "Q": 33.44430741054288,
+     "R_total": 0.285424285049624
+    }
+   },
+   "aluminium_180": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 16.13891977568782,
+     "I_pk": 35.02145591324257,
+     "f_res_kHz": 40.478882436952844,
+     "Q": 40.22620999875059,
+     "R_total": 0.30500827942764525
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 14.95175620945726,
+     "I_pk": 32.44531097452225,
+     "f_res_kHz": 38.50309730494068,
+     "Q": 40.22620999875059,
+     "R_total": 0.30500827942764525
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 17.7528117532566,
+     "I_pk": 38.52360150456683,
+     "f_res_kHz": 40.478882436952844,
+     "Q": 40.22620999875059,
+     "R_total": 0.30500827942764525
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 16.446931830402985,
+     "I_pk": 35.689842071974475,
+     "f_res_kHz": 38.50309730494068,
+     "Q": 40.22620999875059,
+     "R_total": 0.30500827942764525
+    }
+   },
+   "carbon_steel_lo_180": {
+    "120V_C475nF": {
+     "I_rms_at_60kHz": 10.989449860650389,
+     "I_pk": 23.847106197611343,
+     "f_res_kHz": 36.576311882908406,
+     "Q": 5.518452856897158,
+     "R_total": 2.7230813249113517
+    },
+    "120V_C525nF": {
+     "I_rms_at_60kHz": 10.445197899784278,
+     "I_pk": 22.66607944253188,
+     "f_res_kHz": 34.79101226860586,
+     "Q": 5.518452856897158,
+     "R_total": 2.7230813249113517
+    },
+    "132V_C475nF": {
+     "I_rms_at_60kHz": 12.088394846715426,
+     "I_pk": 26.231816817372472,
+     "f_res_kHz": 36.576311882908406,
+     "Q": 5.518452856897158,
+     "R_total": 2.7230813249113517
+    },
+    "132V_C525nF": {
+     "I_rms_at_60kHz": 11.489717689762706,
+     "I_pk": 24.932687386785073,
+     "f_res_kHz": 34.79101226860586,
+     "Q": 5.518452856897158,
+     "R_total": 2.7230813249113517
+    }
+   }
+  }
+ }
+}

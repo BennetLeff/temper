@@ -60,6 +60,24 @@ def main():
     kr = [p["k_R"] for p in pans.values()]
     out["factors"] = dict(k_free=out["free_air"]["k_free"], k_L_pan=sum(ks) / len(ks), k_R_pan=sum(kr) / len(kr),
                           k_L_pan_range=[min(ks), max(ks)], k_R_pan_range=[min(kr), max(kr)])
+    # transfer check: the 80 uH candidate solved directly in 3D against 2D x factors (same smeared source, 0.6 m)
+    if (R3 / "free80_h0.7.json").exists():
+        sys.path.insert(0, str(HERE / "fem3d"))
+        import build_mesh as BM
+        w80 = BM.winding_for("80uH_out6.46")
+        m = CM.build(w80, turn_model="smeared", r_max=0.6)
+        L2 = m.solve(40e3)["L"] * 1e6
+        m = CM.build(w80, pan=M.pan("ss430", mu=200.0), turn_model="smeared", r_max=0.6)
+        rp = m.solve(40e3)
+        f80, p80 = j("free80_h0.7"), j("pan80_430_h0.7")
+        h_corr = ext / f3["0.7"]           # h 0.7 -> extrapolated, from the R43 series
+        out["transfer_check_80uH"] = dict(
+            free_3D_uH=f80["L_uH_energy"] * h_corr / ctrl, free_2D_x_k_uH=L2 * out["free_air"]["k_free"],
+            pan430_L_3D_uH=p80["L_uH_AdotJ"] / ctrl, pan430_L_2D_x_k_uH=rp["L"] * 1e6 * out["factors"]["k_L_pan"],
+            pan430_R_3D_ohm=p80["R_ohm"], pan430_R_2D_x_k_ohm=rp["R"] * out["factors"]["k_R_pan"],
+            B_bar_max_3D_free_mT_per_A=f80["B_bar_max_mT_per_A"], B_bar_max_3D_pan_mT_per_A=p80["B_bar_max_mT_per_A"],
+            B_bar_profile_free=f80["bar_profile"], B_bar_profile_pan=p80["bar_profile"])
+        print(json.dumps({k: v for k, v in out["transfer_check_80uH"].items() if "profile" not in k}, indent=1))
     (HERE / "results" / "compare_3d.json").write_text(json.dumps(out, indent=1) + "\n")
     print(json.dumps(out["factors"], indent=1))
     print(json.dumps({k: v for k, v in out["free_air"].items()}, indent=1))

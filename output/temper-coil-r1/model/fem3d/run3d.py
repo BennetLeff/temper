@@ -40,6 +40,8 @@ CASES = {
     "harm_free_h0.7": dict(mesh="free_h0.7", h=0.7, pan=False, harmonic=True),   # energy-convention calibration
     "air_h0.7": dict(mesh="free_h0.7", h=0.7, pan=False, mu_bar=1.0),       # control: no ferrite (2D/3D must agree)
     "mu1000_h0.7": dict(mesh="free_h0.7", h=0.7, pan=False, mu_bar=1000.0),
+    "free80_h0.7": dict(mesh="free80_h0.7", h=0.7, pan=False, layout="80uH_out6.46"),
+    "pan80_430_h0.7": dict(mesh="pan80_h0.7", h=0.7, pan=True, sigma=M.SIGMA["SS430"], mu_pan=200.0, layout="80uH_out6.46"),
     "pan430_h1": dict(mesh="pan_h1", h=1.0, pan=True, sigma=M.SIGMA["SS430"], mu_pan=200.0),
     "pan430_h0.7": dict(mesh="pan_h0.7", h=0.7, pan=True, sigma=M.SIGMA["SS430"], mu_pan=200.0),
     "panCI_h0.7": dict(mesh="pan_h0.7", h=0.7, pan=True, sigma=M.SIGMA["cast_iron"], mu_pan=100.0),
@@ -196,9 +198,10 @@ def remote(cmd, check=True):
 def run(case, np_=4, keep=False):
     c = CASES[case]
     mesh = HERE / "meshes" / f"{c['mesh']}.msh"
+    w = BM.winding_for(c.get("layout"))
     if not mesh.exists():
-        BM.build(c["mesh"], pan=c["pan"], h=c["h"])
-    s_in, s_out = G.R43.sections
+        BM.build(c["mesh"], pan=c["pan"], h=c["h"], winding=w)
+    s_in, s_out = w.sections
     harmonic = c["pan"] or c.get("harmonic", False)
     sif = SIF.format(J1=section_J(s_in), J2=section_J(s_out), mu_bar=c.get("mu_bar", M.FERRITE_MU),
                      proc="WhitneyAVHarmonicSolver" if harmonic else "WhitneyAVSolver",
@@ -251,7 +254,7 @@ def post(case):
     cen = np.asarray(g.cell_centers().points)
     names = list(g.point_data.keys()) + list(g.cell_data.keys())
     harmonic = c["pan"] or c.get("harmonic", False)
-    s_in, s_out = G.R43.sections
+    s_in, s_out = BM.winding_for(c.get("layout")).sections
 
     def cellvec(key):
         if key in g.cell_data:

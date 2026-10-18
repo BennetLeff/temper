@@ -66,6 +66,10 @@ Solver 1
   Variable = "AV"
   Procedure = "MagnetoDynamics" "WhitneyAVSolver"
   Fix Input Current Density = True
+  Jfix: Linear System Max Iterations = 20000
+  Jfix: Linear System Convergence Tolerance = 1e-10
+  Jfix: Linear System Abort Not Converged = False
+  Jfix: Linear System Iterative Method = CG
   Edge Basis = Logical True
   Linear System Solver = Iterative
   Linear System Use Hypre = Logical True
