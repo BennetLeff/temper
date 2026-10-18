@@ -33,7 +33,7 @@ summary. The `$` column is the per-board effect at 500 where a record computes o
 | 12 | PD2 for the potted winding system | release | DECISIONS.md:489 |
 | 13 | Potted PS1 (**PS1 is deleted since s38; no longer asked**): pins and joints as the clearance reference instead of the courtyard | **moot if candidate 23 lands** | DECISIONS.md:676 |
 | 14 | **New:** PS2 (MEAN WELL MPM-20-24, on board) and PS3 (MPM-65-15ST, off-board, controller side; formerly IRM-20 / IRM-60) are approved to UL 62368-1 / IEC 61558 (OVC II under 62368), not to an appliance standard: accepted as components in a UL 1026 product? | release | IRM-20-SPEC 2025-11-21 p.2 "SAFETY STANDARDS"; ledger entries IRM-20-15 / IRM-20-24 |
-| 15 | UL files from datasheets, not yet looked up: Chipanalog E511334 (U9 / U32; U44 is a second ISO6721FB since DECISIONS stage 40), RECOM E542996 (U41 / U42) | release | DECISIONS.md:1163; `11-candidates/c31-bom/README.md` |
+| 15 | UL files from datasheets, not yet looked up: Chipanalog E511334 (U9 / U32; U44 is a second ISO6721FB since DECISIONS stage 40), RECOM E542996 (U41 / U42); **added 2026-10-18 (independent review):** Infineon 2EDR8259X U1 / U2 (UL 1577 E311313 per datasheet p.1; these are SELV-to-HOT reinforced barriers, not HOT-to-HOT), TI AMC1311 U4 and Vishay VOL628A-2X001T U36 (no UL file looked up yet) | release | DECISIONS.md:1163; `11-candidates/c31-bom/README.md` |
 | 16 | A SELV controller powered from a chassis Class II module (PS3) through a 292 mm harness | candidate 23 | PROPOSALS.md P1 "SAFETY" |
 | 17 | Removing R1 / R2 | small | DECISIONS.md:352 |
 
