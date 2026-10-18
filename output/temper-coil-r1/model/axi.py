@@ -94,9 +94,11 @@ class Model:
         self.mur_r[mask] = np.broadcast_to(mur_r, self.mur_r.shape)[mask] if np.ndim(mur_r) else mur_r
         self.mur_z[mask] = np.broadcast_to(mur_z, self.mur_z.shape)[mask] if np.ndim(mur_z) else mur_z
 
-    def add_turn(self, r_c, z_c, side, weight):
-        """Square stranded conductor (side x side) centred at (r_c, z_c), carrying weight * I."""
-        m = self.box(r_c - side / 2, r_c + side / 2, z_c - side / 2, z_c + side / 2)
+    def add_turn(self, r_c, z_c, side, weight, width=None):
+        """Rectangular stranded conductor (width x side; square if width is None) centred at (r_c, z_c), carrying
+        weight * I uniformly over its area (weight = turns it represents)."""
+        width = side if width is None else width
+        m = self.box(r_c - width / 2, r_c + width / 2, z_c - side / 2, z_c + side / 2)
         if not m.any():
             raise ValueError(f"turn at r={r_c} has no cells: refine the grid")
         self.turn_masks.append(m)

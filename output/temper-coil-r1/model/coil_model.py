@@ -24,7 +24,7 @@ def grid(winding: G.Winding, pan=None, refine=1.0, r_max=2.0, z_span=2.0):
     s = G.D_BUNDLE * math.sqrt(math.pi) / 2           # square of equal area to the round bundle
     rings = winding.rings()
     mand_r = [x for rc, _ in rings for x in ((rc - s / 2) * mm, (rc + s / 2) * mm)]
-    mand_r += [G.BAR_R[0] * mm, G.BAR_R[1] * mm]
+    mand_r += [G.BAR_R[0] * mm, G.BAR_R[1] * mm] + [x * mm for sec in winding.sections for x in (sec.r0, sec.r1)]
     zc = winding.z_c
     mand_z = [(zc - s / 2) * mm, (zc + s / 2) * mm, G.Z_BAR[0] * mm, G.Z_BAR[1] * mm, G.GLASS[0] * mm]
     h = refine
@@ -50,7 +50,7 @@ def grid(winding: G.Winding, pan=None, refine=1.0, r_max=2.0, z_span=2.0):
 
 
 def build(winding: G.Winding = G.R43, ferrite="bars", mu_ferrite=M.FERRITE_MU, enclosure=False, pan=None, refine=1.0,
-          bar_n=G.N_BARS, bar_w=G.BAR_W, bar_r=G.BAR_R, z_bar=G.Z_BAR, r_max=2.0):
+          bar_n=G.N_BARS, bar_w=G.BAR_W, bar_r=G.BAR_R, z_bar=G.Z_BAR, r_max=2.0, turn_model="discrete"):
     """pan: dict(name, radius_mm, layers=[(thickness_mm, sigma, mu_r, mu_of_H or None), ...] bottom-up)."""
     r, z = grid(winding, pan, refine, r_max=r_max)
     m = Model(r, z)
@@ -71,8 +71,12 @@ def build(winding: G.Winding = G.R43, ferrite="bars", mu_ferrite=M.FERRITE_MU, e
             m.add_conductor(f"pan{i}", 0.0, pan["radius_mm"] * mm, z0, z0 + t_mm * mm, sig, mu, nl)
             z0 += t_mm * mm
     side = G.D_BUNDLE * math.sqrt(math.pi) / 2 * mm
-    for rc, w in winding.rings():
-        m.add_turn(rc * mm, winding.z_c * mm, side, w)
+    if turn_model == "smeared":       # each section a uniform annulus (the 3D cross-check uses the same source)
+        for s in winding.sections:
+            m.add_turn((s.r0 + s.r1) / 2 * mm, winding.z_c * mm, side, s.turns, width=(s.r1 - s.r0) * mm)
+    else:
+        for rc, w in winding.rings():
+            m.add_turn(rc * mm, winding.z_c * mm, side, w)
     m.winding = winding
     return m
 

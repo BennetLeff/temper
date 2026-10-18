@@ -1,0 +1,23 @@
+	Command being timed: "env ELMER_HOME=/home/bennet/temper-fem/elmer-install OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 mpirun -np 8 /home/bennet/temper-fem/elmer-install/bin/ElmerSolver_mpi"
+	User time (seconds): 820.66
+	System time (seconds): 7.60
+	Percent of CPU this job got: 790%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:44.84
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 561296
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 87
+	Minor (reclaiming a frame) page faults: 1194424
+	Voluntary context switches: 4756
+	Involuntary context switches: 1343
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 599608
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

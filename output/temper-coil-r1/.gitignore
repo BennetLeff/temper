@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 scratch/
+model/fem3d/runs/*/out/
+model/fem3d/meshes/*.msh

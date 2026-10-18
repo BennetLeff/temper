@@ -1,0 +1,110 @@
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "mesh"
+  Results Directory "out"
+End
+Simulation
+  Coordinate System = Cartesian 3D
+  Simulation Type = Steady
+  Steady State Max Iterations = 1
+  Max Output Level = 5
+End
+Constants
+  Permeability of Vacuum = 1.2566370614359173e-6
+End
+$ J1 = 131782.40658384506
+$ J2 = 141990.68757682465
+Body 1
+  Target Bodies(1) = 1
+  Equation = 1
+  Material = 1
+End
+Body 2
+  Target Bodies(1) = 2
+  Equation = 1
+  Material = 2
+End
+Body 3
+  Target Bodies(1) = 3
+  Equation = 1
+  Material = 1
+  Body Force = 1
+End
+Body 4
+  Target Bodies(1) = 4
+  Equation = 1
+  Material = 1
+  Body Force = 2
+End
+Material 1
+  Relative Permeability = 1.0
+  Electric Conductivity = 0.0
+End
+Material 2
+  Relative Permeability = 1000.0
+  Electric Conductivity = 0.0
+End
+Body Force 1
+  Current Density 1 = Variable Coordinate 1, Coordinate 2
+    Real MATC "-J1*tx(1)/sqrt(tx(0)^2+tx(1)^2)"
+  Current Density 2 = Variable Coordinate 1, Coordinate 2
+    Real MATC "J1*tx(0)/sqrt(tx(0)^2+tx(1)^2)"
+  Current Density 3 = Real 0.0
+End
+Body Force 2
+  Current Density 1 = Variable Coordinate 1, Coordinate 2
+    Real MATC "-J2*tx(1)/sqrt(tx(0)^2+tx(1)^2)"
+  Current Density 2 = Variable Coordinate 1, Coordinate 2
+    Real MATC "J2*tx(0)/sqrt(tx(0)^2+tx(1)^2)"
+  Current Density 3 = Real 0.0
+End
+Equation 1
+  Active Solvers(2) = 1 2
+End
+Solver 1
+  Equation = "MGDynamics"
+  Variable = "AV"
+  Procedure = "MagnetoDynamics" "WhitneyAVSolver"
+  Fix Input Current Density = True
+  Edge Basis = Logical True
+  Linear System Solver = Iterative
+  Linear System Use Hypre = Logical True
+  Linear System Preconditioning = ams
+  Linear System Method Hypre Index = Integer 8
+  AMS Singular Matrix = Logical True
+  Linear System Symmetric = True
+  Linear System Convergence Tolerance = 1e-10
+  Linear System Max Iterations = 8000
+  Linear System Residual Output = 20
+  Linear System Abort Not Converged = True
+  Use Tree Gauge = False
+  Linear System Scaling = False
+  HYPRE GmRes Dimension = Integer 30
+End
+Solver 2
+  Equation = "MGDynamicsCalc"
+  Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+  Potential Variable = String "AV"
+  Calculate Magnetic Vector Potential = Logical True
+  Calculate Elemental Fields = Logical True
+  Calculate Nodal Fields = Logical True
+  Linear System Solver = Iterative
+  Linear System Iterative Method = CG
+  Linear System Preconditioning = ILU0
+  Linear System Max Iterations = 3000
+  Linear System Convergence Tolerance = 1e-10
+End
+Solver 3
+  Exec Solver = After Saving
+  Equation = "ResultOutput"
+  Procedure = "ResultOutputSolve" "ResultOutputSolver"
+  Output File Name = "case"
+  Vtu Format = Logical True
+  Save Geometry Ids = Logical True
+  Discontinuous Galerkin = Logical True
+  Average Within Materials = Logical False
+End
+Boundary Condition 1
+  Target Boundaries(3) = 1 2 3
+  AV {e} = Real 0.0
+End
