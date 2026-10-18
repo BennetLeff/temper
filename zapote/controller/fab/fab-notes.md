@@ -7,7 +7,7 @@
   HASL lead-free, green mask, white silk. Six 4.0 mm holes (R30 snap-in supports) are milled from Edge.Cuts (no plating, no copper).
 - **Coordinates:** Gerbers/drill in KiCad's plot frame. World (appliance) mm: X = kx - 58,
   Y = 110 - ky = 110 + (Gerber Y). Board lower-left corner = world (-38, 14) = Gerber (20, -96).
-- **Assembly:** all parts on the top side. BOM lines 87, placements 284
+- **Assembly:** all parts on the top side. BOM lines 89, placements 288
   (9 THT). CPL rotations are KiCad's plus the audited JLC offset
   (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 16 lines corrected
   (U5, U6, U7, U8, U9, U15, U20, U21, U22, U23, U24, U30, U36, U38, U39, U42).

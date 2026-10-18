@@ -457,6 +457,15 @@ component Bat54s:
     signal K ~ pin 2
     signal COM ~ pin 3
 
+component Schottky1A40V:
+    """MDD SS14 Schottky, 40 V 1 A, SMA(DO-214AC) (LCSC C2480, basic library). VF <= 0.55 V at 1 A. Cathode = pin 1 (band)."""
+    designator_prefix = "D"
+    mpn = "SS14"
+    manufacturer = "MDD"
+    footprint = "Diode_SMD:D_SMA"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
 component XhHeader12:
     """JST B12B-XH-A(LF)(SN), 12-pin 2.50 mm vertical (LCSC C158027). JST eXH.pdf: body
     (n-1) x 2.5 + 4.9 = 32.4 mm long, 5.75 mm deep, 7.0 mm above the board; 9.8 mm mated

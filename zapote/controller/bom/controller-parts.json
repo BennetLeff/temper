@@ -2,6 +2,18 @@
   "schema": "temper.controller.parts.v1",
   "checked": "2026-10-08 against vendor datasheets (scratch copies) and the JLCPCB parts API",
   "parts": {
+    "RC0603FR-071ML": {
+      "origin": "controller (J4.1 BIAS_GOOD pull-down, J13 rail merge)",
+      "basis": "Yageo RC_L 1 % 0603 1 M; JLCPCB parts API 2026-10-17 (extended library)",
+      "lcsc": "C105578",
+      "jlc_stock_2026_10_17": 365518
+    },
+    "SS14": {
+      "origin": "controller (J13 rail merge, power-stage candidate 23)",
+      "basis": "MDD SS14 Schottky 40 V 1 A SMA(DO-214AC), basic library; JLCPCB parts API 2026-10-17; VF datasheet maximum 0.55 V used in tools/controller_calcs.py merge_rail()",
+      "lcsc": "C2480",
+      "jlc_stock_2026_10_17": 1403683
+    },
     "0430451600": {
       "origin": "controller (follow-up 2026-10-08), J4 right-angle (R27)",
       "basis": "Molex Micro-Fit 3.0 43045-1600 right-angle THT 2x8 with PCB pegs (distributor listings; KiCad footprint cites Molex 430450201_sd.pdf). Molex drawing not read: envelope fit [UNVERIFIED]",

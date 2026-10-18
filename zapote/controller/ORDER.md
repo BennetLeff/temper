@@ -1,7 +1,17 @@
 # Controller prototype order package (JLC PCB + PCBA)
 
-Board: C1 + CR-8, committed board = C47 convergence run 3 (`pcb/controller.kicad_pcb` sha256
-`77ed3751d0f430d07b774af649e3defea2f1aa25154bb6ddfe88e444f462e097`), branch `controller-c1-crs`.
+> **Branch `controller-j13-merge` (C49, 2026-10-18) supersedes the board named below.** It is the C48 board plus the J13 rail merge and the
+> J4.1 BIAS_GOOD input (DECISIONS C49): five parts added (D9 SS14, R123 1 M, R124 10 k, C97 1 nF; the J4.1 net and GPIO35 change), one
+> stranded via removed. The upload files below carry this branch's hashes (BOM 89 lines, CPL 288 placements: 279 SMD / 9 THT). It needs the
+> matching firmware (`firmware/README.md`, "BIAS_GOOD read-back"), a power board with stage 50 or later, and PS3 on J13. **Not covered by
+> this package's C48 text:** the parts cost (USD 65.32 per board) and the NEEDS-PREVIEW count (44 placements / 23 codes) are the C48 figures
+> and were not recomputed; **add D9 (SS14, LCSC C2480, SMA) to the CPL preview list: it is polarized and the `D_SMA` footprint is new**, so
+> check the cathode band against pad 1 in JLC's 3D preview. The C48 text below is otherwise unchanged. Routing: one clean full run (0 open,
+> DRC 0 errors, interlock and 14 layout checks pass); the 3-run convergence proof was not repeated for this netlist.
+
+Board: C1 + CR-8, **C49 board** (`pcb/controller.kicad_pcb` sha256
+`b3af25b892858e0c89624ed72ce207e9e1f25d6429aaed4f7814804229f8b1bb`), branch `controller-j13-merge`; the C48 board it replaces was C47 convergence
+run 3 (`77ed3751d0f430d07b774af649e3defea2f1aa25154bb6ddfe88e444f462e097`, branch `controller-c1-crs`).
 
 **Nothing has been ordered, uploaded or paid. Ordering is the owner's decision.**
 
@@ -16,10 +26,10 @@ The fab files `--no-route` regenerated were compared with the committed ones:
 
 | File | Path | sha256 |
 |---|---|---|
-| Gerbers + drill (zip, 16 files) | `fab/controller-gerbers.zip` | `b3b9a37e1fc3bf9b1058699e93b422f7df405edafa6711d4b342cdde6c1b245d` |
-| BOM (87 lines) | `fab/bom-jlcpcb.csv` | `3966d8783e1ca8c40a5930cf7eb0a8075c0660f91f453ace4488a93e8dc5398b` |
-| CPL (284 placements, 275 SMD / 9 THT, all top side) | `fab/cpl-jlcpcb.csv` | `4799a8e7a3e31eaec2dcb152f03badbfe01833aa04a5d71dab4a2948ca92c377` |
-| Assembly drawing (reference, not uploaded) | `fab/assembly-top.pdf` | `a73ec3b013a0ae710db84d33a3c834c12befec87dc06028679299ec1d6518377` |
+| Gerbers + drill (zip, 16 files) | `fab/controller-gerbers.zip` | `53f5adddd1c278dcb4a6656c7e316e50f8e53bc3445d8eeaca46b314dfd7d25c` |
+| BOM (89 lines) | `fab/bom-jlcpcb.csv` | `259acf1957e82ef49f01dae212714a96168e447c6046c7655878cbe9f30c5133` |
+| CPL (288 placements, 279 SMD / 9 THT, all top side) | `fab/cpl-jlcpcb.csv` | `b69720e0a0654b855936f1535b05632bf5e99ffa4ce7eb35fa7d6c233d11fb65` |
+| Assembly drawing (reference, not uploaded) | `fab/assembly-top.pdf` | `3ad361c9e6c553c414c0271651a33e285b02ad95f6639e92e6a7fb2ff4e82831` |
 
 The JLC "Mount" column in the BOM/CPL is informational. JLC decides SMT or THT from its own part library.
 
@@ -92,7 +102,7 @@ No other part is consigned. The ESP32-S3-WROOM-1U-N8's U.FL coax and chip-antenn
    - **J11** is a copper-only Tag-Connect TC2050-IDC-NL land: 10 pads and 3 NPTH, excluded from BOM and CPL (C41). Nothing is fitted; programming uses the TC2050 cable.
    - No other DNP. R39 becomes DNP only if consignment misses the order (above).
 4. **U4 at JLC's BOM step:** check that the WROOM module appears as an SMT placement (C48 above).
-5. **JLC BOM matching:** all 87 lines carry an LCSC code (`fab-notes.md`: "missing: none"). Accept JLC's match for each, but reject any "similar part" substitution, especially R39 and the 0.1 % thin-film resistors.
+5. **JLC BOM matching:** all 89 lines carry an LCSC code (`fab-notes.md`: "missing: none"). Accept JLC's match for each, but reject any "similar part" substitution, especially R39 and the 0.1 % thin-film resistors.
 
 ## 4. Open board items (DECISIONS "Open items") that do not block a prototype order
 

@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "c0808194d2fe1e6ca7691d168d68eeb228e1307b16c5f315fb82f1c058186546"
+    "netlist_sha256": "17572fa50ade02364aa58a1df72836796dfc1b85affebb1bbbdc73e61c4d3005"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -378,6 +378,18 @@
           ],
           "ok": true
         },
+        "calc_bias_good_high_reads_high": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_bias_good_no_tvs_on_the_input": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_bias_good_open_reads_low": {
+          "detail": null,
+          "ok": true
+        },
         "calc_blw_pg_absent_reads_low": {
           "detail": null,
           "ok": true
@@ -387,6 +399,30 @@
           "ok": true
         },
         "calc_blw_pg_present_reads_high": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_merge_rail_bulk_25V_above_ovp": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_merge_rail_logic_rail_above_buck_start": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_merge_rail_ps3_total_within_65W": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_merge_rail_ps3_total_within_derated_60C": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_merge_rail_schottky_1A_ge_logic": {
+          "detail": null,
+          "ok": true
+        },
+        "calc_merge_rail_schottky_40V_above_ovp": {
           "detail": null,
           "ok": true
         },
@@ -428,19 +464,41 @@
           },
           "ok": true
         },
-        "no_part_bridges_v15_blw_and_v15_selv": {
-          "detail": [],
+        "only_the_merge_schottky_joins_v15_blw_to_v15_selv": {
+          "detail": [
+            "D9"
+          ],
           "ok": true
         },
         "ps3_within_rating_at_design_load": {
           "detail": 39.72059201793256,
           "ok": true
         },
+        "sim_ps3_loss_buck_stops_before_3v3_collapse_into_uvlo_order_known": {
+          "detail": null,
+          "ok": true
+        },
+        "sim_ps3_loss_continuous_load_below_60C_derated": {
+          "detail": null,
+          "ok": true
+        },
+        "sim_ps3_loss_fan_must_draw_more_than_rated_max_to_trip_ps3": {
+          "detail": null,
+          "ok": true
+        },
+        "sim_ps3_loss_logic_rail_above_buck_start": {
+          "detail": null,
+          "ok": true
+        },
+        "sim_ps3_loss_max_ambient_above_58C_bay": {
+          "detail": null,
+          "ok": true
+        },
         "u2_vin_en_caps_on_v15_blw": {
           "detail": {
             "caps": [
-              "C9",
               "C14",
+              "C9",
               "C13",
               "C15"
             ],
@@ -453,6 +511,17 @@
         }
       },
       "data": {
+        "bias_good": {
+          "high_level_fraction_of_vdd": 0.8166969147005445,
+          "open_level_fraction_of_vdd": 0.0,
+          "source": [
+            "CONTROLLER-REQUEST item 11-12",
+            "ESP32-S3 datasheet VIH/VIL"
+          ],
+          "tau_us": 190.327868852459,
+          "vih_fraction": 0.75,
+          "vil_fraction": 0.25
+        },
         "blw_pg": {
           "absent_max_V": 0.3004430379746835,
           "divider_mA_at_15V": 0.6072874493927126,
@@ -469,6 +538,32 @@
           "part": "JST B2P-VH(LF)(SN)",
           "pin1": "V15_BLW",
           "pin2": "selv_gnd"
+        },
+        "merge_rail": {
+          "en_start_max_V": 12.072219717839554,
+          "holdup_ms_to_buck_stop": 1.1149502641239277,
+          "logic_A": 0.322,
+          "open_finding_start_vs_ps3_ocp": {
+            "buck_limit_bound_exceeds_ocp": true,
+            "effect": "only a fan drawing >= about 4.96 A at 12.4 V trips PS3 (fan rated max 2.70 A); then the controller resets (fails safe). Fan start / lock current is a bench item (DECISIONS C49)",
+            "ps3_ocp_low_A_mpm65": 4.983333333333333,
+            "start_peak_A_with_logic": [
+              4.278670542069069,
+              5.785973605714428
+            ]
+          },
+          "ps3_derated_60C_W_mpm65_curve": 52.0,
+          "ps3_load_fraction_of_derated_60C": 0.8567421541910107,
+          "ps3_rating_W": 65.0,
+          "ps3_total_W": 44.55059201793256,
+          "source": [
+            "MPM-65-SPEC 2024-10-30",
+            "SS14 class Schottky datasheet VF max",
+            "README power table",
+            "CONTROLLER-REQUEST items 1, 2, 4"
+          ],
+          "v_blw_min_V": 14.432695464653284,
+          "v_logic_min_V": 13.882695464653283
         },
         "ps3_budget": {
           "blower_A": 2.8829641297883883,
@@ -496,6 +591,64 @@
           ],
           "u2_vin_min_V": 14.453078389551283,
           "u2_vin_needed_V": 13.535882116726057
+        },
+        "ps3_loss_sim": {
+          "continuous": {
+            "at_60C_derated_W": 52.0,
+            "fraction_of_60C_derated": 0.8567421541910107,
+            "fraction_of_rated": 0.6853937233528086,
+            "max_ambient_C": 63.82020922157305,
+            "p_total_W": 44.55059201793256
+          },
+          "inputs": {
+            "blower_v_out_hi_V": 12.399922859520029,
+            "buck_eta": 0.9,
+            "harness_loop_ohm": 0.063301009,
+            "logic_W": 4.83,
+            "ocp_W": [
+              74.75,
+              87.75
+            ],
+            "p_rated_W": 65.0
+          },
+          "overload": {
+            "buck_output_ceiling_A": [
+              4.2,
+              5.8
+            ],
+            "fan_current_to_trip_lowest_ocp_A": 4.961003186605788,
+            "fan_rated_max_A": 2.7,
+            "margin_x_fan_rated_max": 1.8374085876317734,
+            "note": "PS3 trips only if the 12 V load draws more than fan_current_to_trip_lowest_ocp_A; the buck can pass its own limit (4.2-5.8 A peak), so a short is bounded by hiccup, and only a fan drawing >= this current can trip PS3 at start."
+          },
+          "ps3_loss": {
+            "buck_en_stop_V": 9.802991089108911,
+            "gate_drive": "the drivers' VDDI UVLO forces the outputs low within the times above after the buck stops, before the MCU (brown-out about 2.43 V) can drive anything; the PERMIT path (supervisor filter, U37) is independent and not timed here",
+            "logic_cap_uF": 85.10000000000001,
+            "ps3_holdup_ms_115VAC": 12.0,
+            "t_buck_stops_ms": 0.8700000000000147,
+            "v3v3_fall_us_after_buck_stop": {
+              "MCU_brownout_2.43V": 35.0,
+              "TPS3703_UV_3.146V": 6.999999999999999,
+              "driver_VDDI_UVLO_off_max_2.95V": 15.000000000000004,
+              "driver_VDDI_UVLO_off_min_2.55V": 31.000000000000007
+            },
+            "v_logic_start_V": 13.957695464653282
+          },
+          "soft_start": {
+            "hiccup_off_ms": [
+              11.630769230769232,
+              20.53333333333333
+            ],
+            "output_cap_charge_A": [
+              0.22319861147136055,
+              0.39404199309141424
+            ],
+            "tSS_ms_min_max": [
+              1.1076923076923078,
+              1.9555555555555555
+            ]
+          }
         }
       }
     },
@@ -512,8 +665,8 @@
       },
       "data": {
         "count": {
-          "components": 285,
-          "distinct_mpns": 88
+          "components": 289,
+          "distinct_mpns": 90
         },
         "unverified": [
           "0430451600"
@@ -1080,16 +1233,32 @@
           ],
           "ok": true
         },
-        "pin1_feeds_3v3_buck_only": {
+        "pin1_bias_good_high_z_input_on_gpio35": {
+          "detail": {
+            "cap": [
+              "C97"
+            ],
+            "drivers": [],
+            "gpio35": "BIAS_GOOD_RB",
+            "pulldown": [
+              "R123"
+            ],
+            "series": [
+              "R124"
+            ]
+          },
+          "ok": true
+        },
+        "pin1_bias_good_j4": {
           "detail": [
-            "TPS62933FDRLR"
+            "bias_good_j4",
+            "bias_good_j4"
           ],
           "ok": true
         },
-        "pin1_v15_selv": {
+        "pin1_feeds_3v3_buck_only": {
           "detail": [
-            "v15_selv",
-            "v15_selv"
+            "TPS62933FDRLR"
           ],
           "ok": true
         },
@@ -1231,7 +1400,7 @@
       },
       "data": {
         "controller": {
-          "1": "v15_selv",
+          "1": "bias_good_j4",
           "2": "selv_gnd",
           "3": "v3v3",
           "4": "selv_gnd",
@@ -1249,7 +1418,7 @@
           "16": "line_zc"
         },
         "native21": {
-          "1": "v15_selv",
+          "1": "bias_good_j4",
           "2": "selv_gnd",
           "3": "v3v3",
           "4": "selv_gnd",
@@ -1353,7 +1522,7 @@
           "GPIO20": "USB_DP",
           "GPIO21": "BUS_FAULT_RB",
           "GPIO3": "FAN_TACH",
-          "GPIO35": "RAIL_OK_RB",
+          "GPIO35": "BIAS_GOOD_RB",
           "GPIO36": "PERMIT_RB",
           "GPIO37": "I2C_SDA",
           "GPIO38": "CT_ZC_MCU",
@@ -2388,30 +2557,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3743709759551654
+            3.374371003073652
           ],
           "ok": true
         },
         "ps1_within_21W_at_full_blower": {
-          "detail": 4.834390146240015,
+          "detail": 4.834404413887074,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1051.5228623532503,
+          "detail": 1051.5263623532503,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1051.5228623532503,
+          "detail": 1051.5263623532503,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 542.177503364302,
+        "controller_mA": 542.1810033643019,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.007817027344260681,
+            "ground_shift_max_V": 0.007817054462747367,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -2422,14 +2591,14 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3743709759551654,
+          "max": 3.374371003073652,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1051.5228623532503,
+        "peak_mA": 1051.5263623532503,
         "ps1": {
           "basis": "efficiency 85 % (3.3 V) is an allocation from the TPS62933 typical curves; IRM-20-15 21 W rated; blower on PS3 (check_blwin)",
           "blower_input_W_now_on_ps3": {
@@ -2437,8 +2606,8 @@
             "full_typ": 18.933333333333334,
             "r32_cap": 10.0
           },
-          "p_3v3_rail_W": 4.286502021240015,
-          "p_total_W": 4.834390146240015,
+          "p_3v3_rail_W": 4.286516288887074,
+          "p_total_W": 4.834404413887074,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -3214,6 +3383,13 @@
             "ref": "U34"
           },
           {
+            "basis": "1Mohm +/- 1% pull-down driven high by U4",
+            "board": "controller",
+            "mA": 0.0035,
+            "path": "r_bias_pd",
+            "ref": "R123"
+          },
+          {
             "basis": "BAT54S-7-F: DS11005: IR 2 uA max (25 V); conducts into v3v3 only on a fault",
             "board": "controller",
             "mA": 0.002,
@@ -3249,7 +3425,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 591.5228623532504,
+        "total_mA": 591.5263623532503,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

@@ -34,6 +34,22 @@
     "total_sps": 80000.0,
     "vbus_max_gap_us": 62.5
   },
+  "bias_good": {
+    "checks": {
+      "high_reads_high": true,
+      "no_tvs_on_the_input": true,
+      "open_reads_low": true
+    },
+    "high_level_fraction_of_vdd": 0.8166969147005445,
+    "open_level_fraction_of_vdd": 0.0,
+    "source": [
+      "CONTROLLER-REQUEST item 11-12",
+      "ESP32-S3 datasheet VIH/VIL"
+    ],
+    "tau_us": 190.327868852459,
+    "vih_fraction": 0.75,
+    "vil_fraction": 0.25
+  },
   "blower_supply": {
     "checks": {
       "duty0_ge_11p5V": true,
@@ -800,6 +816,40 @@
     "low_trip_C": -39.993887020956876,
     "low_word": 12844,
     "source": "IEC 60751 CVD; MAX31865 15-bit ratio code x Rref; zapote-erc inclusive floor/ceil encoding"
+  },
+  "merge_rail": {
+    "checks": {
+      "bulk_25V_above_ovp": true,
+      "logic_rail_above_buck_start": true,
+      "ps3_total_within_65W": true,
+      "ps3_total_within_derated_60C": true,
+      "schottky_1A_ge_logic": true,
+      "schottky_40V_above_ovp": true
+    },
+    "en_start_max_V": 12.072219717839554,
+    "holdup_ms_to_buck_stop": 1.1149502641239277,
+    "logic_A": 0.322,
+    "open_finding_start_vs_ps3_ocp": {
+      "buck_limit_bound_exceeds_ocp": true,
+      "effect": "only a fan drawing >= about 4.96 A at 12.4 V trips PS3 (fan rated max 2.70 A); then the controller resets (fails safe). Fan start / lock current is a bench item (DECISIONS C49)",
+      "ps3_ocp_low_A_mpm65": 4.983333333333333,
+      "start_peak_A_with_logic": [
+        4.278670542069069,
+        5.785973605714428
+      ]
+    },
+    "ps3_derated_60C_W_mpm65_curve": 52.0,
+    "ps3_load_fraction_of_derated_60C": 0.8567421541910107,
+    "ps3_rating_W": 65.0,
+    "ps3_total_W": 44.55059201793256,
+    "source": [
+      "MPM-65-SPEC 2024-10-30",
+      "SS14 class Schottky datasheet VF max",
+      "README power table",
+      "CONTROLLER-REQUEST items 1, 2, 4"
+    ],
+    "v_blw_min_V": 14.432695464653284,
+    "v_logic_min_V": 13.882695464653283
   },
   "ps3_budget": {
     "blower_A": 2.8829641297883883,

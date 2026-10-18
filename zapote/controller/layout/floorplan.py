@@ -188,6 +188,8 @@ ANCHOR = {
     "r_fan_inj": "u_12", "c_fan_ctl": "r_fan_inj", "r_fan_pwm_filt": "c_fan_ctl",
     # stage 16 BLW_PG divider at J13, so only the 3.9 V-max node runs to the expander
     "r_blw_pg_top": "J13", "r_blw_pg_bot": "r_blw_pg_top",
+    # J13 rail merge: the Schottky beside J13 (V15_BLW side); the J4.1 BIAS_GOOD TVS and pull-down at J4
+    "d_merge": "J13", "r_bias_ser": "U4", "c_bias": "r_bias_ser", "r_bias_pd": "r_bias_ser",
     "r_tach_pu": "J10", "d_tach": "J10", "r_tach_series": "J10", "c_tach": "r_tach_series",
     # NTC input RCs at their buffers (C29)
     "r_hs_filt": "u_buf1", "c_hs_filt": "u_buf1", "r_coil_filt": "u_buf2", "c_coil_filt": "u_buf2",

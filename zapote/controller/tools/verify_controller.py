@@ -368,6 +368,11 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
               (nl.mpn["J4"], n21.mpn["J4"]))
     rep.check("j4", "controller_j4_right_angle_r27", "Horizontal" in nl.footprint.get("J4", ""),
               nl.footprint.get("J4"))
+    # J4.1: the pinned native-21 snapshot (2026-10-08) still has PS1's 15 V here. The power board dropped
+    # PS1 (stage 38) and drives BIAS_GOOD on J4.1 (stage 48; net bias_good_j4 in native-21 frozen/default.net
+    # at c52d5bffb; power-stage DECISIONS 67); candidate 23's CONTROLLER-REQUEST items 1, 2, 11, 12 ask for
+    # exactly this controller side. The other 15 pins still compare against the snapshot.
+    theirs[1] = "bias_good_j4"
     for p in range(1, 17):
         rep.check("j4", f"pin{p}_{theirs[p]}", mine[p] == theirs[p] and mine[p] is not None, (mine[p], theirs[p]))
     pn = nl.pin_net()
@@ -377,9 +382,23 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
     reg = [r for r, mp in nl.mpn.items() if mp == "TPS62933FDRLR"]
     rep.check("j4", "pin3_v3v3_is_regulator_output",
               any(nl.net_of(l, "2") == V3 for l in nl.refs if nl.mpn.get(l) == "SWPA6045S100MT") and len(reg) == 1)
-    # Stage 16 (DECISIONS C33): J4.1 (PS1) feeds the 3.3 V buck only; the blower buck runs from
-    # PS3 through J13 (check_blwin).
+    # Stage 16 (DECISIONS C33): the 3.3 V buck is the only part on the logic rail v15_selv; the blower
+    # buck runs from V15_BLW (check_blwin). Since the J13 merge v15_selv is fed from V15_BLW through D_MERGE.
     on_v15 = {nl.mpn[r] for r, p in nl.nets["v15_selv"] if pin_role(nl, r, p) == "other"}
+    mcu_ref = next(r for r, mp in nl.mpn.items() if mp == MCU_MPN)
+    drv = [(r, p) for r, p in nl.nets["bias_good_j4"] + nl.nets["BIAS_GOOD_RB"]
+           if r != mcu_ref and pin_role(nl, r, p) in ("out", "od")]
+    # J4.1 -> 10 k series -> GPIO35 (net BIAS_GOOD_RB), 1 nF C0G at the pin, 1 M pull-down and TVS on the J4 side
+    ser = [r for r, p in nl.nets["bias_good_j4"] if r.startswith("R") and {pn.get((r, "1")), pn.get((r, "2"))} == {"bias_good_j4", "BIAS_GOOD_RB"}]
+    pd = [r for r, p in nl.nets["BIAS_GOOD_RB"] if r.startswith("R") and GND in {pn.get((r, "1")), pn.get((r, "2"))}]
+    cap = [r for r, p in nl.nets["BIAS_GOOD_RB"] if r.startswith("C") and GND in {pn.get((r, "1")), pn.get((r, "2"))}]
+    val = lambda r: parse_value(nl.value[r])[0]  # noqa: E731
+    rep.check("j4", "pin1_bias_good_high_z_input_on_gpio35",
+              gm.get(35) == "BIAS_GOOD_RB" and nl.net_of("J4", "1") == "bias_good_j4" and not drv
+              and len(ser) == 1 and val(ser[0]) == 10e3 and len(pd) == 1 and val(pd[0]) == 1e6
+              and len(cap) == 1 and abs(val(cap[0]) - 1e-9) < 1e-12
+              and not [r for r, p in nl.nets["bias_good_j4"] + nl.nets["BIAS_GOOD_RB"] if nl.mpn.get(r) == "ESD5Z3.3T1G"],
+              {"gpio35": gm.get(35), "drivers": drv, "series": ser, "pulldown": pd, "cap": cap})
     rep.check("j4", "pin1_feeds_3v3_buck_only",
               "TPS62933FDRLR" in on_v15 and "TPS62933DRLR" not in on_v15, sorted(on_v15 & {"TPS62933FDRLR", "TPS62933DRLR"}))
     for net in ("pwm_ha", "pwm_la", "pwm_hb", "pwm_lb"):
@@ -980,7 +999,21 @@ def check_blwin(rep: Report, nl: Netlist, calcs: dict) -> None:
     parts_blw = {r for r, p in nl.nets.get(BLW, [])}
     parts_v15 = {r for r, p in nl.nets.get("v15_selv", [])}
     bridges = sorted(parts_blw & parts_v15)
-    rep.check("blwin", "no_part_bridges_v15_blw_and_v15_selv", not bridges and BLW in nl.nets, bridges)
+    # J13 merge (CONTROLLER-REQUEST items 1-2): the one part joining V15_BLW and v15_selv is the Schottky,
+    # anode on V15_BLW, cathode on v15_selv, SS14 (40 V 1 A, C2480).
+    d_ok = len(bridges) == 1 and nl.mpn.get(bridges[0]) == "SS14" and nl.net_of(bridges[0], "2") == BLW \
+        and nl.net_of(bridges[0], "1") == "v15_selv"
+    rep.check("blwin", "only_the_merge_schottky_joins_v15_blw_to_v15_selv", d_ok and BLW in nl.nets, bridges)
+    for blk in ("merge_rail", "bias_good"):
+        for k, ok in calcs[blk]["checks"].items():
+            rep.check("blwin", f"calc_{blk}_{k}", ok)
+    import ps3_loss_sim
+    sim = ps3_loss_sim.run()
+    for k, ok in sim["checks"].items():
+        rep.check("blwin", f"sim_ps3_loss_{k}", ok)
+    rep.data("blwin", "ps3_loss_sim", {k: v for k, v in sim.items() if k != "checks"})
+    rep.data("blwin", "merge_rail", {k: v for k, v in calcs["merge_rail"].items() if k != "checks"})
+    rep.data("blwin", "bias_good", {k: v for k, v in calcs["bias_good"].items() if k != "checks"})
     bulk = [r for r in nl.refs if nl.mpn.get(r) == "EEE-FK1E101P" and nl.net_of(r, "1") == BLW
             and nl.net_of(r, "2") == GND]
     rep.check("blwin", "bulk_cap_on_v15_blw", len(bulk) == 1, bulk)

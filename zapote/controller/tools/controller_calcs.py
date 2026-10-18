@@ -559,6 +559,71 @@ def ps3_budget() -> dict:
                        "u2_vin_range_covers_ovp": 20.25 <= 30.0}}
 
 
+def merge_rail() -> dict:
+    """J13 rail merge (power-stage candidate 23, CONTROLLER-REQUEST items 1-2): the logic rail v15_selv
+    is fed from V15_BLW through D_MERGE (SS14 class Schottky), PS1 being deleted on the power board.
+
+    Sources: PS3 = MEAN WELL MPM-65-15ST, 15 V +/-2.5 %, OVP up to 20.25 V (as ps3_budget, the
+    IRM-60 spec figures are kept as the conservative envelope); logic load 4.83 W at 15 V (README
+    power table, PS1 figure) = 0.322 A; SS14 VF <= 0.55 V at 1 A (datasheet maximum, used also at
+    0.32 A); harness drop from ps3_budget(); the 3.3 V buck's EN divider from en_uvlo().
+    The Schottky blocks the logic bulk (100 uF + 10 uF + 100 nF) from discharging into a blower start
+    or stall on V15_BLW; the hold-up it buys is the bulk's own: dt = C dV / I.
+    """
+    b = ps3_budget()
+    i_logic = 4.83 / 15
+    vf = 0.55
+    v_blw_min = 15 * 0.975 - (b["ps3_out_A_at_low_corner"] + i_logic) * b["harness_loop_ohm"]
+    v_logic_min = v_blw_min - vf
+    en_start_max = en_uvlo()["start_max_V"]
+    c_bulk = 100e-6 * 0.8 + 10e-6 * 0.8                  # 100 uF electrolytic -20 %, 10 uF X7R at bias
+    holdup_s = c_bulk * (v_logic_min - en_uvlo()["stop_min_V"]) / i_logic
+    p_total = b["ps3_out_W"] + 4.83
+    # MEAN WELL MPM-65-SPEC 2024-10-30 (read 2026-10-18): 15 V curve is 100 % to 50 C, 80 % at 60 C, 50 % at 70 C (p.3, by eye);
+    # overload is hiccup at 115-135 % of the 65 W rated power, so the lowest trip point is 1.15 x 65 W / 15 V = 4.98 A (p.2).
+    derated_60C_W = 65.0 * 0.80
+    ocp_low_A = 65.0 * 1.15 / 15.0
+    # U2's current-limit "start draw" in ps3_budget() is a bound on the buck, not on the fan: the 12 V load is the fan (2.70 A max),
+    # and PS3 trips only if the load draws about 4.96 A at 12.4 V (tools/ps3_loss_sim.py: 1.84 x the fan's rated maximum). The fan's
+    # start / lock current is not in the repo (bench item), so this stays an open finding, reduced.
+    start_over_ocp = max(b["start_draw_A_at_u2_limit"]) + i_logic > ocp_low_A
+    return {"source": ["MPM-65-SPEC 2024-10-30", "SS14 class Schottky datasheet VF max", "README power table",
+                       "CONTROLLER-REQUEST items 1, 2, 4"],
+            "logic_A": i_logic, "v_blw_min_V": v_blw_min, "v_logic_min_V": v_logic_min,
+            "en_start_max_V": en_start_max, "holdup_ms_to_buck_stop": holdup_s * 1e3,
+            "ps3_total_W": p_total, "ps3_rating_W": 65.0, "ps3_derated_60C_W_mpm65_curve": derated_60C_W,
+            "ps3_load_fraction_of_derated_60C": p_total / derated_60C_W,
+            "open_finding_start_vs_ps3_ocp": {"start_peak_A_with_logic": [x + i_logic for x in b["start_draw_A_at_u2_limit"]],
+                                             "ps3_ocp_low_A_mpm65": ocp_low_A, "buck_limit_bound_exceeds_ocp": start_over_ocp,
+                                             "effect": "only a fan drawing >= about 4.96 A at 12.4 V trips PS3 (fan rated max 2.70 A); then the controller resets (fails safe). Fan start / lock current is a bench item (DECISIONS C49)"},
+            "checks": {"logic_rail_above_buck_start": v_logic_min >= en_start_max + 0.5,
+                       "ps3_total_within_65W": p_total <= 65.0,
+                       "ps3_total_within_derated_60C": p_total <= derated_60C_W,
+                       "schottky_40V_above_ovp": 40.0 > 20.25,
+                       "schottky_1A_ge_logic": 1.0 >= i_logic,
+                       "bulk_25V_above_ovp": 25.0 > 20.25}}
+
+
+def bias_good() -> dict:
+    """J4.1 BIAS_GOOD input (CONTROLLER-REQUEST items 11-12): the power board drives U40 (SN74LVC1G17 on
+    its V3V3) through R146 220 k; here a 1 M pull-down to selv_gnd holds a disconnected board low and
+    GPIO35 is a high-Z input. ESP32-S3 VIH = 0.75 x VDD, VIL = 0.25 x VDD (ESP32-S3 datasheet)."""
+    r146, rpd, tol = 220e3, 1e6, 0.01
+    # The power board's V3V3 is this board's v3v3 (J4.3 is sourced here), so both ends share one rail and
+    # the levels are ratios of VDD: the thresholds scale with the same VDD.
+    hi = rpd * (1 - tol) / (rpd * (1 - tol) + r146 * (1 + tol))
+    # No TVS on this input: ESD5Z3.3 leakage is specified at 25 C only (50 nA) and a hot TVS (60-85 C, leakage up 10-100x) would
+    # pull the high level through the 220 k + 10 k source below VIH (independent review follow-up, DECISIONS C49).
+    lo_open = 0.0
+    return {"source": ["CONTROLLER-REQUEST item 11-12", "ESP32-S3 datasheet VIH/VIL"],
+            "high_level_fraction_of_vdd": hi, "vih_fraction": 0.75, "open_level_fraction_of_vdd": lo_open,
+            "vil_fraction": 0.25,
+            "tau_us": ((r146 * rpd / (r146 + rpd)) + 10e3) * 1e-9 * 1e6,
+            "checks": {"high_reads_high": hi >= 0.75,
+                       "open_reads_low": lo_open <= 0.25,
+                       "no_tvs_on_the_input": True}}
+
+
 def blw_pg() -> dict:
     """BLW_PG (DECISIONS C33): 20 k / 4.7 k (1 %) from V15_BLW into TCA9555 P16.
 
@@ -1039,6 +1104,8 @@ def main() -> int:
         "blower_supply": blower_supply(),
         "ps3_budget": ps3_budget(),
         "blw_pg": blw_pg(),
+        "merge_rail": merge_rail(),
+        "bias_good": bias_good(),
         "rim_ntc": rim_ntc(),
         "thermal_trips": thermal_trips(),
         "hs_adc_divider": hs_adc_divider(),

@@ -434,6 +434,11 @@ def main():
     put("partition", sep["L2/U2 (12 V fan buck) -> RTD front end"]["mm"] >= 10.0, rule="L2 >= 10 mm from the RTD "
         "analog section (ENCLOSURE-HANDOFF item 6); others reported", separations_mm=sep)
 
+    # ---- stranded vias (agentic-PCB tip #13; layout/via_hygiene.py): a via with copper of its net on fewer than two layers
+    import via_hygiene
+    stranded = [info for _, info in via_hygiene.stranded(b)]
+    put("stranded_vias", not stranded, count=len(stranded), stranded=stranded[:20])
+
     status = "PASS" if all(v["ok"] for v in res.values()) else "FAIL"
     out = {"board": str(Path(path).name), "revision": world.REVISION,
            "source": "output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md (R31 section; R30 mounting/height) "
