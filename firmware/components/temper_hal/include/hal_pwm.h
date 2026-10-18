@@ -1,0 +1,185 @@
+/**
+ * @file hal_pwm.h
+ * @brief PWM Hardware Abstraction Layer
+ * 
+ * Provides platform-independent PWM operations for:
+ * - Single-channel PWM
+ * - Complementary PWM with dead-time (for half-bridge)
+ * - Frequency adjustment (for PLL tracking)
+ * 
+ * Used by:
+ * - Gate driver (UCC21550) control
+ * - PLL frequency tracking for ZVS
+ * - Fan speed control
+ */
+
+#ifndef HAL_PWM_H
+#define HAL_PWM_H
+
+#include "hal_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief PWM channel identifier
+ */
+#define HAL_PWM_CHANNEL_GATE    0   /**< Half-bridge gate drive */
+#define HAL_PWM_CHANNEL_FAN     1   /**< PWM fan control */
+
+/* Existing guard envelope; engineering policy, not the selected deployed gap.
+ * Native-18 DT-pin timing does not choose this controller setting (D20 R25).
+ */
+#define HAL_PWM_TIMER_RESOLUTION_HZ 80000000U
+#define HAL_PWM_MIN_DEAD_TIME_NS 300U
+#define HAL_PWM_MAX_DEAD_TIME_NS 1000U
+
+/**
+ * @brief PWM channel state (for verification/testing)
+ */
+typedef struct {
+    uint32_t frequency_hz;      /**< Current frequency */
+    float duty_percent;         /**< Current duty cycle */
+    uint16_t dead_time_ns;      /**< Programmed time, truncated to whole ns */
+    uint32_t dead_time_ticks;   /**< Successfully programmed delay per edge */
+    uint32_t timer_resolution_hz; /**< Tick clock; not a measured oscillator */
+    bool configured;           /**< All configuration calls succeeded; not HW readback */
+    bool running;               /**< PWM is active */
+    bool complementary;         /**< Complementary mode enabled */
+    /** Every output of the channel is held low: true after init (before the
+     *  first start) and after emergency_stop(); false once started. The
+     *  contract does not promise it after a bare stop() (the mock leaves it
+     *  clear); the ESP32 backend's stop() forces both generators off and
+     *  sets it. The RUN_EN interlock (power_gate.c) reads it:
+     *  RUN_EN may rise only while every gate channel is idle (zapote C39). */
+    bool outputs_off;
+} hal_pwm_state_t;
+
+/**
+ * @brief PWM operations interface
+ */
+typedef struct {
+    /**
+     * @brief Initialize PWM channel
+     * 
+     * @param channel PWM channel identifier
+     * @param config PWM configuration
+     * @return HAL_OK on success
+     */
+    hal_status_t (*init)(hal_pwm_channel_t channel, const hal_pwm_config_t *config);
+    
+    /**
+     * @brief Set PWM frequency
+     * 
+     * The ESP32 proposal requires stopped outputs for a period/compare update.
+     * Returns HAL_ERROR_BUSY while running; live PLL integration is deferred.
+     * 
+     * @param channel PWM channel
+     * @param freq_hz Frequency in Hz
+     * @return HAL_OK on success
+     */
+    hal_status_t (*set_frequency)(hal_pwm_channel_t channel, uint32_t freq_hz);
+    
+    /**
+     * @brief Set PWM duty cycle
+     * 
+     * @param channel PWM channel
+     * @param duty_percent Duty cycle (0-100%)
+     * @return HAL_OK on success
+     */
+    hal_status_t (*set_duty)(hal_pwm_channel_t channel, float duty_percent);
+    
+    /**
+     * @brief Set dead-time for complementary PWM
+     * 
+     * @param channel PWM channel
+     * @param dead_time_ns Dead-time in nanoseconds
+     * @return HAL_OK on success
+     */
+    hal_status_t (*set_dead_time)(hal_pwm_channel_t channel, uint16_t dead_time_ns);
+    
+    /**
+     * @brief Start PWM output
+     * 
+     * @param channel PWM channel
+     * @return HAL_OK on success
+     */
+    hal_status_t (*start)(hal_pwm_channel_t channel);
+    
+    /**
+     * @brief Stop the PWM timer (outputs keep their last level; use
+     *        emergency_stop() to force them low)
+     * 
+     * @param channel PWM channel
+     * @return HAL_OK on success
+     */
+    hal_status_t (*stop)(hal_pwm_channel_t channel);
+    
+    /**
+     * @brief Emergency stop all PWM channels
+     * 
+     * Forces all outputs low immediately.
+     * Called by safety interlock on fault.
+     * 
+     * @return HAL_OK on success
+     */
+    hal_status_t (*emergency_stop)(void);
+    
+    /**
+     * @brief Get current PWM state
+     * 
+     * Used for verification and testing.
+     * 
+     * @param channel PWM channel
+     * @param state Pointer to store state
+     * @return HAL_OK on success
+     */
+    hal_status_t (*get_state)(hal_pwm_channel_t channel, hal_pwm_state_t *state);
+    
+    /**
+     * @brief Deinitialize PWM channel
+     * 
+     * @param channel PWM channel
+     * @return HAL_OK on success
+     */
+    hal_status_t (*deinit)(hal_pwm_channel_t channel);
+} hal_pwm_ops_t;
+
+/**
+ * @brief Global PWM operations pointer
+ */
+extern const hal_pwm_ops_t *hal_pwm;
+
+/**
+ * @brief Set PWM operations implementation
+ */
+void hal_pwm_set_ops(const hal_pwm_ops_t *ops);
+
+/* ============================================================================
+ * Convenience Macros
+ * ============================================================================ */
+
+/**
+ * @brief Set PWM duty cycle (convenience wrapper)
+ */
+#define HAL_PWM_SET_DUTY(channel, duty) \
+    (hal_pwm ? hal_pwm->set_duty((channel), (duty)) : HAL_ERROR_NOT_READY)
+
+/**
+ * @brief Set PWM frequency (convenience wrapper)
+ */
+#define HAL_PWM_SET_FREQ(channel, freq) \
+    (hal_pwm ? hal_pwm->set_frequency((channel), (freq)) : HAL_ERROR_NOT_READY)
+
+/**
+ * @brief Emergency stop all PWM (convenience wrapper)
+ */
+#define HAL_PWM_EMERGENCY_STOP() \
+    (hal_pwm ? hal_pwm->emergency_stop() : HAL_ERROR_NOT_READY)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* HAL_PWM_H */

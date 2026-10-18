@@ -38,6 +38,10 @@ LABEL_OVERRIDES = {
     # name ("SIL: Self-Test Failure (INIT)"), which doesn't end in the
     # " Fault" suffix derive_label() strips.
     "FAULT_SELF_TEST_FAILED": "SELF TEST FAIL",
+    # sensor-r3 C1 (output/temper-sensor-r3/firmware/DECISIONS.md D-ISENSE,
+    # D-LEAK): the manifest scenario names carry their origin state.
+    "FAULT_CURRENT_SENSE": "CURRENT SENSE",
+    "FAULT_PROBE_LEAKAGE": "PROBE LEAKAGE",
 }
 
 

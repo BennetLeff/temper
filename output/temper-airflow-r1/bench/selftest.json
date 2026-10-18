@@ -1,0 +1,368 @@
+{
+ "scope": "fit.py --selftest: a synthetic rig day per scenario (lumped plate + guard thermal model driven by jet_logger.GuardPI, thermocouple offsets +-0.4 K and noise, INA226 quantisation, room drift, pressure and power gain errors, blower heating, true G_gap / emissivity / heat capacity different from bench.example.json) -> zero -> gap -> report -> transient; checks recovery against the truth. The generator's truth uses film-temperature properties; fit.py spans jet..film, which shows here as a ~-0.8 % offset inside the stated U95",
+ "scenarios": {
+  "pass_h125": {
+   "h_true_0.55": 125.0,
+   "h_med_0.55": 123.9,
+   "h95_0.55": [
+    120.9,
+    126.8
+   ],
+   "u95_rel_0.55": 0.024,
+   "rel_error_by_drive": {
+    "0.458": -0.0087,
+    "0.5": -0.0089,
+    "0.55": -0.0088,
+    "0.6": -0.009,
+    "0.7": -0.0089,
+    "0.8": -0.0087,
+    "1.0": -0.0084
+   },
+   "truth_covered": {
+    "0.458": true,
+    "0.5": true,
+    "0.55": true,
+    "0.6": true,
+    "0.7": true,
+    "0.8": true,
+    "1.0": true
+   },
+   "zero_max_offset_error_K": 0.008,
+   "G_gap_fit": 0.111,
+   "G_gap_true": 0.11,
+   "worst_run_h_error": 0.0022,
+   "still_air": {
+    "h_med": 3.75,
+    "h_lo95": 3.15,
+    "h_hi95": 4.35,
+    "model_floor": 10.0
+   },
+   "h_still_true": 4.0,
+   "transient": {
+    "run": "transient_d055",
+    "G_W_K": 0.1641,
+    "tau_s": 97.5,
+    "h_transient": 109.83,
+    "u_1sigma": 5.49,
+    "note": "independent of the power measurement; rests on the plate heat capacity C"
+   },
+   "transient_ref_h": 112.79,
+   "cd_measured": {
+    "mean": 0.6861328759478633,
+    "sd": 0.007899177305857397,
+    "n": 3
+   },
+   "cd_true": 0.68,
+   "exponent_b": [
+    0.378,
+    0.381,
+    0.383
+   ],
+   "b_true": 0.38,
+   "birge": 1.619,
+   "flow": "inline",
+   "measured_dlnh_dH": {
+    "per_mm": -0.0607,
+    "runs": [
+     "height_5p5",
+     "height_6p5"
+    ]
+   },
+   "martin_dlnh_dH": -0.018,
+   "c28_bay61_at_0.55": "PASS",
+   "raise_ceiling": {
+    "status": "PASS",
+    "basis": "c28_bay61 (28 A, 61 C bay) at board-floor drive 0.55",
+    "supported_ceiling_A_bay61_lo95": 28.9,
+    "supported_ceiling_A_bay55_lo95": 31.9,
+    "caps": "sweep held flat above h 150; firmware Kconfig cap 28 A; jet air taken at bay temperature in the sweep (conservative, D4)"
+   },
+   "flags": [
+    "still_r1: extrapolated (tau 2754 s)"
+   ],
+   "checks": {
+    "zero_offsets_within_0.03K": true,
+    "G_gap_within_15pct": true,
+    "per_run_h_within_1.5pct": true,
+    "still_air_within_10pct": true,
+    "product_h_0.55_within_2pct": true,
+    "truth_inside_U95_all_drives": true,
+    "transient_within_5pct_of_steady": true,
+    "height_slope_within_0.02_per_mm": true,
+    "cd_measured_within_3pct": true,
+    "verdict_as_expected": true,
+    "near_threshold_not_FAIL": true
+   },
+   "pass": true,
+   "c28_bay61_pass_needs_h_ge": 99.6,
+   "as_martin_factor_at_0.55": 0.598
+  },
+  "near_h100": {
+   "h_true_0.55": 100.0,
+   "h_med_0.55": 99.1,
+   "h95_0.55": [
+    97.0,
+    101.1
+   ],
+   "u95_rel_0.55": 0.0208,
+   "rel_error_by_drive": {
+    "0.458": -0.0089,
+    "0.5": -0.0089,
+    "0.55": -0.009,
+    "0.6": -0.0086,
+    "0.7": -0.009,
+    "0.8": -0.009,
+    "1.0": -0.0081
+   },
+   "truth_covered": {
+    "0.458": true,
+    "0.5": true,
+    "0.55": true,
+    "0.6": true,
+    "0.7": true,
+    "0.8": true,
+    "1.0": true
+   },
+   "zero_max_offset_error_K": 0.008,
+   "G_gap_fit": 0.111,
+   "G_gap_true": 0.11,
+   "worst_run_h_error": 0.0023,
+   "still_air": {
+    "h_med": 3.75,
+    "h_lo95": 3.15,
+    "h_hi95": 4.35,
+    "model_floor": 10.0
+   },
+   "h_still_true": 4.0,
+   "transient": {
+    "run": "transient_d055",
+    "G_W_K": 0.1307,
+    "tau_s": 122.39,
+    "h_transient": 87.36,
+    "u_1sigma": 4.37,
+    "note": "independent of the power measurement; rests on the plate heat capacity C"
+   },
+   "transient_ref_h": 90.2,
+   "cd_measured": {
+    "mean": 0.6861328124418474,
+    "sd": 0.007899209835104507,
+    "n": 3
+   },
+   "cd_true": 0.68,
+   "exponent_b": [
+    0.378,
+    0.381,
+    0.383
+   ],
+   "b_true": 0.38,
+   "birge": 2.161,
+   "flow": "inline",
+   "measured_dlnh_dH": null,
+   "martin_dlnh_dH": -0.018,
+   "c28_bay61_at_0.55": "MARGINAL",
+   "raise_ceiling": {
+    "status": "MARGINAL",
+    "basis": "c28_bay61 (28 A, 61 C bay) at board-floor drive 0.55",
+    "supported_ceiling_A_bay61_lo95": 28.2,
+    "supported_ceiling_A_bay55_lo95": 30.2,
+    "caps": "sweep held flat above h 150; firmware Kconfig cap 28 A; jet air taken at bay temperature in the sweep (conservative, D4)"
+   },
+   "flags": [
+    "still_r1: extrapolated (tau 2754 s)"
+   ],
+   "checks": {
+    "zero_offsets_within_0.03K": true,
+    "G_gap_within_15pct": true,
+    "per_run_h_within_1.5pct": true,
+    "still_air_within_10pct": true,
+    "product_h_0.55_within_2pct": true,
+    "truth_inside_U95_all_drives": true,
+    "transient_within_5pct_of_steady": true,
+    "height_slope_within_0.02_per_mm": true,
+    "cd_measured_within_3pct": true,
+    "verdict_as_expected": true,
+    "near_threshold_not_FAIL": true
+   },
+   "pass": true,
+   "c28_bay61_pass_needs_h_ge": 99.3,
+   "as_martin_factor_at_0.55": 0.596
+  },
+  "fail_h88": {
+   "h_true_0.55": 88.0,
+   "h_med_0.55": 87.2,
+   "h95_0.55": [
+    85.4,
+    89.0
+   ],
+   "u95_rel_0.55": 0.0205,
+   "rel_error_by_drive": {
+    "0.458": -0.0089,
+    "0.5": -0.0085,
+    "0.55": -0.0091,
+    "0.6": -0.0086,
+    "0.7": -0.008,
+    "0.8": -0.0087,
+    "1.0": -0.0079
+   },
+   "truth_covered": {
+    "0.458": true,
+    "0.5": true,
+    "0.55": true,
+    "0.6": true,
+    "0.7": true,
+    "0.8": true,
+    "1.0": true
+   },
+   "zero_max_offset_error_K": 0.008,
+   "G_gap_fit": 0.1111,
+   "G_gap_true": 0.11,
+   "worst_run_h_error": 0.0029,
+   "still_air": {
+    "h_med": 3.75,
+    "h_lo95": 3.15,
+    "h_hi95": 4.35,
+    "model_floor": 10.0
+   },
+   "h_still_true": 4.0,
+   "transient": {
+    "run": "transient_d055",
+    "G_W_K": 0.1148,
+    "tau_s": 139.42,
+    "h_transient": 76.6,
+    "u_1sigma": 3.83,
+    "note": "independent of the power measurement; rests on the plate heat capacity C"
+   },
+   "transient_ref_h": 79.37,
+   "cd_measured": {
+    "mean": 0.6838390329033651,
+    "sd": 0.0030071356733384364,
+    "n": 3
+   },
+   "cd_true": 0.68,
+   "exponent_b": [
+    0.378,
+    0.381,
+    0.384
+   ],
+   "b_true": 0.38,
+   "birge": 2.444,
+   "flow": "flowcal",
+   "measured_dlnh_dH": null,
+   "martin_dlnh_dH": -0.018,
+   "c28_bay61_at_0.55": "FAIL",
+   "raise_ceiling": {
+    "status": "FAIL",
+    "basis": "c28_bay61 (28 A, 61 C bay) at board-floor drive 0.55",
+    "supported_ceiling_A_bay61_lo95": 27.2,
+    "supported_ceiling_A_bay55_lo95": 29.2,
+    "caps": "sweep held flat above h 150; firmware Kconfig cap 28 A; jet air taken at bay temperature in the sweep (conservative, D4)"
+   },
+   "flags": [
+    "still_r1: extrapolated (tau 2754 s)"
+   ],
+   "checks": {
+    "zero_offsets_within_0.03K": true,
+    "G_gap_within_15pct": true,
+    "per_run_h_within_1.5pct": true,
+    "still_air_within_10pct": true,
+    "product_h_0.55_within_2pct": true,
+    "truth_inside_U95_all_drives": true,
+    "transient_within_5pct_of_steady": true,
+    "height_slope_within_0.02_per_mm": true,
+    "cd_measured_within_3pct": true,
+    "verdict_as_expected": true,
+    "near_threshold_not_FAIL": true
+   },
+   "pass": true,
+   "c28_bay61_pass_needs_h_ge": 99.2,
+   "as_martin_factor_at_0.55": 0.596
+  },
+  "near_h100_no_flowmeter": {
+   "h_true_0.55": 100.0,
+   "h_med_0.55": 100.1,
+   "h95_0.55": [
+    96.7,
+    103.6
+   ],
+   "u95_rel_0.55": 0.0343,
+   "rel_error_by_drive": {
+    "0.458": 0.0013,
+    "0.5": 0.0007,
+    "0.55": 0.001,
+    "0.6": 0.0018,
+    "0.7": 0.0012,
+    "0.8": 0.0019,
+    "1.0": 0.0019
+   },
+   "truth_covered": {
+    "0.458": true,
+    "0.5": true,
+    "0.55": true,
+    "0.6": true,
+    "0.7": true,
+    "0.8": true,
+    "1.0": true
+   },
+   "zero_max_offset_error_K": 0.008,
+   "G_gap_fit": 0.111,
+   "G_gap_true": 0.11,
+   "worst_run_h_error": 0.0025,
+   "still_air": {
+    "h_med": 3.75,
+    "h_lo95": 3.15,
+    "h_hi95": 4.35,
+    "model_floor": 10.0
+   },
+   "h_still_true": 4.0,
+   "transient": {
+    "run": "transient_d055",
+    "G_W_K": 0.1308,
+    "tau_s": 122.35,
+    "h_transient": 87.38,
+    "u_1sigma": 4.37,
+    "note": "independent of the power measurement; rests on the plate heat capacity C"
+   },
+   "transient_ref_h": 90.2,
+   "cd_measured": null,
+   "cd_true": 0.68,
+   "exponent_b": [
+    0.378,
+    0.381,
+    0.383
+   ],
+   "b_true": 0.38,
+   "birge": 2.081,
+   "flow": null,
+   "measured_dlnh_dH": null,
+   "martin_dlnh_dH": -0.018,
+   "c28_bay61_at_0.55": "MARGINAL",
+   "raise_ceiling": {
+    "status": "MARGINAL",
+    "basis": "c28_bay61 (28 A, 61 C bay) at board-floor drive 0.55",
+    "supported_ceiling_A_bay61_lo95": 28.2,
+    "supported_ceiling_A_bay55_lo95": 30.2,
+    "caps": "sweep held flat above h 150; firmware Kconfig cap 28 A; jet air taken at bay temperature in the sweep (conservative, D4)"
+   },
+   "flags": [
+    "still_r1: extrapolated (tau 2754 s)"
+   ],
+   "checks": {
+    "zero_offsets_within_0.03K": true,
+    "G_gap_within_15pct": true,
+    "per_run_h_within_1.5pct": true,
+    "still_air_within_10pct": true,
+    "product_h_0.55_within_2pct": true,
+    "truth_inside_U95_all_drives": true,
+    "transient_within_5pct_of_steady": true,
+    "height_slope_within_0.02_per_mm": true,
+    "cd_measured_within_3pct": true,
+    "verdict_as_expected": true,
+    "near_threshold_not_FAIL": true
+   },
+   "pass": true,
+   "c28_bay61_pass_needs_h_ge": 100.7,
+   "as_martin_factor_at_0.55": 0.604
+  }
+ },
+ "pass": true
+}

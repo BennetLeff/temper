@@ -78,6 +78,20 @@ extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
 
+#ifdef TEMPER_PAN_CONTROL_C1
+/* sensor-r3 C1 (output/temper-sensor-r3/firmware/DECISIONS.md D-MODE): every
+ * pan-temperature and RTD-resistance read is the latest MAX31865 conversion,
+ * and the C1 Pt100 window bounds the resistance interlock. */
+#include "pan_control.h"
+#define read_pan_temperature() pan_control_reading_c()
+#define read_rtd_resistance() pan_control_resistance_ohm()
+#define SM_RTD_OPEN_FAULT_OHM RTD_C1_OPEN_FAULT_OHM
+#define SM_RTD_SHORT_FAULT_OHM RTD_C1_SHORT_FAULT_OHM
+#else
+#define SM_RTD_OPEN_FAULT_OHM RTD_OPEN_FAULT_OHM
+#define SM_RTD_SHORT_FAULT_OHM RTD_SHORT_FAULT_OHM
+#endif
+
 /* Pan detection stubs */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
 extern pan_status_t detect_pan_presence(void);
@@ -96,22 +110,22 @@ extern void pll_update(void);
 /* Safety stubs */
 extern void watchdog_set_timeout(uint32_t timeout_ms);
 extern void watchdog_feed(void);
-extern void watchdog_hardware_feed(void);
 extern void trigger_hardware_shutdown(void);
 
-/* Route software-detected safety faults into the same active-high hardware
- * runaway-cut input used by the UCC21550 fault latch. This keeps RTD/ADC/fan
- * faults fail-safe even when the firmware state transition is delayed.
- *
- * TODO(temper-xxx): Single-point failure risk — gpio_set_level() writes to
- * the GPIO but does not verify pin state. If the output driver is damaged,
- * the fault cut may not be asserted. Consider adding a GPIO read-back
- * verification loop with a watchdog-bounded timeout before falling through
- * to trigger_hardware_shutdown(). */
+/* The TPS3823 WDI heartbeat is not fed from here: only the WDI supervisor
+ * task toggles it, after checking this loop's progress (zapote C42,
+ * components/safety/wdi_supervisor.h). Feeding it at the top of every update
+ * would keep the hardware watchdog quiet for a loop that is wrong but still
+ * running. */
+
+/* The firmware's stop for every software-detected safety fault. On zapote
+ * the MCU cannot drive the interlock's trip (DECISIONS C4): the legacy
+ * board's runaway-cut output on GPIO15 is the leg-B high-side gate command
+ * here. trigger_hardware_shutdown() forces the gate commands low and drops
+ * RUN_EN (pwm_disable_all()), which takes PERMIT low through the board's AND
+ * gate (C23); the hardware trips (RTD runaway, rim, thermal, capacitive mode,
+ * the TPS3823) act on their own. */
 static void assert_hardware_fault_cut(void) {
-#ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
-#endif
     trigger_hardware_shutdown();
 }
 
@@ -125,16 +139,64 @@ void enter_hardware_latched_fault(fault_code_t fault) {
     transition_to(STATE_FAULT);
 }
 
+/* The RTD sinks below are called by the converter service, which runs in
+ * every state, including FAULT and RUNAWAY_FAULT. A report that arrives while
+ * a fault is already latched keeps the first fault: it re-asserts the
+ * hardware cut but neither overwrites the latched fault code (which decides
+ * fault_cleared() and is what the user sees) nor re-enters the fault state
+ * (each entry logs to EEPROM). A MAX31865 holds register 07h until cleared,
+ * so without this a latched threshold fault re-entered FAULT and logged on
+ * every conversion, 50 times a second. A terminal sensor report absorbed
+ * here (stale, frozen) still blocks the reset: fault_cleared() checks the
+ * converter service in C1 builds. output/temper-sensor-r3/firmware/
+ * DECISIONS.md D-LATCH. */
+static bool fault_already_latched(void) {
+    return sm_ctx.current_state == STATE_FAULT ||
+           sm_ctx.current_state == STATE_RUNAWAY_FAULT;
+}
+
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context) {
     (void)context;
 
+    if (!short_fault && !open_fault) {
+        return;
+    }
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
     /* Both decoded MAX31865 threshold bits still represent a terminal RTD
      * safety failure. Prefer the short diagnosis when both are reported. */
     if (short_fault) {
         enter_hardware_latched_fault(FAULT_PROBE_SHORT);
-    } else if (open_fault) {
+    } else {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
+    }
+}
+
+void state_machine_report_rtd_frozen(void) {
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
+    enter_hardware_latched_fault(FAULT_ADC_STUCK);
+}
+
+void state_machine_report_latched_fault(fault_code_t fault) {
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
+    enter_hardware_latched_fault(fault);
+}
+
+void state_machine_report_pan_contact_lost(void) {
+    /* EVENT_CONTACT_LOST is a self-loop in PREHEAT and HEATING
+     * (transition_table.yaml): no state change, a user message instead. */
+    if (sm_ctx.current_state == STATE_PREHEAT || sm_ctx.current_state == STATE_HEATING) {
+        display_show_message("PAN MUST TOUCH SENSOR");
+        buzzer_beep(BEEP_PAN_REMOVED_MS);
     }
 }
 
@@ -196,6 +258,12 @@ void state_machine_init(void) {
     sm_ctx.heatsink_temp_stuck_count = 0;
     sm_ctx.prev_stuck_check_temp = -1.0f;
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Power-up: the time of the last cook is unknown, so the cold soak
+     * (D-SOAK) counts from here. */
+    pan_control_soak_restart();
+#endif
+
     transition_to(STATE_INIT);
 }
 
@@ -211,13 +279,11 @@ void state_machine_update(void) {
     uint32_t now = get_time_ms();
     sm_ctx.state_duration = now - sm_ctx.state_entry_time;
     
-    /* Feed external hardware watchdog (TPS3823-33) at the TOP of the loop.
-     * This ensures the watchdog is fed even if state processing hangs.
-     * The WDI toggle provides a heartbeat to the hardware watchdog IC.
-     * If this function stops being called (MCU lockup), the watchdog
-     * will timeout after 1.6s and disable the power stage.
-     * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
-    watchdog_hardware_feed();
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Cold-soak history (D-SOAK): coil activity and the soaked Pt100 and
+     * heatsink readings, in every state. */
+    pan_control_soak_note(now);
+#endif
     
     /* Runaway boundary interlock: check before ALL state-specific logic.
      * This fires even during message display to ensure safety-critical
@@ -352,6 +418,13 @@ void transition_to(system_state_t new_state) {
     if (sm_ctx.current_state == STATE_HEATING) {
         /* low_temp_stop(); */
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Leaving the power states stops the C1 loop (command 0). */
+    if ((sm_ctx.current_state == STATE_PREHEAT || sm_ctx.current_state == STATE_HEATING) &&
+        new_state != STATE_PREHEAT && new_state != STATE_HEATING) {
+        pan_control_stop();
+    }
+#endif
 
     /* Record previous state */
     sm_ctx.previous_state = sm_ctx.current_state;
@@ -420,18 +493,22 @@ bool check_safety_interlocks(void) {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
         return true;
     }
-    if (rtd_resistance >= RTD_OPEN_FAULT_OHM) {
+    if (rtd_resistance >= SM_RTD_OPEN_FAULT_OHM) {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
         return true;
     }
-    if (rtd_resistance <= RTD_SHORT_FAULT_OHM) {
+    if (rtd_resistance <= SM_RTD_SHORT_FAULT_OHM) {
         enter_hardware_latched_fault(FAULT_PROBE_SHORT);
         return true;
     }
 
+#ifndef TEMPER_PAN_CONTROL_C1
     /* ADC stuck check — identical pan temperature across consecutive reads
      * indicates a frozen sensor. Uses its own tracking separate from the
-     * runaway rate-of-rise tracker (which updates every pass). */
+     * runaway rate-of-rise tracker (which updates every pass).
+     * C1 builds: identical 15-bit codes are normal for 49 reads (up to 88
+     * conversions at 0.3 LSB noise); rtd_service's DRDY-stale and 250-code
+     * frozen checks replace this one (D-STALE). */
     float pan_temp = read_pan_temperature();
     if (sm_ctx.prev_stuck_check_temp == pan_temp) {
         sm_ctx.pan_temp_stuck_count++;
@@ -445,6 +522,7 @@ bool check_safety_interlocks(void) {
         sm_ctx.pan_temp_stuck_count = 0;
         sm_ctx.prev_stuck_check_temp = pan_temp;
     }
+#endif
 
     return false;
 }
@@ -452,6 +530,27 @@ bool check_safety_interlocks(void) {
 static void check_runaway_boundary(void) {
     /* If already latched, nothing to check */
     if (sm_ctx.runaway_latched) return;
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* No conversion yet (power-up fault cycle): nothing to check. A MAX31865
+     * that never converts is reported by rtd_service (fault-cycle timeout,
+     * DRDY stale). */
+    if (!pan_control_have_reading()) return;
+    /* A conversion that is evidently a sensor failure (code at or beyond
+     * R(850 degC) / R(-200 degC), or register 07h input bits) is not a
+     * temperature: an open element converts to full scale, 988.7 degC. It
+     * goes to the recoverable probe fault, not to the RUNAWAY latch, and R1
+     * does not see it. A plausible code above 300 degC still latches below,
+     * flagged by the 360 degC high threshold or not.
+     * output/temper-sensor-r3/firmware/DECISIONS.md D-OPEN. */
+    {
+        const rtd_sensor_fail_t sensor_fail = pan_control_reading_failure();
+        if (sensor_fail != RTD_SENSOR_OK) {
+            state_machine_report_rtd_device_fault(sensor_fail == RTD_SENSOR_FAIL_SHORT,
+                                                  sensor_fail == RTD_SENSOR_FAIL_OPEN, NULL);
+            return;
+        }
+    }
+#endif
 
     float temp = read_pan_temperature();
     uint32_t now = get_time_ms();
@@ -468,6 +567,15 @@ static void check_runaway_boundary(void) {
         goto trigger_runaway;
     }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* R1 sustained rise (pan_supervisor.c): 1 s means rising > 15 K/s for 5
+     * blocks. The 10 ms check below trips on C1 noise and on a preheated pan
+     * placed on the 40 mJ/K disc (D-RUN). */
+    if (pan_control_rate_sample(temp, now)) {
+        sm_ctx.fault_code = FAULT_RUNAWAY_BOUNDARY;
+        goto trigger_runaway;
+    }
+#else
     /* Rate-of-rise check (requires at least one prior reading) */
     if (sm_ctx.last_pan_temp_time_ms > 0) {
         uint32_t dt_ms = now - sm_ctx.last_pan_temp_time_ms;
@@ -480,6 +588,7 @@ static void check_runaway_boundary(void) {
             }
         }
     }
+#endif
 
     /* Store for next iteration */
     sm_ctx.last_pan_temp_c = temp;
@@ -487,12 +596,9 @@ static void check_runaway_boundary(void) {
     return;
 
 trigger_runaway:
-    /* Hardware-level cut: assert GPIO to OR gate */
-#ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
-#endif
-    /* Software-level cut: disable PWM and power */
-    trigger_hardware_shutdown();
+    /* Gate commands low and RUN_EN low (assert_hardware_fault_cut()); the
+     * board's own RTD runaway comparator (C38) trips independently. */
+    assert_hardware_fault_cut();
 
     sm_ctx.runaway_latched = true;
     transition_to(STATE_RUNAWAY_FAULT);
@@ -501,6 +607,9 @@ trigger_runaway:
 void state_machine_reset_temp_baseline(void) {
     sm_ctx.last_pan_temp_c = read_pan_temperature();
     sm_ctx.last_pan_temp_time_ms = get_time_ms();
+#ifdef TEMPER_PAN_CONTROL_C1
+    pan_control_rate_reset();
+#endif
 }
 
 void state_machine_reset_stuck_tracking(void) {
@@ -515,6 +624,16 @@ bool fault_cleared(void) {
     if (sm_ctx.current_state == STATE_RUNAWAY_FAULT) {
         return false;
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* A stopped MAX31865 service (no DRDY, frozen code, SPI or fault-cycle
+     * failure) is terminal: only a power cycle bootstraps it again, and until
+     * then the last conversion is stale. Its report may have been absorbed by
+     * an already-latched fault (D-LATCH), so this holds for every fault.
+     * output/temper-sensor-r3/firmware/DECISIONS.md D-RESET. */
+    if (!pan_control_sensor_ready()) {
+        return false;
+    }
+#endif
     
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
@@ -527,15 +646,41 @@ bool fault_cleared(void) {
         case FAULT_PROBE_SHORT:
             rtd_resistance = read_rtd_resistance();
             /* Do not permit reset while the inclusive MAX31865 guard window
-             * still reports a short or open/out-of-range PT100 condition. */
-            return (rtd_resistance > RTD_SHORT_FAULT_OHM &&
-                    rtd_resistance < RTD_OPEN_FAULT_OHM);
+             * still reports a short or open/out-of-range PT100 condition. The
+             * window is the one the interlock uses: the C1 84.27 / 233.21 ohm
+             * window in C1 builds (D-RESET), the legacy one otherwise. */
+#ifdef TEMPER_PAN_CONTROL_C1
+            /* C1 (D-OPEN): the sensor must read good again: in the window,
+             * not a failed conversion, and register 07h clean on a
+             * conversion after a clear (the MAX31865 latches 07h; without
+             * the clear a healed sensor is re-reported forever). The
+             * window test runs first, so a sensor still out of the window
+             * never triggers a clear. */
+            if (!(rtd_resistance > SM_RTD_SHORT_FAULT_OHM &&
+                  rtd_resistance < SM_RTD_OPEN_FAULT_OHM) ||
+                pan_control_reading_failure() != RTD_SENSOR_OK) {
+                return false;
+            }
+            return pan_control_sensor_fault_clean();
+#else
+            return (rtd_resistance > SM_RTD_SHORT_FAULT_OHM &&
+                    rtd_resistance < SM_RTD_OPEN_FAULT_OHM);
+#endif
 
         case FAULT_SELF_TEST_FAILED:
             return run_self_test();
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+#ifdef TEMPER_PAN_CONTROL_C1
+        case FAULT_PROBE_LEAKAGE:
+            /* D-LEAK / D-RIMLIM latches stay latched. A cold-soak latch
+             * (D-SOAK) clears once the Pt100 agrees with the heatsink again:
+             * a cold item on the sensor (a thawing pot) also reads low, and
+             * a persisting leak keeps reading low. */
+            return pan_control_cold_soak_clearable();
+#endif
 
         case FAULT_NONE:
             return true;   /* No active fault */

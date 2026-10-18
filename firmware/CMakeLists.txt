@@ -12,8 +12,14 @@ execute_process(
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     RESULT_VARIABLE gen_config_result
 )
+# A failed regeneration is fatal: config.h carries the safety thresholds, and a
+# silently stale copy would build a firmware that disagrees with config.yaml.
+# The usual cause is the IDF Python env lacking the codegen deps:
+#   python -m pip install -r firmware/tools/requirements.txt  (after export.sh)
 if(NOT gen_config_result EQUAL 0)
-    message(WARNING "config.h regeneration failed — using committed copy")
+    message(FATAL_ERROR "config.h regeneration failed (exit ${gen_config_result}). "
+        "Install the codegen deps into the IDF Python env: "
+        "python -m pip install -r tools/requirements.txt")
 endif()
 
 # Regenerate transition_table.h from transition_table.yaml before every build.
@@ -23,7 +29,9 @@ execute_process(
     RESULT_VARIABLE gen_tt_result
 )
 if(NOT gen_tt_result EQUAL 0)
-    message(WARNING "transition_table.h regeneration failed — using committed copy")
+    message(FATAL_ERROR "transition_table.h regeneration failed (exit ${gen_tt_result}). "
+        "Install the codegen deps into the IDF Python env: "
+        "python -m pip install -r tools/requirements.txt")
 endif()
 
 # Include ESP-IDF CMake functions

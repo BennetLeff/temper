@@ -12,14 +12,26 @@ jobs:
     # Evidence releases (zapote/tools/evidence_archive.py) are data, not product builds.
     if: ${{ !startsWith(github.event.release.tag_name, 'zapote-evidence-') }}
     runs-on: ubuntu-latest
-    container: espressif/idf:release-v5.3
+    # Pinned to the IDF that firmware/README.md documents and that
+    # firmware-tests.yml builds with.
+    container: espressif/idf:v5.3.6
     steps:
       - uses: actions/checkout@v7
+      # Steps in a `container:` job do not run the image entrypoint, so
+      # export.sh is sourced here. The codegen deps (jinja2) are not in the
+      # IDF Python env and the configure fails without them.
       - name: Build firmware
         working-directory: firmware
-        run: idf.py build
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          python -m pip install -q -r tools/requirements.txt
+          idf.py set-target esp32s3
+          idf.py build
+      # The image is named after the IDF project (`project(induction_cooker)`
+      # in firmware/CMakeLists.txt); there is no temper.bin.
       - name: Upload firmware to release
         uses: softprops/action-gh-release@v3
         with:
-          files: firmware/build/temper.bin
+          files: firmware/build/induction_cooker.bin
 

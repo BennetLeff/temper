@@ -1,6 +1,6 @@
 #ifndef TEMPER_BURST_SCHEDULER_H
 #define TEMPER_BURST_SCHEDULER_H
-#include "../../hal/include/hal_bus_crossing.h"
+#include "../../temper_hal/include/hal_bus_crossing.h"
 #define BURST_DEFAULT_PERIOD_S 20.0
 typedef struct {
     bool burst_enabled; /* Zero initialization keeps native-20 continuous-only. */

@@ -24,10 +24,12 @@
     X(FAULT_PAN_DETECT_HW, "PAN DETECT HW") \
     X(FAULT_ADC_STUCK, "ADC STUCK") \
     X(FAULT_COOLDOWN_OVERHEAT, "COOLDOWN FAULT") \
+    X(FAULT_CURRENT_SENSE, "CURRENT SENSE") \
     X(FAULT_FAN_FAILURE, "FAN FAILED") \
     X(FAULT_IGBT_SHORT, "IGBT SHORT") \
     X(FAULT_OVER_CURRENT, "OVER CURRENT") \
     X(FAULT_OVER_TEMP, "OVER TEMP") \
+    X(FAULT_PROBE_LEAKAGE, "PROBE LEAKAGE") \
     X(FAULT_PROBE_OPEN, "PROBE OPEN") \
     X(FAULT_PROBE_SHORT, "PROBE SHORT") \
     X(FAULT_RUNAWAY_BOUNDARY, "RUNAWAY BOUNDARY") \
@@ -35,4 +37,4 @@
     X(FAULT_THERMAL_RUNAWAY, "THERMAL RUNAWAY") 
 
 /* FAULT_COUNT is derived from the above list — see state_machine.h.
-   After regeneration:  11 manifest + 3 supplemental = 14 total entries. */
+   After regeneration:  13 manifest + 3 supplemental = 16 total entries. */

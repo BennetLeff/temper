@@ -86,7 +86,7 @@ class TestExpansion:
         emitted = [line for line in body.splitlines()
                    if line.strip().startswith("{ STATE_")]
         assert len(expanded) == len(emitted)
-        assert len(expanded) == 42  # current manifest: 32 concrete + 2*5 wildcard
+        assert len(expanded) == 44  # current manifest: 34 concrete (incl. 2 sensor-r3 CONTACT_LOST self-loops) + 2*5 wildcard
 
     def test_every_row_mutates_to_valid_alternate(self, expanded, gen):
         """Wrong-target alternate is always a real state different from target."""

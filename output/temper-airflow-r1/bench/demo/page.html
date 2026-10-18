@@ -1,0 +1,713 @@
+<title>Jet Bench Rig</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a bench notebook. One wide CAD stage with the walkthrough rail beside it, then the calculator that turns
+   readings into the verdict. Air is cyan, heat is orange; everything else is machined-aluminium greys. */
+:root {
+  --bg: #eef1f2;
+  --stage: #dde3e6;
+  --ink: #152025;
+  --muted: #56666e;
+  --line: #c3ced3;
+  --raised: #f8fafa;
+  --air: #0a7fa6;
+  --heat: #c8501c;
+  --ok: #2c7a3f;
+  --warn: #9a6a00;
+  --bad: #b3261e;
+  --f-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1417; --stage: #141d21; --ink: #e2eaed; --muted: #8fa0a8; --line: #27343b; --raised: #172126;
+    --air: #4cc4ea; --heat: #ff8048; --ok: #5cc27a; --warn: #e3b341; --bad: #ff7a70; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1417; --stage: #141d21; --ink: #e2eaed; --muted: #8fa0a8; --line: #27343b; --raised: #172126;
+  --air: #4cc4ea; --heat: #ff8048; --ok: #5cc27a; --warn: #e3b341; --bad: #ff7a70; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 75%; text-wrap: balance; margin: 0; line-height: 1.08; }
+h1 { font-size: clamp(30px, 4.6vw, 48px); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 28px; font-weight: 750; }
+h3 { font-size: 19px; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font: 500 12px/1.2 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.air { color: var(--air); } .heat { color: var(--heat); }
+header.top { display: grid; gap: 12px; max-width: 72ch; margin-bottom: 22px; }
+header.top .lede { font-size: 17px; color: var(--ink); }
+header.top .need { color: var(--muted); }
+
+/* stage */
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0; border: 1px solid var(--line); background: var(--raised); }
+.viewer { position: relative; min-width: 0; background: var(--stage); height: 640px; overflow: hidden; }
+.viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.labels { position: absolute; inset: 0; pointer-events: none; }
+.lab { position: absolute; transform: translate(10px, -50%); font: 500 11.5px/1.25 var(--f-mono); color: var(--ink);
+  background: color-mix(in srgb, var(--raised) 86%, transparent); border-left: 2px solid var(--muted); padding: 2px 6px; white-space: nowrap; }
+.lab::before { content: ""; position: absolute; left: -12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%;
+  background: var(--ink); box-shadow: 0 0 0 2px var(--raised); }
+.lab.a { border-left-color: var(--air); } .lab.a::before { background: var(--air); }
+.lab.h { border-left-color: var(--heat); } .lab.h::before { background: var(--heat); }
+.hint { position: absolute; left: 12px; bottom: 10px; font: 11px var(--f-mono); color: var(--muted); }
+.legend { position: absolute; right: 12px; top: 10px; display: flex; gap: 12px; font: 11px var(--f-mono); color: var(--muted); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+.rail { border-left: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0; }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; border-bottom: 1px solid var(--line); }
+.steps button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: baseline;
+  width: 100%; padding: 7px 14px; font: 500 14px/1.3 var(--f-body); color: var(--muted); }
+.steps button .n { font: 500 12px var(--f-mono); }
+.steps button:hover { color: var(--ink); background: color-mix(in srgb, var(--stage) 55%, transparent); }
+.steps button[aria-current="step"] { color: var(--ink); background: var(--stage); box-shadow: inset 3px 0 0 var(--air); }
+.steps button:focus-visible { outline: 2px solid var(--air); outline-offset: -2px; }
+.story { padding: 16px 16px 18px; display: grid; gap: 10px; align-content: start; flex: 1; }
+.story p { font-size: 14.5px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 4px 0 0; font-size: 13px; }
+.facts dt { color: var(--muted); } .facts dd { margin: 0; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.pager { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.btn { font: 500 13px var(--f-body); color: var(--ink); background: var(--raised); border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--muted); } .btn:focus-visible { outline: 2px solid var(--air); outline-offset: 1px; }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.tools { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 13px; }
+.tools label { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); }
+.tools select, .tools input[type=range] { accent-color: var(--air); }
+.tools select { font: 13px var(--f-body); color: var(--ink); background: var(--raised); border: 1px solid var(--line); padding: 3px 6px; }
+
+.checks { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.checks b { font-weight: 500; color: var(--ink); font-family: var(--f-mono); }
+
+/* calculator */
+section.calc { margin-top: 44px; display: grid; gap: 18px; }
+.calc .intro { max-width: 72ch; display: grid; gap: 8px; }
+.calc-grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 0; border: 1px solid var(--line); background: var(--raised); }
+.inputs { padding: 16px; display: grid; gap: 16px; align-content: start; border-right: 1px solid var(--line); }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.field label output { font-family: var(--f-mono); color: var(--ink); }
+.field input[type=range] { width: 100%; accent-color: var(--air); }
+.field small { color: var(--muted); font-size: 12px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.results { min-width: 0; display: grid; gap: 0; }
+.chart { padding: 12px 14px 4px; border-bottom: 1px solid var(--line); min-width: 0; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .cap { font-size: 12.5px; color: var(--muted); }
+.chain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.chain > div { padding: 12px 14px; display: grid; gap: 2px; border-right: 1px solid var(--line); min-width: 0; }
+.chain > div:last-child { border-right: 0; }
+.chain .k { font-size: 12px; color: var(--muted); }
+.chain .v { font: 500 22px/1.15 var(--f-mono); font-variant-numeric: tabular-nums; }
+.chain .s { font-size: 12px; color: var(--muted); font-family: var(--f-mono); }
+.eq { padding: 12px 14px; border-bottom: 1px solid var(--line); font: 13px/1.6 var(--f-mono); overflow-x: auto; color: var(--muted); }
+.eq b { color: var(--ink); font-weight: 500; }
+.verdicts { padding: 12px 14px 16px; display: grid; gap: 10px; }
+.vt { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.vt th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; padding: 4px 8px 6px 0; border-bottom: 1px solid var(--line); }
+.vt td { padding: 7px 8px 7px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.vt td.num { font-family: var(--f-mono); }
+.vt tr.key td { font-weight: 600; }
+.pill { display: inline-block; font: 600 11px/1 var(--f-mono); letter-spacing: 0.06em; padding: 4px 7px; border: 1px solid currentColor; }
+.pill.PASS { color: var(--ok); } .pill.MARGINAL { color: var(--warn); } .pill.FAIL { color: var(--bad); }
+.note { font-size: 12.5px; color: var(--muted); max-width: 80ch; }
+.tablewrap { overflow-x: auto; }
+
+section.files { margin-top: 40px; display: grid; gap: 10px; max-width: 80ch; }
+section.files ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; }
+code { font-family: var(--f-mono); font-size: 0.92em; }
+
+@media (max-width: 960px) {
+  .bench { grid-template-columns: minmax(0, 1fr); }
+  .rail { border-left: 0; border-top: 1px solid var(--line); }
+  .viewer { height: auto; aspect-ratio: 4 / 3.4; max-width: 100%; }
+  .calc-grid { grid-template-columns: minmax(0, 1fr); }
+  .inputs { border-right: 0; border-bottom: 1px solid var(--line); }
+}
+@media (max-width: 560px) {
+  .chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chain > div:nth-child(2) { border-right: 0; }
+  .chain > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .lab { font-size: 10.5px; }
+  .legend { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">temper · airflow r1 · jet cooling bench</span>
+    <h1>How the bench measures the jet box's cooling</h1>
+    <p class="lede">Eight 3 mm air jets blow down on the power board's hottest strip. This rig rebuilds that channel over a heated aluminium plate. The plate stands in for the strip: if the heater puts in <i>P</i> watts and the plate sits <i>ΔT</i> above the jet air, the jets are removing heat at <b>h = P / (A·ΔT)</b>.</p>
+    <p class="need">Why it matters: the power stage will not raise the tank-current ceiling above 18 A until this number is measured. 28 A at a 61 °C bay needs <span class="num" id="needTop"></span> W/m²K.</p>
+  </header>
+
+  <div class="bench">
+    <div class="viewer" id="viewer">
+      <canvas id="gl" aria-label="3D model of the jet bench rig"></canvas>
+      <div class="labels" id="labels"></div>
+      <div class="legend"><span><i style="background:var(--air)"></i>jet air</span><span><i style="background:var(--heat)"></i>heated air</span></div>
+      <div class="hint">drag to orbit · scroll or pinch to zoom · right-drag to pan</div>
+    </div>
+    <aside class="rail">
+      <ol class="steps" id="steps"></ol>
+      <div class="story" id="story" aria-live="polite"></div>
+      <div class="pager"><button class="btn" id="prev">Back</button><button class="btn primary" id="next">Next step</button></div>
+    </aside>
+    <div class="tools">
+      <label for="explode">Explode <input type="range" id="explode" min="0" max="1" step="0.01" value="0"></label>
+      <label for="section">Section
+        <select id="section">
+          <option value="none">None</option>
+          <option value="x">Across the channel, through jet 5</option>
+          <option value="y">Along the jet row</option>
+        </select></label>
+      <label for="airOn"><input type="checkbox" id="airOn" checked> Airflow</label>
+      <label for="labOn"><input type="checkbox" id="labOn" checked> Labels</label>
+      <button class="btn" id="reset">Reset view</button>
+    </div>
+  </div>
+  <div class="checks" id="checks"></div>
+
+  <section class="calc" id="calc">
+    <div class="intro">
+      <span class="eyebrow">bench day, simulated</span>
+      <h2>From readings to a verdict</h2>
+      <p>Pick what the jets really deliver. The calculator runs one 25-minute steady run of the plate model in <code>plate-design.json</code>, applies the same heat balance as <code>fit.py</code>, converts the rig's h to the product's hotter air, and grades the result the way <code>fit.py report</code> does. The answer is uncertain by the band the kit's self-test measured.</p>
+    </div>
+    <div class="calc-grid">
+      <div class="inputs">
+        <div class="field">
+          <label for="hTrue">What the jets really deliver at drive 0.55 <output id="hTrueOut"></output></label>
+          <input type="range" id="hTrue" min="70" max="140" step="0.5" value="100">
+          <small>Product board-face h, W/m²K. The design estimate is <span id="hDesign"></span> (the Martin correlation × 0.6).</small>
+        </div>
+        <div class="field">
+          <label for="pW">Plate heater power <output id="pWOut"></output></label>
+          <input type="range" id="pW" min="2" max="9" step="0.1" value="4.5">
+          <small>Two 10 Ω TO-220 resistors in series. PROCEDURE aims for a 20–30 K rise and never above 60 °C.</small>
+        </div>
+        <div class="field">
+          <label for="room">Room <output id="roomOut"></output></label>
+          <input type="range" id="room" min="18" max="30" step="0.5" value="24">
+          <small>Sets the manifold-pressure target: <span id="dpTarget" class="num"></span> Pa on the SDP810 for drive 0.55.</small>
+        </div>
+        <label class="check" for="meter"><input type="checkbox" id="meter" checked> Optional flow meter fitted (tighter band)</label>
+      </div>
+      <div class="results">
+        <div class="chart">
+          <svg id="runChart" viewBox="0 0 640 230" role="img" aria-label="Plate, guard and jet-air temperature during the run"></svg>
+          <p class="cap" id="runCap"></p>
+        </div>
+        <div class="chain">
+          <div><span class="k">Plate rise ΔT</span><span class="v" id="cDT"></span><span class="s" id="cDTs"></span></div>
+          <div><span class="k">Rig h (room-temperature air)</span><span class="v" id="cHr"></span><span class="s" id="cHrs"></span></div>
+          <div><span class="k">Product h, same Reynolds number</span><span class="v" id="cHp"></span><span class="s" id="cHps"></span></div>
+          <div><span class="k">Decision: 28 A at 61 °C bay</span><span class="v" id="cV"></span><span class="s" id="cVs"></span></div>
+        </div>
+        <div class="eq" id="eq"></div>
+        <div class="verdicts">
+          <div class="tablewrap">
+            <table class="vt" id="vt">
+              <thead><tr><th>Board case (board-h-sweep.json)</th><th>Needs h ≥</th><th>At drive 0.55</th><th>Lowest drive that clears it</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="chart" style="padding:0;border:0">
+            <svg id="driveChart" viewBox="0 0 640 210" role="img" aria-label="Product h against blower drive with the 95 percent band"></svg>
+            <p class="cap">Product h across blower drive, from the measured Nusselt–pressure slope (b = <span id="bTrue"></span> in the self-test). The band is the 95 % range. The dashed line is the 28 A, 61 °C need.</p>
+          </div>
+          <p class="note">PASS means even the low end of the 95 % band clears the need. MARGINAL means the middle clears it but the low end does not. FAIL means the middle falls short. The band width and the small low reading (about 0.9 %, from the property-temperature choice) are copied from <code>selftest.json</code>, where four synthetic bench days with known answers ran through the whole pipeline. This page illustrates the pipeline. The real numbers come from <code>fit.py report runs/</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="files">
+    <span class="eyebrow">where this comes from</span>
+    <h3>Files in <code>output/temper-airflow-r1/bench/</code></h3>
+    <ul>
+      <li>The 3D model is <code>cad/rig_cad.py</code> (build123d), tessellated by <code>demo/export_mesh.py</code>. The heater, cut-out and guard-heater bodies are simple blocks added for the demo at the positions RIG.md §3 gives.</li>
+      <li>The air path is drawn by hand along the real channel. It shows where air goes, not a flow solution.</li>
+      <li>Numbers: <code>setpoints.json</code>, <code>plate-design.json</code>, <code>selftest.json</code>, <code>cad/rig-cad.json</code>, <code>../board-h-sweep.json</code>, <code>bom.json</code>. <code>demo/build_demo.py</code> reads them into this page.</li>
+      <li>Build and run: <code>RIG.md</code> and <code>PROCEDURE.md</code>. About $<span id="bom"></span> must-buy.</li>
+    </ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const MESH = __MESH__;
+const DATA = __DATA__;
+</script>
+<script>
+(() => {
+"use strict";
+const $ = (id) => document.getElementById(id);
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = (v, d = 1) => Number(v).toFixed(d);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ------------------------------------------------------------------ air properties (port of bench/air.py)
+function props(tc) {
+  const t = tc + 273.15;
+  const mu = 1.716e-5 * (t / 273.15) ** 1.5 * (273.15 + 110.4) / (t + 110.4);
+  const k = 0.0241 * (t / 273.15) ** 1.5 * (273.15 + 194.0) / (t + 194.0);
+  const rho = 101325 / (287.05 * t);
+  return { mu, k, rho, nu: mu / rho, Pr: mu * 1006 / k };
+}
+const SIGMA = 5.670374e-8;
+const d055 = DATA.drives.find((r) => r.drive === 0.55);
+const need28 = DATA.cases.c28_bay61;
+$("needTop").textContent = "h ≥ " + fmt(need28, 1);
+$("bom").textContent = Math.round(DATA.bom_must_buy_usd);
+
+// CAD checks strip
+(() => {
+  const c = DATA.cad_checks;
+  const items = [["jet floor above plate", fmt(c.jet_floor_to_plate_mm, 3) + " mm"], ["box to strip face", fmt(c.box_to_pressure_strip_face_mm, 1) + " mm"],
+    ["box to film caps", fmt(c.box_to_film_caps_mm, 1) + " mm"], ["plate to guard", fmt(c.plate_to_guard_mm, 1) + " mm"],
+    ["all 8 jets open", c.jets_open ? "yes" : "NO"], ["part overlaps", c.overlaps.length ? c.overlaps.length : "none"]];
+  $("checks").innerHTML = "<span>CAD checks (<code>cad/rig-cad.json</code>, " + (c.pass ? "all pass" : "FAILING") + "):</span>" +
+    items.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join("");
+})();
+
+// ------------------------------------------------------------------ 3D scene
+const viewer = $("viewer"), canvas = $("gl");
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
+catch (e) { viewer.insertAdjacentHTML("beforeend", '<p style="position:absolute;inset:40% 20px auto;text-align:center">This browser could not start WebGL, so the 3D model is unavailable. The walkthrough text and calculator still work.</p>'); }
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 1, 4000);
+camera.up.set(0, 0, 1);
+let controls = null;
+if (renderer) {
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.localClippingEnabled = true;
+  controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true; controls.dampingFactor = 0.08;
+}
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445055, 0.75));
+const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(120, -160, 260); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(-200, 150, 80); scene.add(fill);
+
+const clipPlanes = [];
+const PART_STYLE = {
+  plate: { c: 0xc7cfd3, metal: 0.55, rough: 0.32 },
+  guard_tray: { c: 0x8f9ba1, metal: 0.5, rough: 0.45 },
+  duct_lower: { c: 0xb8c5cc, glass: true }, duct_upper: { c: 0xb8c5cc, glass: true },
+  wall_minus_y: { c: 0x6f7d5f }, deck: { c: 0xd3d9dc }, hood_box: { c: 0xaab6bc, glass: true }, hood_lid: { c: 0xaab6bc, glass: true },
+  film_cap_1: { c: 0x5f6f7a }, film_cap_2: { c: 0x5f6f7a }, film_cap_3: { c: 0x5f6f7a }, film_cap_4: { c: 0x5f6f7a },
+  heater_plate_1: { c: 0x1d2124 }, heater_plate_2: { c: 0x1d2124 }, heater_guard_1: { c: 0x1d2124 }, heater_guard_2: { c: 0x1d2124 },
+  cutout: { c: 0x9a9fa3, metal: 0.6, rough: 0.3 },
+};
+// exploded-view offsets, mm at slider = 1
+const EXPLODE = {
+  duct_upper: [0, 0, 62], duct_lower: [0, 0, 34], hood_lid: [0, 0, 70], hood_box: [-30, -40, 0],
+  wall_minus_y: [0, -42, 0], film_cap_1: [0, 40, 0], film_cap_2: [0, 40, 0], film_cap_3: [0, 40, 0], film_cap_4: [0, 40, 0],
+  plate: [0, 0, 0], heater_plate_1: [0, 0, -14], heater_plate_2: [0, 0, -14], cutout: [0, 0, -14],
+  guard_tray: [0, 0, -34], heater_guard_1: [0, 0, -50], heater_guard_2: [0, 0, -50], deck: [0, 0, -70],
+};
+const meshes = {};
+function b64(s, T) { const bin = atob(s); const u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return new T(u8.buffer); }
+for (const [name, m] of Object.entries(MESH.parts)) {
+  const p16 = b64(m.pos, Int16Array), pos = new Float32Array(p16.length);
+  for (let i = 0; i < p16.length; i++) pos[i] = p16[i] / 100;
+  const idx = b64(m.idx, m.i32 ? Uint32Array : Uint16Array);
+  let g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g = g.toNonIndexed(); g.computeVertexNormals();
+  const st = PART_STYLE[name] || { c: 0xcccccc };
+  const mat = new THREE.MeshStandardMaterial({ color: st.c, metalness: st.metal || 0.05, roughness: st.rough ?? 0.7,
+    side: THREE.DoubleSide, clippingPlanes: clipPlanes, transparent: !!st.glass, opacity: 1,
+    polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+  const mesh = new THREE.Mesh(g, mat);
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g, 28),
+    new THREE.LineBasicMaterial({ color: 0x24313a, transparent: true, opacity: 0.45, clippingPlanes: clipPlanes }));
+  const grp = new THREE.Group(); grp.add(mesh); grp.add(edges); scene.add(grp);
+  meshes[name] = { grp, mat, edges, st };
+}
+const HOOD_PARTS = ["hood_box", "hood_lid"], DUCT_PARTS = ["duct_lower", "duct_upper"];
+
+// instrument markers (RIG.md sections 3-5, positions from rig_cad.py)
+const INSTR = [
+  { id: "Tp1", p: [15, 15.25, -2], part: "plate", c: "heat" }, { id: "Tp2", p: [45, 15.25, -2], part: "plate", c: "heat" },
+  { id: "Tp3", p: [75, 15.25, -2], part: "plate", c: "heat" },
+  { id: "Tg1", p: [15, 26, -6], part: "guard_tray", c: "ink" }, { id: "Tg2", p: [75, 26, -6], part: "guard_tray", c: "ink" },
+  { id: "Tair", p: [66, 16.5, 10.5], part: "duct_upper", c: "air" }, { id: "pmid", p: [44, 16.5, 21], part: "duct_upper", c: "air" },
+  { id: "pt100", p: [-70, -30, -20], part: "hood_box", c: "air" }, { id: "Texit", p: [95, 16.5, 3], part: null, c: "air" },
+];
+const markerGeo = new THREE.SphereGeometry(1.4, 16, 12);
+for (const m of INSTR) {
+  m.mesh = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }));
+  m.mesh.renderOrder = 10; m.mesh.position.set(...m.p); m.mesh.visible = false; scene.add(m.mesh);
+}
+
+// ------------------------------------------------------------------ air particles (hand-drawn path through the real channel)
+const JX = DATA.jet.x_model_mm, H = DATA.jet.H_mm;
+const rnd = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
+const R = (a, b) => a + (b - a) * rnd();
+const N_P = 1100, paths = [];
+const CAP_GAPS = [[18.9, 22.7], [40.7, 44.5], [62.5, 66.3]];
+for (let i = 0; i < N_P; i++) {
+  const k = i % 8, xj = JX[k];
+  const side = rnd() < 0.5 ? R(-63, -58) : R(-3, 3);
+  const pts = [
+    [R(-46, -14), -63, R(-38, -12), 26], [side, -39, R(-30, 18), 26], [R(-34, -26), -16, R(5, 15), 34],
+    [R(-33, -27), -8.5, R(6, 14), 50], [R(-33, -27), R(14, 19), R(6, 14), 55], [R(-4, 1), R(13, 20), R(6, 14), 50],
+    [xj + R(-1.5, 1.5), R(13, 20), R(9, 13), 40], [xj + R(-0.5, 0.5), 14 + R(-0.5, 0.5), 6.6, 110], [xj + R(-0.3, 0.3), 14 + R(-0.3, 0.3), 0.6, 130],
+  ];
+  const th = R(0, 2 * Math.PI), r = R(3.5, 6.5);
+  let x = xj + r * Math.cos(th), y = Math.min(23.0, Math.max(7.6, 14 + r * Math.sin(th)));
+  const hot = pts.length; // index of first heated point
+  pts.push([x, y, R(0.5, 1.2), 70]);
+  if (k === 7 && Math.cos(th) > 0.2) { pts.push([92, y, 1.5, 55], [104, y, R(2, 6), 40]); }
+  else if (k === 0 && Math.cos(th) < -0.2) { pts.push([-4, y, 1.0, 55], [-14, y, 1.0, 40]); }
+  else if (y < 12) { pts.push([x, 8.3, 2.5, 55], [x, 8.3, 8.6, 45], [x, 10.0, 10, 45], [x, 10.0, 16, 45], [x + R(-2, 2), 6, 27, 40]); }
+  else {
+    const gap = CAP_GAPS.find(([a, b]) => x > a - 1 && x < b + 1);
+    if (gap || x > 84.3) { const gx = gap ? R(gap[0] + 0.6, gap[1] - 0.6) : R(85, 89); pts.push([gx, 23.2, 2.5, 55], [gx, 34, R(2, 9), 45]); }
+    else pts.push([x, 23.1, 3, 55], [x, 23.1, 16, 45], [x, 26.5, 24, 40]);
+  }
+  const ts = [0];
+  for (let j = 1; j < pts.length; j++) {
+    const [a, b] = [pts[j - 1], pts[j]];
+    ts.push(ts[j - 1] + Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / b[3]);
+  }
+  paths.push({ pts, ts, T: ts[ts.length - 1], off: rnd() * 10, hot: ts[hot] });
+}
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(N_P * 3), pCol = new Float32Array(N_P * 3);
+pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
+const pMat = new THREE.PointsMaterial({ size: 1.25, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false, clippingPlanes: clipPlanes });
+const points = new THREE.Points(pGeo, pMat); points.renderOrder = 5; scene.add(points);
+const cAir = new THREE.Color(), cHeat = new THREE.Color(), tmpC = new THREE.Color();
+function readColors() {
+  cAir.set(css("--air") || "#0a7fa6"); cHeat.set(css("--heat") || "#c8501c");
+  const ink = new THREE.Color(css("--ink") || "#152025");
+  for (const m of INSTR) m.mesh.material.color.copy(m.c === "air" ? cAir : m.c === "heat" ? cHeat : ink);
+  const dark = ink.getHSL({}).l > 0.5;
+  for (const v of Object.values(meshes)) v.edges.material.color.set(dark ? 0x0b1114 : 0x24313a);
+}
+readColors();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
+new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+
+// ------------------------------------------------------------------ labels
+const LABELS = {
+  plate: { t: "test plate · 6061 · 90 × 16.5 × 3", p: [70, 8, 0], part: "plate", c: "h" },
+  guard: { t: "guard tray · held at plate temperature", p: [-12, 20, -6], part: "guard_tray" },
+  box: { t: "jet box · 8 × Ø3.0", p: [80, 22.5, 15], part: "duct_upper", c: "a" },
+  legs: { t: "F3 feed legs", p: [-30, 3, 18], part: "duct_upper", c: "a" },
+  hood: { t: "push-hood stand-in", p: [-70, -50, 34], part: "hood_lid" },
+  blower: { t: "blower outlet 40 × 30", p: [-30, -66, -25], part: "hood_box", c: "a" },
+  wall: { t: "FET row + pressure-strip face", p: [108, -8, 23], part: "wall_minus_y" },
+  caps: { t: "film caps C38–C41 (blocks)", p: [84.3, 32.7, 17.5], part: "film_cap_4" },
+  deck: { t: "printed deck", p: [118, 45, 0], part: "deck" },
+  feed: { t: "feed hole 12 × 14", p: [-24, -8.5, 17], part: "hood_box", c: "a" },
+  manifold: { t: "manifold 10.5 × 7", p: [20, 16.5, 14], part: "duct_upper", c: "a" },
+  jet1: { t: "jet 1 · x 5.5", p: [5.5, 14, 6], part: "duct_lower", c: "a" },
+  jet8: { t: "jet 8 · x 82.5 · pitch 11", p: [82.5, 14, 6], part: "duct_lower", c: "a" },
+  H6: { t: "H 6.0 mm = 2 × D", p: [38.5, 14, 3], part: null, c: "a" },
+  slit: { t: "1.0 mm slit up the strip face", p: [49.5, 10, 14], part: null, c: "h" },
+  capgap: { t: "1.2 mm gap to the caps", p: [49.5, 23.1, 13], part: null, c: "h" },
+  under: { t: "spent air runs out under the box", p: [49.5, 8.5, 2], part: null, c: "h" },
+  capslots: { t: "gaps between caps", p: [42.6, 30, 4], part: null, c: "h" },
+  heaters: { t: "2 × 10 Ω TO-220 plate heaters", p: [60, 19.5, -7.5], part: "heater_plate_2", c: "h" },
+  cutout: { t: "KSD9700 70 °C cut-out", p: [3, 18.5, -5.5], part: "cutout", c: "h" },
+  gheat: { t: "guard heaters (PWM loop)", p: [75, 19.5, -16.5], part: "heater_guard_2" },
+  seam: { t: "1 mm RTV seam", p: [90.5, 23.5, 0], part: "guard_tray" },
+  Tp1: { t: "Tp1–3 · plate thermocouples", p: [15, 15.25, -2], part: "plate", c: "h" },
+  Tg1: { t: "Tg1–2 · guard rim", p: [75, 26, -6], part: "guard_tray" },
+  Tair: { t: "T_air · jet supply (the reference)", p: [66, 16.5, 10.5], part: "duct_upper", c: "a" },
+  pmid: { t: "p_mid tap → SDP810 Δp (the set variable)", p: [44, 16.5, 21], part: "duct_upper", c: "a" },
+  pt100: { t: "Pt100 · hood air", p: [-70, -30, -20], part: "hood_box", c: "a" },
+  Texit: { t: "T_exit (optional)", p: [95, 16.5, 3], part: null, c: "h" },
+};
+const labelEls = {};
+for (const [id, l] of Object.entries(LABELS)) {
+  const el = document.createElement("div"); el.className = "lab" + (l.c ? " " + l.c : ""); el.textContent = l.t; el.hidden = true;
+  $("labels").appendChild(el); labelEls[id] = el;
+}
+
+// ------------------------------------------------------------------ walkthrough
+const STEPS = [
+  { t: "The rig", cam: [170, 215, 300], tgt: [22, 2, -6], ex: 0, sec: "none", air: true, glass: 0.55, heat: 0.6, marks: false,
+    labs: ["plate", "box", "legs", "hood", "wall", "caps"],
+    body: `<p>A copy of the R45 jet box's channel, built over a heated plate the exact size of the board strip it cools (model x 0–90, y 7–23.5 mm).</p>
+           <p>The walls that bound the air in the product are here too: the FET row with the pressure strip above it on one side, the four film capacitors on the other. Spent air therefore leaves by the same gaps.</p>`,
+    facts: [["Machined", "plate, guard tray (6061)"], ["Printed", "duct, wall, caps, deck, hood"], ["Plate mass", DATA.plate_mass_g + " g"], ["Must-buy", "about $" + Math.round(DATA.bom_must_buy_usd)]] },
+  { t: "Air in", cam: [-210, -200, 140], tgt: [-25, -15, 0], ex: 0, sec: "none", air: true, glass: 0.22, heat: 0.6, marks: false,
+    labs: ["blower", "hood", "feed", "legs", "manifold"],
+    body: `<p>The product blower pushes into a stand-in for the push hood. Air leaves through the same 12 × 14 mm feed hole as R45, runs along the two F3 feed legs and fills the manifold above the jets.</p>
+           <p>Blower volts don't map to the product, because the rig has no coil or heatsink branch. The set variable is the manifold pressure, trimmed with tape over the lid's bleed holes.</p>`,
+    facts: [["Drive 0.55 target", fmt(d055.rig_dp_Pa_24C, 2) + " Pa at 24 °C"], ["Floor 0.458", fmt(DATA.drives[0].rig_dp_Pa_24C, 2) + " Pa"], ["Full 1.0", fmt(DATA.drives[DATA.drives.length - 1].rig_dp_Pa_24C, 2) + " Pa"], ["Why pressure", "same holes, same Cd"]] },
+  { t: "Eight jets, 6 mm up", cam: [46, -165, 26], tgt: [44, 14, 4], ex: 0, sec: "y", air: true, glass: 1, heat: 0.6, marks: false,
+    labs: ["jet1", "jet8", "H6", "manifold", "plate"],
+    body: `<p>The cut runs along the jet row. Eight Ø3.0 mm holes at 11 mm pitch sit in a 1 mm floor, 6.0 mm above the plate: a nozzle-to-plate distance of two jet diameters (H/D = 2).</p>
+           <p>Each jet hits the plate, turns, and spreads as a thin wall jet. That turn is where most of the heat goes. Holes are drilled out to Ø3.0 with sharp edges so their discharge coefficient matches the product's drilled holes.</p>`,
+    facts: [["Jets", "8 × Ø" + DATA.jet.D_mm + " mm"], ["Height H", DATA.jet.H_mm + " ± 0.1 mm (drill-shank gauge)"], ["Re at 0.55", d055.Re + " (product)"], ["CAD check", "floor " + fmt(DATA.cad_checks.jet_floor_to_plate_mm, 3) + " mm"]] },
+  { t: "Where the spent air goes", cam: [205, 15, 32], tgt: [49.5, 15.5, 6], ex: 0, sec: "x", air: true, glass: 1, heat: 0.9, marks: false,
+    labs: ["slit", "capgap", "under", "plate", "box"],
+    body: `<p>Cut across the channel through jet 5. After it hits the plate, the air is warm and has to get out. In the product it leaves under the box, then up a 1.0 mm slit along the pressure-strip face, up a 1.2 mm gap beside the film caps, between the caps and out the ends.</p>
+           <p>The rig keeps every one of those exits at the product's size. How the spent air crowds out affects h, so a free jet in open air would read high.</p>`,
+    facts: [["Box to strip face", fmt(DATA.cad_checks.box_to_pressure_strip_face_mm, 1) + " mm"], ["Box to caps", fmt(DATA.cad_checks.box_to_film_caps_mm, 1) + " mm"], ["Channel width", DATA.jet.channel_w_mm + " mm"], ["Reference air", "manifold, not exit"]] },
+  { t: "Heat goes one way", cam: [175, -190, 95], tgt: [45, 15, -30], ex: 0.75, sec: "none", air: false, glass: 1, heat: 1, marks: false,
+    hide: ["duct_lower", "duct_upper", "wall_minus_y", "film_cap_1", "film_cap_2", "film_cap_3", "film_cap_4", "hood_box", "hood_lid"],
+    labs: ["plate", "heaters", "cutout", "guard", "gheat", "seam"],
+    body: `<p>Two 10 Ω resistors bonded under the plate put in a measured <i>P</i>. The plate sits in an aluminium guard tray with a 1 mm gap, and a PWM loop heats the tray to the plate's temperature.</p>
+           <p>With no temperature difference across the gap, almost no heat leaks sideways or down. Nearly all of <i>P</i> leaves through the top face into the jets. The small leak left over is measured with deliberate 3 K and 6 K guard offsets and subtracted.</p>`,
+    facts: [["Plate τ at h 100", fmt(DATA.plate.tau_s.h100, 0) + " s"], ["Heat capacity", fmt(DATA.plate.C_J_K, 1) + " J/K"], ["Gap leak G_gap", fmt(DATA.plate.G_gap_W_K, 3) + " W/K (fitted)"], ["Guard null", "within 0.1 K"]] },
+  { t: "What gets measured", cam: [150, -215, 125], tgt: [15, -5, -2], ex: 0, sec: "none", air: false, glass: 0.18, heat: 0.7, marks: true,
+    labs: ["Tp1", "Tg1", "Tair", "pmid", "pt100", "Texit"],
+    body: `<p>Three thermocouples in the plate give its temperature. Two in the guard rim drive the guard loop. One in the manifold gives the jet-air temperature that h is referenced to. A differential pressure sensor on the lid tap holds the set-point. An INA226 on the heater supply reads <i>P</i>.</p>
+           <p>An ESP32-S3 logger reads them all. It is the same logger as the sensor bench, with more thermocouple channels.</p>`,
+    facts: [["Thermocouples", "MAX31856 × 7"], ["Heater power", "INA226, ±0.3 %"], ["Pressure", "SDP810 on p_mid"], ["Zero", "overnight, against the Pt100"]] },
+  { t: "Readings to h", cam: [150, -150, 70], tgt: [45, 15, 0], ex: 0, sec: "none", air: true, glass: 0.4, heat: 1, marks: true,
+    labs: ["Tp1", "Tair", "heaters"],
+    body: `<p>At steady state the heat balance gives h directly:</p>
+           <p class="mono" style="font-size:13px">h = (P − G_gap·(T_p − T_g) − εσA(T_s⁴ − T_air⁴)) / (A·(T_s − T_air))</p>
+           <p>The rig blows room-temperature air while the product's air is near 50 °C, so <code>fit.py</code> converts h through the Nusselt number at the same Reynolds number. It then grades the result against what each board case needs.</p>`,
+    facts: [["Area A", fmt(DATA.plate.area_m2 * 1e4, 3) + " cm²"], ["Emissivity ε", DATA.plate.eps + " (bare 6061)"], ["U95, flow meter", "about ±2 %"], ["U95, no meter", "about ±3.4 %"]],
+    cta: true },
+];
+let cur = 0;
+$("steps").innerHTML = STEPS.map((s, i) => `<li><button data-i="${i}"><span class="n">${i + 1}</span><span>${s.t}</span></button></li>`).join("");
+$("steps").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(+b.dataset.i); });
+$("prev").onclick = () => go(Math.max(0, cur - 1));
+$("next").onclick = () => cur === STEPS.length - 1 ? $("calc").scrollIntoView({ behavior: reduced ? "auto" : "smooth" }) : go(cur + 1);
+
+const state = { explode: 0, sec: "none", air: true, labels: true, glass: 0.55, heat: 0.6, marks: false, labs: [], hide: [] };
+const tween = { from: null, to: null, t0: 0, dur: 900 };
+function go(i) {
+  cur = i; const s = STEPS[i];
+  document.querySelectorAll("#steps button").forEach((b, j) => { if (j === i) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+  $("story").innerHTML = `<span class="eyebrow">step ${i + 1} of ${STEPS.length}</span><h3>${s.t}</h3>${s.body}
+    <dl class="facts">${s.facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+  $("prev").disabled = i === 0;
+  $("next").textContent = i === STEPS.length - 1 ? "Open the calculator" : "Next step";
+  Object.assign(state, { sec: s.sec, air: s.air, glass: s.glass, heat: s.heat, marks: s.marks, labs: s.labs, hide: s.hide || [] });
+  $("section").value = s.sec; $("airOn").checked = s.air;
+  setExplode(s.ex, true);
+  if (controls) {
+    tween.from = { p: camera.position.clone(), t: controls.target.clone(), e: state.explode };
+    tween.to = { p: new THREE.Vector3(...s.cam), t: new THREE.Vector3(...s.tgt), e: s.ex };
+    tween.t0 = performance.now(); tween.dur = reduced ? 1 : 1000;
+  }
+  applySection(); applyLook();
+}
+function setExplode(v, fromStep) { if (!fromStep) state.explode = v; $("explode").value = v; }
+$("explode").addEventListener("input", (e) => { tween.to = tween.to && { ...tween.to, e: null }; state.explode = +e.target.value; });
+$("section").addEventListener("change", (e) => { state.sec = e.target.value; applySection(); applyLook(); });
+$("airOn").addEventListener("change", (e) => { state.air = e.target.checked; });
+$("labOn").addEventListener("change", (e) => { state.labels = e.target.checked; });
+$("reset").onclick = () => go(cur);
+
+function applySection() {
+  clipPlanes.length = 0;
+  if (state.sec === "x") clipPlanes.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), JX[4]));
+  if (state.sec === "y") clipPlanes.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), -DATA.jet.row_y_model_mm));
+  for (const v of Object.values(meshes)) { v.mat.needsUpdate = true; v.edges.material.needsUpdate = true; }
+  pMat.needsUpdate = true;
+}
+function applyLook() {
+  for (const [n, v] of Object.entries(meshes)) {
+    const glassy = v.st.glass && state.glass < 1 && state.sec === "none";
+    v.mat.opacity = glassy ? (HOOD_PARTS.includes(n) ? Math.min(state.glass, 0.35) : state.glass) : 1;
+    v.mat.depthWrite = !glassy; v.mat.transparent = glassy;
+    v.edges.material.opacity = glassy ? 0.25 : 0.45;
+    if (n === "plate" || n.startsWith("heater_plate")) {
+      v.mat.emissive = new THREE.Color(cHeat).multiplyScalar(n === "plate" ? 0.42 * state.heat : 0.3 * state.heat);
+    }
+  }
+}
+
+// ------------------------------------------------------------------ frame loop
+const tmpV = new THREE.Vector3();
+function partOffset(part) { const o = EXPLODE[part]; return o ? o.map((c) => c * state.explode) : [0, 0, 0]; }
+function resize() {
+  if (!renderer) return;
+  const w = viewer.clientWidth, h = viewer.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(viewer);
+let last = performance.now(), simT = 0;
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!renderer) return;
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (tween.to) {
+    const u = Math.min(1, (now - tween.t0) / tween.dur), e = u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2;
+    camera.position.lerpVectors(tween.from.p, tween.to.p, e); controls.target.lerpVectors(tween.from.t, tween.to.t, e);
+    if (tween.to.e !== null && tween.to.e !== undefined) { state.explode = tween.from.e + (tween.to.e - tween.from.e) * e; $("explode").value = state.explode; }
+    if (u >= 1) tween.to = null;
+  }
+  controls.update();
+  for (const [n, v] of Object.entries(meshes)) { v.grp.position.set(...partOffset(n)); v.grp.visible = !state.hide.includes(n); }
+  for (const m of INSTR) { m.mesh.visible = state.marks; const o = m.part ? partOffset(m.part) : [0, 0, 0]; m.mesh.position.set(m.p[0] + o[0], m.p[1] + o[1], m.p[2] + o[2]); }
+  // particles
+  const showAir = state.air && state.explode < 0.04 && !state.hide.length;
+  points.visible = showAir;
+  if (showAir) {
+    if (!reduced) simT += dt;
+    for (let i = 0; i < N_P; i++) {
+      const P = paths[i]; let t = (simT * 0.9 + P.off * P.T / 10) % P.T;
+      let j = 1; while (j < P.ts.length - 1 && P.ts[j] < t) j++;
+      const a = P.pts[j - 1], b = P.pts[j], u = (t - P.ts[j - 1]) / Math.max(1e-6, P.ts[j] - P.ts[j - 1]);
+      pPos[3 * i] = a[0] + (b[0] - a[0]) * u; pPos[3 * i + 1] = a[1] + (b[1] - a[1]) * u; pPos[3 * i + 2] = a[2] + (b[2] - a[2]) * u;
+      const w = t <= P.hot ? 0 : Math.min(1, (t - P.hot) / 0.12) * state.heat;
+      tmpC.copy(cAir).lerp(cHeat, w);
+      pCol[3 * i] = tmpC.r; pCol[3 * i + 1] = tmpC.g; pCol[3 * i + 2] = tmpC.b;
+    }
+    pGeo.attributes.position.needsUpdate = true; pGeo.attributes.color.needsUpdate = true;
+  }
+  renderer.render(scene, camera);
+  // labels
+  const W = viewer.clientWidth, Hh = viewer.clientHeight;
+  for (const [id, l] of Object.entries(LABELS)) {
+    const el = labelEls[id];
+    const on = state.labels && state.labs.includes(id);
+    if (!on) { el.hidden = true; continue; }
+    const o = l.part ? partOffset(l.part) : [0, 0, 0];
+    tmpV.set(l.p[0] + o[0], l.p[1] + o[1], l.p[2] + o[2]).project(camera);
+    const x = (tmpV.x + 1) / 2 * W, y = (1 - tmpV.y) / 2 * Hh;
+    if (tmpV.z > 1 || x < 0 || y < 8 || y > Hh - 8 || x > W - 30) { el.hidden = true; continue; }
+    el.hidden = false; el.style.left = x + "px"; el.style.top = y + "px";
+    const flip = x > W - el.offsetWidth - 24;
+    el.style.transform = flip ? "translate(calc(-100% - 10px), -50%)" : "translate(10px, -50%)";
+  }
+}
+go(0);
+if (controls) { camera.position.set(...STEPS[0].cam); controls.target.set(...STEPS[0].tgt); tween.to = null; }
+resize(); requestAnimationFrame(frame);
+
+// ------------------------------------------------------------------ calculator
+const A = DATA.plate.area_m2, C = DATA.plate.C_J_K, GG = DATA.plate.G_gap_W_K, EPS = DATA.plate.eps;
+const prodFilm = DATA.product.jet_air_C + 0.5 * (DATA.product.strip_C - DATA.product.jet_air_C) / 2;
+const pp = props(prodFilm);
+$("hDesign").textContent = fmt(d055.h_design, 1);
+$("bTrue").textContent = DATA.selftest.b_true;
+
+function interpDp(room) {
+  // rig manifold target at drive 0.55, Re-matched (setpoints.py), scaled from its 24 C value by air properties
+  const r24 = props(24 + 12.5), rr = props(room + 12.5);
+  return d055.rig_dp_Pa_24C * (rr.rho / r24.rho) * (rr.nu / r24.nu) ** 2;
+}
+function simulate() {
+  const hProd = +$("hTrue").value, P = +$("pW").value, room = +$("room").value, meter = $("meter").checked;
+  const tAir = room + 0.8; // blower heats its own air by up to ~1 K (DECISIONS J10)
+  // rig h at matched Reynolds number: same Nusselt number, rig air properties (iterate on the film temperature)
+  let dT = 25, hRig = hProd;
+  for (let k = 0; k < 6; k++) {
+    const pr = props(tAir + 0.5 * dT / 2);
+    hRig = hProd * (pr.k / pp.k) * (pr.Pr / pp.Pr) ** 0.42;
+    const hRad = 4 * EPS * SIGMA * (tAir + dT / 2 + 273.15) ** 3;
+    dT = P / ((hRig + hRad) * A);
+  }
+  // 25-minute run, 1 s steps: plate lumped, guard on a PI loop that lags the plate (jet_logger.GuardPI-like)
+  const G = (hRig + 4 * EPS * SIGMA * (tAir + dT / 2 + 273.15) ** 3) * A;
+  let Tp = tAir, Tg = tAir, integ = 0; const series = [];
+  let noise = 3;
+  const nz = () => ((noise = (noise * 16807) % 2147483647) / 2147483647 - 0.5) * 0.03;
+  for (let t = 0; t <= 1500; t++) {
+    const pg = Math.max(0, Math.min(7.2, 1.5 * (Tp - Tg) + integ));
+    integ += 0.02 * (Tp - Tg);
+    Tp += (P - G * (Tp - tAir) - GG * (Tp - Tg)) / C;
+    Tg += (pg - 0.06 * (Tg - room) - GG * (Tg - Tp)) / 45;
+    if (t % 10 === 0) series.push([t / 60, Tp + nz(), Tg + nz(), tAir + nz()]);
+  }
+  const last5 = series.filter((s) => s[0] >= 20), slope = (last5[last5.length - 1][1] - last5[0][1]) / 5;
+  const dTss = Tp - tAir, gap = Tp - Tg;
+  const ts = tAir + dTss, qRad = EPS * SIGMA * A * ((ts + 273.15) ** 4 - (tAir + 273.15) ** 4);
+  const hMeasRig = (P - GG * gap - qRad) / (A * dTss);
+  const prR = props(tAir + 0.5 * dTss / 2);
+  const hProdCentral = hMeasRig * (pp.k / prR.k) * (pp.Pr / prR.Pr) ** 0.42;
+  const b = meter ? DATA.selftest.meter : DATA.selftest.no_meter;
+  const med = hProdCentral * b.bias, lo = med * b.lo, hi = med * b.hi;
+  return { hProd, P, room, tAir, dT: dTss, gap, qRad, hRig: hMeasRig, prR, med, lo, hi, series, slope, Tmax: ts, b };
+}
+const status = (med, lo, need) => (lo >= need ? "PASS" : med >= need ? "MARGINAL" : "FAIL");
+
+function drawRun(r) {
+  const svg = $("runChart"), W = 640, Hc = 230, L = 46, Rr = 92, T = 12, B = 30;
+  const xs = (m) => L + (m / 25) * (W - L - Rr);
+  const ymin = Math.floor(r.tAir - 2), ymax = Math.ceil(r.tAir + r.dT + 3);
+  const ys = (v) => T + (1 - (v - ymin) / (ymax - ymin)) * (Hc - T - B);
+  const line = (k) => r.series.map((s, i) => (i ? "L" : "M") + xs(s[0]).toFixed(1) + " " + ys(s[k]).toFixed(1)).join("");
+  const step = (ymax - ymin) > 30 ? 10 : 5;
+  let g = `<rect x="${xs(20)}" y="${T}" width="${xs(25) - xs(20)}" height="${Hc - T - B}" fill="var(--stage)"/>`;
+  for (let v = Math.ceil(ymin / step) * step; v <= ymax; v += step)
+    g += `<line x1="${L}" x2="${W - Rr}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">${v}</text>`;
+  for (let m = 0; m <= 25; m += 5) g += `<text x="${xs(m)}" y="${Hc - 10}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">${m}</text>`;
+  g += `<text x="${W - Rr}" y="${Hc - 10}" text-anchor="end" font-size="11" fill="var(--muted)" dx="40" font-family="var(--f-mono)">min</text>`;
+  g += `<text x="${(xs(20) + xs(25)) / 2}" y="${T + 13}" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="var(--f-mono)">steady test</text>`;
+  g += `<path d="${line(3)}" fill="none" stroke="var(--air)" stroke-width="2"/>`;
+  g += `<path d="${line(2)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  g += `<path d="${line(1)}" fill="none" stroke="var(--heat)" stroke-width="2.2"/>`;
+  const e = r.series[r.series.length - 1];
+  const lab = (y, t, c) => `<text x="${W - Rr + 8}" y="${y + 4}" font-size="11.5" fill="${c}" font-family="var(--f-mono)">${t}</text>`;
+  const yP = ys(e[1]), yG = Math.max(ys(e[2]), yP + 14), yA = ys(e[3]);
+  g += lab(yP, "plate " + fmt(e[1]), "var(--heat)") + lab(yG, "guard", "var(--muted)") + lab(yA, "jet air " + fmt(e[3]), "var(--air)");
+  g += `<line x1="${xs(25) + 2}" x2="${xs(25) + 2}" y1="${ys(e[3])}" y2="${ys(e[1])}" stroke="var(--ink)" stroke-width="1"/>`;
+  g += `<text x="${xs(25) - 6}" y="${(ys(e[3]) + ys(e[1])) / 2 + 4}" text-anchor="end" font-size="12" fill="var(--ink)" font-family="var(--f-mono)">ΔT ${fmt(r.dT)} K</text>`;
+  svg.innerHTML = g;
+  const ok = Math.abs(r.slope) <= 0.02;
+  const warn = r.Tmax > 60 ? " The plate passes 60 °C: lower the power." : (r.dT < 15 || r.dT > 35) ? " The rise is outside 15–35 K: rescale the power for the next run." : "";
+  $("runCap").textContent = `°C over a 25-minute run at drive 0.55. Over the last 5 minutes the plate drifts ${fmt(r.slope * 60 / 60, 3)} K/min, so the steady-state test (≤ 0.02 K/min) ${ok ? "passes" : "fails: run longer"}. The guard sits ${fmt(Math.abs(r.gap), 2)} K from the plate.${warn}`;
+}
+function drawDrive(r, b) {
+  const svg = $("driveChart"), W = 640, Hc = 210, L = 46, Rr = 20, T = 12, B = 32;
+  const dr = DATA.drives, base = r.med, slope = b;
+  const hAt = (row) => base * (row.jet_dp_Pa / d055.jet_dp_Pa) ** slope;
+  const xmin = 0.43, xmax = 1.02, xs = (d) => L + (d - xmin) / (xmax - xmin) * (W - L - Rr);
+  const vals = dr.map(hAt), ymax = Math.max(160, Math.ceil(Math.max(...vals) * r.b.hi / 20) * 20), ymin = 40;
+  const ys = (v) => T + (1 - (v - ymin) / (ymax - ymin)) * (Hc - T - B);
+  let g = "";
+  for (let v = ymin; v <= ymax; v += 20) g += `<line x1="${L}" x2="${W - Rr}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">${v}</text>`;
+  for (const row of dr) g += `<text x="${xs(row.drive)}" y="${Hc - 12}" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="var(--f-mono)">${row.drive}</text>`;
+  g += `<text x="${W - Rr}" y="${Hc - 0}" text-anchor="end" font-size="10.5" fill="var(--muted)" font-family="var(--f-mono)">blower drive</text>`;
+  const up = dr.map((row, i) => `${xs(row.drive)} ${ys(vals[i] * r.b.hi)}`), dn = dr.map((row, i) => `${xs(row.drive)} ${ys(vals[i] * r.b.lo)}`).reverse();
+  g += `<path d="M${up.join("L")}L${dn.join("L")}Z" fill="var(--air)" fill-opacity="0.18" stroke="none"/>`;
+  g += `<path d="M${dr.map((row, i) => `${xs(row.drive)} ${ys(vals[i])}`).join("L")}" fill="none" stroke="var(--air)" stroke-width="2"/>`;
+  g += `<line x1="${L}" x2="${W - Rr}" y1="${ys(need28)}" y2="${ys(need28)}" stroke="var(--ink)" stroke-dasharray="6 4"/>`;
+  g += `<text x="${W - Rr - 4}" y="${ys(need28) + 15}" text-anchor="end" font-size="11" fill="var(--ink)" font-family="var(--f-mono)">needs ${fmt(need28)} (28 A, 61 °C bay)</text>`;
+  dr.forEach((row, i) => { g += `<circle cx="${xs(row.drive)}" cy="${ys(vals[i])}" r="${row.drive === 0.55 ? 4.5 : 2.6}" fill="${row.drive === 0.55 ? "var(--ink)" : "var(--air)"}"/>`; });
+  svg.innerHTML = g;
+  return dr.map((row, i) => ({ drive: row.drive, med: vals[i], lo: vals[i] * r.b.lo }));
+}
+const CASE_NAME = { c26_bay55: "26 A, 55 °C bay", c26_bay61: "26 A, 61 °C bay", c28_bay55: "28 A, 55 °C bay", c28_bay61: "28 A, 61 °C bay" };
+function update() {
+  $("hTrueOut").textContent = fmt($("hTrue").value) + " W/m²K"; $("pWOut").textContent = fmt($("pW").value) + " W"; $("roomOut").textContent = fmt($("room").value) + " °C";
+  $("dpTarget").textContent = fmt(interpDp(+$("room").value), 2);
+  const r = simulate();
+  drawRun(r);
+  const st = status(r.med, r.lo, need28);
+  $("cDT").textContent = fmt(r.dT, 2) + " K"; $("cDTs").textContent = `P ${fmt(r.P, 2)} W · T_air ${fmt(r.tAir)} °C`;
+  $("cHr").textContent = fmt(r.hRig, 1); $("cHrs").textContent = `W/m²K · air k ${fmt(r.prR.k * 1000, 2)} mW/mK`;
+  $("cHp").textContent = fmt(r.med, 1); $("cHps").textContent = `95 % ${fmt(r.lo, 1)}–${fmt(r.hi, 1)} · k ${fmt(pp.k * 1000, 2)}`;
+  $("cV").innerHTML = `<span class="pill ${st}">${st}</span>`;
+  $("cVs").textContent = `needs ${fmt(need28)} · low end ${fmt(r.lo)}`;
+  $("eq").innerHTML = `h_rig = (<b>${fmt(r.P, 3)}</b> W − ${fmt(GG, 3)}·<b>${fmt(Math.abs(r.gap) < 5e-4 ? 0 : r.gap, 3)}</b> K − <b>${fmt(r.qRad * 1000, 1)}</b> mW radiation) / (${fmt(A * 1e4, 3)} cm² · <b>${fmt(r.dT, 2)}</b> K) = <b>${fmt(r.hRig, 1)}</b> W/m²K` +
+    `<br>Nu = h·D/k is the same at the matched Reynolds number, so h_product = h_rig × k_product/k_rig × (Pr ratio)^0.42 = <b>${fmt(r.med / r.b.bias, 1)}</b>; fit.py's self-test reads ${fmt((r.b.bias - 1) * 100, 1)} % of that, giving <b>${fmt(r.med, 1)}</b>`;
+  const rows = drawDrive(r, DATA.selftest.b_true);
+  $("vt").tBodies[0].innerHTML = Object.entries(DATA.cases).map(([k, need]) => {
+    const s = status(r.med, r.lo, need), min = rows.find((x) => x.lo >= need);
+    return `<tr class="${k === "c28_bay61" ? "key" : ""}"><td>${CASE_NAME[k] || k}</td><td class="num">${fmt(need, 1)}</td><td><span class="pill ${s}">${s}</span></td><td class="num">${min ? min.drive + " (" + DATA.drives.find((d) => d.drive === min.drive).volts + " V)" : "none up to full"}</td></tr>`;
+  }).join("");
+}
+for (const id of ["hTrue", "pW", "room", "meter"]) $(id).addEventListener("input", update);
+update();
+})();
+</script>

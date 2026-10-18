@@ -1,0 +1,388 @@
+{
+ "scope": "Jet bench: choose the test plate, quantify its losses and size the heater (temper-airflow-r1 bench).\n\n    python3 plate_design.py        # seconds; numpy + scipy -> plate-design.json\n\nWhat it computes (every number DECISIONS.md / RIG.md quotes about the plate comes from here):\n  A. Isothermality. 1D fin along the strip (x 0-90 mm): k t T'' = h(x) T - q(x). h(x) is a STRESS PATTERN, not data:\n     mean h_bar, +-60 % cosine ripple at the 11 mm jet pitch (stagnation peaks over x = 5.5 + 11k) times a +-40 %\n     linear ramp along x (crossflow toward one end; both signs run). Heat enters under the two TO-220 heaters\n     (16 mm footprints centred at x 30 and 60) on the metal plates, uniformly on the FR-4 coupon (etched heater).\n     Reported: plate temperature spread / mean rise, and the error of h computed from the mean of three\n     thermocouples (x 15, 45, 75) against the isothermal-surface h (= the area mean of h(x), what Martin and the\n     board model mean by h_top).\n  B. Losses of an UNGUARDED plate sunk flush in XPS foam: 2D finite differences across the strip (y-z section,\n     0.25 mm grid), plate isothermal, 25 mm foam under it, foam bottom to room at h 4-8, foam top outside the\n     plate adiabatic (under the wall blocks) or jet-cooled; G = G'_section x (L + W) (end correction, +-30 %).\n  C. Losses of the GUARDED plate (RIG.md): plate-to-guard conductance G_gap summed from its paths. Only\n     G_gap x (T_plate - T_guard) reaches the plate's balance; the guard loop holds the difference to <= 0.1 K.\n  D. Heater sizing for 2 x 10 ohm in series at the planned rise, against the INA226 module's 0.82 A range.\n  E. Time constants, F. radiation, G. how much the spent air heats (why T_jet, not the exit air, is the reference).",
+ "versions": {
+  "numpy": "2.4.6",
+  "scipy": "1.18.0"
+ },
+ "strip_m": [
+  0.09,
+  0.0165
+ ],
+ "area_m2": 0.001485,
+ "tc_x_m": [
+  0.015,
+  0.045,
+  0.075
+ ],
+ "heaters_x_m": [
+  [
+   0.03,
+   0.016
+  ],
+  [
+   0.06,
+   0.016
+  ]
+ ],
+ "A_isothermality": {
+  "Al6061_3mm": {
+   "spreading_length_mm_at_h100": 70.8,
+   "spreading_length_mm_at_h240": 45.7,
+   "cases": [
+    {
+     "h_bar": 10.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.0106,
+     "h_from_3TC_over_isothermal_h": 1.0015,
+     "h_from_area_mean_T_over_isothermal_h": 1.0009
+    },
+    {
+     "h_bar": 10.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.0112,
+     "h_from_3TC_over_isothermal_h": 1.0016,
+     "h_from_area_mean_T_over_isothermal_h": 1.001
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.0988,
+     "h_from_3TC_over_isothermal_h": 1.0053,
+     "h_from_area_mean_T_over_isothermal_h": 1.0001
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.1038,
+     "h_from_3TC_over_isothermal_h": 1.0047,
+     "h_from_area_mean_T_over_isothermal_h": 0.9994
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.2165,
+     "h_from_3TC_over_isothermal_h": 1.0118,
+     "h_from_area_mean_T_over_isothermal_h": 0.9993
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.2256,
+     "h_from_3TC_over_isothermal_h": 1.0103,
+     "h_from_area_mean_T_over_isothermal_h": 0.9978
+    }
+   ],
+   "worst_3TC_error": 0.0118
+  },
+  "Al6061_2mm": {
+   "spreading_length_mm_at_h100": 57.8,
+   "spreading_length_mm_at_h240": 37.3,
+   "cases": [
+    {
+     "h_bar": 10.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.0158,
+     "h_from_3TC_over_isothermal_h": 1.0017,
+     "h_from_area_mean_T_over_isothermal_h": 1.0009
+    },
+    {
+     "h_bar": 10.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.0167,
+     "h_from_3TC_over_isothermal_h": 1.0017,
+     "h_from_area_mean_T_over_isothermal_h": 1.0009
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.1432,
+     "h_from_3TC_over_isothermal_h": 1.0076,
+     "h_from_area_mean_T_over_isothermal_h": 0.9997
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.1499,
+     "h_from_3TC_over_isothermal_h": 1.0066,
+     "h_from_area_mean_T_over_isothermal_h": 0.9988
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.3039,
+     "h_from_3TC_over_isothermal_h": 1.0177,
+     "h_from_area_mean_T_over_isothermal_h": 0.9989
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.3148,
+     "h_from_3TC_over_isothermal_h": 1.0156,
+     "h_from_area_mean_T_over_isothermal_h": 0.9969
+    }
+   ],
+   "worst_3TC_error": 0.0177
+  },
+  "Cu110_2mm": {
+   "spreading_length_mm_at_h100": 88.4,
+   "spreading_length_mm_at_h240": 57.1,
+   "cases": [
+    {
+     "h_bar": 10.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.0068,
+     "h_from_3TC_over_isothermal_h": 1.0013,
+     "h_from_area_mean_T_over_isothermal_h": 1.001
+    },
+    {
+     "h_bar": 10.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.0072,
+     "h_from_3TC_over_isothermal_h": 1.0015,
+     "h_from_area_mean_T_over_isothermal_h": 1.0011
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.065,
+     "h_from_3TC_over_isothermal_h": 1.0037,
+     "h_from_area_mean_T_over_isothermal_h": 1.0004
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.0684,
+     "h_from_3TC_over_isothermal_h": 1.0034,
+     "h_from_area_mean_T_over_isothermal_h": 1.0
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.1464,
+     "h_from_3TC_over_isothermal_h": 1.0077,
+     "h_from_area_mean_T_over_isothermal_h": 0.9997
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.1533,
+     "h_from_3TC_over_isothermal_h": 1.0067,
+     "h_from_area_mean_T_over_isothermal_h": 0.9987
+    }
+   ],
+   "worst_3TC_error": 0.0077
+  },
+  "FR4_2oz_coupon": {
+   "spreading_length_mm_at_h100": 16.7,
+   "spreading_length_mm_at_h240": 10.8,
+   "cases": [
+    {
+     "h_bar": 10.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.0637,
+     "h_from_3TC_over_isothermal_h": 1.0014,
+     "h_from_area_mean_T_over_isothermal_h": 1.0014
+    },
+    {
+     "h_bar": 10.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.0865,
+     "h_from_3TC_over_isothermal_h": 1.0001,
+     "h_from_area_mean_T_over_isothermal_h": 1.0
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.2228,
+     "h_from_3TC_over_isothermal_h": 0.9944,
+     "h_from_area_mean_T_over_isothermal_h": 0.9941
+    },
+    {
+     "h_bar": 100.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.3153,
+     "h_from_3TC_over_isothermal_h": 0.9893,
+     "h_from_area_mean_T_over_isothermal_h": 0.9891
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": 0.4,
+     "spread_over_rise": 0.2826,
+     "h_from_3TC_over_isothermal_h": 0.99,
+     "h_from_area_mean_T_over_isothermal_h": 0.9897
+    },
+    {
+     "h_bar": 240.0,
+     "ramp": -0.4,
+     "spread_over_rise": 0.4148,
+     "h_from_3TC_over_isothermal_h": 0.9839,
+     "h_from_area_mean_T_over_isothermal_h": 0.9836
+    }
+   ],
+   "worst_3TC_error": 0.0161
+  }
+ },
+ "B_unguarded_losses": {
+  "cases": {
+   "nominal (k 0.035, bottom h 6, top outside adiabatic)": {
+    "G_per_m_W_mK": 0.0541,
+    "G_W_K": 0.0058
+   },
+   "foam k +20 %": {
+    "G_per_m_W_mK": 0.0634,
+    "G_W_K": 0.0067
+   },
+   "bottom on a metal bench (h 50)": {
+    "G_per_m_W_mK": 0.0606,
+    "G_W_K": 0.0065
+   },
+   "foam top outside the plate jet-cooled (h 50)": {
+    "G_per_m_W_mK": 0.1603,
+    "G_W_K": 0.0171
+   }
+  },
+  "loss_fraction_of_hA": {
+   "h10": {
+    "nominal": 0.3906,
+    "range": [
+     0.3906,
+     1.1515
+    ]
+   },
+   "h100": {
+    "nominal": 0.0391,
+    "range": [
+     0.0391,
+     0.1152
+    ]
+   },
+   "h240": {
+    "nominal": 0.0163,
+    "range": [
+     0.0163,
+     0.048
+    ]
+   }
+  },
+  "note": "the loss is set by foam k, the bench under the foam and how the foam top beside the plate is cooled; it cannot be separated from h by a still-air run (still-air h is itself unknown)"
+ },
+ "C_guarded": {
+  "G_gap_paths_W_K": {
+   "side air gaps 1.0 mm x 3 mm plate edge": 0.01741,
+   "RTV seal bead 1 x 1 mm over the side gap": 0.0426,
+   "air under the plate, 7 mm": 0.00454,
+   "air under the two resistor bodies, 1.5 mm": 0.00581,
+   "4 nylon M3 set-screw supports, 7 mm": 0.00101,
+   "4 resistor leads (0.4 mm2 Cu, 10 mm to the guard anchor)": 0.0624,
+   "radiation in the gaps (bare Al both sides, eps_eff 0.05)": 0.00074
+  },
+  "G_gap_W_K": 0.1345,
+  "null_band_K": 0.1,
+  "residual_if_uncorrected_fraction_of_hA_dT": {
+   "h10": 0.0362,
+   "h100": 0.0036,
+   "h240": 0.0015
+  },
+  "after_correction": "fit.py subtracts G_gap x (T_p - T_g) with G_gap from the guard-offset runs (PROCEDURE run G); +-30 % on that correction leaves <= 0.3 x the figures above"
+ },
+ "D_E_sizing_dynamics": {
+  "heater": {
+   "R_ohm": 20.0,
+   "dT_plan_K": 25.0,
+   "ina226_I_max_A": 0.819,
+   "rows": [
+    {
+     "h": 5.0,
+     "P_W": 0.186,
+     "V": 1.93,
+     "I_A": 0.096,
+     "dT_max_at_0p8A": 1723.9
+    },
+    {
+     "h": 10.0,
+     "P_W": 0.371,
+     "V": 2.72,
+     "I_A": 0.136,
+     "dT_max_at_0p8A": 862.0
+    },
+    {
+     "h": 60.0,
+     "P_W": 2.228,
+     "V": 6.67,
+     "I_A": 0.334,
+     "dT_max_at_0p8A": 143.7
+    },
+    {
+     "h": 100.0,
+     "P_W": 3.712,
+     "V": 8.62,
+     "I_A": 0.431,
+     "dT_max_at_0p8A": 86.2
+    },
+    {
+     "h": 167.0,
+     "P_W": 6.2,
+     "V": 11.14,
+     "I_A": 0.557,
+     "dT_max_at_0p8A": 51.6
+    },
+    {
+     "h": 240.0,
+     "P_W": 8.91,
+     "V": 13.35,
+     "I_A": 0.667,
+     "dT_max_at_0p8A": 35.9
+    }
+   ],
+   "all_within_ina_range": true
+  },
+  "plate_heat_capacity_J_K": {
+   "plate": 10.78,
+   "resistors_and_epoxy_est": 3.7,
+   "total": 14.48
+  },
+  "tau_s": {
+   "h10": 974.9,
+   "h100": 97.5,
+   "h240": 40.6
+  },
+  "settle_7tau_min": {
+   "h10": 113.7,
+   "h100": 11.4,
+   "h240": 4.7
+  }
+ },
+ "F_radiation_h_W_m2K": {
+  "eps0.03": 0.2,
+  "eps0.08": 0.54,
+  "eps0.15": 1.02,
+  "eps0.9": 6.09,
+  "note": "h_rad = 4 eps sigma T_m^3 at T_m 37 C (rig: jet air ~24 C, plate ~49 C). Bare machined 6061 eps 0.03-0.15; solder mask ~0.9 (the product board, not counted by the model)"
+ },
+ "G_air_heating": {
+  "drive_0.458": {
+   "board_cfm": 0.41,
+   "mdot_cp_W_K": 0.2312,
+   "NTU_at_h_design": 0.576,
+   "NTU_at_h_est": 0.96
+  },
+  "drive_0.55": {
+   "board_cfm": 0.483,
+   "mdot_cp_W_K": 0.2724,
+   "NTU_at_h_design": 0.545,
+   "NTU_at_h_est": 0.908
+  },
+  "drive_1.0": {
+   "board_cfm": 0.828,
+   "mdot_cp_W_K": 0.467,
+   "NTU_at_h_design": 0.456,
+   "NTU_at_h_est": 0.759
+  },
+  "note": "NTU = hA/(mdot cp): the spent air leaving the channel is heated by up to NTU x (mean plate rise). NTU 0.456-0.96 means the exit air is far from jet temperature, so h is referenced to the jet supply (manifold) temperature, as Martin and delivery.py do; the exit-air thermocouple is only a rough energy-balance check"
+ },
+ "choice": {
+  "plate": "Al6061_3mm",
+  "why": "3-TC h error <= 1.18% under the stress pattern at h >= 100 (spreading length 70.8 mm >> 11 mm pitch). The FR-4 coupon's spreading length is 16.7 mm, longer than the 11 mm pitch, so local h is smeared out; its temperature spread reaches 41% of the rise, and its uniform-flux h differs from the isothermal h by up to 1.6% with no better area mean",
+  "guard": "unguarded foam loss is 3.9% of hA at h 100 (range 3.9%-11.5% over plausible conditions) and not separable from h; the guard leaves G_gap 0.1345 W/K x <= 0.1 K = 0.36% of the plate power at h 100 before correction"
+ }
+}

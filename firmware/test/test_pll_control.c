@@ -406,8 +406,73 @@ void test_pll_reset_frequency(void) {
     /* Reset */
     pll_reset();
     
+    /* Back to the burst-start frequency (zapote C39): PLL_DEFAULT_FREQ_HZ
+     * (47 kHz, corrected 2026-07-28) unless the last known resonance needs a
+     * higher one. reset_pll() sets the lock reference, and with it the last
+     * known resonance, to 47 kHz, so the restart is 2 % above it. */
     float freq = pll_get_frequency();
-    TEST_ASSERT_FLOAT_WITHIN(1.0f, 47000.0f, freq);  /* Back to default (corrected 2026-07-28) */
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 47000.0f * (1.0f + PLL_BURST_START_MARGIN), freq);
+}
+
+/*============================================================================
+ * Test Cases: burst start at or above resonance (zapote C39)
+ *============================================================================*/
+
+void test_burst_start_default_resonance(void) {
+    pll_init(NULL);
+    pll_set_resonant_frequency(37580.0f);   /* declared loaded resonance */
+    float f = 0.0f;
+    TEST_ASSERT_TRUE(pll_burst_start_frequency(&f));
+    TEST_ASSERT_FLOAT_WITHIN(0.5f, (float)PLL_DEFAULT_FREQ_HZ, f);
+    pll_enable();
+    TEST_ASSERT_FLOAT_WITHIN(0.5f, (float)PLL_DEFAULT_FREQ_HZ, pll_get_frequency());
+}
+
+void test_burst_start_never_below_last_resonance(void) {
+    for (float f_res = 30000.0f; f_res <= 49000.0f; f_res += 250.0f) {
+        pll_init(NULL);
+        pll_set_resonant_frequency(f_res);
+        float f = 0.0f;
+        TEST_ASSERT_TRUE(pll_burst_start_frequency(&f));
+        TEST_ASSERT_TRUE(f >= f_res * (1.0f + PLL_BURST_START_MARGIN));
+        TEST_ASSERT_TRUE(f >= (float)PLL_MIN_FREQ_HZ);
+        TEST_ASSERT_TRUE(f <= (float)PLL_MAX_FREQ_HZ);
+        /* pll_enable() starts there, never at the stale 47 kHz below it */
+        pll_enable();
+        TEST_ASSERT_FLOAT_WITHIN(0.5f, f, pll_get_frequency());
+        TEST_ASSERT_TRUE(pll_get_frequency() > f_res);
+    }
+    pll_set_resonant_frequency(37580.0f);
+}
+
+void test_burst_start_refused_without_inductive_start(void) {
+    pll_init(NULL);
+    pll_set_resonant_frequency(49500.0f);   /* 1.02 x = 50.49 kHz > max */
+    float f = 123.0f;
+    TEST_ASSERT_FALSE(pll_burst_start_frequency(&f));
+    TEST_ASSERT_EQUAL_FLOAT(123.0f, f);
+    /* pll_enable() then leaves the PLL disabled: updates change nothing */
+    pll_enable();
+    const float before = pll_get_frequency();
+    for (int i = 0; i < 50; i++) {
+        pll_update_loop(0.2f, 0.001f);
+    }
+    TEST_ASSERT_EQUAL_FLOAT(before, pll_get_frequency());
+    TEST_ASSERT_FALSE(pll_is_locked());
+    TEST_ASSERT_FALSE(pll_burst_start_frequency(NULL));
+    pll_set_resonant_frequency(37580.0f);
+}
+
+void test_pll_restart_after_resonance_moves_up(void) {
+    /* A later, higher resonance (a different pan) moves the next start up. */
+    pll_init(NULL);
+    pll_set_resonant_frequency(37580.0f);
+    pll_enable();
+    TEST_ASSERT_FLOAT_WITHIN(0.5f, 47000.0f, pll_get_frequency());
+    pll_set_resonant_frequency(48000.0f);
+    pll_reset();
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 48960.0f, pll_get_frequency());
+    pll_set_resonant_frequency(37580.0f);
 }
 
 /**
@@ -552,4 +617,8 @@ void run_pll_control_tests(void) {
     
     /* Loss of lock tests */
     RUN_TEST(test_consecutive_invalid_causes_unlock);
+    RUN_TEST(test_burst_start_default_resonance);
+    RUN_TEST(test_burst_start_never_below_last_resonance);
+    RUN_TEST(test_burst_start_refused_without_inductive_start);
+    RUN_TEST(test_pll_restart_after_resonance_moves_up);
 }

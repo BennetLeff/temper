@@ -11,6 +11,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef ESP_PLATFORM
+#include "esp_log.h"
+#endif
+
 /* Default configuration for thermal mass estimation */
 #define THERMAL_MASS_TEST_POWER_DEFAULT    500.0f   /**< 500W test pulse */
 #define THERMAL_MASS_TEST_DURATION_DEFAULT 5000     /**< 5 second test */

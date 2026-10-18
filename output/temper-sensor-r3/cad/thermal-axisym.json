@@ -1,0 +1,1908 @@
+{
+ "scope": "G8: steady temperatures of the C1 cartridge under a 260 C pan (2-D axisymmetric finite-volume conduction).\n\nGeometry: the CAD sections from cartridge_r3.profiles(travel) at the working position (travel 0.60: a pan holds the\ndisc flush with the glass top, Z110). Rasterised on an (r, z) grid r 0-26, Z74-110 (0.05 mm cells round the axis).\n\nBoundary conditions and inputs (study 08, output/temper-r33-studies/08-undrilled-glass-sensor/undrilled_thermal.py\nPARAMS, unless stated):\n- pan base T_PAN = 260 C over the whole domain top (G8 premise).\n- pan -> glass top: h_i = k_air(T)/(gap + delta0) + 4 sigma eps T^3, delta0 = 20 um (flat pan) or gap 0.5 mm (warped).\n- pan -> disc: dry contact h_c from ../contact-model.json (sensor-r3 disc): 888 (worst, as-cast iron, 2 mrad) and\n  12991 (enamel, 0 mrad), plus 21946 (polished clad) for the hottest disc.\n- glass k 1.6 W/mK (SCHOTT CERAN, via study 08).\n- coil eye below the glass, outside the cartridge: well-mixed eye air (R32 coil-air jets) at T_air with h_eye 10 W/m2K\n  on every exposed solid face (study 08 h_eye); eye states from study 02 via study 08 env: full_22A (winding 147.9,\n  air 130.0) and fry_hold_12.7A (159.8, 139.7).\n- winding/former zone r >= 22, Z93-101.6 held at T_winding; the stagnant gap above it (Z101.6-106) is air + radiation.\n- enclosed air (bore, sump, gland): k 0.038 + linearised radiation over ~1 mm gaps (4 sigma 0.8 T^3 x 1 mm) = 0.058.\n- materials: Si3N4 85, IST chip (alumina) 25, bond 1.7 (EPO-TEK 930-4 TDS), Vespel SP-1 0.35 (DuPont sheet), PEEK 450G\n  0.29 (Victrex TDS), FFKM 0.20 (ASSUMPTION, typical perfluoroelastomer), fibre 0.04 (budget value; 0.08 sensitivity),\n  potting 4.3 (Duralco 128, 30 BTU in/ft2 h F), G11 carrier 0.30, 6-core cable as 23 W/mK (Cu fraction ~6 %),\n  spring envelope 0.06 (A-286 wire fraction along the helix + air); the three 0.6 mm guide pads as an equivalent ring\n  (7 % polyimide, 93 % air).\nOutputs per part: max and mean temperature over every case, and the disc's heat outflow split.\nRun: python thermal_axisym.py -> thermal-axisym.json",
+ "T_pan_C": 260.0,
+ "leak_split_G4": {
+  "full_22A|h_c 888": {
+   "G_cold_mW_K": 0.319,
+   "G_total_mW_K": 4.909,
+   "G_hot_mW_K": 4.59,
+   "outflow_cold_run_mW_by_neighbour": {
+    "enclosed_air": 0.067,
+    "post_polyimide": 0.18,
+    "fibre_plug_annulus": 0.072
+   },
+   "outflow_total_run_mW_by_neighbour": {
+    "enclosed_air": 2.353,
+    "post_polyimide": 2.042,
+    "fibre_plug_annulus": 0.514
+   },
+   "travel": 0.6,
+   "eye": "full_22A",
+   "h_c": 888.0,
+   "method": "transfer conductance: disc held at 1 K; cold = eye air + winding sinks, hot = pan/glass side"
+  },
+  "full_22A|h_c 21946": {
+   "G_cold_mW_K": 0.319,
+   "G_total_mW_K": 4.909,
+   "G_hot_mW_K": 4.59,
+   "outflow_cold_run_mW_by_neighbour": {
+    "enclosed_air": 0.067,
+    "post_polyimide": 0.18,
+    "fibre_plug_annulus": 0.072
+   },
+   "outflow_total_run_mW_by_neighbour": {
+    "enclosed_air": 2.353,
+    "post_polyimide": 2.042,
+    "fibre_plug_annulus": 0.514
+   },
+   "travel": 0.6,
+   "eye": "full_22A",
+   "h_c": 21946.0,
+   "method": "transfer conductance: disc held at 1 K; cold = eye air + winding sinks, hot = pan/glass side"
+  },
+  "fry_hold_12.7A|h_c 888": {
+   "G_cold_mW_K": 0.319,
+   "G_total_mW_K": 4.909,
+   "G_hot_mW_K": 4.59,
+   "outflow_cold_run_mW_by_neighbour": {
+    "enclosed_air": 0.067,
+    "post_polyimide": 0.18,
+    "fibre_plug_annulus": 0.072
+   },
+   "outflow_total_run_mW_by_neighbour": {
+    "enclosed_air": 2.353,
+    "post_polyimide": 2.042,
+    "fibre_plug_annulus": 0.514
+   },
+   "travel": 0.6,
+   "eye": "fry_hold_12.7A",
+   "h_c": 888.0,
+   "method": "transfer conductance: disc held at 1 K; cold = eye air + winding sinks, hot = pan/glass side"
+  },
+  "fry_hold_12.7A|h_c 21946": {
+   "G_cold_mW_K": 0.319,
+   "G_total_mW_K": 4.909,
+   "G_hot_mW_K": 4.59,
+   "outflow_cold_run_mW_by_neighbour": {
+    "enclosed_air": 0.067,
+    "post_polyimide": 0.18,
+    "fibre_plug_annulus": 0.072
+   },
+   "outflow_total_run_mW_by_neighbour": {
+    "enclosed_air": 2.353,
+    "post_polyimide": 2.042,
+    "fibre_plug_annulus": 0.514
+   },
+   "travel": 0.6,
+   "eye": "fry_hold_12.7A",
+   "h_c": 21946.0,
+   "method": "transfer conductance: disc held at 1 K; cold = eye air + winding sinks, hot = pan/glass side"
+  }
+ },
+ "k_W_mK": {
+  "silica": 1.38,
+  "padring": 0.07844000000000001,
+  "si3n4": 85.0,
+  "alumina": 25.0,
+  "bond": 1.7,
+  "pi": 0.35,
+  "peek": 0.29,
+  "ffkm": 0.2,
+  "fibre": 0.04,
+  "potting": 4.3,
+  "glass": 1.6,
+  "g11": 0.3,
+  "cable": 23.0,
+  "spring": 0.06,
+  "cav": 0.058,
+  "gap": 0.13
+ },
+ "eye_states": {
+  "full_22A": [
+   147.9,
+   130.0
+  ],
+  "fry_hold_12.7A": [
+   159.8,
+   139.7
+  ]
+ },
+ "h_eye": 10.0,
+ "grid": {
+  "r_cells": 264,
+  "z_cells": 292
+ },
+ "cases": [
+  {
+   "eye": "full_22A",
+   "contact": "as-cast iron 2 mrad (worst)",
+   "h_c": 888.0,
+   "glass": "flat pan",
+   "h_glass": 2063.5,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.1,
+     "mean": 259.0
+    },
+    "body_PI": {
+     "max": 256.1,
+     "mean": 196.8
+    },
+    "cable": {
+     "max": 139.2,
+     "mean": 139.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 139.2,
+     "mean": 139.0
+    },
+    "carrier": {
+     "max": 147.9,
+     "mean": 145.6
+    },
+    "chip_bond": {
+     "max": 259.1,
+     "mean": 259.1
+    },
+    "disc_Si3N4": {
+     "max": 259.2,
+     "mean": 259.2
+    },
+    "enclosed_air": {
+     "max": 259.9,
+     "mean": 199.0
+    },
+    "eye_air": {
+     "max": 130.0,
+     "mean": 130.0
+    },
+    "fibre_plug_annulus": {
+     "max": 259.0,
+     "mean": 239.4
+    },
+    "fibre_plug_core": {
+     "max": 251.2,
+     "mean": 233.4
+    },
+    "foot_potting": {
+     "max": 206.7,
+     "mean": 202.9
+    },
+    "glass": {
+     "max": 259.0,
+     "mean": 255.5
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.1,
+     "mean": 254.6
+    },
+    "lead_capillary_fused_silica": {
+     "max": 237.4,
+     "mean": 225.3
+    },
+    "post_polyimide": {
+     "max": 259.0,
+     "mean": 218.6
+    },
+    "seat_cup_PEEK": {
+     "max": 196.0,
+     "mean": 188.6
+    },
+    "splice_potting": {
+     "max": 139.4,
+     "mean": 139.2
+    },
+    "spring_A286": {
+     "max": 186.6,
+     "mean": 167.3
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 173.9,
+     "mean": 156.9
+    },
+    "static_gasket_FFKM": {
+     "max": 250.4,
+     "mean": 240.7
+    },
+    "stop_collar_PI": {
+     "max": 234.8,
+     "mean": 231.0
+    },
+    "winding_glass_gap": {
+     "max": 251.1,
+     "mean": 206.6
+    },
+    "winding_zone": {
+     "max": 147.9,
+     "mean": 147.9
+    },
+    "wiper_FFKM": {
+     "max": 242.1,
+     "mean": 238.0
+    },
+    "post_top_1mm": {
+     "max": 259.0,
+     "mean": 255.8
+    },
+    "body_collar_in_bore": {
+     "max": 256.1,
+     "mean": 247.2
+    },
+    "body_below_glass": {
+     "max": 250.7,
+     "mean": 187.5
+    },
+    "wiper_lip_tip": {
+     "max": 239.6,
+     "mean": 239.3
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 254.6,
+     "mean": 254.2
+    },
+    "body_rim_datum": {
+     "max": 250.7,
+     "mean": 242.0
+    }
+   },
+   "disc_outflow_mW": {
+    "enclosed_air": 4.231,
+    "post_polyimide": 21.602,
+    "fibre_plug_annulus": 8.977
+   }
+  },
+  {
+   "eye": "full_22A",
+   "contact": "as-cast iron 2 mrad (worst)",
+   "h_c": 888.0,
+   "glass": "0.5 mm warp",
+   "h_glass": 102.2,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 258.8,
+     "mean": 258.8
+    },
+    "body_PI": {
+     "max": 253.0,
+     "mean": 190.8
+    },
+    "cable": {
+     "max": 138.2,
+     "mean": 138.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 138.2,
+     "mean": 138.0
+    },
+    "carrier": {
+     "max": 147.9,
+     "mean": 145.6
+    },
+    "chip_bond": {
+     "max": 258.9,
+     "mean": 258.8
+    },
+    "disc_Si3N4": {
+     "max": 258.9,
+     "mean": 258.9
+    },
+    "enclosed_air": {
+     "max": 259.8,
+     "mean": 193.7
+    },
+    "eye_air": {
+     "max": 130.0,
+     "mean": 130.0
+    },
+    "fibre_plug_annulus": {
+     "max": 258.7,
+     "mean": 234.7
+    },
+    "fibre_plug_core": {
+     "max": 249.2,
+     "mean": 228.4
+    },
+    "foot_potting": {
+     "max": 200.0,
+     "mean": 196.4
+    },
+    "glass": {
+     "max": 244.3,
+     "mean": 239.0
+    },
+    "guide_pads_equiv_ring": {
+     "max": 256.1,
+     "mean": 252.3
+    },
+    "lead_capillary_fused_silica": {
+     "max": 233.1,
+     "mean": 219.7
+    },
+    "post_polyimide": {
+     "max": 258.7,
+     "mean": 212.3
+    },
+    "seat_cup_PEEK": {
+     "max": 189.9,
+     "mean": 182.9
+    },
+    "splice_potting": {
+     "max": 138.4,
+     "mean": 138.3
+    },
+    "spring_A286": {
+     "max": 181.0,
+     "mean": 163.5
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 169.5,
+     "mean": 154.2
+    },
+    "static_gasket_FFKM": {
+     "max": 235.3,
+     "mean": 227.3
+    },
+    "stop_collar_PI": {
+     "max": 226.6,
+     "mean": 222.8
+    },
+    "winding_glass_gap": {
+     "max": 234.3,
+     "mean": 196.9
+    },
+    "winding_zone": {
+     "max": 147.9,
+     "mean": 147.9
+    },
+    "wiper_FFKM": {
+     "max": 235.0,
+     "mean": 230.7
+    },
+    "post_top_1mm": {
+     "max": 258.7,
+     "mean": 254.5
+    },
+    "body_collar_in_bore": {
+     "max": 253.0,
+     "mean": 241.1
+    },
+    "body_below_glass": {
+     "max": 235.2,
+     "mean": 181.5
+    },
+    "wiper_lip_tip": {
+     "max": 233.4,
+     "mean": 232.9
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 238.2,
+     "mean": 237.9
+    },
+    "body_rim_datum": {
+     "max": 235.2,
+     "mean": 227.9
+    }
+   },
+   "disc_outflow_mW": null
+  },
+  {
+   "eye": "full_22A",
+   "contact": "enamel iron 0 mrad",
+   "h_c": 12991.0,
+   "glass": "flat pan",
+   "h_glass": 2063.5,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.8,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 256.1,
+     "mean": 196.8
+    },
+    "cable": {
+     "max": 139.2,
+     "mean": 139.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 139.2,
+     "mean": 139.0
+    },
+    "carrier": {
+     "max": 147.9,
+     "mean": 145.6
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 199.1
+    },
+    "eye_air": {
+     "max": 130.0,
+     "mean": 130.0
+    },
+    "fibre_plug_annulus": {
+     "max": 259.8,
+     "mean": 239.7
+    },
+    "fibre_plug_core": {
+     "max": 251.8,
+     "mean": 233.6
+    },
+    "foot_potting": {
+     "max": 206.7,
+     "mean": 202.9
+    },
+    "glass": {
+     "max": 259.0,
+     "mean": 255.5
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.7,
+     "mean": 254.8
+    },
+    "lead_capillary_fused_silica": {
+     "max": 237.7,
+     "mean": 225.5
+    },
+    "post_polyimide": {
+     "max": 259.8,
+     "mean": 218.7
+    },
+    "seat_cup_PEEK": {
+     "max": 196.0,
+     "mean": 188.7
+    },
+    "splice_potting": {
+     "max": 139.4,
+     "mean": 139.2
+    },
+    "spring_A286": {
+     "max": 186.6,
+     "mean": 167.3
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 173.9,
+     "mean": 156.9
+    },
+    "static_gasket_FFKM": {
+     "max": 250.4,
+     "mean": 240.7
+    },
+    "stop_collar_PI": {
+     "max": 234.9,
+     "mean": 231.0
+    },
+    "winding_glass_gap": {
+     "max": 251.1,
+     "mean": 206.6
+    },
+    "winding_zone": {
+     "max": 147.9,
+     "mean": 147.9
+    },
+    "wiper_FFKM": {
+     "max": 242.1,
+     "mean": 238.1
+    },
+    "post_top_1mm": {
+     "max": 259.8,
+     "mean": 256.4
+    },
+    "body_collar_in_bore": {
+     "max": 256.1,
+     "mean": 247.2
+    },
+    "body_below_glass": {
+     "max": 250.7,
+     "mean": 187.5
+    },
+    "wiper_lip_tip": {
+     "max": 239.8,
+     "mean": 239.4
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 254.6,
+     "mean": 254.2
+    },
+    "body_rim_datum": {
+     "max": 250.7,
+     "mean": 242.0
+    }
+   },
+   "disc_outflow_mW": {
+    "enclosed_air": 8.218,
+    "post_polyimide": 23.176,
+    "fibre_plug_annulus": 9.377
+   }
+  },
+  {
+   "eye": "full_22A",
+   "contact": "enamel iron 0 mrad",
+   "h_c": 12991.0,
+   "glass": "0.5 mm warp",
+   "h_glass": 102.2,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.8,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 253.1,
+     "mean": 190.8
+    },
+    "cable": {
+     "max": 138.2,
+     "mean": 138.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 138.2,
+     "mean": 138.0
+    },
+    "carrier": {
+     "max": 147.9,
+     "mean": 145.6
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.8
+    },
+    "disc_Si3N4": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 193.7
+    },
+    "eye_air": {
+     "max": 130.0,
+     "mean": 130.0
+    },
+    "fibre_plug_annulus": {
+     "max": 259.7,
+     "mean": 235.1
+    },
+    "fibre_plug_core": {
+     "max": 250.0,
+     "mean": 228.8
+    },
+    "foot_potting": {
+     "max": 200.1,
+     "mean": 196.5
+    },
+    "glass": {
+     "max": 244.3,
+     "mean": 239.0
+    },
+    "guide_pads_equiv_ring": {
+     "max": 256.8,
+     "mean": 252.6
+    },
+    "lead_capillary_fused_silica": {
+     "max": 233.6,
+     "mean": 220.0
+    },
+    "post_polyimide": {
+     "max": 259.7,
+     "mean": 212.4
+    },
+    "seat_cup_PEEK": {
+     "max": 189.9,
+     "mean": 183.0
+    },
+    "splice_potting": {
+     "max": 138.4,
+     "mean": 138.3
+    },
+    "spring_A286": {
+     "max": 181.0,
+     "mean": 163.5
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 169.5,
+     "mean": 154.2
+    },
+    "static_gasket_FFKM": {
+     "max": 235.3,
+     "mean": 227.3
+    },
+    "stop_collar_PI": {
+     "max": 226.6,
+     "mean": 222.8
+    },
+    "winding_glass_gap": {
+     "max": 234.3,
+     "mean": 196.9
+    },
+    "winding_zone": {
+     "max": 147.9,
+     "mean": 147.9
+    },
+    "wiper_FFKM": {
+     "max": 235.1,
+     "mean": 230.7
+    },
+    "post_top_1mm": {
+     "max": 259.7,
+     "mean": 255.3
+    },
+    "body_collar_in_bore": {
+     "max": 253.1,
+     "mean": 241.1
+    },
+    "body_below_glass": {
+     "max": 235.2,
+     "mean": 181.5
+    },
+    "wiper_lip_tip": {
+     "max": 233.6,
+     "mean": 233.1
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 238.2,
+     "mean": 237.9
+    },
+    "body_rim_datum": {
+     "max": 235.2,
+     "mean": 228.0
+    }
+   },
+   "disc_outflow_mW": null
+  },
+  {
+   "eye": "full_22A",
+   "contact": "polished clad 0 mrad (hottest disc)",
+   "h_c": 21946.0,
+   "glass": "flat pan",
+   "h_glass": 2063.5,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.9,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 256.1,
+     "mean": 196.8
+    },
+    "cable": {
+     "max": 139.2,
+     "mean": 139.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 139.2,
+     "mean": 139.0
+    },
+    "carrier": {
+     "max": 147.9,
+     "mean": 145.6
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 260.0,
+     "mean": 260.0
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 199.1
+    },
+    "eye_air": {
+     "max": 130.0,
+     "mean": 130.0
+    },
+    "fibre_plug_annulus": {
+     "max": 259.8,
+     "mean": 239.8
+    },
+    "fibre_plug_core": {
+     "max": 251.8,
+     "mean": 233.7
+    },
+    "foot_potting": {
+     "max": 206.7,
+     "mean": 202.9
+    },
+    "glass": {
+     "max": 259.0,
+     "mean": 255.5
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.7,
+     "mean": 254.9
+    },
+    "lead_capillary_fused_silica": {
+     "max": 237.7,
+     "mean": 225.5
+    },
+    "post_polyimide": {
+     "max": 259.8,
+     "mean": 218.7
+    },
+    "seat_cup_PEEK": {
+     "max": 196.0,
+     "mean": 188.7
+    },
+    "splice_potting": {
+     "max": 139.4,
+     "mean": 139.2
+    },
+    "spring_A286": {
+     "max": 186.6,
+     "mean": 167.3
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 173.9,
+     "mean": 156.9
+    },
+    "static_gasket_FFKM": {
+     "max": 250.4,
+     "mean": 240.7
+    },
+    "stop_collar_PI": {
+     "max": 234.9,
+     "mean": 231.0
+    },
+    "winding_glass_gap": {
+     "max": 251.1,
+     "mean": 206.6
+    },
+    "winding_zone": {
+     "max": 147.9,
+     "mean": 147.9
+    },
+    "wiper_FFKM": {
+     "max": 242.1,
+     "mean": 238.1
+    },
+    "post_top_1mm": {
+     "max": 259.8,
+     "mean": 256.4
+    },
+    "body_collar_in_bore": {
+     "max": 256.1,
+     "mean": 247.2
+    },
+    "body_below_glass": {
+     "max": 250.7,
+     "mean": 187.5
+    },
+    "wiper_lip_tip": {
+     "max": 239.8,
+     "mean": 239.4
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 254.6,
+     "mean": 254.2
+    },
+    "body_rim_datum": {
+     "max": 250.7,
+     "mean": 242.0
+    }
+   },
+   "disc_outflow_mW": {
+    "enclosed_air": 8.364,
+    "post_polyimide": 23.233,
+    "fibre_plug_annulus": 9.392
+   }
+  },
+  {
+   "eye": "full_22A",
+   "contact": "polished clad 0 mrad (hottest disc)",
+   "h_c": 21946.0,
+   "glass": "0.5 mm warp",
+   "h_glass": 102.2,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.8,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 253.1,
+     "mean": 190.8
+    },
+    "cable": {
+     "max": 138.2,
+     "mean": 138.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 138.2,
+     "mean": 138.0
+    },
+    "carrier": {
+     "max": 147.9,
+     "mean": 145.6
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 260.0,
+     "mean": 259.9
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 193.7
+    },
+    "eye_air": {
+     "max": 130.0,
+     "mean": 130.0
+    },
+    "fibre_plug_annulus": {
+     "max": 259.8,
+     "mean": 235.1
+    },
+    "fibre_plug_core": {
+     "max": 250.0,
+     "mean": 228.8
+    },
+    "foot_potting": {
+     "max": 200.1,
+     "mean": 196.5
+    },
+    "glass": {
+     "max": 244.3,
+     "mean": 239.0
+    },
+    "guide_pads_equiv_ring": {
+     "max": 256.9,
+     "mean": 252.6
+    },
+    "lead_capillary_fused_silica": {
+     "max": 233.6,
+     "mean": 220.0
+    },
+    "post_polyimide": {
+     "max": 259.8,
+     "mean": 212.4
+    },
+    "seat_cup_PEEK": {
+     "max": 189.9,
+     "mean": 183.0
+    },
+    "splice_potting": {
+     "max": 138.4,
+     "mean": 138.3
+    },
+    "spring_A286": {
+     "max": 181.0,
+     "mean": 163.5
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 169.5,
+     "mean": 154.2
+    },
+    "static_gasket_FFKM": {
+     "max": 235.3,
+     "mean": 227.3
+    },
+    "stop_collar_PI": {
+     "max": 226.6,
+     "mean": 222.8
+    },
+    "winding_glass_gap": {
+     "max": 234.3,
+     "mean": 196.9
+    },
+    "winding_zone": {
+     "max": 147.9,
+     "mean": 147.9
+    },
+    "wiper_FFKM": {
+     "max": 235.1,
+     "mean": 230.7
+    },
+    "post_top_1mm": {
+     "max": 259.8,
+     "mean": 255.3
+    },
+    "body_collar_in_bore": {
+     "max": 253.1,
+     "mean": 241.1
+    },
+    "body_below_glass": {
+     "max": 235.2,
+     "mean": 181.5
+    },
+    "wiper_lip_tip": {
+     "max": 233.7,
+     "mean": 233.1
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 238.2,
+     "mean": 237.9
+    },
+    "body_rim_datum": {
+     "max": 235.2,
+     "mean": 228.0
+    }
+   },
+   "disc_outflow_mW": null
+  },
+  {
+   "eye": "fry_hold_12.7A",
+   "contact": "as-cast iron 2 mrad (worst)",
+   "h_c": 888.0,
+   "glass": "flat pan",
+   "h_glass": 2063.5,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.1,
+     "mean": 259.1
+    },
+    "body_PI": {
+     "max": 256.4,
+     "mean": 201.5
+    },
+    "cable": {
+     "max": 148.2,
+     "mean": 148.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 148.2,
+     "mean": 148.0
+    },
+    "carrier": {
+     "max": 159.8,
+     "mean": 157.3
+    },
+    "chip_bond": {
+     "max": 259.2,
+     "mean": 259.2
+    },
+    "disc_Si3N4": {
+     "max": 259.2,
+     "mean": 259.2
+    },
+    "enclosed_air": {
+     "max": 259.9,
+     "mean": 203.6
+    },
+    "eye_air": {
+     "max": 139.7,
+     "mean": 139.7
+    },
+    "fibre_plug_annulus": {
+     "max": 259.1,
+     "mean": 241.0
+    },
+    "fibre_plug_core": {
+     "max": 251.8,
+     "mean": 235.3
+    },
+    "foot_potting": {
+     "max": 210.7,
+     "mean": 207.2
+    },
+    "glass": {
+     "max": 259.1,
+     "mean": 255.9
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.3,
+     "mean": 255.0
+    },
+    "lead_capillary_fused_silica": {
+     "max": 239.0,
+     "mean": 227.9
+    },
+    "post_polyimide": {
+     "max": 259.1,
+     "mean": 221.7
+    },
+    "seat_cup_PEEK": {
+     "max": 200.8,
+     "mean": 194.0
+    },
+    "splice_potting": {
+     "max": 148.4,
+     "mean": 148.3
+    },
+    "spring_A286": {
+     "max": 192.1,
+     "mean": 174.2
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 180.3,
+     "mean": 164.6
+    },
+    "static_gasket_FFKM": {
+     "max": 251.1,
+     "mean": 242.2
+    },
+    "stop_collar_PI": {
+     "max": 236.7,
+     "mean": 233.1
+    },
+    "winding_glass_gap": {
+     "max": 251.9,
+     "mean": 212.2
+    },
+    "winding_zone": {
+     "max": 159.8,
+     "mean": 159.8
+    },
+    "wiper_FFKM": {
+     "max": 243.4,
+     "mean": 239.7
+    },
+    "post_top_1mm": {
+     "max": 259.1,
+     "mean": 256.1
+    },
+    "body_collar_in_bore": {
+     "max": 256.4,
+     "mean": 248.2
+    },
+    "body_below_glass": {
+     "max": 251.4,
+     "mean": 192.9
+    },
+    "wiper_lip_tip": {
+     "max": 241.1,
+     "mean": 240.8
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 255.0,
+     "mean": 254.6
+    },
+    "body_rim_datum": {
+     "max": 251.4,
+     "mean": 243.4
+    }
+   },
+   "disc_outflow_mW": {
+    "enclosed_air": 3.915,
+    "post_polyimide": 19.989,
+    "fibre_plug_annulus": 8.307
+   }
+  },
+  {
+   "eye": "fry_hold_12.7A",
+   "contact": "as-cast iron 2 mrad (worst)",
+   "h_c": 888.0,
+   "glass": "0.5 mm warp",
+   "h_glass": 102.2,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 258.9,
+     "mean": 258.9
+    },
+    "body_PI": {
+     "max": 253.6,
+     "mean": 196.0
+    },
+    "cable": {
+     "max": 147.3,
+     "mean": 147.3
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 147.3,
+     "mean": 147.1
+    },
+    "carrier": {
+     "max": 159.8,
+     "mean": 157.3
+    },
+    "chip_bond": {
+     "max": 259.0,
+     "mean": 258.9
+    },
+    "disc_Si3N4": {
+     "max": 259.0,
+     "mean": 259.0
+    },
+    "enclosed_air": {
+     "max": 259.8,
+     "mean": 198.7
+    },
+    "eye_air": {
+     "max": 139.7,
+     "mean": 139.7
+    },
+    "fibre_plug_annulus": {
+     "max": 258.8,
+     "mean": 236.6
+    },
+    "fibre_plug_core": {
+     "max": 250.1,
+     "mean": 230.8
+    },
+    "foot_potting": {
+     "max": 204.6,
+     "mean": 201.2
+    },
+    "glass": {
+     "max": 245.6,
+     "mean": 240.8
+    },
+    "guide_pads_equiv_ring": {
+     "max": 256.4,
+     "mean": 252.9
+    },
+    "lead_capillary_fused_silica": {
+     "max": 235.2,
+     "mean": 222.8
+    },
+    "post_polyimide": {
+     "max": 258.8,
+     "mean": 215.9
+    },
+    "seat_cup_PEEK": {
+     "max": 195.1,
+     "mean": 188.7
+    },
+    "splice_potting": {
+     "max": 147.5,
+     "mean": 147.4
+    },
+    "spring_A286": {
+     "max": 187.0,
+     "mean": 170.7
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 176.3,
+     "mean": 162.1
+    },
+    "static_gasket_FFKM": {
+     "max": 237.3,
+     "mean": 229.9
+    },
+    "stop_collar_PI": {
+     "max": 229.1,
+     "mean": 225.6
+    },
+    "winding_glass_gap": {
+     "max": 236.7,
+     "mean": 203.3
+    },
+    "winding_zone": {
+     "max": 159.8,
+     "mean": 159.8
+    },
+    "wiper_FFKM": {
+     "max": 236.9,
+     "mean": 232.9
+    },
+    "post_top_1mm": {
+     "max": 258.8,
+     "mean": 254.9
+    },
+    "body_collar_in_bore": {
+     "max": 253.6,
+     "mean": 242.6
+    },
+    "body_below_glass": {
+     "max": 237.2,
+     "mean": 187.4
+    },
+    "wiper_lip_tip": {
+     "max": 235.5,
+     "mean": 235.0
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 240.0,
+     "mean": 239.7
+    },
+    "body_rim_datum": {
+     "max": 237.2,
+     "mean": 230.5
+    }
+   },
+   "disc_outflow_mW": null
+  },
+  {
+   "eye": "fry_hold_12.7A",
+   "contact": "enamel iron 0 mrad",
+   "h_c": 12991.0,
+   "glass": "flat pan",
+   "h_glass": 2063.5,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.8,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 256.4,
+     "mean": 201.6
+    },
+    "cable": {
+     "max": 148.2,
+     "mean": 148.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 148.2,
+     "mean": 148.0
+    },
+    "carrier": {
+     "max": 159.8,
+     "mean": 157.3
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 203.6
+    },
+    "eye_air": {
+     "max": 139.7,
+     "mean": 139.7
+    },
+    "fibre_plug_annulus": {
+     "max": 259.8,
+     "mean": 241.3
+    },
+    "fibre_plug_core": {
+     "max": 252.4,
+     "mean": 235.6
+    },
+    "foot_potting": {
+     "max": 210.7,
+     "mean": 207.2
+    },
+    "glass": {
+     "max": 259.1,
+     "mean": 255.9
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.8,
+     "mean": 255.2
+    },
+    "lead_capillary_fused_silica": {
+     "max": 239.4,
+     "mean": 228.1
+    },
+    "post_polyimide": {
+     "max": 259.8,
+     "mean": 221.8
+    },
+    "seat_cup_PEEK": {
+     "max": 200.8,
+     "mean": 194.0
+    },
+    "splice_potting": {
+     "max": 148.4,
+     "mean": 148.3
+    },
+    "spring_A286": {
+     "max": 192.1,
+     "mean": 174.2
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 180.3,
+     "mean": 164.6
+    },
+    "static_gasket_FFKM": {
+     "max": 251.1,
+     "mean": 242.2
+    },
+    "stop_collar_PI": {
+     "max": 236.8,
+     "mean": 233.2
+    },
+    "winding_glass_gap": {
+     "max": 251.9,
+     "mean": 212.2
+    },
+    "winding_zone": {
+     "max": 159.8,
+     "mean": 159.8
+    },
+    "wiper_FFKM": {
+     "max": 243.5,
+     "mean": 239.7
+    },
+    "post_top_1mm": {
+     "max": 259.8,
+     "mean": 256.7
+    },
+    "body_collar_in_bore": {
+     "max": 256.4,
+     "mean": 248.2
+    },
+    "body_below_glass": {
+     "max": 251.4,
+     "mean": 192.9
+    },
+    "wiper_lip_tip": {
+     "max": 241.3,
+     "mean": 241.0
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 255.0,
+     "mean": 254.6
+    },
+    "body_rim_datum": {
+     "max": 251.4,
+     "mean": 243.4
+    }
+   },
+   "disc_outflow_mW": {
+    "enclosed_air": 7.604,
+    "post_polyimide": 21.444,
+    "fibre_plug_annulus": 8.677
+   }
+  },
+  {
+   "eye": "fry_hold_12.7A",
+   "contact": "enamel iron 0 mrad",
+   "h_c": 12991.0,
+   "glass": "0.5 mm warp",
+   "h_glass": 102.2,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.8,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 253.6,
+     "mean": 196.1
+    },
+    "cable": {
+     "max": 147.3,
+     "mean": 147.3
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 147.3,
+     "mean": 147.1
+    },
+    "carrier": {
+     "max": 159.8,
+     "mean": 157.3
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 198.7
+    },
+    "eye_air": {
+     "max": 139.7,
+     "mean": 139.7
+    },
+    "fibre_plug_annulus": {
+     "max": 259.7,
+     "mean": 237.0
+    },
+    "fibre_plug_core": {
+     "max": 250.8,
+     "mean": 231.2
+    },
+    "foot_potting": {
+     "max": 204.6,
+     "mean": 201.3
+    },
+    "glass": {
+     "max": 245.6,
+     "mean": 240.8
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.1,
+     "mean": 253.2
+    },
+    "lead_capillary_fused_silica": {
+     "max": 235.6,
+     "mean": 223.0
+    },
+    "post_polyimide": {
+     "max": 259.7,
+     "mean": 216.0
+    },
+    "seat_cup_PEEK": {
+     "max": 195.2,
+     "mean": 188.8
+    },
+    "splice_potting": {
+     "max": 147.5,
+     "mean": 147.4
+    },
+    "spring_A286": {
+     "max": 187.0,
+     "mean": 170.7
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 176.3,
+     "mean": 162.1
+    },
+    "static_gasket_FFKM": {
+     "max": 237.3,
+     "mean": 229.9
+    },
+    "stop_collar_PI": {
+     "max": 229.2,
+     "mean": 225.7
+    },
+    "winding_glass_gap": {
+     "max": 236.7,
+     "mean": 203.3
+    },
+    "winding_zone": {
+     "max": 159.8,
+     "mean": 159.8
+    },
+    "wiper_FFKM": {
+     "max": 237.0,
+     "mean": 233.0
+    },
+    "post_top_1mm": {
+     "max": 259.7,
+     "mean": 255.7
+    },
+    "body_collar_in_bore": {
+     "max": 253.6,
+     "mean": 242.6
+    },
+    "body_below_glass": {
+     "max": 237.2,
+     "mean": 187.4
+    },
+    "wiper_lip_tip": {
+     "max": 235.7,
+     "mean": 235.2
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 240.0,
+     "mean": 239.7
+    },
+    "body_rim_datum": {
+     "max": 237.2,
+     "mean": 230.5
+    }
+   },
+   "disc_outflow_mW": null
+  },
+  {
+   "eye": "fry_hold_12.7A",
+   "contact": "polished clad 0 mrad (hottest disc)",
+   "h_c": 21946.0,
+   "glass": "flat pan",
+   "h_glass": 2063.5,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "body_PI": {
+     "max": 256.4,
+     "mean": 201.6
+    },
+    "cable": {
+     "max": 148.2,
+     "mean": 148.2
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 148.2,
+     "mean": 148.0
+    },
+    "carrier": {
+     "max": 159.8,
+     "mean": 157.3
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 260.0,
+     "mean": 260.0
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 203.6
+    },
+    "eye_air": {
+     "max": 139.7,
+     "mean": 139.7
+    },
+    "fibre_plug_annulus": {
+     "max": 259.8,
+     "mean": 241.3
+    },
+    "fibre_plug_core": {
+     "max": 252.4,
+     "mean": 235.6
+    },
+    "foot_potting": {
+     "max": 210.7,
+     "mean": 207.2
+    },
+    "glass": {
+     "max": 259.1,
+     "mean": 255.9
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.9,
+     "mean": 255.2
+    },
+    "lead_capillary_fused_silica": {
+     "max": 239.4,
+     "mean": 228.1
+    },
+    "post_polyimide": {
+     "max": 259.8,
+     "mean": 221.8
+    },
+    "seat_cup_PEEK": {
+     "max": 200.8,
+     "mean": 194.0
+    },
+    "splice_potting": {
+     "max": 148.4,
+     "mean": 148.3
+    },
+    "spring_A286": {
+     "max": 192.1,
+     "mean": 174.2
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 180.3,
+     "mean": 164.6
+    },
+    "static_gasket_FFKM": {
+     "max": 251.1,
+     "mean": 242.2
+    },
+    "stop_collar_PI": {
+     "max": 236.8,
+     "mean": 233.2
+    },
+    "winding_glass_gap": {
+     "max": 251.9,
+     "mean": 212.2
+    },
+    "winding_zone": {
+     "max": 159.8,
+     "mean": 159.8
+    },
+    "wiper_FFKM": {
+     "max": 243.5,
+     "mean": 239.7
+    },
+    "post_top_1mm": {
+     "max": 259.8,
+     "mean": 256.7
+    },
+    "body_collar_in_bore": {
+     "max": 256.4,
+     "mean": 248.2
+    },
+    "body_below_glass": {
+     "max": 251.4,
+     "mean": 192.9
+    },
+    "wiper_lip_tip": {
+     "max": 241.3,
+     "mean": 241.0
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 255.0,
+     "mean": 254.6
+    },
+    "body_rim_datum": {
+     "max": 251.4,
+     "mean": 243.4
+    }
+   },
+   "disc_outflow_mW": {
+    "enclosed_air": 7.739,
+    "post_polyimide": 21.498,
+    "fibre_plug_annulus": 8.69
+   }
+  },
+  {
+   "eye": "fry_hold_12.7A",
+   "contact": "polished clad 0 mrad (hottest disc)",
+   "h_c": 21946.0,
+   "glass": "0.5 mm warp",
+   "h_glass": 102.2,
+   "parts": {
+    "Pt100_chip_IST_P0K1202": {
+     "max": 259.8,
+     "mean": 259.8
+    },
+    "body_PI": {
+     "max": 253.6,
+     "mean": 196.1
+    },
+    "cable": {
+     "max": 147.3,
+     "mean": 147.3
+    },
+    "cable_strain_relief_PEEK": {
+     "max": 147.3,
+     "mean": 147.1
+    },
+    "carrier": {
+     "max": 159.8,
+     "mean": 157.3
+    },
+    "chip_bond": {
+     "max": 259.9,
+     "mean": 259.9
+    },
+    "disc_Si3N4": {
+     "max": 260.0,
+     "mean": 260.0
+    },
+    "enclosed_air": {
+     "max": 260.0,
+     "mean": 198.7
+    },
+    "eye_air": {
+     "max": 139.7,
+     "mean": 139.7
+    },
+    "fibre_plug_annulus": {
+     "max": 259.8,
+     "mean": 237.0
+    },
+    "fibre_plug_core": {
+     "max": 250.8,
+     "mean": 231.2
+    },
+    "foot_potting": {
+     "max": 204.6,
+     "mean": 201.3
+    },
+    "glass": {
+     "max": 245.6,
+     "mean": 240.8
+    },
+    "guide_pads_equiv_ring": {
+     "max": 257.1,
+     "mean": 253.2
+    },
+    "lead_capillary_fused_silica": {
+     "max": 235.6,
+     "mean": 223.0
+    },
+    "post_polyimide": {
+     "max": 259.8,
+     "mean": 216.0
+    },
+    "seat_cup_PEEK": {
+     "max": 195.2,
+     "mean": 188.8
+    },
+    "splice_potting": {
+     "max": 147.5,
+     "mean": 147.4
+    },
+    "spring_A286": {
+     "max": 187.0,
+     "mean": 170.7
+    },
+    "spring_washer_bayonet_PEEK": {
+     "max": 176.3,
+     "mean": 162.1
+    },
+    "static_gasket_FFKM": {
+     "max": 237.3,
+     "mean": 229.9
+    },
+    "stop_collar_PI": {
+     "max": 229.2,
+     "mean": 225.7
+    },
+    "winding_glass_gap": {
+     "max": 236.7,
+     "mean": 203.3
+    },
+    "winding_zone": {
+     "max": 159.8,
+     "mean": 159.8
+    },
+    "wiper_FFKM": {
+     "max": 237.0,
+     "mean": 233.0
+    },
+    "post_top_1mm": {
+     "max": 259.8,
+     "mean": 255.7
+    },
+    "body_collar_in_bore": {
+     "max": 253.6,
+     "mean": 242.6
+    },
+    "body_below_glass": {
+     "max": 237.2,
+     "mean": 187.4
+    },
+    "wiper_lip_tip": {
+     "max": 235.7,
+     "mean": 235.2
+    },
+    "glass_underside_at_rim_NTC_r14.5": {
+     "max": 240.0,
+     "mean": 239.7
+    },
+    "body_rim_datum": {
+     "max": 237.2,
+     "mean": 230.5
+    }
+   },
+   "disc_outflow_mW": null
+  }
+ ],
+ "worst_by_part": {
+  "Pt100_chip_IST_P0K1202": {
+   "max": 259.9,
+   "case": "full_22A | polished clad 0 mrad (hottest disc) | flat pan"
+  },
+  "body_PI": {
+   "max": 256.4,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "cable": {
+   "max": 148.2,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "cable_strain_relief_PEEK": {
+   "max": 148.2,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "carrier": {
+   "max": 159.8,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "chip_bond": {
+   "max": 259.9,
+   "case": "full_22A | enamel iron 0 mrad | flat pan"
+  },
+  "disc_Si3N4": {
+   "max": 260.0,
+   "case": "full_22A | polished clad 0 mrad (hottest disc) | flat pan"
+  },
+  "enclosed_air": {
+   "max": 260.0,
+   "case": "full_22A | enamel iron 0 mrad | flat pan"
+  },
+  "eye_air": {
+   "max": 139.7,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "fibre_plug_annulus": {
+   "max": 259.8,
+   "case": "full_22A | enamel iron 0 mrad | flat pan"
+  },
+  "fibre_plug_core": {
+   "max": 252.4,
+   "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan"
+  },
+  "foot_potting": {
+   "max": 210.7,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "glass": {
+   "max": 259.1,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "guide_pads_equiv_ring": {
+   "max": 257.9,
+   "case": "fry_hold_12.7A | polished clad 0 mrad (hottest disc) | flat pan"
+  },
+  "lead_capillary_fused_silica": {
+   "max": 239.4,
+   "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan"
+  },
+  "post_polyimide": {
+   "max": 259.8,
+   "case": "full_22A | enamel iron 0 mrad | flat pan"
+  },
+  "seat_cup_PEEK": {
+   "max": 200.8,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "splice_potting": {
+   "max": 148.4,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "spring_A286": {
+   "max": 192.1,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "spring_washer_bayonet_PEEK": {
+   "max": 180.3,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "static_gasket_FFKM": {
+   "max": 251.1,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "stop_collar_PI": {
+   "max": 236.8,
+   "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan"
+  },
+  "winding_glass_gap": {
+   "max": 251.9,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "winding_zone": {
+   "max": 159.8,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "wiper_FFKM": {
+   "max": 243.5,
+   "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan"
+  },
+  "post_top_1mm": {
+   "max": 259.8,
+   "case": "full_22A | enamel iron 0 mrad | flat pan"
+  },
+  "body_collar_in_bore": {
+   "max": 256.4,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "body_below_glass": {
+   "max": 251.4,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "wiper_lip_tip": {
+   "max": 241.3,
+   "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan"
+  },
+  "glass_underside_at_rim_NTC_r14.5": {
+   "max": 255.0,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  },
+  "body_rim_datum": {
+   "max": 251.4,
+   "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan"
+  }
+ },
+ "sensitivity_fibre0.08_ffkm0.3": {
+  "Pt100_chip_IST_P0K1202": 259.0,
+  "body_PI": 256.4,
+  "cable": 148.4,
+  "cable_strain_relief_PEEK": 148.3,
+  "carrier": 159.8,
+  "chip_bond": 259.0,
+  "disc_Si3N4": 259.1,
+  "enclosed_air": 259.9,
+  "eye_air": 139.7,
+  "fibre_plug_annulus": 258.9,
+  "fibre_plug_core": 251.0,
+  "foot_potting": 212.9,
+  "glass": 259.1,
+  "guide_pads_equiv_ring": 257.3,
+  "lead_capillary_fused_silica": 242.9,
+  "post_polyimide": 258.9,
+  "seat_cup_PEEK": 202.4,
+  "splice_potting": 148.6,
+  "spring_A286": 193.3,
+  "spring_washer_bayonet_PEEK": 181.2,
+  "static_gasket_FFKM": 250.7,
+  "stop_collar_PI": 237.9,
+  "winding_glass_gap": 251.9,
+  "winding_zone": 159.8,
+  "wiper_FFKM": 243.5,
+  "post_top_1mm": 258.9,
+  "body_collar_in_bore": 256.4,
+  "body_below_glass": 251.5,
+  "wiper_lip_tip": 241.7,
+  "glass_underside_at_rim_NTC_r14.5": 255.0,
+  "body_rim_datum": 251.5
+ }
+}

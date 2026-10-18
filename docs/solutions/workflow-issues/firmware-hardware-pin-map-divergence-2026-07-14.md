@@ -27,7 +27,7 @@ tags:
 ## Context
 
 Rewiring `pcb/mcu.kicad_sch`'s ESP32-S3 connections surfaced that the schematic's own
-documentation comment ("IO9: SPI_MISO") and `firmware/components/hal/include/temper_pins.h`
+documentation comment ("IO9: SPI_MISO") and `firmware/components/temper_hal/include/temper_pins.h`
 ("`PIN_SPI_MISO 12`") assigned nearly every SPI/I2C/status signal to a *different* physical GPIO.
 Of roughly 18 pin functions, only 3 agreed between the two sources. Naively trusting either source
 without a tie-breaking method risks wiring a board that firmware can never actually drive

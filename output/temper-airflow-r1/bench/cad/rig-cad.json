@@ -1,0 +1,162 @@
+{
+ "scope": "Jet bench rig CAD: channel replica of the R45 jet box over native-21's strip, with a guarded heated plate.\n\n    ../../.venv/bin/python rig_cad.py      # build123d 0.11.1 (recipe in ../README.md) -> rig-cad.json, STEP + STL\n\nFrame: native-21 MODEL x/y (mm) as HANDOFF.md (x_w = x - 141, y_w = 236 - y), z above the board top = the test\nplate's top face. Geometry is HANDOFF item 1/2 plus the s42 parts that bound the channel (cad/channel_parts.py):\n  JET BOX   x 1..88, y 10.5..22.5, z 6..15; manifold 10.5 x 7 inside (side walls 0.75: HANDOFF's 1.0 mm walls round a\n            10.5 mm manifold do not fit its own 12 mm Y envelope; the rig keeps the envelope, which is what bounds\n            the channel); 1.0 floor with 8 x D3.0 jets at x 5.5 + 11k, y 14.0; closed at x 88; two 2 mm locating\n            ribs bearing on the pressure-strip face (y 9.5), as HANDOFF's \"1 mm locating rib\".\n  F3 FEED   leg B x -37..1, y 10.5..22.5, z 2..18 (1 mm walls) into the box; leg A x -37..-23, y -8.5..22.5 to the\n            hood stand-in. Printed in two halves split at z 10.5 so the jet floor is drilled and deburred open.\n  -Y WALL   TO-247 / BR1 package fronts at y 6.9 (z 0..9) under the FR-4 pressure strip face at y 9.5 (z 9..23), x -4..113\n            (the FET/BR1 row; package gaps end on the AlN tile, dead ends, so the wall is continuous).\n  FILM CAPS C38-C41 B32652 bodies 18 x 9 x 17.5 (footprint spec body_max), y 23.7..32.7, x 0.9..18.9, 22.7..40.7,\n            44.5..62.5, 66.3..84.3 (pads from placement.json, body centred between the 15 mm pads).\n  PLATE     6061, 90 x 16.5 x 3.0 = the strip, top z 0; 3 x D1.0 thermocouple holes from below, 2.0 deep, x 15/45/75.\n  GUARD     6061 tray around and under the plate: 1.0 mm gap, 3 mm rim, 10 mm pocket; ears for the deck.\n  DECK      printed 6 mm plate carrying the tray, walls and caps; HOOD a printed stand-in for the push hood.",
+ "checks": {
+  "jet_floor_to_plate_mm": 6.0,
+  "box_to_pressure_strip_face_mm": 1.0,
+  "box_to_film_caps_mm": 1.2,
+  "plate_to_guard_mm": 1.0,
+  "jets_open": true,
+  "jet_floor_solid_between_jets": true,
+  "ribs_touch_strip_face_mm": 0.0,
+  "overlaps": [],
+  "pass": true
+ },
+ "parts": {
+  "duct_lower": {
+   "bbox_mm": [
+    -42.0,
+    -8.5,
+    0.0,
+    88.0,
+    22.5,
+    10.5
+   ],
+   "volume_mm3": 3939.9,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "duct_upper": {
+   "bbox_mm": [
+    -42.0,
+    -8.5,
+    10.5,
+    94.0,
+    22.5,
+    21.0
+   ],
+   "volume_mm3": 3953.3,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "wall_minus_y": {
+   "bbox_mm": [
+    -4.0,
+    -8.0,
+    -3.0,
+    113.0,
+    20.0,
+    23.0
+   ],
+   "volume_mm3": 44595.9,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "film_cap_1": {
+   "bbox_mm": [
+    0.9,
+    23.7,
+    -3.0,
+    18.9,
+    32.7,
+    17.5
+   ],
+   "volume_mm3": 2856.2,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "film_cap_2": {
+   "bbox_mm": [
+    22.7,
+    23.7,
+    -3.0,
+    40.7,
+    32.7,
+    17.5
+   ],
+   "volume_mm3": 2856.2,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "film_cap_3": {
+   "bbox_mm": [
+    44.5,
+    23.7,
+    -3.0,
+    62.5,
+    32.7,
+    17.5
+   ],
+   "volume_mm3": 2856.2,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "film_cap_4": {
+   "bbox_mm": [
+    66.3,
+    23.7,
+    -3.0,
+    84.3,
+    32.7,
+    17.5
+   ],
+   "volume_mm3": 2856.2,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "plate": {
+   "bbox_mm": [
+    0.0,
+    7.0,
+    -3.0,
+    90.0,
+    23.5,
+    0.0
+   ],
+   "volume_mm3": 4450.3,
+   "make": "JLCCNC 6061-T6, top face fine-milled (Ra <= 1.6 um), flat <= 0.05"
+  },
+  "guard_tray": {
+   "bbox_mm": [
+    -12.0,
+    3.0,
+    -12.0,
+    102.0,
+    27.5,
+    0.0
+   ],
+   "volume_mm3": 12704.6,
+   "make": "JLCCNC 6061-T6"
+  },
+  "deck": {
+   "bbox_mm": [
+    -45.0,
+    -8.0,
+    -6.0,
+    118.0,
+    45.0,
+    0.0
+   ],
+   "volume_mm3": 35546.1,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "hood_box": {
+   "bbox_mm": [
+    -70.0,
+    -66.0,
+    -56.0,
+    10.0,
+    -8.5,
+    34.0
+   ],
+   "volume_mm3": 73821.9,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  },
+  "hood_lid": {
+   "bbox_mm": [
+    -70.0,
+    -66.0,
+    34.0,
+    10.0,
+    -8.5,
+    36.5
+   ],
+   "volume_mm3": 10871.7,
+   "make": "print PETG (or ASA), 0.4 nozzle, 100 % infill"
+  }
+ },
+ "plate_mass_g_6061": 12.02,
+ "tray_mass_g_6061": 34.3
+}

@@ -1,0 +1,68 @@
+{
+ "scope": "Scale measurements from Impulse teardown stills, plus the coil-design inference.\n\nPixel picks are in DISPLAY coordinates of the 2000-px-wide preview of each 4K\nframe (x 0-2000, y 0-1125); they were picked by eye (about +-10 px) from the\nframes named below, which live under ~/temper-media/Sue70X7ZeS0/frames/\n(NOT in the repo). Re-pick them against the same frames to check. Every output\ncarries its scale assumption; treat lengths as +-15-25 %.\n\nScale references:\n  - coil: the winding OD is \"a 9-inch coil... all the way out to the edge\"\n    [said 32:48] -> 228.6 mm across the winding (rim inner edge);\n  - drive board: TO-247 body width 15.9 mm (JEDEC TO-247 nominal, 15.5-16.1),\n    devices sitting side by side under per-device clips.\n\nCoil inference: Impulse's patent example runs a full bridge from ~115 V DC at\nup to 10 kW per coil [patent US12712433B1 FIG. 3]. For the same pan and coil\ngeometry the reflected resistance scales with N^2, so turns are scaled from\ntemper's coil (21.9 turns, ~18.7 A rms line-average tank current at ~1.71 kW\ninput, POWER-SECTION.md section 2) to the impedance a 10 kW / 115 V full\nbridge needs. Run: python3 measure_frames.py -> measure_frames.json",
+ "picks": {
+  "proto_coil": {
+   "rim_outer_x": [
+    640,
+    1500
+   ],
+   "rim_outer_y": [
+    293,
+    905
+   ],
+   "winding_od_x": [
+    695,
+    1445
+   ],
+   "centre_x": 1070,
+   "bar_right_x": [
+    1192,
+    1423
+   ],
+   "bar_right_width_y": 53
+  },
+  "drive": {
+   "clip_group_x": [
+    1118,
+    1305
+   ],
+   "clip_count": 4,
+   "film_caps_x": [
+    1505,
+    1770
+   ],
+   "film_cap_count": 3
+  }
+ },
+ "coil": {
+  "mm_per_px": 0.305,
+  "view_foreshortening_minor_over_major": 0.71,
+  "carrier_rim_OD_mm": 262.0,
+  "ferrite_bar_r_inner_mm": 37.0,
+  "ferrite_bar_r_outer_mm": 108.0,
+  "ferrite_bar_length_mm": 70.0,
+  "ferrite_bar_width_mm": 23.0,
+  "note": "8 radial bars (count from 16:11 and 03:40 frames); the width pick may span two side-by-side bars"
+ },
+ "drive": {
+  "clip_pitch_px": 46.8,
+  "assumed_device_pitch_mm": "15.9 body + 2-5 gap = 18-21",
+  "film_cap_length_mm_range": [
+   34.0,
+   40.0
+  ],
+  "note": "caps are nearer the camera than the clips, so the cap length over-reads"
+ },
+ "coil_inference": {
+  "temper_R_eq_ohm": 4.4,
+  "impulse_V1_rms_V": 103.5,
+  "impulse_R_eq_ohm_max": 1.07,
+  "impulse_turns_upper_estimate": 10.8,
+  "impulse_coil_I_rms_A_min": 97.0,
+  "temper_litz_mm2": 2.12,
+  "temper_J_A_per_mm2": 8.8,
+  "impulse_litz_mm2_at_temper_J": 11.0,
+  "impulse_bundle_dia_mm_at_0p5_fill": 5.3,
+  "note": "upper-bound turns (unity pf at resonance); a lagging pf for ZVS lowers R_eq and the turn count. Production frames show orange-served bundles ~3.5-4 mm wide at a ~6-8 mm pitch, consistent with ~10-12 turns of heavier litz run at a higher current density than temper's."
+ }
+}

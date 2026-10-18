@@ -14,6 +14,10 @@
 #include "unity/unity.h"
 #include "test_common.h"
 #include "../components/control/pan_detect.h"
+#include "../components/control/pll_control.h"
+
+/* pan_detect.c host hook: a listener in place of the CT_ZC capture. */
+extern void pan_detect_host_set_listen(pan_detect_listen_fn listen);
 
 /* Test thresholds from implementation */
 #define DECAY_THRESHOLD_PAN   8   /* Below this = pan present */
@@ -194,10 +198,159 @@ void test_low_power_validation_empty(void) {
 }
 
 /*============================================================================
+ * Test Cases: the detection pulse is a burst start (zapote C39)
+ *
+ * pan_detect_run_ops() with recording mock ops: it pulses only from idle
+ * gates, only after programming a frequency at or above the last known
+ * resonance (pll_burst_start_frequency()), and not at all when that rule
+ * refuses. detect_pan_presence() reports no pan without the board's ops.
+ *============================================================================*/
+
+static struct {
+    bool idle;
+    bool set_ok;
+    bool pulse_ok;
+    uint32_t edges;
+    int calls;            /* order counter */
+    int idle_at, set_at, pulse_at, listen_at;
+    float f_set;
+    uint32_t width;
+} m;
+
+static bool m_idle(void) { m.idle_at = ++m.calls; return m.idle; }
+static bool m_set(float f) { m.set_at = ++m.calls; m.f_set = f; return m.set_ok; }
+static bool m_pulse(uint32_t w) { m.pulse_at = ++m.calls; m.width = w; return m.pulse_ok; }
+static uint32_t m_listen(uint32_t window_ms) { (void)window_ms; m.listen_at = ++m.calls; return m.edges; }
+
+static const pan_detect_pulse_ops_t M_OPS = {
+    .gates_idle = m_idle,
+    .set_frequency_hz = m_set,
+    .pulse = m_pulse,
+};
+
+static void m_reset(float f_res_hz) {
+    m.idle = true;
+    m.set_ok = true;
+    m.pulse_ok = true;
+    m.edges = 5;
+    m.calls = 0;
+    m.idle_at = m.set_at = m.pulse_at = m.listen_at = 0;
+    m.f_set = 0.0f;
+    m.width = 0;
+    pll_init(NULL);
+    pll_set_resonant_frequency(f_res_hz);
+    pan_detect_set_pulse_ops(NULL);
+    pan_detect_host_set_listen(NULL);
+}
+
+void test_pulse_starts_at_or_above_resonance(void) {
+    const float resonances[] = {37580.0f, 45000.0f, 46500.0f, 48000.0f, 49000.0f};
+    for (unsigned i = 0; i < sizeof(resonances) / sizeof(resonances[0]); i++) {
+        m_reset(resonances[i]);
+        TEST_ASSERT_EQUAL(PAN_DETECT_FERROUS, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+        TEST_ASSERT_TRUE(m.f_set >= resonances[i] * (1.0f + PLL_BURST_START_MARGIN));
+        TEST_ASSERT_TRUE(m.f_set >= (float)PLL_DEFAULT_FREQ_HZ);
+        TEST_ASSERT_TRUE(m.f_set <= (float)PLL_MAX_FREQ_HZ);
+        /* idle checked, then frequency programmed, then pulse, then listen */
+        TEST_ASSERT_TRUE(m.idle_at < m.set_at);
+        TEST_ASSERT_TRUE(m.set_at < m.pulse_at);
+        TEST_ASSERT_TRUE(m.pulse_at < m.listen_at);
+    }
+}
+
+void test_pulse_default_resonance_starts_at_default(void) {
+    m_reset(37580.0f);   /* the declared loaded resonance */
+    (void)pan_detect_run_ops(&M_OPS, m_listen, NULL);
+    TEST_ASSERT_FLOAT_WITHIN(0.5f, (float)PLL_DEFAULT_FREQ_HZ, m.f_set);
+    TEST_ASSERT_EQUAL_UINT32(20u, m.width);
+}
+
+void test_pulse_refused_when_no_inductive_start_in_range(void) {
+    /* 1.02 x 49.5 kHz = 50.49 kHz > PLL_MAX_FREQ_HZ: nowhere to start. */
+    m_reset(49500.0f);
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+    TEST_ASSERT_EQUAL_INT(0, m.set_at);
+    TEST_ASSERT_EQUAL_INT(0, m.pulse_at);
+    m_reset(37580.0f);
+}
+
+void test_pulse_refused_when_gates_not_idle(void) {
+    m_reset(37580.0f);
+    m.idle = false;
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+    TEST_ASSERT_EQUAL_INT(0, m.set_at);
+    TEST_ASSERT_EQUAL_INT(0, m.pulse_at);
+}
+
+void test_pulse_refused_when_frequency_not_programmed(void) {
+    m_reset(37580.0f);
+    m.set_ok = false;
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+    TEST_ASSERT_EQUAL_INT(0, m.pulse_at);
+}
+
+void test_pulse_missing_ops_is_error(void) {
+    m_reset(37580.0f);
+    pan_detect_pulse_ops_t partial = M_OPS;
+    partial.gates_idle = NULL;
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(NULL, m_listen, NULL));
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(&partial, m_listen, NULL));
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(&M_OPS, NULL, NULL));
+    TEST_ASSERT_EQUAL_INT(0, m.pulse_at);
+}
+
+void test_pulse_classifies_ring_down(void) {
+    m_reset(37580.0f);
+    m.edges = 20;
+    TEST_ASSERT_EQUAL(PAN_DETECT_NONE, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+    m.edges = 0;
+    TEST_ASSERT_EQUAL(PAN_DETECT_ERROR, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+    m.edges = 4;
+    TEST_ASSERT_EQUAL(PAN_DETECT_FERROUS, pan_detect_run_ops(&M_OPS, m_listen, NULL));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 250.0f, get_pan_impedance());
+}
+
+void test_detect_pan_presence_fail_safe(void) {
+    m_reset(37580.0f);
+    /* The target today: CT_ZC capture but no native-21 pulse ops. */
+    pan_detect_host_set_listen(m_listen);
+    TEST_ASSERT_EQUAL(PAN_ABSENT, detect_pan_presence());
+    TEST_ASSERT_EQUAL_INT(0, m.calls);
+    /* Pulse ops but no capture. */
+    pan_detect_host_set_listen(NULL);
+    pan_detect_set_pulse_ops(&M_OPS);
+    TEST_ASSERT_EQUAL(PAN_ABSENT, detect_pan_presence());
+    TEST_ASSERT_EQUAL_INT(0, m.calls);
+    /* Both: a ferrous ring-down is a pan; anything else is not. */
+    pan_detect_host_set_listen(m_listen);
+    TEST_ASSERT_EQUAL(PAN_PRESENT, detect_pan_presence());
+    m.edges = 20;
+    TEST_ASSERT_EQUAL(PAN_ABSENT, detect_pan_presence());
+    m.edges = 5;
+    m.idle = false;
+    TEST_ASSERT_EQUAL(PAN_ABSENT, detect_pan_presence());
+    pan_detect_set_pulse_ops(NULL);
+    pan_detect_host_set_listen(NULL);
+}
+
+void test_pan_detect_init_without_capture_fails(void) {
+    TEST_ASSERT_NOT_EQUAL(ESP_OK, pan_detect_init(NULL, NULL));
+}
+
+/*============================================================================
  * Test Runner
  *============================================================================*/
 
 void run_pan_detection_tests(void) {
+    RUN_TEST(test_pulse_starts_at_or_above_resonance);
+    RUN_TEST(test_pulse_default_resonance_starts_at_default);
+    RUN_TEST(test_pulse_refused_when_no_inductive_start_in_range);
+    RUN_TEST(test_pulse_refused_when_gates_not_idle);
+    RUN_TEST(test_pulse_refused_when_frequency_not_programmed);
+    RUN_TEST(test_pulse_missing_ops_is_error);
+    RUN_TEST(test_pulse_classifies_ring_down);
+    RUN_TEST(test_detect_pan_presence_fail_safe);
+    RUN_TEST(test_pan_detect_init_without_capture_fails);
     RUN_TEST(test_analyze_edges_zero_is_error);
     RUN_TEST(test_analyze_edges_one_edge_is_non_ferrous);
     RUN_TEST(test_analyze_edges_two_edges_is_non_ferrous);

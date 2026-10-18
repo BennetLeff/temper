@@ -1,0 +1,320 @@
+{
+ "scope": "Jet bench set-points: which manifold pressure in the rig stands for which blower drive in the product.\n\n    python3 setpoints.py           # seconds; imports ../delivery.py read-only -> setpoints.json\n\nWhy manifold pressure. The rig has no sink or coil branch and no bay vent, so blower volts do not map to jet flow.\nWhat carries over is the jet box itself: the same holes in the same floor have the same discharge coefficient Cd,\nso a jet's exit velocity follows the manifold-to-channel pressure, v = Cd sqrt(2 dp / rho), in rig and product\nalike. Matching Reynolds number (properties at the film temperature) then gives the rig pressure for each product\ndrive with Cd cancelling:\n    dp_rig = dp_prod x (rho_rig / rho_prod) x (nu_rig / nu_prod)^2\ndp_prod is delivery.py's own jet-orifice drop at that drive, rho/2 (q / (Cd a_jets))^2 with its q and Cd 0.65. A\ndifferent real Cd changes dp_prod only weakly (the jets take ~80 % of the branch drop): the Cd 0.58 / 0.72 columns\nrerun delivery's network to show by how much.\n\nProduct film temperature: jet air 50 C (D-18 hood air, delivery JET_AIR_C) and the strip at the FET-row maximum of\nthe c28 jet run at h 100 (runs/c28_jet_h100_bay59p5_p0p5.json). Rig: room-temperature jets, plate 25 K above them.",
+ "inputs_sha256": {
+  "output/temper-airflow-r1/delivery.py": "b4da34af19b31f20b45422f3358b81a5d0271c77806f9cd96f870e429d8dbcf1",
+  "output/temper-airflow-r1/runs/c28_jet_h100_bay59p5_p0p5.json": "56d5d9f5f87b3be591a9adb3f20dfc88f2850cf39cc02016f20912256d9c6a25"
+ },
+ "product": {
+  "jet_air_C": 50.0,
+  "strip_C": 104.1,
+  "film_C": 77.1,
+  "rho": 1.0079,
+  "nu": 2.0581563219967475e-05,
+  "k": 0.03003
+ },
+ "rig_plate_rise_K": 25.0,
+ "jet": {
+  "D_mm": 3.0,
+  "N": 8,
+  "pitch_x_mm": 11.0,
+  "row_y_model_mm": 14.0,
+  "x_model_mm": [
+   5.5,
+   16.5,
+   27.5,
+   38.5,
+   49.5,
+   60.5,
+   71.5,
+   82.5
+  ],
+  "H_mm": 6.0,
+  "channel_w_mm": 16.5,
+  "Cd": 0.65
+ },
+ "a_jets_m2": 5.6548667764616275e-05,
+ "rows": [
+  {
+   "drive": 0.458,
+   "volts_12V_basis": 5.5,
+   "board_cfm": 0.41,
+   "branch_dp_Pa": 20.1,
+   "jet_dp_Pa": 15.1,
+   "Re_film_prod_Cd0.65": 519,
+   "Re_delivery": 571,
+   "h_design_delivery": 89.7,
+   "h_est_delivery": 149.5,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.376,
+     "jet_dp_Pa": 15.95
+    },
+    "Cd0.72": {
+     "board_cfm": 0.443,
+     "jet_dp_Pa": 14.37
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 10.56,
+    "21": 10.83,
+    "24": 11.1,
+    "27": 11.37,
+    "30": 11.65
+   }
+  },
+  {
+   "drive": 0.5,
+   "volts_12V_basis": 6.0,
+   "board_cfm": 0.443,
+   "branch_dp_Pa": 23.3,
+   "jet_dp_Pa": 17.63,
+   "Re_film_prod_Cd0.65": 560,
+   "Re_delivery": 616,
+   "h_design_delivery": 94.4,
+   "h_est_delivery": 157.4,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.406,
+     "jet_dp_Pa": 18.6
+    },
+    "Cd0.72": {
+     "board_cfm": 0.478,
+     "jet_dp_Pa": 16.73
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 12.33,
+    "21": 12.64,
+    "24": 12.96,
+    "27": 13.27,
+    "30": 13.6
+   }
+  },
+  {
+   "drive": 0.55,
+   "volts_12V_basis": 6.6,
+   "board_cfm": 0.483,
+   "branch_dp_Pa": 27.6,
+   "jet_dp_Pa": 20.96,
+   "Re_film_prod_Cd0.65": 611,
+   "Re_delivery": 671,
+   "h_design_delivery": 100.0,
+   "h_est_delivery": 166.6,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.442,
+     "jet_dp_Pa": 22.04
+    },
+    "Cd0.72": {
+     "board_cfm": 0.52,
+     "jet_dp_Pa": 19.8
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 14.66,
+    "21": 15.03,
+    "24": 15.4,
+    "27": 15.78,
+    "30": 16.16
+   }
+  },
+  {
+   "drive": 0.6,
+   "volts_12V_basis": 7.2,
+   "board_cfm": 0.521,
+   "branch_dp_Pa": 32.2,
+   "jet_dp_Pa": 24.38,
+   "Re_film_prod_Cd0.65": 659,
+   "Re_delivery": 725,
+   "h_design_delivery": 105.3,
+   "h_est_delivery": 175.4,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.477,
+     "jet_dp_Pa": 25.67
+    },
+    "Cd0.72": {
+     "board_cfm": 0.562,
+     "jet_dp_Pa": 23.12
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 17.05,
+    "21": 17.48,
+    "24": 17.92,
+    "27": 18.36,
+    "30": 18.81
+   }
+  },
+  {
+   "drive": 0.7,
+   "volts_12V_basis": 8.4,
+   "board_cfm": 0.599,
+   "branch_dp_Pa": 42.3,
+   "jet_dp_Pa": 32.23,
+   "Re_film_prod_Cd0.65": 758,
+   "Re_delivery": 833,
+   "h_design_delivery": 115.4,
+   "h_est_delivery": 192.4,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.548,
+     "jet_dp_Pa": 33.88
+    },
+    "Cd0.72": {
+     "board_cfm": 0.645,
+     "jet_dp_Pa": 30.46
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 22.54,
+    "21": 23.11,
+    "24": 23.69,
+    "27": 24.27,
+    "30": 24.86
+   }
+  },
+  {
+   "drive": 0.8,
+   "volts_12V_basis": 9.6,
+   "board_cfm": 0.675,
+   "branch_dp_Pa": 53.6,
+   "jet_dp_Pa": 40.93,
+   "Re_film_prod_Cd0.65": 854,
+   "Re_delivery": 939,
+   "h_design_delivery": 125.1,
+   "h_est_delivery": 208.4,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.619,
+     "jet_dp_Pa": 43.23
+    },
+    "Cd0.72": {
+     "board_cfm": 0.728,
+     "jet_dp_Pa": 38.8
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 28.63,
+    "21": 29.35,
+    "24": 30.08,
+    "27": 30.82,
+    "30": 31.57
+   }
+  },
+  {
+   "drive": 1.0,
+   "volts_12V_basis": 12.0,
+   "board_cfm": 0.828,
+   "branch_dp_Pa": 80.4,
+   "jet_dp_Pa": 61.59,
+   "Re_film_prod_Cd0.65": 1047,
+   "Re_delivery": 1152,
+   "h_design_delivery": 143.3,
+   "h_est_delivery": 238.8,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.758,
+     "jet_dp_Pa": 64.82
+    },
+    "Cd0.72": {
+     "board_cfm": 0.893,
+     "jet_dp_Pa": 58.38
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 43.07,
+    "21": 44.16,
+    "24": 45.26,
+    "27": 46.37,
+    "30": 47.5
+   }
+  }
+ ],
+ "named": {
+  "floor": {
+   "drive": 0.458,
+   "volts_12V_basis": 5.5,
+   "board_cfm": 0.41,
+   "branch_dp_Pa": 20.1,
+   "jet_dp_Pa": 15.1,
+   "Re_film_prod_Cd0.65": 519,
+   "Re_delivery": 571,
+   "h_design_delivery": 89.7,
+   "h_est_delivery": 149.5,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.376,
+     "jet_dp_Pa": 15.95
+    },
+    "Cd0.72": {
+     "board_cfm": 0.443,
+     "jet_dp_Pa": 14.37
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 10.56,
+    "21": 10.83,
+    "24": 11.1,
+    "27": 11.37,
+    "30": 11.65
+   }
+  },
+  "drive_0.55": {
+   "drive": 0.55,
+   "volts_12V_basis": 6.6,
+   "board_cfm": 0.483,
+   "branch_dp_Pa": 27.6,
+   "jet_dp_Pa": 20.96,
+   "Re_film_prod_Cd0.65": 611,
+   "Re_delivery": 671,
+   "h_design_delivery": 100.0,
+   "h_est_delivery": 166.6,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.442,
+     "jet_dp_Pa": 22.04
+    },
+    "Cd0.72": {
+     "board_cfm": 0.52,
+     "jet_dp_Pa": 19.8
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 14.66,
+    "21": 15.03,
+    "24": 15.4,
+    "27": 15.78,
+    "30": 16.16
+   }
+  },
+  "full": {
+   "drive": 1.0,
+   "volts_12V_basis": 12.0,
+   "board_cfm": 0.828,
+   "branch_dp_Pa": 80.4,
+   "jet_dp_Pa": 61.59,
+   "Re_film_prod_Cd0.65": 1047,
+   "Re_delivery": 1152,
+   "h_design_delivery": 143.3,
+   "h_est_delivery": 238.8,
+   "Cd_sensitivity": {
+    "Cd0.58": {
+     "board_cfm": 0.758,
+     "jet_dp_Pa": 64.82
+    },
+    "Cd0.72": {
+     "board_cfm": 0.893,
+     "jet_dp_Pa": 58.38
+    }
+   },
+   "rig_dp_Pa_by_room_C": {
+    "18": 43.07,
+    "21": 44.16,
+    "24": 45.26,
+    "27": 46.37,
+    "30": 47.5
+   }
+  }
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "reference_platform": "linux-x86_64",
+ "scope": "sensor-r3 open item 7: recompute the MAX31865 C1 fault-threshold words from the CR-7 inputs.\n\nCR-7 inputs (pcb/REQUIREMENTS.md R3.2, CHANGE-REQUEST.md section 5):\n  low  = R(-40 C), high = R(360 C), Pt100 IEC 60751 Callendar-Van Dusen,\n  RREF 430 ohm (CR-2), 15-bit ratiometric code, word = code << 1.\nMAX31865 semantics (datasheets/max31865.pdf, \"Fault Threshold Registers\"):\n  RTD High bit set if the RTD register >= the High Fault Threshold;\n  RTD Low  bit set if the RTD register <= the Low  Fault Threshold.\nThe firmware rule (firmware/tools/board_derivation_lib.py, used here unchanged):\n  high word = floor(code(R_high)) << 1, low word = ceil(code(R_low)) << 1, so a\n  resistance at or beyond the boundary trips whether the converter truncates\n  or rounds its code.\n\nIt prints and writes cr7-thresholds.json:\n  - the words from the exact CVD resistances (the CR-7 inputs are temperatures);\n  - the words from the 2-decimal resistances printed in CR-7 (84.27 / 233.21 ohm);\n  - CR-7's listed words (pcb/checks.json firmware_constants) and the firmware's\n    (firmware/config.yaml);\n  - the boundary temperature each candidate word actually trips at.\nGate (exit 1 otherwise): config.yaml carries the words of the exact inputs, and\nits boundary resistances reproduce them.\n\nRun: python3 cr7_thresholds.py",
+ "R_low_ohm": 84.27065203199999,
+ "R_high_ohm": 233.2144,
+ "code_low_exact": 6421.815641359478,
+ "code_high_exact": 17772.021998139535,
+ "words_from_exact_inputs": {
+  "low": 12844,
+  "high": 35544
+ },
+ "words_from_printed_2dp_ohms": {
+  "low": 12844,
+  "high": 35542
+ },
+ "cr7_listed_words": {
+  "low": 12844,
+  "high": 35544
+ },
+ "firmware_config_words": {
+  "low": 12844,
+  "high": 35544
+ },
+ "firmware_config_ohms": {
+  "low": 84.27,
+  "high": 233.2144
+ },
+ "trip_points": {
+  "high_35542": {
+   "word": 35542,
+   "code": 17771,
+   "ohm": 233.20099,
+   "degC": 359.9616
+  },
+  "high_35544": {
+   "word": 35544,
+   "code": 17772,
+   "ohm": 233.21411,
+   "degC": 359.9992
+  },
+  "low_12844": {
+   "word": 12844,
+   "code": 6422,
+   "ohm": 84.27307,
+   "degC": -39.9939
+  }
+ },
+ "checks": {
+  "config_words_equal_exact_cr7_inputs": true,
+  "config_ohms_rederive_config_words": true,
+  "high_word_trips_at_or_below_360C": true,
+  "low_word_trips_at_or_above_minus40C": true
+ },
+ "all_pass": true
+}

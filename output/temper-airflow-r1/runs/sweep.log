@@ -1,0 +1,72 @@
+a4 fields OK: 41 cases, set hash matches cache.json (board 9e075b4b9032)
+  fine masks built in 8 s -> fine_c9719db6b6ef50b6.npz
+  solved c22_channel_h10_bay55_p0p25  balance_rel 5.7e-11  617.7 s
+  solved c28_channel_h10_bay55_p0p25  balance_rel 1.5e-11  625.1 s
+  solved c26_channel_h10_bay55_p0p25  balance_rel 2.8e-11  622.2 s
+  solved c26_channel_h20_bay55_p0p25  balance_rel 4.4e-11  621.1 s
+  solved c26_channel_h35_bay55_p0p25  balance_rel 6.1e-11  510.2 s
+  solved c26_channel_h60_bay55_p0p25  balance_rel 1.0e-10  497.3 s
+  solved c26_channel_h100_bay55_p0p25  balance_rel 0.0e+00  489.1 s
+  solved c26_channel_h150_bay55_p0p25  balance_rel -3.4e-11  486.0 s
+  solved c28_channel_h20_bay55_p0p25  balance_rel 3.4e-11  437.4 s
+  solved c28_channel_h35_bay55_p0p25  balance_rel 7.4e-11  432.7 s
+  solved c28_channel_h60_bay55_p0p25  balance_rel 4.3e-11  422.4 s
+  solved c28_channel_h100_bay55_p0p25  balance_rel -3.7e-11  416.5 s
+  solved c28_channel_h150_bay55_p0p25  balance_rel -3.3e-11  370.6 s
+  solved c26_channel_h10_bay61_p0p25  balance_rel 3.5e-11  381.3 s
+  solved c26_channel_h20_bay61_p0p25  balance_rel 4.2e-11  378.0 s
+  solved c26_channel_h35_bay61_p0p25  balance_rel 6.6e-11  376.8 s
+  solved c26_channel_h60_bay61_p0p25  balance_rel 9.4e-11  368.5 s
+  solved c26_channel_h100_bay61_p0p25  balance_rel -8.0e-12  364.6 s
+  solved c26_channel_h150_bay61_p0p25  balance_rel -3.8e-11  364.1 s
+  solved c28_channel_h10_bay61_p0p25  balance_rel 1.4e-11  385.7 s
+  solved c28_channel_h20_bay61_p0p25  balance_rel 3.3e-11  479.7 s
+  solved c28_channel_h35_bay61_p0p25  balance_rel 8.6e-11  471.5 s
+  solved c28_channel_h60_bay61_p0p25  balance_rel 3.2e-11  461.8 s
+  solved c28_channel_h100_bay61_p0p25  balance_rel -3.7e-11  458.7 s
+  solved c28_channel_h150_bay61_p0p25  balance_rel -3.2e-11  395.0 s
+  solved c22_channel_h10_bay55_p0p5  balance_rel 3.8e-11  37.8 s
+  solved c28_channel_h10_bay55_p0p5  balance_rel 1.5e-11  38.0 s
+  solved c26_channel_h10_bay55_p0p5  balance_rel 2.5e-11  37.5 s
+  solved c26_channel_h20_bay55_p0p5  balance_rel 2.8e-11  39.6 s
+  solved c26_channel_h35_bay55_p0p5  balance_rel 2.9e-11  39.0 s
+  solved c26_channel_h60_bay55_p0p5  balance_rel 5.4e-11  38.3 s
+  solved c26_channel_h100_bay55_p0p5  balance_rel 5.0e-11  37.3 s
+  solved c26_channel_h150_bay55_p0p5  balance_rel -0.0e+00  36.7 s
+  solved c28_channel_h20_bay55_p0p5  balance_rel 2.2e-11  37.9 s
+  solved c28_channel_h35_bay55_p0p5  balance_rel 3.1e-11  37.9 s
+  solved c28_channel_h60_bay55_p0p5  balance_rel 7.5e-11  37.3 s
+  solved c28_channel_h100_bay55_p0p5  balance_rel -5.0e-12  36.5 s
+  solved c28_channel_h150_bay55_p0p5  balance_rel -3.1e-11  40.2 s
+  solved c26_channel_h10_bay61_p0p5  balance_rel 2.5e-11  40.3 s
+  solved c26_channel_h20_bay61_p0p5  balance_rel 2.7e-11  40.0 s
+  solved c26_channel_h35_bay61_p0p5  balance_rel 3.0e-11  47.4 s
+  solved c26_channel_h60_bay61_p0p5  balance_rel 6.9e-11  45.3 s
+  solved c26_channel_h100_bay61_p0p5  balance_rel 4.2e-11  48.7 s
+  solved c26_channel_h150_bay61_p0p5  balance_rel -5.0e-12  55.6 s
+  solved c28_channel_h10_bay61_p0p5  balance_rel 1.5e-11  57.9 s
+  solved c28_channel_h20_bay61_p0p5  balance_rel 2.2e-11  54.3 s
+  solved c28_channel_h35_bay61_p0p5  balance_rel 3.2e-11  41.2 s
+  solved c28_channel_h60_bay61_p0p5  balance_rel 7.0e-11  40.0 s
+  solved c28_channel_h100_bay61_p0p5  balance_rel -1.0e-11  38.7 s
+  solved c28_channel_h150_bay61_p0p5  balance_rel -3.1e-11  30.2 s
+{
+ "control": {
+  "c22_h10": {
+   "rows_compared": 44,
+   "max_abs_diff_K": 0.0,
+   "missing": []
+  },
+  "c28_h10": {
+   "rows_compared": 44,
+   "max_abs_diff_K": 0.0,
+   "missing": []
+  }
+ },
+ "required_h_top": {
+  "c26_bay55": 52.9,
+  "c26_bay61": 82.1,
+  "c28_bay55": 73.2,
+  "c28_bay61": 97.2
+ }
+}

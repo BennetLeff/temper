@@ -63,5 +63,10 @@ jobs:
         working-directory: firmware
         run: |
           . "$IDF_PATH/export.sh"
+          # firmware/CMakeLists.txt regenerates config.h and transition_table.h
+          # at configure time and fails if that fails (a stale config.h would
+          # build thresholds that disagree with config.yaml); the generators
+          # need these deps in the IDF Python env.
+          python -m pip install -q -r tools/requirements.txt
           idf.py set-target esp32s3
           idf.py build

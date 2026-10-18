@@ -36,7 +36,7 @@ jobs:
     # that staying true.
     name: Firmware Tests (state-machine + fault-injection)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v7
@@ -70,6 +70,17 @@ jobs:
       # The firmware-board contract oracle (pcb/temper.kicad_pcb) was removed with
       # the legacy board on 2026-10-08 (archive/temper-legacy-2026-10-08).
 
+
+      # Pin map vs the zapote/controller netlist (output/temper-sensor-r3/
+      # firmware/DECISIONS.md D-PINS): every pin in temper_pins.h must be the
+      # board's (snapshot firmware/tools/zapote_controller_pins.json, derived
+      # from controller-c1-crs 467917c38), every wired GPIO and expander pin
+      # must be named, no source may hard-code GPIO_NUM_n, and WDI / RUN_EN
+      # have single writers (C42, C39). Default mode reads only the committed
+      # snapshot; --verify-board-ref needs the board branch and is not run here.
+      # Its mutation tests run in the firmware/tools pytest step above.
+      - name: Firmware pin map vs zapote/controller netlist
+        run: python3 firmware/tools/check_board_pin_map.py
 
       - name: Regenerate transition table and check drift
         run: |
@@ -127,10 +138,15 @@ jobs:
             --report firmware/test/build/mutations/report.json \
             --max-report-age-seconds 900
 
-      - name: Build and run SIL fault injection tests
+      # Both SIL configurations: the legacy loop (sil_fault_tests) and the C1
+      # pan-sensor loop as the ESP-IDF target builds it, TEMPER_PAN_CONTROL_C1
+      # (sil_fault_tests_c1; output/temper-sensor-r3/firmware/DECISIONS.md
+      # D-SIL). The regex matches both; build both or ctest fails on the
+      # missing executable.
+      - name: Build and run SIL fault injection tests (legacy and C1)
         run: |
           cmake -B firmware/test/build firmware/test
-          cmake --build firmware/test/build --target test_sil_fault_injection
+          cmake --build firmware/test/build --target test_sil_fault_injection test_sil_fault_injection_c1
           ctest --test-dir firmware/test/build -R sil_fault_tests --output-on-failure
 
       # SIL fault-injection coverage gate (plan 2026-08-02-031, U1/U4): every

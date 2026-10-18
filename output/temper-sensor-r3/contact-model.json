@@ -1,0 +1,170 @@
+{
+ "scope": "Dry contact conductance h_c between a sprung sensor face and a pan base.\n\nAt sensor spring loads (~1-2 N on ~50-65 mm2, P/H ~ 1e-5) solid-spot conduction\nis negligible next to conduction across the air gap, so h_c is gap conductance:\n\n    h(r, theta) = k_gas / (Y + M + g(r, theta))\n    Y / sigma   = 1.184 * (-ln(3.132 P / H))**0.547     (Yovanovich light-load\n                  mean-plane separation correlation, Song & Yovanovich 1987)\n    M           = gas rarefaction parameter, air at ~150 C ~ 0.38 um\n    g           = wedge gap from relative tilt phi between face and pan, zero at\n                  the touching edge: g = phi * (R_face + r cos theta)\n    sigma       = sqrt(sigma_face^2 + sigma_pan^2), sigma = 1.25 Ra\n\nh_c is the area mean over the contact face (plus linearised radiation).\nInputs that are ASSUMPTIONS (bench survey replaces them): pan Ra and hardness by\ncookware class, and the relative tilt. They are stated in PANS / TILTS below.\n\nRun: python contact_model.py  -> contact-model.json",
+ "k_air_W_mK": 0.0344,
+ "M_um": 0.38,
+ "pans": {
+  "clad_polished_ss": {
+   "Ra": 0.2,
+   "H": 2.5,
+   "thermal": "triply_clad_24"
+  },
+  "disc_base_brushed": {
+   "Ra": 0.6,
+   "H": 2.5,
+   "thermal": "disc_pot_water_1l5"
+  },
+  "carbon_steel": {
+   "Ra": 1.2,
+   "H": 2.5,
+   "thermal": "carbon_steel_28"
+  },
+  "cast_iron_machined": {
+   "Ra": 1.6,
+   "H": 2.0,
+   "thermal": "cast_iron_26"
+  },
+  "cast_iron_as_cast": {
+   "Ra": 6.0,
+   "H": 2.0,
+   "thermal": "cast_iron_26"
+  },
+  "enamel_cast_iron": {
+   "Ra": 0.4,
+   "H": 5.0,
+   "thermal": "cast_iron_26"
+  }
+ },
+ "tilts_rad": [
+  0.0,
+  0.002,
+  0.005
+ ],
+ "faces": {
+  "R16 alumina cap (ground)": {
+   "R_face": 0.0045,
+   "Ra": 0.4,
+   "F": [
+    0.79,
+    0.96
+   ],
+   "max_tilt": 0.005
+  },
+  "sensor-r3 Si3N4 disc (lapped)": {
+   "R_face": 0.0038,
+   "Ra": 0.1,
+   "F": [
+    1.2,
+    1.8
+   ],
+   "max_tilt": 0.002
+  }
+ },
+ "h_c_W_m2K": {
+  "R16 alumina cap (ground)": {
+   "clad_polished_ss": {
+    "thermal_pan": "triply_clad_24",
+    "h_c_by_tilt": {
+     "0": 12081.0,
+     "0.002": 3523.0,
+     "0.005": 1864.0
+    },
+    "Y_um_at_Fmin": 2.47
+   },
+   "disc_base_brushed": {
+    "thermal_pan": "disc_pot_water_1l5",
+    "h_c_by_tilt": {
+     "0": 7896.0,
+     "0.002": 2967.0,
+     "0.005": 1663.0
+    },
+    "Y_um_at_Fmin": 3.98
+   },
+   "carbon_steel": {
+    "thermal_pan": "carbon_steel_28",
+    "h_c_by_tilt": {
+     "0": 4680.0,
+     "0.002": 2298.0,
+     "0.005": 1397.0
+    },
+    "Y_um_at_Fmin": 6.97
+   },
+   "cast_iron_machined": {
+    "thermal_pan": "cast_iron_26",
+    "h_c_by_tilt": {
+     "0": 3674.0,
+     "0.002": 2007.0,
+     "0.005": 1270.0
+    },
+    "Y_um_at_Fmin": 8.99
+   },
+   "cast_iron_as_cast": {
+    "thermal_pan": "cast_iron_26",
+    "h_c_by_tilt": {
+     "0": 1044.0,
+     "0.002": 833.0,
+     "0.005": 653.0
+    },
+    "Y_um_at_Fmin": 32.79
+   },
+   "enamel_cast_iron": {
+    "thermal_pan": "cast_iron_26",
+    "h_c_by_tilt": {
+     "0": 9540.0,
+     "0.002": 3215.0,
+     "0.005": 1755.0
+    },
+    "Y_um_at_Fmin": 3.22
+   }
+  },
+  "sensor-r3 Si3N4 disc (lapped)": {
+   "clad_polished_ss": {
+    "thermal_pan": "triply_clad_24",
+    "h_c_by_tilt": {
+     "0": 21946.0,
+     "0.002": 4816.0
+    },
+    "Y_um_at_Fmin": 1.19
+   },
+   "disc_base_brushed": {
+    "thermal_pan": "disc_pot_water_1l5",
+    "h_c_by_tilt": {
+     "0": 9535.0,
+     "0.002": 3542.0
+    },
+    "Y_um_at_Fmin": 3.23
+   },
+   "carbon_steel": {
+    "thermal_pan": "carbon_steel_28",
+    "h_c_by_tilt": {
+     "0": 5085.0,
+     "0.002": 2596.0
+    },
+    "Y_um_at_Fmin": 6.39
+   },
+   "cast_iron_machined": {
+    "thermal_pan": "cast_iron_26",
+    "h_c_by_tilt": {
+     "0": 3920.0,
+     "0.002": 2233.0
+    },
+    "Y_um_at_Fmin": 8.4
+   },
+   "cast_iron_as_cast": {
+    "thermal_pan": "cast_iron_26",
+    "h_c_by_tilt": {
+     "0": 1088.0,
+     "0.002": 888.0
+    },
+    "Y_um_at_Fmin": 31.45
+   },
+   "enamel_cast_iron": {
+    "thermal_pan": "cast_iron_26",
+    "h_c_by_tilt": {
+     "0": 12991.0,
+     "0.002": 4022.0
+    },
+    "Y_um_at_Fmin": 2.27
+   }
+  }
+ }
+}

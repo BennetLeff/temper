@@ -124,3 +124,47 @@ derivations:
           - sheetpath: rtd_pan.r_ref
             footprint: Resistor_SMD:R_0805_2012Metric
             value: 430ohm
+
+  - constant: MAX31865_C1_LOW_THRESHOLD_WORD
+    firmware_file: firmware/config.yaml
+    formula: max31865_low_threshold_word
+    compare: "=="
+    description: >-
+      MAX31865 low fault-threshold register word for the 84.27 ohm C1
+      Pt100 low boundary (-40 degC, sensor-r3 CR-7): the smallest 15-bit
+      ratiometric ADC code strictly above RTD/RREF * 2^15 (so an RTD AT or
+      BELOW 84.27 ohm trips), shifted left one bit.
+    inputs:
+      - name: rtd_resistance
+        provenance: declared-assumed
+        source: firmware/config.yaml
+        symbol: RTD_C1_SHORT_FAULT_OHM
+      - name: r_ref
+        provenance: board-derived
+        components:
+          - sheetpath: rtd_pan.r_ref
+            footprint: Resistor_SMD:R_0805_2012Metric
+            value: 430ohm
+
+  - constant: MAX31865_C1_HIGH_THRESHOLD_WORD
+    firmware_file: firmware/config.yaml
+    formula: max31865_high_threshold_word
+    compare: "=="
+    description: >-
+      MAX31865 high fault-threshold register word for the C1 Pt100 high
+      boundary R(360 degC) = 233.2144 ohm (IEC 60751; sensor-r3 CR-7): the
+      largest 15-bit ratiometric ADC code at-or-below RTD/RREF * 2^15 (so an
+      RTD AT or ABOVE R(360 degC) trips), shifted left one bit: code 17772,
+      word 35544, as CR-7 lists. (The CR's 2-decimal 233.21 ohm gives 35542,
+      0.04 K early; output/temper-sensor-r3/firmware/cr7_thresholds.py.)
+    inputs:
+      - name: rtd_resistance
+        provenance: declared-assumed
+        source: firmware/config.yaml
+        symbol: RTD_C1_OPEN_FAULT_OHM
+      - name: r_ref
+        provenance: board-derived
+        components:
+          - sheetpath: rtd_pan.r_ref
+            footprint: Resistor_SMD:R_0805_2012Metric
+            value: 430ohm

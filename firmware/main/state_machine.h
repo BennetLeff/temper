@@ -109,7 +109,8 @@ static const fault_name_entry_t fault_name_table[] = {
     X(EVENT_COOLED_DOWN,            "COOLED_DOWN") \
     X(EVENT_COOLDOWN_OVERHEAT,      "COOLDOWN_OVERHEAT") \
     X(EVENT_FAULT_RESET_CLEARED,    "FAULT_RESET_CLEARED") \
-    X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS")
+    X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS") \
+    X(EVENT_CONTACT_LOST,           "CONTACT_LOST")
 
 #define EXPAND_EVENT_ENUM(sym, str)  sym,
 typedef enum {
@@ -270,6 +271,38 @@ void state_machine_set_intensity(uint8_t level);
  */
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context);
+
+/**
+ * EVENT_CONTACT_LOST: the sensor-r3 contact check (D1,
+ * components/control/contact_check.c) confirmed that the pan is not on the
+ * sensor. Power is already held at zero by the pan-temperature loop's power
+ * authority (components/control/pan_temp_loop.c), which retries every 20 s;
+ * the state machine stays in PREHEAT/HEATING and tells the user. Ignored in
+ * every other state.
+ */
+void state_machine_report_pan_contact_lost(void);
+
+/**
+ * TEMPER_PAN_CONTROL_C1: the MAX31865 keeps answering DRDY with an identical
+ * code for RTD_C1_FROZEN_CONVERSIONS conversions (rtd_service.h). Latches
+ * FAULT_ADC_STUCK, the fault the legacy equal-reading check raises.
+ */
+void state_machine_report_rtd_frozen(void);
+
+/**
+ * TEMPER_PAN_CONTROL_C1 supervision faults that latch FAULT directly through
+ * the hardware cut (main/pan_control.c): FAULT_CURRENT_SENSE (the bus-current
+ * sense reads no current while the stage is commanded, DECISIONS.md
+ * D-ISENSE) and FAULT_PROBE_LEAKAGE (element-parallel Pt100 leakage: the
+ * chained cross-check cycles, D-LEAK, the setpoint-relative rim limit,
+ * D-RIMLIM, or the cold-soak check at PREHEAT entry, D-SOAK).
+ * Same latch rule as the RTD sinks (D-LATCH): a report while a fault is
+ * already latched only re-asserts the cut. Neither fault is software-
+ * clearable (fault_cleared(): a power cycle re-runs the checks), except a
+ * cold-soak FAULT_PROBE_LEAKAGE once the Pt100 agrees with the heatsink
+ * again (pan_control_cold_soak_clearable()).
+ */
+void state_machine_report_latched_fault(fault_code_t fault);
 
 /**
  * @brief Get current intensity level

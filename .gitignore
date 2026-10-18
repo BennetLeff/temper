@@ -167,3 +167,7 @@ benchmarks/downloads_digital_iot/
 # Rust-only crates build into the shared target dir
 /crates/*/target/
 .scratch/
+
+# ESP-IDF generated config (sdkconfig.defaults is the source of truth)
+firmware/sdkconfig
+firmware/sdkconfig.old

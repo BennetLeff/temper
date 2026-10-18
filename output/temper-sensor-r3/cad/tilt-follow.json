@@ -1,0 +1,85 @@
+{
+ "scope": "G5 tilt follow, spring range and wiper friction (hand calculations on the as-drawn C1 geometry).\n\n1. Wiper lip load N (FFKM, no metal energiser). The installed lip is treated as the free edge of a thin cylinder\n   on an elastic foundation (Timoshenko): line load P = w k_f / (2 beta), k_f = E t / r^2,\n   beta^4 = 3 (1 - nu^2) / (r^2 t^2); N = 2 pi r P. A stiffer bound than a conical lip, so conservative for friction.\n   E from Shore A by Gent's relation (Kalrez 6230 hardness 75 A: ASSUMED from the grade family, to confirm).\n   Interference w from the drawing tolerances (lip ID 7.80 +/-0.04, neck OD 8.00 +/-0.01).\n   Friction = mu N with mu 0.3 (HANDOFF) and, as a sensitivity, mu 1.0 (dry elastomer).\n2. Spring: two-point load spec with tolerances, installed-length stack, stress, solid height.\n3. Tilt follow: the pan, tilted 5 mrad to the glass, must rotate the post 5 mrad about the guide-pad pivot.\n   Resisting moments about the pivot at 5 mrad (upper bounds): wiper friction mu N r (HANDOFF form), wiper radial\n   stiffness, spring lateral stiffness at the seat (fixed-parallel-end formula, stiffer than the free cup), spring\n   end tilt, pad friction, PTFE lead-sleeve bending, and pan friction at the face times the pivot depth (the face\n   centre slides h*theta). The destabilising spring-follower moment (-F L theta) is ignored (conservative).\n   The pan supplies this moment by shifting the contact pressure; the residual relative tilt is found from the\n   same Yovanovich light-load law that contact_model.py uses: P(u) = (H/3.132) exp(-(u/(1.184 sigma))^(1/0.547))\n   for local mean-plane separation u = Y0 + theta_r x, solving sum P = F and sum P x = M for (Y0, theta_r).\nRun: python tilt_follow.py -> tilt-follow.json",
+ "lip": {
+  "E_MPa_gent": 7.05,
+  "t_mm": 0.3,
+  "interference_mm": [
+   0.075,
+   0.125
+  ],
+  "N_N": [
+   0.111,
+   0.185
+  ],
+  "friction_N": {
+   "mu_0.3": 0.056,
+   "mu_1.0_dry_sensitivity": 0.185
+  },
+  "pass_friction_le_0.3N": true,
+  "pass_contact_positive": true
+ },
+ "spring": {
+  "rate_N_mm": 0.1818,
+  "active_coils": 6.04,
+  "free_length_mm": 22.75,
+  "F_min_N": 1.211,
+  "F_max_at_hard_stop_N": 1.789,
+  "F_nominal_at_flush_N": 1.409,
+  "shear_stress_MPa_at_Fmax": 317.4,
+  "allowable_MPa_35pct_UTS": 490.0,
+  "solid_height_mm": 3.52,
+  "length_at_hard_stop_mm": 13.4,
+  "L0_over_D": 2.84,
+  "pass_force": true,
+  "pass_stress": true,
+  "pass_solid": true,
+  "basis": "P1 at L1 (rest) and P2 at L1 - 2.2 (hard stop), each +/-0.08 N (100 % load-tested), L1 stack +/-0.05 mm; G 72 GPa and UTS 1400 MPa for aged A-286 0.5 mm wire (typical; supplier to confirm)"
+ },
+ "geometry_mm": {
+  "pivot_depth_under_face": 0.75,
+  "pivot_to_lip": 2.54,
+  "pivot_to_seat": 11.911,
+  "pivot_within_1mm": true
+ },
+ "resisting_moments_Nmm_at_5mrad": {
+  "wiper_friction_mu_N_r": 0.2222,
+  "wiper_radial": 0.0239,
+  "spring_lateral_at_seat": 0.1239,
+  "spring_end_tilt": 0.0073,
+  "pad_friction": 0.0125,
+  "lead_sleeve_bending": 0.0373,
+  "pan_friction_x_pivot_depth": 0.4025
+ },
+ "M_total_Nmm": 0.83,
+ "M_total_dry_mu_Nmm": 1.348,
+ "righting_capacity_Nmm_F_min_x_r_contact": 3.898,
+ "F_contact_min_N": 1.026,
+ "residual_relative_tilt_by_pan": {
+  "clad_polished_ss": {
+   "theta_r_mrad_handoff_mu": 0.015,
+   "theta_r_mrad_dry_mu_1.0": 0.025
+  },
+  "disc_base_brushed": {
+   "theta_r_mrad_handoff_mu": 0.039,
+   "theta_r_mrad_dry_mu_1.0": 0.068
+  },
+  "carbon_steel": {
+   "theta_r_mrad_handoff_mu": 0.078,
+   "theta_r_mrad_dry_mu_1.0": 0.134
+  },
+  "cast_iron_machined": {
+   "theta_r_mrad_handoff_mu": 0.105,
+   "theta_r_mrad_dry_mu_1.0": 0.181
+  },
+  "cast_iron_as_cast": {
+   "theta_r_mrad_handoff_mu": 0.393,
+   "theta_r_mrad_dry_mu_1.0": 0.676
+  },
+  "enamel_cast_iron": {
+   "theta_r_mrad_handoff_mu": 0.026,
+   "theta_r_mrad_dry_mu_1.0": 0.045
+  }
+ },
+ "worst_residual_tilt_mrad": 0.676,
+ "pass_G5": true
+}

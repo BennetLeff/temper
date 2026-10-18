@@ -35,10 +35,14 @@ static esp_err_t script_get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-/* API Status handler */
+/* API Status handler.
+ * TODO(hardware): not wired to the state machine. It used to return a fixed
+ * {"status": "idle", "temp": 25.0, ...}, a plausible reading that was never
+ * measured; it now says the data is unavailable instead. */
 static esp_err_t api_status_get_handler(httpd_req_t *req) {
+    httpd_resp_set_status(req, "503 Service Unavailable");
     httpd_resp_set_type(req, "application/json");
-    const char *resp = "{\"status\": \"idle\", \"temp\": 25.0, \"target\": 100.0}";
+    const char *resp = "{\"error\": \"telemetry not wired\"}";
     httpd_resp_send(req, resp, strlen(resp));
     return ESP_OK;
 }

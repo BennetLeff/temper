@@ -1,0 +1,62 @@
+{
+ "reference_platform": "linux-x86_64",
+ "scope": "Sensitivity of the C1 loop to the plant gain a, C code in the loop.\n\nEvidence for DECISIONS.md D-ID (why the identifier is the effective heat-up\ngain with no loss term, and how much error in a the controller tolerates):\n\n  a_scale   gain fixed (identification off) at a_true x {0.5, 0.7, 1.4, 2.0}\n  k_loss    identification on (measured power) with the loss regressor\n            dT = a (dE - k_loss dS) at k_loss {1, 2} W/K, against the default 0\n\non the 16 C1 design cases (screen.py's seeds). Reported, not gated.\nRun: python sensitivity.py [--lib path] [--out sensitivity.json]   (about 1 min)",
+ "summary": {
+  "a_scale 0.5": {
+   "cases": 16,
+   "B1_pass": 15,
+   "B2_pass": 12,
+   "B3_pass": 16,
+   "worst_overshoot_K": 7.61,
+   "slowest_reach_sp1_minus2K_s": 262.3
+  },
+  "a_scale 0.7": {
+   "cases": 16,
+   "B1_pass": 15,
+   "B2_pass": 16,
+   "B3_pass": 16,
+   "worst_overshoot_K": 3.19,
+   "slowest_reach_sp1_minus2K_s": 261.5
+  },
+  "a_scale 1.4": {
+   "cases": 16,
+   "B1_pass": 15,
+   "B2_pass": 16,
+   "B3_pass": 16,
+   "worst_overshoot_K": 3.32,
+   "slowest_reach_sp1_minus2K_s": 288.2
+  },
+  "a_scale 2.0": {
+   "cases": 16,
+   "B1_pass": 15,
+   "B2_pass": 16,
+   "B3_pass": 11,
+   "worst_overshoot_K": 3.21,
+   "slowest_reach_sp1_minus2K_s": 396.0
+  },
+  "k_loss 1.0 W/K": {
+   "cases": 16,
+   "B1_pass": 15,
+   "B2_pass": 16,
+   "B3_pass": 16,
+   "worst_overshoot_K": 3.21,
+   "slowest_reach_sp1_minus2K_s": 276.6,
+   "a_ratio_end_ramp1": [
+    1.024,
+    1.218
+   ]
+  },
+  "k_loss 2.0 W/K": {
+   "cases": 16,
+   "B1_pass": 15,
+   "B2_pass": 16,
+   "B3_pass": 16,
+   "worst_overshoot_K": 3.34,
+   "slowest_reach_sp1_minus2K_s": 283.7,
+   "a_ratio_end_ramp1": [
+    1.048,
+    1.339
+   ]
+  }
+ }
+}

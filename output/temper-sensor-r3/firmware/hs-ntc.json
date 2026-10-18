@@ -1,0 +1,1669 @@
+{
+ "reference_platform": "linux-x86_64",
+ "sources": {
+  "table": "Vishay NTCLE100E3 data sheet, document 29049, revision 07-May-2025, page 12 'Resistance values at intermediate temperatures with R25 at (33, 47, 50, 68, 100) kOhm', column NTCLE100E3104*** (100 kOhm, B25/85 4190 K), with its TCR and 'dR/R due to Btol.' columns; page 4 'Parameter for determining nominal resistance values', number 11, Mat. D, B25/85 4190 K +/- 1.5 %. https://www.vishay.com/docs/29049/ntcle100.pdf, retrieved 2026-10-15, sha256 f9d6153738198dc705ed681c3b55e70a6571f8fee13a4ed7b2b41e49973cb9c9.",
+  "part": "Vishay NTCALUG01A series data sheet, document 29092, revision 14-Jan-2026, page 2 ordering table: 100 000 Ohm, R25 tol. +/-2 %, B25/85 4190 K, B tol. +/-1.5 %, NTCALUG01A104GA (e4); page 1: -55..+150 degC, thermal time constant 5 s and dissipation factor 13 mW/K screwed on a 100 cm2 aluminium plate; no R-T table (it points to Vishay's NTC curve computation). https://www.vishay.com/docs/29092/ntcalug01a.pdf, retrieved 2026-10-15, sha256 a14f8704e47b483de359bbfc3195d9a2be002215fef82dfd00326cd2f717189b.",
+  "adc": "Espressif ESP32-S3 Series Datasheet version 2.2, Table 5-6 'ADC Calibration Results': ATTEN3, effective measurement range of 0 ~ 2900 mV, total error -50..+50 mV (ATTEN0 0 ~ 850 +/-5, ATTEN2 0 ~ 1600 +/-10). https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf, retrieved 2026-10-15, sha256 2d5a7cb7fd559d8d972bd88db32669c0196d23f22d7afaafb0f63d099b589a3f.",
+  "board": "zapote/controller (read-only) at controller-c1-crs 467917c381578023137f8b4619b8fc076fe903f5 (DECISIONS C45): thermal_block.ato hs_fixed 10 k 1 % RC0603FR-0710KL vcc->HS_SENSE, NTC HS_SENSE->gnd, hs_filter 100 nF; controller.ato r_hs_filt 10 k / c_hs_filt 100 nF -> TLV9062 U6B follower -> r_hs_adc 1.00 k 0.1 % RT0603BRD071KL -> HS_ADC, r_hs_adc_bot 5.90 k 0.1 % ERA-3AEB5901V HS_ADC->selv_gnd, c_hs_adc 100 nF at HS_ADC, mcu.IO6 ~ hs_adc (GPIO6 = ADC1_CH5), thermal.vcc ~ v3v3 (TPS62933 3.242-3.367 V, pcb/checks.py SRC v3v3); pcb/controller.kicad_pcb R89 / R90 / C67 on hs_buf_out / HS_ADC / selv_gnd, U4 pad 6 on HS_ADC. Gain band and the 2.877 V maximum: tools/controller_calcs.py hs_adc_divider()."
+ },
+ "board": {
+  "ref": "controller-c1-crs",
+  "commit": "467917c381578023137f8b4619b8fc076fe903f5",
+  "read_this_run": null,
+  "divider": {
+   "r_top_ohm": 1000.0,
+   "r_bot_ohm": 5900.0,
+   "tol": 0.001,
+   "tcr_per_K": 2.5e-05,
+   "c_F": 1e-07
+  },
+  "gain_nominal": 0.855072,
+  "gain_band_tolerance_only": [
+   0.854824,
+   0.85532
+  ],
+  "gain_band_minus40_85C": [
+   0.854421,
+   0.855722
+  ]
+ },
+ "table_kohm": {
+  "-40": 3666,
+  "-35": 2638,
+  "-30": 1917,
+  "-25": 1406,
+  "-20": 1041,
+  "-15": 777.8,
+  "-10": 586.1,
+  "-5": 445.3,
+  "0": 340.9,
+  "5": 263.1,
+  "10": 204.4,
+  "15": 160.0,
+  "20": 126.1,
+  "25": 100.0,
+  "30": 79.81,
+  "35": 64.08,
+  "40": 51.75,
+  "45": 42.02,
+  "50": 34.31,
+  "55": 28.16,
+  "60": 23.22,
+  "65": 19.25,
+  "70": 16.02,
+  "75": 13.4,
+  "80": 11.26,
+  "85": 9.496,
+  "90": 8.042,
+  "95": 6.837,
+  "100": 5.835,
+  "105": 4.998,
+  "110": 4.296,
+  "115": 3.705,
+  "120": 3.206,
+  "125": 2.783,
+  "130": 2.423,
+  "135": 2.116,
+  "140": 1.854,
+  "145": 1.628,
+  "150": 1.434
+ },
+ "B25_85_from_table_K": 4190.0,
+ "material_D_polynomial_worst_K": 0.0268,
+ "interpolation_leave_one_out_10K": {
+  "worst_K": 0.0294,
+  "rows": [
+   {
+    "T_C": -35,
+    "err_K": -0.0292
+   },
+   {
+    "T_C": -30,
+    "err_K": -0.0294
+   },
+   {
+    "T_C": -25,
+    "err_K": -0.0234
+   },
+   {
+    "T_C": -20,
+    "err_K": -0.0219
+   },
+   {
+    "T_C": -15,
+    "err_K": -0.023
+   },
+   {
+    "T_C": -10,
+    "err_K": -0.0212
+   },
+   {
+    "T_C": -5,
+    "err_K": -0.0233
+   },
+   {
+    "T_C": 0,
+    "err_K": -0.0145
+   },
+   {
+    "T_C": 5,
+    "err_K": -0.0254
+   },
+   {
+    "T_C": 10,
+    "err_K": -0.0124
+   },
+   {
+    "T_C": 15,
+    "err_K": -0.0163
+   },
+   {
+    "T_C": 20,
+    "err_K": -0.0194
+   },
+   {
+    "T_C": 25,
+    "err_K": -0.0141
+   },
+   {
+    "T_C": 30,
+    "err_K": -0.015
+   },
+   {
+    "T_C": 35,
+    "err_K": -0.0141
+   },
+   {
+    "T_C": 40,
+    "err_K": -0.0155
+   },
+   {
+    "T_C": 45,
+    "err_K": -0.0108
+   },
+   {
+    "T_C": 50,
+    "err_K": -0.0127
+   },
+   {
+    "T_C": 55,
+    "err_K": -0.0167
+   },
+   {
+    "T_C": 60,
+    "err_K": -0.0043
+   },
+   {
+    "T_C": 65,
+    "err_K": -0.0223
+   },
+   {
+    "T_C": 70,
+    "err_K": -0.0026
+   },
+   {
+    "T_C": 75,
+    "err_K": -0.0068
+   },
+   {
+    "T_C": 80,
+    "err_K": -0.0184
+   },
+   {
+    "T_C": 85,
+    "err_K": -0.0075
+   },
+   {
+    "T_C": 90,
+    "err_K": -0.01
+   },
+   {
+    "T_C": 95,
+    "err_K": -0.0078
+   },
+   {
+    "T_C": 100,
+    "err_K": -0.0089
+   },
+   {
+    "T_C": 105,
+    "err_K": -0.0092
+   },
+   {
+    "T_C": 110,
+    "err_K": -0.0093
+   },
+   {
+    "T_C": 115,
+    "err_K": -0.0073
+   },
+   {
+    "T_C": 120,
+    "err_K": -0.0083
+   },
+   {
+    "T_C": 125,
+    "err_K": -0.0097
+   },
+   {
+    "T_C": 130,
+    "err_K": -0.0065
+   },
+   {
+    "T_C": 135,
+    "err_K": 0.0003
+   },
+   {
+    "T_C": 140,
+    "err_K": -0.0188
+   },
+   {
+    "T_C": 145,
+    "err_K": 0.0007
+   }
+  ]
+ },
+ "channel": {
+  "rows": [
+   {
+    "T_C": -40.0,
+    "R_ohm": 3666000.0,
+    "node_mV": 3291.0,
+    "pin_mV": 2814.1,
+    "atten": 3,
+    "pin_mV_per_K": 0.52,
+    "adc_error_K": 97.013,
+    "tolerance_K": 1.174,
+    "pullup_K": 0.179,
+    "divider_gain_K": 4.162,
+    "sar_sampling_K": 6.188,
+    "whole_mV_chain_err_K": 0.122,
+    "rail_K": {
+     "rail_low_reads_high": 33.468,
+     "rail_high_reads_low": NaN
+    },
+    "rail_measured_K": NaN,
+    "corner_reads_high_K": 47.3,
+    "corner_reads_low_K": null
+   },
+   {
+    "T_C": -20.0,
+    "R_ohm": 1041000.0,
+    "node_mV": 3268.6,
+    "pin_mV": 2794.9,
+    "atten": 3,
+    "pin_mV_per_K": 1.57,
+    "adc_error_K": 31.768,
+    "tolerance_K": 0.972,
+    "pullup_K": 0.203,
+    "divider_gain_K": 1.354,
+    "sar_sampling_K": 2.026,
+    "whole_mV_chain_err_K": -0.0697,
+    "rail_K": {
+     "rail_low_reads_high": 18.89,
+     "rail_high_reads_low": NaN
+    },
+    "rail_measured_K": NaN,
+    "corner_reads_high_K": 30.64,
+    "corner_reads_low_K": null
+   },
+   {
+    "T_C": 0.0,
+    "R_ohm": 340900.0,
+    "node_mV": 3206.0,
+    "pin_mV": 2741.3,
+    "atten": 3,
+    "pin_mV_per_K": 4.11,
+    "adc_error_K": 12.166,
+    "tolerance_K": 0.747,
+    "pullup_K": 0.228,
+    "divider_gain_K": 0.508,
+    "sar_sampling_K": 0.776,
+    "whole_mV_chain_err_K": 0.0787,
+    "rail_K": {
+     "rail_low_reads_high": 9.511,
+     "rail_high_reads_low": 21.381
+    },
+    "rail_measured_K": 11.594,
+    "corner_reads_high_K": 18.06,
+    "corner_reads_low_K": null
+   },
+   {
+    "T_C": 5.0,
+    "R_ohm": 263100.0,
+    "node_mV": 3179.2,
+    "pin_mV": 2718.4,
+    "atten": 3,
+    "pin_mV_per_K": 5.09,
+    "adc_error_K": 9.822,
+    "tolerance_K": 0.688,
+    "pullup_K": 0.235,
+    "divider_gain_K": 0.407,
+    "sar_sampling_K": 0.627,
+    "whole_mV_chain_err_K": 0.0813,
+    "rail_K": {
+     "rail_low_reads_high": 7.947,
+     "rail_high_reads_low": 14.698
+    },
+    "rail_measured_K": 8.644,
+    "corner_reads_high_K": 15.68,
+    "corner_reads_low_K": null
+   },
+   {
+    "T_C": 15.0,
+    "R_ohm": 160000.0,
+    "node_mV": 3105.9,
+    "pin_mV": 2655.8,
+    "atten": 3,
+    "pin_mV_per_K": 7.54,
+    "adc_error_K": 6.628,
+    "tolerance_K": 0.565,
+    "pullup_K": 0.249,
+    "divider_gain_K": 0.268,
+    "sar_sampling_K": 0.423,
+    "whole_mV_chain_err_K": -0.0327,
+    "rail_K": {
+     "rail_low_reads_high": 5.583,
+     "rail_high_reads_low": 8.347
+    },
+    "rail_measured_K": 5.245,
+    "corner_reads_high_K": 11.82,
+    "corner_reads_low_K": 24.68
+   },
+   {
+    "T_C": 25.0,
+    "R_ohm": 100000.0,
+    "node_mV": 3000.0,
+    "pin_mV": 2565.2,
+    "atten": 3,
+    "pin_mV_per_K": 10.66,
+    "adc_error_K": 4.688,
+    "tolerance_K": 0.437,
+    "pullup_K": 0.262,
+    "divider_gain_K": 0.183,
+    "sar_sampling_K": 0.299,
+    "whole_mV_chain_err_K": 0.0203,
+    "rail_K": {
+     "rail_low_reads_high": 3.969,
+     "rail_high_reads_low": 5.323
+    },
+    "rail_measured_K": 3.438,
+    "corner_reads_high_K": 8.99,
+    "corner_reads_low_K": 13.8
+   },
+   {
+    "T_C": 35.0,
+    "R_ohm": 64080.0,
+    "node_mV": 2854.5,
+    "pin_mV": 2440.8,
+    "atten": 3,
+    "pin_mV_per_K": 14.27,
+    "adc_error_K": 3.504,
+    "tolerance_K": 0.619,
+    "pullup_K": 0.277,
+    "divider_gain_K": 0.13,
+    "sar_sampling_K": 0.223,
+    "whole_mV_chain_err_K": -0.0116,
+    "rail_K": {
+     "rail_low_reads_high": 2.892,
+     "rail_high_reads_low": 3.649
+    },
+    "rail_measured_K": 2.389,
+    "corner_reads_high_K": 7.25,
+    "corner_reads_low_K": 9.59
+   },
+   {
+    "T_C": 45.0,
+    "R_ohm": 42020.0,
+    "node_mV": 2665.6,
+    "pin_mV": 2279.3,
+    "atten": 3,
+    "pin_mV_per_K": 18.0,
+    "adc_error_K": 2.777,
+    "tolerance_K": 0.81,
+    "pullup_K": 0.292,
+    "divider_gain_K": 0.097,
+    "sar_sampling_K": 0.177,
+    "whole_mV_chain_err_K": 0.0169,
+    "rail_K": {
+     "rail_low_reads_high": 2.176,
+     "rail_high_reads_low": 2.643
+    },
+    "rail_measured_K": 1.744,
+    "corner_reads_high_K": 6.16,
+    "corner_reads_low_K": 7.44
+   },
+   {
+    "T_C": 50.0,
+    "R_ohm": 34310.0,
+    "node_mV": 2555.2,
+    "pin_mV": 2184.9,
+    "atten": 3,
+    "pin_mV_per_K": 19.73,
+    "adc_error_K": 2.534,
+    "tolerance_K": 0.907,
+    "pullup_K": 0.3,
+    "divider_gain_K": 0.084,
+    "sar_sampling_K": 0.162,
+    "whole_mV_chain_err_K": -0.004,
+    "rail_K": {
+     "rail_low_reads_high": 1.913,
+     "rail_high_reads_low": 2.296
+    },
+    "rail_measured_K": 1.519,
+    "corner_reads_high_K": 5.8,
+    "corner_reads_low_K": 6.77
+   },
+   {
+    "T_C": 70.0,
+    "R_ohm": 16020.0,
+    "node_mV": 2031.7,
+    "pin_mV": 1737.3,
+    "atten": 3,
+    "pin_mV_per_K": 24.18,
+    "adc_error_K": 2.068,
+    "tolerance_K": 1.314,
+    "pullup_K": 0.331,
+    "divider_gain_K": 0.055,
+    "sar_sampling_K": 0.132,
+    "whole_mV_chain_err_K": 0.0119,
+    "rail_K": {
+     "rail_low_reads_high": 1.26,
+     "rail_high_reads_low": 1.462
+    },
+    "rail_measured_K": 0.973,
+    "corner_reads_high_K": 5.26,
+    "corner_reads_low_K": 5.54
+   },
+   {
+    "T_C": 80.0,
+    "R_ohm": 11260.0,
+    "node_mV": 1747.8,
+    "pin_mV": 1494.5,
+    "atten": 2,
+    "pin_mV_per_K": 24.21,
+    "adc_error_K": 0.413,
+    "tolerance_K": 1.533,
+    "pullup_K": 0.349,
+    "divider_gain_K": 0.047,
+    "sar_sampling_K": 0.132,
+    "whole_mV_chain_err_K": 0.02,
+    "rail_K": {
+     "rail_low_reads_high": 1.083,
+     "rail_high_reads_low": 1.256
+    },
+    "rail_measured_K": 0.836,
+    "corner_reads_high_K": 3.69,
+    "corner_reads_low_K": 5.48
+   },
+   {
+    "T_C": 95.0,
+    "R_ohm": 6837.0,
+    "node_mV": 1340.0,
+    "pin_mV": 1145.8,
+    "atten": 2,
+    "pin_mV_per_K": 21.83,
+    "adc_error_K": 0.458,
+    "tolerance_K": 1.874,
+    "pullup_K": 0.374,
+    "divider_gain_K": 0.04,
+    "sar_sampling_K": 0.146,
+    "whole_mV_chain_err_K": -0.0081,
+    "rail_K": {
+     "rail_low_reads_high": 0.926,
+     "rail_high_reads_low": 1.061
+    },
+    "rail_measured_K": 0.708,
+    "corner_reads_high_K": 4.01,
+    "corner_reads_low_K": 4.02
+   },
+   {
+    "T_C": 125.0,
+    "R_ohm": 2783.0,
+    "node_mV": 718.4,
+    "pin_mV": 614.3,
+    "atten": 0,
+    "pin_mV_per_K": 13.46,
+    "adc_error_K": 0.372,
+    "tolerance_K": 2.604,
+    "pullup_K": 0.429,
+    "divider_gain_K": 0.035,
+    "sar_sampling_K": 0.237,
+    "whole_mV_chain_err_K": 0.024,
+    "rail_K": {
+     "rail_low_reads_high": 0.808,
+     "rail_high_reads_low": 0.92
+    },
+    "rail_measured_K": 0.614,
+    "corner_reads_high_K": 4.83,
+    "corner_reads_low_K": 4.65
+   },
+   {
+    "T_C": 145.0,
+    "R_ohm": 1628.0,
+    "node_mV": 462.0,
+    "pin_mV": 395.1,
+    "atten": 0,
+    "pin_mV_per_K": 8.73,
+    "adc_error_K": 0.573,
+    "tolerance_K": 3.134,
+    "pullup_K": 0.467,
+    "divider_gain_K": 0.035,
+    "sar_sampling_K": 0.365,
+    "whole_mV_chain_err_K": 0.0072,
+    "rail_K": {
+     "rail_low_reads_high": 0.803,
+     "rail_high_reads_low": 0.909
+    },
+    "rail_measured_K": 0.607,
+    "corner_reads_high_K": null,
+    "corner_reads_low_K": 5.54
+   }
+  ],
+  "valid_range": {
+   "pin_max_at_minus40C_V": 2.8758,
+   "c45_adc_max_V": 2.877,
+   "valid_from_C_exact_adc": -40.0,
+   "pin_max_any_ntc_state_V": 2.8829,
+   "reading_max_intact_mV": 2936.9,
+   "reading_can_saturate_below_C": -13.7,
+   "note": "the corner model takes the NTC's B tolerance from the data sheet's dR/R column (5.88 % at -40 degC) and V_OS 2 mV; C45 applies beta +1.5 % and 1.6 mV and gets 2.877 V"
+  },
+  "short_0p25V_C_by_v3v3": {
+   "3.242": "beyond table",
+   "3.300": "beyond table",
+   "3.367": "beyond table"
+  },
+  "hw_open_comparator_C_by_v3v3": {
+   "3.242": -16.1,
+   "3.300": -16.1,
+   "3.367": -16.1
+  },
+  "note": "pin = node x 0.855072 (CR-8, C45): inside ATTEN3's calibrated 2900 mV (ESP32-S3 Table 5-6) from -40 degC up at every corner, so the channel reads room temperature. The cold end is VALID but coarse: the 10 k pull-up serves the 85-101 degC hardware trip, and below ~15 degC the node is within 10 % of the rail (pin 5-6 mV/K), so +/-50 mV of ADC error and an unmeasured rail are many kelvin (corner columns). An open sensor reads SATURATED (colder than the table); HS_OPEN latches it in hardware (C13)."
+ },
+ "sar_sampling": {
+  "thevenin_ohm": 855.072463768116,
+  "tau_us": 85.5072463768116,
+  "sample_cap_pF_assumed": 20.0,
+  "swing_V": 2.9,
+  "kick_mV": 0.5798840231953609,
+  "driver_burst_trimmed_mean_bound_mV": 3.1893621275744852,
+  "driver_burst_kicks": 5.5,
+  "recovery_between_periods_tau": 1169.491525423729,
+  "residual_at_next_period_mV": 0.0,
+  "c45_continuous_pattern": {
+   "rate_sps": 8888.888888888889,
+   "dc_mV": 0.44083735909822863,
+   "residual_mV": 0.15557845800097175
+  },
+  "error_at_95C_K": 0.146,
+  "noise_3sigma_after_filter_mV": 0.802
+ },
+ "divider_faults": {
+  "intact_reading_max_mV": 2936.9,
+  "divider_fault_mV": 2950.0,
+  "false_flag_margin_mV": 13.1,
+  "bottom_open": {
+   "detected_cold_start_below_C_by_v3v3": {
+    "3.242": {
+     "worst_adc": 19.8,
+     "nominal_adc": 24.8
+    },
+    "3.300": {
+     "worst_adc": 24.5,
+     "nominal_adc": 28.8
+    },
+    "3.367": {
+     "worst_adc": 29.0,
+     "nominal_adc": 32.7
+    }
+   },
+   "firmware_reads_at_95C": 86.45,
+   "firmware_95C_trip_fires_at_true_C": 102.97,
+   "c45_reads_at_95C_and_trip_at_C": [
+    86.1,
+    103.3
+   ],
+   "hardware_hot_comparator_C": [
+    98.3,
+    104.6
+   ],
+   "note": "C45: the HS_HOT comparator sits on HS_SENSE, upstream of the follower and the divider, so it still trips at 98.3-104.6 degC (Tj <= 132.4 degC); the driver latches DIVIDER at a cold start below the temperatures above"
+  },
+  "top_open": {
+   "pin_mV": 0.0,
+   "node_mV": 0.0,
+   "short_below_mV": 250.0,
+   "driver": "SHORT after 3 periods, interlock +INF: FAULT_OVER_TEMP (fail-safe)"
+  }
+ },
+ "pre_c45": {
+  "gain": 1.0,
+  "network": "100 R / 100 nF, no divider (before C45)",
+  "saturation_C_by_v3v3": {
+   "3.242": 28.64,
+   "3.300": 32.17,
+   "3.367": 35.72
+  },
+  "cold_soak_threshold_K_then": 12.9,
+  "note": "superseded by C45; reported only. Its cold-soak results are cold-soak.json at 75e512eab (variant as_built)."
+ },
+ "cold_soak_budget": {
+  "band_C": [
+   5.0,
+   45.0
+  ],
+  "rail_measured": false,
+  "band_note": "heatsink 5..45 degC: rooms down to 5 degC (5 K under the rated 10 degC, docs/ENVIRONMENTAL_SPEC.md) up to 40 degC plus the standby offset; the channel is VALID over all of it at the false corner",
+  "rows": [
+   {
+    "T_C": 5.0,
+    "node_mV": 3179.2,
+    "pin_mV": 2718.4,
+    "atten": 3,
+    "node_mV_per_K": 5.95,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.391,
+     "ntc_B_1p5pct": 0.297,
+     "pullup_1pct_100ppm": 0.235,
+     "adc_total_error": 9.822,
+     "divider_gain_band": 0.407,
+     "sar_sampling": 0.627,
+     "adc_noise_3sigma": 0.158,
+     "buffer_vos": 0.336,
+     "ntc_self_heating": 0.003
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 7.947,
+     "rail_high_reads_low": 14.698
+    },
+    "heatsink_linear_sum_reads_high_K": 20.22,
+    "pt100_terms_K": {
+     "class_F0.15": 0.16,
+     "rref_0.1pct_25ppm": 0.397,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 15.683,
+     "pt100_reads_low": 0.72,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 19.33,
+    "miss_total_K": null,
+    "miss_note": "the miss corner reads below the table: SATURATED, the check skips"
+   },
+   {
+    "T_C": 7.5,
+    "node_mV": 3163.4,
+    "pin_mV": 2705.0,
+    "atten": 3,
+    "node_mV_per_K": 6.61,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.396,
+     "ntc_B_1p5pct": 0.261,
+     "pullup_1pct_100ppm": 0.238,
+     "adc_total_error": 8.847,
+     "divider_gain_band": 0.365,
+     "sar_sampling": 0.564,
+     "adc_noise_3sigma": 0.142,
+     "buffer_vos": 0.303,
+     "ntc_self_heating": 0.003
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 7.277,
+     "rail_high_reads_low": 12.537
+    },
+    "heatsink_linear_sum_reads_high_K": 18.4,
+    "pt100_terms_K": {
+     "class_F0.15": 0.165,
+     "rref_0.1pct_25ppm": 0.401,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 14.613,
+     "pt100_reads_low": 0.729,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 18.27,
+    "miss_total_K": null,
+    "miss_note": "the miss corner reads below the table: SATURATED, the check skips"
+   },
+   {
+    "T_C": 10.0,
+    "node_mV": 3146.1,
+    "pin_mV": 2690.1,
+    "atten": 3,
+    "node_mV_per_K": 7.3,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.402,
+     "ntc_B_1p5pct": 0.225,
+     "pullup_1pct_100ppm": 0.241,
+     "adc_total_error": 8.014,
+     "divider_gain_band": 0.329,
+     "sar_sampling": 0.511,
+     "adc_noise_3sigma": 0.129,
+     "buffer_vos": 0.274,
+     "ntc_self_heating": 0.004
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 6.656,
+     "rail_high_reads_low": 10.85
+    },
+    "heatsink_linear_sum_reads_high_K": 16.79,
+    "pt100_terms_K": {
+     "class_F0.15": 0.17,
+     "rref_0.1pct_25ppm": 0.405,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 13.613,
+     "pt100_reads_low": 0.738,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 17.28,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 40.947,
+     "pt100_reads_high": 0.677,
+     "pt100_off_pan_self_heating": 2.637,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 46.19
+   },
+   {
+    "T_C": 12.5,
+    "node_mV": 3126.9,
+    "pin_mV": 2673.7,
+    "atten": 3,
+    "node_mV_per_K": 8.03,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.408,
+     "ntc_B_1p5pct": 0.189,
+     "pullup_1pct_100ppm": 0.245,
+     "adc_total_error": 7.279,
+     "divider_gain_band": 0.297,
+     "sar_sampling": 0.464,
+     "adc_noise_3sigma": 0.117,
+     "buffer_vos": 0.249,
+     "ntc_self_heating": 0.004
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 6.097,
+     "rail_high_reads_low": 9.472
+    },
+    "heatsink_linear_sum_reads_high_K": 15.35,
+    "pt100_terms_K": {
+     "class_F0.15": 0.175,
+     "rref_0.1pct_25ppm": 0.409,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 12.688,
+     "pt100_reads_low": 0.747,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 16.36,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 30.501,
+     "pt100_reads_high": 0.686,
+     "pt100_off_pan_self_heating": 2.652,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 35.77
+   },
+   {
+    "T_C": 15.0,
+    "node_mV": 3105.9,
+    "pin_mV": 2655.8,
+    "atten": 3,
+    "node_mV_per_K": 8.82,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.414,
+     "ntc_B_1p5pct": 0.151,
+     "pullup_1pct_100ppm": 0.249,
+     "adc_total_error": 6.628,
+     "divider_gain_band": 0.268,
+     "sar_sampling": 0.423,
+     "adc_noise_3sigma": 0.106,
+     "buffer_vos": 0.227,
+     "ntc_self_heating": 0.005
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 5.583,
+     "rail_high_reads_low": 8.347
+    },
+    "heatsink_linear_sum_reads_high_K": 14.05,
+    "pt100_terms_K": {
+     "class_F0.15": 0.18,
+     "rref_0.1pct_25ppm": 0.412,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 11.821,
+     "pt100_reads_low": 0.756,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 15.5,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 24.684,
+     "pt100_reads_high": 0.695,
+     "pt100_off_pan_self_heating": 2.666,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 29.97
+   },
+   {
+    "T_C": 20.0,
+    "node_mV": 3057.5,
+    "pin_mV": 2614.4,
+    "atten": 3,
+    "node_mV_per_K": 10.56,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.426,
+     "ntc_B_1p5pct": 0.077,
+     "pullup_1pct_100ppm": 0.255,
+     "adc_total_error": 5.539,
+     "divider_gain_band": 0.221,
+     "sar_sampling": 0.353,
+     "adc_noise_3sigma": 0.089,
+     "buffer_vos": 0.189,
+     "ntc_self_heating": 0.006
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 4.694,
+     "rail_high_reads_low": 6.606
+    },
+    "heatsink_linear_sum_reads_high_K": 11.85,
+    "pt100_terms_K": {
+     "class_F0.15": 0.19,
+     "rref_0.1pct_25ppm": 0.42,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 10.291,
+     "pt100_reads_low": 0.773,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 13.99,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 17.855,
+     "pt100_reads_high": 0.712,
+     "pt100_off_pan_self_heating": 2.696,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 23.19
+   },
+   {
+    "T_C": 25.0,
+    "node_mV": 3000.0,
+    "pin_mV": 2565.2,
+    "atten": 3,
+    "node_mV_per_K": 12.47,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.437,
+     "ntc_B_1p5pct": 0.0,
+     "pullup_1pct_100ppm": 0.262,
+     "adc_total_error": 4.688,
+     "divider_gain_band": 0.183,
+     "sar_sampling": 0.299,
+     "adc_noise_3sigma": 0.075,
+     "buffer_vos": 0.16,
+     "ntc_self_heating": 0.007
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 3.969,
+     "rail_high_reads_low": 5.323
+    },
+    "heatsink_linear_sum_reads_high_K": 10.08,
+    "pt100_terms_K": {
+     "class_F0.15": 0.2,
+     "rref_0.1pct_25ppm": 0.427,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 8.993,
+     "pt100_reads_low": 0.791,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 12.71,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 13.805,
+     "pt100_reads_high": 0.73,
+     "pt100_off_pan_self_heating": 2.725,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 19.19
+   },
+   {
+    "T_C": 30.0,
+    "node_mV": 2932.6,
+    "pin_mV": 2507.5,
+    "atten": 3,
+    "node_mV_per_K": 14.53,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.45,
+     "ntc_B_1p5pct": 0.079,
+     "pullup_1pct_100ppm": 0.27,
+     "adc_total_error": 4.025,
+     "divider_gain_band": 0.154,
+     "sar_sampling": 0.257,
+     "adc_noise_3sigma": 0.065,
+     "buffer_vos": 0.138,
+     "ntc_self_heating": 0.008
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 3.376,
+     "rail_high_reads_low": 4.374
+    },
+    "heatsink_linear_sum_reads_high_K": 8.82,
+    "pt100_terms_K": {
+     "class_F0.15": 0.21,
+     "rref_0.1pct_25ppm": 0.435,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 8.025,
+     "pt100_reads_low": 0.808,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 11.76,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 11.323,
+     "pt100_reads_high": 0.747,
+     "pt100_off_pan_self_heating": 2.753,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 16.75
+   },
+   {
+    "T_C": 35.0,
+    "node_mV": 2854.5,
+    "pin_mV": 2440.8,
+    "atten": 3,
+    "node_mV_per_K": 16.69,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.462,
+     "ntc_B_1p5pct": 0.157,
+     "pullup_1pct_100ppm": 0.277,
+     "adc_total_error": 3.504,
+     "divider_gain_band": 0.13,
+     "sar_sampling": 0.223,
+     "adc_noise_3sigma": 0.056,
+     "buffer_vos": 0.12,
+     "ntc_self_heating": 0.01
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 2.892,
+     "rail_high_reads_low": 3.649
+    },
+    "heatsink_linear_sum_reads_high_K": 7.83,
+    "pt100_terms_K": {
+     "class_F0.15": 0.22,
+     "rref_0.1pct_25ppm": 0.443,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 7.245,
+     "pt100_reads_low": 0.826,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 11.0,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 9.59,
+     "pt100_reads_high": 0.765,
+     "pt100_off_pan_self_heating": 2.781,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 15.06
+   },
+   {
+    "T_C": 40.0,
+    "node_mV": 2765.6,
+    "pin_mV": 2364.8,
+    "atten": 3,
+    "node_mV_per_K": 18.9,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.474,
+     "ntc_B_1p5pct": 0.239,
+     "pullup_1pct_100ppm": 0.284,
+     "adc_total_error": 3.095,
+     "divider_gain_band": 0.112,
+     "sar_sampling": 0.197,
+     "adc_noise_3sigma": 0.05,
+     "buffer_vos": 0.106,
+     "ntc_self_heating": 0.011
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 2.496,
+     "rail_high_reads_low": 3.086
+    },
+    "heatsink_linear_sum_reads_high_K": 7.06,
+    "pt100_terms_K": {
+     "class_F0.15": 0.23,
+     "rref_0.1pct_25ppm": 0.45,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 6.63,
+     "pt100_reads_low": 0.843,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 10.4,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 8.348,
+     "pt100_reads_high": 0.782,
+     "pt100_off_pan_self_heating": 2.808,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 13.87
+   },
+   {
+    "T_C": 45.0,
+    "node_mV": 2665.6,
+    "pin_mV": 2279.3,
+    "atten": 3,
+    "node_mV_per_K": 21.06,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.487,
+     "ntc_B_1p5pct": 0.324,
+     "pullup_1pct_100ppm": 0.292,
+     "adc_total_error": 2.777,
+     "divider_gain_band": 0.097,
+     "sar_sampling": 0.177,
+     "adc_noise_3sigma": 0.045,
+     "buffer_vos": 0.095,
+     "ntc_self_heating": 0.013
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 2.176,
+     "rail_high_reads_low": 2.643
+    },
+    "heatsink_linear_sum_reads_high_K": 6.48,
+    "pt100_terms_K": {
+     "class_F0.15": 0.24,
+     "rref_0.1pct_25ppm": 0.458,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 6.161,
+     "pt100_reads_low": 0.861,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 9.95,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 7.435,
+     "pt100_reads_high": 0.8,
+     "pt100_off_pan_self_heating": 2.835,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 13.0
+   }
+  ],
+  "threshold_K": 19.4,
+  "worst_row_T_C": 5.0,
+  "soak_residual_K": {
+   "heatsink": 1.541,
+   "pt100": 0.385
+  },
+  "threshold_rail_corrected_K": 16.9
+ },
+ "cold_soak_budget_rail_measured": {
+  "band_C": [
+   5.0,
+   45.0
+  ],
+  "rail_measured": true,
+  "band_note": "heatsink 5..45 degC: rooms down to 5 degC (5 K under the rated 10 degC, docs/ENVIRONMENTAL_SPEC.md) up to 40 degC plus the standby offset; the channel is VALID over all of it at the false corner",
+  "rows": [
+   {
+    "T_C": 5.0,
+    "node_mV": 3179.2,
+    "pin_mV": 2718.4,
+    "atten": 3,
+    "node_mV_per_K": 5.95,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.391,
+     "ntc_B_1p5pct": 0.297,
+     "pullup_1pct_100ppm": 0.235,
+     "adc_total_error": 9.822,
+     "divider_gain_band": 0.407,
+     "sar_sampling": 0.627,
+     "adc_noise_3sigma": 0.158,
+     "buffer_vos": 0.336,
+     "ntc_self_heating": 0.003
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 7.947,
+     "rail_high_reads_low": 14.698
+    },
+    "heatsink_linear_sum_reads_high_K": 16.76,
+    "pt100_terms_K": {
+     "class_F0.15": 0.16,
+     "rref_0.1pct_25ppm": 0.397,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 13.184,
+     "pt100_reads_low": 0.72,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 16.83,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 33.688,
+     "pt100_reads_high": 0.659,
+     "pt100_off_pan_self_heating": 2.606,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 38.88
+   },
+   {
+    "T_C": 7.5,
+    "node_mV": 3163.4,
+    "pin_mV": 2705.0,
+    "atten": 3,
+    "node_mV_per_K": 6.61,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.396,
+     "ntc_B_1p5pct": 0.261,
+     "pullup_1pct_100ppm": 0.238,
+     "adc_total_error": 8.847,
+     "divider_gain_band": 0.365,
+     "sar_sampling": 0.564,
+     "adc_noise_3sigma": 0.142,
+     "buffer_vos": 0.303,
+     "ntc_self_heating": 0.003
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 7.277,
+     "rail_high_reads_low": 12.537
+    },
+    "heatsink_linear_sum_reads_high_K": 15.2,
+    "pt100_terms_K": {
+     "class_F0.15": 0.165,
+     "rref_0.1pct_25ppm": 0.401,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 12.258,
+     "pt100_reads_low": 0.729,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 15.91,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 26.111,
+     "pt100_reads_high": 0.668,
+     "pt100_off_pan_self_heating": 2.621,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 31.33
+   },
+   {
+    "T_C": 10.0,
+    "node_mV": 3146.1,
+    "pin_mV": 2690.1,
+    "atten": 3,
+    "node_mV_per_K": 7.3,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.402,
+     "ntc_B_1p5pct": 0.225,
+     "pullup_1pct_100ppm": 0.241,
+     "adc_total_error": 8.014,
+     "divider_gain_band": 0.329,
+     "sar_sampling": 0.511,
+     "adc_noise_3sigma": 0.129,
+     "buffer_vos": 0.274,
+     "ntc_self_heating": 0.004
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 6.656,
+     "rail_high_reads_low": 10.85
+    },
+    "heatsink_linear_sum_reads_high_K": 13.84,
+    "pt100_terms_K": {
+     "class_F0.15": 0.17,
+     "rref_0.1pct_25ppm": 0.405,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 11.39,
+     "pt100_reads_low": 0.738,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 15.05,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 21.436,
+     "pt100_reads_high": 0.677,
+     "pt100_off_pan_self_heating": 2.637,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 26.68
+   },
+   {
+    "T_C": 12.5,
+    "node_mV": 3126.9,
+    "pin_mV": 2673.7,
+    "atten": 3,
+    "node_mV_per_K": 8.03,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.408,
+     "ntc_B_1p5pct": 0.189,
+     "pullup_1pct_100ppm": 0.245,
+     "adc_total_error": 7.279,
+     "divider_gain_band": 0.297,
+     "sar_sampling": 0.464,
+     "adc_noise_3sigma": 0.117,
+     "buffer_vos": 0.249,
+     "ntc_self_heating": 0.004
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 6.097,
+     "rail_high_reads_low": 9.472
+    },
+    "heatsink_linear_sum_reads_high_K": 12.63,
+    "pt100_terms_K": {
+     "class_F0.15": 0.175,
+     "rref_0.1pct_25ppm": 0.409,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 10.591,
+     "pt100_reads_low": 0.747,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 14.27,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 18.131,
+     "pt100_reads_high": 0.686,
+     "pt100_off_pan_self_heating": 2.652,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 23.39
+   },
+   {
+    "T_C": 15.0,
+    "node_mV": 3105.9,
+    "pin_mV": 2655.8,
+    "atten": 3,
+    "node_mV_per_K": 8.82,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.414,
+     "ntc_B_1p5pct": 0.151,
+     "pullup_1pct_100ppm": 0.249,
+     "adc_total_error": 6.628,
+     "divider_gain_band": 0.268,
+     "sar_sampling": 0.423,
+     "adc_noise_3sigma": 0.106,
+     "buffer_vos": 0.227,
+     "ntc_self_heating": 0.005
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 5.583,
+     "rail_high_reads_low": 8.347
+    },
+    "heatsink_linear_sum_reads_high_K": 11.54,
+    "pt100_terms_K": {
+     "class_F0.15": 0.18,
+     "rref_0.1pct_25ppm": 0.412,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 9.854,
+     "pt100_reads_low": 0.756,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 13.54,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 15.661,
+     "pt100_reads_high": 0.695,
+     "pt100_off_pan_self_heating": 2.666,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 20.95
+   },
+   {
+    "T_C": 20.0,
+    "node_mV": 3057.5,
+    "pin_mV": 2614.4,
+    "atten": 3,
+    "node_mV_per_K": 10.56,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.426,
+     "ntc_B_1p5pct": 0.077,
+     "pullup_1pct_100ppm": 0.255,
+     "adc_total_error": 5.539,
+     "divider_gain_band": 0.221,
+     "sar_sampling": 0.353,
+     "adc_noise_3sigma": 0.089,
+     "buffer_vos": 0.189,
+     "ntc_self_heating": 0.006
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 4.694,
+     "rail_high_reads_low": 6.606
+    },
+    "heatsink_linear_sum_reads_high_K": 9.71,
+    "pt100_terms_K": {
+     "class_F0.15": 0.19,
+     "rref_0.1pct_25ppm": 0.42,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 8.551,
+     "pt100_reads_low": 0.773,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 12.25,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 12.144,
+     "pt100_reads_high": 0.712,
+     "pt100_off_pan_self_heating": 2.696,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 17.48
+   },
+   {
+    "T_C": 25.0,
+    "node_mV": 3000.0,
+    "pin_mV": 2565.2,
+    "atten": 3,
+    "node_mV_per_K": 12.47,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.437,
+     "ntc_B_1p5pct": 0.0,
+     "pullup_1pct_100ppm": 0.262,
+     "adc_total_error": 4.688,
+     "divider_gain_band": 0.183,
+     "sar_sampling": 0.299,
+     "adc_noise_3sigma": 0.075,
+     "buffer_vos": 0.16,
+     "ntc_self_heating": 0.007
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 3.969,
+     "rail_high_reads_low": 5.323
+    },
+    "heatsink_linear_sum_reads_high_K": 8.26,
+    "pt100_terms_K": {
+     "class_F0.15": 0.2,
+     "rref_0.1pct_25ppm": 0.427,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 7.463,
+     "pt100_reads_low": 0.791,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 11.18,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 9.753,
+     "pt100_reads_high": 0.73,
+     "pt100_off_pan_self_heating": 2.725,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 15.13
+   },
+   {
+    "T_C": 30.0,
+    "node_mV": 2932.6,
+    "pin_mV": 2507.5,
+    "atten": 3,
+    "node_mV_per_K": 14.53,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.45,
+     "ntc_B_1p5pct": 0.079,
+     "pullup_1pct_100ppm": 0.27,
+     "adc_total_error": 4.025,
+     "divider_gain_band": 0.154,
+     "sar_sampling": 0.257,
+     "adc_noise_3sigma": 0.065,
+     "buffer_vos": 0.138,
+     "ntc_self_heating": 0.008
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 3.376,
+     "rail_high_reads_low": 4.374
+    },
+    "heatsink_linear_sum_reads_high_K": 7.26,
+    "pt100_terms_K": {
+     "class_F0.15": 0.21,
+     "rref_0.1pct_25ppm": 0.435,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 6.685,
+     "pt100_reads_low": 0.808,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 10.42,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 8.246,
+     "pt100_reads_high": 0.747,
+     "pt100_off_pan_self_heating": 2.753,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 13.67
+   },
+   {
+    "T_C": 35.0,
+    "node_mV": 2854.5,
+    "pin_mV": 2440.8,
+    "atten": 3,
+    "node_mV_per_K": 16.69,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.462,
+     "ntc_B_1p5pct": 0.157,
+     "pullup_1pct_100ppm": 0.277,
+     "adc_total_error": 3.504,
+     "divider_gain_band": 0.13,
+     "sar_sampling": 0.223,
+     "adc_noise_3sigma": 0.056,
+     "buffer_vos": 0.12,
+     "ntc_self_heating": 0.01
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 2.892,
+     "rail_high_reads_low": 3.649
+    },
+    "heatsink_linear_sum_reads_high_K": 6.49,
+    "pt100_terms_K": {
+     "class_F0.15": 0.22,
+     "rref_0.1pct_25ppm": 0.443,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 6.071,
+     "pt100_reads_low": 0.826,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 9.82,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 7.16,
+     "pt100_reads_high": 0.765,
+     "pt100_off_pan_self_heating": 2.781,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 12.63
+   },
+   {
+    "T_C": 40.0,
+    "node_mV": 2765.6,
+    "pin_mV": 2364.8,
+    "atten": 3,
+    "node_mV_per_K": 18.9,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.474,
+     "ntc_B_1p5pct": 0.239,
+     "pullup_1pct_100ppm": 0.284,
+     "adc_total_error": 3.095,
+     "divider_gain_band": 0.112,
+     "sar_sampling": 0.197,
+     "adc_noise_3sigma": 0.05,
+     "buffer_vos": 0.106,
+     "ntc_self_heating": 0.011
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 2.496,
+     "rail_high_reads_low": 3.086
+    },
+    "heatsink_linear_sum_reads_high_K": 5.9,
+    "pt100_terms_K": {
+     "class_F0.15": 0.23,
+     "rref_0.1pct_25ppm": 0.45,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 5.595,
+     "pt100_reads_low": 0.843,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 9.37,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 6.368,
+     "pt100_reads_high": 0.782,
+     "pt100_off_pan_self_heating": 2.808,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 11.89
+   },
+   {
+    "T_C": 45.0,
+    "node_mV": 2665.6,
+    "pin_mV": 2279.3,
+    "atten": 3,
+    "node_mV_per_K": 21.06,
+    "heatsink_terms_K": {
+     "ntc_R25_2pct": 0.487,
+     "ntc_B_1p5pct": 0.324,
+     "pullup_1pct_100ppm": 0.292,
+     "adc_total_error": 2.777,
+     "divider_gain_band": 0.097,
+     "sar_sampling": 0.177,
+     "adc_noise_3sigma": 0.045,
+     "buffer_vos": 0.095,
+     "ntc_self_heating": 0.013
+    },
+    "heatsink_rail_K": {
+     "rail_low_reads_high": 2.176,
+     "rail_high_reads_low": 2.643
+    },
+    "heatsink_linear_sum_reads_high_K": 5.46,
+    "pt100_terms_K": {
+     "class_F0.15": 0.24,
+     "rref_0.1pct_25ppm": 0.458,
+     "max31865_offset_3lsb": 0.102,
+     "self_heating_correction": 0.061
+    },
+    "false_latch_stack_K": {
+     "heatsink_corner_reads_high": 5.244,
+     "pt100_reads_low": 0.861,
+     "soak_heatsink_above_ambient": 1.541,
+     "soak_pt100_below_ambient": 0.385,
+     "standby_offset": 1.0
+    },
+    "false_latch_total_K": 9.03,
+    "miss_stack_K": {
+     "heatsink_corner_reads_low": 5.785,
+     "pt100_reads_high": 0.8,
+     "pt100_off_pan_self_heating": 2.835,
+     "soak_heatsink_below_ambient": 1.541,
+     "soak_pt100_above_ambient": 0.385
+    },
+    "miss_total_K": 11.35
+   }
+  ],
+  "threshold_K": 16.9,
+  "worst_row_T_C": 5.0,
+  "soak_residual_K": {
+   "heatsink": 1.541,
+   "pt100": 0.385
+  },
+  "rail_read_tol_pct": 0.9334
+ },
+ "soak_timing": {
+  "tau_estimates_s": {
+   "glass_one_face": 816.0,
+   "glass_two_faces": 408.0,
+   "heatsink_fan_off": 450.0,
+   "cartridge_off_pan": 73.0
+  },
+  "tau_max_s": 1800.0,
+  "N_s": 1800.0,
+  "W_s": 900.0,
+  "hs_flat_K": 1.0,
+  "pt_flat_K": 0.25,
+  "N_over_largest_estimate": 2.21,
+  "heatsink_after_N_from_88.6C_at_5C_ambient_K": {
+   "tau 450 s": 1.53,
+   "tau 900 s": 11.31,
+   "tau 1800 s": 30.75
+  },
+  "residual_bound_K": {
+   "heatsink": 1.541,
+   "pt100": 0.385,
+   "heatsink_at_tau_900s": 0.582
+  },
+  "note": "The flatness tests carry the bound: a single exponential that moved at most flat_k over the last W lies within flat_k/(exp(W/tau)-1) of its final value for any tau <= tau_max. N keeps the check out of the first two estimated time constants after a cook, where the flatness windows would see the fast components; it is not itself the bound."
+ },
+ "checks": {
+  "B25_85_from_table_matches_4190K": true,
+  "table_matches_material_D_polynomial_0p03K": true,
+  "interpolation_loo_10K_le_0p05K": true,
+  "gain_matches_c45": true,
+  "adc_gain_in_hs_ntc_h": true,
+  "sat_margin_in_hs_ntc_h_covers_adc_gain_vos": true,
+  "trip_points_in_calibrated_range": true,
+  "whole_mV_chain_within_half_mV_plus_interpolation": true,
+  "valid_from_minus40C_at_every_corner": true,
+  "pin_max_within_5mV_of_c45": true,
+  "sar_sampling_le_0p2K_at_95C": true,
+  "divider_fault_level_above_intact_reading": true,
+  "divider_bottom_open_agrees_with_c45_0p5K": true,
+  "threshold_in_pan_cold_soak_h": true,
+  "threshold_measured_in_pan_cold_soak_h": true,
+  "measured_threshold_below_fallback": true,
+  "soak_constants_in_pan_cold_soak_h": true,
+  "heatsink_valid_over_the_band_at_the_false_corner": true
+ },
+ "all_pass": true
+}

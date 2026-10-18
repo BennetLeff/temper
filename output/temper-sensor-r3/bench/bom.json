@@ -1,0 +1,799 @@
+{
+ "scope": "Bench-kit bill of materials with ESTIMATED prices (USD, list, not quoted; verify before ordering).\n\nTwo variants:\n  reference  the first kit: C1-exact Si3N4 disc lot, shop-machined jig, full metrology ($1,285)\n  lean       the cheapest kit that still answers the survey question (DECISIONS.md L1-L7):\n             a polished alumina disc cored from one substrate (weighed; the fit's model correction,\n             already the self-test case), a distributor thin-film Pt100, JLCCNC parts, a replacement\n             cooktop glass panel, and tools most people own moved to \"own_or_borrow\"\nRun: python bom.py -> bom.json, prints both tables and the totals.",
+ "reference": {
+  "rows": [
+   {
+    "group": "logger",
+    "item": "ESP32-S3 devkit",
+    "part": "Espressif ESP32-S3-DevKitC-1-N8R8 (Digi-Key/Mouser)",
+    "qty": 1,
+    "est_unit_usd": 15,
+    "est_usd": 15,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "logger",
+    "item": "Pt100 converter breakout",
+    "part": "Adafruit 3328 (MAX31865, PT100, Rref 430 ohm)",
+    "qty": 1,
+    "est_unit_usd": 15,
+    "est_usd": 15,
+    "note": "set the 4-wire jumpers",
+    "kind": "buy"
+   },
+   {
+    "group": "logger",
+    "item": "Thermocouple converter breakout",
+    "part": "Adafruit 3263 (MAX31856)",
+    "qty": 1,
+    "est_unit_usd": 18,
+    "est_usd": 18,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "logger",
+    "item": "Pan reference thermocouple",
+    "part": "Omega 5TC-TT-K-36-36 (type K, 36 AWG, PFA), 5-pack",
+    "qty": 1,
+    "est_unit_usd": 45,
+    "est_usd": 45,
+    "note": "or any fine type-K bead",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Pt100 thin-film element",
+    "part": "IST P0K1.202 family, class F0.15, Pt/Ni wire (e.g. P0K1.202.6W.A.007; EPS Global/Farnell)",
+    "qty": 3,
+    "est_unit_usd": 25,
+    "est_usd": 75,
+    "note": "1 + 2 spares",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Contact disc, option A (C1-exact)",
+    "part": "Si3N4 0.32 mm substrate (e.g. Innovacera SN-90) laser-cut \u00d88, lapped Ra <= 0.1 um; lot of 20",
+    "qty": 1,
+    "est_unit_usd": 250,
+    "est_usd": 250,
+    "note": "quote; option B: 99.6 % polished alumina 0.254 mm \u00d88, similar cost",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Bond adhesive",
+    "part": "EPO-TEK 930-4 (boron-nitride filled), small kit",
+    "qty": 1,
+    "est_unit_usd": 90,
+    "est_usd": 90,
+    "note": "same bond as C1",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Lead wire",
+    "part": "PTFE-insulated 30 AWG silver-plated copper, 4 colours, + glass-fibre sleeving",
+    "qty": 1,
+    "est_unit_usd": 25,
+    "est_usd": 25,
+    "note": "4-wire to the element pads",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Post stock",
+    "part": "PEEK rod \u00d816 x 300 mm (McMaster)",
+    "qty": 1,
+    "est_unit_usd": 40,
+    "est_usd": 40,
+    "note": "Vespel SP-1 if available",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Holder and plug stock",
+    "part": "6061 rod \u00d845 x 150 mm",
+    "qty": 1,
+    "est_unit_usd": 30,
+    "est_usd": 30,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Machining (post, holder, M10x1 plug)",
+    "part": "local shop or own lathe; jig-post.step, jig-holder.step",
+    "qty": 1,
+    "est_unit_usd": 250,
+    "est_usd": 250,
+    "note": "estimate",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Compression springs",
+    "part": "stainless, OD ~5.5 mm, free length ~16 mm, rate 0.2-0.4 N/mm; assortment",
+    "qty": 1,
+    "est_unit_usd": 25,
+    "est_usd": 25,
+    "note": "jig.json sets preload",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Balls",
+    "part": "\u00d83 mm silicon nitride or 440C balls, 10-pack",
+    "qty": 1,
+    "est_unit_usd": 12,
+    "est_usd": 12,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Plate",
+    "part": "4 mm glass-ceramic (cooktop replacement offcut, ~300 x 300)",
+    "qty": 1,
+    "est_unit_usd": 80,
+    "est_usd": 80,
+    "note": "fallback: 6 mm calcium-silicate board",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "\u00d818 bore",
+    "part": "diamond core bit \u00d818 (water-cooled) or waterjet service",
+    "qty": 1,
+    "est_unit_usd": 40,
+    "est_usd": 40,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Shim stock",
+    "part": "stainless 0.05 / 0.1 mm assortment",
+    "qty": 1,
+    "est_unit_usd": 20,
+    "est_usd": 20,
+    "note": "sets 0.60 mm proud",
+    "kind": "buy"
+   },
+   {
+    "group": "cal",
+    "item": "Copper calibration block",
+    "part": "C110 50 x 50 x 20 mm",
+    "qty": 1,
+    "est_unit_usd": 30,
+    "est_usd": 30,
+    "note": "paste calibration of tau_int",
+    "kind": "buy"
+   },
+   {
+    "group": "cal",
+    "item": "Thermal paste",
+    "part": "Wakefield 120 silicone compound (200 C)",
+    "qty": 1,
+    "est_unit_usd": 15,
+    "est_usd": 15,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "measure",
+    "item": "Milligram scale",
+    "part": "50 g x 0.001 g jewellery scale",
+    "qty": 1,
+    "est_unit_usd": 30,
+    "est_usd": 30,
+    "note": "disc mass (C_cap)",
+    "kind": "buy"
+   },
+   {
+    "group": "measure",
+    "item": "Force scale",
+    "part": "200 g x 0.01 g scale",
+    "qty": 1,
+    "est_unit_usd": 25,
+    "est_usd": 25,
+    "note": "tip force at flush",
+    "kind": "buy"
+   },
+   {
+    "group": "measure",
+    "item": "Dial indicator + magnetic base",
+    "part": "0.01 mm indicator",
+    "qty": 1,
+    "est_unit_usd": 60,
+    "est_usd": 60,
+    "note": "proud height, pan flatness",
+    "kind": "buy"
+   },
+   {
+    "group": "measure",
+    "item": "Straightedge + feeler gauges",
+    "part": "300 mm straightedge, 0.02-1 mm feelers",
+    "qty": 1,
+    "est_unit_usd": 35,
+    "est_usd": 35,
+    "note": "pan base concave/convex",
+    "kind": "buy"
+   },
+   {
+    "group": "measure",
+    "item": "Surface roughness comparator",
+    "part": "machined-surface comparator plate (Ra 0.05-12.5 um)",
+    "qty": 1,
+    "est_unit_usd": 40,
+    "est_usd": 40,
+    "note": "Ra class per pan",
+    "kind": "buy"
+   },
+   {
+    "group": "safety",
+    "item": "Heat-resistant gloves",
+    "part": "to 250 C",
+    "qty": 1,
+    "est_unit_usd": 20,
+    "est_usd": 20,
+    "note": "",
+    "kind": "buy"
+   }
+  ],
+  "by_group_usd": {
+   "logger": 93,
+   "probe": 440,
+   "jig": 497,
+   "cal": 45,
+   "measure": 190,
+   "safety": 20
+  },
+  "total_est_usd": 1285
+ },
+ "lean": {
+  "rows": [
+   {
+    "group": "logger",
+    "item": "ESP32-S3 devkit",
+    "part": "Espressif ESP32-S3-DevKitC-1 (Digi-Key/Mouser) or any S3 devkit clone",
+    "qty": 1,
+    "est_unit_usd": 15,
+    "est_usd": 15,
+    "note": "logger_fw.ino targets it",
+    "kind": "buy"
+   },
+   {
+    "group": "logger",
+    "item": "Pt100 converter breakout",
+    "part": "Adafruit 3328 MAX31865, 430 ohm 0.1 % Rref (adafruit.com/product/3328)",
+    "qty": 1,
+    "est_unit_usd": 15,
+    "est_usd": 15,
+    "note": "keep the genuine part: Rref sets the reading",
+    "kind": "buy"
+   },
+   {
+    "group": "logger",
+    "item": "Thermocouple converter",
+    "part": "MAX31856 module (generic) or Adafruit 3263",
+    "qty": 1,
+    "est_unit_usd": 8,
+    "est_usd": 8,
+    "note": "reference slope only; offset is fitted",
+    "kind": "buy"
+   },
+   {
+    "group": "logger",
+    "item": "Pan reference thermocouple",
+    "part": "type-K bead, 30-36 AWG, glass or PFA insulated, 2-pack",
+    "qty": 1,
+    "est_unit_usd": 10,
+    "est_usd": 10,
+    "note": "now placed inside the bore (RIG 2)",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Pt100 thin-film element",
+    "part": "IST P0K1.202 family, class F0.15 (as the reference kit)",
+    "qty": 2,
+    "est_unit_usd": 25,
+    "est_usd": 50,
+    "note": "1 + 1 spare; the cheaper M222 class failed the self-test (DECISIONS L3)",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Disc substrate",
+    "part": "99.6 % alumina, thin-film grade, polished, 25.4 x 25.4 x 0.254 mm, 1-2 pcs (Valley Design / Stellar / MTI class)",
+    "qty": 1,
+    "est_unit_usd": 20,
+    "est_usd": 20,
+    "note": "option B; Ra <= 0.1 um face",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Disc coring bit",
+    "part": "diamond core bit with 8.0-8.3 mm INSIDE diameter (often sold as 10 mm), water-cooled",
+    "qty": 1,
+    "est_unit_usd": 8,
+    "est_usd": 8,
+    "note": "core 3-4 discs, keep the best",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Bond adhesive",
+    "part": "high-temperature conductive epoxy (e.g. Omega OB-200 class); verify >= 230 C rating",
+    "qty": 1,
+    "est_unit_usd": 40,
+    "est_usd": 40,
+    "note": "survey runs 150 C, subset 230 C",
+    "kind": "buy"
+   },
+   {
+    "group": "probe",
+    "item": "Lead wire",
+    "part": "PTFE-insulated 30 AWG, small spool",
+    "qty": 1,
+    "est_unit_usd": 10,
+    "est_usd": 10,
+    "note": "4-wire",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Post",
+    "part": "PEEK, turned per jig-post.step (JLCCNC, quote online)",
+    "qty": 1,
+    "est_unit_usd": 25,
+    "est_usd": 25,
+    "note": "estimate incl. setup; PEEK because it touches the disc",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Holder",
+    "part": "6061, per jig-holder.step (JLCCNC)",
+    "qty": 1,
+    "est_unit_usd": 25,
+    "est_usd": 25,
+    "note": "estimate; under the plate, stays well below 100 C",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Spring plug",
+    "part": "M10 x 1 fine-thread stainless set screw (flat point)",
+    "qty": 1,
+    "est_unit_usd": 3,
+    "est_usd": 3,
+    "note": "replaces the turned plug",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Compression springs",
+    "part": "stainless assortment incl. OD ~5.5, rate 0.2-0.4 N/mm",
+    "qty": 1,
+    "est_unit_usd": 8,
+    "est_usd": 8,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Balls",
+    "part": "\u00d83 mm 440C or chrome-steel balls, 50-pack",
+    "qty": 1,
+    "est_unit_usd": 4,
+    "est_usd": 4,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Plate",
+    "part": "replacement glass-ceramic panel for a portable induction cooker, ~280 x 280 x 4 mm",
+    "qty": 1,
+    "est_unit_usd": 30,
+    "est_usd": 30,
+    "note": "verify 4 mm; fallback porcelain tile or calcium-silicate board checked flat (plate_check.py)",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "\u00d818 bore bit",
+    "part": "18 mm diamond core bit, water-cooled",
+    "qty": 1,
+    "est_unit_usd": 8,
+    "est_usd": 8,
+    "note": "",
+    "kind": "buy"
+   },
+   {
+    "group": "jig",
+    "item": "Shim stock",
+    "part": "stainless 0.05 / 0.1 mm",
+    "qty": 1,
+    "est_unit_usd": 8,
+    "est_usd": 8,
+    "note": "sets 0.60 mm proud",
+    "kind": "buy"
+   },
+   {
+    "group": "cal",
+    "item": "Thermal paste",
+    "part": "silicone compound rated >= 200 C",
+    "qty": 1,
+    "est_unit_usd": 6,
+    "est_usd": 6,
+    "note": "paste calibration on a thick-based pan",
+    "kind": "buy"
+   },
+   {
+    "group": "measure",
+    "item": "Milligram scale",
+    "part": "50 g x 0.001 g jewellery scale",
+    "qty": 1,
+    "est_unit_usd": 20,
+    "est_usd": 20,
+    "note": "disc mass 49 mg -> C_cap +-2 %",
+    "kind": "buy"
+   },
+   {
+    "group": "cal",
+    "item": "Calibration block",
+    "part": "any thick flat copper/aluminium offcut or a heavy flat-based pan",
+    "qty": 1,
+    "est_unit_usd": 0,
+    "est_usd": 0,
+    "note": "",
+    "kind": "own_or_borrow"
+   },
+   {
+    "group": "measure",
+    "item": "Force check",
+    "part": "kitchen scale, 1 g resolution",
+    "qty": 1,
+    "est_unit_usd": 0,
+    "est_usd": 0,
+    "note": "window 143-163 g",
+    "kind": "own_or_borrow"
+   },
+   {
+    "group": "measure",
+    "item": "Proud height",
+    "part": "digital caliper, step mode (+-0.02 mm)",
+    "qty": 1,
+    "est_unit_usd": 0,
+    "est_usd": 0,
+    "note": "",
+    "kind": "own_or_borrow"
+   },
+   {
+    "group": "measure",
+    "item": "Pan flatness",
+    "part": "steel rule + feeler gauges",
+    "qty": 1,
+    "est_unit_usd": 0,
+    "est_usd": 0,
+    "note": "",
+    "kind": "own_or_borrow"
+   },
+   {
+    "group": "measure",
+    "item": "Drill press or drill stand",
+    "part": "for coring the disc and the plate bore under water",
+    "qty": 1,
+    "est_unit_usd": 0,
+    "est_usd": 0,
+    "note": "or a makerspace",
+    "kind": "own_or_borrow"
+   },
+   {
+    "group": "safety",
+    "item": "Oven mitts",
+    "part": "rated for 250 C pans",
+    "qty": 1,
+    "est_unit_usd": 0,
+    "est_usd": 0,
+    "note": "",
+    "kind": "own_or_borrow"
+   },
+   {
+    "group": "measure",
+    "item": "Dial indicator + base",
+    "part": "0.01 mm",
+    "qty": 1,
+    "est_unit_usd": 25,
+    "est_usd": 25,
+    "note": "only if the caliper step reading scatters > 0.02 mm",
+    "kind": "optional"
+   },
+   {
+    "group": "measure",
+    "item": "Surface roughness comparator",
+    "part": "Ra comparator plate",
+    "qty": 1,
+    "est_unit_usd": 40,
+    "est_usd": 40,
+    "note": "pan Ra class is metadata; h_c is measured directly",
+    "kind": "optional"
+   }
+  ],
+  "by_group_usd": {
+   "logger": 48,
+   "probe": 128,
+   "jig": 111,
+   "cal": 6,
+   "measure": 20
+  },
+  "must_buy_est_usd": 313,
+  "optional_est_usd": 65,
+  "assumes_owned": [
+   "Calibration block",
+   "Force check",
+   "Proud height",
+   "Pan flatness",
+   "Drill press or drill stand",
+   "Oven mitts"
+  ]
+ },
+ "excluded": "oven/hot plate, the cookware itself, a kitchen to work in",
+ "rows": [
+  {
+   "group": "logger",
+   "item": "ESP32-S3 devkit",
+   "part": "Espressif ESP32-S3-DevKitC-1-N8R8 (Digi-Key/Mouser)",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "",
+   "kind": "buy"
+  },
+  {
+   "group": "logger",
+   "item": "Pt100 converter breakout",
+   "part": "Adafruit 3328 (MAX31865, PT100, Rref 430 ohm)",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "set the 4-wire jumpers",
+   "kind": "buy"
+  },
+  {
+   "group": "logger",
+   "item": "Thermocouple converter breakout",
+   "part": "Adafruit 3263 (MAX31856)",
+   "qty": 1,
+   "est_unit_usd": 18,
+   "est_usd": 18,
+   "note": "",
+   "kind": "buy"
+  },
+  {
+   "group": "logger",
+   "item": "Pan reference thermocouple",
+   "part": "Omega 5TC-TT-K-36-36 (type K, 36 AWG, PFA), 5-pack",
+   "qty": 1,
+   "est_unit_usd": 45,
+   "est_usd": 45,
+   "note": "or any fine type-K bead",
+   "kind": "buy"
+  },
+  {
+   "group": "probe",
+   "item": "Pt100 thin-film element",
+   "part": "IST P0K1.202 family, class F0.15, Pt/Ni wire (e.g. P0K1.202.6W.A.007; EPS Global/Farnell)",
+   "qty": 3,
+   "est_unit_usd": 25,
+   "est_usd": 75,
+   "note": "1 + 2 spares",
+   "kind": "buy"
+  },
+  {
+   "group": "probe",
+   "item": "Contact disc, option A (C1-exact)",
+   "part": "Si3N4 0.32 mm substrate (e.g. Innovacera SN-90) laser-cut \u00d88, lapped Ra <= 0.1 um; lot of 20",
+   "qty": 1,
+   "est_unit_usd": 250,
+   "est_usd": 250,
+   "note": "quote; option B: 99.6 % polished alumina 0.254 mm \u00d88, similar cost",
+   "kind": "buy"
+  },
+  {
+   "group": "probe",
+   "item": "Bond adhesive",
+   "part": "EPO-TEK 930-4 (boron-nitride filled), small kit",
+   "qty": 1,
+   "est_unit_usd": 90,
+   "est_usd": 90,
+   "note": "same bond as C1",
+   "kind": "buy"
+  },
+  {
+   "group": "probe",
+   "item": "Lead wire",
+   "part": "PTFE-insulated 30 AWG silver-plated copper, 4 colours, + glass-fibre sleeving",
+   "qty": 1,
+   "est_unit_usd": 25,
+   "est_usd": 25,
+   "note": "4-wire to the element pads",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Post stock",
+   "part": "PEEK rod \u00d816 x 300 mm (McMaster)",
+   "qty": 1,
+   "est_unit_usd": 40,
+   "est_usd": 40,
+   "note": "Vespel SP-1 if available",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Holder and plug stock",
+   "part": "6061 rod \u00d845 x 150 mm",
+   "qty": 1,
+   "est_unit_usd": 30,
+   "est_usd": 30,
+   "note": "",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Machining (post, holder, M10x1 plug)",
+   "part": "local shop or own lathe; jig-post.step, jig-holder.step",
+   "qty": 1,
+   "est_unit_usd": 250,
+   "est_usd": 250,
+   "note": "estimate",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Compression springs",
+   "part": "stainless, OD ~5.5 mm, free length ~16 mm, rate 0.2-0.4 N/mm; assortment",
+   "qty": 1,
+   "est_unit_usd": 25,
+   "est_usd": 25,
+   "note": "jig.json sets preload",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Balls",
+   "part": "\u00d83 mm silicon nitride or 440C balls, 10-pack",
+   "qty": 1,
+   "est_unit_usd": 12,
+   "est_usd": 12,
+   "note": "",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Plate",
+   "part": "4 mm glass-ceramic (cooktop replacement offcut, ~300 x 300)",
+   "qty": 1,
+   "est_unit_usd": 80,
+   "est_usd": 80,
+   "note": "fallback: 6 mm calcium-silicate board",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "\u00d818 bore",
+   "part": "diamond core bit \u00d818 (water-cooled) or waterjet service",
+   "qty": 1,
+   "est_unit_usd": 40,
+   "est_usd": 40,
+   "note": "",
+   "kind": "buy"
+  },
+  {
+   "group": "jig",
+   "item": "Shim stock",
+   "part": "stainless 0.05 / 0.1 mm assortment",
+   "qty": 1,
+   "est_unit_usd": 20,
+   "est_usd": 20,
+   "note": "sets 0.60 mm proud",
+   "kind": "buy"
+  },
+  {
+   "group": "cal",
+   "item": "Copper calibration block",
+   "part": "C110 50 x 50 x 20 mm",
+   "qty": 1,
+   "est_unit_usd": 30,
+   "est_usd": 30,
+   "note": "paste calibration of tau_int",
+   "kind": "buy"
+  },
+  {
+   "group": "cal",
+   "item": "Thermal paste",
+   "part": "Wakefield 120 silicone compound (200 C)",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "",
+   "kind": "buy"
+  },
+  {
+   "group": "measure",
+   "item": "Milligram scale",
+   "part": "50 g x 0.001 g jewellery scale",
+   "qty": 1,
+   "est_unit_usd": 30,
+   "est_usd": 30,
+   "note": "disc mass (C_cap)",
+   "kind": "buy"
+  },
+  {
+   "group": "measure",
+   "item": "Force scale",
+   "part": "200 g x 0.01 g scale",
+   "qty": 1,
+   "est_unit_usd": 25,
+   "est_usd": 25,
+   "note": "tip force at flush",
+   "kind": "buy"
+  },
+  {
+   "group": "measure",
+   "item": "Dial indicator + magnetic base",
+   "part": "0.01 mm indicator",
+   "qty": 1,
+   "est_unit_usd": 60,
+   "est_usd": 60,
+   "note": "proud height, pan flatness",
+   "kind": "buy"
+  },
+  {
+   "group": "measure",
+   "item": "Straightedge + feeler gauges",
+   "part": "300 mm straightedge, 0.02-1 mm feelers",
+   "qty": 1,
+   "est_unit_usd": 35,
+   "est_usd": 35,
+   "note": "pan base concave/convex",
+   "kind": "buy"
+  },
+  {
+   "group": "measure",
+   "item": "Surface roughness comparator",
+   "part": "machined-surface comparator plate (Ra 0.05-12.5 um)",
+   "qty": 1,
+   "est_unit_usd": 40,
+   "est_usd": 40,
+   "note": "Ra class per pan",
+   "kind": "buy"
+  },
+  {
+   "group": "safety",
+   "item": "Heat-resistant gloves",
+   "part": "to 250 C",
+   "qty": 1,
+   "est_unit_usd": 20,
+   "est_usd": 20,
+   "note": "",
+   "kind": "buy"
+  }
+ ],
+ "by_group_usd": {
+  "logger": 93,
+  "probe": 440,
+  "jig": 497,
+  "cal": 45,
+  "measure": 190,
+  "safety": 20
+ },
+ "total_est_usd": 1285
+}

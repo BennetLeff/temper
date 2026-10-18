@@ -1,0 +1,140 @@
+{
+ "scope": "Boil-time comparison: temper's input-power options vs the Control Freak test.\n\nCalibration point: Eater's Control Freak test (yt:BcSqJ7sZiAQ, 2017-08-08,\n04:37-04:45): 2 L of water, wide uncovered pan, boiled in about 10:55 (655 s);\nthe reviewers had expected about 5 minutes. The Control Freak is rated 1800 W\ninput (120 V, 15 A).\n\nModel: energy to bring 2 L from 20 C to 100 C, plus a pan term, delivered at\nP_net = eta * P_in - P_loss, where P_loss (evaporation and convection from the\nopen pan, averaged over the heat-up) is backed out from the Control Freak run\nfor each assumed eta and then held fixed for every temper option (same pot,\nsame water). Coil-to-pan efficiency eta is swept 0.80-0.90 (typical induction\nrange; not measured for either product). This is a comparison, not a\nprediction of absolute boil time.\n\nTemper input options (power-stage DECISIONS, 2026-10-08 and the coil-driver-r1\ninput-current budget): held at 11.09 A power-stage current (about 1.33 kW\ninput, firmware estimate with 10 % margin), 11.62 A (bench +/-5 %), 12.05 A\n(measured with an AMC1301), inlet regulated at 13.5 A minus 1.3 A auxiliary\n(12.2 A, no estimate margin), and a 15 A nameplate like the Control Freak.\nRun: python3 boil_time.py -> boil-time.json",
+ "rows": [
+  {
+   "eta": 0.8,
+   "option": "held 11.09 A (estimate, +10 %)",
+   "P_in_W": 1331,
+   "P_loss_W": 344,
+   "t_s": 996,
+   "t_min": "16:36",
+   "vs_control_freak": 1.52
+  },
+  {
+   "eta": 0.8,
+   "option": "held 11.62 A (bench +/-5 %)",
+   "P_in_W": 1394,
+   "P_loss_W": 344,
+   "t_s": 931,
+   "t_min": "15:30",
+   "vs_control_freak": 1.42
+  },
+  {
+   "eta": 0.8,
+   "option": "held 12.05 A (AMC1301 measured)",
+   "P_in_W": 1446,
+   "P_loss_W": 344,
+   "t_s": 883,
+   "t_min": "14:43",
+   "vs_control_freak": 1.35
+  },
+  {
+   "eta": 0.8,
+   "option": "12.2 A (13.5 A inlet - 1.3 A aux, no margin)",
+   "P_in_W": 1464,
+   "P_loss_W": 344,
+   "t_s": 868,
+   "t_min": "14:27",
+   "vs_control_freak": 1.33
+  },
+  {
+   "eta": 0.8,
+   "option": "15 A nameplate (Control Freak class)",
+   "P_in_W": 1800,
+   "P_loss_W": 344,
+   "t_s": 655,
+   "t_min": "10:55",
+   "vs_control_freak": 1.0
+  },
+  {
+   "eta": 0.85,
+   "option": "held 11.09 A (estimate, +10 %)",
+   "P_in_W": 1331,
+   "P_loss_W": 434,
+   "t_s": 1030,
+   "t_min": "17:09",
+   "vs_control_freak": 1.57
+  },
+  {
+   "eta": 0.85,
+   "option": "held 11.62 A (bench +/-5 %)",
+   "P_in_W": 1394,
+   "P_loss_W": 434,
+   "t_s": 956,
+   "t_min": "15:55",
+   "vs_control_freak": 1.46
+  },
+  {
+   "eta": 0.85,
+   "option": "held 12.05 A (AMC1301 measured)",
+   "P_in_W": 1446,
+   "P_loss_W": 434,
+   "t_s": 903,
+   "t_min": "15:02",
+   "vs_control_freak": 1.38
+  },
+  {
+   "eta": 0.85,
+   "option": "12.2 A (13.5 A inlet - 1.3 A aux, no margin)",
+   "P_in_W": 1464,
+   "P_loss_W": 434,
+   "t_s": 886,
+   "t_min": "14:45",
+   "vs_control_freak": 1.35
+  },
+  {
+   "eta": 0.85,
+   "option": "15 A nameplate (Control Freak class)",
+   "P_in_W": 1800,
+   "P_loss_W": 434,
+   "t_s": 655,
+   "t_min": "10:55",
+   "vs_control_freak": 1.0
+  },
+  {
+   "eta": 0.9,
+   "option": "held 11.09 A (estimate, +10 %)",
+   "P_in_W": 1331,
+   "P_loss_W": 524,
+   "t_s": 1066,
+   "t_min": "17:45",
+   "vs_control_freak": 1.63
+  },
+  {
+   "eta": 0.9,
+   "option": "held 11.62 A (bench +/-5 %)",
+   "P_in_W": 1394,
+   "P_loss_W": 524,
+   "t_s": 982,
+   "t_min": "16:22",
+   "vs_control_freak": 1.5
+  },
+  {
+   "eta": 0.9,
+   "option": "held 12.05 A (AMC1301 measured)",
+   "P_in_W": 1446,
+   "P_loss_W": 524,
+   "t_s": 924,
+   "t_min": "15:23",
+   "vs_control_freak": 1.41
+  },
+  {
+   "eta": 0.9,
+   "option": "12.2 A (13.5 A inlet - 1.3 A aux, no margin)",
+   "P_in_W": 1464,
+   "P_loss_W": 524,
+   "t_s": 905,
+   "t_min": "15:04",
+   "vs_control_freak": 1.38
+  },
+  {
+   "eta": 0.9,
+   "option": "15 A nameplate (Control Freak class)",
+   "P_in_W": 1800,
+   "P_loss_W": 524,
+   "t_s": 655,
+   "t_min": "10:55",
+   "vs_control_freak": 1.0
+  }
+ ]
+}

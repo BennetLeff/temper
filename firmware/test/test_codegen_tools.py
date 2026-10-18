@@ -111,7 +111,7 @@ class TestGenFaultList:
     def test_fault_count_in_comment(self):
         """The trailing comment mentions total entry count."""
         content = self.OUTPUT.read_text()
-        assert "14 total entries" in content
+        assert "16 total entries" in content
 
     def test_deterministic(self):
         """Running gen_fault_list.py twice produces identical output."""
@@ -137,7 +137,7 @@ class TestGenTransitionTable:
     #  32 declared transitions in the YAML
     STATE_COUNT = 9
     EVENT_COUNT = 23
-    TRANSITION_COUNT = 32
+    TRANSITION_COUNT = 34   # +2: EVENT_CONTACT_LOST self-loops (sensor-r3)
 
     def test_runs_without_error(self):
         """gen_transition_table.py exits 0 and produces output file."""

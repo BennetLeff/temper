@@ -1,0 +1,38 @@
+{
+ "scope": "Surrogate-probe fidelity vs C1: heat capacity and the dry tau63 it would show, per disc option.\n\nThe survey gates C1's tau63 computed from the fitted h_c (fit.py), so the surrogate does\nnot need C1's heat capacity; this script states how close each option is and what tau63\nthe surrogate itself will show at C1's modelled worst contact (h 888) and nominal (1300).\nRun: python surrogate.py -> surrogate.json",
+ "C1_C_cap_mJ_K": 40.4,
+ "C1_tau63_s": {
+  "h888": 1.099,
+  "h1300": 0.797
+ },
+ "options": {
+  "A: Si3N4 0.32 mm, laser-cut \u00d88 (C1-exact)": {
+   "disc_mass_mg": 52.3,
+   "C_cap_mJ_K": 40.4,
+   "vs_C1_pct": 0.0,
+   "tau63_surrogate_s_h888": 1.117,
+   "tau63_surrogate_s_h1300": 0.809
+  },
+  "B: 99.6 % alumina 0.254 mm, polished, laser-cut \u00d88": {
+   "disc_mass_mg": 49.4,
+   "C_cap_mJ_K": 48.55,
+   "vs_C1_pct": 20.2,
+   "tau63_surrogate_s_h888": 1.315,
+   "tau63_surrogate_s_h1300": 0.946
+  },
+  "C: 96 % alumina 0.25 mm, as-fired, laser-cut \u00d88 (rougher face)": {
+   "disc_mass_mg": 46.7,
+   "C_cap_mJ_K": 45.97,
+   "vs_C1_pct": 13.8,
+   "tau63_surrogate_s_h888": 1.253,
+   "tau63_surrogate_s_h1300": 0.903
+  },
+  "B-lean: 99.6 % alumina 0.254 mm, polished, cored \u00d88 from one substrate": {
+   "disc_mass_mg": 49.4,
+   "C_cap_mJ_K": 48.55,
+   "vs_C1_pct": 20.2,
+   "tau63_surrogate_s_h888": 1.315,
+   "tau63_surrogate_s_h1300": 0.946
+  }
+ }
+}

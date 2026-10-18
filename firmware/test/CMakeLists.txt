@@ -53,12 +53,14 @@ set(UNITY_SOURCES
 
 # HAL mock implementations
 set(MOCK_HAL_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/hal_init_mock.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_gpio.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_adc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_pwm.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_spi.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock/mock_timer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/hal_init_mock.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_gpio.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_pwm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_spi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_timer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_mcp3202.c
 )
 
 # Firmware components to test (the actual production code)
@@ -87,8 +89,8 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/unity
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/mock
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety
     ${CMAKE_CURRENT_SOURCE_DIR}/../main
@@ -185,6 +187,7 @@ add_executable(test_max31865_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
@@ -243,15 +246,40 @@ add_executable(test_safety_only
 target_include_directories(test_safety_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_safety_only m)
 
-# Pan detection tests only
+# Pan detection tests only: the real pan_detect.c (its ESP-IDF capture glue
+# is under ESP_PLATFORM) and the PLL's burst-start rule it uses.
 add_executable(test_pan_detection_only
     ${UNITY_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pan_detect_logic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_detect.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pll_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_pan_detection.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_pan_detection.c
 )
 target_include_directories(test_pan_detection_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pan_detection_only m)
+
+# TPS3823 WDI supervisor (zapote/controller C42): heartbeat only after the
+# control loop's progress check. output/temper-sensor-r3/firmware/
+# DECISIONS.md D-BRINGUP.
+add_executable(test_wdi_supervisor_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/wdi_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_wdi_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_wdi_supervisor.c
+)
+target_include_directories(test_wdi_supervisor_only PRIVATE ${INCLUDE_DIRS})
+
+# RUN_EN raised only with the gate PWM idle (zapote/controller C23 / C39),
+# through the GPIO and PWM mocks.
+add_executable(test_power_gate_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/power_gate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_power_gate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_power_gate.c
+)
+target_include_directories(test_power_gate_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_power_gate_only m)
 
 # PLL control tests only
 add_executable(test_pll_only
@@ -323,10 +351,10 @@ add_executable(test_adc_guard_only
     test_main_adc_guard.c
     test_adc_guard.c
     ../components/safety/adc_guard.c
-    ../components/hal/mock/mock_adc.c
+    ../components/temper_hal/mock/mock_adc.c
 )
 target_include_directories(test_adc_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -340,7 +368,7 @@ add_executable(test_pwm_guard_only
     ../components/safety/pwm_guard.c
 )
 target_include_directories(test_pwm_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -354,7 +382,7 @@ add_executable(test_ntc_guard_only
     ../components/safety/ntc_guard.c
 )
 target_include_directories(test_ntc_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -368,7 +396,7 @@ add_executable(test_fan_guard_only
     ../components/safety/fan_guard.c
 )
 target_include_directories(test_fan_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -381,7 +409,7 @@ add_executable(test_coil_guard_only
     ../components/safety/coil_guard.c
 )
 target_include_directories(test_coil_guard_only PRIVATE 
-    ../components/hal/include
+    ../components/temper_hal/include
     ../components/safety/include
     unity
 )
@@ -404,6 +432,8 @@ add_test(NAME low_temp_tests COMMAND test_low_temp_only)
 add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)
+add_test(NAME wdi_supervisor_tests COMMAND test_wdi_supervisor_only)
+add_test(NAME power_gate_tests COMMAND test_power_gate_only)
 add_test(NAME integration_tests COMMAND test_integration_only)
 
 # ============================================================================
@@ -430,8 +460,8 @@ add_executable(test_ui_only
     test_main_ui.c
     test_ui.c
     ../main/ui.c
-    ../components/hal/mock/hal_encoder_mock.c
-    ../components/hal/mock/hal_led_mock.c
+    ../components/temper_hal/mock/hal_encoder_mock.c
+    ../components/temper_hal/mock/hal_led_mock.c
 )
 target_include_directories(test_ui_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_ui_only m)
@@ -473,9 +503,240 @@ add_executable(test_sil_fault_injection
 target_include_directories(test_sil_fault_injection PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_sil_fault_injection m)
 
-# CTest registration
+# CTest registration. The C1 configuration of the same suite
+# (test_sil_fault_injection_c1, sil_fault_tests_c1) is registered with the
+# other TEMPER_PAN_CONTROL_C1 targets below.
 add_test(NAME sil_fault_tests
     COMMAND test_sil_fault_injection
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# ============================================================================
+# sensor-r3 C1 pan-temperature loop (components/control/pan_temp_*.c,
+# contact_shift.c, plant_gain.c, pan_rate_pid.c, contact_check.c,
+# pan_sensor_guard.c).
+# Golden vectors are generated by output/temper-sensor-r3/firmware/
+# export_vectors.py; the C-in-the-loop co-simulation and its runner live in
+# that folder too (run.sh).
+# ============================================================================
+
+set(PAN_TEMP_LOOP_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_temp_estimator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/contact_shift.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/plant_gain.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rate_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/contact_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_sensor_guard.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_temp_loop.c
+)
+
+add_executable(test_pan_temp_estimator_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_temp_estimator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_pan_temp_estimator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_pan_temp_estimator.c
+)
+target_include_directories(test_pan_temp_estimator_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_pan_temp_estimator_only m)
+
+add_executable(test_contact_check_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/contact_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_contact_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_contact_check.c
+)
+target_include_directories(test_contact_check_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_contact_check_only m)
+
+add_executable(test_pan_temp_loop_only
+    ${UNITY_SOURCES}
+    ${PAN_TEMP_LOOP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_pan_temp_loop.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_pan_temp_loop.c
+)
+target_include_directories(test_pan_temp_loop_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_pan_temp_loop_only m)
+
+# EVENT_CONTACT_LOST in the state machine (self-loop + UI message).
+add_executable(test_pan_contact_sm_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_pan_contact_sm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_pan_contact_sm.c
+)
+target_include_directories(test_pan_contact_sm_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_pan_contact_sm_only m)
+add_dependencies(test_pan_contact_sm_only gen_config gen_fault_list gen_transition_table)
+
+add_test(NAME pan_temp_estimator_tests COMMAND test_pan_temp_estimator_only)
+add_test(NAME contact_check_tests COMMAND test_contact_check_only)
+add_test(NAME pan_temp_loop_tests COMMAND test_pan_temp_loop_only)
+add_test(NAME pan_contact_sm_tests COMMAND test_pan_contact_sm_only)
+
+# ============================================================================
+# sensor-r3 C1 runtime (TEMPER_PAN_CONTROL_C1): runaway supervisor and RTD
+# conversion units, the state machine driving the C1 loop through
+# main/pan_control.c, and the C1 MAX31865 service path (CR-7) through the SPI
+# mock. output/temper-sensor-r3/firmware/DECISIONS.md D-MODE, D-RUN, D-STALE.
+# The legacy targets above build without TEMPER_PAN_CONTROL_C1.
+# ============================================================================
+
+set(C1_RUNTIME_SOURCES
+    ${PAN_TEMP_LOOP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+)
+
+add_executable(test_c1_units_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c
+)
+target_include_directories(test_c1_units_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_units_only m)
+
+add_executable(test_c1_runtime_only
+    ${UNITY_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_runtime.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_runtime.c
+)
+target_compile_definitions(test_c1_runtime_only PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_include_directories(test_c1_runtime_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_runtime_only m)
+add_dependencies(test_c1_runtime_only gen_config gen_fault_list gen_transition_table)
+
+# The same runtime tests with the input-current (AMC1301) cross-check compiled
+# in (TEMPER_INPUT_CURRENT_SENSE, default 0 until the sense is on the board;
+# DECISIONS.md D-ISENSE (c)). test_c1_runtime.c adds the cross-check tests in
+# this build.
+add_executable(test_c1_runtime_isense_only
+    ${UNITY_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_runtime.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_runtime.c
+)
+target_compile_definitions(test_c1_runtime_isense_only PRIVATE TEMPER_PAN_CONTROL_C1=1
+    TEMPER_INPUT_CURRENT_SENSE=1)
+target_include_directories(test_c1_runtime_isense_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_runtime_isense_only m)
+add_dependencies(test_c1_runtime_isense_only gen_config gen_fault_list gen_transition_table)
+
+add_executable(test_c1_rtd_service_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rtd_service.c
+)
+target_compile_definitions(test_c1_rtd_service_only PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_include_directories(test_c1_rtd_service_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_rtd_service_only m)
+add_dependencies(test_c1_rtd_service_only gen_config gen_fault_list gen_transition_table)
+
+# sensor-r3 C1 rim NTC driver (CR-7 rim channel; DECISIONS.md D-RIM): the
+# driver through a mock HAL, and its board binding through the hal_adc mock.
+add_executable(test_c1_rim_ntc_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rim_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rim_ntc.c
+)
+target_include_directories(test_c1_rim_ntc_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_rim_ntc_only m)
+
+# sensor-r3 heatsink NTC driver (NTCALUG01A104GA on HS_ADC, GPIO6 / ADC1_CH5;
+# DECISIONS.md D-HSNTC): the driver through a mock HAL, and its board binding
+# through the hal_adc mock.
+add_executable(test_c1_hs_ntc_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_hs_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_hs_ntc.c
+)
+target_include_directories(test_c1_hs_ntc_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_hs_ntc_only m)
+
+add_test(NAME c1_units_tests COMMAND test_c1_units_only)
+add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)
+add_test(NAME c1_runtime_isense_tests COMMAND test_c1_runtime_isense_only)
+add_test(NAME c1_rtd_service_tests COMMAND test_c1_rtd_service_only)
+add_test(NAME c1_rim_ntc_tests COMMAND test_c1_rim_ntc_only)
+add_test(NAME c1_hs_ntc_tests COMMAND test_c1_hs_ntc_only)
+
+# SIL fault injection in the C1 configuration: the same runner and manifest
+# (test_sil_fault_injection.c, traces/manifest.json "modes"), built with
+# TEMPER_PAN_CONTROL_C1 as the ESP-IDF target is, with the C1 loop and
+# supervisor and the real MAX31865 service driven through the SPI mock by a
+# register-level converter model. output/temper-sensor-r3/firmware/
+# DECISIONS.md D-SIL; coverage of both configurations is gated by
+# test_sil_coverage.py (firmware/tools/check_sil_coverage.py).
+add_executable(test_sil_fault_injection_c1
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_sil_fault_injection.c
+)
+target_compile_definitions(test_sil_fault_injection_c1 PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_include_directories(test_sil_fault_injection_c1 PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_sil_fault_injection_c1 m)
+add_dependencies(test_sil_fault_injection_c1 gen_config gen_fault_list gen_transition_table)
+
+add_test(NAME sil_fault_tests_c1
+    COMMAND test_sil_fault_injection_c1
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -499,7 +760,7 @@ target_compile_options(test_power_no_burst_only PRIVATE -UNDEBUG -Wall -Wextra -
 add_test(NAME power_no_burst_tests COMMAND test_power_no_burst_only)
 
 add_executable(test_pwm_esp32_only ${UNITY_SOURCES} test_pwm_esp32.c
-    pwm_sdk_stub/sdk_stub.c ../components/hal/esp32/hal_pwm_esp32.c)
+    pwm_sdk_stub/sdk_stub.c ../components/temper_hal/esp32/hal_pwm_esp32.c)
 target_include_directories(test_pwm_esp32_only PRIVATE pwm_sdk_stub ${INCLUDE_DIRS})
 target_link_libraries(test_pwm_esp32_only m)
 add_test(NAME pwm_esp32_tests COMMAND test_pwm_esp32_only)

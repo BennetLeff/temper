@@ -1,0 +1,235 @@
+{
+ "scope": "How much does a switching-frequency dither lower a CISPR band-A (9-150 kHz) reading?\n\nImpulse's US12712433B1 describes spread-spectrum modulation of the PWM carrier\nso the EMI filter can stay small. Temper's binding conducted-EMI lines sit in\nband A (the tank fundamental and the 2fs bus-ripple line, 47 CFR 18.307 QP\nlimit; worst ~60-70 kHz, `emi_split_cap.json`), so a firmware dither is the\ncheapest possible lever. This script measures the reading reduction for a\nnarrowband line whose frequency is swept with a triangular dither, against\nthe same line held still, through a CISPR 16-1-1 band-A receiver model:\n\n  - IF filter: Gaussian, 200 Hz 6 dB bandwidth (band A RBW);\n  - quasi-peak detector: 45 ms charge, 500 ms discharge, 160 ms meter\n    (critically damped 2nd order, as two 1st-order 80 ms stages - an\n    approximation of the mechanical meter);\n  - average detector: linear envelope through the same meter.\n\nThe receiver is tuned across the dithered span and the worst (highest)\nreading is reported, as a scan would find it. `harmonic` scales the deviation\n(the 2fs bus-ripple line moves twice as far as fs).\n\nThis is a model of the measuring receiver only. It does not include the line\ncycle's own amplitude modulation (which also lowers AV/QP) and is not a\ncompliance number. Run: python3 dither_qp.py -> dither_qp.json",
+ "receiver": {
+  "RBW_Hz": 200.0,
+  "QP_charge_s": 0.045,
+  "QP_discharge_s": 0.5,
+  "meter_s": 0.16
+ },
+ "rows": [
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 3.0,
+   "AV_reduction_dB": 6.7
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 3.5,
+   "AV_reduction_dB": 4.7
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 2.4,
+   "AV_reduction_dB": 2.4
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 0.1,
+   "AV_reduction_dB": 0.1
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 4.5,
+   "AV_reduction_dB": 11.0
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 5.4,
+   "AV_reduction_dB": 6.9
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 6.1,
+   "AV_reduction_dB": 6.1
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 0.4,
+   "AV_reduction_dB": 0.4
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 6.8,
+   "AV_reduction_dB": 13.7
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 8.5,
+   "AV_reduction_dB": 11.0
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 6.7,
+   "AV_reduction_dB": 6.7
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 1.8,
+   "AV_reduction_dB": 1.8
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 10.1,
+   "AV_reduction_dB": 16.6
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 9.5,
+   "AV_reduction_dB": 12.3
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 11.4,
+   "AV_reduction_dB": 11.4
+  },
+  {
+   "harmonic": 1,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 4.3,
+   "AV_reduction_dB": 4.3
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 4.5,
+   "AV_reduction_dB": 11.0
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 5.4,
+   "AV_reduction_dB": 6.9
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 6.1,
+   "AV_reduction_dB": 6.1
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 250.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 0.4,
+   "AV_reduction_dB": 0.4
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 6.8,
+   "AV_reduction_dB": 13.7
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 8.5,
+   "AV_reduction_dB": 11.0
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 6.7,
+   "AV_reduction_dB": 6.7
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 500.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 1.8,
+   "AV_reduction_dB": 1.8
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 12.0,
+   "AV_reduction_dB": 16.6
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 10.5,
+   "AV_reduction_dB": 13.5
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 13.2,
+   "AV_reduction_dB": 15.4
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1000.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 4.5,
+   "AV_reduction_dB": 4.5
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 50.0,
+   "QP_reduction_dB": 13.8,
+   "AV_reduction_dB": 17.8
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 120.0,
+   "QP_reduction_dB": 13.0,
+   "AV_reduction_dB": 15.5
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 200.0,
+   "QP_reduction_dB": 13.5,
+   "AV_reduction_dB": 13.9
+  },
+  {
+   "harmonic": 2,
+   "fs_dev_pm_Hz": 1500.0,
+   "dither_rate_Hz": 1000.0,
+   "QP_reduction_dB": 10.7,
+   "AV_reduction_dB": 10.7
+  }
+ ]
+}
