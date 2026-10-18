@@ -155,8 +155,12 @@ def special_loads(layout):
                 w = 2 * math.pi * F_MAX
                 X = w * L - 1 / (w * C)
                 I = 0.9 * V / math.hypot(R, X)
+                L35, R35 = fn(F_MIN)
+                R35 += coil_rac(layout, F_MIN)
+                w35 = 2 * math.pi * F_MIN
+                I35 = 0.9 * V / math.hypot(R35, w35 * L35 - 1 / (w35 * C))
                 res[f"{V:.0f}V_C{C * 1e9:.0f}nF"] = dict(I_rms_at_60kHz=I, I_pk=PEAK_PER_RMS * I, f_res_kHz=1 / (2 * math.pi * math.sqrt(L * C)) / 1e3,
-                                                        Q=w * L / R, R_total=R)
+                                                        Q=w * L / R, R_total=R, I_rms_at_35kHz=I35, P_at_35kHz_W=I35 * I35 * R35)
         out[name] = res
     return out
 

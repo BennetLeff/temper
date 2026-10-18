@@ -104,10 +104,11 @@ def main():
                 continue
             md.append(f"| {lay} | {k} | {s['full_power_share'] * 100:.0f} % | {s['P_min_W']:.0f} / {s['P_median_W']:.0f} | {s['f_op_kHz'][0]:.1f}-{s['f_op_kHz'][1]:.1f} | "
                       f"{s['f_res_kHz'][0]:.1f}-{s['f_res_kHz'][1]:.1f} | {s['f_over_fres_min']:.2f} | {s['I_pk_max']:.1f} | {s['Vc_rms_max']:.0f} / {s['Vc_pk_max']:.0f} | {s['over_limit_at_fmax']} |")
-    md += ["", "Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q):", ""]
+    md += ["", "Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q) and at the 35 kHz floor:", ""]
     for lay in ("R1", "80uH_out6.46", "70uH_out6.46", "R43_21.93"):
         for name, v in sysj[lay]["special_loads"].items():
-            md.append(f"- {lay} {name}: " + "; ".join(f"{kk} {vv['I_rms_at_60kHz']:.1f} A, f_res {vv['f_res_kHz']:.1f}, Q {vv['Q']:.0f}" for kk, vv in v.items()))
+            md.append(f"- {lay} {name}: " + "; ".join(f"{kk} {vv['I_rms_at_60kHz']:.1f} A, f_res {vv['f_res_kHz']:.1f}, Q {vv['Q']:.0f} "
+                                                      f"(at 35 kHz: {vv['I_rms_at_35kHz']:.1f} A, {vv['P_at_35kHz_W']:.0f} W)" for kk, vv in v.items()))
     md.append("")
     md += ["## Ferrite (ferrite.py; 3D discrete bars)", ""]
     for k, v in fer["cases"].items():

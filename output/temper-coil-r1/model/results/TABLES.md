@@ -211,24 +211,24 @@ Large-signal ESTIMATE (Frohlich effective mu, 40 kHz, 240 mm): 70uH_out6.46 ss43
 | R43_21.93 | priors_28A_lag45 | 41 % | 159 / 1031 | 35.0-41.4 | 25.4-33.2 | 1.16 | 60.7 | 255 / 553 | 0 |
 | R43_21.93 | priors_28A_lag30 | 41 % | 159 / 1031 | 35.0-41.4 | 25.4-33.2 | 1.16 | 60.7 | 255 / 553 | 0 |
 
-Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q):
+Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q) and at the 35 kHz floor:
 
-- R1 no_pan: 120V_C475nF 4.6 A, f_res 26.3, Q 257; 120V_C525nF 4.5 A, f_res 25.0, Q 257; 132V_C475nF 5.1 A, f_res 26.3, Q 257; 132V_C525nF 5.0 A, f_res 25.0, Q 257
-- R1 aluminium_240: 120V_C475nF 32.9 A, f_res 47.7, Q 33; 120V_C525nF 28.4 A, f_res 45.3, Q 33; 132V_C475nF 36.2 A, f_res 47.7, Q 33; 132V_C525nF 31.2 A, f_res 45.3, Q 33
-- R1 aluminium_180: 120V_C475nF 18.1 A, f_res 41.7, Q 40; 120V_C525nF 16.6 A, f_res 39.7, Q 40; 132V_C475nF 19.9 A, f_res 41.7, Q 40; 132V_C525nF 18.3 A, f_res 39.7, Q 40
-- R1 carbon_steel_lo_180: 120V_C475nF 12.2 A, f_res 37.8, Q 6; 120V_C525nF 11.6 A, f_res 36.0, Q 6; 132V_C475nF 13.4 A, f_res 37.8, Q 6; 132V_C525nF 12.7 A, f_res 36.0, Q 6
-- 80uH_out6.46 no_pan: 120V_C475nF 4.7 A, f_res 26.5, Q 255; 120V_C525nF 4.6 A, f_res 25.2, Q 255; 132V_C475nF 5.2 A, f_res 26.5, Q 255; 132V_C525nF 5.0 A, f_res 25.2, Q 255
-- 80uH_out6.46 aluminium_240: 120V_C475nF 34.2 A, f_res 48.0, Q 33; 120V_C525nF 29.3 A, f_res 45.7, Q 33; 132V_C475nF 37.7 A, f_res 48.0, Q 33; 132V_C525nF 32.2 A, f_res 45.7, Q 33
-- 80uH_out6.46 aluminium_180: 120V_C475nF 18.5 A, f_res 41.9, Q 40; 120V_C525nF 16.9 A, f_res 39.9, Q 40; 132V_C475nF 20.3 A, f_res 41.9, Q 40; 132V_C525nF 18.6 A, f_res 39.9, Q 40
-- 80uH_out6.46 carbon_steel_lo_180: 120V_C475nF 12.5 A, f_res 38.0, Q 6; 120V_C525nF 11.8 A, f_res 36.2, Q 6; 132V_C475nF 13.7 A, f_res 38.0, Q 6; 132V_C525nF 13.0 A, f_res 36.2, Q 6
-- 70uH_out6.46 no_pan: 120V_C475nF 5.6 A, f_res 28.4, Q 238; 120V_C525nF 5.4 A, f_res 27.0, Q 238; 132V_C475nF 6.1 A, f_res 28.4, Q 238; 132V_C525nF 6.0 A, f_res 27.0, Q 238
-- 70uH_out6.46 aluminium_240: 120V_C475nF 50.8 A, f_res 51.1, Q 32; 120V_C525nF 40.7 A, f_res 48.6, Q 32; 132V_C475nF 55.8 A, f_res 51.1, Q 32; 132V_C525nF 44.7 A, f_res 48.6, Q 32
-- 70uH_out6.46 aluminium_180: 120V_C475nF 22.6 A, f_res 44.0, Q 41; 120V_C525nF 20.3 A, f_res 41.9, Q 41; 132V_C475nF 24.8 A, f_res 44.0, Q 41; 132V_C525nF 22.3 A, f_res 41.9, Q 41
-- 70uH_out6.46 carbon_steel_lo_180: 120V_C475nF 15.0 A, f_res 40.2, Q 6; 120V_C525nF 14.0 A, f_res 38.2, Q 6; 132V_C475nF 16.5 A, f_res 40.2, Q 6; 132V_C525nF 15.4 A, f_res 38.2, Q 6
-- R43_21.93 no_pan: 120V_C475nF 4.2 A, f_res 25.3, Q 267; 120V_C525nF 4.1 A, f_res 24.1, Q 267; 132V_C475nF 4.6 A, f_res 25.3, Q 267; 132V_C525nF 4.5 A, f_res 24.1, Q 267
-- R43_21.93 aluminium_240: 120V_C475nF 27.2 A, f_res 45.9, Q 33; 120V_C525nF 24.0 A, f_res 43.7, Q 33; 132V_C475nF 29.9 A, f_res 45.9, Q 33; 132V_C525nF 26.4 A, f_res 43.7, Q 33
-- R43_21.93 aluminium_180: 120V_C475nF 16.1 A, f_res 40.5, Q 40; 120V_C525nF 15.0 A, f_res 38.5, Q 40; 132V_C475nF 17.8 A, f_res 40.5, Q 40; 132V_C525nF 16.4 A, f_res 38.5, Q 40
-- R43_21.93 carbon_steel_lo_180: 120V_C475nF 11.0 A, f_res 36.6, Q 6; 120V_C525nF 10.4 A, f_res 34.8, Q 6; 132V_C475nF 12.1 A, f_res 36.6, Q 6; 132V_C525nF 11.5 A, f_res 34.8, Q 6
+- R1 no_pan: 120V_C475nF 4.6 A, f_res 26.3, Q 257 (at 35 kHz: 14.7 A, 24 W); 120V_C525nF 4.5 A, f_res 25.0, Q 257 (at 35 kHz: 13.1 A, 19 W); 132V_C475nF 5.1 A, f_res 26.3, Q 257 (at 35 kHz: 16.2 A, 28 W); 132V_C525nF 5.0 A, f_res 25.0, Q 257 (at 35 kHz: 14.4 A, 23 W)
+- R1 aluminium_240: 120V_C475nF 32.9 A, f_res 47.7, Q 33 (at 35 kHz: 24.6 A, 137 W); 120V_C525nF 28.4 A, f_res 45.3, Q 33 (at 35 kHz: 31.1 A, 219 W); 132V_C475nF 36.2 A, f_res 47.7, Q 33 (at 35 kHz: 27.1 A, 166 W); 132V_C525nF 31.2 A, f_res 45.3, Q 33 (at 35 kHz: 34.2 A, 265 W)
+- R1 aluminium_180: 120V_C475nF 18.1 A, f_res 41.7, Q 40 (at 35 kHz: 38.4 A, 355 W); 120V_C525nF 16.6 A, f_res 39.7, Q 40 (at 35 kHz: 56.8 A, 774 W); 132V_C475nF 19.9 A, f_res 41.7, Q 40 (at 35 kHz: 42.3 A, 429 W); 132V_C525nF 18.3 A, f_res 39.7, Q 40 (at 35 kHz: 62.4 A, 936 W)
+- R1 carbon_steel_lo_180: 120V_C475nF 12.2 A, f_res 37.8, Q 6 (at 35 kHz: 56.2 A, 5630 W); 120V_C525nF 11.6 A, f_res 36.0, Q 6 (at 35 kHz: 60.3 A, 6477 W); 132V_C475nF 13.4 A, f_res 37.8, Q 6 (at 35 kHz: 61.9 A, 6812 W); 132V_C525nF 12.7 A, f_res 36.0, Q 6 (at 35 kHz: 66.4 A, 7837 W)
+- 80uH_out6.46 no_pan: 120V_C475nF 4.7 A, f_res 26.5, Q 255 (at 35 kHz: 15.2 A, 25 W); 120V_C525nF 4.6 A, f_res 25.2, Q 255 (at 35 kHz: 13.5 A, 20 W); 132V_C475nF 5.2 A, f_res 26.5, Q 255 (at 35 kHz: 16.7 A, 30 W); 132V_C525nF 5.0 A, f_res 25.2, Q 255 (at 35 kHz: 14.8 A, 24 W)
+- 80uH_out6.46 aluminium_240: 120V_C475nF 34.2 A, f_res 48.0, Q 33 (at 35 kHz: 24.2 A, 131 W); 120V_C525nF 29.3 A, f_res 45.7, Q 33 (at 35 kHz: 30.4 A, 208 W); 132V_C475nF 37.7 A, f_res 48.0, Q 33 (at 35 kHz: 26.6 A, 159 W); 132V_C525nF 32.2 A, f_res 45.7, Q 33 (at 35 kHz: 33.5 A, 251 W)
+- 80uH_out6.46 aluminium_180: 120V_C475nF 18.5 A, f_res 41.9, Q 40 (at 35 kHz: 37.4 A, 333 W); 120V_C525nF 16.9 A, f_res 39.9, Q 40 (at 35 kHz: 54.6 A, 708 W); 132V_C475nF 20.3 A, f_res 41.9, Q 40 (at 35 kHz: 41.2 A, 402 W); 132V_C525nF 18.6 A, f_res 39.9, Q 40 (at 35 kHz: 60.1 A, 856 W)
+- 80uH_out6.46 carbon_steel_lo_180: 120V_C475nF 12.5 A, f_res 38.0, Q 6 (at 35 kHz: 55.8 A, 5436 W); 120V_C525nF 11.8 A, f_res 36.2, Q 6 (at 35 kHz: 61.7 A, 6657 W); 132V_C475nF 13.7 A, f_res 38.0, Q 6 (at 35 kHz: 61.3 A, 6578 W); 132V_C525nF 13.0 A, f_res 36.2, Q 6 (at 35 kHz: 67.9 A, 8054 W)
+- 70uH_out6.46 no_pan: 120V_C475nF 5.6 A, f_res 28.4, Q 238 (at 35 kHz: 21.7 A, 48 W); 120V_C525nF 5.4 A, f_res 27.0, Q 238 (at 35 kHz: 18.3 A, 34 W); 132V_C475nF 6.1 A, f_res 28.4, Q 238 (at 35 kHz: 23.9 A, 58 W); 132V_C525nF 6.0 A, f_res 27.0, Q 238 (at 35 kHz: 20.2 A, 41 W)
+- 70uH_out6.46 aluminium_240: 120V_C475nF 50.8 A, f_res 51.1, Q 32 (at 35 kHz: 21.3 A, 92 W); 120V_C525nF 40.7 A, f_res 48.6, Q 32 (at 35 kHz: 26.0 A, 137 W); 132V_C475nF 55.8 A, f_res 51.1, Q 32 (at 35 kHz: 23.5 A, 112 W); 132V_C525nF 44.7 A, f_res 48.6, Q 32 (at 35 kHz: 28.6 A, 166 W)
+- 70uH_out6.46 aluminium_180: 120V_C475nF 22.6 A, f_res 44.0, Q 41 (at 35 kHz: 30.8 A, 203 W); 120V_C525nF 20.3 A, f_res 41.9, Q 41 (at 35 kHz: 41.6 A, 371 W); 132V_C475nF 24.8 A, f_res 44.0, Q 41 (at 35 kHz: 33.9 A, 246 W); 132V_C525nF 22.3 A, f_res 41.9, Q 41 (at 35 kHz: 45.8 A, 449 W)
+- 70uH_out6.46 carbon_steel_lo_180: 120V_C475nF 15.0 A, f_res 40.2, Q 6 (at 35 kHz: 46.9 A, 3258 W); 120V_C525nF 14.0 A, f_res 38.2, Q 6 (at 35 kHz: 63.2 A, 5914 W); 132V_C475nF 16.5 A, f_res 40.2, Q 6 (at 35 kHz: 51.6 A, 3942 W); 132V_C525nF 15.4 A, f_res 38.2, Q 6 (at 35 kHz: 69.5 A, 7156 W)
+- R43_21.93 no_pan: 120V_C475nF 4.2 A, f_res 25.3, Q 267 (at 35 kHz: 12.3 A, 17 W); 120V_C525nF 4.1 A, f_res 24.1, Q 267 (at 35 kHz: 11.2 A, 14 W); 132V_C475nF 4.6 A, f_res 25.3, Q 267 (at 35 kHz: 13.6 A, 21 W); 132V_C525nF 4.5 A, f_res 24.1, Q 267 (at 35 kHz: 12.3 A, 17 W)
+- R43_21.93 aluminium_240: 120V_C475nF 27.2 A, f_res 45.9, Q 33 (at 35 kHz: 27.1 A, 177 W); 120V_C525nF 24.0 A, f_res 43.7, Q 33 (at 35 kHz: 35.2 A, 298 W); 132V_C475nF 29.9 A, f_res 45.9, Q 33 (at 35 kHz: 29.9 A, 214 W); 132V_C525nF 26.4 A, f_res 43.7, Q 33 (at 35 kHz: 38.7 A, 360 W)
+- R43_21.93 aluminium_180: 120V_C475nF 16.1 A, f_res 40.5, Q 40 (at 35 kHz: 45.1 A, 520 W); 120V_C525nF 15.0 A, f_res 38.5, Q 40 (at 35 kHz: 72.5 A, 1341 W); 132V_C475nF 17.8 A, f_res 40.5, Q 40 (at 35 kHz: 49.6 A, 629 W); 132V_C525nF 16.4 A, f_res 38.5, Q 40 (at 35 kHz: 79.7 A, 1622 W)
+- R43_21.93 carbon_steel_lo_180: 120V_C475nF 11.0 A, f_res 36.6, Q 6 (at 35 kHz: 55.1 A, 5946 W); 120V_C525nF 10.4 A, f_res 34.8, Q 6 (at 35 kHz: 50.9 A, 5079 W); 132V_C475nF 12.1 A, f_res 36.6, Q 6 (at 35 kHz: 60.6 A, 7195 W); 132V_C525nF 11.5 A, f_res 34.8, Q 6 (at 35 kHz: 56.0 A, 6145 W)
 
 ## Ferrite (ferrite.py; 3D discrete bars)
 
