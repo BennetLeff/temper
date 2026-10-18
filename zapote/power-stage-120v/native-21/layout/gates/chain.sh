@@ -232,6 +232,13 @@ P_KV=$!
   # SELV-spine lock (13-coupling WS4 <-> WS5; gates/README.md): SPINE_OWNER=selv only for the SELV-side lane
   python3 -I $G/spine_lock.py native-21/verification/$TAG-all-copper.json.gz ${SPINE_OWNER:+--owner "$SPINE_OWNER"} > "$B/spine-lock.json" \
     && echo "SPINE_LOCK PASS (owner ${SPINE_OWNER:-none})" || { echo "SPINE_LOCK FAIL: $(cut -c1-300 "$B/spine-lock.json")"; exit 1; }
+  # stranded vias (a via with copper on fewer than two layers) and the per-net copper diff against the accepted baseline
+  # (narrowed paths, lost vias, shrunk pours); gates/README.md. To accept an intended change, re-record the baseline.
+  python3 -I $G/via_hygiene.py native-21/verification/$TAG-all-copper.json.gz --json "$B/via-hygiene.json" | head -1 \
+    && echo "VIA_HYGIENE PASS" || { echo "VIA_HYGIENE FAIL: $(cut -c1-300 "$B/via-hygiene.json")"; exit 1; }
+  python3 -I $G/copper_baseline.py record native-21/verification/$TAG-all-copper.json.gz "$B/copper-baseline.json" > /dev/null
+  python3 -I $G/copper_baseline.py diff validation-results/10-benchmark/copper-baseline.json "$B/copper-baseline.json" --json "$B/copper-diff.json" \
+    && echo "COPPER_DIFF PASS" || { echo "COPPER_DIFF FAIL (see $B/copper-diff.json; re-record the baseline only for an intended change)"; exit 1; }
 ) > "$B/blk-copper.log" 2>&1 &
 P_CU=$!
 FAIL=""

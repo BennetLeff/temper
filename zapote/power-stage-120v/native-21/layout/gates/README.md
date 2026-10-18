@@ -90,3 +90,12 @@ The full chain stays mandatory at merge, and `scorecard.py --compare` refuses a 
 
     python3 -I gates/scoped/scoped_chain.py run TAG PASSDIR BUILDDIR --bench-build FULL_BUILDDIR [--dry-run]
     python3 -I gates/scoped/test_scoped.py && python3 -I gates/scoped/depmap_check.py   # planner + dependency-map controls
+
+Stranded vias and the per-net copper diff (2026-10-18; from the PCB-checker tips review), both on the all-copper export and both run by `chain.sh`:
+
+    python3 -I gates/via_hygiene.py BOARD-all-copper.json.gz [--json OUT]       # fails on a via with copper on < 2 layers; scorecard key stranded_vias (strict)
+    python3 -I gates/copper_baseline.py record EXPORT OUT.json                  # per net: track count, narrowest width, vias by size, pour area per layer
+    python3 -I gates/copper_baseline.py diff BASE.json NEW.json [--json OUT]    # fails on narrowed / fewer_vias / zone_shrunk (> 5 %) / net_vanished
+
+The accepted baseline is `validation-results/10-benchmark/copper-baseline.json` (recorded from s53). Re-record it only for an intended
+change, and say why in DECISIONS. Controls: `test_via_hygiene.py`, `test_copper_baseline.py`.

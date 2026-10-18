@@ -97,6 +97,8 @@ PERF = {
     "track_fold_backs": ("lower", 0),
     "track_right_angle_corners": ("lower", 5),
     "track_any_angle_mm": ("lower", 25.0),
+    # added 2026-10-18: a via whose net has copper on fewer than two layers (gates/via_hygiene.py); strict, no allowance
+    "stranded_vias": ("lower", 0),
 }
 
 
@@ -374,6 +376,11 @@ def performance(b, tag):
         m["track_acute_corners"], m["track_fold_backs"] = geo["acute_corners"], geo["fold_backs"]
         m["track_right_angle_corners"], m["track_any_angle_mm"] = geo["right_angle_corners"], geo["any_angle_mm"]
         src["track_geometry"] = "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz"
+        spec = importlib.util.spec_from_file_location("via_hygiene", Path(__file__).resolve().parent / "via_hygiene.py")
+        vh = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(vh)
+        m["stranded_vias"] = vh.measure(vh.load(ex))["stranded_vias"]
+        src["via_hygiene"] = "gates/via_hygiene.py on BUILDDIR/native21-all-copper.json.gz"
     return m, src
 
 
