@@ -116,12 +116,13 @@ pre-compliance decides; fitting the 2203 (12.37 dB) is the fallback.
 
 ## Gates before placing the order
 
-1. Independent design review (`REVIEW-TRIAGE.md`): every BLOCKER / MAJOR closed. Re-confirm; this regeneration did not
-   re-verify it.
+1. Independent design review (`REVIEW-TRIAGE.md`): every BLOCKER / MAJOR closed. Statuses re-read 2026-10-17: B1, B2 and
+   M1-M14 are fixed, covered or owner decisions; M11 (stack count) and M13 (this buy plan) are the open owner decisions. M2's F6
+   evidence was refreshed on the s51 matrices (252/252 on both legs). Not an independent re-review.
 2. **Enclosure bosses: closed by decision (DECISIONS 76).** The board has 10 mounting holes; R43 supports seven (H1, H3–H8, 0.00 mm
    offset, `c53-astra-results/local/bosses/`). H2, H9 and H10 stay empty: no hardware, no board change.
 3. JLC's laminate answer (S12), then fix the order remark and `stackup.json` together.
-4. FAB-NOTE's pre-order tier: F6 re-run on the native-21 FEM corrections (S3 re-run on the remote box is pending), M11
+4. FAB-NOTE's pre-order tier: F6 and S3 re-run on the native-21 FEM corrections (done, DECISIONS 77), M11
    heatsink stack parts sourced, and the no-stock parts above procured.
 5. **Module:** the inlet module with ≥ 100 µH DM per line, or the EMI deviation accepted in writing.
 6. **CPL:** the 23 NEEDS-PREVIEW parts confirmed in JLC's preview (`CPL-PREVIEW-CHECKLIST.md`).
@@ -131,7 +132,7 @@ pre-compliance decides; fitting the 2203 (12.37 dB) is the fallback.
 8. **Controller side: not an order gate (DECISIONS 76); it gates powering the board together with the controller.** The J13 merge and
    the J4.1 drop (`c23-supply-topology/CONTROLLER-REQUEST.md`) are not done on any controller branch. A stage-38+ board does not
    power that controller (benign), so bring-up runs the power board on bench supplies with no controller until they land.
-9. Firmware: the controller image must ship the **18 A tank ceiling** (DECISIONS 56) and the RMS-increment aux allowance
+9. Firmware: the controller image must ship the **17.5 A tank ceiling** (DECISIONS 61, which supersedes 56's 18 A; `TEMPER_POWER_TANK_CEILING_DA=175`, the Kconfig default, verified 2026-10-17) and the RMS-increment aux allowance
    (B11). The ladder above 17.5 A follows COMMISSIONING.md and the bank-variant rule above.
 10. Owner approval of the spend.
 
@@ -151,7 +152,7 @@ Bring-up (full procedures in D-8 and `native-21/BRINGUP-PROBES.md`):
 3. Gate drive with no bus: PWM in, driver outputs at the TP pairs; dead time (R9 / R17 49.9 kΩ).
 4. Bus from a current-limited isolated supply, rising in steps: Vgs ringing on all four FETs at the leads (D4 condition 3),
    `ocp_node` during hard switching (D4 condition 2), the S4 commutation shot (D-24).
-5. Resonant operation at reduced power, then nominal, with IR thermal (task 04). The **18 A tank ceiling applies from the
+5. Resonant operation at reduced power, then nominal, with IR thermal (task 04). The **17.5 A tank ceiling applies from the
    first powered test**; raising it follows COMMISSIONING's ladder (gate 0: a passing B3 basis at the new ceiling plus the
    bench R_on reading) and the bank-variant rule.
 
