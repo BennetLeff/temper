@@ -138,3 +138,20 @@ HIPOT_BASIC_VAC = 1250
 V_LINE_MAX_RMS = 132.0              # COMMISSIONING step 6 top of the variac ramp
 V_STEP3_DC = 300.0                  # COMMISSIONING step 3 isolated supply
 V_DIE_WORST = 435.7                 # OPEN-ITEMS S3 (s51 matrices, as-built network): worst die VDS, S2 fault case
+
+# ---------------------------------------------------------------- fixture layout (drawing inputs, bench_cad.py)
+NTC_XZ = (77.8, 40.0)               # M3 tapped, front face, between Q2 and BR1 above the strip
+TCO_XZ = (94.2, 40.0)               # TCO body centre (horizontal along x), above BR1, the largest heat source
+TCO_CLAMP_SCREW_XZ = (94.2, 47.0)   # M3 tapped for the cushioned loop clamp's tab
+BOND_XZ = (110.0, 72.0)             # M4 tapped, PE bond ring lug (14 AWG G/Y)
+BR1_SCREW = "M3, match-drilled through BR1's hole (GBJ M 3.4-3.8 mm)"
+BRACKET = dict(angle=(38.1, 38.1, 3.175), height=70.0)   # 1-1/2 x 1-1/2 x 1/8 in aluminium angle, one per sink end
+STANDOFF_H = 15.0                   # nylon M3 male-female at H1, H3-H8; board top = 15 + 1.6 above the baseplate
+BOARD_T = 1.6
+BASEPLATE = dict(w=400.0, d=300.0, t=18.0, board_x0=30.0, board_y0=80.0)   # plywood; board (0,0) at (30, 80) from rear-left
+WINDOW = dict(x=(-2.0, 112.0), y=(-2.0, 22.0))   # board coords: solder/rework access under the sink row
+MOUNT_HOLES = {"H1": (285.0, 135.0, "metal allowed (nylon used)"), "H3": (6.0, 180.0, "nylon"), "H4": (86.0, 180.0, "nylon"),
+               "H5": (24.0, 74.0, "nylon"), "H6": (88.0, 100.0, "nylon"), "H7": (128.0, 54.0, "nylon"),
+               "H8": (194.0, 130.0, "nylon"), "H2": (223.0, 135.0, "EMPTY"), "H9": (142.0, 4.0, "EMPTY"),
+               "H10": (152.0, 122.0, "EMPTY")}  # native-21/layout/board_only21.json; FAB-NOTE (H2, H9, H10 empty)
+FAN = dict(pn="Cooltron FD1225B12W2-61-2NC1", size=120.0, depth=25.0, gap_to_fins=15.0)
