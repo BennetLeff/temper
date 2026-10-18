@@ -432,7 +432,7 @@ def run_case(case):
 
 
 def build_library(directory, supplied=None):
-    """A supplied library cannot silently disagree with the recorded source hashes."""
+    """A supplied library cannot silently disagree with the recorded input hashes."""
     subprocess.run([str(HERE / "build_lib.sh"), str(directory)], check=True)
     fresh = Path(directory) / "libpantemp.so"
     if supplied is not None:
@@ -550,7 +550,7 @@ def main():
         for line in (res.outliers if res.ok else []) + res.diffs[:20]:
             print(f"  {line}")
         print(f"D1 nuisance evidence: {'MATCH' if matches else 'MISMATCH'} "
-              "(source hashes and every value; toolchain strings excluded)")
+              "(input hashes and every value; toolchain strings excluded)")
     else:
         args.out.write_text(json.dumps(EC.stamp(result), indent=2, allow_nan=False) + "\n")
         print(f"Wrote {args.out}")
