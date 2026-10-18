@@ -8,7 +8,7 @@ DECISIONS 75). It also adds a gate so the procedure cannot drift from the board 
 
 ## How the numbers are kept honest
 
-Every board-specific number in the procedure is now in one generated **board table** (rows B1–B17, J4, probe points,
+Every board-specific number in the procedure is now in one generated **board table** (rows B1–B19, J4, probe points,
 ceiling ladder). `firmware/tools/commissioning_board_table.py` renders it. The steps cite its rows instead of repeating the
 numbers.
 
@@ -67,11 +67,11 @@ Evidence (`results/`):
 | J4 | prose only | rendered from the netlist (J4.1 bias_good_j4 … J4.16 line_zc) | frozen netlist |
 | Bank gate 1 | "B32654A on pre-s49 boards", ≤ 20 K or TDK p.57 curve | C22, ΔT ≤ 20 K × F_T(T_A)² and T_A + ΔT ≤ 125 °C (H bank) | OPEN-ITEMS S25; DECISIONS 74 |
 | Ladder | 17.5 → … → 28 A | 17.5 → 24 A on the H bank; 26 / 28 A on a B board only; floor column added | B14; round-6 board-side-protection.csv; DECISIONS 9 |
-| No-pan clamp test (9a.6) | ceiling 28 A in the bench config | the highest step the fitted bank allows (24 A on H) | B14 |
+| No-pan clamp test (9a.6) | ceiling 28 A in the bench config | 17.5 A until a ladder step has passed its thermal gate, then the highest passed step (never above B14's stop) | owner default 2026-10-18; B14 |
 | Ceiling precondition | "Stage-15 board confirmed: R34 12.6 k …" | stage 53 parts B2 / B9 / B13 confirmed | frozen BOM |
 | Release margin | s45 +1.0 K only | adds s53 +1.3 K at 17.5 A (R10); 18 A not re-solved on s53 | scorecard-native21s53 b3_release_margin_K |
 | Gate 4 floor | envelope + 3 A + 2 A | the same, and the shunt must also clear the floor + 1.17 A (the s53 OCP pickup model is 4.17 A at 60 kHz) until gate 5 measures it | scorecard ocp_pickup_stack_pan60_A |
-| Bench supplies | "V15_LS and the F6 bias from isolated bench supplies" | bench 24 V into V24_RAW / N_LS, 0.5 A, PS2 input and J3 open (steps 2–4), handed back to PS2 before step 5; PS2 80–264 VAC, 0.9 A | power_stage_120v.ato (PS2 on L_FILT through J3); datasheet ledger MPM-20-24 |
+| Bench power, steps 2–4 | "V15_LS and the F6 bias from isolated bench supplies" | **BR1 not fitted** (owner decision 2026-10-18); PS2 from the inlet at 120 V through the isolation transformer and analyser, J3 loop with the bench DF110S TCO; isolated DC supply on the C6.1 / C6.3 leads (B19); hv_ret tied to PE at one point in steps 2–4 and removed before BR1 is fitted; new step 4b "fit BR1" (owner, bench-sink-r1 procedure) | B18 / B19 from the frozen netlist and `native-21/layout/pads.json`; datasheet ledger MPM-20-24 (80–264 VAC) |
 | Pre-J13 bring-up | — | power board alone from a breakout, J4.3 bench 3.30 V (J4.3 contract 3.135–3.465 V) | DECISIONS 76; power-stage README |
 | RAIL_OK | GPIO35 | GPIO35 as captured; TCA9555 P02 after the J13 merge | CONTROLLER-REQUEST.md addendum 3 item 12 |
 
@@ -135,10 +135,8 @@ Agreements the gate now checks on every run:
 - **B10:** the CT network temperature for R40–R46.
 - **B13:** a datasheet-table interpolation, not an Infineon guarantee. The pass rule is the simulated window.
 - **B15a–d:** SPICE bounds; the bench measures them.
-- **Bench supplies:**
-  - the 24 V back-feed into V24_RAW with PS2 unpowered (MEAN WELL does not state that its output may be back-fed);
-  - the 0.5 A limit on that supply;
-  - the 0.2 A limit on J4.3.
+- **Bench supplies:** the 0.2 A limit on J4.3 (pre-J13 breakout). The single hv_ret–PE tie in steps 2–4 is a design call
+  (it keeps the floating HOT domain at PE while BR1 is out), not a cited rule.
 - **Controller side:** every step marked "pending the J13 merge".
 
 ## Open questions
@@ -146,12 +144,33 @@ Agreements the gate now checks on every run:
 1. **CT at 28 A (B boards only).** If the 4.17 A pickup model applied to the CT path too, the floor would be 65.34 A, above
    the CT low corner of 64.55 A. Does the pickup term apply to T1's secondary path? The procedure applies 4.17 A to the
    shunt only.
-2. **Step 9a.6 (no-pan clamp)** runs the tank at the highest allowed step (24 A on H) in the bench config before any ladder
-   step has passed gate 0. The original procedure did the same at 28 A. Should it stop at 17.5 A until the ladder reaches
-   the step?
-3. **24 V back-feed:** does MEAN WELL accept back-feeding the MPM-20-24 output? If not, isolate PS2's output (link or
-   diode) for bench steps 2–4.
-4. **The thin 0.05 A margin** of disagreement 2: a B3 row for R40–R46, or a lower config cap?
+2. ~~Step 9a.6 ceiling~~: closed by the owner default (2026-10-18): 17.5 A until a ladder step passes its thermal gate.
+3. ~~24 V back-feed~~: closed by the owner decision (2026-10-18): BR1 is left out and PS2 runs from its own input.
+4. **The 0.05 A margin** of disagreement 2: recorded as OPEN-ITEMS S29 and COMMISSIONING H14, recommending B3 thermal rows
+   for R40–R46. No firmware cap changes.
+5. **JLC order:** `fab/bom-jlcpcb.csv` still lists BR1 for JLC assembly. Deselect it at order, as RV1 (OPEN-ITEMS B16).
+
+## Owner decision 2026-10-18: BR1 out for bring-up (addendum)
+
+- **Why:** PS2.4 is on v24_raw with no series diode (frozen netlist), so a 24 V back-feed would drive an unpowered MEAN WELL
+  output. MEAN WELL gives no statement allowing that. BR1 is the only part with pins on both l_filt / n_filt and bus_p /
+  hv_ret (B18, checked by the tool on every run).
+- **Steps 2–4:** BR1 not fitted. The inlet is fed at 120 V from the isolation transformer through the analyser, so PS2 runs
+  through J3 and the bench DF110S TCO (`bench-sink-r1/README.md` D5, branch `study/bench-sink-r1`). The bus is dead
+  (step 2) or fed by the isolated, current-limited DC supply (steps 3–4).
+- **DC supply connection (B19):** C6.1 (bus_p) / C6.3 (hv_ret), through-hole leads of one part, with soldered tails. The tool
+  picks the pad pair from `native-21/layout/pads.json`: the bus_p / hv_ret pair on one part farthest from any other net's
+  pad. That is 18.9 mm to L1.3 and 24.3 mm to C2.2, both n_filt. There is no bus test pad. C40 / C41 sit farther from
+  mains, but gate-drive pads are 6–7 mm away, a clip-slip risk in step 4.
+- **Hazards and reference:**
+  - Mains is on the HOT input side from step 2 (inlet, l_filt / n_filt, F2 / J11, J3, PS2 input), so use isolated probes
+    only.
+  - With BR1 out, the bus and the HOT domain float. They are tied to PE at one point (hv_ret, the DC supply's negative, to
+    the bench PE stud) in steps 2–4.
+  - The tie is removed before BR1 is fitted, and its absence is checked with a DMM.
+- **Step 4b:** the owner fits BR1 per the bench-sink procedure (through-hole, bottom preheat ≥ 100 °C), then repeats the
+  bench-sink insulation test and power-on check before step 5. Step 5 drops the old 24 V hand-back.
+- **Removed:** the provisional 24 V back-feed and its 0.5 A limit.
 
 ## Files
 
@@ -159,3 +178,4 @@ Agreements the gate now checks on every run:
 - `firmware/tools/commissioning_board_table.py` (generator and check), `firmware/tools/test_commissioning_board_table.py`.
 - `.github/workflows/firmware-tests.yml` (the step, numpy, trigger paths).
 - `results/` (check, negative controls, re-runs).
+- `zapote/power-stage-120v/OPEN-ITEMS.md` rows S29 (CT margin) and B16 (BR1 not fitted at JLC).

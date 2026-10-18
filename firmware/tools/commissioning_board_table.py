@@ -54,6 +54,7 @@ KCONFIG = FIRMWARE / "components/power/Kconfig"
 FAB_NOTE = VR / "08-manufacturing-package/native-21/fab/FAB-NOTE.md"
 FROZEN = PS / "native-21/frozen"
 PROBES = PS / "native-21/BRINGUP-PROBES.md"
+PADS = PS / "native-21/layout/pads.json"   # last written by the s51 chain; s52 / s53 moved no part (DECISIONS 74 / 75)
 KELVIN = VR / "02-protection-timing/kelvin"
 THRESHOLDS = VR / "02-protection-timing/round3/thresholds.py"
 DT_WINDOW = VR / "11-candidates/c25-driver/scripts/dt_window.py"
@@ -117,7 +118,7 @@ ROLES = {
     "r_ct_hi_bot": "R44", "r_ct_lo_top": "R45", "r_ct_lo_bot": "R46", "u_ct_pos": "U10", "u_ct_neg": "U11",
     "u_ct_zc": "U12", "u_fault_or": "U13", "leg_a.driver": "U1", "leg_b.driver": "U2", "leg_a.r_dt": "R9",
     "leg_b.r_dt": "R17", "tvs_bus": "D3", "tvs_bus_b": "D17", "hb.rgate": "R135", "hb.chold": "C166",
-    "hb.buf": "U46", "u_bias_flt": "U40", "r_bias_good_j4": "R146", "j_selv": "J4", "ps_gate": "PS2",
+    "hb.buf": "U46", "u_bias_flt": "U40", "r_bias_good_j4": "R146", "j_selv": "J4", "ps_gate": "PS2", "br1": "BR1",
     "c_res1": "C21", "c_res2": "C22", "c_res3": "C23", "c_res4": "C151", "c_res5": "C152",
 }
 PROBE_NETS = ["v3v3", "permit", "leg_b-driver_dis", "leg_a-driver_dis", "bias_good", "bus_fault", "ct_zc",
@@ -484,6 +485,45 @@ def render() -> tuple[str, list[str]]:
         "OPEN-ITEMS S18 residual 1; Kconfig")
     row("B17", "Firmware peak-trip config cap", f"`TANK_PEAK_TRIP_MAX_A` {trip_max:g} A against the B9 low corner "
         f"{ct_low:.2f} A: {'below (holds)' if trip_max < ct_low else '**NOT below**'}", "`tank_freq.h`; B9")
+    # --- bring-up with BR1 left out (owner decision 2026-10-18): what joins mains to the bus, PS2's output, and
+    #     where the isolated DC supply lands on the bus
+    br1 = {p: n for n, nodes in nets.items() for r, p in nodes if r == "BR1"}
+    mains_nets, bus_nets = {br1["2"], br1["3"]}, {br1["1"], br1["4"]}
+    if mains_nets != {"l_filt", "n_filt"} or bus_nets != {"bus_p", "hv_ret"}:
+        raise GateError(f"BR1 pins are on {br1}; the bring-up plan assumes AC on l_filt / n_filt, DC on bus_p / hv_ret")
+    on = {}
+    for n, nodes in nets.items():
+        for r, _ in nodes:
+            on.setdefault(r, set()).add(n)
+    joiners = sorted(r for r, ns in on.items() if ns & mains_nets and ns & bus_nets)
+    if joiners != ["BR1"]:
+        raise GateError(f"parts joining mains to the bus: {joiners}; leaving BR1 out no longer isolates the bus")
+    ps2_out = {p: n for n, nodes in nets.items() for r, p in nodes if r == "PS2"}
+    v24_parts = sorted({r for r, _ in nets[ps2_out["4"]]})
+    v24_diode = [r for r in v24_parts if r.startswith("D")]
+    pads = json.loads(read(PADS))
+    best = None
+    for ref in sorted({p["ref"] for p in pads if p["net"] in bus_nets and p["tht"]} - {"BR1"}):
+        mine = [p for p in pads if p["ref"] == ref and p["tht"]]
+        for a in (p for p in mine if p["net"] == "bus_p"):
+            for b in (p for p in mine if p["net"] == "hv_ret"):
+                near = []
+                for q in (a, b):
+                    d, who = min((math.dist((q["x"], q["y"]), (o["x"], o["y"])), f"{o['ref']}.{o['pad']} {o['net']}")
+                                 for o in pads if o["net"] not in bus_nets)
+                    near.append((round(d, 1), who))
+                key = min(near)[0]
+                if best is None or key > best[0]:
+                    best = (key, a, b, near)
+    _, pa, pb, near = best
+    row("B18", "What joins mains to the bus", f"only BR1 ({bom['BR1']}: pins 2 / 3 on {br1['2']} / {br1['3']}, 1 / 4 on "
+        f"{br1['1']} / {br1['4']}). PS2 output + (PS2.4) is {ps2_out['4']} with "
+        f"{'no series diode' if not v24_diode else 'diode ' + ', '.join(v24_diode)}, so V24_RAW is not back-fed: steps 2–4 run "
+        "PS2 from its own input with BR1 not fitted", "frozen netlist; owner decision 2026-10-18")
+    row("B19", "Isolated DC supply onto the bus (BR1 not fitted)", f"{pa['ref']}.{pa['pad']} ({pa['net']}) and "
+        f"{pb['ref']}.{pb['pad']} ({pb['net']}), through-hole leads of one part; nearest other-net pads {near[0][0]} mm "
+        f"({near[0][1]}) and {near[1][0]} mm ({near[1][1]}), the farthest bus_p / hv_ret pair on any one part. The board has no "
+        "bus test pad", f"`{rel(PADS)}` (tht pads; BR1 excluded)")
     L += ["", "J4 (Micro-Fit 2 × 8) on this board, from the frozen netlist:", "",
           "| Pin | Net |", "|---|---|"]
     for p in sorted(j4):

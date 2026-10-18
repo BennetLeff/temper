@@ -51,6 +51,8 @@ its sources, review the diff, and fix every step it affects. Never edit the bloc
 | B15d | PERMIT ↓ → GPIO35 ≤ VIL | ≤ 0.36 ms | DECISIONS 71 (SPICE bounds; bench measures) |
 | B16 | PWM window top | `TEMPER_POWER_F_MAX_HZ` ≤ 60000 Hz: a PS2 (MPM-20-24) rating constraint; Kconfig default 60000, range 35000 60000 | OPEN-ITEMS S18 residual 1; Kconfig |
 | B17 | Firmware peak-trip config cap | `TANK_PEAK_TRIP_MAX_A` 64.5 A against the B9 low corner 64.55 A: below (holds) | `tank_freq.h`; B9 |
+| B18 | What joins mains to the bus | only BR1 (GBJ2510-F: pins 2 / 3 on l_filt / n_filt, 1 / 4 on bus_p / hv_ret). PS2 output + (PS2.4) is v24_raw with no series diode, so V24_RAW is not back-fed: steps 2–4 run PS2 from its own input with BR1 not fitted | frozen netlist; owner decision 2026-10-18 |
+| B19 | Isolated DC supply onto the bus (BR1 not fitted) | C6.1 (bus_p) and C6.3 (hv_ret), through-hole leads of one part; nearest other-net pads 18.9 mm (L1.3 n_filt) and 24.3 mm (C2.2 n_filt), the farthest bus_p / hv_ret pair on any one part. The board has no bus test pad | `zapote/power-stage-120v/native-21/layout/pads.json` (tht pads; BR1 excluded) |
 
 J4 (Micro-Fit 2 × 8) on this board, from the frozen netlist:
 
@@ -119,6 +121,10 @@ Tank ceiling ladder (firmware `tank_freq.h`; floor = round-6 envelope peak + 3 A
 - **Isolation.** Every measurement on the HOT side uses isolated or differential probes. Use the isolation transformer for every AC step, and the power analyser in the inlet path.
 - **Never weaken a check to make a step pass.** If a step needs a lower trip to demonstrate it, lower it in the bench `sdkconfig` only, and restore it before the next step.
 - **Board revision.** Everything here is for stage 53 (board table). Before a board is powered, confirm its fitted parts against B1, B2, B9, B13 and B14 (the bank part and its fit mark) and enter them in the record. A board of any other stage needs its own table, rendered from that board's sources; nothing here transfers. Two known traps on earlier boards: before s50 BIAS_GOOD is high at idle (no option P), so step 2 item 6's check 1 latches `BIAS GOOD STUCK`; before s49 the OCP divider and band differ from B2–B5.
+- **Bring-up power plan: BR1 out until step 4 passes** (owner decision 2026-10-18). PS2's output + is wired straight to V24_RAW, with no series diode (B18), and back-feeding an unpowered MEAN WELL output is unqualified. BR1 is the only part joining mains (l_filt / n_filt) to the bus (bus_p / hv_ret; B18). So the bring-up boards leave BR1 unfitted (the JLC order deselects it, as RV1), PS2 runs from its own input in steps 2–4, and the owner fits BR1 in step 4b.
+  - **Mains is on the HOT input side from step 2:** the inlet, l_filt / n_filt, F2 / J11, the J3 loop and PS2's input. Use isolated or differential probes only, everywhere, and keep the hand-operable mains cut in reach.
+  - **Reference:** with BR1 out, the bus and the HOT domain have no galvanic path to mains; in steps 3–4 they float on the isolated DC supply. Tie them to PE at one point, a single labelled lead from hv_ret (the B19 hv_ret lead, which is also the DC supply's negative) to the bench PE stud, in steps 2–4, so the HOT domain sits at PE instead of floating on PS2's and the supply's leakage. Make no other HOT-to-PE or HOT-to-scope-ground connection. **Remove the tie before BR1 is fitted** (step 4b): with BR1 in, hv_ret is at mains potential and the tie is a line-to-earth short.
+  - The DC supply goes onto the bus at the B19 leads (the board has no bus test pad): solder short tails to the two through-hole leads before power instead of clipping on. They are the bus_p / hv_ret pair on one part that sits farthest from any other net's pad, live mains included.
 - **Mains cut.** A bench unit always runs behind an external, hand-operable series mains cut. Nothing on the board opens mains (`08-manufacturing-package/native-21/PROTOTYPE-LOT.md`, bench plan).
 - **Before the J13 merge** (DECISIONS 76): a stage-38+ power board does not power the controller as captured, so the two run together only after the merge. Until then, run the power-board-only parts (step 2 items 1 and 5, the B8 / H2 levels of item 6, and step 3) from a J4 breakout: J4.3 from a bench 3.30 V (inside J4.3's 3.135–3.465 V contract, power-stage README), current-limited to 0.2 A (**provisional**: there is no SELV-side current budget on record), J4.9 driven to v3v3 through 1 kΩ, and J4.10–J4.14 to the scope.
 
@@ -182,7 +188,7 @@ Setup: a bench 15 V, current-limited to 1 A, into the controller's J4.1/J4.2 (th
 ## Step 2: native-21 logic powered, HV bus dead, gates disconnected
 
 Setup:
-- Native-21 SELV and HOT logic and gate supplies powered, the DC bus at 0 V and shorted through 10 kΩ. The HOT bias comes from an isolated bench 24 V into V24_RAW / N_LS (probe at the v24_raw pad, board table), current-limited to 0.5 A, with the inlet, PS2's input and the J3 TCO loop unconnected. V15_LS, HOT5 and the HS-A / HS-B bias (U41 / U42) come up from it on the board. **Provisional:** PS2 (MPM-20-24) is fed from L_FILT through J3, the same feed as BR1, so with PS2 on mains the bus is live; MEAN WELL does not state that its output may be back-fed, and 0.5 A is PS2's 0.9 A rating (24 V, MPM-20-SPEC p.2, datasheet ledger) derated, not a measured load (OPEN-ITEMS S18 models PS2's as-built load at 7.08 W, 0.30 A at 24 V). First check +15 / −2 V on every domain at the TP pairs and the monitor windows (−2.206 / −1.799 V; PROTOTYPE-LOT.md bench plan item 2).
+- Native-21 SELV and HOT logic and gate supplies powered; **BR1 not fitted** (B18, the bring-up power plan in the ground rules). The inlet is fed at 120 V from the isolation transformer through the power analyser (no variac: PS2's input range is 80–264 VAC, MPM-20-SPEC p.2, datasheet ledger), so PS2 runs from its own input through the J3 loop with the bench TCO (DF110S on the bench sink, `zapote/power-stage-120v/validation-results/11-candidates/bench-sink-r1/README.md` D5). V24_RAW, V15_LS, HOT5 and the HS-A / HS-B bias (U41 / U42) come up from PS2 on the board. The DC bus is dead: nothing feeds bus_p / hv_ret with BR1 out; tie it through 10 kΩ across the B19 leads anyway, with the hv_ret–PE tie of the ground rules in place. First check +15 / −2 V on every domain at the TP pairs and the monitor windows (−2.206 / −1.799 V; PROTOTYPE-LOT.md bench plan item 2).
 - **FET gates disconnected:** gate resistors not fitted, or the driver outputs lifted, and each driver output loaded with 10 nF to its source return.
 - The controller is powered as in step 1 (through J13 on a controller with the J13 merge, **pending the J13 merge**; until then use the breakout of the ground rules for items 1 and 5 and skip the PWM items), with the real J4 harness.
 - Mode BENCH, `TEMPER_POWER_F_MAX_HZ=50000` (a test value, as in round 5; bench sessions run at F_MAX, the loop runs only in COMMISSIONED).
@@ -190,7 +196,7 @@ Setup:
 1. **Interlock:**
    - With all sources healthy, BUS_FAULT_RB reads low.
    - Request a reset (operator-confirmed); PERMIT goes high.
-   - Remove the bench 24 V: V15_LS and HOT5 collapse, BUS_FAULT goes high and PERMIT drops (FAULT-INTERFACE.md). Record the latency from the V15_LS collapse (v15_ls pad) to DIS high (leg B DIS pad; leg A at the pad listed in the board table).
+   - Open the J3 loop (unplug the TCO lead at J3; PS2 loses its input): V15_LS and HOT5 collapse, BUS_FAULT goes high and PERMIT drops (FAULT-INTERFACE.md). Record the latency from the V15_LS collapse (v15_ls pad) to DIS high (leg B DIS pad; leg A at the pad listed in the board table).
 2. **PWM verification, PERMIT low** (drivers disabled by DIS):
    - Run `n21_bench_start(2000, true)`.
    - At the J4 pads, measure:
@@ -223,13 +229,13 @@ Setup:
    - **Levels.** PERMIT low, bias on or off: GPIO35 ≤ 0.25 × v3v3. During a session with the bias on: GPIO35 ≥ 0.81 × v3v3. Record both. Open J4.1 at the breakout during a session: GPIO35 reads low (the 1 MΩ pull-down: the stand-in for an open U40 output).
    - **Check 1, low with PERMIT low** (every tick, every state). Idle, bias on, PERMIT low: the controller stays in IDLE with no fault for 10 min. Then pull J4.1 high through 1 kΩ to v3v3 at the breakout (the stand-in for U40 stuck high): `BIAS GOOD STUCK` (FAULT) within 20–30 ms (the third high of the last 8 judged 10 ms samples). BACK must not clear it; only a power cycle does. Single 5 ms high pulses (20 tries, ≥ 200 ms apart) never latch. Repeat the stuck-high test from COOLDOWN and at boot (pulled high before power-on: FAULT within 40 ms of the first control tick, with no RUN_EN rise).
    - **Check 2, high after PERMIT** (every RUN_EN rise; COMMISSIONED only, so do it at the start of step 9a, before the variac is raised). Hold J4.1 low through 1 kΩ at the breakout and press START: one RUN_EN pulse of 2–3 ms with the pads low throughout, then "NO POWER BIAS", back to IDLE, no fault, and no second RUN_EN pulse. Release J4.1: the same START enters PAN_DET and the pads go live ≥ 2 ms after RUN_EN rises. In PAN_DET RUN_EN rises once per start (detection holds its 5 % request); record that it does not toggle during detection.
-   - **Check 3, high throughout** (PERMIT_RB high for ≥ 2 ms). During a bench session, pull J4.1 low through 1 kΩ at the breakout: `BIAS GOOD LOST` (FAULT) and RUN_EN low within 20–30 ms (`BIAS_GOOD_DROP_DEBOUNCE_MS` = 20 at the 10 ms control loop). The fault must survive BACK and clear only at a power cycle. Glitch filter: single 5 ms low pulses never latch (20 tries); 40 ms pulses always latch. Then remove the bench 24 V (V15_LS collapses) during a session: BUS_FAULT drops PERMIT and the fault reads `IGBT SHORT` (bus fault priority), not `BIAS GOOD LOST`.
+   - **Check 3, high throughout** (PERMIT_RB high for ≥ 2 ms). During a bench session, pull J4.1 low through 1 kΩ at the breakout: `BIAS GOOD LOST` (FAULT) and RUN_EN low within 20–30 ms (`BIAS_GOOD_DROP_DEBOUNCE_MS` = 20 at the 10 ms control loop). The fault must survive BACK and clear only at a power cycle. Glitch filter: single 5 ms low pulses never latch (20 tries); 40 ms pulses always latch. Then open the J3 loop (V15_LS collapses) during a session: BUS_FAULT drops PERMIT and the fault reads `IGBT SHORT` (bus fault priority), not `BIAS GOOD LOST`.
    - **B8 and the H2 power-board levels run with J4.9 driven high and the PWM idle**: disconnect J4.9 from the controller at the breakout and drive the power-board side to v3v3 through 1 kΩ, with the controller's pads low (no session) and J4.1 disconnected from the controller (it would read BIAS_GOOD high with its own PERMIT low and latch `BIAS GOOD STUCK`, which is correct but ends the test). Then force MON_GOOD_HA low, then MON_GOOD_HB low (power-stage OPEN-ITEMS B8): the heartbeat stops and TP19 drops within its hold time.
    - **Mains sequencing (at step 5, information only).** Under option P the boot-sample race of `c49-bias-race` no longer decides coverage (the checks never sample at boot). Still switch on at the inlet 10 times cold and 10 times hot with PS2 and PS3 on mains, scope v3v3, J4.9 and J4.1, and confirm GPIO35 stays low until the first start (no `BIAS GOOD STUCK` at any power-on). Then run checks 1–3 on mains, including dropouts of 20 ms, 100 ms, 500 ms and 2 s at idle and in HEATING, and record the outcome of each in power-stage OPEN-ITEMS B13. A `BIAS GOOD STUCK` after an idle dropout is a failure.
 
 ## Step 3: over-current and over-voltage trip calibration
 
-Gates stay disconnected and the bus stays dead unless stated otherwise.
+Gates stay disconnected and the bus stays dead unless stated otherwise. PS2 runs from the inlet as in step 2, and BR1 stays out. The isolated DC supplies of items 2 and 3 land on the B19 leads.
 
 1. **Tank-CT comparators** (B9: U10 / U11, ORed by U13 into BUS_FAULT; exact-corner model, both polarities):
    - Pass a test winding of N turns through T1 and drive it from an amplifier at 40 kHz, measuring current with a calibrated probe. Watch BUS_FAULT at its pad and CT_MON at its pad (board table).
@@ -252,9 +258,9 @@ Gates stay disconnected and the bus stays dead unless stated otherwise.
 
 Setup:
 - Gates connected, a nominal pan on the coil.
-- Isolated DC supply on the bus, starting at ≤ 50 V, current-limited to 0.5 A (DECISIONS 2026-10-05 native-20 rule 1).
+- Isolated DC supply on the bus at the B19 leads, starting at ≤ 50 V, current-limited to 0.5 A (DECISIONS 2026-10-05 native-20 rule 1). BR1 stays out.
+- PS2 from the inlet at 120 V, as in step 2; the hv_ret–PE tie of the ground rules in place.
 - BENCH mode, continuous only (no bursts).
-- HOT bias from the bench 24 V as in step 2 (PS2 has no mains here).
 
 1. **First edge capture** (S5 / F6, D-24): isolated probes on the partner VGS of each leg, the bus current, and both switch nodes. Run `n21_bench_start(200, true)`. The partner gate must stay below 3.0 V (rule 3) and the off-gate below 1.9 V; record both. Do the S4 commutation measurement from D-24 in the same session.
 2. **ZVS check at light load:**
@@ -270,9 +276,17 @@ Setup:
    - `TEMPER_POWER_CT_ZC_DELAY_NS` and `TEMPER_POWER_CT_ZC_INVERTED`: time from the true tank-current zero (calibrated current probe, rising) to the CT_ZC edge. If CT_ZC rises on the falling current, set INVERTED.
    - Check: telemetry `phi_rad` against the scope-measured voltage-to-current phase, to within 3° at 3 frequencies.
 
+## Step 4b: fit BR1 (owner)
+
+BR1 is fitted only after step 4 passes, by the owner: through-hole, soldered with bottom preheat (power pins stay solid; rework only on a board preheated to ≥ 100 °C, PROTOTYPE-LOT.md), seated and screwed on the bench sink. Follow the BR1 fitting procedure in `zapote/power-stage-120v/validation-results/11-candidates/bench-sink-r1/README.md` (branch `study/bench-sink-r1`; the bench-sink study is writing it).
+
+1. **Before:** inlet unplugged at the mains cut, DC supply off and disconnected from the B19 leads, bus discharged (≤ 5 V measured across B19), and the hv_ret–PE tie removed. From here on the HOT domain sits at mains potential: **never tie it to PE again**.
+2. **Fit BR1** per the bench-sink procedure.
+3. **After:** confirm with a DMM that hv_ret–PE is open (no tie left), then repeat the bench-sink insulation test and its power-on check (bench-sink README, assembly steps 10 and 14) before step 5.
+
 ## Step 5: variac on mains
 
-Setup: isolation transformer → variac → power analyser → native-21 inlet. Start at about 30 V AC with the pan on. Before the first mains step, disconnect the bench 24 V from V24_RAW / N_LS and reconnect J3 and PS2's input, so PS2 is the only source on V24_RAW. PS2 starts only once the variac is inside its input range (MPM-20-24 input range 80–264 VAC, datasheet ledger, MPM-20-SPEC p.2); below that the HOT bias is off and BUS_FAULT reads high.
+Setup: isolation transformer → variac → power analyser → native-21 inlet. Start at about 30 V AC with the pan on. BR1 is fitted (step 4b), the DC supply is gone, and hv_ret has no tie to PE. PS2 starts only once the variac is inside its input range (MPM-20-24 input range 80–264 VAC, datasheet ledger, MPM-20-SPEC p.2); below that the HOT bias is off and BUS_FAULT reads high.
 
 1. **LINE_ZC:** the telemetry shows `zc_locked` within 4 pulses. With an isolated differential probe on the line, measure the true zero against the LINE_ZC pulse centre. `TEMPER_POWER_LINE_ZC_OFFSET_US` is centre minus zero (bench item from DECISIONS 2026-10-06). The predicted-zero error must then be ≤ 250 µs (D-11) at 108, 120 and 132 V.
 2. **VBUS against the line:** with the bridge idle the bus holds the line peak. Telemetry `bus_v` against a DMM must agree within ±6 %. `last_half.line_rms_v` against the analyser's line RMS must read low (conservative) by less than 3 %. Leave `rectifier_drop_v = 0` unless the record justifies more.
@@ -377,7 +391,7 @@ The loop (`tank_freq.h`) starts at F_MAX (60 kHz), steps down 250 Hz per closed 
 3. **Each limit, demonstrated:** with bench-lowered limits one at a time (ceiling via `TANK_CEILING_DA`=150, inlet via `inlet_target_a`, peak via `tank_peak_trip_a`), the loop settles on that limit (`freq_reason` HOLD_LIMIT / UP_x) without tripping. Remove CT_ZC (lift the lead at low power): `N21_FAULT_CT_ZC_STALE` latches above 2 A.
 4. **Pan-detect tuning (no-pan clamp):** for the empty coil and every pan class (cold and hot), record at the settled point the telemetry `q` and p_inv / I² (`last_half.est.p_inv_w / tank_rms_a²`). Set `TEMPER_POWER_PAN_Q_MAX_X10` and `TEMPER_POWER_PAN_R_MIN_MOHM` between the empty-coil and the lowest-R pan values with ≥ 30 % margin each side. **Provisional:** Q ≤ 10, R ≥ 0.8 Ω (empty coil ~0.12–0.25 Ω, Q 50–100; a pan needing 28 A: ~1.4 Ω, Q 4–8).
 5. **Power tracking:** per pan class at 120 V, `power_set_level` 15 / 35 / 60 / 100 %, and steps 20 → 60 → 15 % while running. Pass: analyser input power within ±6 % of the request (plus the e_est error) where the limits allow it, `freq_reason` HOLD_POWER, no frequency change over 60 s once settled; at 100 % the limit reason shows instead. Record the 60 kHz minimum power per pan (H12).
-6. **No-pan clamp:** empty coil, ceiling set in the bench config to the highest step the fitted bank allows (24 A on the stage 53 H bank, B14; 28 A only on a B board), 120 V and 132 V. Pass: `pan_present` stays false, `ceiling_eff_a` = 17.5 and the half RMS ≤ 17.5 A throughout; then lift a pan off mid-run at that ceiling: `pan_present` drops on the first half and the tank is back ≤ 17.5 A within 100 ms (otherwise the overrun latch `N21_FAULT_TANK_RMS` must fire). Measure the ferrite bar temperature in the no-pan case (enclosure item).
+6. **No-pan clamp:** empty coil, ceiling set in the bench config to **17.5 A until a ladder step has passed its thermal gate** (gate 0 of the ceiling procedure), then to the highest step that has passed (never above B14's stop), 120 V and 132 V. At 17.5 A the clamp and the ceiling coincide, so this run shows only that the tank stays ≤ 17.5 A; repeat it at each new ladder step to show the clamp acting. Pass: `pan_present` stays false, `ceiling_eff_a` = 17.5 and the half RMS ≤ 17.5 A throughout; then lift a pan off mid-run at that ceiling: `pan_present` drops on the first half and the tank is back ≤ 17.5 A within 100 ms (otherwise the overrun latch `N21_FAULT_TANK_RMS` must fire). Measure the ferrite bar temperature in the no-pan case (enclosure item).
 
 ## Raising the commissioned tank ceiling (17.5 → 18 → 20 → 22 → 24 A; 26 → 28 A on a B board only)
 
@@ -474,6 +488,8 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 | Coil plausibility: cold, power, time | (`COIL_PLAUS_*`) | 25 °C, 50 %, 5 min | | 8b.5 |
 
 ## Open hardware questions
+
+- **H14. Firmware peak-trip cap against the CT band corner: 0.05 A (B17).** `TANK_PEAK_TRIP_MAX_A` 64.5 A sits 0.05 A below B9's low corner, computed with the CT network at a uniform 85 °C. Only R39 has a B3 row (B10); R40–R46 have none, and a hotter network lowers the corner. **Recommended:** add B3 thermal rows for R40–R46 (power-stage OPEN-ITEMS S29) and re-render the table. No firmware cap changes until that row exists.
 
 - **H1. No firmware run gate (blocked COMMISSIONED; hardware closed by controller layout L2, DECISIONS C23: PERMIT = latch Q AND RUN_EN, RUN_EN on GPIO14 with a 4.7 kΩ pull-down; firmware `run_gate` implemented, bench step 9 still open).**
   - **The conflict:** `fullbridge_apply` qualifies the four PWM captures on every tick, idle included, and gates the drivers through a separate request. That is round 5's REQUEST → supervisor → SUP_RUN_OK path.

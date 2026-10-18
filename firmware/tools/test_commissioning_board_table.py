@@ -65,6 +65,10 @@ def test_render_reproduces_the_records(rendered):
     # bank ladder stop on the prototype bank (DECISIONS 74)
     assert "B32643H8104J000: tick **H**" in block and "**24 A**" in block
     assert "| 26 A | 59.42 A | 27.3 A | 39 A | 60.42 A | **never** |" in block
+    # bring-up with BR1 out (owner 2026-10-18): BR1 is the only mains-bus part, PS2.4 has no series diode,
+    # and the DC supply lands on C6's leads, the pair farthest from any other net (pads.json)
+    assert "only BR1 (GBJ2510-F" in block and "is v24_raw with no series diode" in block
+    assert "C6.1 (bus_p) and C6.3 (hv_ret)" in block
 
 
 def test_reports_the_ceiling_range_finding(rendered):
