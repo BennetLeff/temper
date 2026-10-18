@@ -1,0 +1,212 @@
+{
+ "stress": [
+  {
+   "insulator": "SIL PAD 2000 0.254 mm strip, FET tab -> PE sink",
+   "rating_Vac": 4000,
+   "rating_pk": 5656.85424949238,
+   "stress_pk": 622.3761902332485,
+   "ratio_pk": 9.089123810106482,
+   "field_kV_per_mm": 2.4502999615482226,
+   "rating_over_basic_hipot": 3.2,
+   "note": "low-side tabs (Q3 sw_a, Q6 sw_b) carry the 33-60 kHz swing: field shown for the HF note"
+  },
+  {
+   "insulator": "SIL PAD 2000 0.254 mm strip behind BR1 (in series with the GBJ case)",
+   "rating_Vac": 6500,
+   "rating_pk": 9192.388155425118,
+   "stress_pk": 186.67619023324855,
+   "ratio_pk": 49.24242424242424,
+   "field_kV_per_mm": 0.7349456308395612,
+   "rating_over_basic_hipot": 5.2,
+   "note": "BR1 nodes sit within the line peak of the HOT return; case rated 2500 Vrms on its own (basic)"
+  },
+  {
+   "insulator": "GBJ2510 case alone (screw hole through the strip)",
+   "rating_Vac": 2500,
+   "rating_pk": 3535.533905932738,
+   "stress_pk": 186.67619023324855,
+   "ratio_pk": 18.93939393939394,
+   "field_kV_per_mm": null,
+   "rating_over_basic_hipot": 2.0,
+   "note": "at the M3 screw the strip is pierced; the case is basic by its datasheet rating, as M11 credits it"
+  },
+  {
+   "insulator": "3M 5413 polyimide tape x 2 layers on the DF110S TCO (live case, TCO_L)",
+   "rating_Vac": 14000,
+   "rating_pk": 19798.98987322333,
+   "stress_pk": 186.67619023324855,
+   "ratio_pk": 106.06060606060606,
+   "field_kV_per_mm": 1.3527260161829604,
+   "rating_over_basic_hipot": 11.2,
+   "note": "TCO_L is line-side mains feeding PS2; no switching node. 7000 V per layer (3M TDS, ASTM D149)"
+  },
+  {
+   "insulator": "NTCALUG01A lug -> leads (SELV; sink at PE = SELV return through the PE link)",
+   "rating_Vac": 1500,
+   "rating_pk": 2121.320343559643,
+   "stress_pk": 0.0,
+   "ratio_pk": null,
+   "field_kV_per_mm": null,
+   "rating_over_basic_hipot": null,
+   "note": "no HOT stress by design; with the PE link open the SELV return floats and the stress stays at leakage level"
+  },
+  {
+   "insulator": "FR-4 pressure pad 1.6 mm (spring -> package front, supplementary)",
+   "rating_Vac": 0,
+   "rating_pk": 0.0,
+   "stress_pk": 0.0,
+   "ratio_pk": null,
+   "field_kV_per_mm": null,
+   "rating_over_basic_hipot": null,
+   "note": "not a HOT barrier: the package front carries no HOT metal; credited for nothing"
+  }
+ ],
+ "cap_pF": [
+  21.082280314960627,
+  33.47788031496063
+ ],
+ "paths": [
+  {
+   "path": "tab-metal bottom edge -> strip bottom -> sink lower edge",
+   "kind": "creepage",
+   "mm": 5.404,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "z_sink 4.8, strip bottom 2.6",
+   "how": "worst of z_sink x overhang corners"
+  },
+  {
+   "path": "sink lower edge -> strip -> package bottom face -> lead",
+   "kind": "creepage",
+   "mm": 5.459,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "z_sink 4.8, strip bottom 2.6",
+   "how": "worst of z_sink x overhang corners"
+  },
+  {
+   "path": "sink lower edge -> strip outer face -> (gap < X bridged) -> board over edge pours",
+   "kind": "creepage",
+   "mm": 4.2,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "z_sink 4.2, strip bottom 1.4, gap 1.4",
+   "how": "worst of z_sink x overhang corners"
+  },
+  {
+   "path": "sink lower edge -> edge pour below (F.Cu y >= 0.6)",
+   "kind": "clearance",
+   "mm": 4.13,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "z_sink 4.2, strip bottom 1.4",
+   "how": "worst of z_sink x overhang corners"
+  },
+  {
+   "path": "sink lower edge -> round strip bottom -> lead",
+   "kind": "clearance",
+   "mm": 4.209,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "z_sink 4.2, strip bottom 2.0",
+   "how": "worst of z_sink x overhang corners"
+  },
+  {
+   "path": "sink lower edge -> FET lead pad copper",
+   "kind": "clearance",
+   "mm": 4.148,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "z_sink 4.2, strip bottom 1.4",
+   "how": "worst of z_sink x overhang corners"
+  },
+  {
+   "path": "Q5 tab-metal left edge -> strip left end -> sink face",
+   "kind": "creepage",
+   "mm": 5.479,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "strip 0.5 mm short",
+   "how": "E1 max, device -0.15"
+  },
+  {
+   "path": "tab-metal top edge -> strip top -> sink face",
+   "kind": "creepage",
+   "mm": 6.264,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "strip 0.5 mm low",
+   "how": "L1, D max, D2 min"
+  },
+  {
+   "path": "Q2 tab-metal right edge -> strip right end (beyond BR1)",
+   "kind": "creepage",
+   "mm": 35.979,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "strip 0.5 mm short",
+   "how": "E1 max"
+  },
+  {
+   "path": "clamp bar underside -> tallest HOT SMD part under it (SOD-128)",
+   "kind": "clearance",
+   "mm": 4.9,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "bar z 6.0",
+   "how": "EST part height 1.1 mm"
+  },
+  {
+   "path": "spring end -> tab-metal side edge (through air, round the package side)",
+   "kind": "clearance",
+   "mm": 4.419,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "A min, A2 max, E1 max",
+   "how": ""
+  },
+  {
+   "path": "spring -> FR-4 pad face/edge -> package front and side -> tab-metal edge",
+   "kind": "creepage",
+   "mm": 7.495,
+   "floor": 4.0,
+   "ok": true,
+   "corner": "A min, A2 max, E min, E1 max",
+   "how": ""
+  },
+  {
+   "path": "bar end spacer (x 115.5) -> board edge pours below",
+   "kind": "clearance",
+   "mm": 15.63,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "spacer OD 6.0 at z 18.7",
+   "how": ""
+  },
+  {
+   "path": "sink brackets / fins -> board-edge copper (plan view)",
+   "kind": "clearance",
+   "mm": 5.6,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "brackets kept >= 5 mm off-board",
+   "how": ""
+  },
+  {
+   "path": "sink lower edge -> round strip bottom -> BR1 lead",
+   "kind": "clearance",
+   "mm": 4.819,
+   "floor": 1.3,
+   "ok": true,
+   "corner": "overhang 2.2",
+   "how": "BR1 back plastic; its case is the basic barrier"
+  }
+ ],
+ "geometry": {
+  "y_face": 1.581,
+  "z_metal_bot_min": 5.550000000000001,
+  "z_metal_top_max": 25.49,
+  "lead_back_offset": 1.7550000000000001
+ },
+ "all_ok": true
+}

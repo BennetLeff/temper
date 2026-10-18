@@ -67,7 +67,8 @@ RSA_NAT_RISE = 50.0
 RSA_FORCED_100CFM = 0.12            # C/W at 100 CFM, shrouded (not our fan; not used for any claim)
 K_6063 = 200.0                      # W/mK, 6063-T5 (EST, handbook class 200-209)
 SINK_X0 = -12.0                     # placed x -12.0 .. 120.33
-Z_SINK_BOTTOM = 4.0                 # sink lower edge above the board top (design value; check range in scripts)
+Z_SINK_BOTTOM = 4.5                 # sink lower edge above the board top; set with a 4.5 mm gauge at assembly
+Z_SINK_TOL = 0.3                    # gauge-set (4.5 mm drill-bit shank or feeler stack), brackets then locked
 
 # ---------------------------------------------------------------- insulator strip candidates, [HNK]
 # psi -> thermal impedance C-in2/W (ASTM D5470, includes interfacial resistance)
@@ -86,7 +87,13 @@ PAD_CHOICE = "SIL PAD 2000 0.254 mm"   # decided in README section 3 from bench_
 
 # strip extent on the sink face (one continuous strip under Q5..BR1)
 STRIP_X = (-3.0, 111.5)
-STRIP_Z = (1.0, 32.0)               # bottom hangs 3 mm below the sink edge; top 6.5 mm over the highest tab metal
+STRIP_TOP_Z = 32.0                  # 6.5 mm over the highest tab metal (25.49)
+STRIP_OVERHANG = 2.5                # strip bottom hangs this far below the sink's lower edge (scribed line on the strip)
+STRIP_OVERHANG_TOL = 0.3
+STRIP_PLACE_TOL = 0.5               # hand placement of the strip ends and top (EST)
+X_GROOVE_PD3 = 1.5                  # IEC 60335-1 cl. 29.2 / IEC 60664-1 'X': gaps narrower than this are bridged (PD3; PD2 1.0)
+FET_POS_TOL = 0.15                  # device x play in its holes: (1.5 drill - 1.2 lead b mid) / 2 (EST)
+H_SMD_MAX = 1.1                     # tallest part under the clamp bar: SOD-128 D6-D9 (EST from the package class)
 
 # BR1 stack: grease + aluminium shim on the sink, then the strip, then BR1 (BR1 sits 0.465 mm behind the tab plane)
 SHIM_T = 0.508                      # 0.020 in 6061 shim (EST k below)
