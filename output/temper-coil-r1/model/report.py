@@ -57,7 +57,7 @@ def main():
         secs = " + ".join(f"{s['turns']:.2f}" for s in c["sections"])
         md.append(f"| {k} | {c['turns']:.2f} ({secs}) | {c['L_free_uH']:.1f} uH | {c['L_installed_uH']:.1f} uH | {r25[40]['R_dc_mohm']:.1f} mOhm | "
                   f"{r25[40]['R_ac_mohm']:.1f} mOhm | {r100[40]['R_ac_mohm']:.1f} mOhm | " + " / ".join(f"{r25[x]['R_ac_mohm']:.1f}" for x in sorted(r25)) + " |")
-    md += ["", "Litz alternatives on the 80 uH layout (R_dc 25 C / R_ac 40 kHz 25 C / R_ac 40 kHz 100 C, mOhm): " + "; ".join(
+    md += ["", "Litz alternatives on the R1 layout (R_dc 25 C / R_ac 40 kHz 25 C / R_ac 40 kHz 100 C, mOhm): " + "; ".join(
         f"{k}: {[r for r in v if r['T_C'] == 25 and r['f_kHz'] == 40][0]['R_dc_mohm']:.1f} / {[r for r in v if r['T_C'] == 25 and r['f_kHz'] == 40][0]['R_ac_mohm']:.1f} / "
         f"{[r for r in v if r['T_C'] == 100 and r['f_kHz'] == 40][0]['R_ac_mohm']:.1f}" for k, v in fa["litz_alternatives_80uH"].items())]
     cs = fa["cases"]
@@ -68,7 +68,7 @@ def main():
     # installed no-pan vs f
     md += ["## Installed, no pan (enclosure eddy only), 3D-corrected L", "", "| Layout | f kHz | L uH | R_eddy mOhm |", "|---|---|---|---|"]
     summ["installed_nopan"] = {}
-    for key in ("80uH_out6.46", "70uH_out6.46"):
+    for key in ("R1", "70uH_out6.46"):
         w = __import__("run_pans").layouts()[key]
         rows = []
         for fr in S.FREQS if hasattr(S, "FREQS") else (20e3, 30e3, 40e3, 50e3, 60e3):
@@ -81,7 +81,7 @@ def main():
     # pans
     md += ["## Loaded L and reflected R, installed, pan base on the glass (run_pans.py; 3D-corrected)", "",
            "| Layout | Pan | mu | Pan D | L 40 kHz uH | R_refl 20/30/40/50/60 kHz (ohm) | heat r<55 / 55-92 / >=92 mm |", "|---|---|---|---|---|---|---|"]
-    for lay in ("80uH_out6.46", "70uH_out6.46", "R43_21.93"):
+    for lay in ("R1", "80uH_out6.46", "70uH_out6.46", "R43_21.93"):
         for pan in ("ss430", "triply", "cast_iron", "carbon_steel", "aluminium"):
             for tag in ("lo", "nom", "hi"):
                 for d in (240.0, 180.0):
@@ -98,14 +98,14 @@ def main():
     md += ["## System check (system_check.py): firmware loop end point, 108/120/132 V x C -5/0/+5 %", "",
            "| Layout | Basis / ceiling / lag rule | Full power | P min / median W | f_op kHz | f_res kHz | min f/f_res | I_pk max A | V_C rms / pk max V | over-ceiling at 60 kHz |",
            "|---|---|---|---|---|---|---|---|---|---|"]
-    for lay in ("80uH_out6.46", "70uH_out6.46", "R43_21.93"):
+    for lay in ("R1", "80uH_out6.46", "70uH_out6.46", "R43_21.93"):
         for k, s in sysj[lay].items():
             if k == "special_loads":
                 continue
             md.append(f"| {lay} | {k} | {s['full_power_share'] * 100:.0f} % | {s['P_min_W']:.0f} / {s['P_median_W']:.0f} | {s['f_op_kHz'][0]:.1f}-{s['f_op_kHz'][1]:.1f} | "
                       f"{s['f_res_kHz'][0]:.1f}-{s['f_res_kHz'][1]:.1f} | {s['f_over_fres_min']:.2f} | {s['I_pk_max']:.1f} | {s['Vc_rms_max']:.0f} / {s['Vc_pk_max']:.0f} | {s['over_limit_at_fmax']} |")
     md += ["", "Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q):", ""]
-    for lay in ("80uH_out6.46", "70uH_out6.46", "R43_21.93"):
+    for lay in ("R1", "80uH_out6.46", "70uH_out6.46", "R43_21.93"):
         for name, v in sysj[lay]["special_loads"].items():
             md.append(f"- {lay} {name}: " + "; ".join(f"{kk} {vv['I_rms_at_60kHz']:.1f} A, f_res {vv['f_res_kHz']:.1f}, Q {vv['Q']:.0f}" for kk, vv in v.items()))
     md.append("")

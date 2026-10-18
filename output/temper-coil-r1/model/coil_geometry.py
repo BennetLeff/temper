@@ -103,6 +103,24 @@ R43 = Winding(
     name="R43 as built (15.47 + 6.46 = 21.93 turns)")
 
 
+# coil-r1 winding of record (README decision D2): the R43 radial bands, start/end angles and lead routes, with the inner
+# section reduced to 14.47 turns (pitch 3.815) so it still ends at 75 deg and the outer section still starts at 90 deg
+# and ends 9 deg before the J2 drop. ~81 uH free-air. The former carries one SPARE outer notch turn (to r118.1) for tuning up.
+R1_INNER_START_DEG = -95.0
+R1_INNER_END_DEG = 75.0 + 14 * 360.0
+R1 = Winding(
+    sections=(Section(27.4, 82.6, (R1_INNER_END_DEG - R1_INNER_START_DEG) / 360.0),
+              Section(93.4, 114.8, (OUTER_END_DEG - OUTER_START_DEG) / 360.0)),
+    name="R1 (14.47 + 6.46 = 20.93 turns)")
+R1_SPARE_OUTER_TURNS = 1.0
+
+
+def with_spare(w: Winding, extra=R1_SPARE_OUTER_TURNS) -> Winding:
+    s = w.sections[-1]
+    s2 = Section(s.r0, s.r1 + s.pitch * extra, s.turns + extra)
+    return replace(w, sections=w.sections[:-1] + (s2,), name=f"{w.name} + {extra:g} spare outer")
+
+
 def trimmed(w: Winding, outer_turns_removed: float) -> Winding:
     """The tune-to-inductance move: remove turns from the outer end of the outer section at constant pitch."""
     s = w.sections[-1]

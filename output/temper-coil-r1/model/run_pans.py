@@ -31,7 +31,7 @@ FREQS = [20e3, 30e3, 40e3, 50e3, 60e3]
 
 
 def layouts():
-    out = {"R43_21.93": G.R43}
+    out = {"R43_21.93": G.R43, "R1": G.R1}
     for key in ("70uH_out6.46", "80uH_out6.46"):
         c = FREE["candidates"][key]
         out[key] = G.Winding(sections=tuple(G.Section(s["r0"], s["r1"], s["turns"]) for s in c["sections"]), name=key)
@@ -91,7 +91,7 @@ def main():
                         jobs.append((lay, cls, tag, float(mu), d, f))
     with ProcessPoolExecutor(8) as ex:
         rows = list(ex.map(case, jobs, chunksize=2))
-        ls_jobs = [(lay, cls, mu, Js, I) for lay in ("70uH_out6.46", "80uH_out6.46") for cls, mu, Js in
+        ls_jobs = [(lay, cls, mu, Js, I) for lay in ("70uH_out6.46", "R1") for cls, mu, Js in
                    (("ss430", 200.0, 1.45), ("cast_iron", 100.0, 1.30), ("carbon_steel", 200.0, 1.9)) for I in (5.0, 17.5, 28.0)]
         ls = list(ex.map(large_signal, ls_jobs))
     out = dict(factors=FACT, note="L, R carry the 3D bar factors. R_refl = all eddy loss outside the winding (pan + "

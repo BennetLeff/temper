@@ -163,7 +163,7 @@ def special_loads(layout):
 
 def main():
     out = dict(assumptions=__doc__)
-    for layout in ("70uH_out6.46", "80uH_out6.46", "R43_21.93"):
+    for layout in ("R1", "70uH_out6.46", "80uH_out6.46", "R43_21.93"):
         lay = {}
         for basis in ("model", "priors"):
             for ceiling in (17.5, 24.0, 28.0):
@@ -173,7 +173,7 @@ def main():
         lay["special_loads"] = special_loads(layout)
         out[layout] = lay
     (HERE / "results" / "system.json").write_text(json.dumps(out, indent=1, default=float) + "\n")
-    for layout in ("70uH_out6.46", "80uH_out6.46", "R43_21.93"):
+    for layout in ("R1", "70uH_out6.46", "80uH_out6.46", "R43_21.93"):
         print(f"== {layout}")
         for k, s in out[layout].items():
             if k == "special_loads":

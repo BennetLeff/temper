@@ -128,7 +128,9 @@ def main():
     # verify the 70 / 80 uH candidates directly and get their R_ac
     corr = prox_correction()
     out["prox_correction_3D_over_2D"] = dict(r_mm=corr[0].tolist(), ratio=corr[1].tolist())
-    cands = {"R43_21.93": G.R43}
+    cands = {"R43_21.93": G.R43, "R1": G.R1, "R1_plus_spare": G.with_spare(G.R1)}
+    for rem in (0.5, 1.0, 1.5, 2.0):
+        cands[f"R1_trim-{rem:g}"] = G.trimmed(G.R1, rem)
     for key in ("70uH_out6.46", "80uH_out6.46"):
         t = targets[key]
         cands[key] = layout(round(t["n_in"], 2), 6.46, name=f"{key}: {t['n_in']:.2f} + 6.46")
@@ -138,11 +140,11 @@ def main():
         ri, _ = solve_case((key, w, dict(enclosure=True)))
         out["candidates"][key] = dict(turns=w.turns, sections=[dict(r0=s.r0, r1=s.r1, turns=s.turns, pitch=s.pitch) for s in w.sections],
                                       L_free_uH=r["L_uH"], L_installed_uH=ri["L_uH"], rac=rac_rows(w, dict(), corr))
-    # alternative Litz constructions on the 80 uH layout (stock sizes; see ORDER-LIST.md)
+    # alternative Litz constructions on the R1 (~81 uH) layout (stock sizes; see ORDER-LIST.md)
     out["litz_alternatives_80uH"] = {}
     for label, n, d in (("270x0.10 (design, custom class 200)", 270, 0.100e-3), ("1000x0.05 (RMCybernetics 12 A stock, class 155)", 1000, 0.050e-3),
                         ("1050x0.05 (Elecify 1050/44 stock)", 1050, 0.050e-3), ("200x0.10 (Elecify 200/38 stock)", 200, 0.100e-3)):
-        out["litz_alternatives_80uH"][label] = [r for r in rac_rows(cands["80uH_out6.46"], dict(), corr, n, d) if r["f_kHz"] in (40.0, 60.0)]
+        out["litz_alternatives_80uH"][label] = [r for r in rac_rows(cands["R1"], dict(), corr, n, d) if r["f_kHz"] in (40.0, 60.0)]
     (HERE / "results" / "free_air.json").write_text(json.dumps(out, indent=1) + "\n")
     for k, v in out["candidates"].items():
         r40 = [x for x in v["rac"] if x["f_kHz"] == 40 and x["T_C"] == 25][0]

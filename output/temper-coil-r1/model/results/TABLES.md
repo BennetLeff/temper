@@ -17,10 +17,16 @@
 | Layout | Turns (inner + outer) | L free | L installed | R_dc 25 C | R_ac 40 kHz 25 C | R_ac 40 kHz 100 C | R_ac 20/30/40/50/60 kHz, 25 C (mOhm) |
 |---|---|---|---|---|---|---|---|
 | R43_21.93 | 21.94 (15.47 + 6.46) | 87.7 uH | 83.3 uH | 86.2 mOhm | 90.0 mOhm | 113.8 mOhm | 87.1 / 88.3 / 90.0 / 92.2 / 94.9 |
+| R1 | 20.94 (14.47 + 6.46) | 81.1 uH | 77.0 uH | 83.2 mOhm | 86.6 mOhm | 109.6 mOhm | 84.1 / 85.1 / 86.6 / 88.5 / 90.9 |
+| R1_plus_spare | 21.94 (14.47 + 7.46) | 89.9 uH | 84.6 uH | 89.5 mOhm | 93.2 mOhm | 118.0 mOhm | 90.4 / 91.6 / 93.2 / 95.4 / 97.9 |
+| R1_trim-0.5 | 20.44 (14.47 + 5.96) | 76.8 uH | 73.1 uH | 80.2 mOhm | 83.4 mOhm | 105.6 mOhm | 81.0 / 82.0 / 83.4 / 85.2 / 87.5 |
+| R1_trim-1 | 19.94 (14.47 + 5.46) | 72.5 uH | 69.3 uH | 77.1 mOhm | 80.2 mOhm | 101.6 mOhm | 77.9 / 78.9 / 80.2 / 82.0 / 84.1 |
+| R1_trim-1.5 | 19.44 (14.47 + 4.96) | 68.4 uH | 65.6 uH | 74.2 mOhm | 77.1 mOhm | 97.6 mOhm | 74.9 / 75.8 / 77.1 / 78.8 / 80.8 |
+| R1_trim-2 | 18.94 (14.47 + 4.46) | 64.4 uH | 61.9 uH | 71.2 mOhm | 74.1 mOhm | 93.7 mOhm | 72.0 / 72.8 / 74.1 / 75.6 / 77.6 |
 | 70uH_out6.46 | 19.11 (12.65 + 6.46) | 69.9 uH | 66.2 uH | 77.8 mOhm | 80.5 mOhm | 102.1 mOhm | 78.5 / 79.3 / 80.5 / 82.0 / 83.9 |
 | 80uH_out6.46 | 20.75 (14.29 + 6.46) | 79.9 uH | 75.8 uH | 82.7 mOhm | 86.0 mOhm | 108.8 mOhm | 83.5 / 84.5 / 86.0 / 87.9 / 90.2 |
 
-Litz alternatives on the 80 uH layout (R_dc 25 C / R_ac 40 kHz 25 C / R_ac 40 kHz 100 C, mOhm): 270x0.10 (design, custom class 200): 82.7 / 86.0 / 108.8; 1000x0.05 (RMCybernetics 12 A stock, class 155): 89.2 / 90.0 / 115.3; 1050x0.05 (Elecify 1050/44 stock): 85.0 / 85.8 / 109.9; 200x0.10 (Elecify 200/38 stock): 111.2 / 113.7 / 145.0
+Litz alternatives on the R1 layout (R_dc 25 C / R_ac 40 kHz 25 C / R_ac 40 kHz 100 C, mOhm): 270x0.10 (design, custom class 200): 83.2 / 86.6 / 109.6; 1000x0.05 (RMCybernetics 12 A stock, class 155): 89.8 / 90.6 / 116.1; 1050x0.05 (Elecify 1050/44 stock): 85.6 / 86.4 / 110.6; 200x0.10 (Elecify 200/38 stock): 112.0 / 114.5 / 146.0
 
 Sensitivities (R43, L free, uH): R43_free 87.7; R43_aircore 53.3; R43_mu1000 86.9; R43_mu5000 88.0; R43_bars_0.5mm_lower 86.9; R43_bundle_z+0.3 87.1
 
@@ -30,11 +36,11 @@ Trim table (remove outer turns at constant pitch from R43; L free uH): -0.0 t: 8
 
 | Layout | f kHz | L uH | R_eddy mOhm |
 |---|---|---|---|
-| 80uH_out6.46 | 20 | 75.8 | 10.9 |
-| 80uH_out6.46 | 30 | 75.8 | 13.6 |
-| 80uH_out6.46 | 40 | 75.8 | 15.8 |
-| 80uH_out6.46 | 50 | 75.8 | 17.8 |
-| 80uH_out6.46 | 60 | 75.8 | 19.6 |
+| R1 | 20 | 77.0 | 11.0 |
+| R1 | 30 | 77.0 | 13.7 |
+| R1 | 40 | 77.0 | 16.0 |
+| R1 | 50 | 76.9 | 18.0 |
+| R1 | 60 | 76.9 | 19.8 |
 | 70uH_out6.46 | 20 | 66.2 | 10.0 |
 | 70uH_out6.46 | 30 | 66.2 | 12.5 |
 | 70uH_out6.46 | 40 | 66.2 | 14.6 |
@@ -45,6 +51,32 @@ Trim table (remove outer turns at constant pitch from R43; L free uH): -0.0 t: 8
 
 | Layout | Pan | mu | Pan D | L 40 kHz uH | R_refl 20/30/40/50/60 kHz (ohm) | heat r<55 / 55-92 / >=92 mm |
 |---|---|---|---|---|---|---|
+| R1 | ss430 | 50 | 240 | 36.7 | 1.80 / 2.32 / 2.75 / 3.14 / 3.49 | 20 / 49 / 31 % |
+| R1 | ss430 | 50 | 180 | 42.9 | 2.22 | 26 / 74 / 0 % |
+| R1 | ss430 | 200 | 240 | 49.4 | 2.92 / 3.89 / 4.71 / 5.42 / 6.09 | 19 / 52 / 29 % |
+| R1 | ss430 | 200 | 180 | 53.4 | 2.06 / 2.85 / 3.54 / 4.15 / 4.73 | 27 / 73 / 0 % |
+| R1 | ss430 | 500 | 240 | 62.7 | 3.66 / 5.04 / 6.24 / 7.34 / 8.32 | 19 / 54 / 27 % |
+| R1 | ss430 | 500 | 180 | 63.4 | 4.33 | 28 / 72 / 0 % |
+| R1 | triply | 50 | 240 | 37.0 | 1.77 / 2.44 / 2.89 / 3.23 / 3.54 | 20 / 50 / 30 % |
+| R1 | triply | 50 | 180 | 41.1 | 2.06 | 29 / 71 / 0 % |
+| R1 | triply | 200 | 240 | 49.1 | 2.89 / 3.79 / 4.60 / 5.30 / 5.96 | 20 / 53 / 28 % |
+| R1 | triply | 200 | 180 | 49.5 | 1.77 / 2.39 / 2.97 / 3.48 / 3.96 | 31 / 69 / 0 % |
+| R1 | triply | 500 | 240 | 62.1 | 3.54 / 4.88 / 6.05 / 7.13 / 8.08 | 20 / 54 / 26 % |
+| R1 | triply | 500 | 180 | 57.7 | 3.55 | 32 / 68 / 0 % |
+| R1 | cast_iron | 50 | 240 | 39.6 | 2.13 / 2.74 / 3.27 / 3.75 / 4.15 | 20 / 49 / 31 % |
+| R1 | cast_iron | 50 | 180 | 45.3 | 2.70 | 25 / 75 / 0 % |
+| R1 | cast_iron | 100 | 240 | 46.1 | 2.70 / 3.53 / 4.26 / 4.91 / 5.48 | 19 / 51 / 30 % |
+| R1 | cast_iron | 100 | 180 | 50.7 | 2.02 / 2.74 / 3.37 / 3.96 / 4.48 | 26 / 74 / 0 % |
+| R1 | cast_iron | 300 | 240 | 61.0 | 3.61 / 4.95 / 6.12 / 7.14 / 8.10 | 19 / 53 / 28 % |
+| R1 | cast_iron | 300 | 180 | 62.4 | 4.48 | 27 / 73 / 0 % |
+| R1 | carbon_steel | 100 | 240 | 32.9 | 1.41 / 1.77 / 2.09 / 2.37 / 2.62 | 20 / 47 / 32 % |
+| R1 | carbon_steel | 100 | 180 | 39.5 | 1.83 | 24 / 76 / 0 % |
+| R1 | carbon_steel | 200 | 240 | 36.9 | 1.85 / 2.37 / 2.83 / 3.19 / 3.55 | 20 / 49 / 31 % |
+| R1 | carbon_steel | 200 | 180 | 42.7 | 1.50 / 1.98 / 2.41 / 2.77 / 3.11 | 25 / 75 / 0 % |
+| R1 | carbon_steel | 500 | 240 | 44.4 | 2.57 / 3.36 / 4.03 / 4.64 / 5.17 | 20 / 51 / 30 % |
+| R1 | carbon_steel | 500 | 180 | 48.7 | 3.29 | 26 / 74 / 0 % |
+| R1 | aluminium | 1 | 240 | 23.6 | 0.09 / 0.11 / 0.13 / 0.14 / 0.15 | 21 / 43 / 37 % |
+| R1 | aluminium | 1 | 180 | 30.8 | 0.10 / 0.12 / 0.14 / 0.16 / 0.17 | 19 / 81 / 0 % |
 | 80uH_out6.46 | ss430 | 50 | 240 | 36.2 | 1.77 / 2.28 / 2.71 / 3.09 / 3.43 | 20 / 49 / 31 % |
 | 80uH_out6.46 | ss430 | 50 | 180 | 42.4 | 2.18 | 25 / 75 / 0 % |
 | 80uH_out6.46 | ss430 | 200 | 240 | 48.7 | 2.88 / 3.83 / 4.64 / 5.34 / 5.99 | 19 / 52 / 29 % |
@@ -124,12 +156,24 @@ Trim table (remove outer turns at constant pitch from R43; L free uH): -0.0 t: 8
 | R43_21.93 | aluminium | 1 | 240 | 25.4 | 0.10 / 0.12 / 0.14 / 0.15 / 0.17 | 22 / 44 / 34 % |
 | R43_21.93 | aluminium | 1 | 180 | 32.7 | 0.11 / 0.13 / 0.15 / 0.17 / 0.19 | 20 / 80 / 0 % |
 
-Large-signal ESTIMATE (Frohlich effective mu, 40 kHz, 240 mm): 70uH_out6.46 ss430 5 A: L 41.1 uH R 3.87 ohm; 70uH_out6.46 ss430 17.5 A: L 38.3 uH R 3.58 ohm; 70uH_out6.46 ss430 28 A: L 36.6 uH R 3.39 ohm; 70uH_out6.46 cast_iron 5 A: L 39.0 uH R 3.55 ohm; 70uH_out6.46 cast_iron 17.5 A: L 37.4 uH R 3.38 ohm; 70uH_out6.46 cast_iron 28 A: L 36.3 uH R 3.26 ohm; 70uH_out6.46 carbon_steel 5 A: L 31.3 uH R 2.33 ohm; 70uH_out6.46 carbon_steel 17.5 A: L 29.9 uH R 2.14 ohm; 70uH_out6.46 carbon_steel 28 A: L 29.0 uH R 2.02 ohm; 80uH_out6.46 ss430 5 A: L 46.9 uH R 4.47 ohm; 80uH_out6.46 ss430 17.5 A: L 43.4 uH R 4.11 ohm; 80uH_out6.46 ss430 28 A: L 41.4 uH R 3.88 ohm; 80uH_out6.46 cast_iron 5 A: L 44.5 uH R 4.10 ohm; 80uH_out6.46 cast_iron 17.5 A: L 42.5 uH R 3.89 ohm; 80uH_out6.46 cast_iron 28 A: L 41.1 uH R 3.74 ohm; 80uH_out6.46 carbon_steel 5 A: L 35.5 uH R 2.68 ohm; 80uH_out6.46 carbon_steel 17.5 A: L 33.9 uH R 2.46 ohm; 80uH_out6.46 carbon_steel 28 A: L 32.9 uH R 2.31 ohm
+Large-signal ESTIMATE (Frohlich effective mu, 40 kHz, 240 mm): 70uH_out6.46 ss430 5 A: L 41.1 uH R 3.87 ohm; 70uH_out6.46 ss430 17.5 A: L 38.3 uH R 3.58 ohm; 70uH_out6.46 ss430 28 A: L 36.6 uH R 3.39 ohm; 70uH_out6.46 cast_iron 5 A: L 39.0 uH R 3.55 ohm; 70uH_out6.46 cast_iron 17.5 A: L 37.4 uH R 3.38 ohm; 70uH_out6.46 cast_iron 28 A: L 36.3 uH R 3.26 ohm; 70uH_out6.46 carbon_steel 5 A: L 31.3 uH R 2.33 ohm; 70uH_out6.46 carbon_steel 17.5 A: L 29.9 uH R 2.14 ohm; 70uH_out6.46 carbon_steel 28 A: L 29.0 uH R 2.02 ohm; R1 ss430 5 A: L 47.6 uH R 4.55 ohm; R1 ss430 17.5 A: L 44.0 uH R 4.18 ohm; R1 ss430 28 A: L 42.0 uH R 3.94 ohm; R1 cast_iron 5 A: L 45.2 uH R 4.17 ohm; R1 cast_iron 17.5 A: L 43.1 uH R 3.95 ohm; R1 cast_iron 28 A: L 41.7 uH R 3.79 ohm; R1 carbon_steel 5 A: L 36.0 uH R 2.72 ohm; R1 carbon_steel 17.5 A: L 34.4 uH R 2.49 ohm; R1 carbon_steel 28 A: L 33.3 uH R 2.34 ohm
 
 ## System check (system_check.py): firmware loop end point, 108/120/132 V x C -5/0/+5 %
 
 | Layout | Basis / ceiling / lag rule | Full power | P min / median W | f_op kHz | f_res kHz | min f/f_res | I_pk max A | V_C rms / pk max V | over-ceiling at 60 kHz |
 |---|---|---|---|---|---|---|---|---|---|
+| R1 | model_17.5A_lag45 | 24 % | 780 / 1041 | 35.2-60.0 | 27.3-41.4 | 1.26 | 38.3 | 130 / 282 | 1 |
+| R1 | model_17.5A_lag30 | 45 % | 785 / 1111 | 35.0-60.0 | 27.2-41.4 | 1.21 | 38.3 | 143 / 311 | 1 |
+| R1 | model_24A_lag45 | 63 % | 780 / 1210 | 35.2-54.0 | 27.3-41.1 | 1.26 | 50.4 | 142 / 309 | 0 |
+| R1 | model_24A_lag30 | 84 % | 836 / 1236 | 35.0-54.0 | 27.2-41.1 | 1.21 | 50.4 | 143 / 311 | 0 |
+| R1 | model_28A_lag45 | 63 % | 780 / 1210 | 35.2-54.0 | 27.3-41.1 | 1.26 | 50.4 | 142 / 309 | 0 |
+| R1 | model_28A_lag30 | 84 % | 836 / 1236 | 35.0-54.0 | 27.2-41.1 | 1.21 | 50.4 | 143 / 311 | 0 |
+| R1 | priors_17.5A_lag45 | 3 % | 208 / 720 | 35.0-48.2 | 26.4-34.6 | 1.21 | 38.0 | 165 / 359 | 0 |
+| R1 | priors_17.5A_lag30 | 3 % | 208 / 720 | 35.0-48.2 | 26.4-34.6 | 1.21 | 38.0 | 165 / 359 | 0 |
+| R1 | priors_24A_lag45 | 38 % | 208 / 984 | 35.0-43.9 | 26.4-34.6 | 1.19 | 52.1 | 228 / 496 | 0 |
+| R1 | priors_24A_lag30 | 38 % | 208 / 984 | 35.0-43.9 | 26.4-34.6 | 1.19 | 52.1 | 228 / 496 | 0 |
+| R1 | priors_28A_lag45 | 49 % | 208 / 1110 | 35.0-43.3 | 26.4-34.6 | 1.17 | 60.8 | 266 / 577 | 0 |
+| R1 | priors_28A_lag30 | 49 % | 208 / 1110 | 35.0-43.3 | 26.4-34.6 | 1.17 | 60.8 | 266 / 577 | 0 |
 | 80uH_out6.46 | model_17.5A_lag45 | 26 % | 777 / 1038 | 35.5-60.0 | 27.5-41.7 | 1.25 | 39.3 | 129 / 280 | 1 |
 | 80uH_out6.46 | model_17.5A_lag30 | 48 % | 777 / 1112 | 35.0-60.0 | 27.4-41.7 | 1.20 | 39.3 | 143 / 309 | 1 |
 | 80uH_out6.46 | model_24A_lag45 | 65 % | 789 / 1224 | 35.5-54.4 | 27.5-41.4 | 1.25 | 50.7 | 142 / 309 | 0 |
@@ -169,6 +213,10 @@ Large-signal ESTIMATE (Frohlich effective mu, 40 kHz, 240 mm): 70uH_out6.46 ss43
 
 Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q):
 
+- R1 no_pan: 120V_C475nF 4.6 A, f_res 26.3, Q 257; 120V_C525nF 4.5 A, f_res 25.0, Q 257; 132V_C475nF 5.1 A, f_res 26.3, Q 257; 132V_C525nF 5.0 A, f_res 25.0, Q 257
+- R1 aluminium_240: 120V_C475nF 32.9 A, f_res 47.7, Q 33; 120V_C525nF 28.4 A, f_res 45.3, Q 33; 132V_C475nF 36.2 A, f_res 47.7, Q 33; 132V_C525nF 31.2 A, f_res 45.3, Q 33
+- R1 aluminium_180: 120V_C475nF 18.1 A, f_res 41.7, Q 40; 120V_C525nF 16.6 A, f_res 39.7, Q 40; 132V_C475nF 19.9 A, f_res 41.7, Q 40; 132V_C525nF 18.3 A, f_res 39.7, Q 40
+- R1 carbon_steel_lo_180: 120V_C475nF 12.2 A, f_res 37.8, Q 6; 120V_C525nF 11.6 A, f_res 36.0, Q 6; 132V_C475nF 13.4 A, f_res 37.8, Q 6; 132V_C525nF 12.7 A, f_res 36.0, Q 6
 - 80uH_out6.46 no_pan: 120V_C475nF 4.7 A, f_res 26.5, Q 255; 120V_C525nF 4.6 A, f_res 25.2, Q 255; 132V_C475nF 5.2 A, f_res 26.5, Q 255; 132V_C525nF 5.0 A, f_res 25.2, Q 255
 - 80uH_out6.46 aluminium_240: 120V_C475nF 34.2 A, f_res 48.0, Q 33; 120V_C525nF 29.3 A, f_res 45.7, Q 33; 132V_C475nF 37.7 A, f_res 48.0, Q 33; 132V_C525nF 32.2 A, f_res 45.7, Q 33
 - 80uH_out6.46 aluminium_180: 120V_C475nF 18.5 A, f_res 41.9, Q 40; 120V_C525nF 16.9 A, f_res 39.9, Q 40; 132V_C475nF 20.3 A, f_res 41.9, Q 40; 132V_C525nF 18.6 A, f_res 39.9, Q 40
