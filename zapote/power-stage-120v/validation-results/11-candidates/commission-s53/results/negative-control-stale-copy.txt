@@ -1,0 +1,5 @@
+$ python3 firmware/tools/commissioning_board_table.py --check --doc <copy of COMMISSIONING.md at c1b6db7a5 with B3 set back to 66.30-118.74 A and the line "The trip numbers below are for the **stage-15** board (R34 12.6 kΩ, R43/R46 2.21 kΩ)." re-inserted in the ground rules>
+FAIL: board table differs from the rendered one: run commissioning_board_table.py --write and review
+FAIL: line 122: claims a stage-15 board ('stage-15** board'); the board of record is stage 53
+FAIL: line 122: 'R34 12.6 kΩ' but the frozen BOM has R34 = RT0603BRD0716KL (16 k)
+exit 3

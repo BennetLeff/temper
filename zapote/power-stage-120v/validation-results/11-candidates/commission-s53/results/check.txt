@@ -1,0 +1,9 @@
+$ python3 firmware/tools/commissioning_board_table.py --check
+FINDING (firmware / board, for the owner): TEMPER_POWER_TANK_CEILING_DA range allows 28 A; the fitted bank (B32643H8104J000, mark H) stops the ladder at 24 A: the limit is procedural only
+PASS: COMMISSIONING.md matches the stage-53 board table
+exit 0
+
+$ python3 -m pytest firmware/tools/test_commissioning_board_table.py -q
+....                                                                     [100%]
+
+============================== 27 passed in 0.30s ==============================

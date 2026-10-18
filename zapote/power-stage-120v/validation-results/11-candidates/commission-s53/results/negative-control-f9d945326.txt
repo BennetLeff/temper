@@ -1,0 +1,18 @@
+$ python3 firmware/tools/commissioning_board_table.py --check --doc <COMMISSIONING.md at f9d945326 (the stage-15 procedure) with the rendered s53 board table inserted>
+FAIL: the introduction does not name the board of record (stage 53)
+FAIL: line 108: claims a stage-15 board ('stage-15** board'); the board of record is stage 53
+FAIL: line 108: claims a stage-14 board ('stage-14 board'); the board of record is stage 53
+FAIL: line 108: claims a stage-14 board ('stage-14 board'); the board of record is stage 53
+FAIL: line 108: 'R34 12.6 kΩ' but the frozen BOM has R34 = RT0603BRD0716KL (16 k)
+FAIL: line 201: claims a stage-49 board ('s49 board'); the board of record is stage 53
+FAIL: line 219: claims a stage-15 board ('stage 15: R4'); the board of record is stage 53
+FAIL: line 225: claims a stage-15 board ('stage 15: R3'); the board of record is stage 53
+FAIL: line 225: 'R34 12.6 kΩ' but the frozen BOM has R34 = RT0603BRD0716KL (16 k)
+FAIL: line 225: 'R35 11.7 kΩ' but the frozen BOM has R35 = RT0603BRD0711KL (11 k)
+FAIL: line 381: claims a stage-15 board ('Stage-15 board'); the board of record is stage 53
+FAIL: line 381: 'R34 = 12.6 kΩ' but the frozen BOM has R34 = RT0603BRD0716KL (16 k)
+exit 3
+
+$ python3 firmware/tools/commissioning_board_table.py --check --doc <COMMISSIONING.md at f9d945326, unchanged>
+GATE ERROR: COMMISSIONING.md must hold the board-table markers exactly once
+exit 5
