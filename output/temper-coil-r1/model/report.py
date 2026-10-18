@@ -116,6 +116,21 @@ def main():
             f"{p} {r['B_max_mT']:.0f} mT ({r['frac_Bs_100C']:.2f} Bs)" for p, r in v["points"].items())
             + "; core loss " + ", ".join(f"{kk.replace('_W', '')} {vv:.1f} W" for kk, vv in v["core_loss"].items()))
     md.append("")
+    th = load("trim_heating")
+    md += ["## Tune move: R1 outer-section trim states (trim_heating.py; 40 kHz, 240 mm pans)", "",
+           "| State | Outer turns | L free uH | Pan | L loaded uH | R_refl ohm | rim share (r >= 92) | centre share (r < 55) |", "|---|---|---|---|---|---|---|---|"]
+    for r in th["rows"]:
+        md.append(f"| {r['state']} | {r['outer_turns']:.2f} | {r['L_free_uH']:.1f} | {r['pan']} | {r['L_loaded_uH']:.1f} | {r['R_refl_ohm']:.2f} | "
+                  f"{r['rim_share'] * 100:.1f} % | {r['centre_share'] * 100:.1f} % |")
+    fid = load("fidelity")
+    md += ["", "## Build fidelity (fidelity.py; R1, 40 kHz, 430 pan mu 200)", "", "| Case | dL free % | dL loaded % | dR loaded % |", "|---|---|---|---|"]
+    for r in fid["rows"]:
+        if not r["case"].startswith("jitter"):
+            md.append(f"| {r['case']} | {r['dL_free_pct']:+.2f} | {r['dL_430_pct']:+.2f} | {r['dR_430_pct']:+.2f} |")
+    for k, v in fid["jitter_summary"].items():
+        md.append(f"| random radial error {k.replace('jitter_sigma', 'sigma ')} mm (6 seeds, range) | {v['dL_free_pct']['min']:+.2f} to {v['dL_free_pct']['max']:+.2f} | "
+                  f"{v['dL_430_pct']['min']:+.2f} to {v['dL_430_pct']['max']:+.2f} | {v['dR_430_pct']['min']:+.2f} to {v['dR_430_pct']['max']:+.2f} |")
+    md.append("")
     (R / "TABLES.md").write_text("\n".join(md) + "\n")
     (R / "summary.json").write_text(json.dumps(summ, indent=1) + "\n")
     print("\n".join(md))

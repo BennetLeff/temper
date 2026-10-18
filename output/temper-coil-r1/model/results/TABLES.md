@@ -237,3 +237,34 @@ Loads at the loop's 60 kHz start (I_rms A, f_res kHz, Q) and at the 35 kHz floor
 - R43_21.93/no_pan: 5.32 mT/A peak; reaches Bs(100 C) 410 mT at 77 A pk; ceiling_17.5A_crest 202 mT (0.49 Bs); ceiling_24A_crest 277 mT (0.68 Bs); ceiling_28A_crest 324 mT (0.79 Bs); fw_peak_trip_cap_62A 330 mT (0.81 Bs); CT_band_high_76A 405 mT (0.99 Bs); spec_row7_98A 522 mT (1.27 Bs); core loss 17.5A_rms_35kHz 1.1 W, 17.5A_rms_45kHz 1.5 W, 17.5A_rms_60kHz 2.3 W, 28.0A_rms_35kHz 3.7 W, 28.0A_rms_45kHz 5.2 W, 28.0A_rms_60kHz 7.8 W
 - R43_21.93/pan_430: 3.67 mT/A peak; reaches Bs(100 C) 410 mT at 112 A pk; ceiling_17.5A_crest 139 mT (0.34 Bs); ceiling_24A_crest 191 mT (0.47 Bs); ceiling_28A_crest 223 mT (0.54 Bs); fw_peak_trip_cap_62A 228 mT (0.56 Bs); CT_band_high_76A 279 mT (0.68 Bs); spec_row7_98A 360 mT (0.88 Bs); core loss 17.5A_rms_35kHz 0.4 W, 17.5A_rms_45kHz 0.6 W, 17.5A_rms_60kHz 0.9 W, 28.0A_rms_35kHz 1.4 W, 28.0A_rms_45kHz 2.0 W, 28.0A_rms_60kHz 3.0 W
 
+## Tune move: R1 outer-section trim states (trim_heating.py; 40 kHz, 240 mm pans)
+
+| State | Outer turns | L free uH | Pan | L loaded uH | R_refl ohm | rim share (r >= 92) | centre share (r < 55) |
+|---|---|---|---|---|---|---|---|
+| R1_plus_spare | 7.46 | 89.9 | ss430 | 53.9 | 5.07 | 32.2 % | 18.1 % |
+| R1_plus_spare | 7.46 | 89.9 | cast_iron | 50.4 | 4.59 | 33.2 % | 18.1 % |
+| R1 | 6.46 | 81.1 | ss430 | 49.4 | 4.71 | 28.8 % | 19.4 % |
+| R1 | 6.46 | 81.1 | cast_iron | 46.1 | 4.26 | 29.6 % | 19.5 % |
+| R1_trim-0.5 | 5.96 | 76.8 | ss430 | 47.1 | 4.52 | 26.9 % | 20.2 % |
+| R1_trim-0.5 | 5.96 | 76.8 | cast_iron | 44.0 | 4.08 | 27.5 % | 20.3 % |
+| R1_trim-1 | 5.46 | 72.5 | ss430 | 44.9 | 4.32 | 24.9 % | 21.0 % |
+| R1_trim-1 | 5.46 | 72.5 | cast_iron | 41.8 | 3.90 | 25.3 % | 21.2 % |
+| R1_trim-1.5 | 4.96 | 68.4 | ss430 | 42.7 | 4.13 | 22.7 % | 22.0 % |
+| R1_trim-1.5 | 4.96 | 68.4 | cast_iron | 39.8 | 3.71 | 23.1 % | 22.1 % |
+| R1_trim-2 | 4.46 | 64.4 | ss430 | 40.5 | 3.93 | 20.5 % | 23.0 % |
+| R1_trim-2 | 4.46 | 64.4 | cast_iron | 37.8 | 3.53 | 20.7 % | 23.2 % |
+
+## Build fidelity (fidelity.py; R1, 40 kHz, 430 pan mu 200)
+
+| Case | dL free % | dL loaded % | dR loaded % |
+|---|---|---|---|
+| nominal | +0.00 | +0.00 | +0.00 |
+| bundle_z+0.3 | -0.74 | -1.37 | +0.21 |
+| roof+0.2 (bars 0.2 lower) | -0.50 | -0.39 | -0.64 |
+| bars 0.5 lower | -0.96 | -0.77 | -1.26 |
+| bars 2 mm further out | +0.06 | -0.17 | -0.22 |
+| pitch +3 % | +1.16 | +0.41 | +1.34 |
+| pitch -3 % | -1.13 | -0.32 | -1.38 |
+| random radial error sigma 0.3 mm (6 seeds, range) | -0.21 to +0.32 | -0.21 to +0.52 | -0.35 to +0.26 |
+| random radial error sigma 0.6 mm (6 seeds, range) | -0.33 to +0.75 | -0.30 to +1.24 | -0.71 to +0.52 |
+
