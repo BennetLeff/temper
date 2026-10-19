@@ -801,6 +801,144 @@ static void test_no_pan_config(void)
     tests++;
 }
 
+/* ------------------------------------------------------------------ start transient (F3) */
+/* Why the loop has no pre-start pan probe (coil study F3), in numbers this test reproduces.
+ * Time-domain series RLC (constant L, R, C per plant) driven by the bridge, starting from rest.
+ * With the bridge idle the 9 uF film bus holds the line peak (power-stage DECISIONS 2026-10-06:
+ * "with the bridge idle, the film bus capacitors hold the line peak"; 9 uF since stage 14,
+ * 2026-10-09), so a start at any line phase sees the full bus, 1.414 x line, not |v_line|.
+ *   BUS_DROOP: the 9 uF bus discharging into the bridge, no rectifier recharge (a start at a line
+ *     zero: the least energy any start can have), for claims that a current is at least X.
+ *   BUS_STIFF: an ideal bus at the line peak, for claims that a current stays below X.
+ * After the drive ends the switches are off and the body diodes clamp the bridge to -sign(i) x bus
+ * until the current reaches zero (then it stays there), or, in RING mode, both low sides conduct
+ * and the tank rings freely (a primitive the HAL does not have; for the recommendation only).
+ * Sampling it would have to beat (n21_hw_esp32.c, controller DECISIONS C12 / C19): ADC1 at 80 kS/s
+ * in a 9-slot pattern with CT_MON in slots 1 and 3, i.e. CT_MON samples 25 us then 87.5 us apart;
+ * 64-result frames of 0.8 ms read by the acquisition context every 625 us; the AD8436 settles in
+ * ~3.4 ms to 0.1 % (tau ~0.49 ms; controller README "Settling"). */
+#define BUS_C_F 9e-6
+#define CT_BAND_LO_A 64.55
+#define CT_MON_GAP_MIN_US 25.0
+#define AD8436_TAU_US 490.0
+#define F_START_HZ (80e6 / 1334) /* f_max's cycle: bridge_plan_cycle(80 MHz, 60 kHz) = 1334 ticks */
+typedef enum { BUS_STIFF, BUS_DROOP } bus_t;
+typedef enum { END_DIODES, END_RING } end_t;
+typedef struct { double i_pk, t_pk_us, above_trip_us, ring_f_hz; unsigned ring_edges; } transient_t;
+
+static transient_t start_transient(const plant_t *p, double c_f, double line_v, double drive_us,
+                                   bus_t bus, end_t end, double window_us)
+{
+    const double dt = 5e-9, T = 1.0 / F_START_HZ, trip = tank_peak_trip_for(TANK_CEILING_DEFAULT_A);
+    double vb = 1.41421356 * line_v, i = 0, vc = 0;
+    transient_t r = {0};
+    int sign = 0;
+    bool armed = false, done = false;
+    double t_first = 0, t_last = 0;
+    for (double t = 0; t < window_us * 1e-6; t += dt) {
+        double v, ib;
+        if (t < drive_us * 1e-6) {
+            double s = fmod(t, T) < T / 2 ? 1.0 : -1.0;
+            v = s * vb;
+            ib = s * i;
+        } else if (end == END_RING) {
+            v = 0;
+            ib = 0;
+        } else {
+            if (done || fabs(i) < 1e-3) { done = true; i = 0; continue; }
+            double s = i > 0 ? -1.0 : 1.0;
+            v = s * vb;
+            ib = s * i;
+            if ((i > 0) != (i + (v - p->R * i - vc) / p->L * dt > 0)) done = true; /* reached zero */
+        }
+        i += (v - p->R * i - vc) / p->L * dt; /* semi-implicit Euler: i first, then vc with it */
+        vc += i / c_f * dt;
+        if (bus == BUS_DROOP) vb -= ib / BUS_C_F * dt;
+        if (fabs(i) > r.i_pk) { r.i_pk = fabs(i); r.t_pk_us = t * 1e6; }
+        if (fabs(i) > trip) r.above_trip_us += dt * 1e6;
+        if (end == END_RING && t >= drive_us * 1e-6) { /* CT_ZC-like edges with 1 A hysteresis */
+            int sg = i > 0 ? 1 : -1;
+            if (fabs(i) > 1.0) armed = true;
+            if (armed && sign && sg != sign) {
+                if (!r.ring_edges) t_first = t;
+                t_last = t;
+                r.ring_edges++;
+                armed = false;
+            }
+            sign = sg;
+        }
+    }
+    if (r.ring_edges >= 3) r.ring_f_hz = (r.ring_edges - 1) / 2.0 / (t_last - t_first);
+    return r;
+}
+
+static void test_start_transient_evidence(void)
+{
+    const plant_t AL180 = {"aluminium 180 mm", 30.8e-6, 0.28}; /* 30.8 uH, 0.17 + 0.11 ohm */
+    const double half_pulse_us = 0.5e6 / F_START_HZ;           /* one bridge pulse, 8.34 us */
+    const double trip = tank_peak_trip_for(TANK_CEILING_DEFAULT_A);
+    printf("  start transient from the held bus (peak A at 132 V, C -5 %% / +5 %%):\n");
+    for (unsigned k = 0; k < 2; k++) {
+        double c_f = BANK_F[2 * k];
+        /* 1. A continuous start (the loop's first half, or any "short session" at f_max) puts
+         *    aluminium over the CT band (240 mm) or the firmware peak trip (180 mm) within 40 us,
+         *    even from the least-energy start, at every line: 16 x faster than one acquisition
+         *    period, so no firmware early abort can land before it. */
+        for (unsigned li = 0; li < 3; li++) {
+            transient_t a = start_transient(&ALUMINIUM, c_f, LINES_V[li], 400, BUS_DROOP, END_DIODES, 400);
+            transient_t b = start_transient(&AL180, c_f, LINES_V[li], 400, BUS_DROOP, END_DIODES, 400);
+            assert(a.i_pk > CT_BAND_LO_A && a.t_pk_us < 40 && b.i_pk > trip && b.t_pk_us < 40);
+            if (li == 2) printf("    continuous: %s %.0f A at %.0f us, %s %.0f A at %.0f us\n", ALUMINIUM.name,
+                                a.i_pk, a.t_pk_us, AL180.name, b.i_pk, b.t_pk_us);
+        }
+        /* 2. Only a single pulse stays under every trip for every load (stiff bus, the upper
+         *    bound); two pulses already put aluminium 240 mm over the firmware trip, and into the CT
+         *    band at 132 V. */
+        transient_t one = start_transient(&ALUMINIUM, c_f, 132, half_pulse_us, BUS_STIFF, END_DIODES, 100);
+        transient_t two = start_transient(&ALUMINIUM, c_f, 132, 2 * half_pulse_us, BUS_DROOP, END_DIODES, 100);
+        assert(one.i_pk < trip && two.i_pk > CT_BAND_LO_A);
+        for (unsigned li = 0; li < 3; li++)
+            assert(start_transient(&ALUMINIUM, c_f, LINES_V[li], 2 * half_pulse_us, BUS_DROOP, END_DIODES, 100).i_pk > trip);
+        printf("    one pulse: %s %.1f A; two pulses %.1f A\n", ALUMINIUM.name, one.i_pk, two.i_pk);
+        /* 3. A single pulse cannot be measured: it is shorter than the shortest CT_MON gap, and the
+         *    AD8436 would see under 2 % of it. Its peak per volt barely separates the loads either
+         *    (against carbon steel mu-low: aluminium 180 mm 1.2 x, 240 mm 1.4 x, which the CT_MON, VBUS
+         *    and bank tolerances would have to resolve from one sample). */
+        assert(half_pulse_us < CT_MON_GAP_MIN_US / 2 && half_pulse_us / AD8436_TAU_US < 0.02);
+        double y180 = start_transient(&AL180, c_f, 132, half_pulse_us, BUS_STIFF, END_DIODES, 100).i_pk;
+        double ycs = start_transient(&HEATABLE[0], c_f, 132, half_pulse_us, BUS_STIFF, END_DIODES, 100).i_pk;
+        assert(y180 / ycs < 1.25 && one.i_pk / ycs < 1.45);
+        /* 4. The heatable pans' own start transient: under the trip, except carbon steel mu-low at
+         *    132 V, a few us over 41 A (a CT_MON sample catches it in a few per cent of starts:
+         *    a possible nuisance TANK_PEAK latch at a start; reported, not changed). */
+        for (unsigned p = 0; p < sizeof HEATABLE / sizeof HEATABLE[0]; p++) {
+            transient_t h = start_transient(&HEATABLE[p], c_f, 132, 400, BUS_STIFF, END_DIODES, 400);
+            assert(h.i_pk < CT_BAND_LO_A);
+            if (p == 0) assert(h.i_pk > trip && h.above_trip_us < 10);
+            else assert(h.i_pk < trip);
+            printf("    continuous: %-20s %.1f A (%.1f us over %.1f A)\n", HEATABLE[p].name, h.i_pk, h.above_trip_us, trip);
+        }
+        transient_t np = start_transient(&NO_PAN, c_f, 132, 400, BUS_STIFF, END_DIODES, 400);
+        assert(np.i_pk < trip);
+        /* 5. What would work (recommendation, not implemented): one short pulse, then both low
+         *    sides on so the tank rings, and CT_ZC edges counted. The ring frequency is f_res:
+         *    aluminium 240 mm 45-48 kHz against <= 41 kHz for every ferrous pan and 25-26 kHz with
+         *    no pan, and aluminium rings longest. With a full half-period pulse the ring reaches
+         *    ~49 A on aluminium, so the pulse must be shorter than the bridge's half period: a PWM
+         *    pattern the HAL does not have. */
+        transient_t ra = start_transient(&ALUMINIUM, c_f, 132, half_pulse_us, BUS_STIFF, END_RING, 220);
+        transient_t rn = start_transient(&NO_PAN, c_f, 132, half_pulse_us, BUS_STIFF, END_RING, 220);
+        assert(ra.ring_f_hz > 44000 && rn.ring_f_hz < 27000 && ra.i_pk > trip);
+        for (unsigned p = 0; p < sizeof HEATABLE / sizeof HEATABLE[0]; p++) {
+            transient_t rh = start_transient(&HEATABLE[p], c_f, 132, half_pulse_us, BUS_STIFF, END_RING, 220);
+            assert(rh.ring_f_hz < 42000 && rh.ring_edges < ra.ring_edges);
+        }
+        printf("    ring-down: %s %.1f kHz %u edges, peak %.1f A; no pan %.1f kHz\n", ALUMINIUM.name,
+               ra.ring_f_hz / 1e3, ra.ring_edges, ra.i_pk, rn.ring_f_hz / 1e3);
+    }
+    tests++;
+}
+
 static void test_reset(void)
 {
     tank_t k = {.L = 55e-6, .C = 0.5e-6, .R = 1.4, .v1 = 108};
@@ -834,6 +972,7 @@ int main(void)
     test_coil_of_record_special_loads_baseline();
     test_no_pan_stop();
     test_no_pan_config();
+    test_start_transient_evidence();
     test_reset();
     printf("tank_freq: %u tests passed\n", tests);
     return 0;
