@@ -7,7 +7,8 @@ from, kept so the figures in that commit's message can be re-derived.
 
 - `bus_start.py`: start transient with the film bus charged to the line peak (continuous start at 60 kHz).
 - `burst.py`: N-pulse bursts (one 8.3 µs pulse stays under every trip; two do not).
-- `above.py`: starts above resonance per pan class.
-- `ringdown.py`, `zc.py`: the recommended primitive (short pulse, low sides on, count CT_ZC edges).
+- `above.py`: start transient at the 59.97 kHz (80 MHz / 1334) start frequency against the 40.975 A firmware peak trip.
+- `ringdown.py`: the recommended primitive (one pulse, then both low sides on; count CT_ZC-like crossings).
+- `zc.py`: single-pulse peak and crossings per load.
 
 Run with `python3 -I <script>.py`; standard library only.
