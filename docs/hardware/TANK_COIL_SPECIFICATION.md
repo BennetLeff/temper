@@ -1,7 +1,7 @@
 # Tank Coil — Specification and Incoming Acceptance Test
 
 **Status:** electrical content REISSUED 2026-10-10 for the **native-21 full bridge**:
-- tank 5 × TDK B32654A1104K000 = 0.50 µF;
+- tank 5 × 100 nF = 0.50 µF (prototype lot, stage 53: TDK B32643H8104J000; power-stage DECISIONS 74);
 - control window 35–60 kHz;
 - f ≥ 1.05·f_res (ZVS);
 - tank ≤ 22 A RMS; input hold 11.1 A.
@@ -33,14 +33,14 @@ spec and the test, not a purchase-order line.
 
 | # | Parameter | Requirement | How it is verified |
 |---|---|---|---|
-| 1 | **Inductance, unloaded** | **70 µH ±10 %** (63–77 µH), measured free in air. Installed in the enclosure it reads **≈ 0.95×** this: R32 gives 66.34 µH no-pan, and round 5's FEM gives 0.950 for this winding. **RFQ alternate B: 80 µH ±10 %** (≈ 76 µH installed, about 21 turns against 19.6), with every other row unchanged. Quote both (§4) | LCR bridge, **40 kHz**, ≤ 1 V. Coil free in air with its ferrite fitted, ≥ 100 mm from any metal |
+| 1 | **Inductance, unloaded** | **70 µH ±10 %** (63–77 µH), measured free in air. Installed in the enclosure it reads **≈ 0.95×** this: R32 gives 66.34 µH no-pan, and round 5's FEM gives 0.950 for this winding. **RFQ alternate B: 80 µH ±10 %** (≈ 76 µH installed), with every other row unchanged. Quote both (§4). On R43's two winding bands with ten PC95 90 × 15 × 5 mm bars, 70 µH is **19.1 turns** and 80 µH **20.75 turns** (coil study `output/temper-coil-r1`, 2D model corrected by its 3D sector solve; R43's drawn 21.93 turns give 87.7 µH). The in-house prototype is alternate B (coil study D2) | LCR bridge, **40 kHz**, ≤ 1 V. Coil free in air with its ferrite fitted, ≥ 100 mm from any metal |
 | 2 | **Measurement frequency** | 40 kHz. Inductance **flat within ±3 % over 20–60 kHz** | Sweep 20/30/40/50/60 kHz on the same bridge |
 | 3 | **Loaded inductance — the binding criterion** | **L_loaded ≥ 41.5 µH** at 40 kHz on the §2 reference pan at the production gap. Expected: about 42 µH for a nominal 70 µH coil, about 48 µH for alternate B | §2 |
 | 3b | **Loaded/unloaded ratio — coupling screen** | **0.54 ≤ L_loaded / L_unloaded ≤ 0.77** (70 µH design); 0.47–0.77 for alternate B | §2 |
 | 4 | **DC resistance** | **≤ 0.100 Ω** at 25 °C including leads (target ≤ 0.080 Ω) | 4-wire milliohmmeter, 25 °C; derivation §2 "Resistance" |
 | 5 | **AC resistance, unloaded** | **≤ 0.25 Ω at 40 kHz with the winding at 100 °C.** The 25 °C acceptance equivalent is **≤ 0.193 Ω at 40 kHz**. A measured **curve over 20–60 kHz** is required, every point ≤ 0.193 Ω·(f/40 kHz)^0.55 at 25 °C: 0.132 / 0.193 / 0.241 Ω at 20 / 40 / 60 kHz | Same LCR sweep as row 2 (series R). First articles also get one hot point: the winding soaked at 100 °C, R_ac at 40 kHz ≤ 0.25 Ω |
 | 6 | **Continuous current** | **22 A RMS at any frequency in 35–60 kHz**, in the enclosure's coil-cooling condition (jet plenum, not still air). Limits: mean winding ≤ 150 °C, ferrite ≤ 140 °C | Thermal soak, §3 |
-| 7 | **Peak current, non-repetitive** | **No saturation up to 98 A peak**, the maximum of the DC-return shunt OCP band (97.8 A; power-stage DECISIONS, stage-13 Kelvin band 47.32–97.77 A). L at 98 A peak within **3 %** of the small-signal L. The supplier states the ferrite's peak flux density at 98 A and 100 °C, which must be ≤ 0.75× the material's published B_sat at 100 °C | Ring-down pulse test, §3; supplier calculation on the CoC |
+| 7 | **Peak current, non-repetitive** | **No saturation up to 76 A peak**, the top of the tank-CT comparator band (64.55–76.09 A both polarities, stage 53; `firmware/components/power/COMMISSIONING.md` board table), the qualified protection that measures coil current. (The earlier 98 A was the stage-13 DC-return shunt band, which measures bus current, not coil current.) L at 76 A peak within **3 %** of the small-signal L. The supplier states the ferrite's peak flux density at 76 A and 100 °C, which must be ≤ 0.75× the material's published B_sat at 100 °C. **Prototype deviation:** ten 15 mm PC95 bars reach 0.64 B_sat with a pan but 0.93 B_sat with no pan at 76 A (coil study 3D solve, S2): under saturation, over the 0.75 rule. Production closes it with row 12's ≥ 20 mm bars | Ring-down pulse test, §3; supplier calculation on the CoC |
 | 8 | **Conductor** | **Litz**, bare-copper strands **0.08–0.10 mm** (AWG 40–38), enamel thermal class ≥ 200 °C, bunched or Type 2 (served). Strand count must meet rows 4–5 (estimate ≥ 200 × 0.1 mm, i.e. ≥ 1.55 mm² Cu for about 9 m at 0.10 Ω). Skin depth in Cu at 60 kHz is 0.27 mm at 20 °C and 0.31 mm at 100 °C. Strands ≤ δ/3 keep strand-level skin effect negligible, and proximity loss in a many-strand bundle grows with d², which is why 0.2 mm strands are not acceptable here | Declared on the CoC (strand Ø, count, construction, enamel grade); rows 4–5 measured |
 | 9 | **Outer diameter** | **Winding r 26–114, two sections, OD ≈ 228, ceiling 240.** Round 5 shows this winding couples to pans like R32's uniform r 22–116: reflected R per µH within 1–5 %, inductance drop within 2–4 %, modelled full-power yield at 120 V within 3.3 points. A Ø210 coil gains only about 1.6 points and cannot be cooled at 22 A (enclosure R33 study 09). Exact radii and the ferrite are in row 16 | Calipers |
 | 10 | **Terminations** | Two leads in the winding's own Litz, terminated per row 15. Termination resistance is included in row 4 | Visual; row 4 |
@@ -221,7 +221,7 @@ and 50 °C inlet. With the row-5 limit (0.25 Ω hot instead of 0.41 Ω) the marg
 bench decides.
 
 **Saturation pulse (row 7).** Charge a known film capacitor and discharge it into the coil, free in
-air with its ferrite fitted, so the first current peak is 98 A. Then compare:
+air with its ferrite fitted, so the first current peak is 76 A. Then compare:
 - the ring frequency of the first cycle with that of a ≤ 5 A ring of the same circuit. **L may differ by at most 3 %;**
 - L at small signal before and after the pulse, **unchanged within 1 %.**
 
@@ -231,12 +231,12 @@ air with its ferrite fitted, so the first current peak is 98 A. Then compare:
 
 | Quantity | Value | Moved by this spec? |
 |---|---|---|
-| Resonant bank | 5 × B32654A1104K000 = 0.50 µF ±10 % | No. Round 5: C moves resonance, not reflected R, so it is not the power lever |
+| Resonant bank | 5 × 100 nF = 0.50 µF ±10 % (prototype: B32643H8104J000) | No. Round 5: C moves resonance, not reflected R, so it is not the power lever |
 | Control window | 35–60 kHz | No |
 | ZVS guard | f ≥ 1.05·f_res from CT_ZC | **Required.** The fixed 35 kHz floor sits below 1.05·f_res at nominal coupling (§2 (a)) |
 | Tank current ceiling / peak limit | 22 A RMS / firmware tank-peak limit about 45 A | No. Round-5 envelope peaks are 47.5–47.9 A at 66 µH, so the 45 A limit stays mandatory (DECISIONS 2026-10-09) |
 | Coil loss of record | 200 W design figure (R32) | No. The row-5 limit gives ≤ 151 W at 22 A |
-| **L target** | 70 µH (66.3 installed), alternate B 80 µH (≈ 76 installed) | **Open, power-stage decision.** Round 5 on 220 mm pans: MC full-power yield at 120 V rises from 13 % to 22–25 %, and the 47.32 A shunt corner is no longer passed. Alternate B also passes row 3 at −10 % L. Cost: floor-limited corners, 2/45 at 75 µH and 11/45 at 82 µH installed (power, not safety); about 7 % more turns, so R_ac rises about 14 % in the same winding window, and holding R_ac ≤ 0.25 Ω needs better copper fill; the firmware resonance tables and `coil_mc.rs` change |
+| **L target** | 70 µH (66.3 installed), alternate B 80 µH (≈ 76 installed) | **Prototype: alternate B** (coil study D2: about 81 µH free-air, tuned into 76–86 µH; a 70 µH coil fails row 3 on cast iron at 39.7 µH in that study's model). Production remains a power-stage decision. Round 5 on 220 mm pans: MC full-power yield at 120 V rises from 13 % to 22–25 %, and the 47.32 A shunt corner is no longer passed. Alternate B also passes row 3 at −10 % L. Cost: floor-limited corners, 2/45 at 75 µH and 11/45 at 82 µH installed (power, not safety); about 7 % more turns, so R_ac rises about 14 % in the same winding window, and holding R_ac ≤ 0.25 Ω needs better copper fill; the firmware resonance tables and `coil_mc.rs` change |
 | Legacy `elec/src` 88 µH / 300 nF and gate check 8 | Unchanged | **Stale.** They still check the half-bridge (§8) |
 
 Round-5 modelled full-power yield at 120 V (MC over the five classes, 1239 W hold reached):
@@ -259,7 +259,7 @@ Cast iron reaches 41–55 %. These are ASSUMED-basis numbers; the 22 A ceiling b
 | Pan coupling classes (kl, r, α) | Round 4 assumed basis. Anchors: Infineon UG-2023-15 p. 21 Fig. 16; onsemi AND9201/D p. 7 Figs. 9–10; repo-transcribed MDPI 180 mm study |
 | Coupling against OD and pan Ø | Round 5 FEM (R32 study-06 solver), used as ratios only |
 | 0.50 µF, ±10 % | Power-stage DECISIONS 2026-10-09; TDK B3265*A data sheet |
-| 97.8 A | Power-stage DECISIONS, stage-13 Kelvin band 47.32–97.77 A |
+| 76 A (row 7) | Tank-CT comparator band 64.55–76.09 A, stage 53 (`commissioning_board_table.py`); replaces the stage-13 shunt-band 97.8 A |
 
 **What is UNVERIFIED, stated plainly:**
 - No Temper coil or pan has been measured.
