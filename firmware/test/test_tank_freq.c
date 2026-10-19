@@ -2,6 +2,7 @@
  * with -UNDEBUG). The plant is a first-harmonic series RLC (round 6's FHA basis): constant L, C, R
  * per case, bridge fundamental v1 over the line cycle, peak = 2.17 x line RMS. */
 #include "tank_freq.h"
+#include "../config.h" /* TANK_NO_PAN_* */
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -22,6 +23,7 @@ static tank_freq_obs_t observe(const tank_t *k, uint32_t f)
         .valid = true, .phase_valid = true, .fit_ok = true, .f_hz = f, .f_fit_hz = (float)f, .phi_rad = (float)atan2(x, k->R),
         .tank_rms_a = (float)i, .inlet_a = (float)(p / 0.93 / 120.0 * 1.10 + 1.3),
         .peak_a = (float)(2.17 * i), .p_inv_w = (float)p, .p_in_w = (float)(p / 0.93),
+        .r_lag_ohm = (float)k->R, /* |Z| cos(phi) */
     };
 }
 
@@ -337,7 +339,11 @@ static void test_fault_inputs(void)
 static void test_no_pan_clamp(void)
 {
     /* Empty coil: R 0.2 ohm, 66.5 uH, Q ~ 55. Configured ceiling 28 A, but no pan is ever
-     * established, so the loop holds the tank at or below the 17.5 A no-pan clamp. */
+     * established, so the loop holds the tank at or below the 17.5 A no-pan clamp. This is the
+     * layer under the no-pan stop (test_no_pan_stop): it runs here with the stop off so the clamp
+     * is seen on its own over 400 halves (the stop would end the run at half 240). */
+    const tank_freq_cfg_t C_on = C;
+    C.no_pan_stop = false;
     tank_t empty = {.L = 66.5e-6, .C = 0.5e-6, .R = 0.2, .v1 = 150};
     tank_freq_limits_t lim = limits(28);
     tank_freq_reset(&T, &C);
@@ -413,6 +419,7 @@ static void test_no_pan_clamp(void)
     tank_freq_reset(&T, &C);
     (void)tank_freq_step(&T, &C, &l20, &o);
     assert(!T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
+    C = C_on;
     tests++;
 }
 
@@ -613,6 +620,187 @@ static void test_coil_of_record_special_loads_baseline(void)
     tests++;
 }
 
+/* ------------------------------------------------------------------ no-pan stop (F4) */
+/* A half as the binding builds it when CT_ZC reads err_deg off: the lag is phi + err, and the
+ * delivered power (input_limits: 0.9 x bus x I x cos(phi), clamped at 0) and the series R from the
+ * lag (|Z| cos(phi)) come from it. */
+static tank_freq_obs_t observe_err(const tank_t *k, uint32_t f, double err_deg)
+{
+    tank_freq_obs_t o = observe(k, f);
+    double phi = o.phi_rad + err_deg * PI / 180;
+    o.phi_rad = (float)phi;
+    o.p_inv_w = (float)fmax(0, k->v1 * o.tank_rms_a * cos(phi));
+    o.p_in_w = o.p_inv_w / 0.93f;
+    o.r_lag_ohm = (float)(k->v1 / o.tank_rms_a * cos(phi));
+    return o;
+}
+
+/* Halves (from the current state of T) until the loop returns TF_STOP_NO_PAN, 0 if it does not
+ * within max_halves. The run() invariants hold on the way. */
+static unsigned halves_to_stop(const tank_t *k, const tank_freq_cfg_t *c, const tank_freq_limits_t *lim,
+                               unsigned max_halves, double err_deg)
+{
+    for (unsigned n = 0; n < max_halves; n++) {
+        uint32_t f0 = T.f_hz;
+        tank_freq_obs_t o = observe_err(k, f0, err_deg);
+        assert(o.tank_rms_a < tank_rms_trip_for(lim->ceiling_a));
+        tank_freq_reason_t r = tank_freq_step(&T, c, lim, &o);
+        if (r == TF_STOP_NO_PAN) return n + 1;
+        uint32_t d = T.f_hz > f0 ? T.f_hz - f0 : f0 - T.f_hz;
+        assert(d <= c->step_up_hz && T.f_hz >= c->f_min_hz && T.f_hz <= c->f_max_hz);
+    }
+    return 0;
+}
+
+static const double LAG_ERR_DEG[] = {-2.5, -1, 0, 1, 2.5};
+#define HALVES_PER_S 120u
+#define UL858_47_8_HALVES (30u * HALVES_PER_S) /* off within 30 s of vessel removal */
+
+/* The empty coil of record stops within 2 s (+ the walk to where the lag error still leaves it
+ * under 0.5 ohm), at every line / bank corner and lag error, whatever the ceiling. */
+static bool empty_coil_stops(const tank_freq_cfg_t *c)
+{
+    for (unsigned li = 0; li < 3; li++)
+        for (unsigned k = 0; k < 3; k++)
+            for (unsigned e = 0; e < sizeof LAG_ERR_DEG / sizeof LAG_ERR_DEG[0]; e++)
+                for (unsigned ci = 0; ci < 2; ci++) {
+                    tank_t np = plant(&NO_PAN, LINES_V[li], BANK_F[k]);
+                    tank_freq_limits_t lim = limits(ci ? 28.0f : TANK_CEILING_DEFAULT_A);
+                    tank_freq_reset(&T, c);
+                    unsigned n = halves_to_stop(&np, c, &lim, UL858_47_8_HALVES, LAG_ERR_DEG[e]);
+                    if (n == 0) return false;
+                    /* Evidence from the first half within +/-1 deg; at -2.5 deg only below ~45 kHz. */
+                    assert(n >= c->no_pan_halves && n <= c->no_pan_halves + 2 * HALVES_PER_S);
+                    if (fabs(LAG_ERR_DEG[e]) <= 1.0) assert(n <= c->no_pan_halves + HALVES_PER_S / 2);
+                    assert(!T.pan_present && T.no_pan_stopped && T.f_hz == c->f_max_hz);
+                }
+    return true;
+}
+
+static void test_no_pan_stop(void)
+{
+    /* Positive: the empty coil stops (it held 11.7-16.1 A at 35 kHz indefinitely before, F1). */
+    assert(empty_coil_stops(&C));
+    /* Held: every later half returns the stop and the f_max target, whatever it observes. */
+    tank_t np = plant(&NO_PAN, 120, 0.5e-6);
+    tank_t pan = plant(&HEATABLE[1], 120, 0.5e-6);
+    tank_freq_limits_t lim = limits(TANK_CEILING_DEFAULT_A);
+    tank_freq_reset(&T, &C);
+    assert(halves_to_stop(&np, &C, &lim, 1000, 0) == C.no_pan_halves);
+    for (unsigned n = 0; n < 50; n++) {
+        tank_freq_obs_t o = observe(&pan, 40000);
+        assert(tank_freq_step(&T, &C, &lim, &o) == TF_STOP_NO_PAN && T.f_hz == C.f_max_hz);
+    }
+    tank_freq_reset(&T, &C); /* the binding resets the loop whenever the bridge is off */
+    assert(!T.no_pan_stopped && T.no_pan_count == 0);
+
+    /* Pan lifted mid-cook: every heatable plant settled at every corner, then the plant becomes the
+     * empty coil at that frequency. The stop follows no_pan_halves later (UL 858 47.8: 30 s). */
+    for (unsigned p = 0; p < sizeof HEATABLE / sizeof HEATABLE[0]; p++)
+        for (unsigned li = 0; li < 3; li++)
+            for (unsigned k = 0; k < 3; k++)
+                for (unsigned e = 1; e < 4; e++) { /* -1, 0, +1 deg */
+                    tank_t hp = plant(&HEATABLE[p], LINES_V[li], BANK_F[k]);
+                    tank_t lifted = plant(&NO_PAN, LINES_V[li], BANK_F[k]);
+                    tank_freq_reset(&T, &C);
+                    assert(halves_to_stop(&hp, &C, &lim, 1200, LAG_ERR_DEG[e]) == 0);
+                    unsigned n = halves_to_stop(&lifted, &C, &lim, UL858_47_8_HALVES, LAG_ERR_DEG[e]);
+                    assert(n >= C.no_pan_halves && n <= C.no_pan_halves + HALVES_PER_S / 2);
+                }
+
+    /* Negative: no heatable plant stops over 30 s, at any corner, ceiling or lag error up to
+     * 2.5 deg (the priors 1 ohm pan reads 0.72 ohm or more at 60 kHz with +1 deg, and its stop
+     * lag is under 84 deg). */
+    for (unsigned p = 0; p < sizeof HEATABLE / sizeof HEATABLE[0]; p++)
+        for (unsigned li = 0; li < 3; li++)
+            for (unsigned k = 0; k < 3; k++)
+                for (unsigned e = 0; e < sizeof LAG_ERR_DEG / sizeof LAG_ERR_DEG[0]; e++)
+                    for (unsigned ci = 0; ci < 2; ci++) {
+                        tank_t hp = plant(&HEATABLE[p], LINES_V[li], BANK_F[k]);
+                        tank_freq_limits_t l = limits(ci ? 22.0f : TANK_CEILING_DEFAULT_A);
+                        tank_freq_reset(&T, &C);
+                        assert(halves_to_stop(&hp, &C, &l, UL858_47_8_HALVES, LAG_ERR_DEG[e]) == 0);
+                        assert(!T.no_pan_stopped);
+                    }
+    /* The other pans this file uses (1.4 / 2.0 / 2.5 / 3.5 ohm) do not stop either. */
+    static const tank_t others[] = {{55e-6, 0.5e-6, 1.4, 108}, {55e-6, 0.5e-6, 2.0, 108},
+                                    {60e-6, 0.5e-6, 2.5, 108}, {55e-6, 0.5e-6, 3.5, 108}};
+    for (unsigned i = 0; i < 4; i++) {
+        tank_freq_limits_t l = limits(22);
+        tank_freq_reset(&T, &C);
+        assert(halves_to_stop(&others[i], &C, &l, UL858_47_8_HALVES, 0) == 0);
+    }
+
+    /* A half without a lag, or an invalid one, holds the count; a measured non-evidence half
+     * clears it. */
+    tank_freq_reset(&T, &C);
+    assert(halves_to_stop(&np, &C, &lim, 100, 0) == 0 && T.no_pan_count == 100);
+    tank_freq_obs_t o = observe(&np, T.f_hz);
+    o.phase_valid = false;
+    for (unsigned n = 0; n < 30; n++) (void)tank_freq_step(&T, &C, &lim, &o);
+    tank_freq_obs_t bad = {.valid = false};
+    for (unsigned n = 0; n < 30; n++) (void)tank_freq_step(&T, &C, &lim, &bad);
+    assert(T.no_pan_count == 100 && !T.no_pan_stopped);
+    assert(halves_to_stop(&np, &C, &lim, 1000, 0) == C.no_pan_halves - 100);
+    tank_freq_reset(&T, &C);
+    assert(halves_to_stop(&np, &C, &lim, 200, 0) == 0);
+    o = observe(&pan, T.f_hz); /* one pan-like half (lag 48 deg) */
+    (void)tank_freq_step(&T, &C, &lim, &o);
+    assert(T.no_pan_count == 0);
+    /* Too little current to judge (below no_pan_min_rms_a) is not evidence. */
+    tank_t weak = np;
+    weak.v1 = 0.9 * 50;
+    tank_freq_reset(&T, &C);
+    o = observe(&weak, 60000);
+    assert(o.tank_rms_a < C.no_pan_min_rms_a && o.phase_valid);
+    (void)tank_freq_step(&T, &C, &lim, &o);
+    assert(T.no_pan_count == 0);
+    /* No R from the lag (line RMS unknown): no information, the count holds. */
+    tank_freq_reset(&T, &C);
+    assert(halves_to_stop(&np, &C, &lim, 50, 0) == 0 && T.no_pan_count == 50);
+    o = observe(&np, T.f_hz);
+    o.r_lag_ohm = NAN;
+    (void)tank_freq_step(&T, &C, &lim, &o);
+    assert(T.no_pan_count == 50);
+    /* The overrun latch still wins: a stop never masks it. */
+    tank_freq_reset(&T, &C);
+    T.no_pan_count = C.no_pan_halves;
+    T.overrun = C.overrun_halves;
+    o = observe(&np, 60000);
+    o.tank_rms_a = 19.0f; /* above 1.05 x 17.5 A */
+    assert(tank_freq_step(&T, &C, &lim, &o) == TF_FAULT_OVERRUN);
+
+    /* Negative control: with the stop off the same empty-coil check fails (the clamp alone holds
+     * the coil at the floor for the whole 30 s). */
+    tank_freq_cfg_t off = C;
+    off.no_pan_stop = false;
+    assert(!empty_coil_stops(&off));
+    tank_freq_reset(&T, &off);
+    assert(halves_to_stop(&np, &off, &lim, UL858_47_8_HALVES, 0) == 0 && T.f_hz == 35000 &&
+           T.reason == TF_HOLD_FLOOR_MIN);
+    tests++;
+}
+
+static void test_no_pan_config(void)
+{
+    /* Defaults are config.yaml's (TANK_NO_PAN_*). */
+    assert(C.no_pan_stop && C.no_pan_lag_deg == TANK_NO_PAN_LAG_DEG && C.no_pan_r_max_ohm == TANK_NO_PAN_R_MAX_OHM &&
+           C.no_pan_min_rms_a == TANK_NO_PAN_MIN_RMS_A && C.no_pan_halves == TANK_NO_PAN_STOP_HALVES);
+    /* Within UL 858 47.8's 30 s, with margin. */
+    assert(TANK_NO_PAN_STOP_HALVES < UL858_47_8_HALVES / 10);
+    tank_freq_cfg_t c;
+    c = C; c.no_pan_lag_deg = C.fit_lag_max_deg; assert(!tank_freq_config_ok(&c)); /* overlaps the fit */
+    c = C; c.no_pan_lag_deg = 89.6f; assert(!tank_freq_config_ok(&c));
+    c = C; c.no_pan_lag_deg = NAN; assert(!tank_freq_config_ok(&c));
+    c = C; c.no_pan_r_max_ohm = C.pan_r_min_ohm + 0.01f; assert(!tank_freq_config_ok(&c)); /* overlaps pan */
+    c = C; c.no_pan_r_max_ohm = 0; assert(!tank_freq_config_ok(&c));
+    c = C; c.no_pan_min_rms_a = 0.5f; assert(!tank_freq_config_ok(&c));
+    c = C; c.no_pan_halves = 0; assert(!tank_freq_config_ok(&c));
+    c = C; c.no_pan_halves = 3001; assert(!tank_freq_config_ok(&c)); /* > 25 s */
+    c = C; c.no_pan_stop = false; assert(tank_freq_config_ok(&c));
+    tests++;
+}
+
 static void test_reset(void)
 {
     tank_t k = {.L = 55e-6, .C = 0.5e-6, .R = 1.4, .v1 = 108};
@@ -644,6 +832,8 @@ int main(void)
     test_power_below_fmax_minimum();
     test_coil_of_record_heatable();
     test_coil_of_record_special_loads_baseline();
+    test_no_pan_stop();
+    test_no_pan_config();
     test_reset();
     printf("tank_freq: %u tests passed\n", tests);
     return 0;

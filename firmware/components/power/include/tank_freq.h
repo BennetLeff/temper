@@ -71,6 +71,25 @@
  * implemented). A request of 0 stops the bridge in the adapter (gate off, loop reset).
  * Regulation overrun: more than overrun_halves consecutive halves above 1.05 x the effective
  * ceiling returns TF_FAULT_OVERRUN, which the binding latches as N21_FAULT_TANK_RMS.
+ *
+ * No-pan stop (coil study temper-coil-r1 F4; config.yaml TANK_NO_PAN_*). The clamp alone leaves an
+ * empty coil running: the loop walks to the 35 kHz floor and holds 11.7-16.1 A, 19-28 W, for as
+ * long as power is requested. A half is no-pan evidence when its lag was measured, the lag is at
+ * least no_pan_lag_deg (84), the half RMS is at least no_pan_min_rms_a (2.5 A) and the series R
+ * from the lag, r_lag_ohm = |Z| cos(lag) with |Z| = 0.9 x line RMS / half RMS, is below
+ * no_pan_r_max_ohm (0.5 ohm). (p_inv / I^2 is not used: p_inv takes cos(phi) = 1 for samples under
+ * the 2 A CT_ZC floor, which reads the empty coil at ~0.6 ohm near 60 kHz.) After no_pan_halves
+ * (240 = 2 s) consecutive evidence halves the loop returns TF_STOP_NO_PAN and keeps returning it
+ * until tank_freq_reset(): the binding stops the bridge and holds the request refused until it is
+ * withdrawn (UL 858 47.8: off within 30 s of vessel removal, manual reset; OPEN-ITEMS B10). A half
+ * with a measured lag that is not evidence clears the count; an invalid half or one without a lag
+ * holds it (no information either way). It covers a pan lifted mid-cook the same way: the loop is
+ * then at the pan's frequency, where the empty coil reads lag ~89 deg and p_inv / I^2 ~0.13 ohm.
+ * The evidence is exclusive with the pan evidence (lag >= 84 > fit_lag_max_deg, R < 0.5 <=
+ * pan_r_min_ohm). Sources of the thresholds (config.yaml): empty coil 0.13 ohm, lag >= 89.0 deg at
+ * 35 kHz; aluminium 0.24-0.28 ohm, lag >= 85.5 deg; heatable pans >= 0.9 ohm (priors offset / small
+ * pan; the model's ferrous pans >= 2.1 ohm, lag <= 76 deg at 60 kHz). At 35 kHz the empty coil's
+ * p_inv / I^2 stays under 0.5 ohm for lag errors up to 2.8 deg (|Z| 7.84 ohm).
  */
 #include <stdbool.h>
 #include <stdint.h>
@@ -129,6 +148,13 @@ typedef struct {
     uint32_t pan_confirm_halves, overrun_halves;
     uint32_t block_halves;        /* re-approach lock-out after a limit was exceeded */
     float power_band;             /* relative half-width of the power dead band, 0.03..0.2 */
+    /* No-pan stop (header "No-pan stop"). no_pan_stop false leaves the clamp alone (host tests'
+     * negative control; production keeps the default, true). */
+    bool no_pan_stop;
+    float no_pan_lag_deg;         /* evidence: lag at least this, (fit_lag_max_deg, 89.5] */
+    float no_pan_r_max_ohm;       /* evidence: p_inv / I^2 below this, (0, pan_r_min_ohm] */
+    float no_pan_min_rms_a;       /* evidence: half RMS at least this */
+    uint32_t no_pan_halves;       /* consecutive evidence halves to stop, <= 3000 (25 s) */
 } tank_freq_cfg_t;
 
 typedef struct {
@@ -147,6 +173,7 @@ typedef struct {
     float phi_rad;     /* mean lag of the tank current behind the bridge voltage */
     float tank_rms_a, inlet_a, peak_a, p_inv_w;
     float p_in_w;      /* input-side power estimate (input_limits p_in_w) */
+    float r_lag_ohm;   /* series R from the lag: (0.9 x line RMS / half RMS) x cos(phi); NAN if unknown */
 } tank_freq_obs_t;
 
 typedef enum {
@@ -165,6 +192,7 @@ typedef enum {
     TF_HOLD_POWER,     /* input power inside the request's dead band */
     TF_POWER_AT_FMAX,  /* request below the f_max minimum: capped at f_max */
     TF_FAULT_OVERRUN,  /* effective ceiling exceeded for too long: latch */
+    TF_STOP_NO_PAN,    /* no_pan_halves of no-pan evidence: stop the bridge (until reset) */
 } tank_freq_reason_t;
 
 typedef struct {
@@ -178,6 +206,8 @@ typedef struct {
     uint32_t pan_count, overrun;
     uint32_t block_hz, block_left; /* no step down to <= block_hz while block_left > 0 */
     float last_request_w;
+    uint32_t no_pan_count;    /* consecutive no-pan evidence halves */
+    bool no_pan_stopped;      /* TF_STOP_NO_PAN returned; held until tank_freq_reset() */
     tank_freq_reason_t reason;
 } tank_freq_t;
 

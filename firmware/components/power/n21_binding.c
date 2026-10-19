@@ -201,16 +201,23 @@ static void half_closed(n21_binding_t *b, const n21_half_result_t *r)
             .f_fit_hz = 0.5f * ((float)r->f_lo_hz + (float)r->f_hi_hz),
             .phi_rad = r->phi_mean_rad, .tank_rms_a = r->est.tank_rms_a,
             .inlet_a = r->est.inlet_bound_a, .peak_a = peak, .p_inv_w = r->est.p_inv_w,
-            .p_in_w = r->est.p_in_w,
+            .p_in_w = r->est.p_in_w, .r_lag_ohm = NAN,
         };
+        /* Series R from the measured lag (tank_freq.h "No-pan stop"): |Z| = V1 / I with V1 the
+         * bridge fundamental of the line (0.9 x line RMS) and I the half's time-weighted RMS. */
+        if (o.phase_valid && isfinite(r->line_rms_v) && r->est.tank_rms_a > 0)
+            o.r_lag_ohm = 0.900316316f * r->line_rms_v / r->est.tank_rms_a * cosf(r->phi_mean_rad);
     }
     float ceiling = b->cfg.limits.tank_limit_a;
     if (b->thermal_limited && b->thermal_limit_a < ceiling) ceiling = b->thermal_limit_a;
     tank_freq_limits_t lim = {.ceiling_a = ceiling,
                               .inlet_max_a = b->cfg.inlet_target_a,
                               .peak_trip_a = b->cfg.tank_peak_trip_a, .request_w = b->request_w};
-    if (tank_freq_step(&b->tf, &b->cfg.freq, &lim, &o) == TF_FAULT_OVERRUN)
+    tank_freq_reason_t why = tank_freq_step(&b->tf, &b->cfg.freq, &lim, &o);
+    if (why == TF_FAULT_OVERRUN)
         latch(b, N21_FAULT_TANK_RMS); /* no-pan clamp (or ceiling) not held: latch */
+    else if (why == TF_STOP_NO_PAN && b->pan_refusal == N21_PAN_OK)
+        b->pan_refusal = N21_PAN_NO_PAN_STOP; /* the control tick drops RUN_EN (set_request) */
 }
 
 void n21_acquire_step(n21_binding_t *b)
@@ -484,6 +491,20 @@ static bool set_request(void *ctx, bool on)
         bool ok = !b->ops.run_gate || gate_set(b, false);
         b->gate_on = false;
         b->bias_refused = false; /* the request is withdrawn: the next one is a new start */
+        /* A pan refusal needs the request itself withdrawn, not just the drive paused (header
+         * "Pan refusals"): frequency() hands over the adapter's requested power every tick. */
+        lock(b);
+        if (b->request_w <= 0) b->pan_refusal = N21_PAN_OK;
+        unlock(b);
+        return ok;
+    }
+    lock(b);
+    n21_pan_refusal_t refused = b->pan_refusal;
+    unlock(b);
+    if (refused != N21_PAN_OK) {
+        /* Held refused, no fault: RUN_EN low, the pads stay in idle qualification. */
+        bool ok = !b->gate_on || gate_set(b, false);
+        b->gate_on = false;
         return ok;
     }
     n21_status_rb_t s;
@@ -622,6 +643,7 @@ void n21_telemetry(n21_binding_t *b, n21_telemetry_t *t)
     t->armed_line = b->armed_line;
     t->bench_active = b->bench_active;
     t->bias_refused = b->bias_refused;
+    t->pan_refusal = b->pan_refusal;
     t->gate_edge_us = b->gate_edge_us;
     t->gate_rises = b->gate_rises;
     t->freq_hz = b->cycle_hz;
