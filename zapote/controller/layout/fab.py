@@ -40,8 +40,8 @@ LAYERS = "F.Cu,In1.Cu,In2.Cu,B.Cu,F.Mask,B.Mask,F.Paste,B.Paste,F.Silkscreen,B.S
 # JLC places its library footprint at the CPL rotation, so the CPL carries KiCad's rotation plus the offset
 # between the two footprints. Offsets below are the CORRECTED lines of evidence/fab-loose-ends/cpl-rotation
 # (audit.py: the JLCKicadTools rotation DB and the EasyEDA pad geometry agree), keyed by LCSC code because one
-# KiCad footprint (SOT-23-5) needs different offsets for different parts. NEEDS-PREVIEW parts are NOT here:
-# they stay at KiCad's rotation and are listed in fab-notes.md for the owner's JLC preview.
+# KiCad footprint (SOT-23-5) needs different offsets for different parts. The parts whose geometry offset is 0 (the
+# electrolytics, the ESD diodes, SN74LVC1G38) stay at KiCad's rotation and are listed in fab-notes.md for the JLC preview.
 CPL_ROTATION_OFFSET = {
     "C1517414": 270,  # OPA2388IDR, SOIC-8
     "C398355": 270,   # TLV9062IDR, SOIC-8
@@ -56,6 +56,29 @@ CPL_ROTATION_OFFSET = {
     "C89608": 270,    # MAX31865AAP+, SSOP-20
     "C2836319": 270,  # SRV05-4, SOT-23-6
     "C350561": 270,   # SN74LVC74APWR, TSSOP-14 (C44 audit: geometry and DB agree)
+    # 2026-10-19, JLC's own 3D placement preview of this board (evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md): the
+    # NEEDS-PREVIEW parts below showed JLC's pin 1 at a different corner from ours by the EasyEDA-footprint offset (U11, U12 and
+    # U16 by 180, U3 by 90). Where the DB and the geometry disagreed the preview sided with the geometry. Offsets are the audit's
+    # geometry_offset (JLC's library footprint against our pads); re-check in the preview after upload.
+    "C158012": 180,   # B2B-XH-A, J1 J2
+    "C144395": 180,   # B4B-XH-A, J3
+    "C277731": 180,   # Micro-Fit 43045-1600, J4
+    "C158027": 180,   # B12B-XH-A, J7
+    "C5219272": 180,  # TPS62933F, SOT-583-8
+    "C3200405": 180,  # TPS62933, SOT-583-8
+    "C1850327": 270,  # TPS3703, WSON-6
+    "C495329": 270,   # AD8436, QSOP-20
+    "C83574": 180,    # BAT54S-7-F, SOT-23
+    "C8545": 180,     # 2N7002, SOT-23
+    "C9421": 180,     # LM4040, SOT-23
+    "C2867465": 180,  # TLV76050, SOT-23
+    "C105188": 180,   # TLV3201, SOT-23-5
+    "C7666": 180,     # SN74LVC1G08, SOT-23-5
+    "C7835": 180,     # SN74LVC1G14, SOT-23-5
+    "C29777121": 180, # TLV9031, SOT-23-5
+    "C10096": 180,    # SN74LVC1G32, SOT-23-5
+    "C962078": 180,   # REF2025, SOT-23-5
+    "C402161": 180,   # SN74LVC1G86, SOT-23-5
 }
 
 
