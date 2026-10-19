@@ -1,234 +1,229 @@
 # Tank Coil — Specification and Incoming Acceptance Test
 
-**Status:** ISSUED 2026-07-29. Supersedes the 2026-07-26 attempt, which
-withheld a value; that attempt and why it failed are preserved in §7.
-Acceptance threshold corrected 2026-07-29 (later the same day) to also
-worst-case the tank capacitor's own tolerance -- see the note at §2 and
-`docs/evidence/2026-07-29-pll-floor-cap-tolerance.md`. Corrected again
-2026-07-29 (same day) when PR #410 re-sourced `c_tank1`/`c_tank2` and
-added `c_tank3` (WIMA FKP 1, ±5% -> 3x CDE 942C16P1K-F, ±10%):
-`c_tank_tolerance` rose 0.05 -> 0.10, `PLL_MIN_FREQ_HZ` rose 43000 ->
-44000, and the acceptance threshold below moved with them -- see the
-updated note at §2.
+**Status:** electrical content REISSUED 2026-10-10 for the **native-21 full bridge**:
+- tank 5 × TDK B32654A1104K000 = 0.50 µF;
+- control window 35–60 kHz;
+- f ≥ 1.05·f_res (ZVS);
+- tank ≤ 22 A RMS; input hold 11.1 A.
 
-**What this document is.** A coil specification a magnetics house can quote
-against, plus the incoming test that decides whether a delivered coil is
-usable. It is deliberately **not a part number**: no orderable coil in this
-class publishes an inductance (§6), so the deliverable is the spec and the
-test, not a purchase order line.
+**Basis:**
+- power-stage DECISIONS 2026-10-09, R32 package items 5 and 8 (installed L, R_ac, Litz class, ferrite);
+- `zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round5-coil-od210/`, which also holds this electrical content as `COIL-SPEC-ELECTRICAL.md`. Its coupling, yield and floor numbers are **ASSUMED / pre-measurement**.
 
-**Where it is enforced.** `elec/src/modules.ato`'s `ResonantTank.inductor_conn`
-declares `88uH +/- 10%`; `elec/src/main.ato`'s `l_tank_assumed` mirrors it;
-`scripts/check_pll_range_consistency.py` check 7 fails the build if the two
-disagree, and check 5 derives the PLL frequency floor from it. Check 8
-derives the acceptance threshold below (§2) from that same floor and fails
-the build if this document's stated number ever drifts from it.
+Mechanical rows 13–16 (§1b) belong to the enclosure session.
+
+> **Superseded 2026-10-10.** The 2026-07-29 issue specified the retired half-bridge coil: 88 µH, C_TANK 300 nF, PLL 44–50 kHz, a loaded floor of 53.43 µH, R_ac ≤ 0.40 Ω, and 25 A in still air at class 180 °C. Its derivations are in git history (`852e9fa8d`, `50c0ad4a0`, `3ae26dfef`). One sentence of it is kept in §2 because a CI gate still parses it (see below).
+
+**What this document is.** A coil specification a magnetics house can quote against, plus the
+incoming test that decides whether a delivered coil is usable. It is deliberately **not a part
+number**: no orderable coil in this class publishes an inductance (§6), so the deliverable is the
+spec and the test, not a purchase-order line.
+
+**Where it is enforced.**
+- **Native-21:** no CI gate checks these numbers yet. They are derived in round 5 (`scripts/floor.py` → `outputs/floor.json`) and must be re-derived from the first measured coil (§2).
+- **Legacy gate:** `scripts/check_pll_range_consistency.py` (main checkout) still cross-checks the **legacy** half-bridge sources: `elec/src/main.ato` 88 µH / 300 nF and `pll_control.h` 44 kHz. Its check 8 parses the legacy sentence kept in §2. Retargeting that gate to native-21 is an open item (§8); until then, do not delete that sentence.
 
 ---
 
 ## 1. Specification — as a supplier would receive it
 
-**Part:** Resonant tank coil, flat spiral, ferrite-backed, for a 1800 W
-domestic induction hob operating at 42–50 kHz.
+**Part:** resonant tank coil for an 1800 W (120 V / 15 A) domestic induction hob:
+- two-section flat spiral, ferrite-backed;
+- full-bridge series-resonant inverter, operating at **35–60 kHz**.
 
 | # | Parameter | Requirement | How it is verified |
 |---|---|---|---|
-| 1 | **Inductance, unloaded** | **88 µH ±10 %** (79.2 – 96.8 µH) | LCR bridge, **40 kHz**, coil free in air, no vessel, ≥100 mm from any ferrous surface |
-| 2 | **Measurement frequency** | **40 kHz**, and inductance shall be **flat within ±3 % over 20–50 kHz** | Sweep 20/30/40/50 kHz on the same bridge |
-| 3 | **Loaded inductance — the binding criterion** | **L_loaded ≥ 53.43 µH** at 40 kHz with the reference pan of §2 (target 59.8 µH) | §2 |
-| 3b | **Loaded/unloaded ratio — coupling screen** | **L_loaded ≥ 0.60 × L_unloaded** at 40 kHz, same measurement | §2 |
-| 4 | **DC resistance** | **≤ 0.12 Ω** (target 0.10 Ω) | 4-wire DC milliohmmeter at 25 °C |
-| 5 | **AC resistance, unloaded** | **≤ 0.40 Ω at 40 kHz** | Same LCR sweep as #1, series-R reading |
-| 6 | **Continuous current** | **25 A rms at 40 kHz**, ΔT ≤ 60 K in still air at 40 °C ambient | Thermal soak, §3 |
-| 7 | **Peak current, non-repetitive** | ≥ 40 A peak without saturation or measurable L shift | L measured before/after a 40 A pulse |
-| 8 | **Conductor** | Litz, stranded for 40 kHz (skin depth in Cu at 40 kHz ≈ 0.33 mm, so individual strands ≤ 0.2 mm / ≥ AWG 32) | Declared by supplier + strand count on the CoC |
-| 9 | **Outer diameter** | ≤ 200 mm (mechanical ceiling, `docs/COIL_BRACKET_DESIGN.md`) | Calipers |
-| 10 | **Terminations** | Two leads, tinned, for 2.5 mm through-hole pads (`LitzPad_15A`), ≥ 150 mm free length | Visual |
-| 11 | **Temperature class** | Insulation and former rated ≥ 180 °C continuous | Datasheet / CoC |
-| 12 | **Ferrite backing** | Radial bars or a plate, sufficient that #3 is met | Implied by #3, not specified separately |
+| 1 | **Inductance, unloaded** | **70 µH ±10 %** (63–77 µH), measured free in air. Installed in the enclosure it reads **≈ 0.95×** this: R32 gives 66.34 µH no-pan, and round 5's FEM gives 0.950 for this winding. **RFQ alternate B: 80 µH ±10 %** (≈ 76 µH installed, about 21 turns against 19.6), with every other row unchanged. Quote both (§4) | LCR bridge, **40 kHz**, ≤ 1 V. Coil free in air with its ferrite fitted, ≥ 100 mm from any metal |
+| 2 | **Measurement frequency** | 40 kHz. Inductance **flat within ±3 % over 20–60 kHz** | Sweep 20/30/40/50/60 kHz on the same bridge |
+| 3 | **Loaded inductance — the binding criterion** | **L_loaded ≥ 41.5 µH** at 40 kHz on the §2 reference pan at the production gap. Expected: about 42 µH for a nominal 70 µH coil, about 48 µH for alternate B | §2 |
+| 3b | **Loaded/unloaded ratio — coupling screen** | **0.54 ≤ L_loaded / L_unloaded ≤ 0.77** (70 µH design); 0.47–0.77 for alternate B | §2 |
+| 4 | **DC resistance** | **≤ 0.100 Ω** at 25 °C including leads (target ≤ 0.080 Ω) | 4-wire milliohmmeter, 25 °C; derivation §2 "Resistance" |
+| 5 | **AC resistance, unloaded** | **≤ 0.25 Ω at 40 kHz with the winding at 100 °C.** The 25 °C acceptance equivalent is **≤ 0.193 Ω at 40 kHz**. A measured **curve over 20–60 kHz** is required, every point ≤ 0.193 Ω·(f/40 kHz)^0.55 at 25 °C: 0.132 / 0.193 / 0.241 Ω at 20 / 40 / 60 kHz | Same LCR sweep as row 2 (series R). First articles also get one hot point: the winding soaked at 100 °C, R_ac at 40 kHz ≤ 0.25 Ω |
+| 6 | **Continuous current** | **22 A RMS at any frequency in 35–60 kHz**, in the enclosure's coil-cooling condition (jet plenum, not still air). Limits: mean winding ≤ 150 °C, ferrite ≤ 140 °C | Thermal soak, §3 |
+| 7 | **Peak current, non-repetitive** | **No saturation up to 98 A peak**, the maximum of the DC-return shunt OCP band (97.8 A; power-stage DECISIONS, stage-13 Kelvin band 47.32–97.77 A). L at 98 A peak within **3 %** of the small-signal L. The supplier states the ferrite's peak flux density at 98 A and 100 °C, which must be ≤ 0.75× the material's published B_sat at 100 °C | Ring-down pulse test, §3; supplier calculation on the CoC |
+| 8 | **Conductor** | **Litz**, bare-copper strands **0.08–0.10 mm** (AWG 40–38), enamel thermal class ≥ 200 °C, bunched or Type 2 (served). Strand count must meet rows 4–5 (estimate ≥ 200 × 0.1 mm, i.e. ≥ 1.55 mm² Cu for about 9 m at 0.10 Ω). Skin depth in Cu at 60 kHz is 0.27 mm at 20 °C and 0.31 mm at 100 °C. Strands ≤ δ/3 keep strand-level skin effect negligible, and proximity loss in a many-strand bundle grows with d², which is why 0.2 mm strands are not acceptable here | Declared on the CoC (strand Ø, count, construction, enamel grade); rows 4–5 measured |
+| 9 | **Outer diameter** | **Winding r 26–114, two sections, OD ≈ 228, ceiling 240.** Round 5 shows this winding couples to pans like R32's uniform r 22–116: reflected R per µH within 1–5 %, inductance drop within 2–4 %, modelled full-power yield at 120 V within 3.3 points. A Ø210 coil gains only about 1.6 points and cannot be cooled at 22 A (enclosure R33 study 09). Exact radii and the ferrite are in row 16 | Calipers |
+| 10 | **Terminations** | Two leads in the winding's own Litz, terminated per row 15. Termination resistance is included in row 4 | Visual; row 4 |
+| 11 | **Temperature class** | Litz, strand enamel, serving and any impregnant rated **≥ 200 °C** continuous (thermal class 200). Former and carrier per row 13. Pan temperature is capped at 250 °C. The glass underside reaches 230–250 °C in the fry and empty-pan hold cases (R32 study 02) | Datasheet / CoC |
+| 12 | **Ferrite backing** | MnZn power ferrite, **N87/N97 class** (or equal: µi ≥ 2000, Curie ≥ 210 °C), **radial bars**, ≥ 8 × 20 mm wide, leaving the **≥ 14 mm cooling-jet lanes** between bars clear. Geometry per row 16. A plate or an air core is not acceptable: cooling, plus field pickup at the OCP Kelvin loop | Drawing check; rows 3 and 7 verify it electrically |
 
-**Certificate of conformance shall report, per unit:** L_unloaded @ 40 kHz,
-L_loaded @ 40 kHz with the supplier's own ferromagnetic reference pan,
-their ratio, R_dc, and R_ac @ 40 kHz.
+**Certificate of conformance shall report, per unit:**
+- L_unloaded at 40 kHz, and the 20–60 kHz sweep;
+- R_dc, and the R_ac 20–60 kHz curve at a stated winding temperature;
+- L_loaded at 40 kHz with the supplier's own ferromagnetic reference pan (pan Ø and gap stated), and the ratio;
+- Litz construction (strand Ø, count, enamel grade);
+- ferrite material and bar count.
 
-### Why 88 µH, in one line
+### 1b. Mechanical rows (DRAFT, enclosure R33, 2026-10-10)
 
-Because at the committed 300 nF nominal tank capacitance it puts the
-**loaded** resonance at 37.56 kHz, and the whole frequency plan
-(`f_switching` = 47 kHz at ratio 1.25, `PLL_MIN_FREQ_HZ` = 44 kHz) is built
-on that. The provenance of the number itself is §5.
+> **Electrical rows 1–7 are stale for native-21.** They are the retired half-bridge's numbers: 88 µH, R_ac ≤ 0.40 Ω, class 180 °C. The power-stage session owns the update: 70 µH design / 66.3 µH installed, R_ac ≤ 0.25 Ω at 100 °C, Litz class ≥ 200 °C. Do not send this document to a supplier until that update and these rows are both in.
+
+| # | Parameter | Requirement | How it is verified |
+|---|---|---|---|
+| 13 | **Former and fixing** | Moulded carrier (≥ 200 °C class, e.g. PPS-GF or PA46-GF), with radial comb spokes locating every turn; no free varnished spiral. **Four integral screw lugs** with Ø3.4 holes at r 127 mm, at 45/135/225/315° (diagonals of the enclosure), lug top face flat ±0.2 mm, for ISO 4762 M3 screws into the enclosure's tapped carrier (`output/temper-manufacturing-r33/design/r33/DECISIONS.md` §2) | Drawing check; first-article CMM of the lug pattern |
+| 14 | **Winding layout** | Two spiral sections with a radial gap are allowed and preferred, for even pan heating. Open centre ≥ Ø40 for the pan-sensor cartridge (coil eye). Construction reference: the Control Freak coil (Ø207–210, gap at r 63–75) (`output/temper-reference/control-freak-teardown/`) | Drawing / photo |
+| 15 | **Leads** | Braided fibreglass (or equal ≥ 200 °C) sleeving over the Litz to the terminal, crimped ring lugs per the enclosure R26 envelope | Visual |
+| 16 | **Envelope** | Winding r 26–114 in two sections: inner r 26–84, gap r 84–92 (over native-21's J5 lead drop; the centre lead descends in the gap), outer r 92–114. Enclosure study 09; as modelled in `output/temper-manufacturing-r34` (`src/r34_world.py`). Ø210 was rejected: at the 200 W coil-loss basis the smaller winding can't be cooled at 22 A. Ferrite ≥ 8 radial bars ≥ 20 mm wide, μi ≥ 2000, r 32–118, Z93–97, rotated so the lead drops fall between bars. Winding Z98–100.7, comb top ≤ Z101, lead crossing ≤ Z104.5 (glass underside Z106). Carrier and lugs inside r 134 | Calipers; first article against the R34 STEP |
+
+### Why 70 µH, in one line
+
+With the 0.50 µF bank, a 70 µH coil (66.3 µH installed) puts the nominal loaded resonance on
+ferrous pans at **33.8–35.6 kHz**, at the bottom of the 35–60 kHz window. Full power is then reached
+at 37–56 kHz with f/f_res ≥ 1.21 (round 5, Ø228 coil on a 220 mm pan). More turns raise the reflected pan R as N², and with it the power
+available under the 22 A ceiling. Hence alternate B (§4).
 
 ---
 
 ## 2. THE ACCEPTANCE TEST — measure `L_loaded`
 
-**This is the deliverable.** Requirements #3 and #3b are the only
-parameters on the list that decide whether the converter works, and **no
-vendor in this class states either**, so they have to be measured on
-receipt.
+**This is the deliverable.** Rows 3 and 3b decide whether the coil works in this tank, and **no
+vendor in this class states either**, so they are measured on receipt.
 
 ### Why a loaded measurement and not an inductance check
 
-Only the **loaded** inductance resonates with the tank capacitor. A coil
-with a perfect 88.0 µH unloaded reading and weak pan coupling is a
-**failed** coil: it resonates too high, and `f_switching` = 47 kHz lands
-too close above resonance, in the 3–7 kW / OCP-tripping band. Conversely a
-coil 10 % low on unloaded inductance with strong coupling is fine.
-Unloaded inductance alone is not an acceptance criterion; the product is.
+Only the **loaded** inductance resonates with the tank capacitor, and the pan's reflected
+resistance is what turns the 22 A ceiling into power. A coil with a perfect unloaded reading and
+unusual coupling is a failed coil; a coil 10 % low with strong coupling can be fine. Full argument:
+`docs/solutions/design-patterns/resonant-tank-only-loaded-inductance-resonates-2026-07-28.md`.
 
-Full argument: `docs/solutions/design-patterns/resonant-tank-only-loaded-inductance-resonates-2026-07-28.md`.
+### Deriving the floor (native-21)
 
-### Why the criterion is absolute, not only a ratio
-
-**The ratio test alone is not sufficient, and this is worth showing.**
-`L_loaded ≥ 0.60 × L_unloaded` is the acceptance criterion
-`docs/evidence/2026-07-28-coil-selection-research.md` §5.1 recommends. Run
-against a coil that is simultaneously at the **bottom** of requirement #1:
+All inputs are committed constants or round-5 results (`round5-coil-od210/scripts/floor.py`).
+The worst-case capacitance for the *highest* resonance is the bank at −10 % (`K000` parts, ±10 %,
+TDK B3265*A data sheet):
 
 ```
-L_unloaded = 79.2 µH  (−10 %, in spec)
-ratio      = 0.60     (passes the ratio screen)
-L_loaded   = 47.52 µH
-f_res      = 42 152 Hz  (at nominal 300 nF C)
-required PLL floor = 1.05 × 42 152 = 44 260 Hz
-PLL_MIN_FREQ_HZ    = 44 000 Hz          ← BELOW resonance
+C_worst = 0.50 µF × (1 − 0.10) = 0.45 µF
+
+(a) Fixed-floor ZVS guarantee (the method of the 2026-07-29 issue), for reference only:
+    f_res,max = F_MIN / ZVS = 35 000 / 1.05 = 33 333 Hz
+    L_loaded,min = 1 / ((2π × 33 333 Hz)² × 0.45 µF) = 50.66 µH
+    → a 66.3 µH-installed coil would need kl ≥ 0.76 on EVERY pan. The assumed basis has
+      0.63–0.69 nominal, so this cannot be an acceptance criterion. On native-21, ZVS rests on the
+      controller's CT_ZC guard (f ≥ 1.05·f_res, measured), and the fixed 35 kHz floor does not
+      guarantee it.
+
+(b) Window-top bound (binding): the controller must be able to hold 22 A / 11.1 A in continuous
+    mode below F_MAX. Round 5's grid needs up to x_reg = f/f_res = 1.45 (Ø228 and Ø240, 108–140 V,
+    1710 W request).
+    f_res,max = F_MAX / x_reg = 60 000 / 1.45 = 41 379 Hz
+    L_loaded,min (most strongly coupled pan in the population)
+                 = 1 / ((2π × 41 379 Hz)² × 0.45 µF) = 32.87 µH
+
+(c) Transfer to the one reference pan used at incoming inspection:
+    kl(population minimum) / kl(reference class, cast iron nominal) = 0.4998 / 0.6308 = 0.792
+    L_loaded,min on the reference pan = 32.87 / 0.792 = 41.5 µH      ← row 3
 ```
 
-That coil passes both #1 and a bare 0.60 ratio screen and still puts a
-hard-switching regime inside the firmware's declared legal frequency
-range — the exact defect `docs/evidence/2026-07-29-pll-floor-above-resonance.md`
-was written to close. The two screens are individually satisfiable and
-jointly insufficient because they multiply.
+Below the floor, the grid shows what goes wrong (round 5, R34 winding at 58 and 53 µH installed):
+- 60 kHz can no longer hold the envelope, and burst is needed in 2 and 10 of 45 cases respectively;
+- the tank peak passes the 47.32 A shunt corner, reaching 52 and 61 A;
+- at 53 µH the bank reaches 1.13× TDK's 85 °C curve.
 
-The criterion that is neither is **absolute loaded inductance**, and it
-falls straight out of the committed constants -- now worst-casing BOTH
-tank components, not just the coil (corrected 2026-07-29, same day as
-issue, see the note below the table):
+| Coil | L_loaded on reference pan (nom. coupling) | Row 3 |
+|---|---|---|
+| 70 µH nominal (66.5 installed) | 41.95 µH | passes, by 1 % |
+| 70 µH at −10 % | 37.75 µH | **fails** |
+| 80 µH (alt. B) nominal | 47.94 µH | passes |
+| 80 µH at −10 % | 43.15 µH | passes |
 
-```
-PLL_MIN_FREQ_HZ / ZVS_MARGIN_MIN = 44 000 / 1.05 = 41 904.8 Hz
-                                                   (highest loaded
-                                                    resonance the floor
-                                                    still guards)
-C_worst = c_tank_total × (1 − c_tank_tolerance) = 300 nF × 0.90 = 270 nF
-L_loaded_min = 1 / ((2π × 41 904.8 Hz)² × 270 nF) = 53.43 µH
-```
+**This is the case for alternate B.** On the assumed coupling, a 70 µH coil passes row 3 only at
+or above nominal L.
 
-`c_tank_tolerance = 0.10` is decoded from `c_tank1`/`c_tank2`/`c_tank3`'s
-MPN, `942C16P1K-F` (CDE Type 942C, re-sourced from WIMA FKP 1 by PR #410,
-2026-07-29), from TWO independent primary sources:
+**Ratio screen (row 3b)**, as L_loaded on the reference pan over L_unloaded free in air:
+- **lower 0.54**, the floor at L +10 %: 41.5 / 77. Below it the coupling is stronger than the basis allows.
+- **upper 0.77**, the basis's cast-iron kl maximum × 0.95 installed. Above it the coupling is weak, and the pan heats less per amp; that was the R19 Ø240 lesson.
+- For alternate B the lower bound is 41.5 / 88 = 0.47.
+- A coil that passes row 3 but fails row 3b is **escalated, not accepted**.
 
-- CDE's own catalog (`942C.pdf`, `cde.com/resources/catalogs/942C.pdf`)
-  p.1 Specifications table states outright: "Capacitance Tolerance:
-  ±10 % (K) Standard; ±5 % (J) Optional". p.2's "Part Numbering System"
-  diagram maps the ordering-key field the `K` occupies directly:
-  `K = ±10 %`, `J = ±5 %`.
-- DigiKey's distributor listing for this exact part (product 1929475)
-  independently states "Tolerance: ±10 %".
+**Re-derivation.** The 0.792 transfer and x_reg = 1.45 are assumed-basis numbers. When the first
+coil has been measured on the reference pan **and** on the five class pans (cast iron, enamelled
+steel, 18/10 with magnetic base, thin ferritic, clad multiply) at 180/220/260 mm, replace them and
+re-run `floor.py`.
 
-Both agree. (Was `c_tank_tolerance = 0.05`, decoded from the WIMA FKP 1
-part's `...00JSSD` suffix against WIMA's own ordering table -- see git
-history for that decode.)
-
-**`L_loaded ≥ 53.43 µH` is requirement #3.** Requirement #3b is retained
-as a coupling-quality screen — a coil that reaches 53.43 µH only because
-its unloaded inductance is at the top of tolerance has poor coupling and
-will behave differently on a different pan — but #3 is the one that binds.
-This value is **machine-derived**: `scripts/check_pll_range_consistency.py`
-check 8 computes it from `PLL_MIN_FREQ_HZ`, `ZVS_MARGIN_MIN`,
-`c_tank_total` and `c_tank_tolerance` and fails the build if the number
-above ever drifts from what the gate derives -- do not hand-edit it
-without re-running that gate.
-
-For reference, where the thresholds sit (rows other than the acceptance
-floor use **nominal** 300 nF C, for illustration of a real coil's own
-resonance; the acceptance floor row is the one worst-cased against BOTH
-tank components, since that is the number that must guard every unit):
-
-| L_loaded | f_res,loaded | f_sw/f_res at 47 kHz | Verdict |
-|---|---|---|---|
-| 65.8 µH (+10 % L, nominal ratio) | 35.8 kHz | 1.31 | Top of the design band |
-| **59.84 µH** (nominal) | **37.56 kHz** | **1.25** | **Target** |
-| 53.86 µH (−10 % L, nominal ratio) | 39.60 kHz | 1.19 | Bottom of the design band; derived floor 41 575 Hz at nominal C, 43 824 Hz at worst-case C |
-| **53.43 µH** | **41.90 kHz** (worst-case 270 nF C) | **1.122** | **ACCEPTANCE FLOOR** — derived floor = 44 000 Hz exactly (worst-case 270 nF C) |
-| 47.52 µH (−10 % L, ratio 0.60) | 42.15 kHz | 1.115 | **REJECT** — resonance above PLL_MIN_FREQ_HZ |
-| 42.14 µH | 44.76 kHz | **1.05** | ZVS cliff at the committed f_switching |
+**Legacy record (kept for the CI gate, not a native-21 requirement):** in the 2026-07-29
+half-bridge issue, `L_loaded ≥ 53.43 µH` is requirement #3. `scripts/check_pll_range_consistency.py`
+check 8 still checks that sentence against the legacy `elec/src/main.ato` (300 nF, 88 µH) and
+`pll_control.h` (`PLL_MIN_FREQ_HZ` 44 kHz). Retarget the gate (§8) before deleting it.
 
 ### Procedure
 
-**Equipment:** LCR meter capable of 40 kHz with ≥ 1 % accuracy at 50 µH
-(e.g. a 4-wire bench bridge); reference pan per below; a non-ferrous
-spacer of the production coil-to-pan gap.
+**Equipment:**
+- an LCR meter capable of 20–60 kHz with ≥ 1 % accuracy at 30–80 µH;
+- the reference pan below;
+- a non-ferrous spacer stack reproducing the production gap: **winding top to pan base 7.5 mm**, i.e. 3.5 mm air plus 4 mm glass (R32 stack; use a glass offcut if possible).
 
-**Reference pan** — fix this once and keep the same physical pan for all
-incoming inspection; the number is only reproducible against a fixed
-workpiece:
+**Reference pan.** Fix it once and keep the same physical pan for all incoming inspection:
+- flat-bottomed **ferromagnetic** pan, cast iron or ferritic single-ply (verify with a magnet);
+- **base Ø 230–260 mm**, i.e. ≥ the 228 mm winding; round 5's FEM shows coupling flat within about 1 % from 220 to 260 mm;
+- base ≥ 3 mm thick, flat within 0.5 mm.
 
-- Flat-bottomed **ferromagnetic** vessel (cast iron or magnetic stainless;
-  verify with a magnet), **180 – 220 mm** base diameter, base thickness
-  ≥ 3 mm, flat to within 0.5 mm.
-- Record its make/model in the incoming-inspection record. A different pan
-  gives a different ratio and the 0.60 threshold does not transfer.
+Record its make and model. A different pan gives a different L_loaded.
 
 **Steps**
+1. Coil free in air with its ferrite fitted, ≥ 100 mm from any metal. Measure **L_unloaded** at 40 kHz, ≤ 1 V. Record it, then sweep 20–60 kHz for row 2.
+2. Confirm row 1 (63–77 µH; 72–88 µH for alternate B). If it fails, stop and reject.
+3. Measure R_dc (row 4) and the R_ac curve (row 5) at a recorded winding temperature, corrected to 25 °C with Cu +0.393 %/K.
+4. Put the coil on the spacer stack. Centre the reference pan, empty and at room temperature.
+5. Measure **L_loaded** at 40 kHz, same drive. Record it.
+6. **ACCEPT if L_loaded ≥ 41.5 µH. Reject otherwise.**
+7. Compute **L_loaded / L_unloaded**. It must lie in 0.54–0.77 (0.47–0.77 for alternate B); otherwise escalate.
 
-1. Coil free in air, ≥ 100 mm from any ferrous object and off any metal
-   bench. Measure **L_unloaded at 40 kHz**, 1 V drive or less. Record.
-2. Confirm requirement #1: L_unloaded within 79.2 – 96.8 µH. If it fails
-   here, stop — reject.
-3. Place the coil in its production bracket, or on the same spacer stack,
-   so the **coil-to-pan-base gap equals the production gap** (currently
-   set by `docs/COIL_BRACKET_DESIGN.md`; record the value used).
-4. Centre the reference pan on the coil, empty and at room temperature.
-5. Measure **L_loaded at 40 kHz**, same drive level. Record.
-6. **ACCEPT if `L_loaded ≥ 53.43 µH`. Reject otherwise.** Target 59.8 µH;
-   the design band is 53.9 – 65.8 µH.
-7. Compute `ratio = L_loaded / L_unloaded` and record it. **`ratio ≥ 0.60`
-   is a secondary screen.** A part that passes step 6 but fails here has
-   weak coupling masked by high unloaded inductance and will not repeat on
-   a different pan — escalate rather than accept.
+No waiver on step 6 without re-deriving the floor with `floor.py`, and the firmware resonance and
+peak-current limits with it.
 
-No waiver on step 6 without re-deriving `l_pan_loaded_ratio`,
-`f_switching` and `PLL_MIN_FREQ_HZ`, and re-running
-`scripts/check_pll_range_consistency.py`.
+### Resistance: rows 4 and 5
 
-### Where the ratio threshold sits
+```
+Requirement (R32): R_ac(40 kHz, winding 100 °C) ≤ 0.25 Ω
+At 25 °C, conservatively assuming all of R_ac scales with copper resistivity:
+  R_ac(40 kHz, 25 °C) ≤ 0.25 / (1 + 0.00393 × 75) = 0.193 Ω                       ← row 5
+  (Proximity/eddy loss in strands much thinner than δ scales as 1/ρ, so it FALLS with
+   temperature. The resistivity assumption is therefore the safe direction.)
+Frequency shape: R_ac ∝ f^0.55 (round 4: onsemi 0.52, Infineon 0.59 over 30–50 kHz)
+  → ≤ 0.132 / 0.193 / 0.241 Ω at 20 / 40 / 60 kHz, 25 °C
+R_dc: a well-stranded Litz coil keeps F_R = R_ac/R_dc ≤ about 1.9 at 40 kHz. ESTIMATE: the supplier
+  must show the curve; the Infineon kit coil, at 0.10 → 0.34 Ω (UG-2023-15 p. 21 Fig. 16), shows F_R 3.4,
+  and such a coil would FAIL row 5.
+  R_dc ≤ 0.193 / 1.93 = 0.100 Ω                                                      ← row 4
+  Target 0.080 Ω, which leaves F_R up to 2.4.
+```
 
-| | Value | Source |
-|---|---|---|
-| Ratio the design is specified at | **0.68** | Infineon EVAL-IHW25N140R5L Fig. 16, 40 kHz (§5) |
-| Ratio at 30 kHz / 50 kHz, same chart | 0.71 / 0.66 | same |
-| Secondary screen | **0.60** | this document |
-| Minimum ratio at **nominal** 88 µH that still meets `L_loaded ≥ 53.43 µH` | **0.607** | derived above |
-| Minimum ratio at **−10 %** (79.2 µH) that still meets it | **0.675** | derived above |
-| Ratio at which `f_sw` = 47 kHz reaches the 1.05 ZVS cliff, at 88 µH | **0.479** | `L_loaded = 42.14 µH` |
-
-The near-exact agreement between the 0.60 screen and the 0.607 required at
-nominal L is a **coincidence**, not a design: it is why the ratio screen
-looks adequate at first glance and is not.
+Coil loss at the row-5 limit and 22 A: 121 W at 40 kHz and 151 W at 60 kHz (I²·R_ac at 100 °C).
+That is inside R32's 200 W design figure.
 
 ---
 
-## 3. Thermal soak (requirement #6)
+## 3. Thermal soak (row 6) and saturation pulse (row 7)
 
-Not a go/no-go for first articles, but it must be run before the coil is
-released for production.
+**Not a go/no-go for first articles.** Both tests must pass before the coil is released for
+production. Temper runs them on first articles in the enclosure, or in a fixture that reproduces
+its coil cooling.
 
-At the 1800 W operating point the tank carries **20.7 A rms** by this
-repo's ngspice harness and **22.5 A rms** by an independent first-harmonic
-solve. With R_ac ≈ 0.34–0.40 Ω at 40 kHz, the coil dissipates **≈150–200 W
-in its own copper** — comparable to a soldering iron, inside a sealed
-appliance, under a hot pan.
+**Cooling condition** (R32 study 02, `output/temper-r32-studies/02-cooling-acoustics-venting/coil_thermal.py`;
+R33 study 09 for this winding):
+- **Jets:** a sealed jet plenum under the carrier, 135 × Ø3 mm jets on a 14 mm grid, 5.5 mm below the winding, blowing between the ferrite bars.
+- **Supply:** fed by the push blower's ~27 % bleed, inlet air at **50 °C**.
+- **Drive:** blower at the drive the coil loop commands. Study 09 needs 0.9 drive for 22 A at maximum R on this winding.
+- **Glass gap:** stagnant, 3.5 mm to the glass.
 
-Drive the coil at 25 A rms / 40 kHz with the reference pan present, in
-40 °C still air, until temperature is stable (≥ 30 min). Record the
-hottest point on the winding. **ΔT ≤ 60 K** (i.e. ≤ 100 °C absolute, well
-inside the 180 °C insulation class, leaving margin for the pan's own
-radiated heat which this bench test does not reproduce).
+**Cases.**
+1. **22 A RMS, 40 kHz and 60 kHz**, on the reference pan holding boiling water (glass underside about 110 °C), until stable (≥ 30 min).
+2. **12.7 A RMS fry hold**, with the glass underside at 230 °C.
 
-**UNVERIFIED:** no thermal design for this dissipation exists yet. This
-test may fail, and the remedy would be more copper, more strands, or
-forced air — all of which change L and send the part back through §2.
+**Pass:**
+- **mean winding ≤ 150 °C**, by the resistance method (R_dc rise, Cu 0.393 %/K);
+- **ferrite ≤ 140 °C** (thermocouple on the bar under the hottest turn);
+- no discoloration of the serving or the carrier.
+
+Model expectation (R32 study 02): 102.5 °C at a typical 17 A; 140.7 °C at 22 A with the old maximum R
+and 50 °C inlet. With the row-5 limit (0.25 Ω hot instead of 0.41 Ω) the margin is larger. The
+bench decides.
+
+**Saturation pulse (row 7).** Charge a known film capacitor and discharge it into the coil, free in
+air with its ferrite fitted, so the first current peak is 98 A. Then compare:
+- the ring frequency of the first cycle with that of a ≤ 5 A ring of the same circuit. **L may differ by at most 3 %;**
+- L at small signal before and after the pulse, **unchanged within 1 %.**
 
 ---
 
@@ -236,65 +231,43 @@ forced air — all of which change L and send the part back through §2.
 
 | Quantity | Value | Moved by this spec? |
 |---|---|---|
-| `C_TANK` (`c_tank1` + `c_tank2` + `c_tank3`) | 300 nF | No |
-| `f_switching` | 47 kHz | No |
-| `PLL_MIN_FREQ_HZ` / `PLL_MAX_FREQ_HZ` | 44 / 50 kHz | No (moved separately, by PR #410's capacitor re-source) |
-| `l_tank_assumed` | 150 µH → **88 µH** | Yes |
-| `l_pan_loaded_ratio` | 0.399 → **0.68** | Yes, as a matched pair |
-| **`L_loaded`** | 59.85 → **59.84 µH** | **−0.02 %** |
-| `f_res,loaded` (nominal) | 37 560 → **37 563 Hz** | **+0.008 %** |
-| Derived PLL floor (gate check 5) | 41 571 → **41 575 Hz** | **+3.5 Hz** |
-| `f_resonant_nominal` (UNLOADED) | 25 kHz → **31 kHz** | Yes — it is now derivable |
+| Resonant bank | 5 × B32654A1104K000 = 0.50 µF ±10 % | No. Round 5: C moves resonance, not reflected R, so it is not the power lever |
+| Control window | 35–60 kHz | No |
+| ZVS guard | f ≥ 1.05·f_res from CT_ZC | **Required.** The fixed 35 kHz floor sits below 1.05·f_res at nominal coupling (§2 (a)) |
+| Tank current ceiling / peak limit | 22 A RMS / firmware tank-peak limit about 45 A | No. Round-5 envelope peaks are 47.5–47.9 A at 66 µH, so the 45 A limit stays mandatory (DECISIONS 2026-10-09) |
+| Coil loss of record | 200 W design figure (R32) | No. The row-5 limit gives ≤ 151 W at 22 A |
+| **L target** | 70 µH (66.3 installed), alternate B 80 µH (≈ 76 installed) | **Open, power-stage decision.** Round 5 on 220 mm pans: MC full-power yield at 120 V rises from 13 % to 22–25 %, and the 47.32 A shunt corner is no longer passed. Alternate B also passes row 3 at −10 % L. Cost: floor-limited corners, 2/45 at 75 µH and 11/45 at 82 µH installed (power, not safety); about 7 % more turns, so R_ac rises about 14 % in the same winding window, and holding R_ac ≤ 0.25 Ω needs better copper fill; the firmware resonance tables and `coil_mc.rs` change |
+| Legacy `elec/src` 88 µH / 300 nF and gate check 8 | Unchanged | **Stale.** They still check the half-bridge (§8) |
 
-The arithmetic, in full:
+Round-5 modelled full-power yield at 120 V (MC over the five classes, 1239 W hold reached):
 
-```
-150 µH × 0.399 = 59.850 µH  →  f_res = 1/(2π√(59.850µH × 300nF)) = 37 560.2 Hz
- 88 µH × 0.68  = 59.840 µH  →  f_res = 1/(2π√(59.840µH × 300nF)) = 37 563.3 Hz
-```
+| Pan base | 180 mm | 220 mm | 260 mm |
+|---|---|---|---|
+| R34 two-section r 26–114 | 0.2 % | 13 % | 20 % |
+| R32 uniform r 22–116 | 1 % | 16 % | 23 % |
 
-The two factors are 1.7× apart in opposite directions and their product
-agrees to 0.02 %. **Neither may be changed without the other.**
+Cast iron reaches 41–55 %. These are ASSUMED-basis numbers; the 22 A ceiling binds.
 
 ---
 
-## 5. Provenance of 88 µH and 0.68
+## 5. Provenance of the numbers
 
-Both are read off **one chart**: Figure 16 of the **Infineon
-EVAL-IHW25N140R5L user guide, rev 1.0, 2023-08-04**
-(`https://docs.rs-online.com/e357/A700000012089135.pdf`), which plots the
-inductance and resistance of the 2 kW cooking coil shipped with that kit,
-with and without a vessel, over **0–50 kHz**.
-
-| Reading | Value |
+| Number | Source |
 |---|---|
-| L, no vessel | ≈ 90 µH at DC, **≈ 87 µH flat 15–50 kHz** |
-| L, with vessel, at 40 kHz | **≈ 60 µH** |
-| Ratio at 40 kHz | **0.68** (0.71 at 30 kHz, 0.66 at 50 kHz) |
-| R, no vessel | 0.10 Ω at DC, **≈ 0.34 Ω at 40 kHz** |
-| R, with vessel, at 40 kHz | ≈ 3.25 Ω |
+| 70 µH design, 66.34 µH installed | Power-stage selected design (`coil_mc.rs`, power-stage README); R32 study 06 FEM, accepted in power-stage DECISIONS 2026-10-09 item 5 |
+| R_ac ≤ 0.25 Ω at 40 kHz / 100 °C, Litz ≥ 200 °C, N87/N97 radial bars on ≥ 14 mm lanes, 250 °C pan cap | Power-stage DECISIONS 2026-10-09 item 8 (R32 coil cooling) |
+| Pan coupling classes (kl, r, α) | Round 4 assumed basis. Anchors: Infineon UG-2023-15 p. 21 Fig. 16; onsemi AND9201/D p. 7 Figs. 9–10; repo-transcribed MDPI 180 mm study |
+| Coupling against OD and pan Ø | Round 5 FEM (R32 study-06 solver), used as ratios only |
+| 0.50 µF, ±10 % | Power-stage DECISIONS 2026-10-09; TDK B3265*A data sheet |
+| 97.8 A | Power-stage DECISIONS, stage-13 Kelvin band 47.32–97.77 A |
 
-**What makes this source usable where others were not:** it is a cooktop
-coil of the right power class **characterised in this design's own
-frequency band**. The 47–50 µH figure this project previously treated as
-"what real coils measure" came from a 90–150 kHz characterisation
-(Infineon AN235020) plus a **20 W Qi wireless-charging receiver coil**
-(Würth 760308101303, Ø26.3 mm, 1.5 A) plus a bench coil validated against
-that Qi part. See `docs/evidence/2026-07-28-coil-selection-research.md`
-§2.4.
+**What is UNVERIFIED, stated plainly:**
+- No Temper coil or pan has been measured.
+- The coupling ratios come from a linear-µ pan model.
+- The floor's 0.792 transfer and x_reg 1.45 are assumed-basis numbers.
+- Part-to-part spread of a wound coil is unknown; ±10 % is imposed, not measured.
 
-**What is UNVERIFIED about it, stated plainly:**
-
-- It is a **chart reading** (±5 % on the read) of a coil with **no
-  published part number, dimensions, turn count, litz spec, current
-  rating or temperature rating**. Infineon characterised it; nobody
-  specified it.
-- The 0.68 was measured on **Infineon's unnamed cookware**, not on this
-  project's pan set. It is the single number this specification most
-  depends on — hence §2 existing at all.
-- Part-to-part spread for any coil wound to this spec is **unknown**. The
-  ±10 % in requirement #1 is a specification we impose, not a measured
-  distribution.
+> **Superseded:** the 2026-07-29 provenance (88 µH and ratio 0.68 read off Infineon Fig. 16 as the design value). That chart is now one of round 4's anchors, not the design.
 
 ---
 
@@ -344,6 +317,13 @@ OCP-01's 50.1 A peak trip. It does, but see §8.
 ---
 
 ## 8. Open items this specification does NOT close
+
+> **2026-10-10 (native-21 reissue).** Items 0–2 and 4 below describe the retired half-bridge (88 µH,
+> 300 nF, `LitzPad_15A`, IGBT ratings) and are kept as history. What remains open for native-21:
+> (i) `scripts/check_pll_range_consistency.py` still checks the legacy `elec/src` / `pll_control.h`
+> and the legacy §2 sentence. It should be retargeted to native-21's 0.50 µF / 35–60 kHz / CT_ZC
+> constants and to row 3's 41.5 µH. (ii) Item 3, a bench measurement of this project's coil on
+> real pans, is still the highest-leverage experiment, and it re-derives row 3 (§2).
 
 0. **CLOSED 2026-07-29 (partially) — the acceptance minimum is now
    machine-derived and cross-checked, but the coupling ratio is still
