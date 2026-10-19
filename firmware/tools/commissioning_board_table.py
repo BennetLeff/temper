@@ -20,7 +20,13 @@ procedure's board numbers a generated artifact:
 * claims a stage other than the board of record for the board ("stage-15 board", "stage 15: R34 ..."),
 * gives a power-board resistor a value the frozen BOM does not have ("R34 12.6 kΩ"),
 * names a TEMPER_POWER_* Kconfig symbol that does not exist, or a commissioning-record provisional
-  value that differs from the Kconfig default.
+  value that differs from the Kconfig default,
+* names a backticked firmware symbol (UPPER_SNAKE) that no firmware source mentions.
+
+``--check`` also checks the home-lab overview ``BRING-UP.md`` (native-21 manufacturing package), which has no
+generated block and must point to COMMISSIONING's steps instead of repeating them. It gets the same prose rules,
+its introduction must name the board of record, and every "step N" / "step N item M" it names must exist in
+COMMISSIONING.md (a renumbered or deleted step fails here instead of leaving a dangling pointer).
 
 Usage:
   python3 firmware/tools/commissioning_board_table.py            # print the rendered block
@@ -50,6 +56,7 @@ REPO = FIRMWARE.parent
 PS = REPO / "zapote/power-stage-120v"
 VR = PS / "validation-results"
 DOC = FIRMWARE / "components/power/COMMISSIONING.md"
+BRINGUP = VR / "08-manufacturing-package/native-21/BRING-UP.md"   # home-lab overview: prose checks + step refs
 KCONFIG = FIRMWARE / "components/power/Kconfig"
 FAB_NOTE = VR / "08-manufacturing-package/native-21/fab/FAB-NOTE.md"
 FROZEN = PS / "native-21/frozen"
@@ -597,6 +604,12 @@ def check_text(text: str, rendered: str, stage: str, bom: dict, kc: dict, fw_tex
             lines.append((n, line))
         if line == END:
             inside = False
+    errs += _prose_checks(lines, prose, stage, bom, kc, fw_text)
+    return errs
+
+
+def _prose_checks(lines: list[tuple[int, str]], prose: str, stage: str, bom: dict, kc: dict, fw_text: str) -> list[str]:
+    errs = []
     for n, line in lines:
         for m in STAGE_CLAIM.finditer(line):
             st = m.group(1) or m.group(2)
@@ -634,6 +647,46 @@ def check_text(text: str, rendered: str, stage: str, bom: dict, kc: dict, fw_tex
     return errs
 
 
+STEP_HEAD = re.compile(r"^## Step (\d+[a-z]?):", re.M)
+_TOK = r"\d+[a-z]?"
+STEP_REF = re.compile(rf"\bsteps?\s+({_TOK}(?:\s*(?:,|–|-|and|or)\s*{_TOK})*)"
+                      rf"(?:\s+items?\s+({_TOK}(?:\s*(?:,|–|-|and|or)\s*{_TOK})*))?", re.I)
+
+
+def procedure_steps(proc_text: str) -> dict[str, set[str]]:
+    """Step id -> the top-level item numbers of that step, from COMMISSIONING.md's '## Step N:' sections."""
+    heads = list(STEP_HEAD.finditer(proc_text))
+    steps = {}
+    for i, h in enumerate(heads):
+        end = proc_text.find("\n## ", h.end())
+        body = proc_text[h.end(): end if end >= 0 else len(proc_text)]
+        steps[h.group(1)] = set(re.findall(r"^(\d+)\. ", body, re.M))
+    return steps
+
+
+def check_companion(text: str, proc_text: str, stage: str, bom: dict, kc: dict, fw_text: str) -> list[str]:
+    """BRING-UP.md: the prose rules, the board of record in the introduction, and step / item refs that exist."""
+    errs = []
+    intro = text.split("\n## ", 1)[0]
+    if not re.search(rf"\bstage {stage}\b", intro):
+        errs.append(f"BRING-UP.md: the introduction does not name the board of record (stage {stage})")
+    lines = list(enumerate(text.splitlines(), 1))
+    errs += [f"BRING-UP.md {e}" for e in _prose_checks(lines, text, stage, bom, kc, fw_text)]
+    steps = procedure_steps(proc_text)
+    for n, line in lines:
+        for m in STEP_REF.finditer(line):
+            ids = re.findall(_TOK, m.group(1))
+            for sid in ids:
+                if sid not in steps:
+                    errs.append(f"BRING-UP.md line {n}: '{m.group(0)}' but COMMISSIONING.md has no step {sid}")
+            if m.group(2) and len(ids) == 1 and ids[0] in steps:
+                for it in re.findall(r"\d+", m.group(2)):
+                    if it not in steps[ids[0]]:
+                        errs.append(f"BRING-UP.md line {n}: '{m.group(0)}' but COMMISSIONING.md step {ids[0]} "
+                                    f"has no item {it}")
+    return errs
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     g = ap.add_mutually_exclusive_group()
@@ -658,6 +711,14 @@ def main(argv: list[str] | None = None) -> int:
             if errs:
                 return EXIT_VIOLATION
             print(f"PASS: COMMISSIONING.md matches the stage-{stage} board table")
+            if not BRINGUP.exists():
+                raise GateError(f"{BRINGUP} is missing (the home-lab overview the gate also checks)")
+            errs = check_companion(BRINGUP.read_text(), doc.read_text(), stage, bom, kconfig(), fw)
+            for e in errs:
+                print(f"FAIL: {e}")
+            if errs:
+                return EXIT_VIOLATION
+            print("PASS: BRING-UP.md points only to COMMISSIONING steps that exist and agrees with the board")
         else:
             sys.stdout.write(rendered)
         for f in findings:

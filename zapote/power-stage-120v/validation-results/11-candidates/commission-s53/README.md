@@ -172,6 +172,78 @@ Agreements the gate now checks on every run:
   bench-sink insulation test and power-on check before step 5. Step 5 drops the old 24 V hand-back.
 - **Removed:** the provisional 24 V back-feed and its 0.5 A limit.
 
+## Staging branch reconciliation, 2026-10-18 (addendum; `study/proto-bringup-merge`)
+
+**J13 merge as landed.** The merge landed: controller `controller-j13-merge` C49 / C50, power-stage DECISIONS 79, firmware
+`0550fffcf`. On the staging branch the gate failed on `CTRL_GPIO_RAIL_OK_RB`, which the firmware no longer has. The symbol
+rule caught the drift, and 2 tests failed with it. Every "pending the J13 merge" in COMMISSIONING.md is now the as-landed
+fact:
+- **Ground rules:**
+  - The controller is the C49 board only. Its logic 15 V comes in on J13 through D9.
+  - J4.1 is read on GPIO35 through controller R124 / C97 / R123, and J4.1 never sees 15 V.
+  - RAIL_OK_RB is TCA9555 P02, read from the expander snapshot.
+  - The C48 controller is never connected.
+  - The J4 breakout stays, as an inline breakout and as an option for the power-board-only items.
+- **Step 1:** the bench 15 V goes into J13, with the blower unplugged and J4.1 open. New check: GPIO35 reads low with J4.1 open.
+- **Step 2:** the controller is on the bench 15 V into J13, and PS3 first feeds J13 at step 5's mains sequencing.
+- **Item 2.6:** the checks run (no N/A). They close B13 H2 and C50's "GPIO35 not on hardware" risk, with C49's
+  `bias_good` design levels cited.
+- **8c.7:** the two J13-unplug items become PS3-loss checks: the controller powers down and the pads, PERMIT and DIS fail
+  safe. They add C50 accepted risk 1, a scope of the logic rail at blower start and PS3 hiccup, judged against C49
+  `merge_rail`.
+
+**BRING-UP.md** (`08-manufacturing-package/native-21/`, from 15a0a9b12) is rewritten as a short overview that points to
+COMMISSIONING steps. Its contradictions with the owner decisions are gone:
+- **The bench feed:** its stage 2 left the PS2 / V24_RAW feed TBD. Now BR1 is out, PS2 runs from mains in steps 2–4, and the bus comes from DC.
+- **The dim bulb:** its stage 3 applied mains through the dim bulb with BR1 fitted. Now the dim bulb is used only at step 5, after step 4b.
+- **Hot-air gear:** removed, because JLC places U41 / U42 (consign-r1).
+- **The hand-fit list:** "15 hand-fitted parts" becomes BR1, RV1, the F1 clips and the F1 cartridge (consign-r1 answer 4).
+- **The coil:** its "88 µH ±10 %, loaded ≥ 53.4 µH, DCR ≤ 0.12 Ω" is replaced by the coil study's M1–M5 plan and pass levels, and the spec version is now an open owner item.
+
+The overview keeps:
+- the GFCI → isolation transformer → variac → dim-bulb chain;
+- the stop conditions, now pointing to their steps;
+- the records list.
+
+It points to `bench-sink-r1/README.md` revision 3 (one common sink, a shim selected per JLC-soldered FET) and to
+`output/temper-coil-r1/`.
+
+Decisions made in that rewrite:
+- **The dim bulb at step 5:** it is in for the first raise and items 1–2 with the bridge idle, and taken out before item 3's
+  first bench session (a series lamp moves the line the firmware measures). COMMISSIONING step 5 now says so too, and its
+  "Isolation" rule names the GFCI and the overview.
+- **Touch current:** it moved out of the first-power chain. IEC 60990 measures against an earthed supply, and behind a
+  floating isolation transformer it reads near zero.
+
+**Gate extended to BRING-UP.md.** BRING-UP.md has no generated block, so the table rule does not apply, but the other rules
+do. `--check` now also:
+- runs the prose rules on it (stage claims, power-board resistor values, Kconfig and firmware symbols);
+- requires its introduction to name the board of record;
+- fails on any "step N" or "step N item M" that COMMISSIONING.md does not have.
+That last rule catches a renumbered or deleted step leaving a dangling pointer. 11 new tests cover it; one of them is the J13
+drift itself (38 pass). Negative control: `results/negative-control-proto-merge-25c01539a.txt`, the two files as merged,
+which fail on `CTRL_GPIO_RAIL_OK_RB` and on the overview's "s53" intro. The gate does not catch a *procedural* contradiction,
+such as BR1 fitted at the wrong step. Those were reconciled by hand, and keeping BRING-UP.md free of its own numbers is what
+limits them.
+
+**Coil spec: R1 against the committed 53.43 µH floor** (`scripts/coil_floor.py` → `results/coil-floor.{md,json}`, from the
+coil study's committed `pans.json` and `trim_heating.json`; no re-solve). Under the committed spec:
+- **Row 3 fails on the reference class.** Cast iron at nominal µ gives 46.10 µH (Ø240) and 50.73 µH (Ø180; the spec's
+  reference pan is 180–220 mm).
+- **Row 3 passes in 6 of 24 ferrous pan cases, all at the high-µ bracket** (430, tri-ply and cast iron at µ high). At nominal
+  µ every class fails; the closest is 430 at Ø180, 53.38 µH, 0.05 µH short. Carbon steel fails at every µ.
+- **No tune state reaches the floor:** R1 plus the spare turn (89.85 µH free-air) gives 50.39 µH on cast iron Ø240.
+- **Row 3b (ratio ≥ 0.60) also fails** on the reference case: 0.568.
+- **Row 1 (79.2–96.8 µH) passes** for R1 (81.1 µH).
+
+Under the uncommitted 70 µH version (41.5 µH floor; the one R1 was designed to), the reference case passes, and 17 of 24 cases
+pass.
+
+The committed floor is derived from a 300 nF ±10 % tank and `PLL_MIN_FREQ_HZ` 44 kHz (its §2), not from native-21's
+5 × 100 nF bank (B14) and 35–60 kHz loop (B16).
+
+Reported, not resolved: the owner decides which spec version is of record. Until then the bench uses the coil study's levels.
+
 ## Files
 
 - `firmware/components/power/COMMISSIONING.md` (re-based; board table between the markers).
@@ -179,3 +251,6 @@ Agreements the gate now checks on every run:
 - `.github/workflows/firmware-tests.yml` (the step, numpy, trigger paths).
 - `results/` (check, negative controls, re-runs).
 - `zapote/power-stage-120v/OPEN-ITEMS.md` rows S29 (CT margin) and B16 (BR1 not fitted at JLC).
+- Staging addendum: `zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/BRING-UP.md` (rewritten),
+  `scripts/coil_floor.py`, `results/coil-floor.{md,json}`, `results/check-proto-merge.txt`,
+  `results/negative-control-proto-merge-25c01539a.txt`.

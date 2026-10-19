@@ -1,0 +1,607 @@
+{
+ "source": {
+  "pans.json": "output/temper-coil-r1/model/results/pans.json",
+  "trim_heating.json": "output/temper-coil-r1/model/results/trim_heating.json"
+ },
+ "R1_L_free_uH": 81.11825416848983,
+ "specs": {
+  "committed (88 µH, 53.43 µH floor)": {
+   "limits": {
+    "l_free": [
+     79.2,
+     96.8
+    ],
+    "floor": 53.43,
+    "ratio": [
+     0.6,
+     null
+    ]
+   },
+   "R1_pans_40kHz": [
+    {
+     "pan": "ss430",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 36.71,
+     "row3_pass": false,
+     "ratio": 0.453,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 42.94,
+     "row3_pass": false,
+     "ratio": 0.529,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 49.4,
+     "row3_pass": false,
+     "ratio": 0.609,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 53.38,
+     "row3_pass": false,
+     "ratio": 0.658,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 62.73,
+     "row3_pass": true,
+     "ratio": 0.773,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 63.38,
+     "row3_pass": true,
+     "ratio": 0.781,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 36.95,
+     "row3_pass": false,
+     "ratio": 0.456,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 41.13,
+     "row3_pass": false,
+     "ratio": 0.507,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 49.08,
+     "row3_pass": false,
+     "ratio": 0.605,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 49.5,
+     "row3_pass": false,
+     "ratio": 0.61,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 62.1,
+     "row3_pass": true,
+     "ratio": 0.766,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 57.66,
+     "row3_pass": true,
+     "ratio": 0.711,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 39.65,
+     "row3_pass": false,
+     "ratio": 0.489,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 45.33,
+     "row3_pass": false,
+     "ratio": 0.559,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 46.1,
+     "row3_pass": false,
+     "ratio": 0.568,
+     "row3b_pass": false,
+     "reference": true
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 50.73,
+     "row3_pass": false,
+     "ratio": 0.625,
+     "row3b_pass": true,
+     "reference": true
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 61.01,
+     "row3_pass": true,
+     "ratio": 0.752,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 62.41,
+     "row3_pass": true,
+     "ratio": 0.769,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 32.93,
+     "row3_pass": false,
+     "ratio": 0.406,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 39.46,
+     "row3_pass": false,
+     "ratio": 0.486,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 36.87,
+     "row3_pass": false,
+     "ratio": 0.454,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 42.71,
+     "row3_pass": false,
+     "ratio": 0.527,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 44.42,
+     "row3_pass": false,
+     "ratio": 0.548,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 48.66,
+     "row3_pass": false,
+     "ratio": 0.6,
+     "row3b_pass": false,
+     "reference": false
+    }
+   ],
+   "tune_states_cast_iron_240": [
+    {
+     "state": "R1_plus_spare",
+     "L_free_uH": 89.85,
+     "row1_pass": true,
+     "L_cast_iron_uH": 50.39,
+     "row3_pass": false
+    },
+    {
+     "state": "R1",
+     "L_free_uH": 81.12,
+     "row1_pass": true,
+     "L_cast_iron_uH": 46.1,
+     "row3_pass": false
+    },
+    {
+     "state": "R1_trim-0.5",
+     "L_free_uH": 76.8,
+     "row1_pass": false,
+     "L_cast_iron_uH": 43.96,
+     "row3_pass": false
+    },
+    {
+     "state": "R1_trim-1",
+     "L_free_uH": 72.54,
+     "row1_pass": false,
+     "L_cast_iron_uH": 41.83,
+     "row3_pass": false
+    },
+    {
+     "state": "R1_trim-1.5",
+     "L_free_uH": 68.4,
+     "row1_pass": false,
+     "L_cast_iron_uH": 39.77,
+     "row3_pass": false
+    },
+    {
+     "state": "R1_trim-2",
+     "L_free_uH": 64.37,
+     "row1_pass": false,
+     "L_cast_iron_uH": 37.75,
+     "row3_pass": false
+    }
+   ]
+  },
+  "working tree (alt B 80 µH, 41.5 µH floor)": {
+   "limits": {
+    "l_free": [
+     72.0,
+     88.0
+    ],
+    "floor": 41.5,
+    "ratio": [
+     0.47,
+     0.77
+    ]
+   },
+   "R1_pans_40kHz": [
+    {
+     "pan": "ss430",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 36.71,
+     "row3_pass": false,
+     "ratio": 0.453,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 42.94,
+     "row3_pass": true,
+     "ratio": 0.529,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 49.4,
+     "row3_pass": true,
+     "ratio": 0.609,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 53.38,
+     "row3_pass": true,
+     "ratio": 0.658,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 62.73,
+     "row3_pass": true,
+     "ratio": 0.773,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "ss430",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 63.38,
+     "row3_pass": true,
+     "ratio": 0.781,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 36.95,
+     "row3_pass": false,
+     "ratio": 0.456,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 41.13,
+     "row3_pass": false,
+     "ratio": 0.507,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 49.08,
+     "row3_pass": true,
+     "ratio": 0.605,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 49.5,
+     "row3_pass": true,
+     "ratio": 0.61,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 62.1,
+     "row3_pass": true,
+     "ratio": 0.766,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "triply",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 57.66,
+     "row3_pass": true,
+     "ratio": 0.711,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 39.65,
+     "row3_pass": false,
+     "ratio": 0.489,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 45.33,
+     "row3_pass": true,
+     "ratio": 0.559,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 46.1,
+     "row3_pass": true,
+     "ratio": 0.568,
+     "row3b_pass": true,
+     "reference": true
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 50.73,
+     "row3_pass": true,
+     "ratio": 0.625,
+     "row3b_pass": true,
+     "reference": true
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 61.01,
+     "row3_pass": true,
+     "ratio": 0.752,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "cast_iron",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 62.41,
+     "row3_pass": true,
+     "ratio": 0.769,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "lo",
+     "d_mm": 240.0,
+     "L_loaded_uH": 32.93,
+     "row3_pass": false,
+     "ratio": 0.406,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "lo",
+     "d_mm": 180.0,
+     "L_loaded_uH": 39.46,
+     "row3_pass": false,
+     "ratio": 0.486,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "nom",
+     "d_mm": 240.0,
+     "L_loaded_uH": 36.87,
+     "row3_pass": false,
+     "ratio": 0.454,
+     "row3b_pass": false,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "nom",
+     "d_mm": 180.0,
+     "L_loaded_uH": 42.71,
+     "row3_pass": true,
+     "ratio": 0.527,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "hi",
+     "d_mm": 240.0,
+     "L_loaded_uH": 44.42,
+     "row3_pass": true,
+     "ratio": 0.548,
+     "row3b_pass": true,
+     "reference": false
+    },
+    {
+     "pan": "carbon_steel",
+     "mu": "hi",
+     "d_mm": 180.0,
+     "L_loaded_uH": 48.66,
+     "row3_pass": true,
+     "ratio": 0.6,
+     "row3b_pass": true,
+     "reference": false
+    }
+   ],
+   "tune_states_cast_iron_240": [
+    {
+     "state": "R1_plus_spare",
+     "L_free_uH": 89.85,
+     "row1_pass": false,
+     "L_cast_iron_uH": 50.39,
+     "row3_pass": true
+    },
+    {
+     "state": "R1",
+     "L_free_uH": 81.12,
+     "row1_pass": true,
+     "L_cast_iron_uH": 46.1,
+     "row3_pass": true
+    },
+    {
+     "state": "R1_trim-0.5",
+     "L_free_uH": 76.8,
+     "row1_pass": true,
+     "L_cast_iron_uH": 43.96,
+     "row3_pass": true
+    },
+    {
+     "state": "R1_trim-1",
+     "L_free_uH": 72.54,
+     "row1_pass": true,
+     "L_cast_iron_uH": 41.83,
+     "row3_pass": true
+    },
+    {
+     "state": "R1_trim-1.5",
+     "L_free_uH": 68.4,
+     "row1_pass": false,
+     "L_cast_iron_uH": 39.77,
+     "row3_pass": false
+    },
+    {
+     "state": "R1_trim-2",
+     "L_free_uH": 64.37,
+     "row1_pass": false,
+     "L_cast_iron_uH": 37.75,
+     "row3_pass": false
+    }
+   ]
+  }
+ }
+}

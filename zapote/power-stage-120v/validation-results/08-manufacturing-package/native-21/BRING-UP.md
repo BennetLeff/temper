@@ -1,64 +1,93 @@
-# Prototype bring-up procedure (2026-10-18; prepared, NOT run)
+# Prototype bring-up: home-lab overview (2026-10-18; prepared, NOT run)
 
-A plan for the first powered tests of the s53 power board with the C49 controller, for a home lab that has through-hole soldering only. Built from
-what the repo records; nothing here has been run. Steps that depend on a fact I could not verify are marked **TBD**. The firmware ladder above the first
-ceiling follows `firmware/components/power/COMMISSIONING.md` and is not repeated here.
+The order of work for the first native-21 boards, **stage 53** (the board of record, `fab/FAB-NOTE.md`), with the C49
+(J13-merge) controller, on a home bench that solders through-hole only. It is an overview. The procedure, its numbers
+and its pass levels are in `firmware/components/power/COMMISSIONING.md` ("COMMISSIONING" below), and this file only points
+to its steps. Where the two disagree, COMMISSIONING wins and this file is wrong. `firmware/tools/commissioning_board_table.py
+--check` runs the prose checks on this file too (board-stage claims, power-board resistor values against the frozen BOM,
+firmware and Kconfig symbol names, and every COMMISSIONING step named here exists).
 
-## Ground rules
-- **Never touch the board while it is powered from mains.** The heatsink and the HOT side are live until the real insulation stack is fitted (OPEN-ITEMS M11).
-  Catalogue pads are for bench tests only: they are not reinforced insulation (IEC 60335-1 29.3.1).
-- **Chain, in this order:** wall outlet, GFCI, isolation transformer (1:1, 120 V), Variac, dim-bulb tester (a 100-200 W incandescent lamp in series), board.
-  Everything downstream floats, so it is the board that is isolated, not the Variac.
-- **Measure HOT-side nodes only with a differential probe or a battery scope.** Do not clip a grounded probe to the bus.
-- First-power ceiling is **17.5 A** (`TEMPER_POWER_TANK_CEILING_DA=175`, DECISIONS 61). Do not raise it without the COMMISSIONING gate.
-- Stop at the first unexpected reading. Write it down. Do not "try once more".
+## Ground rules (summary; COMMISSIONING "Ground rules" is the full list)
+- **BR1 stays out until step 4 passes** (owner decision 2026-10-18; COMMISSIONING bring-up power plan). It is the only part
+  that joins mains to the bus. In steps 2–4 PS2 runs from its own input at 120 V, and the bus comes from an isolated,
+  current-limited DC supply soldered to the B19 leads. Mains is on the inlet, the filter, F2 / J11, the J3 loop and PS2's
+  input from step 2: treat those as live. hv_ret is tied to PE at one point in steps 2–4 only, and the tie comes off
+  before BR1 is fitted.
+- **Mains chain:**
+  - Steps 2–4: wall outlet → GFCI → isolation transformer (1:1, 120 V) → power analyser → inlet. No variac (PS2 needs its
+    input range; COMMISSIONING step 2 setup).
+  - Step 5, the first time mains reaches the bus: wall outlet → GFCI → isolation transformer → variac → dim-bulb tester (a
+    100–200 W incandescent lamp in series) → power analyser → inlet. The bulb stays in for the first raise of the variac and
+    step 5 items 1–2 with the bridge idle. Take it out before the first bench session (step 5 item 3): a series lamp moves
+    the line the firmware measures and hides the inlet current the estimator is checked against.
+  - Behind the isolation transformer the GFCI sees no fault current from the board. It protects the bench wiring only.
+- **Never touch the board while it is fed from mains**, at any step. The bench sink and the HOT side are live, and the bench
+  insulation is catalogue pad, not the production M11 stack (OPEN-ITEMS M11).
+- **HOT-side nodes: isolated or differential probes only.** Never clip a grounded probe to the bus or a switch node.
+- **First-power ceiling 17.5 A** until a ladder step passes its thermal gate (COMMISSIONING "Raising the commissioned tank
+  ceiling", gate 0, and step 9a item 6).
+- Stop at the first unexpected reading and write it down. Do not "try once more".
 
-## Equipment (owner's purchases; none ordered)
-Isolation transformer, Variac, dim-bulb tester, GFCI outlet, differential probe (or battery scope), LCR meter (40 kHz), DMM, bench supply 15 V with current limit,
-Tag-Connect TC2050-IDC-NL cable plus a USB breakout (3V3 not back-fed), hot-air gear for U41 / U42, IR thermometer or camera.
+## What the owner fits, and what JLC does
+- **Owner, through-hole:** BR1 (step 4b), RV1 and the two F1 clips. The owner also inserts the F1 cartridge (no
+  soldering). This is consign-r1's list (`11-candidates/consign-r1/README.md`, answer 4).
+- **JLC:** everything else, including U41 / U42 (SSOP-36, placed from Global Sourcing; consign-r1 answer 2) and the four
+  FETs Q2, Q3, Q5 and Q6, consigned from one lot and soldered by JLC. No hot-air gear is needed.
+- **Bench heatsink:** `11-candidates/bench-sink-r1/README.md`, revision 3. It is one common sink, with a shim selected per
+  FET from feeler-gauge gaps (`scripts/shim_select.py`) and a clamp pad chosen per device. It is fitted to the JLC-soldered
+  FETs (§6.2). BR1's fit and preheat are in §6.3, and the TCO is in the J3 loop (D5).
 
-## Stage 0: before any power (unpowered)
-1. Visual: solder bridges, part orientation (polarity: D9 on the controller, the electrolytics, U41 / U42 pin 1), consigned parts fitted (the 15 hand-fitted power-board parts,
-   R39 on the controller).
-2. Continuity and isolation with a DMM, board unpowered: no continuity between HOT (bus, switch nodes) and SELV (selv_gnd), nor between HOT and PE, other than the
-   documented parts (R38 0 ohm PE-SELV link, the Y capacitors, the driver and optocoupler barriers).
-3. Controller: no short on `v3v3`, `v15_selv`, `V15_BLW`; D9 forward-biased from J13 to the logic rail (diode test: about 0.3-0.5 V from J13.1 to the 3.3 V buck input).
-4. Coil: measure L (40 kHz, free in air, then under the pan) and DCR. Spec: 88 uH +/-10 %, loaded at least 53.4 uH, DCR at most 0.12 ohm
-   (`docs/hardware/TANK_COIL_SPECIFICATION.md`). A coil far outside this changes the resonance: re-run the tank tolerance sweep before using it.
+## Order of work
+| Phase | What | Where |
+|---|---|---|
+| Before power | Visual inspection: bridges, polarity (the electrolytics, U41 / U42 pin 1, controller D9 by J13), the owner-fitted parts | this row |
+| Before power | Continuity, unpowered: no HOT-to-SELV or HOT-to-PE path except the documented ones (R38, the PE–SELV link; the Y capacitors; the driver and optocoupler barriers). Controller: no short on `v3v3`, `v15_selv` or `V15_BLW`. Controller D9 conducts from J13 toward the logic rail in diode test and blocks the other way | this row |
+| Before power | Confirm the fitted parts against the board table (B1, B2, B9, B13, B14) and enter them in the record | COMMISSIONING ground rules, "Board revision" |
+| Before power | Build and measure the coil | "The coil" below; `output/temper-coil-r1/` |
+| Desk | Host suite, ESP-IDF build, pin-map check | COMMISSIONING step 0 |
+| SELV only | Controller alone, bench 15 V into J13 (current limit and checks in step 1). Flash over the Tag-Connect TC2050 with the programmer's 3V3 pin not driven | COMMISSIONING step 1 |
+| Mains on PS2, bus dead | Logic and gate supplies, PWM, interlock, BIAS_GOOD (GPIO35) checks; gates disconnected | COMMISSIONING step 2 |
+| Mains on PS2, bus from DC | CT, OCP and OVP trip calibration | COMMISSIONING step 3 |
+| Mains on PS2, bus from DC | First switching, ZVS, resonance map, phase calibration, with gates and coil connected | COMMISSIONING step 4 |
+| Unpowered | The owner fits BR1; hv_ret–PE tie removed | COMMISSIONING step 4b; bench-sink §6.3 |
+| Mains to the bus | Variac with the dim bulb, LINE_ZC, VBUS against the line | COMMISSIONING step 5 |
+| Heating | Tank ramp with a pan, estimator, thermal, blower and PS3 (including the logic-rail scope at blower start), frequency loop | COMMISSIONING steps 6, 7, 8, 8b, 8c, 9a |
 
-## Stage 1: controller alone, no mains (SELV)
-1. Bench 15 V, current limit 0.5 A, on J13 (V15_BLW). Expect: `v15_selv` about V15_BLW minus 0.3-0.5 V, `v3v3` = 3.30 V +/-3 %, quiescent current from the 15 V
-   supply about 0.3 A (the logic budget is 4.83 W).
-2. Flash through J11 (TC2050) with the 3V3 pin NOT driven by the programmer. First flash of the blank module should enumerate over USB in the ROM download mode;
-   if not, hold IO0 low at reset.
-3. Check: PERMIT low, all four PWM outputs low, `BLW_PG` high (V15_BLW present), `BIAS_GOOD_RB` (GPIO35) low with nothing on J4, RAIL_OK read through the expander.
-4. Scope the logic rail (`v15_selv`) while a **bench-fed blower is started** (J10 connected to the real fan): the request's bench item 5. Record the dip, and whether the
-   controller resets. Pass: no reset with the PS3-equivalent supply at its normal current limit (at least 5 A). The fan's start current is the number DECISIONS C49 lacks.
+## The coil
+Build and measure it per the coil study: `output/temper-coil-r1/BUILD-AND-MEASURE.md` §1 (winding), §2 (measurements M1–M7
+and their pass levels), §3 (tune) and §5 (first power), with the traveller of §4. The study's pass levels are:
+- M2: free-air L 76–86 µH after tuning, flat ±3 % over 20–60 kHz;
+- M3: R_dc ≤ 0.100 Ω;
+- M4: loaded L ≥ 41.5 µH on the cast-iron reference pan, ratio L_loaded / L_free 0.47–0.77;
+- M5: the ring-down R_ac.
+The modelled values these are measured against are in the study's `model/results/TABLES.md`. At first power: no aluminium pan, and stop at 130 °C on any winding thermocouple with stock Litz (§5).
 
-## Stage 2: power board SELV side and gate drive, no mains, no bus
-- **TBD:** the HOT-side gate-drive bias (PS2, V24_RAW) is mains-fed. Whether a bench 24 V can be injected in its place without PS2 is not verified; trace it on the schematic
-  first. If it cannot, skip this stage and do the gate-drive check in stage 3 with the bus held at zero by the Variac.
-1. With bias present and no bus: drive the gates from the controller (firmware test mode, PERMIT granted). Check gate waveforms at U1 / U2 outputs with the differential
-   probe: dead time about 499 ns, no overlap, turn-on slower than turn-off (68 ohm on, 1 ohm plus diode off), no ringing beyond the F6 study.
-2. Verify the interlock: remove PERMIT (RUN_EN low) and confirm the gate outputs go low within the expected time; with BIAS_GOOD forced low, the drivers disable.
+**Open owner item: which spec version applies.** The study designed R1 (about 81 µH free-air, 77 µH installed) to the
+main checkout's uncommitted `docs/hardware/TANK_COIL_SPECIFICATION.md` (70 µH, alternate B 80 µH, loaded floor 41.5 µH).
+The committed spec still says 88 µH ±10 % with a loaded floor of 53.43 µH. Its floor is derived from a 300 nF tank and a
+44 kHz PLL floor, not from native-21's bank (B14). Against the committed floor, R1 fails row 3 on the reference cast-iron
+class at nominal µ, and no tune state of its former reaches the floor
+(`11-candidates/commission-s53/results/coil-floor.md`, from `scripts/coil_floor.py`). The bench uses the coil study's
+levels until the owner commits a spec version.
 
-## Stage 3: mains, no coil, Variac at zero
-1. Chain connected, Variac at 0 V, dim bulb in. Raise slowly: 30 V, 60 V, 90 V, 120 V, pausing at each step. The bulb should glow only briefly while the bus charges.
-2. At 120 V, no switching: PS2 and PS3 outputs in range, `BIAS_GOOD` behaviour as the firmware README (low until PERMIT), bus voltage reading in the controller,
-   no heating at the bridge or the filter.
-3. **Touch-current measurement** (S1: 0.2412 mA against 0.25 mA, margin 8.8 uA) with the IEC 60990 network or an equivalent, at 120 V 60 Hz and with the inlet module fitted
-   (it must have no Y capacitors, or the budget fails). Record, do not tune.
-
-## Stage 4: tank, reduced power
-1. Coil and bank fitted, a pan on a non-conductive spacer. Variac at 30-40 V, bulb in. Start the firmware's resonance search at reduced power.
-2. Watch: tank current (the firmware ceiling and the CT/OCP trips), the switching frequency (35-60 kHz window), IR temperature of the FETs, the shunt, R10 and the bank.
-3. Step the Variac up in 10-20 V steps only while all limits hold. Remove the bulb only after a clean run at full line voltage and low power.
-4. Climb the ceiling per `COMMISSIONING.md` (never skip a step). Stop at 17.5 A until the B3 thermal gate passes at the next step.
-
-## Stop conditions (any of these: power off, wait for the bus to discharge, investigate)
-Bulb stays bright; a bus voltage above 290 V; any gate-drive overlap; a reset of the controller; smell, smoke or a part above 100 C on the IR camera; tank current above
-the ceiling; any reading that disagrees with the model by more than the margin in the relevant study.
+## Stop conditions (any of these: power off at the mains cut, wait for the bus to discharge, investigate)
+- The dim bulb stays bright after the bus has charged (step 5).
+- The bus is above B6's release window top: OVP should already have tripped.
+- Any gate-drive overlap, or an edge that hard-switches (step 4 item 2).
+- An unexpected controller reset.
+- Smell or smoke.
+- On the IR camera, any part above 100 °C (**provisional**), the bench TCO opening, or a winding thermocouple at 130 °C.
+- Tank current above the commissioned ceiling.
+- Any reading outside the pass level of the step it belongs to.
 
 ## Records to keep
-Photos before power, the measured L, Q and DCR of the coil, the logic-rail dip at blower start, touch current, gate waveforms, first-power IR images. Put the numbers
-in `DECISIONS.md` so the models can be corrected against them.
+- Photos of both boards before first power, including the shim and pad selected for each FET (bench-sink §6.2).
+- The coil traveller: M1–M5 per coil, plus M4 for every pan you will cook on. Send them back to the coil study for its model
+  re-anchor (coil README §5, item 6).
+- Every value the COMMISSIONING steps ask to record, in its commissioning record ("Commissioning record").
+- The logic-rail and v3v3 minimum at blower start (COMMISSIONING step 8c item 7).
+- Gate and switch-node waveforms from steps 2 and 4.
+- First-power IR images.
+- Touch current (OPEN-ITEMS S1, design value only). It is not a COMMISSIONING step and needs its own later setup: IEC 60990
+  measures against an earthed supply, and behind a floating isolation transformer it reads near zero. Record it; do not tune
+  against it.

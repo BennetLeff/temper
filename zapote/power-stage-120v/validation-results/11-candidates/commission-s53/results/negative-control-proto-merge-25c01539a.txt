@@ -1,0 +1,5 @@
+Gate run on the two files as merged in 25c01539a (before this change), current tool and sources.
+== COMMISSIONING.md @ 25c01539a
+FAIL: `CTRL_GPIO_RAIL_OK_RB` is not mentioned anywhere in the firmware sources
+== BRING-UP.md @ 25c01539a (against COMMISSIONING.md @ 25c01539a)
+FAIL: BRING-UP.md: the introduction does not name the board of record (stage 53)

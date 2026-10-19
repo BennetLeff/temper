@@ -1,0 +1,5 @@
+FINDING (firmware / board, for the owner): TEMPER_POWER_TANK_CEILING_DA range allows 28 A; the fitted bank (B32643H8104J000, mark H) stops the ladder at 24 A: the limit is procedural only
+PASS: COMMISSIONING.md matches the stage-53 board table
+PASS: BRING-UP.md points only to COMMISSIONING steps that exist and agrees with the board
+exit 0
+============================== 38 passed in 0.48s ==============================

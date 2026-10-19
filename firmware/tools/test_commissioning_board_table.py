@@ -3,7 +3,8 @@
 The committed COMMISSIONING.md must match the board table rendered from the board of record, and each class
 of drift the gate exists for must fail: a stale table value (the stage-15 OCP band that sat in the procedure
 until stage 53), a stage-NN board claim, a resistor value the BOM does not have, a Kconfig default that the
-commissioning record misstates, and a new board of record with no re-base.
+commissioning record misstates, and a new board of record with no re-base. The home-lab overview BRING-UP.md
+gets the prose rules plus a check that every COMMISSIONING step and item it points to exists.
 """
 
 from __future__ import annotations
@@ -120,6 +121,50 @@ def test_new_board_of_record_refuses(tmp_path, monkeypatch):
     monkeypatch.setattr(cbt, "FAB_NOTE", note)
     with pytest.raises(cbt.GateError, match="re-base"):
         cbt.render()
+    assert cbt.main(["--check"]) == cbt.EXIT_GATE_ERROR
+
+
+def test_j13_drift_symbol_fails(rendered, ctx):
+    """The drift that broke this gate after the J13 merge: RAIL_OK_RB left on GPIO35 in the procedure."""
+    text = cbt.DOC.read_text().replace("TCA9555 P02 (`CTRL_EXP_RAIL_OK_RB`)", "GPIO35 (`CTRL_GPIO_RAIL_OK_RB`)", 1)
+    assert any("`CTRL_GPIO_RAIL_OK_RB`" in e for e in _check(text, rendered, ctx))
+
+
+def _check_bringup(text, ctx):
+    stage, bom, kc, fw = ctx
+    return cbt.check_companion(text, cbt.DOC.read_text(), stage, bom, kc, fw)
+
+
+def test_committed_bringup_passes(ctx):
+    assert _check_bringup(cbt.BRINGUP.read_text(), ctx) == []
+
+
+@pytest.mark.parametrize("line,expect", [
+    ("Run the trips (COMMISSIONING step 11).", "has no step 11"),
+    ("Bulb out before step 5 item 9.", "step 5 has no item 9"),
+    ("Then steps 4c and 6.", "has no step 4c"),
+    ("Heat with the stage-15 board.", "claims a stage-15 board"),
+    ("The CT burden R39 3.3 Ω.", "frozen BOM has R39"),
+    ("RAIL_OK reads high on GPIO35 (`CTRL_GPIO_RAIL_OK_RB`).", "`CTRL_GPIO_RAIL_OK_RB`"),
+    ("Set `TEMPER_POWER_NO_SUCH_FIELD`.", "Kconfig has no TEMPER_POWER_NO_SUCH_FIELD"),
+])
+def test_bringup_drift_fails(ctx, line, expect):
+    text = cbt.BRINGUP.read_text().replace("## Records to keep\n", "## Records to keep\n" + line + "\n", 1)
+    errs = _check_bringup(text, ctx)
+    assert any(expect in e for e in errs), errs
+
+
+def test_bringup_must_name_board_of_record(ctx):
+    text = cbt.BRINGUP.read_text().replace("**stage 53**", "**the current stage**", 1)
+    assert any("does not name the board of record" in e for e in _check_bringup(text, ctx))
+
+
+def test_cli_check_fails_on_stale_bringup(tmp_path, monkeypatch):
+    stale = tmp_path / "BRING-UP.md"
+    stale.write_text(cbt.BRINGUP.read_text() + "\nSee COMMISSIONING step 12.\n")
+    monkeypatch.setattr(cbt, "BRINGUP", stale)
+    assert cbt.main(["--check"]) == cbt.EXIT_VIOLATION
+    monkeypatch.setattr(cbt, "BRINGUP", tmp_path / "missing.md")
     assert cbt.main(["--check"]) == cbt.EXIT_GATE_ERROR
 
 
