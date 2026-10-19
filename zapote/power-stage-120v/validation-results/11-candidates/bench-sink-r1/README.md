@@ -22,11 +22,20 @@ Study, 2026-10-18. Branch `study/bench-sink-r1`, from `codex/power-stage-integra
 | `python3 -I scripts/bench_thermal.py` | `results/thermal.md`, `.json` |
 | `python3 -I scripts/bench_insulation.py` (exits 1 on any fail) | `results/insulation.md`, `.json` |
 | `python3 -I scripts/bench_cad.py` | `results/bench-sink-r1.dxf`, `.svg`, `results/drill-table.md` |
+| `python3 -I scripts/compare_mounts.py` (revision 3: common sink vs per-device sinks vs thick gap pad) | `results/compare.md`, `.json` |
 | `python3 -I scripts/shim_select.py gaps.csv` (at assembly; exits 1 on a reject) | the fit sheet for the measured board (`example-gaps.csv` shows the format) |
 
 All tools use the standard library only and each runs in about a second. `bench_thermal.py` imports the device study's `thermal.py` loss models and asserts on their constants. `bench_mech.py` holds the soldered-lead mechanics shared by the others.
 
 ## 0. Answer
+
+**Revision 3 (coordinator, 2026-10-18): one sink per device was evaluated against the shim design. The bench keeps one
+common sink with selected shims** (D10, `results/compare.md`). Per-device sinks lose on three counts:
+- **No catalogue part fits.** Every TO-247 sink in the DigiKey read is 19.4 mm or wider; the 18 mm pitch allows 14.15–17.50 mm. Per-device would mean custom sliced sinks and clips: more hand work, not less.
+- **The catalogue sinks that fit the size class fail 22 A.** With natural convection the hottest FET sink reaches 111–173 °C, above the 95 °C firmware trip; even 8 °C/W at 500 LFM gives 108 °C. Only 35–42 mm-wide parts hold it.
+- **Sensing breaks.** BR1's 25.52 W needs its own sink at ≤ 1.96 °C/W. That makes BR1's sink the hottest, so the TCO and NTC would sit there and see none of the FETs.
+
+A thick soft gap pad (GAP PAD 5000S35, no shims) was also checked. Its usable window, 0.635 mm at 0.125 in, misses the no-remark spread. It only works after the same gauging, at Rcs 4.15 °C/W.
 
 **Does the SIL PAD 2000 strip plus the spring clamp still close every JLC-soldered tab? No. With a selected shim per device, yes.**
 
@@ -73,7 +82,8 @@ Tightest values: creepage 4.2 mm (floor 4.0); clearance 3.334 mm for the spring 
 
 **Commits.**
 - revision 1: c5a448069, 21aa9ed23, 878ffc59d, 49a5de610;
-- revision 2: a4e1f3ae5 (tools and results), then the README/BOM/sources commit (see the git log).
+- revision 2: a4e1f3ae5 (tools and results), 9c4dcf404 (README, BOM, sources);
+- revision 3: the mount comparison (`compare_mounts.py`, D10); see the git log.
 
 ## 1. The mount
 
@@ -200,12 +210,48 @@ Unchanged. No HOT stress on it.
 
 A device outside the lean limit is re-seated by the owner (§6.2, last step), or the board goes back to JLC.
 
-### D9. BR1 DNP, owner-fitted before step 5 (owner decision 2)
+### D9. BR1 DNP, owner-fitted at COMMISSIONING step 4b (owner decision 2; COMMISSIONING @ 77baeaa03 on study/commission-s53)
 
 - **Hole position.** The sink's BR1 hole is drilled at machining time from a loose part's measured seat height, not match-drilled in place. That avoids chips near the board and works with the FETs already clamped.
 - **Shim.** BR1's shim is selected at its dry fit.
 - **Driver access.** Through the bar's slot.
 - **Preheat.** From below, through the window extension, while the iron works the leads in the main window.
+
+### D10. One common sink with selected shims, not one sink per device (revision 3, coordinator request)
+
+All numbers here are from `results/compare.md` (`compare_mounts.py`).
+
+**Data.**
+- **Fit.** A per-device sink must be 14.15–17.50 mm wide: wide enough to cover the tab metal, narrow enough for the 18 mm pitch at Q5/Q6 and Q3/Q2. The DigiKey TO-247 sinks read on 2026-10-18 are 19.4–41.6 mm wide. None fits.
+- **Thermal, with each sink's own datasheet R, at 30 °C ambient** (sink / Tj in °C):
+
+  | sink | 17.5 A, natural | 22 A, natural | 22 A, forced |
+  |---|---|---|---|
+  | Ohmite WV-T247-101E (9.0 natural, 8.0 @ 500 LFM) | 74 / 83 | 126 / 145 | 108 / 125 |
+  | HSK-045-09 (8.21 natural) | 69 / 78 | 111 / 129 | – |
+  | Ohmite R2A-CT4-38E (35 mm wide, 1.0 @ 800 LFM) | – | – | 36 / 47 |
+  | Ohmite FA-T220-38E (42 mm wide, 3.8 natural) | – | 57 / 70 | – |
+
+  A FET sink carrying the TCO would need ≤ 6.03 °C/W at 22 A. Only the 35–42 mm parts hold 22 A, and those cannot fit.
+- **Sensing.**
+  - BR1 dissipates 25.52 W and would need its own ≤ 1.96 °C/W sink. That makes it the hottest sink, so the TCO and NTC go there and see none of the FETs.
+  - A fan-shadowed or slipped FET sink would then overheat with no sink-sensed trip.
+  - The common sink's NTC sees every device's heat. Neither design senses a bad interface; §7's calibration run does.
+- **Leads.** A sink hanging on its soldered device must weigh ≤ 83 g, from the leads' 27.8 N·mm elastic moment at an estimated 34 mm lever. Otherwise it needs its own support, which brings back a per-device positioning fit.
+- **Insulation.** At an 18 mm pitch, the 4 mm of pad needed beyond each tab edge makes neighbouring pads overlap. So the per-device design still needs one continuous strip, plus five PE bonds.
+- **Gap pad.** GAP PAD 5000S35's data covers 10–30 % strain, a window of 0.102–0.635 mm. That misses the no-remark spread of 1.500–1.800 mm. The thickest sheet costs Rcs 4.15 °C/W, and you only learn whether it fits by gauging.
+
+**Why the shim design stays.** It is the only option here that:
+- closes every tab whatever JLC does;
+- keeps a single sink that the NTC, TCO and fan all act on;
+- uses catalogue parts.
+
+Its hand work is bounded and scripted: 8 feeler readings, `shim_select.py`, then cut and grease the shims. The order remark (§2) is the lever that cuts it down. If honoured, the spread is 0.270–0.570 mm, so every device takes one or two layers on the 1.6 mm pad.
+
+**What would reverse it:**
+- a catalogue TO-247 sink 14.15–17.50 mm wide with R_SA ≤ 6.03 °C/W at the bench fan's airflow, ≤ 83 g or self-supporting, **and** accepting per-sink protection (a TCO per sink in series in the J3 loop, plus thermocouples);
+- a later board with a wider FET pitch;
+- a measured spread small enough for the gap-pad window, which would remove the shims but not the gauging.
 
 ## 4. Thermal results
 
@@ -298,7 +344,7 @@ Hand tools and a drill press. Dimensions are in `results/drill-table.md`.
    - Keep the bracket bolts loose while doing this: the floating sink settles on the row.
    - Then lock the pivot and tilt bolts.
    - Check that the lower edge is still 4.5 ± 0.3 mm.
-7. **IR test before any bond.** With the PE lead off, short all three leads of each of the four FETs together on the unpowered board. Test at 500 V DC to the sink and to the bar.
+7. **IR test before any bond.** Remove the commissioning hv_ret–PE tie first: steps 2–4 tie hv_ret to PE at one point (COMMISSIONING @ 77baeaa03), and the test would only measure the tie. With the PE lead off, short all three leads of each of the four FETs together on the unpowered board. Test at 500 V DC to the sink and to the bar.
    - Pass: ≥ 100 MΩ. This is the NTC datasheet's criterion, used as the bench criterion.
    - No 1250 V AC hipot on the board.
 8. **Sensors and bond.**
@@ -306,10 +352,9 @@ Hand tools and a drill press. Dimensions are in `results/drill-table.md`.
    - PE bond, then measure it. Pass: ≤ 0.1 Ω (IEC 60335-1 cl. 27.5, quoted from memory, EST).
    - Run the power-on line-to-PE check every session.
 
-### 6.3 BR1 fit (before COMMISSIONING step 5; the FETs stay soldered and may stay clamped)
+### 6.3 BR1 fit (COMMISSIONING step 4b; the FETs stay soldered and may stay clamped)
 
-1. **Clear the holes.** BR1's four holes must be free of solder; JLC protects unused holes.
-   - The bench-DC steps must not feed the bus through BR1's holes: heavy-copper holes are hard to clear (open question Q9).
+1. **Clear the holes and the tie.** BR1's four holes must be free of solder; JLC protects unused holes. The bench-DC supply does not use them: it lands on C6.1 (bus_p) and C6.3 (hv_ret) with short soldered tails (COMMISSIONING @ 77baeaa03, study/commission-s53). Remove the hv_ret–PE tie before 4b, as that commit says.
 2. **Remove the TCO from the sink.** Loosen the loop clamp and let it hang on its leads, away from the sink. Its limit while soldering is Tf − 24 = 86 °C `[CAN]`. The bench keeps the sink ≤ 80 °C anyway.
 3. **Dry-fit and shim.**
    - Lower BR1 vertically between the strip and the bar; there is room in y.
@@ -403,5 +448,7 @@ Reads are from 2026-10-18; the raw reads and the blocked sites are in `sources/S
 - **Q6. Unverified fit.** The McMaster part numbers are unread, and the 511-3M's outer-fin bolt fit is unverified.
 - **Q7. Stock.** DigiKey had 28 SP2000 sheets; K-10 is the fallback (+2.3 K under the bound at 17.5 A).
 - **Q8. Partial discharge** in the thin strip under the switching tabs was not assessed.
-- **Q9. Bench-DC feed point.** With BR1 out, where does the isolated DC supply connect for steps 3–4? Not through BR1's holes, which must stay clear. This is for the commissioning plan.
+- **Q9. Answered.** The isolated DC supply lands on C6.1 / C6.3 with short soldered tails, and hv_ret is tied to bench PE at one point in steps 2–4 (COMMISSIONING @ 77baeaa03). For this mount:
+  - the tie is removed before the IR test and before 4b;
+  - with hv_ret at PE, the strip sees at most the step-3/4 bus voltage, inside the 622.4 V bound (`insulation.md`).
 - **Q10. Soldered-lead mechanics.** The lead modulus, the allowed lead stress (200 MPa), the pivot at the board and the strip compliance are all EST. The lean limit and the "cannot close" verdict rest on them. The verdict holds across a wide margin (spread ≥ 0.270 mm against a budget of 0.0195 mm). The lean limit is the sensitive one.

@@ -84,3 +84,12 @@ These are the raw values as read. "Stock" is the distributor's on-hand quantity 
   - R 0.60–0.80 is the lead thickness, I 0.90–1.10 the lead width.
   - H 2.00–2.40 is a lead feature wider than the 1.6 mm hole, whose position along the lead is not dimensioned.
 - **Board size.** 290 × 190 mm, from `fab/FAB-NOTE.md` 'Size'.
+
+## Revision 3 reads (2026-10-18): per-device sinks and gap pad
+
+| tag | page | what was read |
+|---|---|---|
+| [DKS] | <https://www.digikey.com/en/products/filter/thermal-heat-sinks/219?keywords=TO-247> (default order) | 362 results; the first 25 rows were read. The manufacturer column was not shown, so the "Ohmite" prefix comes from the part-number family. Rows used are in `bench_params.CATALOG_TO247` (PN, DigiKey product ID, attachment, width/length/fin, R natural, R forced at LFM, stock, unit price). The narrowest TO-247 sink in the read is 19.4 mm (Wakefield-Vette 657-15ABPE, no R given); the narrowest with an R is 22.8 mm (HSK-045-xx). |
+| [DKS] | <https://www.digikey.com/en/products/result?keywords=TO-247%20heat%20sink%20clip> | The page returned only category counts (182 results), no rows. |
+| [HNK] p.28 | GAP PAD 5000S35 (repo Henkel guide) | k 5.0 W/mK; fibreglass carrier; 0.020–0.125 in; breakdown > 5000 Vac; Young's modulus 121 kPa; 0.040 in impedance 0.37 / 0.32 / 0.29 °C·in²/W at 10 / 20 / 30 % strain. |
+| – | `study/commission-s53` @ 77baeaa03, `firmware/components/power/COMMISSIONING.md` | Bring-up with BR1 not fitted. DC supply on C6.1 / C6.3; hv_ret tied to PE at one point in steps 2–4 and removed before step 4b (BR1 fit). |

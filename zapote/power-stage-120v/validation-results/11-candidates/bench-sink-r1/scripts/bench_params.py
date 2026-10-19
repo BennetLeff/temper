@@ -200,3 +200,22 @@ WINDOW_BR1 = dict(x=(75.0, 115.0), y=(22.0, 45.0))   # window extension: bottom 
 PREHEAT_BOARD_C = (100.0, 110.0)    # board bottom at BR1: >= 100 C (PROTOTYPE-LOT / FAB-NOTE); 110 cap (EST, film caps)
 SINK_MAX_DURING_SOLDER_C = 80.0     # TCO off the sink, or the sink kept <= Tf - 24 = 86 C ([CAN]); 80 keeps the bench rule
 TCO_QTY = dict(fitted=1, spare=4)   # one-shot part: a trip or a solder overheat consumes one
+
+# ---------------------------------------------------------------- alternatives considered (compare_mounts.py)
+# [DKS] DigiKey heat-sink filter, keyword TO-247, default order, read 2026-10-18 (362 results; the first 25 rows were read).
+# width = across the device (x here), length = along the device (z), fin = depth off the tab (y). R in C/W.
+# PC-pin types are board-mount: here they would hang off the board edge with no pins anchored.
+CATALOG_TO247 = [
+    dict(pn="Ohmite WV-T247-101E", dk_id=2071312, attach="clip + PC pin", w=23.40, l=32.0, fin=16.0, r_nat=9.0, r_forced=(8.0, 500), stock=17288, usd=3.28),
+    dict(pn="Ohmite WA-T247-101E", dk_id=2202818, attach="clip + PC pin", w=23.40, l=32.0, fin=16.0, r_nat=11.0, r_forced=(8.0, 500), stock=42741, usd=4.04),
+    dict(pn="HSK-045-09 (mfr not shown)", dk_id=26224191, attach="bolt on", w=22.80, l=75.0, fin=16.0, r_nat=8.21, r_forced=None, stock=302, usd=2.41),
+    dict(pn="Wakefield-Vette 657-15ABPE", dk_id=5068322, attach="clip + PC pin", w=19.40, l=15.0, fin=31.5, r_nat=None, r_forced=None, stock=467, usd=2.60),
+    dict(pn="Ohmite C247-025-1VE", dk_id=2627379, attach="clip + PC pin", w=38.10, l=25.0, fin=18.03, r_nat=None, r_forced=(6.0, 350), stock=1610, usd=6.38),
+    dict(pn="Ohmite R2A-CT4-38E", dk_id=2793222, attach="clip + PC pin", w=35.05, l=38.1, fin=22.1, r_nat=8.6, r_forced=(1.0, 800), stock=7389, usd=5.58),
+    dict(pn="Ohmite FA-T220-38E", dk_id=2416492, attach="bolt on + PC pin", w=41.60, l=38.1, fin=25.0, r_nat=3.8, r_forced=(1.5, 600), stock=13795, usd=3.91),
+]
+SINK_GAP_MIN = 0.5                  # EST: hand-fitting gap between neighbouring per-device sinks (both PE: no electrical gap)
+# [HNK] p.28 GAP PAD 5000S35: k 5.0 W/mK, fibreglass carrier, 0.020-0.125 in, breakdown > 5000 Vac, Young's modulus
+# 121 kPa, impedance of the 0.040 in sheet at 10 / 20 / 30 % strain 0.37 / 0.32 / 0.29 C-in2/W (data stop at 30 %).
+GAP5000 = dict(k=5.0, t_in=(0.020, 0.040, 0.060, 0.080, 0.100, 0.125), bd_vac=5000, E_kPa=121.0,
+               z_040={0.10: 0.37, 0.20: 0.32, 0.30: 0.29}, strain=(0.10, 0.30))
