@@ -62,13 +62,10 @@ and their pass levels), §3 (tune) and §5 (first power), with the traveller of 
 - M5: the ring-down R_ac.
 The modelled values these are measured against are in the study's `model/results/TABLES.md`. At first power: no aluminium pan, and stop at 130 °C on any winding thermocouple with stock Litz (§5).
 
-**Open owner item: which spec version applies.** The study designed R1 (about 81 µH free-air, 77 µH installed) to the
-main checkout's uncommitted `docs/hardware/TANK_COIL_SPECIFICATION.md` (70 µH, alternate B 80 µH, loaded floor 41.5 µH).
-The committed spec still says 88 µH ±10 % with a loaded floor of 53.43 µH. Its floor is derived from a 300 nF tank and a
-44 kHz PLL floor, not from native-21's bank (B14). Against the committed floor, R1 fails row 3 on the reference cast-iron
-class at nominal µ, and no tune state of its former reaches the floor
-(`11-candidates/commission-s53/results/coil-floor.md`, from `scripts/coil_floor.py`). The bench uses the coil study's
-levels until the owner commits a spec version.
+**Coil spec version (settled 2026-10-18).** `docs/hardware/TANK_COIL_SPECIFICATION.md` is now the native-21 reissue (70 µH,
+alternate B 80 µH, loaded floor 41.5 µH), with the coil study's corrections to rows 1 and 7. The legacy 88 µH / 53.43 µH version came from
+a 270 nF tank and the 44 kHz PLL floor of the half-bridge, not native-21's bank (B14); against it R1 would fail row 3
+(`11-candidates/commission-s53/results/coil-floor.md`, from `scripts/coil_floor.py`). R1 is alternate B and passes the reissue.
 
 ## Stop conditions (any of these: power off at the mains cut, wait for the bus to discharge, investigate)
 - The dim bulb stays bright after the bus has charged (step 5).
