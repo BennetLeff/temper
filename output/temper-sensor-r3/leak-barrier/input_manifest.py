@@ -1,13 +1,23 @@
-"""Content-hash manifest of the inputs of the T2 (setpoint_cap.py) and T3 (cr5_band.py) studies.
+"""Content-hash manifests of the inputs of four studies (sensor-r3):
 
-The lists are the exact inputs each study reads: the C sources and headers that
-build_lib.sh compiles into the co-simulation library (with the headers they include),
-the repo Python modules each script imports (transitively), and the JSON evidence it
-reads. Git history is not consulted: a study is current iff every recorded sha256
-equals the current file's sha256. Unrelated changes (other firmware, other studies,
-the scripts' own docs) do not touch the manifest.
+- T2 setpoint_cap.py and T3 cr5_band.py (T2_INPUTS, T3_INPUTS);
+- F1 firmware/d1_nuisance.py (F1_INPUTS);
+- T1 leak-barrier/leak_barrier.py (T1_INPUTS).
 
-Paths are repo-relative, as written into the evidence JSON under apparatus.input_sha256.
+The lists are the exact inputs each study reads: the C sources and headers that the
+study compiles (with the headers they include), the repo Python modules each script
+imports (transitively), and the JSON evidence it reads, including reads made at import
+time by an imported module. Git history is not consulted: a study is current iff every
+recorded sha256 equals the current file's sha256. Unrelated changes (other firmware,
+other studies, the scripts' own docs) do not touch a manifest.
+
+Scripts are not listed: as for setpoint_cap.py, a script's own bytes are not an input.
+Reads that happen only in a module's own producer main() (for example the datasheet
+PDFs in hs_ntc.py, pcb/checks.py in rim_ntc.py, the rail header in rail_adc.py) are
+not inputs of the studies that only import the module.
+
+Paths are repo-relative, as written into the evidence JSON under apparatus.input_sha256
+(F1, T2, T3) or provenance.input_sha256 (T1).
 """
 from __future__ import annotations
 
@@ -79,8 +89,9 @@ PY_T2 = (
 )
 
 # JSON read by the studies (at import or in their own code paths).
+AXISYM_JSON = f"{R3}/cad/thermal-axisym.json"   # rim_limit.ENV = envelope(), run at import
 DATA_COMMON = (
-    f"{R3}/cad/thermal-axisym.json",   # rim_limit.envelope(), run at import
+    AXISYM_JSON,
     f"{R3}/firmware/leak-checks.json",
     f"{R3}/firmware/rim-limit.json",
 )
@@ -90,6 +101,28 @@ DATA_T2 = (
 
 T2_INPUTS = tuple(sorted(set(C_LIBRARY) | set(PY_COMMON) | set(PY_T2) | set(DATA_COMMON) | set(DATA_T2)))
 T3_INPUTS = tuple(sorted(set(C_LIBRARY) | set(PY_COMMON) | set(DATA_COMMON)))
+
+# F1 (d1_nuisance.py) builds C_LIBRARY through build_lib.sh (cosim_shim.c is listed there)
+# and imports exactly PY_COMMON (its static closure, checked). Its only JSON read is the
+# axisymmetric geometry that rim_limit reads at import; it reads no leak-checks.json or
+# rim-limit.json. Control sources it does not compile (pll_control.c, pan_detect.c,
+# low_temp_control.c, ...) are not inputs.
+F1_INPUTS = tuple(sorted(set(C_LIBRARY) | set(PY_COMMON) | {AXISYM_JSON}))
+
+# T1 (leak_barrier.py) compiles only rtd_convert.c, with -I sensors/include, through its own
+# cc call; no build_lib.sh and no co-simulation library.
+T1_C = (
+    "firmware/components/sensors/rtd_convert.c",
+    "firmware/components/sensors/include/rtd_convert.h",   # the only #include in rtd_convert.c
+)
+# T1 imports hs_ntc (PT_CLASS_K) in addition to PY_COMMON; it reads hs-ntc.json (cold-soak budget)
+# and leak-checks.json. It does not read the thermal axisymmetric geometry or rim-limit.json.
+PY_T1 = (f"{R3}/firmware/hs_ntc.py",)
+DATA_T1 = (
+    f"{R3}/firmware/hs-ntc.json",
+    f"{R3}/firmware/leak-checks.json",
+)
+T1_INPUTS = tuple(sorted(set(T1_C) | set(PY_COMMON) | set(PY_T1) | set(DATA_T1)))
 
 
 def sha256_file(path: Path) -> str:

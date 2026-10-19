@@ -21,7 +21,7 @@ import setpoint_cap  # noqa: E402
 def evidence():
     return {
         "toolchain": dict.fromkeys(("python", "numpy", "scipy", "matplotlib", "machine", "compiler"), "original"),
-        "source_sha256": {"contact_check.c": "a" * 64},
+        "apparatus": {"input_sha256": {"firmware/components/control/contact_check.c": "a" * 64}},
         "caps": {"250": {"d1_lost_events": 2, "duration_s": 1.0}}, "gate": True,
     }
 
@@ -38,10 +38,15 @@ def test_check_ignores_only_named_toolchain_strings(evidence, monkeypatch, tmp_p
         before = output.read_bytes()
         assert d1.main() == 0
         assert output.read_bytes() == before
+    # Float noise within the evidence_compare tolerance class is the platform rule, not a mismatch.
+    expected = copy.deepcopy(evidence)
+    expected["caps"]["250"]["duration_s"] = math.nextafter(1.0, math.inf)
+    output.write_text(json.dumps(expected))
+    assert d1.main() == 0
     for path, value in (
-        (("source_sha256", "contact_check.c"), "b" * 64),
+        (("apparatus", "input_sha256", "firmware/components/control/contact_check.c"), "b" * 64),
         (("caps", "250", "d1_lost_events"), 1),
-        (("caps", "250", "duration_s"), math.nextafter(1.0, math.inf)),
+        (("caps", "250", "duration_s"), 2.0),
         (("toolchain", "unlisted_string"), "must not be ignored"),
         (("compiler",), "not a toolchain field at this location"),
     ):

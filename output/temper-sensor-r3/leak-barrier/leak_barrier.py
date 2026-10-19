@@ -21,6 +21,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 import evidence_compare as EC  # noqa: E402  (platform stamp and cross-platform check)
+import input_manifest as IM  # noqa: E402  (content-hash manifest of the study inputs)
 
 
 def rounded(value):
@@ -36,6 +37,8 @@ def rounded(value):
 
 
 def derive(repo):
+    # Hashed before the run; re-checked after it (the input-drift gate). Closure: input_manifest.T1_INPUTS.
+    inputs = IM.sha256_manifest(repo, IM.T1_INPUTS)
     fw = repo / "output/temper-sensor-r3/firmware"
     sys.path.insert(0, str(fw))
     import hs_ntc as H
@@ -268,28 +271,16 @@ def derive(repo):
         "D_LEAK_3": {"post_requirement_ohm": r0, "post_temperature_C": bar,
                      "status": "requirement input; no seal qualification evidence in this study"},
     }
-    # Model and evidence inputs only: the decision documents are not read, and
-    # hashing them failed this gate on every documentation edit.
-    paths = [fw / name for name in ("leak-checks.json", "leak_checks.py", "xcheck_cosim.py", "hs_ntc.py",
-                                   "hs-ntc.json", "ref.py", "cosim.py", "cosim_shim.c", "build_lib.sh")]
-    paths += [sensors / "rtd_convert.c", sensors / "include/rtd_convert.h",
-              repo / "output/temper-sensor-r3/screen.py", repo / "output/temper-sensor-r2/estimator_study.py"]
-    controls = repo / "firmware/components/control"
-    paths += sorted(controls.glob("*.c")) + sorted(controls.glob("*.h"))
-    input_names = [str(p.relative_to(repo)) for p in paths]
-    # Generated evidence inputs that differ from HEAD only by the platform's float
-    # drift (evidence_compare) are not dirty; any source byte change is.
-    dirty = bool(EC.dirty_inputs(repo, "HEAD", input_names))
-    provenance = {"input_sha256": {str(p.relative_to(repo)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
+    provenance = {"input_sha256": inputs,
                   "study_base_revision": "87edb1b329a39ffff54c4cc13e6a2bbac7f0c0e4",
-                  "source_inputs_dirty": bool(dirty),
+                  "source_inputs_dirty": not IM.unchanged(inputs, repo),
                   "derivation_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                   "numpy_version": np.__version__, "python_version": sys.version.split()[0],
                   "compiler": subprocess.check_output(["cc", "--version"], text=True).splitlines()[0],
                   "seed": "no random draws; reads the committed sweep including its deterministic seeds",
                   "scope": "model/evidence derivation, no physical measurements"}
     gates = {
-        "source_inputs_clean": not dirty,
+        "source_inputs_clean": not provenance["source_inputs_dirty"],
         "source_sweep_passed": evidence["all_pass"] and all(evidence["gate"].values()),
         "hazard_recomputed_matches_source": worst == original["highest_hazardous_r_leak_ohm"],
         "analog_conversion_agrees_with_C": max(c_disagreement) < converter["agreement_gate_K"],
