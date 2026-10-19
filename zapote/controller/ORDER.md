@@ -10,6 +10,7 @@
 > it is polarized and the `D_SMA` footprint is new, so
 > check the cathode band against pad 1 in JLC's 3D preview. The C48 text below is otherwise unchanged. Routing: one clean full run (0 open,
 > DRC 0 errors, interlock and 14 layout checks pass); the 3-run convergence proof was not repeated for this netlist.
+> Stock re-read 2026-10-18 (`evidence/order/stock-read-2026-10-18.json`): 88 of 89 lines have at least 2 x the 5-board need in stock; R39's RG2012V (consigned) has 0.
 
 Board: C1 + CR-8, **C49 board** (`pcb/controller.kicad_pcb` sha256
 `b3af25b892858e0c89624ed72ce207e9e1f25d6429aaed4f7814804229f8b1bb`), branch `controller-j13-merge`; the C48 board it replaces was C47 convergence
