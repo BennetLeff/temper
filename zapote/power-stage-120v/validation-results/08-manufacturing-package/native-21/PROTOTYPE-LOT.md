@@ -134,7 +134,9 @@ pre-compliance decides; fitting the 2203 (12.37 dB) is the fallback.
    power that controller (benign), so bring-up runs the power board on bench supplies with no controller until they land.
 9. Firmware: the controller image must ship the **17.5 A tank ceiling** (DECISIONS 61, which supersedes 56's 18 A; `TEMPER_POWER_TANK_CEILING_DA=175`, the Kconfig default, verified 2026-10-17) and the RMS-increment aux allowance
    (B11). The ladder above 17.5 A follows COMMISSIONING.md and the bank-variant rule above.
-10. Owner approval of the spend.
+10. **Bench equipment and the plan for first power** (`BRING-UP.md`): isolation transformer, Variac, dim-bulb tester, differential probe, TC2050 cable. The coil is
+    measured (L, Q, DCR) before it is used. Without the isolation chain the board is not powered from mains.
+11. Owner approval of the spend.
 
 Insulation qualification (PD3, IEC 60664-4, hipot) does **not** gate a bench prototype run on a current-limited, isolated
 supply. It gates any mains-connected or unattended operation (FAB-NOTE).
