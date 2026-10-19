@@ -1,0 +1,92 @@
+{
+ "spread": {
+  "play": [
+   0.26499999999999996,
+   0.625
+  ],
+  "U_lot": 1.5,
+  "U_datasheet": 1.7999999999999998,
+  "R_lot": 0.27,
+  "R_datasheet": 0.5699999999999998
+ },
+ "lean": {
+  "deviation_mm": 2.6002403735039574,
+  "common_rad": 0.05474190260008331,
+  "differential_rad": 0.0027418142595386557,
+  "row_span_mm": 58.099999999999994
+ },
+ "mech": {
+  "delta_el_mm": 0.009489740388616795,
+  "theta_el_rad": 0.014789205800441756,
+  "k_rot_max": 14728.81660714286,
+  "k_trans_max": 11924.155795966559,
+  "m_straighten_Nmm": 217.82750000000004,
+  "f_loss_N": 14.521833333333337,
+  "lever_mm": 15.0
+ },
+ "budget_mm": 0.019489740388616797,
+ "closes_without_shims": {
+  "U": false,
+  "R": false
+ },
+ "shim_rounding_mm": 0.0125,
+ "closes_with_shims": true,
+ "pad_windows": {
+  "FR-4 1.6": {
+   "shim_from": 0.0,
+   "shim_to": 0.897,
+   "F_at_from": [
+    68.4,
+    85.4
+   ]
+  },
+  "FR-4 0.8": {
+   "shim_from": 0.596,
+   "shim_to": 1.467,
+   "F_at_from": [
+    60.0,
+    85.9
+   ]
+  },
+  "no pad": {
+   "shim_from": 1.306,
+   "shim_to": 2.337,
+   "F_at_from": [
+    60.0,
+    82.9
+   ]
+  }
+ },
+ "pad_options_cover_worst_spread": true,
+ "pad_options_reach_mm": 2.337,
+ "theta_accept_rad": 0.011169690341627472,
+ "gauge_z": [
+  6.5,
+  22.55
+ ],
+ "sink_face_y": [
+  0.681,
+  1.581,
+  2.481
+ ],
+ "bar_to_film_min_mm": 1.399,
+ "br1_play": [
+  0.36,
+  0.565
+ ],
+ "br1_shim_range_mm": [
+  -0.45999999999999996,
+  1.3399999999999999
+ ],
+ "br1_lean_needed_rad": 0.007462686567164178,
+ "br1_lean_capacity_rad": 0.4228539261329407,
+ "br1_fits": true,
+ "float_max_mm": 2.264000000000001,
+ "clamp_base": {
+  "F_min": 68.4,
+  "F_max": 85.4
+ },
+ "theta_force_rad": 0.013911504601166129,
+ "f_loss_N": 13.66,
+ "f_pad_min_after_lean_N": 45.0
+}
