@@ -1,0 +1,125 @@
+{
+ "note": "What the tune move costs in pan heating: R1 with the outer section trimmed (or the spare turn kept), on the 430 pan\n(mu 200, 240 mm) and cast iron (mu 100), 40 kHz. Loaded L, reflected R and the rim share (heat at r >= 92 mm).\nFeeds the tune rule in BUILD-AND-MEASURE.md (how far the outer section may be trimmed). R43's \"keep >= 6 outer turns\" came\nfrom study 09; this checks it on the R1 layout.\nRun: .venv/bin/python model/trim_heating.py -> model/results/trim_heating.json (~30 s)\n",
+ "rows": [
+  {
+   "state": "R1_plus_spare",
+   "outer_turns": 7.4629354445786396,
+   "pan": "ss430",
+   "L_free_uH": 89.8530127369157,
+   "L_loaded_uH": 53.926965138698115,
+   "R_refl_ohm": 5.072522980901717,
+   "rim_share": 0.3221114131759167,
+   "centre_share": 0.18122776104668753
+  },
+  {
+   "state": "R1_plus_spare",
+   "outer_turns": 7.4629354445786396,
+   "pan": "cast_iron",
+   "L_free_uH": 89.8530127369157,
+   "L_loaded_uH": 50.38849289312584,
+   "R_refl_ohm": 4.59261603492738,
+   "rim_share": 0.3320359639363114,
+   "centre_share": 0.18125162076453166
+  },
+  {
+   "state": "R1",
+   "outer_turns": 6.4629354445786396,
+   "pan": "ss430",
+   "L_free_uH": 81.11825416848983,
+   "L_loaded_uH": 49.395041060449365,
+   "R_refl_ohm": 4.713863283543118,
+   "rim_share": 0.28839559132032544,
+   "centre_share": 0.1940699029815022
+  },
+  {
+   "state": "R1",
+   "outer_turns": 6.4629354445786396,
+   "pan": "cast_iron",
+   "L_free_uH": 81.11825416848983,
+   "L_loaded_uH": 46.10035561506877,
+   "R_refl_ohm": 4.256124844661955,
+   "rim_share": 0.29569274922321587,
+   "centre_share": 0.19478271210440648
+  },
+  {
+   "state": "R1_trim-0.5",
+   "outer_turns": 5.9629354445786396,
+   "pan": "ss430",
+   "L_free_uH": 76.80352720836139,
+   "L_loaded_uH": 47.12427049024912,
+   "R_refl_ohm": 4.521742097317861,
+   "rim_share": 0.26926090396078084,
+   "centre_share": 0.20174198726806036
+  },
+  {
+   "state": "R1_trim-0.5",
+   "outer_turns": 5.9629354445786396,
+   "pan": "cast_iron",
+   "L_free_uH": 76.80352720836139,
+   "L_loaded_uH": 43.96199469721706,
+   "R_refl_ohm": 4.078018041946618,
+   "rim_share": 0.27519636126915203,
+   "centre_share": 0.20281551113025997
+  },
+  {
+   "state": "R1_trim-1",
+   "outer_turns": 5.4629354445786396,
+   "pan": "ss430",
+   "L_free_uH": 72.53904594533724,
+   "L_loaded_uH": 44.85471458855113,
+   "R_refl_ohm": 4.324644754917115,
+   "rim_share": 0.24881698516160874,
+   "centre_share": 0.2102732282013362
+  },
+  {
+   "state": "R1_trim-1",
+   "outer_turns": 5.4629354445786396,
+   "pan": "cast_iron",
+   "L_free_uH": 72.53904594533724,
+   "L_loaded_uH": 41.82884927035416,
+   "R_refl_ohm": 3.896607408114161,
+   "rim_share": 0.25338032833489327,
+   "centre_share": 0.2117133177361368
+  },
+  {
+   "state": "R1_trim-1.5",
+   "outer_turns": 4.9629354445786396,
+   "pan": "ss430",
+   "L_free_uH": 68.4032066211683,
+   "L_loaded_uH": 42.659508252682,
+   "R_refl_ohm": 4.125454144976267,
+   "rim_share": 0.22741309600756077,
+   "centre_share": 0.219651463490699
+  },
+  {
+   "state": "R1_trim-1.5",
+   "outer_turns": 4.9629354445786396,
+   "pan": "cast_iron",
+   "L_free_uH": 68.4032066211683,
+   "L_loaded_uH": 39.771589276545335,
+   "R_refl_ohm": 3.7144935020925764,
+   "rim_share": 0.23062070970397092,
+   "centre_share": 0.22145880749221766
+  },
+  {
+   "state": "R1_trim-2",
+   "outer_turns": 4.4629354445786396,
+   "pan": "ss430",
+   "L_free_uH": 64.36632168403432,
+   "L_loaded_uH": 40.50499294046087,
+   "R_refl_ohm": 3.9259678082934237,
+   "rim_share": 0.20521294224807596,
+   "centre_share": 0.22990936227933056
+  },
+  {
+   "state": "R1_trim-2",
+   "outer_turns": 4.4629354445786396,
+   "pan": "cast_iron",
+   "L_free_uH": 64.36632168403432,
+   "L_loaded_uH": 37.75496279521525,
+   "R_refl_ohm": 3.5332295036798933,
+   "rim_share": 0.20709814623930436,
+   "centre_share": 0.23208052826900155
+  }
+ ]
+}

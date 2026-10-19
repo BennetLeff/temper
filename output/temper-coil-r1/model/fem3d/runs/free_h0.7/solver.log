@@ -1,0 +1,231 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/10/18 14:05:48
+ELMER SOLVER (v 26.2) STARTED AT: 2026/10/18 14:05:48
+ELMER SOLVER (v 26.2) STARTED AT: 2026/10/18 14:05:48
+ELMER SOLVER (v 26.2) STARTED AT: 2026/10/18 14:05:48
+ELMER SOLVER (v 26.2) STARTED AT: 2026/10/18 14:05:48
+ELMER SOLVER (v 26.2) STARTED AT: 2026/10/18 14:05:48
+ParCommInit: Initialize #PEs: 6
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+ParCommInit: Initialize #PEs: 6
+ParCommInit: Initialize #PEs: 6
+ParCommInit: Initialize #PEs: 6
+MAIN: Version: 26.2-unknown (Rev: a19504ac5, Compiled: 2026-09-29)
+MAIN:  Running in parallel using 6 tasks.
+MAIN:  Running with just one thread per task.
+MAIN:  HYPRE library linked in.
+MAIN:  MUMPS library linked in.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+CheckKeyword:  Unlisted keyword: [linear system method hypre index] in section: [solver 1]
+CheckKeyword:  Unlisted keyword: [ams singular matrix] in section: [solver 1]
+LoadInputFile: Number of BCs: 1
+LoadInputFile: Number of Body Forces: 2
+LoadInputFile: Number of Initial Conditions: 0
+LoadInputFile: Number of Materials: 2
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 3
+LoadInputFile: Number of Bodies: 4
+ElmerMeshReader: Base mesh name: ./mesh
+LoadMesh: Elapsed REAL time:     0.9110 (s)
+MAIN: -------------------------------------
+OptimizeBandwidth: Initial bandwidth for mgdynamics: 61392
+OptimizeBandwidth: Optimized bandwidth for mgdynamics: 4741
+OptimizeBandwidth: Initial bandwidth for mgdynamicscalc: 9099
+OptimizeBandwidth: Optimized bandwidth for mgdynamicscalc: 949
+MAIN: Number of timesteps to be saved: 1
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+ParallelInitMatrix: Creating communication structures for matrix!
+ParallelInitMatrix: Allocating communication structures for matrix!
+WhitneyAVSolver: Solving steady-state AV equations with edge elements
+OptimizeBandwidth: Initial bandwidth for mgdynamics: 9099
+OptimizeBandwidth: Optimized bandwidth for mgdynamics: 949
+ParallelInitMatrix: Creating communication structures for matrix!
+ParallelInitMatrix: Allocating communication structures for matrix!
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+      20 0.9875E-05 0.6477E-01
+      40 0.5020E-05 0.3292E-01
+      60 0.3605E-05 0.2365E-01
+      80 0.3152E-05 0.2067E-01
+     100 0.2790E-05 0.1830E-01
+     120 0.2635E-05 0.1728E-01
+     140 0.2061E-05 0.1352E-01
+     160 0.1886E-05 0.1237E-01
+     180 0.1865E-03 0.1223E+01
+     200 0.1960E-05 0.1286E-01
+     220 0.1691E-05 0.1109E-01
+     240 0.2797E-05 0.1835E-01
+     260 0.1515E-05 0.9936E-02
+     280 0.1597E-05 0.1048E-01
+     300 0.1566E-05 0.1027E-01
+     320 0.1707E-05 0.1120E-01
+     340 0.1395E-05 0.9150E-02
+     360 0.1477E-05 0.9689E-02
+     380 0.1412E-05 0.9264E-02
+     400 0.1910E-05 0.1253E-01
+     420 0.1459E-05 0.9571E-02
+WARNING:: RealBiCGStab(l): Iteration halted: rho0 == zero.
+WARNING:: IterSolve: Iteration halted due to problem in algorithm, trying to continue
+WARNING:: RealBiCGStab(l): Iteration halted: rho0 == zero.
+WARNING:: IterSolve: Iteration halted due to problem in algorithm, trying to continue
+WARNING:: RealBiCGStab(l): Iteration halted: rho0 == zero.
+WARNING:: IterSolve: Iteration halted due to problem in algorithm, trying to continue
+WARNING:: RealBiCGStab(l): Iteration halted: rho0 == zero.
+WARNING:: IterSolve: Iteration halted due to problem in algorithm, trying to continue
+WARNING:: RealBiCGStab(l): Iteration halted: rho0 == zero.
+WARNING:: IterSolve: Iteration halted due to problem in algorithm, trying to continue
+WARNING:: RealBiCGStab(l): Iteration halted: rho0 == zero.
+BiCGStabl:      424 0.4513E-05 0.2960E-01
+WARNING:: IterSolve: Iteration halted due to problem in algorithm, trying to continue
+MGDynAssembly: Elapsed REAL time:     4.3817 (s)
+NodalToNedelecInterpolation_GlobalMatrix: Creating interpolation matrix between H1 and H(curl)!
+SolveHypre: Solution time (method 802): 262.326
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.36937289E-06  2.0000000     ) :: mgdynamics
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.36937289E-06  2.0000000     ) :: mgdynamics
+ParallelInitMatrix: Creating communication structures for matrix!
+ParallelInitMatrix: Allocating communication structures for matrix!
+MagnetoDynamicsCalcFields: Computing postprocessed fields
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+WARNING:: GetPermittivity: Permittivity not defined in material, defaulting to that of vacuum
+       1 0.8785E-01
+       2 0.7987E-02
+       3 0.1533E-02
+       4 0.2899E-03
+       5 0.7075E-04
+       6 0.1657E-04
+       7 0.3720E-05
+       8 0.1018E-05
+       9 0.2150E-06
+      10 0.5704E-07
+      11 0.1345E-07
+      12 0.3214E-08
+      13 0.7563E-09
+      14 0.1681E-09
+      15 0.3921E-10
+      15 0.3921E-10
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.14710696E-02  2.0000000     ) :: mgdynamicscalc
+       1 0.1057E+00
+       2 0.1060E-01
+       3 0.2323E-02
+       4 0.5239E-03
+       5 0.1385E-03
+       6 0.3383E-04
+       7 0.8288E-05
+       8 0.2066E-05
+       9 0.4375E-06
+      10 0.1136E-06
+      11 0.2395E-07
+      12 0.5011E-08
+      13 0.1129E-08
+      14 0.2651E-09
+      15 0.6226E-10
+      15 0.6226E-10
+ComputeChange: NS (ITER=2) (NRM,RELC): ( 0.10257986E-03  1.7392561     ) :: mgdynamicscalc
+       1 0.1400E+00
+       2 0.1294E-01
+       3 0.2915E-02
+       4 0.6019E-03
+       5 0.1398E-03
+       6 0.3146E-04
+       7 0.6698E-05
+       8 0.1719E-05
+       9 0.4038E-06
+      10 0.1099E-06
+      11 0.2667E-07
+      12 0.6135E-08
+      13 0.1343E-08
+      14 0.3094E-09
+      15 0.6778E-10
+      15 0.6778E-10
+ComputeChange: NS (ITER=3) (NRM,RELC): ( 0.21553793E-03 0.71016506     ) :: mgdynamicscalc
+       1 0.5936E-01
+       2 0.1019E-01
+       3 0.2024E-02
+       4 0.5876E-03
+       5 0.9273E-04
+       6 0.1705E-04
+       7 0.4586E-05
+       8 0.9099E-06
+       9 0.2347E-06
+      10 0.5941E-07
+      11 0.1463E-07
+      12 0.3705E-08
+      13 0.9093E-09
+      14 0.1856E-09
+      15 0.4488E-10
+      15 0.4488E-10
+ComputeChange: NS (ITER=4) (NRM,RELC): ( 0.11614976E-03 0.59928760     ) :: mgdynamicscalc
+       1 0.6601E-01
+       2 0.7402E-02
+       3 0.8932E-03
+       4 0.2510E-03
+       5 0.5807E-04
+       6 0.1338E-04
+       7 0.2936E-05
+       8 0.7779E-06
+       9 0.1797E-06
+      10 0.4286E-07
+      11 0.1095E-07
+      12 0.2339E-08
+      13 0.5804E-09
+      14 0.1261E-09
+      15 0.3085E-10
+      15 0.3085E-10
+ComputeChange: NS (ITER=5) (NRM,RELC): ( 0.38197962E-03  1.0673125     ) :: mgdynamicscalc
+       1 0.6044E-01
+       2 0.7376E-02
+       3 0.8766E-03
+       4 0.2069E-03
+       5 0.4694E-04
+       6 0.1026E-04
+       7 0.1950E-05
+       8 0.5646E-06
+       9 0.1198E-06
+      10 0.2849E-07
+      11 0.7263E-08
+      12 0.1584E-08
+      13 0.4078E-09
+      14 0.8451E-10
+      14 0.8451E-10
+ComputeChange: NS (ITER=6) (NRM,RELC): ( 0.48326595E-03 0.23412157     ) :: mgdynamicscalc
+MagnetoDynamicsCalcFields: Eddy current power:    0.000000E+00
+MagnetoDynamicsCalcFields: ElectroMagnetic Field Energy:    2.167290E-06
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.48326595E-03  2.0000000     ) :: mgdynamicscalc
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Saving with prefix: case
+CreateListForSaving: Field Variables for Saving
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Saving results in VTK XML format with prefix: case
+VtuOutputSolver: Saving number of partitions: 6
+ResultOutputSolver: -------------------------------------
+MAIN: *** Elmer Solver: ALL DONE ***
+ReleaseMeshFaceTables: Releasing number of faces: 102700
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):       272.55      275.60
+ELMER SOLVER FINISHED AT: 2026/10/18 14:10:23

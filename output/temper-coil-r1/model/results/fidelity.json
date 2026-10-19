@@ -1,0 +1,206 @@
+{
+ "note": "Build-fidelity sensitivity: how much do the errors a home-built former makes move L and R? (supports README D5/D6)\n\nEach case perturbs the R1 winding or the ferrite the way a particular former build would, and re-solves the 2D model\n(L, R carry the 3D factors k_free / k_L_pan / k_R_pan as everywhere else).\n  - CNC / printed comb former: bundle sits up to 0.3 mm proud of the notch floor; roof 0.2 mm thicker (print tolerance)\n  - no-printer former (FR4 roof sheet, pencil marks + spacer cord): each turn's radius off by a random error\n    (sigma 0.3 / 0.6 mm, 6 seeds each), or every pitch off by a systematic +/-3 % (spacer cord too thick / thin; the\n    section starts at its nominal radius and grows from there)\n  - bars glued 2 mm further out (template misplaced), or the bar set 0.5 mm lower (thicker glue line under the roof)\nFree-air L at 40 kHz, and loaded L and reflected R on the 430 pan (mu 200, 240 mm) at 40 kHz.\nRun: .venv/bin/python model/fidelity.py -> model/results/fidelity.json (~1 min, 8 workers)\n",
+ "rows": [
+  {
+   "case": "nominal",
+   "L_free_uH": 81.11825416848983,
+   "L_430_uH": 49.395041060449365,
+   "R_430_ohm": 4.713863283543118,
+   "dL_free_pct": 0.0,
+   "dL_430_pct": 0.0,
+   "dR_430_pct": 0.0
+  },
+  {
+   "case": "bundle_z+0.3",
+   "L_free_uH": 80.51502068349414,
+   "L_430_uH": 48.718121116220544,
+   "R_430_ohm": 4.72355885654913,
+   "dL_free_pct": -0.7436470264050699,
+   "dL_430_pct": -1.3704208554061292,
+   "dR_430_pct": 0.20568210028197864
+  },
+  {
+   "case": "roof+0.2 (bars 0.2 lower)",
+   "L_free_uH": 80.7155113663881,
+   "L_430_uH": 49.202796169071874,
+   "R_430_ohm": 4.683621412385618,
+   "dL_free_pct": -0.49648849846446463,
+   "dL_430_pct": -0.3891987682371312,
+   "dR_430_pct": -0.641551723892364
+  },
+  {
+   "case": "bars 0.5 lower",
+   "L_free_uH": 80.34236236883628,
+   "L_430_uH": 49.01270336633349,
+   "R_430_ohm": 4.654254258247149,
+   "dL_free_pct": -0.9564946972871913,
+   "dL_430_pct": -0.7740406443796144,
+   "dR_430_pct": -1.2645471815882714
+  },
+  {
+   "case": "bars 2 mm further out",
+   "L_free_uH": 81.17039284342617,
+   "L_430_uH": 49.31049758139565,
+   "R_430_ohm": 4.703332001682856,
+   "dL_free_pct": 0.06427489776597017,
+   "dL_430_pct": -0.1711578272609371,
+   "dR_430_pct": -0.22341084640762343
+  },
+  {
+   "case": "pitch +3 %",
+   "L_free_uH": 82.05670226459897,
+   "L_430_uH": 49.597550006682326,
+   "R_430_ohm": 4.777168846593849,
+   "dL_free_pct": 1.1568889218940726,
+   "dL_430_pct": 0.4099782931350049,
+   "dR_430_pct": 1.3429656153105096
+  },
+  {
+   "case": "pitch -3 %",
+   "L_free_uH": 80.20430522862337,
+   "L_430_uH": 49.235611882751876,
+   "R_430_ohm": 4.648913426275757,
+   "dL_free_pct": -1.1266871424132296,
+   "dL_430_pct": -0.3227635290400488,
+   "dR_430_pct": -1.3778477092051267
+  },
+  {
+   "case": "jitter_sigma0.3_seed0",
+   "L_free_uH": 80.96300300460176,
+   "L_430_uH": 49.29643570692419,
+   "R_430_ohm": 4.706715497567617,
+   "dL_free_pct": -0.19138868985715263,
+   "dL_430_pct": -0.19962601793265256,
+   "dR_430_pct": -0.15163328984221236
+  },
+  {
+   "case": "jitter_sigma0.3_seed1",
+   "L_free_uH": 81.33932675683134,
+   "L_430_uH": 49.57051532303234,
+   "R_430_ohm": 4.726132557652606,
+   "dL_free_pct": 0.272531245411578,
+   "dL_430_pct": 0.35524671873079505,
+   "dR_430_pct": 0.26028065243899334
+  },
+  {
+   "case": "jitter_sigma0.3_seed2",
+   "L_free_uH": 81.10595487499535,
+   "L_430_uH": 49.3851604962465,
+   "R_430_ohm": 4.712785948193718,
+   "dL_free_pct": -0.01516217726892366,
+   "dL_430_pct": -0.020003150095115885,
+   "dR_430_pct": -0.022854615940193224
+  },
+  {
+   "case": "jitter_sigma0.3_seed3",
+   "L_free_uH": 80.94803750973819,
+   "L_430_uH": 49.29328085793227,
+   "R_430_ohm": 4.697306722069129,
+   "dL_free_pct": -0.20983767525135644,
+   "dL_430_pct": -0.2060129930706256,
+   "dR_430_pct": -0.3512312614536439
+  },
+  {
+   "case": "jitter_sigma0.3_seed4",
+   "L_free_uH": 81.37600315530564,
+   "L_430_uH": 49.65087985042979,
+   "R_430_ohm": 4.719697883171873,
+   "dL_free_pct": 0.3177447412520129,
+   "dL_430_pct": 0.5179442804133405,
+   "dR_430_pct": 0.12377532562568572
+  },
+  {
+   "case": "jitter_sigma0.3_seed5",
+   "L_free_uH": 81.04074822918712,
+   "L_430_uH": 49.3005866807127,
+   "R_430_ohm": 4.723828541633456,
+   "dL_free_pct": -0.09554685329115076,
+   "dL_430_pct": -0.19122239339992575,
+   "dR_430_pct": 0.21140320562813564
+  },
+  {
+   "case": "jitter_sigma0.6_seed0",
+   "L_free_uH": 80.85153527682024,
+   "L_430_uH": 49.24637290644933,
+   "R_430_ohm": 4.69926259558479,
+   "dL_free_pct": -0.3288025542507178,
+   "dL_430_pct": -0.300977893343779,
+   "dR_430_pct": -0.3097393174151031
+  },
+  {
+   "case": "jitter_sigma0.6_seed1",
+   "L_free_uH": 81.57945228354173,
+   "L_430_uH": 49.76614777821769,
+   "R_430_ohm": 4.738293150595737,
+   "dL_free_pct": 0.5685503463794372,
+   "dL_430_pct": 0.7513035920228672,
+   "dR_430_pct": 0.5182557402101162
+  },
+  {
+   "case": "jitter_sigma0.6_seed2",
+   "L_free_uH": 81.14221681317565,
+   "L_430_uH": 49.42681757491245,
+   "R_430_ohm": 4.711426889536977,
+   "dL_free_pct": 0.02954038512226198,
+   "dL_430_pct": 0.0643313858656347,
+   "dR_430_pct": -0.051685716355986955
+  },
+  {
+   "case": "jitter_sigma0.6_seed3",
+   "L_free_uH": 80.87440765446958,
+   "L_430_uH": 49.29343465200955,
+   "R_430_ohm": 4.68049165121283,
+   "dL_free_pct": -0.30060621560439316,
+   "dL_430_pct": -0.20570163777264838,
+   "dR_430_pct": -0.7079465466636181
+  },
+  {
+   "case": "jitter_sigma0.6_seed4",
+   "L_free_uH": 81.72559578925366,
+   "L_430_uH": 50.00595152476286,
+   "R_430_ohm": 4.724673702034833,
+   "dL_free_pct": 0.7487114053297272,
+   "dL_430_pct": 1.2367850116084877,
+   "dR_430_pct": 0.22933245708369743
+  },
+  {
+   "case": "jitter_sigma0.6_seed5",
+   "L_free_uH": 81.01456642791321,
+   "L_430_uH": 49.26234408398438,
+   "R_430_ohm": 4.7333754065234155,
+   "dL_free_pct": -0.12782294397171157,
+   "dL_430_pct": -0.2686443286940343,
+   "dR_430_pct": 0.4139306086457406
+  }
+ ],
+ "jitter_summary": {
+  "jitter_sigma0.3": {
+   "dL_free_pct": {
+    "min": -0.20983767525135644,
+    "max": 0.3177447412520129
+   },
+   "dL_430_pct": {
+    "min": -0.2060129930706256,
+    "max": 0.5179442804133405
+   },
+   "dR_430_pct": {
+    "min": -0.3512312614536439,
+    "max": 0.26028065243899334
+   }
+  },
+  "jitter_sigma0.6": {
+   "dL_free_pct": {
+    "min": -0.3288025542507178,
+    "max": 0.7487114053297272
+   },
+   "dL_430_pct": {
+    "min": -0.300977893343779,
+    "max": 1.2367850116084877
+   },
+   "dR_430_pct": {
+    "min": -0.7079465466636181,
+    "max": 0.5182557402101162
+   }
+  }
+ }
+}

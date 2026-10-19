@@ -1,0 +1,64 @@
+{
+ "R43_reconstruction": {
+  "ref_volume_mm3": 65130.748672097456,
+  "rebuilt_volume_mm3": 65130.74868247309,
+  "ref_minus_rebuilt_mm3": 0,
+  "rebuilt_minus_ref_mm3": 0
+ },
+ "notches": {
+  "inner": 145,
+  "outer": 65,
+  "spare": 10,
+  "r_min": 27.591,
+  "r_max": 118.022,
+  "on_comb": true
+ },
+ "spare_notch_outer_edge_mm": 119.322,
+ "rim_inner_r_mm": 120.0,
+ "teeth_mm": {
+  "cnc_bundle2.4": {
+   "inner": 1.214,
+   "outer": 0.711
+  },
+  "cnc_bundle2.55": {
+   "inner": 1.064,
+   "outer": 0.561
+  },
+  "print_bundle2.4": {
+   "inner": 1.114,
+   "outer": 0.611
+  },
+  "print_bundle2.55": {
+   "inner": 0.964,
+   "outer": 0.461
+  }
+ },
+ "ntc": {
+  "last_inner_turn_r": 81.37097888675623,
+  "bead_centre_r": 86.32602924507042,
+  "wall_mm": 2.0
+ },
+ "print_segments_mm": [
+  [
+   116.2,
+   152.0
+  ],
+  [
+   127.4,
+   123.6
+  ],
+  [
+   134.1,
+   119.9
+  ],
+  [
+   109.1,
+   155.5
+  ],
+  [
+   161.6,
+   106.9
+  ]
+ ],
+ "print_segments_fit_180_bed": true
+}
