@@ -38,8 +38,9 @@
  * ZVS. Two conditions, both required to step down:
  *  (a) measured lag >= zvs_lag_deg (45 deg). For a series RLC, tan(phi) = Q (f/f0 - f0/f), so
  *      phi >= 45 deg proves f >= 1.05 f_res for any loaded Q <= 10 (10 x (1.05 - 1/1.05) = 0.976).
- *      Loads with Q > 10 are the empty or weakly coupled coil, whose f_res (<= 28.4 kHz at 70 uH /
- *      0.45 uF) is below f_min / 1.05. Round 6: every grid operating point has phi >= 50 deg. The lag
+ *      Loads with Q > 10 are the empty or weakly coupled coil, whose f_res (25.0-26.3 kHz for the
+ *      coil of record, 77 uH installed on the 0.475-0.525 uF bank; coil study temper-coil-r1) is
+ *      below f_min / 1.05. Round 6: every grid operating point has phi >= 50 deg. The lag
  *      is measured to one capture tick (0.27 deg at 60 kHz), so (a) is well conditioned everywhere.
  *  (b) f >= 1.05 x f_res once f_res is estimated. Series-RLC first harmonic:
  *      tan(phi) = (L/R)(w - w0^2/w). Two lags at frequencies at least fit_sep_hz apart give w0^2 and
@@ -55,9 +56,9 @@
  * halves that each show: a valid f_res estimate, a lag <= fit_lag_max_deg, loaded Q = w0 L/R <=
  * pan_q_max, half-cycle RMS >= pan_min_rms_a, and delivered power per amp squared
  * p_inv / I_rms^2 >= pan_r_min_ohm. Any half without that evidence, or any invalid half, drops it at
- * once (fail safe to the lower limit). Both criteria are bench-tunable ESTIMATES (empty coil:
- * R ~ 0.12-0.25 ohm, Q ~ 50-100, lag ~ 88 deg; a pan that needs 28 A for the 1239 W hold:
- * R ~ 1.4 ohm, Q ~ 4-8).
+ * once (fail safe to the lower limit). Both criteria are bench-tunable ESTIMATES (empty coil of
+ * record: 77 uH / 0.13 ohm, Q ~ 250, lag ~ 89 deg at 35 kHz; a pan that needs 28 A for the 1239 W
+ * hold: R ~ 1.4 ohm, Q ~ 4-8; the coil study's ferrous pans: 33-63 uH / 2.1-6.2 ohm, Q 2-4).
  * Power request. The user's setting (adapter requested_w, input-side watts) is the fifth limit,
  * the softest: the loop targets input power = min(request, the limit-bound maximum). It stops
  * stepping down once input power reaches (1 - power_band) x request and steps up when it exceeds

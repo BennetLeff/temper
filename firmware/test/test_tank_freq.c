@@ -539,6 +539,80 @@ static void test_power_below_fmax_minimum(void)
     tests++;
 }
 
+/* ------------------------------------------------------------------ coil of record (F1) */
+/* Coil study temper-coil-r1 (branch study/coil-r1, output/temper-coil-r1/README.md section 1 and
+ * model/results/TABLES.md): winding R1, 81.1 uH free air, 77.0 uH installed, on the 0.5 uF bank
+ * (5 x 100 nF +/-5 %: 0.475-0.525 uF). Loaded L and R at 40 kHz, 3D-corrected (run_pans.py):
+ * ferrous 33-63 uH / 2.1-6.2 ohm (carbon steel mu-low .. 430 mu-high), cast iron nominal
+ * 46.1 uH / 4.26 ohm; the 1 ohm case is the round-4 priors basis (coil_mc.rs low-R classes). The
+ * special loads: no pan 77 uH / 0.13 ohm (Litz R_ac + enclosure eddy, Q ~ 250), aluminium 240 mm
+ * 23.6 uH / 0.24 ohm (0.13 reflected + 0.11 Litz at 100 C). R is held constant over frequency, as
+ * in the rest of this file. Lines 108 / 120 / 132 V (v1 = 0.9 x line, round 6 FHA). */
+typedef struct { const char *name; double L, R; } plant_t;
+static const plant_t HEATABLE[] = {
+    {"carbon steel mu-low", 33e-6, 2.1}, {"cast iron nominal", 46e-6, 4.3}, {"430 mu-high", 63e-6, 6.2},
+    {"priors low-R", 55e-6, 1.0},
+};
+static const plant_t NO_PAN = {"no pan", 77e-6, 0.13};
+static const plant_t ALUMINIUM = {"aluminium 240 mm", 23.6e-6, 0.24};
+static const double LINES_V[] = {108, 120, 132};
+static const double BANK_F[] = {0.475e-6, 0.5e-6, 0.525e-6};
+
+static tank_t plant(const plant_t *p, double line_v, double c_f)
+{
+    return (tank_t){.L = p->L, .C = c_f, .R = p->R, .v1 = 0.9 * line_v};
+}
+
+static void test_coil_of_record_heatable(void)
+{
+    /* Every heatable plant at every line / bank corner, at the shipping 17.5 A and a raised 22 A
+     * ceiling: run() checks the step bounds, the 1.05 f_res floor and that no half reaches the
+     * RMS trip; the end point holds every limit with ZVS margin. */
+    static const float ceilings[] = {TANK_CEILING_DEFAULT_A, 22.0f};
+    unsigned cases = 0;
+    for (unsigned ci = 0; ci < 2; ci++)
+        for (unsigned p = 0; p < sizeof HEATABLE / sizeof HEATABLE[0]; p++)
+            for (unsigned li = 0; li < 3; li++)
+                for (unsigned k = 0; k < 3; k++) {
+                    tank_t pl = plant(&HEATABLE[p], LINES_V[li], BANK_F[k]);
+                    tank_freq_limits_t lim = limits(ceilings[ci]);
+                    tank_freq_reset(&T, &C);
+                    tank_freq_reason_t r = run(&pl, &C, &lim, &T, 1200, NULL);
+                    tank_freq_obs_t o = observe(&pl, T.f_hz);
+                    assert(r != TF_FAULT_OVERRUN && r != TF_UP_INVALID && r != TF_UP_NO_PHASE);
+                    assert(T.f_hz + 1.0 >= 1.05 * f_res(&pl) && o.phi_rad >= 0.98f * 45 * 0.0174533f);
+                    assert(o.tank_rms_a <= ceilings[ci] * 1.001f && o.peak_a <= lim.peak_trip_a - 3 + 1e-3f);
+                    assert(o.inlet_a <= 13.5f * 1.001f);
+                    cases++;
+                }
+    assert(cases == 72);
+    tests++;
+}
+
+static void test_coil_of_record_special_loads_baseline(void)
+{
+    /* What the loop does with the two special loads on its own (the F1 record; F3 and F4 below
+     * act on exactly these). Aluminium: 25-36 A at the 60 kHz start, over the 1.05 x 17.5 A RMS
+     * trip and the 2.17 x RMS peak estimate over the 41 A peak trip from the first half, at every
+     * corner. No pan: walks down to the 35 kHz floor and holds there at 11.7-16.1 A, under the
+     * 17.5 A no-pan clamp, with no trip. */
+    for (unsigned li = 0; li < 3; li++)
+        for (unsigned k = 0; k < 3; k++) {
+            tank_t al = plant(&ALUMINIUM, LINES_V[li], BANK_F[k]);
+            tank_freq_obs_t o = observe(&al, 60000);
+            assert(o.tank_rms_a > 25 && o.tank_rms_a < 36);
+            assert(o.tank_rms_a > tank_rms_trip_for(TANK_CEILING_DEFAULT_A) &&
+                   o.peak_a > tank_peak_trip_for(TANK_CEILING_DEFAULT_A));
+            assert(o.phi_rad > 85 * 0.0174533f && f_res(&al) > 45000);
+            tank_t np = plant(&NO_PAN, LINES_V[li], BANK_F[k]);
+            assert(f_res(&np) >= 24900 && f_res(&np) <= 26400 && 1.05 * f_res(&np) < 35000);
+            o = observe(&np, 35000);
+            assert(o.tank_rms_a > 11.5f && o.tank_rms_a < 16.2f && o.phi_rad > 88.5f * 0.0174533f);
+            assert(observe(&np, 60000).tank_rms_a > 4.0f);
+        }
+    tests++;
+}
+
 static void test_reset(void)
 {
     tank_t k = {.L = 55e-6, .C = 0.5e-6, .R = 1.4, .v1 = 108};
@@ -568,6 +642,8 @@ int main(void)
     test_power_steps();
     test_power_no_chatter();
     test_power_below_fmax_minimum();
+    test_coil_of_record_heatable();
+    test_coil_of_record_special_loads_baseline();
     test_reset();
     printf("tank_freq: %u tests passed\n", tests);
     return 0;
