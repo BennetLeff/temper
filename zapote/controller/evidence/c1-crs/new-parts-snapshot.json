@@ -109,6 +109,18 @@
    "url": "https://www.lcsc.com/product-detail/C97946.html"
   }
  },
+ "RC0603FR-071ML": {
+  "jlc": {
+   "library": "expand",
+   "matched_lcsc": "C105578",
+   "mfr_part": "RC0603FR-071ML",
+   "package": "0603",
+   "price_qty1": 0.0042,
+   "stock": 365192,
+   "t": "2026-10-19T00:33:43Z",
+   "url": "https://jlcpcb.com/partdetail/C105578"
+  }
+ },
  "RC0603FR-07499KL": {
   "jlc": {
    "library": "expand",
@@ -283,6 +295,18 @@
    "stock": 1588,
    "t": "2026-10-15T17:47:52Z",
    "url": "https://www.lcsc.com/product-detail/C350561.html"
+  }
+ },
+ "SS14": {
+  "jlc": {
+   "library": "base",
+   "matched_lcsc": "C2480",
+   "mfr_part": "SS14",
+   "package": "SMA(DO-214AC)",
+   "price_qty1": 0.0192,
+   "stock": 1399921,
+   "t": "2026-10-19T00:33:43Z",
+   "url": "https://jlcpcb.com/partdetail/C2480"
   }
  }
 }

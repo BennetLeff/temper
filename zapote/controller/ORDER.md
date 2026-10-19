@@ -1,11 +1,13 @@
 # Controller prototype order package (JLC PCB + PCBA)
 
 > **Branch `controller-j13-merge` (C49, 2026-10-18) supersedes the board named below.** It is the C48 board plus the J13 rail merge and the
-> J4.1 BIAS_GOOD input (DECISIONS C49): five parts added (D9 SS14, R123 1 M, R124 10 k, C97 1 nF; the J4.1 net and GPIO35 change), one
+> J4.1 BIAS_GOOD input (DECISIONS C49): four parts added (D9 SS14, R123 1 M, R124 10 k, C97 1 nF; the J4.1 net and GPIO35 change), one
 > stranded via removed. The upload files below carry this branch's hashes (BOM 89 lines, CPL 288 placements: 279 SMD / 9 THT). It needs the
 > matching firmware (`firmware/README.md`, "BIAS_GOOD read-back"), a power board with stage 50 or later, and PS3 on J13. **Not covered by
-> this package's C48 text:** the parts cost (USD 65.32 per board) and the NEEDS-PREVIEW count (44 placements / 23 codes) are the C48 figures
-> and were not recomputed; **add D9 (SS14, LCSC C2480, SMA) to the CPL preview list: it is polarized and the `D_SMA` footprint is new**, so
+> this package's C48 text:** the parts cost is recomputed for this board (USD 65.35 per board, 89 lines priced, 83 extended-library lines; the two
+> new parts were read from JLC on 2026-10-18, the rest are the 2026-10-12 / 15 reads). The NEEDS-PREVIEW list is the C48 audit (44 placements /
+> 23 codes) **plus D9 (SS14, LCSC C2480, SMA)**, which the rotation audit was not re-run for (its rotation database is not in the repo snapshot):
+> it is polarized and the `D_SMA` footprint is new, so
 > check the cathode band against pad 1 in JLC's 3D preview. The C48 text below is otherwise unchanged. Routing: one clean full run (0 open,
 > DRC 0 errors, interlock and 14 layout checks pass); the 3-run convergence proof was not repeated for this netlist.
 
@@ -86,7 +88,7 @@ No other part is consigned. The ESP32-S3-WROOM-1U-N8's U.FL coax and chip-antenn
 
 ## 3. Manual checks before paying
 
-1. **NEEDS-PREVIEW CPL lines:** 44 placements under 23 LCSC codes. The task's figure of 37 was the 248-part board of 2026-10-12. Check one designator per code in JLC's 3D placement preview: the rest of a code follows it, and the CPL carries KiCad's rotation for them. Pin 1 / polarity is what to look at. Codes and designators are in `fab/fab-notes.md`.
+1. **NEEDS-PREVIEW CPL lines:** 44 placements under 23 LCSC codes, **plus D9 (SS14, C2480) on the C49 board (45 placements, 24 codes)**. The task's figure of 37 was the 248-part board of 2026-10-12. Check one designator per code in JLC's 3D placement preview: the rest of a code follows it, and the CPL carries KiCad's rotation for them. Pin 1 / polarity is what to look at. Codes and designators are in `fab/fab-notes.md`.
    - **SOT-23-5 logic and comparators:** SN74LVC1G32 (U27), TLV3201 (U10), SN74LVC1G38 (U35), TLV9031 (U19), SN74LVC1G86 (U43; geometry says 180°, DB says 270°), SN74LVC1G08 (U11), SN74LVC1G14 (U12), REF2025 (U29).
    - **SOT-23 parts:** TLV76050 (U16), BAT54S (D8), 2N7002 (Q1), LM4040 (U13).
    - **SOD-523 TVS:** ESD5Z3.3 (D1), ESD5Z5.0 (D7); the cathode band goes to the signal.
@@ -139,12 +141,12 @@ The block-validator waivers W1–W7 (`evidence/block-validators/WAIVERS.md`) are
 
 Consign R39 for that plan as 5 pcs (3 + 2 spares).
 
-**Cost from the BOM data** (`evidence/order/order-table.json`): **USD 65.32 per board** in parts at JLC's quantity-1 unit prices of 2026-10-12 / 15, all 87 lines priced.
+**Cost from the BOM data** (`evidence/order/order-table.json`): **USD 65.35 per board** in parts at JLC's quantity-1 unit prices of 2026-10-12 / 15 (the two C49 parts 2026-10-18), all 89 lines priced.
 - Largest lines: AD8436ARQZ-R7 12.10, MAX31865 8.87, TLV3201 × 6 5.84, ESP32-S3-WROOM-1U-N8 4.81, TPS3703-Q1 4.10.
 - **Not included, and not in the repo's evidence:**
   - PCB fabrication;
   - SMT and THT assembly fees;
-  - JLC's per-type fee for extended-library parts (82 of the 87 lines are "expand" in the snapshots);
+  - JLC's per-type fee for extended-library parts (83 of the 89 lines are "expand" in the snapshots);
   - consignment duty, VAT and handling (13 % VAT plus a 2 % handling fee, minimum USD 10, per the consignment sheet);
   - shipping.
 

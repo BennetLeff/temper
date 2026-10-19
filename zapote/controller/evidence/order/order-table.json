@@ -1,10 +1,10 @@
 {
  "boards": 5,
- "bom_lines": 87,
- "placements_per_board": 284,
- "parts_cost_per_board_usd_qty1_priced_lines": 65.32,
+ "bom_lines": 89,
+ "placements_per_board": 288,
+ "parts_cost_per_board_usd_qty1_priced_lines": 65.35,
  "lines_without_price": [],
- "extended_library_lines": 82,
+ "extended_library_lines": 83,
  "attention": [
   {
    "mpn": "RG2012V-431-W-T1",
@@ -192,16 +192,17 @@
    "lcsc": "C163508",
    "refs": [
     "C18",
-    "C64"
+    "C64",
+    "C97"
    ],
-   "qty_per_board": 2,
+   "qty_per_board": 3,
    "mount": "SMD",
    "jlc_stock": 488174,
    "stock_read": "2026-10-12T16:36:38Z",
    "source": "stock-snapshot.json",
    "library": "expand",
    "unit_price_usd": 0.0083,
-   "line_cost_per_board_usd": 0.0166,
+   "line_cost_per_board_usd": 0.0249,
    "status": "ok"
   },
   {
@@ -366,6 +367,22 @@
    "library": "expand",
    "unit_price_usd": 0.1147,
    "line_cost_per_board_usd": 0.1147,
+   "status": "ok"
+  },
+  {
+   "mpn": "SS14",
+   "lcsc": "C2480",
+   "refs": [
+    "D9"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 1399921,
+   "stock_read": "2026-10-19T00:33:43Z",
+   "source": "new-parts-snapshot.json",
+   "library": "base",
+   "unit_price_usd": 0.0192,
+   "line_cost_per_board_usd": 0.0192,
    "status": "ok"
   },
   {
@@ -574,16 +591,17 @@
     "R108",
     "R109",
     "R119",
-    "R120"
+    "R120",
+    "R124"
    ],
-   "qty_per_board": 32,
+   "qty_per_board": 33,
    "mount": "SMD",
    "jlc_stock": 9215356,
    "stock_read": "2026-10-12T16:37:08Z",
    "source": "stock-snapshot.json",
    "library": "expand",
    "unit_price_usd": 0.0034,
-   "line_cost_per_board_usd": 0.1088,
+   "line_cost_per_board_usd": 0.1122,
    "status": "ok"
   },
   {
@@ -1130,6 +1148,22 @@
    "library": "expand",
    "unit_price_usd": 0.0111,
    "line_cost_per_board_usd": 0.0222,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-071ML",
+   "lcsc": "C105578",
+   "refs": [
+    "R123"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 365192,
+   "stock_read": "2026-10-19T00:33:43Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0042,
+   "line_cost_per_board_usd": 0.0042,
    "status": "ok"
   },
   {
