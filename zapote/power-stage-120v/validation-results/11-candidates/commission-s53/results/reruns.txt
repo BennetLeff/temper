@@ -1,0 +1,7 @@
+$ (cd validation-results/02-protection-timing/kelvin && python3 -I kelvin_budget.py native21s53)
+| **total** | **15.505** | | **2.3239** | trip shift **-2.41 A**; band 69.18–114.57 A |
+{"total_mA": 15.505, "e_th_mV": 2.3239, "trip_shift_A": -2.41, "bound_all_at_max_transfer": {"e_th_mV": 2.367, "trip_shift_A": -2.455}, "band_after_A": [69.18, 114.57], "meets_44A_min": true, "floor_A": 64.17, "meets_floor_at_bound": true}
+$ (cd validation-results/11-candidates/c25-driver/scripts && python3 -I dt_window.py) | grep 49.9
+| 49.9 | 484.8 | 499.0 | 408.3 / 415.4 | 561.9 / 569.0 | 408.3-569.0 | False |
+$ git status --short (both outputs byte-identical to the committed budget-native21s53.json / dt_window.json)
+(empty)

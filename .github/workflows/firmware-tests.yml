@@ -20,6 +20,21 @@ on:
       - 'scripts/check_sil_coverage.py'
       - 'state-machine-crosscheck-allowlist.yaml'
       - '.github/workflows/firmware-tests.yml'
+      # COMMISSIONING.md board table sources (firmware/tools/commissioning_board_table.py)
+      - 'zapote/power-stage-120v/native-21/frozen/**'
+      - 'zapote/power-stage-120v/frozen/**'
+      - 'zapote/power-stage-120v/native-21/BRINGUP-PROBES.md'
+      - 'zapote/power-stage-120v/native-21/layout/pads.json'
+      - 'zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/FAB-NOTE.md'
+      - 'zapote/power-stage-120v/validation-results/02-protection-timing/kelvin/**'
+      - 'zapote/power-stage-120v/validation-results/10-benchmark/scorecard-native21s*.json'
+      - 'zapote/controller/tools/controller_calcs.py'
+      - 'zapote/power-stage-120v/audit.rs'
+      - 'zapote/power-stage-120v/validation-results/02-protection-timing/round3/thresholds.py'
+      - 'zapote/power-stage-120v/validation-results/11-candidates/c25-driver/scripts/dt_window.py'
+      - 'zapote/power-stage-120v/validation-results/11-candidates/s52-proto-bom/results/bands-s52.json'
+      - 'zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json'
+      - 'zapote/power-stage-120v/native-21/verification/datasheet-ledger/ledger.json'
   pull_request:
     branches: [main]
     paths:
@@ -32,6 +47,21 @@ on:
       - 'scripts/check_sil_coverage.py'
       - 'state-machine-crosscheck-allowlist.yaml'
       - '.github/workflows/firmware-tests.yml'
+      # COMMISSIONING.md board table sources (firmware/tools/commissioning_board_table.py)
+      - 'zapote/power-stage-120v/native-21/frozen/**'
+      - 'zapote/power-stage-120v/frozen/**'
+      - 'zapote/power-stage-120v/native-21/BRINGUP-PROBES.md'
+      - 'zapote/power-stage-120v/native-21/layout/pads.json'
+      - 'zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/fab/FAB-NOTE.md'
+      - 'zapote/power-stage-120v/validation-results/02-protection-timing/kelvin/**'
+      - 'zapote/power-stage-120v/validation-results/10-benchmark/scorecard-native21s*.json'
+      - 'zapote/controller/tools/controller_calcs.py'
+      - 'zapote/power-stage-120v/audit.rs'
+      - 'zapote/power-stage-120v/validation-results/02-protection-timing/round3/thresholds.py'
+      - 'zapote/power-stage-120v/validation-results/11-candidates/c25-driver/scripts/dt_window.py'
+      - 'zapote/power-stage-120v/validation-results/11-candidates/s52-proto-bom/results/bands-s52.json'
+      - 'zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json'
+      - 'zapote/power-stage-120v/native-21/verification/datasheet-ledger/ledger.json'
 
 jobs:
   test:
@@ -56,7 +86,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install codegen dependencies
-        run: pip install -r firmware/tools/requirements.txt pytest
+        run: pip install -r firmware/tools/requirements.txt pytest numpy
 
       - name: Regenerate config.h and check drift
         run: |
@@ -113,6 +143,19 @@ jobs:
           cmake -B firmware/test/build firmware/test
           cmake --build firmware/test/build --target test_controller_pins test_thermal_mgmt test_ntc_guard_only test_coil_guard_only
           ctest --test-dir firmware/test/build -R "controller_pins|thermal_mgmt|ntc_guard|coil_guard" --output-on-failure
+
+      # Bench procedure vs the native-21 board of record: COMMISSIONING.md's board
+      # table must equal the one rendered from FAB-NOTE's board (frozen BOM /
+      # netlist, Kelvin budget and band record, threshold engine, dead-time
+      # estimator, BRINGUP-PROBES.md, firmware headers, Kconfig), and its prose
+      # may not claim another stage's board, give a power-board resistor a value
+      # the BOM does not have, or misstate a Kconfig default. Exit 5 (gate error)
+      # means a new board of record: re-base the procedure on it. numpy: the
+      # round-3 threshold engine imports it.
+      - name: Commissioning procedure vs board of record
+        run: |
+          python3 firmware/tools/commissioning_board_table.py --check
+          python3 -m pytest firmware/tools/test_commissioning_board_table.py -v --tb=short
 
       - name: Regenerate transition table and check drift
         run: |
