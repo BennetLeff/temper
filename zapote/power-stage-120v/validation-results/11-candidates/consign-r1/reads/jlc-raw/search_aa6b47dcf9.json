@@ -1,0 +1,2126 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 114,
+   "list": [
+    {
+     "componentId": 7601903,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_illinois-capacitor-105mkp275kg_C6646921.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5281
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.5281
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.5281
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6106
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5894
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5796
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5583
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.5882
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.472
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.472
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.472
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5678
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "7601903-105MKP275KG/C6646921",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.5281,
+     "componentCode": "C6646921",
+     "componentBrandEn": "Cornell Dubilier Electronics",
+     "componentModelEn": "105MKP275KG",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404191650_Illinois-Capacitor-105MKP275KG_C6646921.pdf",
+     "dataManualFileAccessId": "8600787572470009856",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cornell Dubilier Electronics 105MKP275KG",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 431304,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1uF \u00b110% 310V \u7b49\u7ea7:X2 \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_jimson-mkp105k310a01_C434210.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5143
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4147
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3723
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2727
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2498
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2351
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4954
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3995
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3586
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2627
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2407
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2265
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Jimson-MKP105K310A01/C434210",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 1.2064,
+     "preMinPurchaseNum": 22,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5143,
+     "componentCode": "C434210",
+     "componentBrandEn": "Jimson",
+     "componentModelEn": "MKP105K310A01",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583069915268468736",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Jimson-MKP105K310A01_C434210.pdf",
+     "dataManualFileAccessId": "8588888734276194305",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Jimson MKP105K310A01",
+     "minImage": "",
+     "minImageAccessId": "8583069916374683648",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": "MKP105K<span class='lucene_highlight_class'>310</span>A01",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6976974,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_illinois-capacitor-105mkp275kg4_C6038150.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3403
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3403
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3403
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.5355
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.5176
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5078
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4891
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 999,
+       "productPrice": 0.4986
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.5159
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.2912
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.2912
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2912
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6976974-105MKP275KG4/C6038150",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.3403,
+     "componentCode": "C6038150",
+     "componentBrandEn": "Cornell Dubilier Electronics",
+     "componentModelEn": "105MKP275KG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404171441_Illinois-Capacitor-105MKP275KG4_C6038150.pdf",
+     "dataManualFileAccessId": "8602736734061019136",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cornell Dubilier Electronics 105MKP275KG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6388380,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_illinois-capacitor-105mkp275kgg4_C5472323.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3828
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3828
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3828
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.5518
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5339
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5241
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5049
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.5316
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3321
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3321
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3321
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5143
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6388380-105MKP275KGG4/C5472323",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.3828,
+     "componentCode": "C5472323",
+     "componentBrandEn": "Cornell Dubilier Electronics",
+     "componentModelEn": "105MKP275KGG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404151304_Illinois-Capacitor-105MKP275KGG4_C5472323.pdf",
+     "dataManualFileAccessId": "8600455531597750272",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cornell Dubilier Electronics 105MKP275KGG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3198813,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/suppression capacitors_hongfarad_hmkp3a1w10k0n200a_C2913504.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2555
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2041
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.163
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1355
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1233
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.116
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.1145
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.1133
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.1103
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.1092
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1306
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.1117
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2462
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1966
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.157
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1188
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "47fa244a3f2d4887b64a2c90660790dc",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "HONGFARAD-HMKP3A1W10K0N200A/C2913504",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 150,
+     "shopCostPrice": 0.625,
+     "preMinPurchaseNum": 36,
+     "minPurchaseNum": 36,
+     "initialPrice": 0.2555,
+     "componentCode": "C2913504",
+     "componentBrandEn": "HONGFARAD",
+     "componentModelEn": "HMKP3A1W10K0N200A",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584747162114928640",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2112021130_HONGFARAD-HMKP3A1W10K0N200A_C2913504.pdf",
+     "dataManualFileAccessId": "8590208782434672640",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HONGFARAD HMKP3A1W10K0N200A",
+     "minImage": "",
+     "minImageAccessId": "8584747162958254080",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% \u63d2\u4ef6,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% \u63d2\u4ef6,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2788697,
+     "componentLibraryType": "expand",
+     "stockCount": 185,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/suppression capacitors_jierong_z105k310ve4l3.5_C2686084.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2217
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1765
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1462
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1218
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1111
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1047
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1174
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1408
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2136
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1701
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.107
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "47fa244a3f2d4887b64a2c90660790dc",
+     "canPresaleNumber": 185,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "JIERONG-Z105K310VE4L35/C2686084",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.55,
+     "preMinPurchaseNum": 41,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2217,
+     "componentCode": "C2686084",
+     "componentBrandEn": "JIERONG",
+     "componentModelEn": "Z105K310VE4L3.5",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583855735604457472",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2109071630_JIERONG-Z105K310VE4L3-5_C2686084.pdf",
+     "dataManualFileAccessId": "8590172566242557952",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIERONG Z105K310VE4L3.5",
+     "minImage": "",
+     "minImageAccessId": "8583855736493785088",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": "Z105K<span class='lucene_highlight_class'>310V</span>E4L3.5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2788718,
+     "componentLibraryType": "expand",
+     "stockCount": 195,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/suppression capacitors_jierong_k105k310ve4l35_C2686155.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2217
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1765
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1462
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1218
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1111
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1047
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.107
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1174
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2136
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1701
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1408
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "47fa244a3f2d4887b64a2c90660790dc",
+     "canPresaleNumber": 195,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "JIERONG-K105K310VE4L35/C2686155",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.55,
+     "preMinPurchaseNum": 41,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2217,
+     "componentCode": "C2686155",
+     "componentBrandEn": "JIERONG",
+     "componentModelEn": "K105K310VE4L35",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583858630173609984",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2109071630_JIERONG-K105K310VE4L35_C2686155.pdf",
+     "dataManualFileAccessId": "8590173337931579392",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIERONG K105K310VE4L35",
+     "minImage": "",
+     "minImageAccessId": "8583858631099469824",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": "K105K<span class='lucene_highlight_class'>310V</span>E4L35",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 217398,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/suppression capacitors_wqc_c50q3105ke6l230210_C216476.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2779
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2237
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1853
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1563
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1432
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1355
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2677
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1306
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1505
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2155
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1785
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.138
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "47fa244a3f2d4887b64a2c90660790dc",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WQC-C50Q3105KE6L230210/C216476",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.66,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2779,
+     "componentCode": "C216476",
+     "componentBrandEn": "WQC",
+     "componentModelEn": "C50Q3105KE6L230210",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583272534774566912",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2304140030_WQC-C50Q3105KE6L230210_C216476.pdf",
+     "dataManualFileAccessId": "8588891768050237440",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "WQC C50Q3105KE6L230210",
+     "minImage": "",
+     "minImageAccessId": "8583272535668899840",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": "C50Q<span class='lucene_highlight_class'>310</span>5KE6L230210",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 271412,
+     "componentLibraryType": "expand",
+     "stockCount": 200,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1uF \u00b110% 310V \u7b49\u7ea7:X2 \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_ste-songtian-elec-x2q3105kt1b0265200110es0_C286080.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3796
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.3084
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.2436
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.2056
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1886
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1785
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1719
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.198
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.2971
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.2347
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3657
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.1817
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 200,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "271412-X2Q3105KT1B0265200110ES0/C286080",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.864,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3796,
+     "componentCode": "C286080",
+     "componentBrandEn": "STE(Songtian Elec)",
+     "componentModelEn": "X2Q3105KT1B0265200110ES0",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583266093469749248",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_STE-Songtian-Elec-X2Q3105KT1B0265200110ES0_C286080.pdf",
+     "dataManualFileAccessId": "8588891053332447232",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "STE X2Q3105KT1B0265200110ES0",
+     "minImage": "",
+     "minImageAccessId": "8583266094333775872",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": "X2Q<span class='lucene_highlight_class'>310</span>5KT1B0265200110ES0",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 312535,
+     "componentLibraryType": "expand",
+     "stockCount": 58,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_hongzhi-elec-mpx105k8bb6b20r0_C333833.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1806
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1349
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1153
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.0908
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0908
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0908
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.174
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.0875
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1299
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0875
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0875
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1111
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": -44,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HongzhiElec-MPX105K8BB6B20R0/C333833",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.44987,
+     "preMinPurchaseNum": 67,
+     "minPurchaseNum": 67,
+     "initialPrice": 0.1349,
+     "componentCode": "C333833",
+     "componentBrandEn": "Hongzhi Elec",
+     "componentModelEn": "MPX105K8BB6B20R0",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764363925708660736",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Hongzhi-Elec-MPX105K8BB6B20R0_C333833.pdf",
+     "dataManualFileAccessId": "8588888760935731200",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Hongzhi Elec MPX105K8BB6B20R0",
+     "minImage": "",
+     "minImageAccessId": "8764363926844776448",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 366148,
+     "componentLibraryType": "expand",
+     "stockCount": 6943,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V 350V 380V \u3010\u5b89\u89c4\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kyet-px105k2c2202_C390065.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1783
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.1432
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1197
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.1011
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0928
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0877
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1717
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 2399,
+       "productPrice": 0.0974
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4999,
+       "productPrice": 0.0894
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0845
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 199,
+       "productPrice": 0.138
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.1153
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 6927,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KYET-PX105K2C2202/C390065",
+     "leastPatchNumber": 2,
+     "lossNumber": 1,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.425,
+     "preMinPurchaseNum": 64,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1783,
+     "componentCode": "C390065",
+     "componentBrandEn": "KYET",
+     "componentModelEn": "PX105K2C2202",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583275496423763968",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912111437_KYET-PX105K2C2202_C390065.pdf",
+     "dataManualFileAccessId": "8588892277322223616",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KYET PX105K2C2202",
+     "minImage": "",
+     "minImageAccessId": "8583275497291309056",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V\u3001350V\u3001380V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V\u3001350V\u3001380V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V\u3001350V\u3001380V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span>\u3001350V\u3001380V X2 \u00b110% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 511421,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:Y2 1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_vishay-intertech-bfc233920105_C499515.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4758
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2261
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0889
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.9339
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8653
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8343
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8335
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.049
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4217
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8037
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.8996
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1811
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "VishayIntertech-BFC233920105/C499515",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 4.2503,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.4758,
+     "componentCode": "C499515",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "BFC233920105",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583822322549051392",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-BFC233920105_C499515.pdf",
+     "dataManualFileAccessId": "8590164432694243328",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY BFC233920105",
+     "minImage": "",
+     "minImageAccessId": "8583822323522670592",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-55\u2103~+110\u2103 1uF 310V Y2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+110\u2103"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>310V</span>",
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1uF</span>",
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "Y2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+110\u2103 <span class='lucene_highlight_class'>1uF</span> <span class='lucene_highlight_class'>310V</span> Y2 \u00b120% Plugin,<span class='lucene_highlight_class'>P</span>=<span class='lucene_highlight_class'>22.5mm</span> Safety Capacitors ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 10,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "MKP X2 1uF 310V P=22.5mm"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:35:18Z"
+}

@@ -122,16 +122,60 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
 # nor shortage-blocks them, and the CPL audit lists them as excluded). Stage 52 review (s52-proto-bom/fp3d-review row 17):
 # L1 B82726S2243A020 = C7084710 has JLC stock 0 (sourcing/STOCK-2026-10-16.csv, read 2026-10-16T19:12Z) against Mouser 62 /
 # DigiKey 29; it is bought from a distributor and hand-soldered in house (or consigned / JLC global sourcing at order).
-CONSIGN = {"B82726S2243A020": "consign or hand-assemble (JLC C7084710 holds 0 on 2026-10-16; buy Mouser / DigiKey, "
-                              "hand-solder or consign / JLC global sourcing)"}
+# consign-r1 (owner, 2026-10-18; 11-candidates/consign-r1/README.md and DECISIONS-DRAFT.md): L1 is no longer consigned.
+# JLC buys it through Global Sourcing / pre-order and hand-solders it under C7084710 (ORDER_PLAN below).
+CONSIGN = {}
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
+# consign-r1: C1 / C2 KEMET R46 (JLC C3299886, 46 in stock on 2026-10-18, reserved by pre-order) and C5 / C6 (C3802167,
+# JLC 0, Global Sourcing from DigiKey 547). JLC part API 2026-10-18, 11-candidates/consign-r1/reads/jlc-raw.
+CHANGED.update({"R463N410050N1K": "C3299886", "B32676G1905K000": "C3802167"})
+# consign-r1: order-file variant of a source MPN (the frozen netlist keeps the source MPN). J3 / J11 are ordered as the grey
+# colour variant of the same JST standard header (JST eVH.pdf model-number key "H…Gray"; same PA body and ratings), JLC
+# C160900, 5,610 in stock on 2026-10-18 against 40 (the natural-colour C160745 read 0). The ledger records it under
+# `alternates` (the gate keys on the frozen MPN). Keyed on both names so a rerun on this script's own output is a no-op.
+ORDER_VARIANT = {"B2P3-VH(LF)(SN)": ("B2P3-VH-H(LF)(SN)", "C160900"),
+                 "B2P3-VH-H(LF)(SN)": ("B2P3-VH-H(LF)(SN)", "C160900")}
+# consign-r1 order plan (owner, 2026-10-18): per ordered MPN, the LCSC code the BOM carries ("" = JLC must not match it:
+# a DNP / owner-fitted line, or a line whose public JLC code is the wrong part or maker) and the Assembly instruction.
+# Stock figures: JLC part API and Octopart public pages read 2026-10-18 (11-candidates/consign-r1/reads/).
+GS = "JLC (Extended), Global Sourcing"
+ORDER_PLAN = {
+    "R24C2T25/R-R": ("C9900245652", GS + " (Mouser 1,006): RECOM R24C2T25/R-R; C9900245652 is JLC's number for it; reject "
+                     "the auto-match C22466894 'R24C2T25-R' (non-/R series, a different product); MSL 3, have JLC bake it"),
+    "B32643H8104J000": ("", GS + " (Mouser 1,736 / DigiKey 306); no public JLC number: select the private-library stock at "
+                        "the BOM step; JLC hand-solders it into the 22.5 mm holes, the five x 190.5 holes stay open; tick H"),
+    "B32676G1905K000": ("C3802167", GS + " (DigiKey 547); JLC hand-solders"),
+    "B82726S2243A020": ("C7084710", GS + " (Mouser 62 / DigiKey 29); JLC hand-solders"),
+    "30KPA150CA": ("", GS + " of the Good-Ark part (DigiKey 164 / 1,750 reel), not JLC's Littelfuse-branded C19111562: "
+                   "select the private-library stock at the BOM step; JLC hand-solders; first article: P600 lead bend"),
+    "3403.0279.23": ("C3163739", GS + " (DigiKey 7,183, MOQ 1, read 2026-10-18); JLC places"),
+    "7466004R": ("C6708126", GS + " (DigiKey 8,856); JLC places"),
+    "1704004": ("C5481600", GS + " if JLC lists a supplier (Amar Radio 48); if not, Do Not Place and the owner hand-solders J6"),
+    "IPW65R018CFD7": ("C3289047", "JLC (Extended), consigned: the single 120-piece DigiKey lot (ship 84; all 80 placements "
+                      "from the consigned stock, none from JLC's own); JLC hand-solders, package seated on the lead shoulders"),
+    "R463N410050N1K": ("C3299886", "JLC (Extended); reserve by pre-order (JLC 46 against 40 on 2026-10-18); JLC hand-solders"),
+    "CST3015-200ED": ("C50132500", "JLC (Extended); reserve by pre-order (JLC 64 against 20 on 2026-10-18)"),
+    "LM4050AEM3-2.5/NOPB": ("C2156518", "JLC (Extended); reserve by pre-order (JLC 50 against 20)"),
+    "B2P3-VH-H(LF)(SN)": ("C160900", "JLC (Extended); ordered as the grey JST B2P3-VH-H(LF)(SN) (source MPN B2P3-VH(LF)(SN)); "
+                          "JLC 5,610; JLC hand-solders"),
+    "GBJ2510-F": ("", "DNP at JLC: the owner hand-solders BR1 before mains (bottom preheat >= 100 C; the only mains-to-bus "
+                  "path, left out on bench-bus boards, ASSEMBLY.md)"),
+    "TMOV20RP175E": ("", "DNP at JLC: the owner hand-solders RV1 (form lead 2 in line, FOOTPRINTS F4; decision 2026-10-17)"),
+    "KLDR025.TXP": ("", "not soldered: the owner inserts the F1 cartridge into the hand-soldered clips after cleaning"),
+}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
 counts = {"exact": 0, "changed": 0, "substitute": 0, "consign": 0}
 for r in rows:
     mpn = r["Manufacturer Part Number"]
+    if mpn in ORDER_VARIANT:
+        mpn, code = ORDER_VARIANT[mpn]
+        r["Manufacturer Part Number"] = r["Comment"] = mpn
     m = MAP.get(mpn)
-    if mpn in CONSIGN:
+    if mpn in ORDER_PLAN:
+        r["LCSC Part #"], r["Assembly"] = ORDER_PLAN[mpn]
+        counts["changed" if ORDER_PLAN[mpn][0] else "consign"] += 1
+    elif mpn in CONSIGN:
         r["LCSC Part #"], r["Assembly"] = "", CONSIGN[mpn]
         counts["consign"] += 1
     elif mpn in BASIC:
@@ -151,7 +195,8 @@ for r in rows:
         counts["consign"] += 1
 clip = dict.fromkeys(rows[0], "")
 clip.update({"Comment": "Fuse clip 10x38 mm (midget / Class CC), 30 A (2 per F1)", "Designator": "F1-CLIP",
-             "Manufacturer Part Number": "01250003H", "LCSC Part #": "C223911", "Mount": "THT", "Assembly": "hand-solder, 2 per board (not a source component)"})
+             "Manufacturer Part Number": "01250003H", "LCSC Part #": "C223911", "Mount": "THT", "Assembly": "owner hand-solders, 2 per board, bottom preheat >= 100 C (not a source component, so no JLC "
+             "line; splitting the clips into BOM components is deferred: consign-r1 candidate (c), owner 2026-10-18)"})
 # The F1 clips are not a board component (no CPL row): JLC rejects any BOM designator without a CPL entry,
 # so they go to a separate hand-assembly purchase list, not into the JLC BOM (2026-10-13).
 rows = [r for r in rows if r["Designator"] != "F1-CLIP"]

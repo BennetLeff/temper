@@ -1,0 +1,1825 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 32,
+   "list": [
+    {
+     "componentId": 3864475,
+     "componentLibraryType": "expand",
+     "stockCount": 46,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://lcsc.com/product-detail/safety-capacitors_kemet-r463n410050n1k_C3299886.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8963
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8767
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8653
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.8539
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.8539
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.8539
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8445
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.8225
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.8225
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8335
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8634
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.8225
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 46,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410050N1K/C3299886",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 3.8691,
+     "preMinPurchaseNum": 11,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.8963,
+     "componentCode": "C3299886",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410050N1K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2411041524_KEMET-R463N410050N1K_C3299886.pdf",
+     "dataManualFileAccessId": "8590319690737487872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410050N1K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>50N1K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 628858,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410040n2m_C600360.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5731
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.5731
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 0.5731
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.2221
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 0.2139
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.2106
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.2029
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 0.2061
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.552
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.552
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 0.552
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.2139
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KEMET-R463N410040N2M/C600360",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 16,
+     "minPurchaseNum": 16,
+     "initialPrice": 0.5731,
+     "componentCode": "C600360",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410040N2M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-R463N410040N2M_C600360.pdf",
+     "dataManualFileAccessId": "8590160918299910144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410040N2M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 310V X2 Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>40N2M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 628859,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene film capacitors (cbb)_kemet_r463n4100ckn1m_C600361.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7624
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7624
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 349,
+       "productPrice": 0.7624
+      },
+      {
+       "startNumber": 350,
+       "endNumber": 699,
+       "productPrice": 0.2955
+      },
+      {
+       "startNumber": 700,
+       "endNumber": 1049,
+       "productPrice": 0.2857
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 0.2808
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 349,
+       "productPrice": 0.7345
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 0.2705
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7345
+      },
+      {
+       "startNumber": 700,
+       "endNumber": 1049,
+       "productPrice": 0.2753
+      },
+      {
+       "startNumber": 350,
+       "endNumber": 699,
+       "productPrice": 0.2847
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7345
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KEMET-R463N4100CKN1M/C600361",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 350,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7624,
+     "componentCode": "C600361",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N4100CKN1M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2006151009_KEMET-R463N4100CKN1M_C600361.pdf",
+     "dataManualFileAccessId": "8590163158821744640",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N4100CKN1M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V \u00b120% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>CKN1M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 628860,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r463n4100dqn2m_C600362.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6547
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6547
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.6547
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2547
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2449
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.24
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2312
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2454
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.6307
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6307
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2359
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6307
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "KEMET-R463N4100DQN2M/C600362",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 235,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 14,
+     "initialPrice": 0.6547,
+     "componentCode": "C600362",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N4100DQN2M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-R463N4100DQN2M_C600362.pdf",
+     "dataManualFileAccessId": "8590162444489154560",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N4100DQN2M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V \u00b120% \u63d2\u4ef6,P=22.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>DQN2M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3860607,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410040h1m_C3296018.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4684
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4684
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4684
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1813
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.175
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1718
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1655
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1746
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4512
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4512
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1685
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4512
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410040H1M/C3296018",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 20,
+     "initialPrice": 0.4684,
+     "componentCode": "C3296018",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410040H1M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031321_KEMET-R463N410040H1M_C3296018.pdf",
+     "dataManualFileAccessId": "8590278531101200385",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410040H1M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+125\u2103 1uF 310V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>40H1M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3860911,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410040n1m_C3296322.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3803
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3803
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 0.3803
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.1471
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1421
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1395
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 0.3663
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1344
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3663
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.1417
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3663
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1369
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410040N1M/C3296322",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 24,
+     "initialPrice": 0.3803,
+     "componentCode": "C3296322",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410040N1M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031322_KEMET-R463N410040N1M_C3296322.pdf",
+     "dataManualFileAccessId": "8603131297275523072",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410040N1M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>40N1M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3862154,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410050n2m_C3297565.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3466
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3466
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 0.3466
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.1342
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 0.1295
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.1272
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 0.1226
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 0.1248
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3339
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3339
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 0.3339
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 0.1293
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410050N2M/C3297565",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 27,
+     "initialPrice": 0.3466,
+     "componentCode": "C3297565",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410050N2M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031326_KEMET-R463N410050N2M_C3297565.pdf",
+     "dataManualFileAccessId": "8590359307817816064",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410050N2M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>50N2M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3863230,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410050m1k_C3298641.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4149
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4149
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.4149
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1605
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.155
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1522
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1466
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1546
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.3997
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3997
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1493
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3997
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410050M1K/C3298641",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 200,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 22,
+     "minPurchaseNum": 22,
+     "initialPrice": 0.4149,
+     "componentCode": "C3298641",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410050M1K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031330_KEMET-R463N410050M1K_C3298641.pdf",
+     "dataManualFileAccessId": "8590365811006341120",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410050M1K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>50M1K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3864815,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410050h7k_C3300226.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6563
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.64
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6286
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.6171
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.6171
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.6171
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6165
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.5945
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.5945
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6055
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6322
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.5945
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410050H7K/C3300226",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 3.5623,
+     "preMinPurchaseNum": 15,
+     "minPurchaseNum": 15,
+     "initialPrice": 0.64,
+     "componentCode": "C3300226",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410050H7K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031336_KEMET-R463N410050H7K_C3300226.pdf",
+     "dataManualFileAccessId": "8590293324302626816",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410050H7K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+125\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>50H7K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3864951,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b120% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_kemet-r463n410000n2m_C3300362.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3866
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3866
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3866
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 395,
+       "productPrice": 0.1498
+      },
+      {
+       "startNumber": 396,
+       "endNumber": 1187,
+       "productPrice": 0.1444
+      },
+      {
+       "startNumber": 1188,
+       "endNumber": -1,
+       "productPrice": 0.1418
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 395,
+       "productPrice": 0.1443
+      },
+      {
+       "startNumber": 396,
+       "endNumber": 1187,
+       "productPrice": 0.1391
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3724
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3724
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3724
+      },
+      {
+       "startNumber": 1188,
+       "endNumber": -1,
+       "productPrice": 0.1366
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410000N2M/C3300362",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 396,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 24,
+     "minPurchaseNum": 24,
+     "initialPrice": 0.3866,
+     "componentCode": "C3300362",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410000N2M",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031337_KEMET-R463N410000N2M_C3300362.pdf",
+     "dataManualFileAccessId": "8590395605940924416",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410000N2M",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b120% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>00N2M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4344570,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Film Capacitors",
+     "erpComponentName": "R463N4100ZAM1K",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/film-capacitors_kemet-r463n4100zam1k_C3776906.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5845
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5845
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.5845
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.227
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2188
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2155
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2076
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2186
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.563
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.563
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2108
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.563
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "abdb7141dee34ebf83c317f56a600047",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N4100ZAM1K/C3776906",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5845,
+     "componentCode": "C3776906",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N4100ZAM1K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N4100ZAM1K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Film Capacitors",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Film Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>ZAM1K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21225919,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Film Capacitors",
+     "erpComponentName": "R463N410000N1K",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/film-capacitors_kemet-r463n410000n1k_C19898343.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.671
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.671
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.671
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 359,
+       "productPrice": 0.2678
+      },
+      {
+       "startNumber": 360,
+       "endNumber": 1079,
+       "productPrice": 0.2596
+      },
+      {
+       "startNumber": 1080,
+       "endNumber": -1,
+       "productPrice": 0.2547
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 360,
+       "endNumber": 1079,
+       "productPrice": 0.2501
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.6464
+      },
+      {
+       "startNumber": 1080,
+       "endNumber": -1,
+       "productPrice": 0.2454
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 359,
+       "productPrice": 0.258
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.6464
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6464
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "abdb7141dee34ebf83c317f56a600047",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410000N1K/C19898343",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 360,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 14,
+     "initialPrice": 0.671,
+     "componentCode": "C19898343",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410000N1K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401151739_KEMET-R463N410000N1K_C19898343.pdf",
+     "dataManualFileAccessId": "8603653889074360320",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410000N1K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Film Capacitors ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Film Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N4100</span>00N1K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 3,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "R463N4100"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:35:16Z"
+}

@@ -1,0 +1,400 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 8055973,
+     "componentLibraryType": "expand",
+     "stockCount": 33,
+     "componentTypeEn": "Isolated Power Modules",
+     "erpComponentName": "2.0 W\u529f\u7387\u300124 V\u8f93\u5165\u7535\u538b\u300125 V\u8f93\u51fa\u7535\u538b\u3001\u9ad8\u529f\u7387\u5bc6\u5ea6\u3001\u9694\u79bb\u5f0fDC/DC\u6a21\u5757",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/isolated-power-modules_texas-instruments-ucc14240qdwnrq1_C7089349.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.7623
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.1665
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 10.1331
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 9.2319
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 9.2319
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 9.2319
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 8.8932
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 9.7612
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.3307
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 8.8932
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 8.8932
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 10.7567
+      }
+     ],
+     "firstSortAccessId": "9c3f0a7f2ff44e8eb678c5bd10002819",
+     "secondSortAccessId": "c46834ca14fc4227822ddc838b1d7829",
+     "canPresaleNumber": 25,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-UCC14240QDWNRQ1/C7089349",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 750,
+     "shopCostPrice": 53.71714,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 11.7623,
+     "componentCode": "C7089349",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "UCC14240QDWNRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585867984942878720",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2309210015_Texas-Instruments-UCC14240QDWNRQ1_C7089349.pdf",
+     "dataManualFileAccessId": "8603223337803784192",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI UCC14240QDWNRQ1",
+     "minImage": "",
+     "minImageAccessId": "8585867985784987648",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SSOP-36",
+     "describe": "-40\u2103~+125\u2103 1 12.83mm 13MHz 18V~25V 21V~27V 2W 3.6mm 3kV 7.5mm Regulated type Short Circuit Protection\u3001Under Voltage Protection\u3001Overvoltage protection\u3001Over-temperature protection\u3001EMI suppression SSOP-36 Isolated Power Modules ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Output Current(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Power",
+       "attribute_value_name": "2W"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Outputs",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Voltage Regulation",
+       "attribute_value_name": "Regulated type"
+      },
+      {
+       "attribute_name_en": "Conversion Efficiency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Length",
+       "attribute_value_name": "12.83mm"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "21V~27V"
+      },
+      {
+       "attribute_name_en": "Capacitive Load(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Frequency",
+       "attribute_value_name": "13MHz"
+      },
+      {
+       "attribute_name_en": "Height",
+       "attribute_value_name": "3.6mm"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Short Circuit Protection\u3001Under Voltage Protection\u3001Overvoltage protection\u3001Over-temperature protection\u3001EMI suppression"
+      },
+      {
+       "attribute_name_en": "Width",
+       "attribute_value_name": "7.5mm"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "18V~25V"
+      },
+      {
+       "attribute_name_en": "Ripple Noise",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Supply Current",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Isolated Power Modules",
+     "secondSortName": "Power Modules",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>UCC14240</span>QDWNRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3217469,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "DC-DC Converters",
+     "erpComponentName": "PUCC14240DWNQ1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/dc-dc-converters_texas-instruments-pucc14240dwnq1_C2917573.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 27.3774
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 27.3774
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 27.3774
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 10.5951
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 10.2229
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 10.0384
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 9.67
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 10.2063
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 26.3727
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 26.3727
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 9.8477
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 26.3727
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "9023cccfe13e4581b60de0d6c025e808",
+     "canPresaleNumber": -10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-PUCC14240DWNQ1/C2917573",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 25,
+     "shopCostPrice": 55.9,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 27.3774,
+     "componentCode": "C2917573",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "PUCC14240DWNQ1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com/cn/lit/gpn/ucc14240-q1",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/ucc14240-q1",
+     "componentName": "TI PUCC14240DWNQ1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SO-36",
+     "describe": "SO-36 DC-DC Converters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overcurrent Protection\u3001Operating status indication\u3001Adjustable current limiting\u3001EMI optimization (spread spectrum)"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "DC-DC Converters",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "P<span class='lucene_highlight_class'>UCC14240</span>DWNQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "UCC14240"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-18T19:43:38Z"
+}
