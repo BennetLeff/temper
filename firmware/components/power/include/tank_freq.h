@@ -38,8 +38,9 @@
  * ZVS. Two conditions, both required to step down:
  *  (a) measured lag >= zvs_lag_deg (45 deg). For a series RLC, tan(phi) = Q (f/f0 - f0/f), so
  *      phi >= 45 deg proves f >= 1.05 f_res for any loaded Q <= 10 (10 x (1.05 - 1/1.05) = 0.976).
- *      Loads with Q > 10 are the empty or weakly coupled coil, whose f_res (<= 28.4 kHz at 70 uH /
- *      0.45 uF) is below f_min / 1.05. Round 6: every grid operating point has phi >= 50 deg. The lag
+ *      Loads with Q > 10 are the empty or weakly coupled coil, whose f_res (25.0-26.3 kHz for the
+ *      coil of record, 77 uH installed on the 0.475-0.525 uF bank; coil study temper-coil-r1) is
+ *      below f_min / 1.05. Round 6: every grid operating point has phi >= 50 deg. The lag
  *      is measured to one capture tick (0.27 deg at 60 kHz), so (a) is well conditioned everywhere.
  *  (b) f >= 1.05 x f_res once f_res is estimated. Series-RLC first harmonic:
  *      tan(phi) = (L/R)(w - w0^2/w). Two lags at frequencies at least fit_sep_hz apart give w0^2 and
@@ -55,9 +56,9 @@
  * halves that each show: a valid f_res estimate, a lag <= fit_lag_max_deg, loaded Q = w0 L/R <=
  * pan_q_max, half-cycle RMS >= pan_min_rms_a, and delivered power per amp squared
  * p_inv / I_rms^2 >= pan_r_min_ohm. Any half without that evidence, or any invalid half, drops it at
- * once (fail safe to the lower limit). Both criteria are bench-tunable ESTIMATES (empty coil:
- * R ~ 0.12-0.25 ohm, Q ~ 50-100, lag ~ 88 deg; a pan that needs 28 A for the 1239 W hold:
- * R ~ 1.4 ohm, Q ~ 4-8).
+ * once (fail safe to the lower limit). Both criteria are bench-tunable ESTIMATES (empty coil of
+ * record: 77 uH / 0.13 ohm, Q ~ 250, lag ~ 89 deg at 35 kHz; a pan that needs 28 A for the 1239 W
+ * hold: R ~ 1.4 ohm, Q ~ 4-8; the coil study's ferrous pans: 33-63 uH / 2.1-6.2 ohm, Q 2-4).
  * Power request. The user's setting (adapter requested_w, input-side watts) is the fifth limit,
  * the softest: the loop targets input power = min(request, the limit-bound maximum). It stops
  * stepping down once input power reaches (1 - power_band) x request and steps up when it exceeds
@@ -70,6 +71,25 @@
  * implemented). A request of 0 stops the bridge in the adapter (gate off, loop reset).
  * Regulation overrun: more than overrun_halves consecutive halves above 1.05 x the effective
  * ceiling returns TF_FAULT_OVERRUN, which the binding latches as N21_FAULT_TANK_RMS.
+ *
+ * No-pan stop (coil study temper-coil-r1 F4; config.yaml TANK_NO_PAN_*). The clamp alone leaves an
+ * empty coil running: the loop walks to the 35 kHz floor and holds 11.7-16.1 A, 19-28 W, for as
+ * long as power is requested. A half is no-pan evidence when its lag was measured, the lag is at
+ * least no_pan_lag_deg (84), the half RMS is at least no_pan_min_rms_a (2.5 A) and the series R
+ * from the lag, r_lag_ohm = |Z| cos(lag) with |Z| = 0.9 x line RMS / half RMS, is below
+ * no_pan_r_max_ohm (0.5 ohm). (p_inv / I^2 is not used: p_inv takes cos(phi) = 1 for samples under
+ * the 2 A CT_ZC floor, which reads the empty coil at ~0.6 ohm near 60 kHz.) After no_pan_halves
+ * (240 = 2 s) consecutive evidence halves the loop returns TF_STOP_NO_PAN and keeps returning it
+ * until tank_freq_reset(): the binding stops the bridge and holds the request refused until it is
+ * withdrawn (UL 858 47.8: off within 30 s of vessel removal, manual reset; OPEN-ITEMS B10). A half
+ * with a measured lag that is not evidence clears the count; an invalid half or one without a lag
+ * holds it (no information either way). It covers a pan lifted mid-cook the same way: the loop is
+ * then at the pan's frequency, where the empty coil reads lag ~89 deg and p_inv / I^2 ~0.13 ohm.
+ * The evidence is exclusive with the pan evidence (lag >= 84 > fit_lag_max_deg, R < 0.5 <=
+ * pan_r_min_ohm). Sources of the thresholds (config.yaml): empty coil 0.13 ohm, lag >= 89.0 deg at
+ * 35 kHz; aluminium 0.24-0.28 ohm, lag >= 85.5 deg; heatable pans >= 0.9 ohm (priors offset / small
+ * pan; the model's ferrous pans >= 2.1 ohm, lag <= 76 deg at 60 kHz). At 35 kHz the empty coil's
+ * p_inv / I^2 stays under 0.5 ohm for lag errors up to 2.8 deg (|Z| 7.84 ohm).
  */
 #include <stdbool.h>
 #include <stdint.h>
@@ -128,6 +148,13 @@ typedef struct {
     uint32_t pan_confirm_halves, overrun_halves;
     uint32_t block_halves;        /* re-approach lock-out after a limit was exceeded */
     float power_band;             /* relative half-width of the power dead band, 0.03..0.2 */
+    /* No-pan stop (header "No-pan stop"). no_pan_stop false leaves the clamp alone (host tests'
+     * negative control; production keeps the default, true). */
+    bool no_pan_stop;
+    float no_pan_lag_deg;         /* evidence: lag at least this, (fit_lag_max_deg, 89.5] */
+    float no_pan_r_max_ohm;       /* evidence: p_inv / I^2 below this, (0, pan_r_min_ohm] */
+    float no_pan_min_rms_a;       /* evidence: half RMS at least this */
+    uint32_t no_pan_halves;       /* consecutive evidence halves to stop, <= 3000 (25 s) */
 } tank_freq_cfg_t;
 
 typedef struct {
@@ -146,6 +173,7 @@ typedef struct {
     float phi_rad;     /* mean lag of the tank current behind the bridge voltage */
     float tank_rms_a, inlet_a, peak_a, p_inv_w;
     float p_in_w;      /* input-side power estimate (input_limits p_in_w) */
+    float r_lag_ohm;   /* series R from the lag: (0.9 x line RMS / half RMS) x cos(phi); NAN if unknown */
 } tank_freq_obs_t;
 
 typedef enum {
@@ -164,6 +192,7 @@ typedef enum {
     TF_HOLD_POWER,     /* input power inside the request's dead band */
     TF_POWER_AT_FMAX,  /* request below the f_max minimum: capped at f_max */
     TF_FAULT_OVERRUN,  /* effective ceiling exceeded for too long: latch */
+    TF_STOP_NO_PAN,    /* no_pan_halves of no-pan evidence: stop the bridge (until reset) */
 } tank_freq_reason_t;
 
 typedef struct {
@@ -177,6 +206,8 @@ typedef struct {
     uint32_t pan_count, overrun;
     uint32_t block_hz, block_left; /* no step down to <= block_hz while block_left > 0 */
     float last_request_w;
+    uint32_t no_pan_count;    /* consecutive no-pan evidence halves */
+    bool no_pan_stopped;      /* TF_STOP_NO_PAN returned; held until tank_freq_reset() */
     tank_freq_reason_t reason;
 } tank_freq_t;
 

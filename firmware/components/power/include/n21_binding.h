@@ -57,6 +57,15 @@
  * per tick. The sequence runs at every gate rise (a start, or a restart after the request went to
  * zero); with read_bias_good == NULL (no J4.1 input) the same order and wait apply without the
  * check.
+ *
+ * Pan refusals (coil study temper-coil-r1 F3 / F4; telemetry pan_refusal). A refusal stops the
+ * bridge the way a BIAS_GOOD refusal does: RUN_EN low, the pads back to (or kept in) idle
+ * qualification, no fault, and the request held refused until it is withdrawn. It clears only
+ * when the adapter's request has gone to zero (set_request(false) with requested power 0), so a
+ * refused start never restarts on its own: the user starts again (UL 858 47.8 manual reset).
+ *   - N21_PAN_NO_PAN_STOP: the loop's no-pan stop (tank_freq.h "No-pan stop", TF_STOP_NO_PAN),
+ *     2 s of no-pan evidence with the bridge running: an empty coil, or a pan lifted mid-cook.
+ *     The acquisition context records it; the next control tick (<= 10 ms) drops RUN_EN.
  */
 #include "power_service.h"
 #include "line_zc.h"
@@ -142,6 +151,12 @@ typedef enum {
     N21_FAULT_CT_ZC_STALE, N21_FAULT_PWM
 } n21_fault_t;
 
+/* Why the current request is held refused (n21_binding.h "Pan refusals"). */
+typedef enum {
+    N21_PAN_OK = 0,
+    N21_PAN_NO_PAN_STOP,      /* no pan (or lifted) while running: the loop's no-pan stop */
+} n21_pan_refusal_t;
+
 typedef enum {
     N21_INIT_ERROR = 0,      /* bad config/HAL: pads low, nothing bound */
     N21_INIT_INHIBITED,      /* default: pads low, acquisition for telemetry only */
@@ -158,6 +173,8 @@ typedef struct {
     bool have_half, zc_locked, pads_live, gate_on, armed_line, bench_active, sample_invalid;
     /* Start sequence: the current request was refused (BIAS_GOOD not high after the gate rose). */
     bool bias_refused;
+    /* The current request is held refused for the pan (header "Pan refusals"). */
+    n21_pan_refusal_t pan_refusal;
     uint64_t gate_edge_us;     /* last RUN_EN change (0 = none yet) */
     uint32_t gate_rises;       /* start sequences run */
     n21_fault_t fault;
@@ -202,6 +219,7 @@ typedef struct {
     bool initialized, programmed, pads_live, gate_on, armed_line, invalid, have_sample;
     bool have_reset, bench_active;
     bool bias_refused;          /* start sequence refused this request (set_request(false) clears) */
+    n21_pan_refusal_t pan_refusal; /* held until the request is withdrawn (header "Pan refusals") */
     uint64_t gate_edge_us;      /* last RUN_EN change */
     uint32_t gate_rises;
     bool half_live;             /* pads live at every sample of the open half */

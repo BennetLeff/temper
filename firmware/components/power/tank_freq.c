@@ -29,6 +29,9 @@ tank_freq_cfg_t tank_freq_default(void)
         .pan_confirm_halves = 6u, .overrun_halves = 12u, /* 50 ms / 100 ms */
         .block_halves = 120u,                             /* 1 s */
         .power_band = 0.06f,  /* 12 % dead band > the ~5.7 % power change of one 250 Hz step */
+        /* No-pan stop: config.yaml TANK_NO_PAN_* (test_tank_freq.c pins the two together). */
+        .no_pan_stop = true, .no_pan_lag_deg = 84.0f, .no_pan_r_max_ohm = 0.5f,
+        .no_pan_min_rms_a = 2.5f, .no_pan_halves = 240u, /* 2 s */
     };
 }
 
@@ -50,7 +53,14 @@ bool tank_freq_config_ok(const tank_freq_cfg_t *c)
            c->pan_min_rms_a < TANK_CEILING_DEFAULT_A && /* reachable under the no-pan clamp */
            c->pan_confirm_halves >= 1u && c->pan_confirm_halves <= 120u &&
            c->overrun_halves >= 1u && c->overrun_halves <= 60u && c->block_halves <= 1200u &&
-           isfinite(c->power_band) && c->power_band >= 0.03f && c->power_band <= 0.2f;
+           isfinite(c->power_band) && c->power_band >= 0.03f && c->power_band <= 0.2f &&
+           /* No-pan evidence never overlaps pan evidence: lag above the fit limit, R not above
+            * the pan minimum. The stop lands inside UL 858 47.8's 30 s with margin (25 s). */
+           isfinite(c->no_pan_lag_deg) && c->no_pan_lag_deg > c->fit_lag_max_deg && c->no_pan_lag_deg <= 89.5f &&
+           isfinite(c->no_pan_r_max_ohm) && c->no_pan_r_max_ohm > 0 && c->no_pan_r_max_ohm <= c->pan_r_min_ohm &&
+           isfinite(c->no_pan_min_rms_a) && c->no_pan_min_rms_a >= 1.0f &&
+           c->no_pan_min_rms_a < TANK_CEILING_DEFAULT_A &&
+           c->no_pan_halves >= 1u && c->no_pan_halves <= 3000u;
 }
 
 void tank_freq_reset(tank_freq_t *t, const tank_freq_cfg_t *c)
@@ -144,6 +154,10 @@ tank_freq_reason_t tank_freq_step(tank_freq_t *t, const tank_freq_cfg_t *c, cons
                                   const tank_freq_obs_t *o)
 {
     if (!t || !c) return TF_UP_INVALID;
+    if (t->no_pan_stopped) {
+        t->f_hz = c->f_max_hz;
+        return t->reason = TF_STOP_NO_PAN;
+    }
     bool ok = lim && o && o->valid && o->f_hz >= c->f_min_hz && o->f_hz <= c->f_max_hz &&
               isfinite(o->tank_rms_a) && o->tank_rms_a >= 0 && isfinite(o->inlet_a) &&
               isfinite(o->peak_a) && isfinite(o->p_inv_w) && isfinite(o->p_in_w) && isfinite(lim->request_w) &&
@@ -165,6 +179,15 @@ tank_freq_reason_t tank_freq_step(tank_freq_t *t, const tank_freq_cfg_t *c, cons
         if (o->fit_ok && well_cond) estimate(t, c, o->f_fit_hz, tn);
     }
 
+    /* No-pan evidence (header "No-pan stop"): only a half with a measured lag (and its R) counts. */
+    if (o->phase_valid) {
+        if (isfinite(o->r_lag_ohm)) {
+            bool none = o->phi_rad >= c->no_pan_lag_deg * DEG && o->tank_rms_a >= c->no_pan_min_rms_a &&
+                        o->r_lag_ohm < c->no_pan_r_max_ohm;
+            t->no_pan_count = none ? t->no_pan_count + 1u : 0u;
+        }
+    }
+
     /* Pan evidence, then the no-pan clamp. */
     bool evidence = well_cond && t->have_fit && t->q <= c->pan_q_max && o->tank_rms_a >= c->pan_min_rms_a &&
                     o->p_inv_w >= c->pan_r_min_ohm * o->tank_rms_a * o->tank_rms_a;
@@ -183,6 +206,11 @@ tank_freq_reason_t tank_freq_step(tank_freq_t *t, const tank_freq_cfg_t *c, cons
     t->floor_hz = floor;
 
     if (t->overrun > c->overrun_halves) return up(t, c, f, c->step_up_hz, TF_FAULT_OVERRUN);
+    if (c->no_pan_stop && t->no_pan_count >= c->no_pan_halves) {
+        t->no_pan_stopped = true;
+        t->f_hz = c->f_max_hz;
+        return t->reason = TF_STOP_NO_PAN;
+    }
     if (!o->phase_valid) return up(t, c, f, c->step_up_hz, TF_UP_NO_PHASE);
     if (f < floor) return up(t, c, f, c->step_up_hz, TF_UP_BELOW_FLOOR);
     float k = 1.0f - c->hyst, kx = 1.0f + c->hyst;

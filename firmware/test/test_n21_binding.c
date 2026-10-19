@@ -917,11 +917,14 @@ static void test_thermal_tank_limit_live(void)
 static void test_no_pan_clamp_live(void)
 {
     /* Empty coil (R 0.2 ohm, 66.5 uH, bank at its -10 % corner 0.45 uF): with a 28 A ceiling
-     * configured the tank stays <= the 17.5 A no-pan clamp. */
+     * configured the tank stays <= the 17.5 A no-pan clamp. The clamp is the layer under the
+     * no-pan stop (test_no_pan_stop_live), so the stop is off here to see it for 3 s. */
     fake_reset(true);
     F.model_L = 66.5e-6; F.model_C = 0.45e-6; F.model_R = 0.2;
     F.vbus_peak = 190.0f; /* enough drive that the empty coil would pass 22 A at the floor */
-    assert(bind_commissioned(loop_cfg(28)));
+    n21_config_t c = loop_cfg(28);
+    c.freq.no_pan_stop = false;
+    assert(bind_commissioned(c));
     power_set_level(100);
     float worst = 0;
     for (int k = 0; k < 30; k++) {
@@ -935,6 +938,100 @@ static void test_no_pan_clamp_live(void)
     /* The empty coil really would exceed the clamp (and the old 22 A one) at the 35 kHz floor. */
     F.programmed.period = 2286;
     assert(0.900316316 * 190.0 / sqrt(2.0) / model_z(NULL) > 22.5);
+    tests++;
+}
+
+/* Coil of record (coil study temper-coil-r1): the empty coil, 77 uH / 0.13 ohm on the 0.5 uF
+ * bank, and the cast-iron reference pan, 46 uH / 4.3 ohm. */
+static void model_no_pan(void) { F.model_L = 77e-6; F.model_C = 0.5e-6; F.model_R = 0.13; }
+static void model_cast_iron(void) { F.model_L = 46e-6; F.model_C = 0.5e-6; F.model_R = 4.3; }
+
+/* Milliseconds until RUN_EN is low (polled every ms), 0 if it stays high for max_ms. */
+static unsigned ms_until_gate_off(unsigned max_ms)
+{
+    for (unsigned ms = 1; ms <= max_ms; ms++) {
+        run_ms(1);
+        if (!F.gate) return ms;
+    }
+    return 0;
+}
+
+/* F4: the empty coil is stopped (it used to hold 12-16 A at 35 kHz for as long as power was
+ * requested), the refusal holds without a fault until the request is withdrawn, and a pan lifted
+ * mid-cook is stopped the same way, well inside UL 858 47.8's 30 s. */
+static bool no_pan_stopped_live(bool stop_on, uint8_t level)
+{
+    fake_reset(true);
+    model_no_pan();
+    n21_config_t c = loop_cfg(TANK_CEILING_DEFAULT_A);
+    c.freq.no_pan_stop = stop_on;
+    assert(bind_commissioned(c));
+    run_ms(100);
+    power_set_level(level);
+    run_ms(100);
+    assert(F.gate && test_pwm_generation());
+    unsigned ms = 0;
+    uint32_t f_low = 60000;
+    for (unsigned k = 1; k <= 5000 && !ms; k++) {
+        run_ms(1);
+        if (F.gate && 80e6 / F.programmed.period < f_low) f_low = (uint32_t)(80e6 / F.programmed.period);
+        if (!F.gate) ms = k;
+    }
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    assert(t.fault == N21_FAULT_NONE && test_pwm_generation() && F.resets == 0);
+    if (!ms) {
+        assert(t.pan_refusal == N21_PAN_OK && F.gate); /* the old behaviour: runs on */
+        return false;
+    }
+    /* The lowest request (1 % = 18 W) holds the empty coil above the floor (~37.8 kHz); 50 %
+     * walks it to 35 kHz. Either way: 240 halves of evidence from the first half after RUN_EN
+     * rose (2.0 s), plus the half the start fell in and <= one 10 ms tick. */
+    assert(level == 1 ? f_low > 36000 : f_low < 35500);
+    double since_rise_ms = (double)(F.now - F.gate_rise_us) / 1000.0;
+    assert(since_rise_ms >= 2000 && since_rise_ms <= 2020);
+    assert(t.pan_refusal == N21_PAN_NO_PAN_STOP && F.pads_live && !F.gate);
+    return true;
+}
+
+static void test_no_pan_stop_live(void)
+{
+    assert(no_pan_stopped_live(true, 1));
+    power_set_level(0);
+    run_ms(100);
+    assert(no_pan_stopped_live(true, 50));
+    n21_telemetry_t t;
+    /* Held: 3 s more with the request standing, no new RUN_EN rise, no fault. */
+    unsigned rises = B.gate_rises, gate_calls = F.gate_on_calls;
+    run_ms(3000);
+    n21_telemetry(&B, &t);
+    assert(!F.gate && B.gate_rises == rises && F.gate_on_calls == gate_calls && t.fault == N21_FAULT_NONE);
+    assert(t.pan_refusal == N21_PAN_NO_PAN_STOP && F.pads_live && test_pwm_generation());
+    /* A pan put back does not restart it either: the reset is manual. */
+    model_cast_iron();
+    run_ms(1000);
+    assert(!F.gate && B.gate_rises == rises);
+    /* Withdrawn and requested again: a new start, and a real pan runs (10 s, no stop). */
+    power_set_level(0);
+    run_ms(100);
+    n21_telemetry(&B, &t);
+    assert(t.pan_refusal == N21_PAN_OK && !F.gate);
+    power_set_level(50);
+    run_ms(10000);
+    n21_telemetry(&B, &t);
+    assert(F.gate && t.pan_refusal == N21_PAN_OK && t.fault == N21_FAULT_NONE && t.pan_present);
+    /* Lifted mid-cook: RUN_EN low 2.0 s later (+ a tick), held refused. */
+    model_no_pan();
+    unsigned ms = ms_until_gate_off(30000);
+    n21_telemetry(&B, &t);
+    assert(ms >= 1990 && ms <= 2030 && t.pan_refusal == N21_PAN_NO_PAN_STOP && t.fault == N21_FAULT_NONE);
+    power_set_level(0);
+    run_ms(100);
+    /* Negative control: with the stop off the same check fails (the empty coil runs on). */
+    assert(!no_pan_stopped_live(false, 50) && !no_pan_stopped_live(false, 1));
+    assert(F.gate);
+    power_set_level(0);
+    run_ms(100);
     tests++;
 }
 
@@ -1429,6 +1526,7 @@ int main(void)
     test_freq_loop_live();
     test_thermal_tank_limit_live();
     test_no_pan_clamp_live();
+    test_no_pan_stop_live();
     test_freq_update_failure();
     test_power_level_live();
     test_aux_allowance_live();

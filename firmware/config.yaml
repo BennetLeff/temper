@@ -430,3 +430,65 @@ interlocks:
       fault stops the wave until the fault clears) and is latched within
       30 ms.
     legacy_define_only: true
+
+  # ---- native-21 no-pan stop (coil study temper-coil-r1 F4; tank_freq.h "No-pan stop").
+  # tank_freq_default() equals these (test_tank_freq.c test_no_pan_config pins the two together).
+  # Plant sources: study/coil-r1 output/temper-coil-r1/model/results/TABLES.md (R1 winding,
+  # 77 uH installed, 0.475-0.525 uF bank), reproduced by firmware/test/test_tank_freq.c.
+  - c_symbol: TANK_NO_PAN_LAG_DEG
+    value: 84.0
+    c_type: float
+    units: "deg"
+    doc: >-
+      A half is no-pan evidence only if its CT_ZC lag is at least this. The
+      empty coil of record (77 uH / 0.13 ohm, Q ~250) reads >= 89.0 deg at
+      every frequency in 35-60 kHz and aluminium 240 mm >= 85.5 deg; the
+      model's ferrous pans read <= 76 deg at 60 kHz and less at their stop.
+      84 is above the fit limit (80 deg), so a half can never be pan and
+      no-pan evidence at once. The resistance test below does the
+      discriminating; this one guards it against a bad power estimate.
+    legacy_define_only: true
+
+  - c_symbol: TANK_NO_PAN_R_MAX_OHM
+    value: 0.5
+    c_type: float
+    units: "ohm"
+    doc: >-
+      No-pan evidence: the tank's series R from the measured lag,
+      |Z| cos(lag) with |Z| = 0.9 x line RMS / half-cycle RMS, below this
+      (not p_inv / I^2: p_inv counts samples under the 2 A CT_ZC floor at
+      cos 1, which reads the empty coil ~0.6 ohm near 60 kHz). Empty coil
+      0.13 ohm (Litz R_ac
+      0.087-0.110 ohm + enclosure eddy 0.011-0.020 ohm), aluminium
+      0.24-0.28 ohm (0.13-0.17 reflected + Litz); the lowest heatable load is
+      0.9 ohm (round-4 priors offset / small pan, 0.012 ohm/uH x 77 uH), the
+      model's ferrous pans >= 2.1 ohm. 0.5 ohm is 1.8 x above 0.28 and 1.8 x
+      below 0.9, and not above TEMPER_POWER_PAN_R_MIN_MOHM (config_ok). At
+      the 35 kHz floor the empty coil stays under it for CT_ZC lag errors up
+      to 2.8 deg (|Z| 7.84 ohm).
+    legacy_define_only: true
+
+  - c_symbol: TANK_NO_PAN_MIN_RMS_A
+    value: 2.5
+    c_type: float
+    units: "A"
+    doc: >-
+      No-pan evidence needs a half-cycle tank RMS of at least this: above the
+      2 A below which CT_ZC is undefined (n21 cos_phi_min_current_a). The
+      empty coil draws >= 4.0 A at the 60 kHz start at 108 V.
+    legacy_define_only: true
+
+  - c_symbol: TANK_NO_PAN_STOP_HALVES
+    value: 240
+    c_type: uint32_t
+    units: "half line cycles"
+    doc: >-
+      Consecutive no-pan evidence halves before the loop stops the bridge
+      (TF_STOP_NO_PAN); the binding then holds the request refused until it
+      is withdrawn (manual reset). 240 = 2.0 s at 60 Hz: long enough that a
+      pan slid or lifted for a moment is not refused, and 15 x inside UL 858
+      47.8's 30 s off-after-vessel-removal (power-stage OPEN-ITEMS B10);
+      tank_freq_config_ok caps it at 3000 (25 s). Stop latency after a pan is
+      lifted: 2.0 s plus <= 0.5 s for lag errors up to 1 deg, plus one 10 ms
+      control tick.
+    legacy_define_only: true

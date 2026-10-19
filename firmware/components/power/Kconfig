@@ -75,8 +75,11 @@ config TEMPER_POWER_PAN_Q_MAX_X10
 config TEMPER_POWER_PAN_R_MIN_MOHM
     int "Pan established: p_inv / I_rms^2 at least this, milliohm (bench-tunable)"
     depends on TEMPER_POWER_HW_BINDING
-    range 100 5000
+    range 500 5000
     default 800
+    help
+        Not below the no-pan stop's 0.5 ohm (config.yaml TANK_NO_PAN_R_MAX_OHM): a half must never
+        be pan evidence and no-pan evidence at once, and tank_freq_config_ok refuses the pair.
 
 config TEMPER_POWER_EST_ERROR_PPM
     int "Inlet estimator error bound e_est, ppm (bench step 8; provisional 100000 = 10 %)"
