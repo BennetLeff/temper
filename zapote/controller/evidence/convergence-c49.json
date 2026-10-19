@@ -1,0 +1,58 @@
+{
+ "runs": [
+  {
+   "run": "run1",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 44,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 25,
+    "copper_sliver": 2,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 14,
+    "track_dangling": 1
+   },
+   "rc": 0,
+   "seconds": 3917,
+   "closed": true
+  },
+  {
+   "run": "run2",
+   "make_last_line": "DRC not clean",
+   "errors": 0,
+   "warnings": 35,
+   "unconnected": 1,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 18,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 14,
+    "track_dangling": 1
+   },
+   "rc": 1,
+   "seconds": 4571,
+   "closed": false
+  },
+  {
+   "run": "run3",
+   "make_last_line": "DRC not clean",
+   "errors": 0,
+   "warnings": 35,
+   "unconnected": 4,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 18,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 14,
+    "track_dangling": 1
+   },
+   "rc": 1,
+   "seconds": 5593,
+   "closed": false
+  }
+ ],
+ "all_closed": false,
+ "consecutive_closed": 0
+}

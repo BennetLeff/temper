@@ -13,7 +13,7 @@
 > of 0 is right. (A third-party guide lists +180 as a typical SMA offset; that is not the case for this part's footprint.) If the preview still shows the
 > band on the wrong side, set D9's rotation to 180 in `fab/cpl-jlcpcb.csv` (or JLC's rotation field) before confirming; a reversed D9 only leaves the logic
 > rail unpowered (no damage; flip it by hand). The C48 text below is otherwise unchanged. Routing: one clean full run (0 open,
-> DRC 0 errors, interlock and 14 layout checks pass); the 3-run convergence proof was not repeated for this netlist.
+> DRC 0 errors, interlock and 14 layout checks pass); the 3-run convergence proof was repeated for this netlist and closes on 1 of 3 runs (`evidence/convergence-c49.json`; C48 was 3 of 3). The committed board is one passing run; re-routing it is not reliable.
 > Stock re-read 2026-10-18 (`evidence/order/stock-read-2026-10-18.json`): 88 of 89 lines have at least 2 x the 5-board need in stock; R39's RG2012V (consigned) has 0.
 
 Board: C1 + CR-8, **C49 board** (`pcb/controller.kicad_pcb` sha256
