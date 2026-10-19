@@ -8,10 +8,10 @@ This procedure takes the integrated SELV controller (`zapote/controller`) and na
 Every board-specific number is in the **board table** below (rows B1–B17, J4, probe points, ceiling ladder). It is
 generated from the stage 53 sources by `firmware/tools/commissioning_board_table.py`, and CI fails when this file and the
 board disagree, so the steps cite its rows instead of repeating the numbers. Every other number is cited to its source or
-marked **provisional**, and the bench measurement replaces it. Steps that depend on the controller's J13 rail merge (J4.1
-→ 10 k → GPIO35 as BIAS_GOOD_RB, RAIL_OK_RB moved to TCA9555 P02; `zapote/power-stage-120v/validation-results/
-11-candidates/c23-supply-topology/CONTROLLER-REQUEST.md` items 1–2 and addendum 3, power-stage DECISIONS 67 / 71 / 76) are
-marked **pending the J13 merge**.
+marked **provisional**, and the bench measurement replaces it. The controller is the **J13-merge board** (controller
+DECISIONS C49 / C50 on branch `controller-j13-merge`, power-stage DECISIONS 79, firmware `0550fffcf`): its logic 15 V
+comes in on J13, J4.1 is the power board's BIAS_GOOD read on GPIO35, and RAIL_OK_RB is on TCA9555 P02 (ground rules,
+"Controller revision"). The firmware matches only that controller.
 
 The firmware pieces are:
 - `n21_signal.{c,h}` and `n21_binding.{c,h}`: the logic, host-tested by `firmware/test/test_n21_binding.c`.
@@ -126,7 +126,12 @@ Tank ceiling ladder (firmware `tank_freq.h`; floor = round-6 envelope peak + 3 A
   - **Reference:** with BR1 out, the bus and the HOT domain have no galvanic path to mains; in steps 3–4 they float on the isolated DC supply. Tie them to PE at one point, a single labelled lead from hv_ret (the B19 hv_ret lead, which is also the DC supply's negative) to the bench PE stud, in steps 2–4, so the HOT domain sits at PE instead of floating on PS2's and the supply's leakage. Make no other HOT-to-PE or HOT-to-scope-ground connection. **Remove the tie before BR1 is fitted** (step 4b): with BR1 in, hv_ret is at mains potential and the tie is a line-to-earth short.
   - The DC supply goes onto the bus at the B19 leads (the board has no bus test pad): solder short tails to the two through-hole leads before power instead of clipping on. They are the bus_p / hv_ret pair on one part that sits farthest from any other net's pad, live mains included.
 - **Mains cut.** A bench unit always runs behind an external, hand-operable series mains cut. Nothing on the board opens mains (`08-manufacturing-package/native-21/PROTOTYPE-LOT.md`, bench plan).
-- **Before the J13 merge** (DECISIONS 76): a stage-38+ power board does not power the controller as captured, so the two run together only after the merge. Until then, run the power-board-only parts (step 2 items 1 and 5, the B8 / H2 levels of item 6, and step 3) from a J4 breakout: J4.3 from a bench 3.30 V (inside J4.3's 3.135–3.465 V contract, power-stage README), current-limited to 0.2 A (**provisional**: there is no SELV-side current budget on record), J4.9 driven to v3v3 through 1 kΩ, and J4.10–J4.14 to the scope.
+- **Controller revision: the C49 (J13-merge) board only** (controller DECISIONS C49 / C50, branch `controller-j13-merge`; power-stage DECISIONS 79; `firmware/README.md` "Fitted (2026-10-18; J13 rail merge)").
+  - Its logic rail `v15_selv` is fed from J13 (`V15_BLW`) through D9 (SS14); in the product PS3 feeds J13.
+  - J4.1 is the power board's BIAS_GOOD output (board table J4, B15), read high-Z on GPIO35 (`CTRL_GPIO_BIAS_GOOD_RB`) through controller R124 10 k, with C97 1 nF C0G and controller R123 1 MΩ to `selv_gnd` at the pin. **J4.1 never sees 15 V.**
+  - RAIL_OK_RB is TCA9555 P02 (`CTRL_EXP_RAIL_OK_RB`), read from the expander snapshot with a freshness check, and latched in hardware as RAIL_FAULT.
+  - The C48 controller (J4.1 its 15 V input, RAIL_OK on GPIO35) does not match this firmware and is never connected to a stage-53 board (C50). C50's accepted bench risks are checked in steps 2 and 8c: GPIO35 and D9 have not been on hardware, and a blower fault that drives PS3 into hiccup resets the controller.
+- **J4 breakout.** The J4 harness runs through an inline breakout that brings out every pin and can open each line; the J4.1 / J4.9 / J4.10 manipulations below are made there. The power-board-only items (step 2 items 1 and 5, the B8 / H2 levels of item 6, and step 3) may also run with the controller unplugged from the breakout: J4.3 from a bench 3.30 V (inside J4.3's 3.135–3.465 V contract, power-stage README), current-limited to 0.2 A (**provisional**: there is no SELV-side current budget on record), J4.9 driven to v3v3 through 1 kΩ, and J4.10–J4.14 to the scope.
 
 ## Modes and what flips `commissioned=true`
 
@@ -156,12 +161,13 @@ The three conditions for `commissioned=true`:
 
 ## Step 1: controller alone (no native-21)
 
-Setup: a bench 15 V, current-limited to 1 A, into the controller's J4.1/J4.2 (the controller as captured; into J13 after the J13 merge). J4 goes to a breakout with 10 kΩ loads on the PWM lines.
-**Controller revision.** This is the controller as captured today, where J4.1 is its 15 V input (`v15_selv`). On stage 53 J4.1 is the BIAS_GOOD output (board table J4, B15), so this controller is never connected to a stage-53 board: run step 1 on it through the breakout only. On a controller with the J13 merge (**pending the J13 merge**; `CONTROLLER-REQUEST.md` items 1–2 and addendum 3 item 12) the bench 15 V goes into J13 and **J4.1 must never see 15 V**: it is GPIO35's input (10 k series, 1 MΩ and 1 nF to ground).
+Setup: a bench 15 V, current-limited to 1 A, into the controller's J13 (`V15_BLW`; D9 feeds the logic rail from it), with the blower (J10) unplugged. J4 goes to the breakout with 10 kΩ loads on the PWM lines and J4.1 open.
+**Controller revision.** The C49 controller only (ground rules). The bench 15 V goes into J13 and **J4.1 must never see 15 V**: it is GPIO35's input (controller R124 10 k series, controller R123 1 MΩ and C97 1 nF to ground). Confirm before power that the board carries D9 next to J13 and the three parts beside U4 (C49 layout addendum).
 
 1. **Rails:**
    - v3v3 is 3.242–3.367 V.
-   - RAIL_OK reads high: GPIO35 (`CTRL_GPIO_RAIL_OK_RB`) on the controller as captured; TCA9555 P02, read from the expander snapshot, after the J13 merge (**pending the J13 merge**: GPIO35 becomes BIAS_GOOD_RB).
+   - RAIL_OK reads high: TCA9555 P02 (`CTRL_EXP_RAIL_OK_RB`), read from the expander snapshot.
+   - BIAS_GOOD_RB (GPIO35, `CTRL_GPIO_BIAS_GOOD_RB`) reads low with J4.1 open (the 1 MΩ pull-down; C49 `bias_good`: open reads low).
    - SUP_RUN_OK (TCA9555 P14 since R36, DECISIONS C27; read from the expander snapshot) reads high while the WDI (GPIO18) heartbeat runs. It drops within 0.9–1.6 s when the heartbeat stops (halt the control task).
 2. **Pads low at every boot phase.** Scope all four PWM lines through reset, boot ROM, app start and `n21_hw_start`. Expected: low throughout, with no pulse over 0.8 V (D-25, controller misc checks). Repeat with the MCU held in reset and with it unpowered (10 kΩ pull-downs).
 3. **Interlock with J4.10 open:**
@@ -190,7 +196,7 @@ Setup: a bench 15 V, current-limited to 1 A, into the controller's J4.1/J4.2 (th
 Setup:
 - Native-21 SELV and HOT logic and gate supplies powered; **BR1 not fitted** (B18, the bring-up power plan in the ground rules). The inlet is fed at 120 V from the isolation transformer through the power analyser (no variac: PS2's input range is 80–264 VAC, MPM-20-SPEC p.2, datasheet ledger), so PS2 runs from its own input through the J3 loop with the bench TCO (DF110S on the bench sink, `zapote/power-stage-120v/validation-results/11-candidates/bench-sink-r1/README.md` D5). V24_RAW, V15_LS, HOT5 and the HS-A / HS-B bias (U41 / U42) come up from PS2 on the board. The DC bus is dead: nothing feeds bus_p / hv_ret with BR1 out; tie it through 10 kΩ across the B19 leads anyway, with the hv_ret–PE tie of the ground rules in place. First check +15 / −2 V on every domain at the TP pairs and the monitor windows (−2.206 / −1.799 V; PROTOTYPE-LOT.md bench plan item 2).
 - **FET gates disconnected:** gate resistors not fitted, or the driver outputs lifted, and each driver output loaded with 10 nF to its source return.
-- The controller is powered as in step 1 (through J13 on a controller with the J13 merge, **pending the J13 merge**; until then use the breakout of the ground rules for items 1 and 5 and skip the PWM items), with the real J4 harness.
+- The controller is powered as in step 1 (the bench 15 V into J13, J10 unplugged), with the real J4 harness through the breakout. PS3 first feeds J13 at step 5's mains sequencing.
 - Mode BENCH, `TEMPER_POWER_F_MAX_HZ=50000` (a test value, as in round 5; bench sessions run at F_MAX, the loop runs only in COMMISSIONED).
 
 1. **Interlock:**
@@ -216,10 +222,10 @@ Setup:
    - Inject a capture mismatch: swap the HB/LB harness wires. Expect an `N21_FAULT_PWM` stop on the first poll.
 5. **Reset and brown-out:**
    - Reset the MCU mid-session: pads low within the reset assertion, drivers low (D-25).
-   - Brown out v3v3 slowly: RAIL_OK (P02 after the J13 merge) trips before the TPS3823 and the 2EDR8259X VDDI UVLO (on ≤ 2.95 V, off ≥ 2.55 V; datasheet ledger, `CONTROLLER-REQUEST.md` "one stale line"), the FMEA order. Record the order.
+   - Brown out v3v3 slowly: RAIL_OK (P02) trips before the TPS3823 and the 2EDR8259X VDDI UVLO (on ≤ 2.95 V, off ≥ 2.55 V; datasheet ledger, `CONTROLLER-REQUEST.md` "one stale line"), the FMEA order. Record the order.
 
-6. **BIAS_GOOD read-back (c50 option P, B15; OPEN-ITEMS B13 H2; firmware/README.md "BIAS_GOOD read-back"). Pending the J13 merge.**
-   Applies when `controller_pins.h` defines `CTRL_GPIO_BIAS_GOOD_RB` (J4.1 on GPIO35, which the J13 merge brings). Stage 53 has option P (B15: BIAS_GOOD = bias_ok AND PERMIT). Until the merge, record N/A for the controller-side checks, and B13 H2 stays open; the B8 / H2 power-board levels below run from the breakout. Scope J4.9 (PERMIT), `hsb_good` and hb_hold (no pads: see the board table), BIAS_GOOD (TP19), leg B DIS (TP18) and GPIO35 (the controller side of the 10 k). TP19 shows bias health only while PERMIT is high; at idle the heartbeat is visible only as the hb_rx square wave at U46.2 / U32.13 (no pad).
+6. **BIAS_GOOD read-back (c50 option P, B15; OPEN-ITEMS B13 H2; firmware/README.md "BIAS_GOOD read-back").**
+   `controller_pins.h` defines `CTRL_GPIO_BIAS_GOOD_RB` (J4.1 on GPIO35, the C49 controller), so every check below runs, and together they close B13 H2 and C50's "GPIO35 not yet on hardware" risk. Stage 53 has option P (B15: BIAS_GOOD = bias_ok AND PERMIT). The C49 design levels are a high of 0.82 × VDD against VIH 0.75 × VDD, an open input reading low, and tau about 190 µs (controller DECISIONS C49 `bias_good`). Scope J4.9 (PERMIT), `hsb_good` and hb_hold (no pads: see the board table), BIAS_GOOD (TP19), leg B DIS (TP18) and GPIO35 (the controller side of the 10 k). TP19 shows bias health only while PERMIT is high; at idle the heartbeat is visible only as the hb_rx square wave at U46.2 / U32.13 (no pad).
    - **Timing over 20 starts, at 25 °C and hot.** Bench sessions (`n21_bench_start(200, true)` after an operator-confirmed reset, gates disconnected as above) raise RUN_EN with the pads low, wait `BIAS_GOOD_PERMIT_RISE_MS` (2 ms), then release the pads (the DECISIONS C39 order; record the delay from RUN_EN to the first pad edge, ≥ 2 ms expected). Per start record:
      - PERMIT ↑ → DIS ↓: B15a; the 2EDR8259X DIS-to-output delay is unpublished, so measure it at the driver output (the C39 open item);
      - PERMIT ↑ → GPIO35 ≥ VIH: B15b;
@@ -375,10 +381,10 @@ Procedure:
    Re-run `test_blower_aux`; update its pinned numbers and the hold table in DECISIONS.
 5. **Step-up on the bench (COMMISSIONED, after 9a):** at the inlet hold on the 120 V nominal pan, force the fan law from off to 0.8 drive, then a fault (full speed at once). With the analyser at 10 ms resolution, the inlet stays ≤ 13.5 A on the normal step and < 15 A on the fault step, with no `freq_reason` other than UP_INLET / HOLD_LIMIT and no adapter trip.
 6. **Blower start (G-B1):** at a full-voltage enable, record PS3's output and input peak, and confirm no MPM-65 hiccup.
-7. **BLW_PG (expander P16, controller C33):** on the controller as captured. **Pending the J13 merge:** on a merged controller J13 also carries the logic 15 V, so "PS3 absent" means no controller and the two J13-unplug items below become moot (`CONTROLLER-REQUEST.md` item 3); the J10 and P16 pull-down items still apply.
+7. **BLW_PG (expander P16, controller C33) and PS3 loss.** On the C49 controller J13 also carries the logic 15 V, so "PS3 absent" means no controller: PERMIT and the PWM fail low with it (the power board's R7 / R15 pull permit_gate down, and the drivers' VDDI is v3v3, so input UVLO holds both outputs low; `CONTROLLER-REQUEST.md` item 3). The two "unplug J13" items of the C48 procedure become PS3-loss checks.
    - With PS3 on, P16 reads 1 and the diagnosis is clear.
-   - Unplug J13 (PS3 output) with the bridge idle. P16 reads 0 after the 3-poll debounce, the start button stays in IDLE showing "NO BLOWER PWR", and no power is applied.
-   - Unplug J13 with the blower forced on. After the > 1 s stall it is labelled "PS3 absent" and the C28 derate applies.
+   - Unplug J13 (PS3 output) with the bridge idle, then again during a bench session: the controller powers down, the pads and PERMIT go low, DIS goes high, and nothing restarts on its own when J13 is replugged (the controller boots to IDLE). Scope v3v3, J4.9 and leg B DIS; record the time from the unplug to DIS high.
+   - **Blower start and PS3 hiccup (C50 accepted risk 1; `CONTROLLER-REQUEST.md` item 5):** scope the logic rail (`v15_selv` after D9) and v3v3 during item 6's blower start and at the PS3 low corner. Record the minimum against C49 `merge_rail` (≥ 13.9 V at the worst corner, the buck start 12.1 V). A controller reset there fails safe but is recorded in power-stage OPEN-ITEMS; the fix is a controller re-spin (C50).
    - Unplug only J10 (blower) with PS3 on. The stall is labelled "blower failed".
    - Hold P16 low with a 1 k pull-down while the blower turns. After 3 s the BLW_PG sense fault latches and the firmware falls back to stall-only behaviour. Remove the pull-down and reset.
 
@@ -437,7 +443,7 @@ Requires the hardware run gate (H1), fitted on controller layout L2 (RUN_EN, GPI
    - the pads run with the gate low;
    - `power_set_level` > 0 raises the gate;
    - `power_set_level(0)` lowers it without a trip.
-3. Repeat every fault injection of `test_any_fault_inhibits` physically (J4.10, RAIL_OK (P02 after the J13 merge), PERMIT, v3v3, VBUS over-range by supply, SPI unplug of controller U15, CT_ZC lead, LINE_ZC lead, stalled acquisition). Each must end with gate low, pads low, and the latch observed.
+3. Repeat every fault injection of `test_any_fault_inhibits` physically (J4.10, RAIL_OK (P02), PERMIT, v3v3, VBUS over-range by supply, SPI unplug of controller U15, CT_ZC lead, LINE_ZC lead, stalled acquisition). Each must end with gate low, pads low, and the latch observed.
 
 ## Step 10: sign-off
 
