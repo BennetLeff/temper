@@ -9,8 +9,8 @@
   Y = 110 - ky = 110 + (Gerber Y). Board lower-left corner = world (-38, 14) = Gerber (20, -96).
 - **Assembly:** all parts on the top side. BOM lines 89, placements 288
   (9 THT). CPL rotations are KiCad's plus the audited JLC offset
-  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 50 lines corrected
-  (D8, J1, J2, J3, J4, J7, Q1, U1, U2, U3, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U36, U37, U38, U39, U40, U41, U42, U43, U44, U45, U46).
+  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 45 lines corrected
+  (D8, Q1, U1, U2, U3, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U36, U37, U38, U39, U40, U41, U42, U43, U44, U45, U46).
 - **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
   is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
   - C10096 SN74LVC1G32DBVR (SOT-23-5): U27, U28, U41, U44

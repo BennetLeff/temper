@@ -1,7 +1,7 @@
 # Controller prototype order package (JLC PCB + PCBA)
 
 > **JLC preview done 2026-10-19 (`evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md`): the CPL had to change.** The NEEDS-PREVIEW parts were
-> rotated wrong in JLC's own viewer (U11, U12, U16, Q1 by 180, U3 by 90). `layout/fab.py` now applies the geometry offsets (34 rotations changed), and the CPL
+> rotated wrong in JLC's own viewer (U11, U12, U16, Q1 by 180, U3 by 90). `layout/fab.py` now applies the geometry offsets (29 rotations changed; the THT connectors J1 J2 J3 J4 J7 stay at KiCad's rotation: check their body and keying against our silk in the preview), and the CPL
 > hash in the table below is the corrected file. The BOM and Gerbers are unchanged. The viewer also showed: **Standard PCBA is required** (83 extended part types,
 > U4 is "Standard Only"), and R39 has no stock (do-not-place in the draft). Parts still to look at in the preview: see that file.
 >
@@ -40,7 +40,7 @@ The fab files `--no-route` regenerated were compared with the committed ones:
 |---|---|---|
 | Gerbers + drill (zip, 16 files) | `fab/controller-gerbers.zip` | `53f5adddd1c278dcb4a6656c7e316e50f8e53bc3445d8eeaca46b314dfd7d25c` |
 | BOM (89 lines) | `fab/bom-jlcpcb.csv` | `259acf1957e82ef49f01dae212714a96168e447c6046c7655878cbe9f30c5133` |
-| CPL (288 placements, 279 SMD / 9 THT, all top side) | `fab/cpl-jlcpcb.csv` | `799bf9566663ff8f60242532c232115a95f0cc4f9ed452ed88a3d7024d6657d1` |
+| CPL (288 placements, 279 SMD / 9 THT, all top side) | `fab/cpl-jlcpcb.csv` | `2327ec703cd241ee096b4f687d8c01d75f4d71893b833a98193fda6f53465473` |
 | Assembly drawing (reference, not uploaded) | `fab/assembly-top.pdf` | `3ad361c9e6c553c414c0271651a33e285b02ad95f6639e92e6a7fb2ff4e82831` |
 
 The JLC "Mount" column in the BOM/CPL is informational. JLC decides SMT or THT from its own part library.

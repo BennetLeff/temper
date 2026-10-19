@@ -59,11 +59,10 @@ CPL_ROTATION_OFFSET = {
     # 2026-10-19, JLC's own 3D placement preview of this board (evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md): the
     # NEEDS-PREVIEW parts below showed JLC's pin 1 at a different corner from ours by the EasyEDA-footprint offset (U11, U12 and
     # U16 by 180, U3 by 90). Where the DB and the geometry disagreed the preview sided with the geometry. Offsets are the audit's
-    # geometry_offset (JLC's library footprint against our pads); re-check in the preview after upload.
-    "C158012": 180,   # B2B-XH-A, J1 J2
-    "C144395": 180,   # B4B-XH-A, J3
-    "C277731": 180,   # Micro-Fit 43045-1600, J4
-    "C158027": 180,   # B12B-XH-A, J7
+    # geometry_offset (JLC's library footprint against our pads); re-check in the preview after upload. NOT applied to the THT
+    # connectors J1 J2 J3 J4 J7: the geometry offset there is a pad-numbering difference, but for a physical connector the body must
+    # match the silk outline, and with +180 JLC's J4 body (a right-angle Micro-Fit) hung off the board edge instead of sitting inside the
+    # outline, opening toward +X as ENCLOSURE-HANDOFF says. They stay at KiCad's rotation until checked against the silk in the preview.
     "C5219272": 180,  # TPS62933F, SOT-583-8
     "C3200405": 180,  # TPS62933, SOT-583-8
     "C1850327": 270,  # TPS3703, WSON-6
