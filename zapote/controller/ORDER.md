@@ -8,7 +8,10 @@
 > new parts were read from JLC on 2026-10-18, the rest are the 2026-10-12 / 15 reads). The NEEDS-PREVIEW list is the C48 audit (44 placements /
 > 23 codes) **plus D9 (SS14, LCSC C2480, SMA)**, which the rotation audit was not re-run for (its rotation database is not in the repo snapshot):
 > it is polarized and the `D_SMA` footprint is new, so
-> check the cathode band against pad 1 in JLC's 3D preview. The C48 text below is otherwise unchanged. Routing: one clean full run (0 open,
+> check the cathode band against pad 1 in JLC's 3D preview. **Expect to need a 180° correction on D9:** a third-party JLC guide lists +180° as the typical offset
+> for SMA/SMB/SMC diodes, the rotation database used for the C48 audit has no `D_SMA` rule, and JLC's EasyEDA footprint could not be fetched (HTTP 403,
+> 2026-10-18), so this is unverified. A reversed D9 leaves the logic rail unpowered (no damage; flip the diode by hand). If the preview shows the band on the
+> wrong side, set D9's rotation to 180 in `fab/cpl-jlcpcb.csv` (or JLC's rotation field) before confirming. The C48 text below is otherwise unchanged. Routing: one clean full run (0 open,
 > DRC 0 errors, interlock and 14 layout checks pass); the 3-run convergence proof was not repeated for this netlist.
 > Stock re-read 2026-10-18 (`evidence/order/stock-read-2026-10-18.json`): 88 of 89 lines have at least 2 x the 5-board need in stock; R39's RG2012V (consigned) has 0.
 
