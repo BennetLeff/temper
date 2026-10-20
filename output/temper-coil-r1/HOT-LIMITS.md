@@ -25,6 +25,13 @@ with 230 °C glass 113–131 °C; 28 A at the 0.23 Ω target 137–168 °C. Hot 
   - RS shows it temporarily out of stock; the suffix matters (Master Electronics lists 50840-1 as a #10-stud variant).
   - The RS listing gives a 4.0 mm ring hole, which is tight for an M4 screw: check TE's drawing.
   - Whether the barrel takes the stripped Litz bundle is for the scrap-crimp qualification (BUILD-AND-MEASURE W9) to show.
+- **Availability of 50840 is poor (searched 2026-10-19, none of it a live stock check):**
+  - TE's own datasheet (April and May 2024) lists 50840 and 50840-1 as ACTIVE, 1000-piece loose packaging.
+  - Digi-Key marks 50840 obsolete and names 1577639-1 as the manufacturer's substitute. One Digi-Key listing for 1577639-1 says "#8, 12–14 AWG, PEEK" and out of stock/backorder; another snippet showed 1,698 in stock at $7.30. I did not verify that part's temperature rating or ring size.
+  - RS UK showed 22 in stock at £2.79–3.20; RS Ireland showed it temporarily out of stock. TE's page for 50840-1 says "not currently available".
+  - So 50840 is "best" only among what turned up. It is not a settled choice.
+- **TE datasheet facts (50840-1, the #10 sibling):** tongue 0.79 mm, length 21.8 mm, compatible wire-insulation OD 2.03–3.81 mm (the 2.55 mm served Litz fits), 288 °C, partially insulated. The #8 50840's own datasheet was not retrieved.
+- A CAD preview with the assumed dimensions marked is in `cad/lug_mock.py` (`cad/out/lug_50840_mock.step`, `renders/lug_50840_mock*.png`).
 - **RS PRO DRNB** uninsulated M4 ring, brazed seam, 150 °C ([RS](https://uk.rs-online.com/web/p/products/8092228)), but its wire range is 0.5–1.5 mm², too small for this Litz.
 - **Bare lug plus heat-shrink:** every dual-wall adhesive-lined polyolefin tubing found is rated 110–135 °C continuous, so none covers 150 °C. A fluoropolymer or silicone sleeve was not found in this search.
 - **Stud size is unresolved in the repo:** the R43 BOM says "M4 ... (power-stage M6 as amended)" for the J2/J5 coil lugs. Confirm the stud before choosing a lug.
