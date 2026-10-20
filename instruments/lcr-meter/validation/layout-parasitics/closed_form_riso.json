@@ -1,0 +1,636 @@
+{
+ "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+ "method": "Closed-form capacitance estimates from native copper geometry.",
+ "c_gnd_pF": {
+  "DUT_LO": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 1.702869861844783,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.2333762224760595,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.7265710393193522,
+    "in2_tracks": 0.0,
+    "total": 2.6628171236401945
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 1.702869861844783,
+    "tracks_over_void": 0.08564664551207016,
+    "pads_over_plane": 0.2333762224760595,
+    "pads_over_void": 0.6398734076664866,
+    "pth_via_inner_rings": 0.7265710393193522,
+    "in2_tracks": 0.0,
+    "total": 3.388337176818751
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 1.702869861844783,
+    "tracks_over_void": 0.04584232611288261,
+    "pads_over_plane": 0.2333762224760595,
+    "pads_over_void": 0.9225555713969471,
+    "pth_via_inner_rings": 0.7265710393193522,
+    "in2_tracks": 0.0,
+    "total": 3.6312150211500245
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 2.9616352973587143,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.4445428629084655,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.6870132827341874,
+    "in2_tracks": 0.0,
+    "total": 4.093191443001367
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 2.9616352973587143,
+    "tracks_over_void": 0.09386959601805447,
+    "pads_over_plane": 0.4445428629084655,
+    "pads_over_void": 0.6161236705886356,
+    "pth_via_inner_rings": 0.6870132827341874,
+    "in2_tracks": 0.0,
+    "total": 4.8031847096080575
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 2.9616352973587143,
+    "tracks_over_void": 0.07972908216360078,
+    "pads_over_plane": 0.4445428629084655,
+    "pads_over_void": 1.8444512000720172,
+    "pth_via_inner_rings": 0.6870132827341874,
+    "in2_tracks": 0.0,
+    "total": 6.017371725236985
+   }
+  },
+  "TIA_SUM": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 0.0,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.0,
+    "in2_tracks": 0.0,
+    "total": 0.0
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 0.0,
+    "tracks_over_void": 0.7918357842129532,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.7015522614336038,
+    "pth_via_inner_rings": 0.0,
+    "in2_tracks": 0.0,
+    "total": 1.4933880456465571
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 0.0,
+    "tracks_over_void": 1.4447515821940822,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 1.376314046340072,
+    "pth_via_inner_rings": 0.0,
+    "in2_tracks": 0.0,
+    "total": 2.8210656285341544
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 0.0,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.0,
+    "in2_tracks": 0.0,
+    "total": 0.0
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 0.0,
+    "tracks_over_void": 0.7421842203821688,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.6564972703898104,
+    "pth_via_inner_rings": 0.0,
+    "in2_tracks": 0.0,
+    "total": 1.3986814907719793
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 0.0,
+    "tracks_over_void": 2.547242305604846,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 2.636348818325035,
+    "pth_via_inner_rings": 0.0,
+    "in2_tracks": 0.0,
+    "total": 5.183591123929881
+   }
+  },
+  "TIA_OUT": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 1.6943188368328492,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.13119018373425514,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 1.9717587616494272,
+    "in2_tracks": 0.6337641734033153,
+    "total": 4.431031955619846
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 1.6943188368328492,
+    "tracks_over_void": 0.6383881253979851,
+    "pads_over_plane": 0.13119018373425514,
+    "pads_over_void": 1.8506120263487083,
+    "pth_via_inner_rings": 1.9717587616494272,
+    "in2_tracks": 0.6337641734033153,
+    "total": 6.9200321073665405
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 1.6943188368328492,
+    "tracks_over_void": 0.8656216770141206,
+    "pads_over_plane": 0.13119018373425514,
+    "pads_over_void": 2.9876289148395134,
+    "pth_via_inner_rings": 1.9717587616494272,
+    "in2_tracks": 0.6337641734033153,
+    "total": 8.284282547473481
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 2.8397468691970222,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.22663116685806683,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 1.864407451292958,
+    "in2_tracks": 0.6036530935885019,
+    "total": 5.534438580936548
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 2.8397468691970222,
+    "tracks_over_void": 0.6953053750380991,
+    "pads_over_plane": 0.22663116685806683,
+    "pads_over_void": 1.7901735363863336,
+    "pth_via_inner_rings": 1.864407451292958,
+    "in2_tracks": 0.6036530935885019,
+    "total": 8.019917492360982
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 2.8397468691970222,
+    "tracks_over_void": 1.5834231531236398,
+    "pads_over_plane": 0.22663116685806683,
+    "pads_over_void": 6.05407802850284,
+    "pth_via_inner_rings": 1.864407451292958,
+    "in2_tracks": 0.6036530935885019,
+    "total": 13.171939762563028
+   }
+  },
+  "DUT_HI": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 1.655304233110991,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5400205855671161,
+    "in2_tracks": 0.0,
+    "total": 2.195324818678107
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 1.655304233110991,
+    "tracks_over_void": 1.0110031916324482,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.9805676158633202,
+    "pth_via_inner_rings": 0.5400205855671161,
+    "in2_tracks": 0.0,
+    "total": 4.186895626173875
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 1.655304233110991,
+    "tracks_over_void": 1.7215103039453652,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 1.6310153608688975,
+    "pth_via_inner_rings": 0.5400205855671161,
+    "in2_tracks": 0.0,
+    "total": 5.547850483492369
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 2.87890904319479,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5106194647973509,
+    "in2_tracks": 0.0,
+    "total": 3.389528507992141
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 2.87890904319479,
+    "tracks_over_void": 0.9600487322286876,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.9286169894704881,
+    "pth_via_inner_rings": 0.5106194647973509,
+    "in2_tracks": 0.0,
+    "total": 5.278194229691317
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 2.87890904319479,
+    "tracks_over_void": 2.9029600562127698,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 3.2474433133333256,
+    "pth_via_inner_rings": 0.5106194647973509,
+    "in2_tracks": 0.0,
+    "total": 9.539931877538237
+   }
+  },
+  "RF100": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 0.047763020612076025,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5390208973902504,
+    "in2_tracks": 0.0,
+    "total": 0.5867839180023264
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 0.047763020612076025,
+    "tracks_over_void": 0.13901692917151828,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.4566539333870872,
+    "pth_via_inner_rings": 0.5390208973902504,
+    "in2_tracks": 0.0,
+    "total": 1.1824547805609318
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 0.047763020612076025,
+    "tracks_over_void": 0.1538281877800337,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.7878018275276486,
+    "pth_via_inner_rings": 0.5390208973902504,
+    "in2_tracks": 0.0,
+    "total": 1.5284139333100089
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 0.08581573629802118,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5096742040878923,
+    "in2_tracks": 0.0,
+    "total": 0.5954899403859135
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 0.08581573629802118,
+    "tracks_over_void": 0.14126712052449225,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.4336995062404366,
+    "pth_via_inner_rings": 0.5096742040878923,
+    "in2_tracks": 0.0,
+    "total": 1.1704565671508425
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 0.08581573629802118,
+    "tracks_over_void": 0.27638283819922915,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 1.6102944255194016,
+    "pth_via_inner_rings": 0.5096742040878923,
+    "in2_tracks": 0.0,
+    "total": 2.4821672041045444
+   }
+  },
+  "RF5K": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 0.3574391996722873,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5390208973902552,
+    "in2_tracks": 0.0,
+    "total": 0.8964600970625425
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 0.3574391996722873,
+    "tracks_over_void": 0.20906820253819017,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.46320859047100543,
+    "pth_via_inner_rings": 0.5390208973902552,
+    "in2_tracks": 0.0,
+    "total": 1.568736890071738
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 0.3574391996722873,
+    "tracks_over_void": 0.2832673548260222,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.7878018275276478,
+    "pth_via_inner_rings": 0.5390208973902552,
+    "in2_tracks": 0.0,
+    "total": 1.9675292794162127
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 0.5970590501795726,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5096742040878967,
+    "in2_tracks": 0.0,
+    "total": 1.1067332542674693
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 0.5970590501795726,
+    "tracks_over_void": 0.20228472985313856,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.44219316312943124,
+    "pth_via_inner_rings": 0.5096742040878967,
+    "in2_tracks": 0.0,
+    "total": 1.7512111472500393
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 0.5970590501795726,
+    "tracks_over_void": 0.47316393382249805,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 1.6102944255194,
+    "pth_via_inner_rings": 0.5096742040878967,
+    "in2_tracks": 0.0,
+    "total": 3.1901916136093678
+   }
+  },
+  "RF100K": {
+   "JLC04161H-7628/zero": {
+    "tracks_over_plane": 0.12297045870484152,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5390208973902552,
+    "in2_tracks": 0.0,
+    "total": 0.6619913560950967
+   },
+   "JLC04161H-7628/edge": {
+    "tracks_over_plane": 0.12297045870484152,
+    "tracks_over_void": 0.10765909708747828,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.4632085906855139,
+    "pth_via_inner_rings": 0.5390208973902552,
+    "in2_tracks": 0.0,
+    "total": 1.2328590438680889
+   },
+   "JLC04161H-7628/as_if_no_void": {
+    "tracks_over_plane": 0.12297045870484152,
+    "tracks_over_void": 0.09156476129868092,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.7878018275276488,
+    "pth_via_inner_rings": 0.5390208973902552,
+    "in2_tracks": 0.0,
+    "total": 1.5413579449214265
+   },
+   "JLC04161H-1080/zero": {
+    "tracks_over_plane": 0.20540731218560704,
+    "tracks_over_void": 0.0,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.0,
+    "pth_via_inner_rings": 0.5096742040878967,
+    "in2_tracks": 0.0,
+    "total": 0.7150815162735037
+   },
+   "JLC04161H-1080/edge": {
+    "tracks_over_plane": 0.20540731218560704,
+    "tracks_over_void": 0.10869509500415242,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 0.44219316349159343,
+    "pth_via_inner_rings": 0.5096742040878967,
+    "in2_tracks": 0.0,
+    "total": 1.2659697747692495
+   },
+   "JLC04161H-1080/as_if_no_void": {
+    "tracks_over_plane": 0.20540731218560704,
+    "tracks_over_void": 0.15294788445428673,
+    "pads_over_plane": 0.0,
+    "pads_over_void": 1.6102944255194018,
+    "pth_via_inner_rings": 0.5096742040878967,
+    "in2_tracks": 0.0,
+    "total": 2.4783238262471925
+   }
+  }
+ },
+ "mutual_pF": {
+  "DUT_LO|TIA_OUT|JLC04161H-7628": {
+   "over_plane": 0.008970516740845428,
+   "over_void": 0.0,
+   "total": 0.008970516740845428,
+   "min_gap_mm": 0.5750000000000172
+  },
+  "DUT_LO|TIA_OUT|JLC04161H-1080": {
+   "over_plane": 0.0032089796356499327,
+   "over_void": 0.0,
+   "total": 0.0032089796356499327,
+   "min_gap_mm": 0.5750000000000172
+  },
+  "TIA_SUM|TIA_OUT|JLC04161H-7628": {
+   "over_plane": 0.0008509533260735771,
+   "over_void": 0.24128995197407094,
+   "total": 0.2421409053001445,
+   "min_gap_mm": 0.15000000000000568
+  },
+  "TIA_SUM|TIA_OUT|JLC04161H-1080": {
+   "over_plane": 0.00013590785193904158,
+   "over_void": 0.2193951229986459,
+   "total": 0.21953103085058492,
+   "min_gap_mm": 0.15000000000000568
+  },
+  "DUT_LO|DUT_HI|JLC04161H-7628": {
+   "over_plane": 0.009024697940006878,
+   "over_void": 0.0,
+   "total": 0.009024697940006878,
+   "min_gap_mm": 0.8408090000000071
+  },
+  "DUT_LO|DUT_HI|JLC04161H-1080": {
+   "over_plane": 0.0048842402666562324,
+   "over_void": 0.0,
+   "total": 0.0048842402666562324,
+   "min_gap_mm": 0.8408090000000071
+  },
+  "TIA_SUM|DUT_HI|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "TIA_SUM|DUT_HI|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "DUT_LO|LOW_BUF|JLC04161H-7628": {
+   "over_plane": 0.006452386907943584,
+   "over_void": 0.101975413107232,
+   "total": 0.10842780001517559,
+   "min_gap_mm": 0.15000000000000568
+  },
+  "DUT_LO|LOW_BUF|JLC04161H-1080": {
+   "over_plane": 0.0034890652249833743,
+   "over_void": 0.09272208858453854,
+   "total": 0.09621115380952192,
+   "min_gap_mm": 0.15000000000000568
+  },
+  "TIA_SUM|LOW_BUF|JLC04161H-7628": {
+   "over_plane": 0.0023222222370236183,
+   "over_void": 0.09908421956710345,
+   "total": 0.10140644180412707,
+   "min_gap_mm": 0.5189000000000021
+  },
+  "TIA_SUM|LOW_BUF|JLC04161H-1080": {
+   "over_plane": 0.0011149203672407228,
+   "over_void": 0.0900932440878661,
+   "total": 0.09120816445510684,
+   "min_gap_mm": 0.5189000000000021
+  },
+  "DUT_HI|HIGH_BUF|JLC04161H-7628": {
+   "over_plane": 0.003747627240667268,
+   "over_void": 0.21518737475639432,
+   "total": 0.2189350019970616,
+   "min_gap_mm": 0.15000000000000568
+  },
+  "DUT_HI|HIGH_BUF|JLC04161H-1080": {
+   "over_plane": 0.0019484361311871198,
+   "over_void": 0.1956611129729436,
+   "total": 0.19760954910413073,
+   "min_gap_mm": 0.15000000000000568
+  },
+  "DUT_LO|RF100|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "DUT_LO|RF100|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "DUT_LO|RF5K|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "DUT_LO|RF5K|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "DUT_LO|RF100K|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "DUT_LO|RF100K|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.0,
+   "total": 0.0,
+   "min_gap_mm": 1000000000.0
+  },
+  "TIA_SUM|RF100|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.09328378815203162,
+   "total": 0.09328378815203162,
+   "min_gap_mm": 0.8499999999999943
+  },
+  "TIA_SUM|RF100|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.08481914811601393,
+   "total": 0.08481914811601393,
+   "min_gap_mm": 0.8499999999999943
+  },
+  "TIA_SUM|RF5K|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.040720502131259044,
+   "total": 0.040720502131259044,
+   "min_gap_mm": 0.8499999999999943
+  },
+  "TIA_SUM|RF5K|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.03702549360453367,
+   "total": 0.03702549360453367,
+   "min_gap_mm": 0.8499999999999943
+  },
+  "TIA_SUM|RF100K|JLC04161H-7628": {
+   "over_plane": 0.0,
+   "over_void": 0.09326264402157498,
+   "total": 0.09326264402157498,
+   "min_gap_mm": 0.8499999999999943
+  },
+  "TIA_SUM|RF100K|JLC04161H-1080": {
+   "over_plane": 0.0,
+   "over_void": 0.08479992261961719,
+   "total": 0.08479992261961719,
+   "min_gap_mm": 0.8499999999999943
+  },
+  "TIA_OUT|RF100|JLC04161H-7628": {
+   "over_plane": 0.010688379342409396,
+   "over_void": 0.0,
+   "total": 0.010688379342409396,
+   "min_gap_mm": 0.8408090000000072
+  },
+  "TIA_OUT|RF100|JLC04161H-1080": {
+   "over_plane": 0.005450670959176698,
+   "over_void": 0.0,
+   "total": 0.005450670959176698,
+   "min_gap_mm": 0.8408090000000072
+  },
+  "TIA_OUT|RF5K|JLC04161H-7628": {
+   "over_plane": 0.007241918025683451,
+   "over_void": 0.006785824384235003,
+   "total": 0.014027742409918454,
+   "min_gap_mm": 0.8408090000000072
+  },
+  "TIA_OUT|RF5K|JLC04161H-1080": {
+   "over_plane": 0.004221299127594381,
+   "over_void": 0.006170073653072938,
+   "total": 0.010391372780667318,
+   "min_gap_mm": 0.8408090000000072
+  },
+  "TIA_OUT|RF100K|JLC04161H-7628": {
+   "over_plane": 0.007539226418270926,
+   "over_void": 0.0062636542779559426,
+   "total": 0.013802880696226868,
+   "min_gap_mm": 0.8408090000000072
+  },
+  "TIA_OUT|RF100K|JLC04161H-1080": {
+   "over_plane": 0.004485932306256369,
+   "over_void": 0.00569528564903031,
+   "total": 0.010181217955286679,
+   "min_gap_mm": 0.8408090000000072
+  },
+  "TIA_SUM|DUT_LO|JLC04161H-7628": {
+   "over_plane": 0.005056161389804064,
+   "over_void": 0.11025861423558861,
+   "total": 0.11531477562539268,
+   "min_gap_mm": 0.8499999999999659
+  },
+  "TIA_SUM|DUT_LO|JLC04161H-1080": {
+   "over_plane": 0.0018284240596498835,
+   "over_void": 0.1002536659068038,
+   "total": 0.10208208996645368,
+   "min_gap_mm": 0.8499999999999659
+  }
+ },
+ "header_pin_pair_pF": {
+  "er_ins=3.0": 0.19794961782890685,
+  "er_ins=3.6": 0.22036233830225413,
+  "er_ins=4.2": 0.2427750587756014
+ },
+ "microstrip_check": {
+  "w=0.15": {
+   "Z0": 76.3848584474032,
+   "eeff": 2.9149856588303686,
+   "C_pF_per_mm": 0.074557309949072
+  },
+  "w=0.2": {
+   "Z0": 67.94068025478985,
+   "eeff": 2.9928663158739766,
+   "C_pF_per_mm": 0.08493624661604732
+  },
+  "w=0.25": {
+   "Z0": 61.38310853785975,
+   "eeff": 3.058870667857872,
+   "C_pF_per_mm": 0.0950409954767067
+  },
+  "w=0.3": {
+   "Z0": 56.09306952940068,
+   "eeff": 3.116193975026564,
+   "C_pF_per_mm": 0.1049741417696726
+  },
+  "w=0.4": {
+   "Z0": 48.008779697306935,
+   "eeff": 3.2122592679234554,
+   "C_pF_per_mm": 0.12452711464682899
+  }
+ }
+}

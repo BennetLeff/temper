@@ -1,0 +1,312 @@
+{
+ "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+ "method": "Noisy-copper proximity and mutual capacitance to the summing node, TIA output and DUT HI.",
+ "groups": {
+  "TPS65131 switch node SW_P (L1, U13)": {
+   "nets": [
+    "SW_P"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 83.473,
+    "closest": "SW_P@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.022825207704367856,
+    "c_mutual_fF_high": 0.18872173434471412
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 75.25,
+    "closest": "SW_P@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.0643183191652125,
+    "c_mutual_fF_high": 0.5339124440954951
+   },
+   "DUT_HI": {
+    "min_distance_mm": 87.494,
+    "closest": "SW_P@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.01965928889587502,
+    "c_mutual_fF_high": 0.16151967380001314
+   }
+  },
+  "TPS65131 switch node SW_N (L2, U13)": {
+   "nets": [
+    "SW_N"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 78.274,
+    "closest": "SW_N@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.02744634843476146,
+    "c_mutual_fF_high": 0.2269630492218797
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 69.07,
+    "closest": "SW_N@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.08086193638761668,
+    "c_mutual_fF_high": 0.6709533798179559
+   },
+   "DUT_HI": {
+    "min_distance_mm": 85.666,
+    "closest": "SW_N@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.022068606908317582,
+    "c_mutual_fF_high": 0.1813499048251986
+   }
+  },
+  "RP2040 crystal XIN/XTAL_OUT/XOUT": {
+   "nets": [
+    "XIN",
+    "XTAL_OUT",
+    "XOUT"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 84.288,
+    "closest": "XIN@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.03711124973510627,
+    "c_mutual_fF_high": 0.33761734959457457
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 76.747,
+    "closest": "XIN@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.09156952280622836,
+    "c_mutual_fF_high": 0.837933765853585
+   },
+   "DUT_HI": {
+    "min_distance_mm": 75.542,
+    "closest": "XTAL_OUT@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.04123411235802037,
+    "c_mutual_fF_high": 0.3728388485369901
+   }
+  },
+  "QSPI clock": {
+   "nets": [
+    "QSPI_CLK",
+    "QSPI_CLK_FLASH"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 76.712,
+    "closest": "QSPI_CLK_FLASH@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.021993180332207603,
+    "c_mutual_fF_high": 0.1819376030240995
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 68.384,
+    "closest": "QSPI_CLK_FLASH@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.05980895402154336,
+    "c_mutual_fF_high": 0.4968118903399411
+   },
+   "DUT_HI": {
+    "min_distance_mm": 74.678,
+    "closest": "QSPI_CLK_FLASH@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.021588780469133404,
+    "c_mutual_fF_high": 0.17739213981629431
+   }
+  },
+  "ADC SCLK": {
+   "nets": [
+    "ADC_SCLK"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 27.824,
+    "closest": "ADC_SCLK@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.3209164019665731,
+    "c_mutual_fF_high": 2.0822319685306363
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 21.66,
+    "closest": "ADC_SCLK@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 1.139997141820692,
+    "c_mutual_fF_high": 6.897168390829501
+   },
+   "DUT_HI": {
+    "min_distance_mm": 22.533,
+    "closest": "ADC_SCLK@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.3859973703307394,
+    "c_mutual_fF_high": 2.4221884098336877
+   }
+  },
+  "ADC CONVST": {
+   "nets": [
+    "ADC_CONVST"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 26.473,
+    "closest": "ADC_CONVST@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.17339265088699624,
+    "c_mutual_fF_high": 1.7879760947019394
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 20.536,
+    "closest": "ADC_CONVST@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.6497637551202877,
+    "c_mutual_fF_high": 6.311962008946625
+   },
+   "DUT_HI": {
+    "min_distance_mm": 21.104,
+    "closest": "ADC_CONVST@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.21522142083373227,
+    "c_mutual_fF_high": 2.3779485881520577
+   }
+  },
+  "AD9833 MCLK (DDS_MCLK, DDS_CLK_RAW)": {
+   "nets": [
+    "DDS_MCLK",
+    "DDS_CLK_RAW"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 68.552,
+    "closest": "DDS_MCLK@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.047447797850607966,
+    "c_mutual_fF_high": 0.4299381100225576
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 57.649,
+    "closest": "DDS_MCLK@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.1182958763277995,
+    "c_mutual_fF_high": 1.0768547972489477
+   },
+   "DUT_HI": {
+    "min_distance_mm": 54.663,
+    "closest": "DDS_MCLK@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.055906871552812,
+    "c_mutual_fF_high": 0.5002935339839649
+   }
+  },
+  "AD9833 SCLK": {
+   "nets": [
+    "DDS_SCLK"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 65.474,
+    "closest": "DDS_SCLK@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.05483060592045506,
+    "c_mutual_fF_high": 0.5213892913005355
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 53.985,
+    "closest": "DDS_SCLK@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.1378935738948958,
+    "c_mutual_fF_high": 1.3209351982102358
+   },
+   "DUT_HI": {
+    "min_distance_mm": 50.823,
+    "closest": "DDS_SCLK@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.06642234867674895,
+    "c_mutual_fF_high": 0.6151025176408977
+   }
+  },
+  "USB D+/D-": {
+   "nets": [
+    "USB_DP",
+    "USB_DM",
+    "USB_DP_MCU",
+    "USB_DM_MCU"
+   ],
+   "DUT_LO": {
+    "min_distance_mm": 77.158,
+    "closest": "USB_DP@F.Cu to DUT_LO@F.Cu",
+    "c_mutual_fF_nom": 0.09161196758250847,
+    "c_mutual_fF_high": 1.0811115053492648
+   },
+   "TIA_OUT": {
+    "min_distance_mm": 69.222,
+    "closest": "USB_DP@F.Cu to TIA_OUT@F.Cu",
+    "c_mutual_fF_nom": 0.23214237524173215,
+    "c_mutual_fF_high": 2.7526922135653993
+   },
+   "DUT_HI": {
+    "min_distance_mm": 72.117,
+    "closest": "USB_DP@F.Cu to DUT_HI@F.Cu",
+    "c_mutual_fF_nom": 0.09594285035120326,
+    "c_mutual_fF_high": 1.1239449899740648
+   }
+  }
+ },
+ "neighbours_of_DUT_LO": {
+  "GND": {
+   "min_gap_mm": 0.15,
+   "c_mutual_pF": 0.3501964513331909
+  },
+  "-12V": {
+   "min_gap_mm": 0.446,
+   "c_mutual_pF": 0.2769945019895195
+  },
+  "LOW_BUF": {
+   "min_gap_mm": 0.15,
+   "c_mutual_pF": 0.20431269467612362
+  },
+  "TIA_OUT": {
+   "min_gap_mm": 0.15,
+   "c_mutual_pF": 0.18945096352287927
+  },
+  "12V": {
+   "min_gap_mm": 1.252,
+   "c_mutual_pF": 0.125671678358446
+  },
+  "RF100K": {
+   "min_gap_mm": 0.85,
+   "c_mutual_pF": 0.09384697627612411
+  },
+  "RF100": {
+   "min_gap_mm": 0.85,
+   "c_mutual_pF": 0.09265725368374511
+  },
+  "RF5K": {
+   "min_gap_mm": 0.85,
+   "c_mutual_pF": 0.04074028978373298
+  },
+  "DUT_HI": {
+   "min_gap_mm": 0.841,
+   "c_mutual_pF": 0.009020422352098784
+  }
+ },
+ "neighbours_of_DUT_HI": {
+  "RG100K": {
+   "min_gap_mm": 0.85,
+   "c_mutual_pF": 0.370876227936131
+  },
+  "-12V": {
+   "min_gap_mm": 0.163,
+   "c_mutual_pF": 0.2917422110134648
+  },
+  "RG5K": {
+   "min_gap_mm": 0.85,
+   "c_mutual_pF": 0.22773093374822534
+  },
+  "HIGH_BUF": {
+   "min_gap_mm": 0.15,
+   "c_mutual_pF": 0.2189350019970616
+  },
+  "B_INM": {
+   "min_gap_mm": 0.8,
+   "c_mutual_pF": 0.1516535647917661
+  },
+  "TIA_OUT": {
+   "min_gap_mm": 1.125,
+   "c_mutual_pF": 0.12259207785104864
+  },
+  "RG100": {
+   "min_gap_mm": 0.531,
+   "c_mutual_pF": 0.11060049617330885
+  },
+  "EXCITE": {
+   "min_gap_mm": 0.267,
+   "c_mutual_pF": 0.0909694058957656
+  },
+  "SOURCE_BUF": {
+   "min_gap_mm": 0.237,
+   "c_mutual_pF": 0.07614850640382169
+  },
+  "GND": {
+   "min_gap_mm": 0.35,
+   "c_mutual_pF": 0.06592319151337597
+  },
+  "B_FBP": {
+   "min_gap_mm": 1.425,
+   "c_mutual_pF": 0.06423995391811411
+  },
+  "12V": {
+   "min_gap_mm": 1.45,
+   "c_mutual_pF": 0.06145959326827825
+  },
+  "DUT_LO": {
+   "min_gap_mm": 0.841,
+   "c_mutual_pF": 0.007200701140747154
+  }
+ }
+}

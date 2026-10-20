@@ -1,0 +1,155 @@
+{
+ "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+ "method": "Loop inductance of the C104 branch and each RF/jumper branch.",
+ "assumptions": {
+  "header_bridge_z": {
+   "low": 4.5,
+   "nom": 6.9,
+   "high": 8.4
+  },
+  "post_side": 0.635,
+  "shunt_strip_w": 0.8,
+  "res_film_z": 0.45,
+  "res_body_w": 0.8,
+  "cap_mid_z": {
+   "low": 0.3,
+   "nom": 0.4,
+   "high": 0.5
+  },
+  "cap_body_w": 0.8,
+  "pkg": {
+   "low": {
+    "lead_tip_dx": 0.75,
+    "bond_dx": 0.35,
+    "die_z": 0.55,
+    "pad_pitch_frac": 0.6
+   },
+   "nom": {
+    "lead_tip_dx": 0.95,
+    "bond_dx": 0.6,
+    "die_z": 0.6,
+    "pad_pitch_frac": 0.8
+   },
+   "high": {
+    "lead_tip_dx": 1.05,
+    "bond_dx": 0.9,
+    "die_z": 0.65,
+    "pad_pitch_frac": 1.0
+   }
+  }
+ },
+ "validation": {
+  "circle_R5_r0.1_nH": {
+   "numeric": 26.651393540028046,
+   "analytic": 26.649907723311994,
+   "rel_err": 5.575316550721077e-05
+  },
+  "microstrip_w0.2_nH_per_mm": {
+   "numeric": 0.4321496837580123,
+   "hammerstad_air_Z0_over_c": 0.3920602813038616,
+   "rel_err": 0.10225315943973401
+  },
+  "microstrip_w0.3_nH_per_mm": {
+   "numeric": 0.36124086282295964,
+   "hammerstad_air_Z0_over_c": 0.33029404599418694,
+   "rel_err": 0.09369474625442487
+  }
+ },
+ "loops": {
+  "C104": {
+   "planar_board_path_mm": 4.4484020822628825,
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "partial",
+    "with_package_nH": 4.176441777733993,
+    "board_and_part_only_nH": 2.2457296107219586
+   },
+   "nom_geometry_plane_free_nH": 4.176441777733993,
+   "nom_geometry_plane_full_nH": 3.524499097674262,
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "plane_mode": "full",
+    "with_package_nH": 2.1952648936728862,
+    "board_and_part_only_nH": 0.9475404873646395
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "free",
+    "with_package_nH": 4.8727859812369525,
+    "board_and_part_only_nH": 2.293525999590002
+   }
+  },
+  "RF_100R": {
+   "planar_board_path_mm": 16.903293383588856,
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "partial",
+    "with_package_nH": 19.044456708653563,
+    "board_and_part_only_nH": 17.182027447903298
+   },
+   "nom_geometry_plane_free_nH": 19.699306012189673,
+   "nom_geometry_plane_full_nH": 14.556467925034783,
+   "mutual_with_C104_loop_free_space_nH": 3.8745556609194396,
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "plane_mode": "full",
+    "with_package_nH": 9.0904960515754,
+    "board_and_part_only_nH": 7.842299807533022
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "free",
+    "with_package_nH": 21.648213339282563,
+    "board_and_part_only_nH": 19.137433558849462
+   }
+  },
+  "RF_5k": {
+   "planar_board_path_mm": 48.07331578379298,
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "partial",
+    "with_package_nH": 36.63554343064074,
+    "board_and_part_only_nH": 34.786099816419025
+   },
+   "nom_geometry_plane_free_nH": 48.55176704923836,
+   "nom_geometry_plane_full_nH": 27.710846485404144,
+   "mutual_with_C104_loop_free_space_nH": 3.848563337634827,
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "plane_mode": "full",
+    "with_package_nH": 16.891312061819736,
+    "board_and_part_only_nH": 15.637758491350528
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "free",
+    "with_package_nH": 50.458665592891506,
+    "board_and_part_only_nH": 47.95991717119196
+   }
+  },
+  "RF_100k": {
+   "planar_board_path_mm": 29.45577177659247,
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "partial",
+    "with_package_nH": 25.944989017675585,
+    "board_and_part_only_nH": 24.08756782986241
+   },
+   "nom_geometry_plane_free_nH": 31.212136170397272,
+   "nom_geometry_plane_full_nH": 20.037344729795066,
+   "mutual_with_C104_loop_free_space_nH": 3.861093932501389,
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "plane_mode": "full",
+    "with_package_nH": 12.432584111378409,
+    "board_and_part_only_nH": 11.180257109461653
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "plane_mode": "free",
+    "with_package_nH": 33.14102070699555,
+    "board_and_part_only_nH": 30.63432165009874
+   }
+  }
+ }
+}

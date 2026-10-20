@@ -1,0 +1,38 @@
+{
+ "dx=0.1/w=0.2": {
+  "fd_pF_per_mm": 0.07362296494878381,
+  "hammerstad_t0_pF_per_mm": 0.08144373372526821,
+  "hammerstad_t35um_pF_per_mm": 0.08493624661604732,
+  "fd_over_hj_t0": 0.9039733516777857
+ },
+ "dx=0.1/w=0.3": {
+  "fd_pF_per_mm": 0.09395326088832226,
+  "hammerstad_t0_pF_per_mm": 0.1016140642495818,
+  "hammerstad_t35um_pF_per_mm": 0.1049741417696726,
+  "fd_over_hj_t0": 0.9246088283365649
+ },
+ "dx=0.07/w=0.2": {
+  "fd_pF_per_mm": 0.09378441950119655,
+  "hammerstad_t0_pF_per_mm": 0.08144373372526821,
+  "hammerstad_t35um_pF_per_mm": 0.08493624661604732,
+  "fd_over_hj_t0": 1.1515240671253704
+ },
+ "dx=0.07/w=0.3": {
+  "fd_pF_per_mm": 0.12117622711179357,
+  "hammerstad_t0_pF_per_mm": 0.1016140642495818,
+  "hammerstad_t35um_pF_per_mm": 0.1049741417696726,
+  "fd_over_hj_t0": 1.19251432374719
+ },
+ "dx=0.05/w=0.2": {
+  "fd_pF_per_mm": 0.07908948426886209,
+  "hammerstad_t0_pF_per_mm": 0.08144373372526821,
+  "hammerstad_t35um_pF_per_mm": 0.08493624661604732,
+  "fd_over_hj_t0": 0.9710935470573139
+ },
+ "dx=0.05/w=0.3": {
+  "fd_pF_per_mm": 0.0991956727772321,
+  "hammerstad_t0_pF_per_mm": 0.1016140642495818,
+  "hammerstad_t35um_pF_per_mm": 0.1049741417696726,
+  "fd_over_hj_t0": 0.9762002288737343
+ }
+}

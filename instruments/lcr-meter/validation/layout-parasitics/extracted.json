@@ -1,0 +1,718 @@
+{
+ "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+ "units": "pF, nH",
+ "definitions": {
+  "c_sum_gnd_pf": "summing node (DUT_LO net: U7A -IN, U7B +IN, C104.1, R43-45.1, J3.2 + post) to AC ground; board only, excludes fixture/cable and amplifier input capacitance; excludes the bootstrapped LOW_BUF coupling (c_sum_lowbuf_pf)",
+  "c_sum_tiaout_pf": "summing node to TIA_OUT, in parallel with C104 (adds to CF); includes selected RF net/header, unselected RF branches through their floating nodes, 0603 resistor body and U7 lead-to-lead estimate",
+  "c_hi_gnd_pf": "DUT_HI to AC ground (excluding HIGH_BUF follower coupling)",
+  "c_hi_sum_pf": "DUT_HI to summing node (parallel to the DUT), incl. J3 posts",
+  "l_c104_branch_nh": "loop U7.1 -> C104 -> U7.2 closed through the OPA2810 package (leads, bond wires, die)",
+  "l_rf_branch_nh": "loop U7.1 -> TIA_OUT copper -> JPx posts/shunt -> RF resistor -> summing copper -> U7.2, closed through the package"
+ },
+ "meta": {
+  "fd_nominal": "JLC04161H-7628 dx=0.07",
+  "fd_thin": "JLC04161H-1080 dx=0.1",
+  "zoom_convergence_DUT_LO": {
+   "0.1": {
+    "DUT_LO_ground": 0.8729922494959943,
+    "DUT_LO_TIA_OUT": 0.09754167159577229
+   },
+   "0.07": {
+    "DUT_LO_ground": 0.8734478479415261,
+    "DUT_LO_TIA_OUT": 0.1093705656347276
+   },
+   "0.05": {
+    "DUT_LO_ground": 0.9153358323182941,
+    "DUT_LO_TIA_OUT": 0.10867711383697609
+   },
+   "0.04": {
+    "DUT_LO_ground": 0.9081233283122172,
+    "DUT_LO_TIA_OUT": 0.10870147757381506
+   }
+  },
+  "factor_ground": 1.0396995429691784,
+  "factor_mutual": 0.9938823754176498,
+  "grid_uncertainty": 0.1
+ },
+ "ranges": {
+  "100R": {
+   "low": {
+    "c_sum_gnd_pf": 3.094084213939699,
+    "c_sum_tiaout_pf": 0.1848857072322758,
+    "c_sum_lowbuf_pf": 0.08112295877099863,
+    "c_hi_gnd_pf": 2.9049200620659996,
+    "c_hi_sum_pf": 0.10194317225804232,
+    "c_hi_tiaout_pf": 0.031439504189629486,
+    "c_hi_highbuf_pf": 0.09403150946048258,
+    "c_tiaout_gnd_pf": 6.293667894398308
+   },
+   "nom": {
+    "c_sum_gnd_pf": 3.8517302224101395,
+    "c_sum_tiaout_pf": 0.2631470932619717,
+    "c_sum_lowbuf_pf": 0.11131106867750303,
+    "c_hi_gnd_pf": 3.573628760568286,
+    "c_hi_sum_pf": 0.1394425327236569,
+    "c_hi_tiaout_pf": 0.03667937644653001,
+    "c_hi_highbuf_pf": 0.10970342768489974,
+    "c_tiaout_gnd_pf": 8.43160672158879
+   },
+   "high": {
+    "c_sum_gnd_pf": 5.6093720747361955,
+    "c_sum_tiaout_pf": 0.39532781171568765,
+    "c_sum_lowbuf_pf": 0.16591638593291155,
+    "c_hi_gnd_pf": 5.233690297449421,
+    "c_hi_sum_pf": 0.1561797460407412,
+    "c_hi_tiaout_pf": 0.04418990554045742,
+    "c_hi_highbuf_pf": 0.13216651050030873,
+    "c_tiaout_gnd_pf": 9.918060941489506
+   }
+  },
+  "5k": {
+   "low": {
+    "c_sum_gnd_pf": 3.1049639922874914,
+    "c_sum_tiaout_pf": 0.17162532732842917,
+    "c_sum_lowbuf_pf": 0.08113893992821865,
+    "c_hi_gnd_pf": 2.904925760942189,
+    "c_hi_sum_pf": 0.10194363586282926,
+    "c_hi_tiaout_pf": 0.0314333404139464,
+    "c_hi_highbuf_pf": 0.09403151069149412,
+    "c_tiaout_gnd_pf": 6.699128049442557
+   },
+   "nom": {
+    "c_sum_gnd_pf": 3.864186735544095,
+    "c_sum_tiaout_pf": 0.24741776596457105,
+    "c_sum_lowbuf_pf": 0.11133053694419484,
+    "c_hi_gnd_pf": 3.573635535525099,
+    "c_hi_sum_pf": 0.1394430976015956,
+    "c_hi_tiaout_pf": 0.0366720354614085,
+    "c_hi_highbuf_pf": 0.1097034287787202,
+    "c_tiaout_gnd_pf": 8.882674055652
+   },
+   "high": {
+    "c_sum_gnd_pf": 5.620198091931878,
+    "c_sum_tiaout_pf": 0.37761509964291895,
+    "c_sum_lowbuf_pf": 0.16594932058090325,
+    "c_hi_gnd_pf": 5.233698203416874,
+    "c_hi_sum_pf": 0.1561807016646463,
+    "c_hi_tiaout_pf": 0.04418104250355347,
+    "c_hi_highbuf_pf": 0.1321665118747749,
+    "c_tiaout_gnd_pf": 10.547263561725948
+   }
+  },
+  "100k": {
+   "low": {
+    "c_sum_gnd_pf": 3.100153037639714,
+    "c_sum_tiaout_pf": 0.17744904837631953,
+    "c_sum_lowbuf_pf": 0.08113545400386483,
+    "c_hi_gnd_pf": 2.904924187394396,
+    "c_hi_sum_pf": 0.10194353522660766,
+    "c_hi_tiaout_pf": 0.03143501468906354,
+    "c_hi_highbuf_pf": 0.09403151060656408,
+    "c_tiaout_gnd_pf": 6.417362849268684
+   },
+   "nom": {
+    "c_sum_gnd_pf": 3.858819783264934,
+    "c_sum_tiaout_pf": 0.2542923247093962,
+    "c_sum_lowbuf_pf": 0.11132611438871695,
+    "c_hi_gnd_pf": 3.573633725882568,
+    "c_hi_sum_pf": 0.1394429698901963,
+    "c_hi_tiaout_pf": 0.036673972894680364,
+    "c_hi_highbuf_pf": 0.10970342870478304,
+    "c_tiaout_gnd_pf": 8.570994733194736
+   },
+   "high": {
+    "c_sum_gnd_pf": 5.616039808819445,
+    "c_sum_tiaout_pf": 0.38546889630050185,
+    "c_sum_lowbuf_pf": 0.16594144700164834,
+    "c_hi_gnd_pf": 5.233696088082932,
+    "c_hi_sum_pf": 0.15618047431483648,
+    "c_hi_tiaout_pf": 0.04418338528826171,
+    "c_hi_highbuf_pf": 0.13216651178069913,
+    "c_tiaout_gnd_pf": 10.072138325370604
+   }
+  }
+ },
+ "assumed_in_simulation": {
+  "l_c104_branch_nh": 5.0,
+  "l_c104_branch_sensitivity_nh": 10.0,
+  "l_rf_branch_nh": 100.0,
+  "c_dut_terminal_gnd_pf": [
+   0.0,
+   100.0
+  ]
+ },
+ "capacitance_by_range": {
+  "c_sum_gnd_pf": {
+   "low": {
+    "100R": 3.0941,
+    "5k": 3.105,
+    "100k": 3.1002
+   },
+   "nom": {
+    "100R": 3.8517,
+    "5k": 3.8642,
+    "100k": 3.8588
+   },
+   "high": {
+    "100R": 5.6094,
+    "5k": 5.6202,
+    "100k": 5.616
+   }
+  },
+  "c_sum_tiaout_pf": {
+   "low": {
+    "100R": 0.1849,
+    "5k": 0.1716,
+    "100k": 0.1774
+   },
+   "nom": {
+    "100R": 0.2631,
+    "5k": 0.2474,
+    "100k": 0.2543
+   },
+   "high": {
+    "100R": 0.3953,
+    "5k": 0.3776,
+    "100k": 0.3855
+   }
+  },
+  "c_sum_lowbuf_pf": {
+   "low": {
+    "100R": 0.0811,
+    "5k": 0.0811,
+    "100k": 0.0811
+   },
+   "nom": {
+    "100R": 0.1113,
+    "5k": 0.1113,
+    "100k": 0.1113
+   },
+   "high": {
+    "100R": 0.1659,
+    "5k": 0.1659,
+    "100k": 0.1659
+   }
+  },
+  "c_hi_gnd_pf": {
+   "low": {
+    "100R": 2.9049,
+    "5k": 2.9049,
+    "100k": 2.9049
+   },
+   "nom": {
+    "100R": 3.5736,
+    "5k": 3.5736,
+    "100k": 3.5736
+   },
+   "high": {
+    "100R": 5.2337,
+    "5k": 5.2337,
+    "100k": 5.2337
+   }
+  },
+  "c_hi_sum_pf": {
+   "low": {
+    "100R": 0.1019,
+    "5k": 0.1019,
+    "100k": 0.1019
+   },
+   "nom": {
+    "100R": 0.1394,
+    "5k": 0.1394,
+    "100k": 0.1394
+   },
+   "high": {
+    "100R": 0.1562,
+    "5k": 0.1562,
+    "100k": 0.1562
+   }
+  },
+  "c_hi_tiaout_pf": {
+   "low": {
+    "100R": 0.0314,
+    "5k": 0.0314,
+    "100k": 0.0314
+   },
+   "nom": {
+    "100R": 0.0367,
+    "5k": 0.0367,
+    "100k": 0.0367
+   },
+   "high": {
+    "100R": 0.0442,
+    "5k": 0.0442,
+    "100k": 0.0442
+   }
+  },
+  "c_hi_highbuf_pf": {
+   "low": {
+    "100R": 0.094,
+    "5k": 0.094,
+    "100k": 0.094
+   },
+   "nom": {
+    "100R": 0.1097,
+    "5k": 0.1097,
+    "100k": 0.1097
+   },
+   "high": {
+    "100R": 0.1322,
+    "5k": 0.1322,
+    "100k": 0.1322
+   }
+  },
+  "c_tiaout_gnd_pf": {
+   "low": {
+    "100R": 6.2937,
+    "5k": 6.6991,
+    "100k": 6.4174
+   },
+   "nom": {
+    "100R": 8.4316,
+    "5k": 8.8827,
+    "100k": 8.571
+   },
+   "high": {
+    "100R": 9.9181,
+    "5k": 10.5473,
+    "100k": 10.0721
+   }
+  }
+ },
+ "harness": {
+  "c_sum_gnd_pf": {
+   "low": 3.094,
+   "nom": 3.864,
+   "high": 5.62
+  },
+  "c_sum_tiaout_pf": {
+   "low": 0.172,
+   "nom": 0.263,
+   "high": 0.395
+  },
+  "c_sum_tiaout_pf_by_range": {
+   "100R": {
+    "low": 0.1849,
+    "nom": 0.2631,
+    "high": 0.3953
+   },
+   "5k": {
+    "low": 0.1716,
+    "nom": 0.2474,
+    "high": 0.3776
+   },
+   "100k": {
+    "low": 0.1774,
+    "nom": 0.2543,
+    "high": 0.3855
+   }
+  },
+  "c_hi_gnd_pf": {
+   "low": 2.905,
+   "nom": 3.574,
+   "high": 5.234
+  },
+  "c_hi_sum_pf": {
+   "low": 0.102,
+   "nom": 0.139,
+   "high": 0.156
+  },
+  "c_sum_lowbuf_pf": {
+   "low": 0.081,
+   "nom": 0.111,
+   "high": 0.166
+  },
+  "c_tiaout_gnd_pf": {
+   "low": 6.294,
+   "nom": 8.883,
+   "high": 10.547
+  },
+  "c_hi_tiaout_pf": {
+   "low": 0.031,
+   "nom": 0.037,
+   "high": 0.044
+  },
+  "l_c104_branch_nh": {
+   "low": 2.2,
+   "nom": 4.18,
+   "high": 4.87
+  },
+  "l_c104_branch_board_only_nh": {
+   "low": 0.95,
+   "nom": 2.25,
+   "high": 2.29
+  },
+  "l_rf_branch_nh": {
+   "100R": {
+    "low": 9.09,
+    "nom": 19.04,
+    "high": 21.65
+   },
+   "5k": {
+    "low": 16.89,
+    "nom": 36.64,
+    "high": 50.46
+   },
+   "100k": {
+    "low": 12.43,
+    "nom": 25.94,
+    "high": 33.14
+   }
+  },
+  "l_rf_branch_board_only_nh": {
+   "100R": {
+    "low": 7.84,
+    "nom": 17.18,
+    "high": 19.14
+   },
+   "5k": {
+    "low": 15.64,
+    "nom": 34.79,
+    "high": 47.96
+   },
+   "100k": {
+    "low": 11.18,
+    "nom": 24.09,
+    "high": 30.63
+   }
+  },
+  "l_shared_package_and_pin_path_nh": {
+   "100R": 3.87,
+   "5k": 3.85,
+   "100k": 3.86
+  },
+  "noisy_copper_coupling": {
+   "TPS65131 switch node SW_P (L1, U13)": {
+    "nets": [
+     "SW_P"
+    ],
+    "min_distance_to_sum_mm": 83.473,
+    "c_to_sum_fF": {
+     "nom": 0.0228,
+     "high": 0.1887
+    },
+    "min_distance_to_tiaout_mm": 75.25,
+    "c_to_tiaout_fF": {
+     "nom": 0.0643,
+     "high": 0.5339
+    },
+    "min_distance_to_hi_mm": 87.494,
+    "c_to_hi_fF": {
+     "nom": 0.0197,
+     "high": 0.1615
+    }
+   },
+   "TPS65131 switch node SW_N (L2, U13)": {
+    "nets": [
+     "SW_N"
+    ],
+    "min_distance_to_sum_mm": 78.274,
+    "c_to_sum_fF": {
+     "nom": 0.0274,
+     "high": 0.227
+    },
+    "min_distance_to_tiaout_mm": 69.07,
+    "c_to_tiaout_fF": {
+     "nom": 0.0809,
+     "high": 0.671
+    },
+    "min_distance_to_hi_mm": 85.666,
+    "c_to_hi_fF": {
+     "nom": 0.0221,
+     "high": 0.1813
+    }
+   },
+   "RP2040 crystal XIN/XTAL_OUT/XOUT": {
+    "nets": [
+     "XIN",
+     "XTAL_OUT",
+     "XOUT"
+    ],
+    "min_distance_to_sum_mm": 84.288,
+    "c_to_sum_fF": {
+     "nom": 0.0371,
+     "high": 0.3376
+    },
+    "min_distance_to_tiaout_mm": 76.747,
+    "c_to_tiaout_fF": {
+     "nom": 0.0916,
+     "high": 0.8379
+    },
+    "min_distance_to_hi_mm": 75.542,
+    "c_to_hi_fF": {
+     "nom": 0.0412,
+     "high": 0.3728
+    }
+   },
+   "QSPI clock": {
+    "nets": [
+     "QSPI_CLK",
+     "QSPI_CLK_FLASH"
+    ],
+    "min_distance_to_sum_mm": 76.712,
+    "c_to_sum_fF": {
+     "nom": 0.022,
+     "high": 0.1819
+    },
+    "min_distance_to_tiaout_mm": 68.384,
+    "c_to_tiaout_fF": {
+     "nom": 0.0598,
+     "high": 0.4968
+    },
+    "min_distance_to_hi_mm": 74.678,
+    "c_to_hi_fF": {
+     "nom": 0.0216,
+     "high": 0.1774
+    }
+   },
+   "ADC SCLK": {
+    "nets": [
+     "ADC_SCLK"
+    ],
+    "min_distance_to_sum_mm": 27.824,
+    "c_to_sum_fF": {
+     "nom": 0.3209,
+     "high": 2.0822
+    },
+    "min_distance_to_tiaout_mm": 21.66,
+    "c_to_tiaout_fF": {
+     "nom": 1.14,
+     "high": 6.8972
+    },
+    "min_distance_to_hi_mm": 22.533,
+    "c_to_hi_fF": {
+     "nom": 0.386,
+     "high": 2.4222
+    }
+   },
+   "ADC CONVST": {
+    "nets": [
+     "ADC_CONVST"
+    ],
+    "min_distance_to_sum_mm": 26.473,
+    "c_to_sum_fF": {
+     "nom": 0.1734,
+     "high": 1.788
+    },
+    "min_distance_to_tiaout_mm": 20.536,
+    "c_to_tiaout_fF": {
+     "nom": 0.6498,
+     "high": 6.312
+    },
+    "min_distance_to_hi_mm": 21.104,
+    "c_to_hi_fF": {
+     "nom": 0.2152,
+     "high": 2.3779
+    }
+   },
+   "AD9833 MCLK (DDS_MCLK, DDS_CLK_RAW)": {
+    "nets": [
+     "DDS_MCLK",
+     "DDS_CLK_RAW"
+    ],
+    "min_distance_to_sum_mm": 68.552,
+    "c_to_sum_fF": {
+     "nom": 0.0474,
+     "high": 0.4299
+    },
+    "min_distance_to_tiaout_mm": 57.649,
+    "c_to_tiaout_fF": {
+     "nom": 0.1183,
+     "high": 1.0769
+    },
+    "min_distance_to_hi_mm": 54.663,
+    "c_to_hi_fF": {
+     "nom": 0.0559,
+     "high": 0.5003
+    }
+   },
+   "AD9833 SCLK": {
+    "nets": [
+     "DDS_SCLK"
+    ],
+    "min_distance_to_sum_mm": 65.474,
+    "c_to_sum_fF": {
+     "nom": 0.0548,
+     "high": 0.5214
+    },
+    "min_distance_to_tiaout_mm": 53.985,
+    "c_to_tiaout_fF": {
+     "nom": 0.1379,
+     "high": 1.3209
+    },
+    "min_distance_to_hi_mm": 50.823,
+    "c_to_hi_fF": {
+     "nom": 0.0664,
+     "high": 0.6151
+    }
+   },
+   "USB D+/D-": {
+    "nets": [
+     "USB_DP",
+     "USB_DM",
+     "USB_DP_MCU",
+     "USB_DM_MCU"
+    ],
+    "min_distance_to_sum_mm": 77.158,
+    "c_to_sum_fF": {
+     "nom": 0.0916,
+     "high": 1.0811
+    },
+    "min_distance_to_tiaout_mm": 69.222,
+    "c_to_tiaout_fF": {
+     "nom": 0.2321,
+     "high": 2.7527
+    },
+    "min_distance_to_hi_mm": 72.117,
+    "c_to_hi_fF": {
+     "nom": 0.0959,
+     "high": 1.1239
+    }
+   }
+  },
+  "verdict_vs_simulation": {
+   "l_c104_branch_nh": "conservative (assumption >= extracted high)",
+   "l_rf_branch_nh[100R]": "conservative (assumption >= extracted high)",
+   "l_rf_branch_nh[5k]": "conservative (assumption >= extracted high)",
+   "l_rf_branch_nh[100k]": "conservative (assumption >= extracted high)"
+  }
+ },
+ "rev_d_riso_variant": {
+  "fd": "JLC04161H-7628 dx=0.07",
+  "fd_thin": "JLC04161H-1080 dx=0.1",
+  "ranges": {
+   "100R": {
+    "low": {
+     "c_sum_gnd_pf": 0.8864294169444787,
+     "c_sum_tiaout_pf": 0.18720794984365743,
+     "c_sum_lowbuf_pf": 0.01815823161134574,
+     "c_hi_gnd_pf": 2.9034561307144635,
+     "c_hi_sum_pf": 4.8897185279546435e-05,
+     "c_hi_tiaout_pf": 0.031437487881561185,
+     "c_hi_highbuf_pf": 0.09403051030588923,
+     "c_tiaout_gnd_pf": 6.277840005826638,
+     "c_j3side_gnd_pf": 3.115176336167163,
+     "c_sum_j3side_pf": 0.033664807946159135,
+     "c_j3side_lowbuf_pf": 0.06992836835753295,
+     "c_hi_j3side_pf": 0.10331008695108534
+    },
+    "nom": {
+     "c_sum_gnd_pf": 1.052937387082403,
+     "c_sum_tiaout_pf": 0.26585706391457803,
+     "c_sum_lowbuf_pf": 0.02118562117731054,
+     "c_hi_gnd_pf": 3.5720021959632775,
+     "c_hi_sum_pf": 5.707387158690531e-05,
+     "c_hi_tiaout_pf": 0.03667702434478065,
+     "c_hi_highbuf_pf": 0.10970226200477469,
+     "c_tiaout_gnd_pf": 8.414028243819775,
+     "c_j3side_gnd_pf": 3.80724046481813,
+     "c_sum_j3side_pf": 0.0659435145843255,
+     "c_j3side_lowbuf_pf": 0.09824976051610279,
+     "c_hi_j3side_pf": 0.1410372391922418
+    },
+    "high": {
+     "c_sum_gnd_pf": 1.2719783637954412,
+     "c_sum_tiaout_pf": 0.3985927598632117,
+     "c_sum_lowbuf_pf": 0.025527404979193258,
+     "c_hi_gnd_pf": 5.231876915744044,
+     "c_hi_sum_pf": 6.886120945581293e-05,
+     "c_hi_tiaout_pf": 0.04418707185665157,
+     "c_hi_highbuf_pf": 0.13216510613325372,
+     "c_tiaout_gnd_pf": 9.900865314658416,
+     "c_j3side_gnd_pf": 5.680159890833499,
+     "c_sum_j3side_pf": 0.11921275473487766,
+     "c_j3side_lowbuf_pf": 0.15017709292437886,
+     "c_hi_j3side_pf": 0.15810088631980806
+    }
+   },
+   "5k": {
+    "low": {
+     "c_sum_gnd_pf": 0.8972479245471576,
+     "c_sum_tiaout_pf": 0.17398941592148945,
+     "c_sum_lowbuf_pf": 0.018175345482211315,
+     "c_hi_gnd_pf": 2.9034617729617236,
+     "c_hi_sum_pf": 4.935605762739328e-05,
+     "c_hi_tiaout_pf": 0.03143138204086528,
+     "c_hi_highbuf_pf": 0.09403051151687361,
+     "c_tiaout_gnd_pf": 6.683606974151349,
+     "c_j3side_gnd_pf": 3.1154937921806725,
+     "c_sum_j3side_pf": 0.03369030759789689,
+     "c_j3side_lowbuf_pf": 0.06992849697393143,
+     "c_hi_j3side_pf": 0.10331009039860842
+    },
+    "nom": {
+     "c_sum_gnd_pf": 1.0653201968162123,
+     "c_sum_tiaout_pf": 0.25017754522361974,
+     "c_sum_lowbuf_pf": 0.02120647671496507,
+     "c_hi_gnd_pf": 3.572008904570071,
+     "c_hi_sum_pf": 5.7633113715817885e-05,
+     "c_hi_tiaout_pf": 0.03666975230255519,
+     "c_hi_highbuf_pf": 0.1097022630807718,
+     "c_tiaout_gnd_pf": 8.865440186218411,
+     "c_j3side_gnd_pf": 3.807617814650066,
+     "c_sum_j3side_pf": 0.06597466698939619,
+     "c_j3side_lowbuf_pf": 0.09824987473944384,
+     "c_hi_j3side_pf": 0.14103724225398973
+    },
+    "high": {
+     "c_sum_gnd_pf": 1.2827048772472065,
+     "c_sum_tiaout_pf": 0.38093945117246547,
+     "c_sum_lowbuf_pf": 0.025562693422349396,
+     "c_hi_gnd_pf": 5.2318847440255976,
+     "c_hi_sum_pf": 6.980747597786615e-05,
+     "c_hi_tiaout_pf": 0.04417829203879759,
+     "c_hi_highbuf_pf": 0.1321651074852904,
+     "c_tiaout_gnd_pf": 10.530443442291567,
+     "c_j3side_gnd_pf": 5.6806003806739795,
+     "c_sum_j3side_pf": 0.11926547424912391,
+     "c_j3side_lowbuf_pf": 0.15017723647714032,
+     "c_hi_j3side_pf": 0.15810089016771825
+    }
+   },
+   "100k": {
+    "low": {
+     "c_sum_gnd_pf": 0.8924570614205287,
+     "c_sum_tiaout_pf": 0.17979554448866478,
+     "c_sum_lowbuf_pf": 0.018171610447575794,
+     "c_hi_gnd_pf": 2.90346021136432,
+     "c_hi_sum_pf": 4.9256200724639984e-05,
+     "c_hi_tiaout_pf": 0.0314330438714246,
+     "c_hi_highbuf_pf": 0.09403051143304716,
+     "c_tiaout_gnd_pf": 6.401778723628374,
+     "c_j3side_gnd_pf": 3.11541907059925,
+     "c_sum_j3side_pf": 0.033685574773203,
+     "c_j3side_lowbuf_pf": 0.06992848625801584,
+     "c_hi_j3side_pf": 0.10331009011227606
+    },
+    "nom": {
+     "c_sum_gnd_pf": 1.0599770153363286,
+     "c_sum_tiaout_pf": 0.25703155568166086,
+     "c_sum_lowbuf_pf": 0.021201736157540587,
+     "c_hi_gnd_pf": 3.5720071085203577,
+     "c_hi_sum_pf": 5.750636685857169e-05,
+     "c_hi_tiaout_pf": 0.03667167542739324,
+     "c_hi_highbuf_pf": 0.1097022630077919,
+     "c_tiaout_gnd_pf": 8.553692223723976,
+     "c_j3side_gnd_pf": 3.807532226410448,
+     "c_sum_j3side_pf": 0.0659686707858031,
+     "c_j3side_lowbuf_pf": 0.09824986538467446,
+     "c_hi_j3side_pf": 0.1410372420040386
+    },
+    "high": {
+     "c_sum_gnd_pf": 1.2785769761194024,
+     "c_sum_tiaout_pf": 0.38876850799559826,
+     "c_sum_lowbuf_pf": 0.025554252644372773,
+     "c_hi_gnd_pf": 5.231882644666676,
+     "c_hi_sum_pf": 6.958180197648481e-05,
+     "c_hi_tiaout_pf": 0.04418061748966822,
+     "c_hi_highbuf_pf": 0.13216510739243337,
+     "c_tiaout_gnd_pf": 10.055241356622666,
+     "c_j3side_gnd_pf": 5.680500242887736,
+     "c_sum_j3side_pf": 0.11925479713092196,
+     "c_j3side_lowbuf_pf": 0.1501772245643939,
+     "c_hi_j3side_pf": 0.15810088984942164
+    }
+   }
+  }
+ }
+}

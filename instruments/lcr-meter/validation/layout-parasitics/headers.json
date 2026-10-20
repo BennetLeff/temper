@@ -1,0 +1,24 @@
+{
+ "method": "Above-board capacitance of the 2-pin TSW-102-07-G-S headers (J3, JP4-JP6).",
+ "assumptions": {
+  "pitch_mm": 2.54,
+  "equiv_radius_mm": 0.37465,
+  "post_top_mm": 8.38,
+  "insulator_mm": 2.54
+ },
+ "er_ins=1.0": {
+  "C11_pF": 0.30691654147791114,
+  "Cm_pF": 0.061612278777753944,
+  "C_to_ground_each_pF": 0.2453042627001572
+ },
+ "er_ins=3.6": {
+  "C11_pF": 0.7107881561857802,
+  "Cm_pF": 0.09238979639191974,
+  "C_to_ground_each_pF": 0.6183983597938605
+ },
+ "er_ins=4.2": {
+  "C11_pF": 0.8039892980414428,
+  "Cm_pF": 0.09949230045672723,
+  "C_to_ground_each_pF": 0.7044969975847156
+ }
+}
