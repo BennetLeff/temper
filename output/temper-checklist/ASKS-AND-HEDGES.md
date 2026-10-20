@@ -67,4 +67,4 @@ Each row: who, what, rows gated, what to send, fallback if no answer. "Chaser" i
 | A20 | Molex | 430251600 plug drawing | CTL-20 | Part number | Use the header drawing and the conservative bound | 3 days |
 
 ## 5. What I would send first
-A6 and A1 (the new test and the standard), because they shape everything. A9 and A7 next, because they gate the power order. Draft messages for A1–A7 are the remaining work; they need your recipients.
+A6 and A1 (the new test and the standard), because they shape everything. A9 and A7 next, because they gate the power order. Drafts: A1–A6 are in `CERTIFIER-EMAILS-A1-A6.md` (one email; recommended lab Intertek, via its contact form); A7 is the existing `JLC-LAMINATE-QUESTION.md` (support@jlcpcb.com); A18 goes to info@meanwellusa.com. The firmware sensor overlay (rows FW/DOC-02) is on local branch `fw/c49-plus-main-sensors` (82e4674f7).
