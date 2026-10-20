@@ -32,7 +32,7 @@ The uninsulated route needs a sleeve at 150 °C or more, such as PTFE heat-shrin
 
 | Risk | Hedge | Where it stands |
 |---|---|---|
-| Certifier rejects a gate-drive-only stuck-on cut (CMP-12) | A power-path cut, such as an inlet relay | The checklist says "the inlet relay (DNP) is not built". I did not check whether the board has a footprint. **Action:** look at the s53 board for a relay footprint and a free driver; if none, the cost is a re-layout, so decide before the production freeze |
+| Certifier rejects a gate-drive-only stuck-on cut (CMP-12) | A power-path cut, such as an inlet relay | The checklist says "the inlet relay (DNP) is not built". **Checked 2026-10-20: s53 has no inlet-relay footprint.** PS/DECISIONS.md:3001 lists "the inlet relay provision" (S53-SCOPE item 3, `11-candidates/c53-stuck-on/S53-SCOPE.md`) as not built in s53, and the R5 hardware trip is deferred to the lab's "defeat the firmware" test. So a certifier "no" on Q4 means a re-layout; decide before the production freeze |
 | IEC-60601-only supply modules refused (CMP-10) | A second approved module option for PS2 and PS3 with a similar footprint | Not looked for. The modules were chosen for leakage (0.653 mA budget), so any alternative must keep that. Needs a short search once the certifier says what it will accept |
 | Reinforced insulation at the sink (CMP-15) | The AlN tiles are already the insulation (PWR-22); keep a thicker option on the drawing | In progress; tiles unquoted |
 | Laminate UL scope refused (PWR-06) | A laminate whose UL row covers 2 oz inner copper, or a stackup change | Named in OPEN-ITEMS S12: the F-suffix rows (KB-6164F, 6165F, 6167F) list 102 µm. Ask JLC whether their TG155 option maps to one of those |
