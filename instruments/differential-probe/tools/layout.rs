@@ -564,8 +564,8 @@ fn amplifier_input_voids() -> Vec<(f64, f64, f64, f64)> {
 }
 fn silk_text() -> Vec<(f64, f64, f64, &'static str)> {
     vec![
-        (40., 3.5, 1., "TEMPER | DIFFERENTIAL PROBE | REV C ENGINEERING PROTOTYPE"),
-        (40., 66.5, 1., "HV: NO PLANES BELOW | SHIELD 20 mm FROM HV | NOT CAT RATED"),
+        (33., 2.2, 0.9, "TEMPER | DIFFERENTIAL PROBE | REV C ENGINEERING PROTOTYPE"),
+        (33., 67.8, 0.9, "HV: NO PLANES BELOW | METAL 20 mm FROM HV | NOT CAT RATED"),
         (TIP_X, rows(0).0 - 5., 1., "TIP +"),
         (TIP_X, rows(1).0 + 5., 1., "TIP -"),
     ]

@@ -1,14 +1,8 @@
 {
-  "onboard_references": 135,
-  "position_references": 135,
+  "onboard_references": 105,
+  "position_references": 105,
   "excluded_positions": [],
-  "offboard_components": [
-    "BT1",
-    "BT2",
-    "J3",
-    "SW1",
-    "SW2"
-  ],
+  "offboard_components": [],
   "rotation_status": "native KiCad; vendor placement preview review still required",
   "parts_status": "exact MPN; blank LCSC fields require vendor sourcing, not substitution"
 }

@@ -2,6 +2,7 @@
 # Run from any directory. Regenerates only the draft procurement package.
 set -eu
 cd "$(dirname "$0")/.."
+rm -rf procurement/gerbers
 mkdir -p procurement/gerbers procurement/validation
 kicad-cli version > procurement/validation/kicad-version.txt
 kicad-cli sch erc --exit-code-violations cad/differential-probe.kicad_sch -o procurement/validation/erc.rpt
@@ -52,7 +53,7 @@ with (out / 'cpl-jlc.csv').open('w', newline='') as stream:
     'rotation_status': 'native KiCad; vendor placement preview review still required',
     'parts_status': 'exact MPN; blank LCSC fields require vendor sourcing, not substitution'
 }, indent=2) + '\n')
-with ZipFile(out / 'revb-gerbers.zip', 'w', compression=ZIP_DEFLATED) as archive:
+with ZipFile(out / 'revc-gerbers.zip', 'w', compression=ZIP_DEFLATED) as archive:
     for path in sorted((out / 'gerbers').iterdir()):
         if path.is_file():
             entry = ZipInfo(path.name, date_time=(2026, 10, 20, 0, 0, 0))
@@ -61,7 +62,7 @@ with ZipFile(out / 'revb-gerbers.zip', 'w', compression=ZIP_DEFLATED) as archive
 project_snapshot = out / 'validation' / 'source-project.json'
 project_snapshot.write_bytes(Path('cad/differential-probe.kicad_pro').read_bytes())
 inputs = [Path('cad/differential-probe' + suffix) for suffix in ('.kicad_pcb', '.kicad_sch', '.kicad_dru')] + [project_snapshot]
-outputs = sorted((out / 'gerbers').iterdir()) + [out / name for name in ('bom-jlc.csv', 'cpl-jlc.csv', 'revb-gerbers.zip', 'jlc-part-map.json')]
+outputs = sorted((out / 'gerbers').iterdir()) + [out / name for name in ('bom-jlc.csv', 'cpl-jlc.csv', 'revc-gerbers.zip', 'jlc-part-map.json')]
 (out / 'validation' / 'sha256.txt').write_text(''.join(
     f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path}\n' for path in inputs + outputs
 ))
