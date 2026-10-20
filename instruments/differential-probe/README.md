@@ -56,7 +56,7 @@ All voltage ratings and performance limits above are **qualification targets**. 
 | Range / power switches | C&K 7201SYZBE / 7201SYZQE | 1 each |
 | Panel BNC | Amphenol RF 31-221-RFX | 1 |
 
-The BOM contains every electronic component, including decoupling and both fine compensation trimmers. Exact-MPN sourcing checks found the active parts and main passive families; the catalog snapshots are dated evidence, not live availability or a purchasing quote. The twenty 0.1% HV resistors are the dominant cost item: a distributor listing was approximately $12 each at single-unit quantity when checked. Do not silently substitute 1% parts into this trim design.
+The BOM contains every electronic component, including decoupling and both fine compensation trimmers. Exact-MPN sourcing checks found the active parts and main passive families; the catalog snapshots are dated evidence, not live availability or a purchasing quote. The twenty 0.1% HV resistors are the dominant cost item: a distributor listing was approximately $12 each at single-unit quantity when checked. The [Rev B build decision](docs/revb-build-decision.md) retains these parts and cancels the separate 1% comparison experiment. Do not substitute 1% parts into this trim design. That decision also records battery-only operation, insulation/fault requirements and the stage-53 bring-up restriction.
 
 The PCB includes captive-lead solder landings and explicit wire landings for the five offboard components. The enclosure, rated input leads, strain relief and battery retention still need an assembly design and orderable mechanical BOM. Shield offsets and mounting restrictions are recorded in the layout notes. Ordinary SMA or low-voltage terminal blocks are not selected for the HV inputs.
 

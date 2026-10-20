@@ -1,5 +1,7 @@
 # Differential probe improvement studies
 
+**Build decision supersedes the proposed experiment sequence below:** [Rev B build decision](../revb-build-decision.md). Retain the existing 0.1% resistor BOM; cancel the dedicated resistor-comparison experiment. Batteries remain, and pods/lumped dividers stay Rev C candidates pending normal Rev B bench data. The original studies remain research history.
+
 Thirteen GPT-6.1 Sol studies investigated the proposed improvements against Rev B. The strongest cost candidate is the 1% resistor string with a corrected trim network. The largest architectural size opportunities are a lumped divider and separate tip pods. Neither is a drop-in replacement, and their gains should not be added together without designing the combined assembly.
 
 This folder records research, calculations and isolated geometry checks. It does not change the Rev B schematic, BOM or PCB, and no bench qualification was performed. Candidate part numbers are investigation targets, not approved substitutions or live procurement quotes.

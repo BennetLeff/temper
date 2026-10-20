@@ -4,6 +4,8 @@ Status: **bench tests not executed**. Present evidence includes schematic ERC, n
 
 Record the assembled PCB revision, component substitutions, selected compensation values, lead lengths, shield geometry, scope/cable configuration, ambient temperature and both supply voltages with every result. Calibration belongs to that complete assembly. Repeating it after moving a shield or replacing an input lead is necessary.
 
+Apply the [Rev B build and operating decision](revb-build-decision.md). The 0.1% resistor selection is final for this build; no separate resistor-tolerance comparison campaign is required. The restricted stage-53 setup is battery-powered, isolation-transformer-fed and free of an additional galvanic HOT-to-earth reference. It excludes BRING-UP steps 2–4 while their prescribed `hv_ret`–PE bond remains fitted. Ground-referenced calibration fixtures below are separate controlled qualification setups, not permission to use the prototype on an earthed HOT domain.
+
 ## 1. Low-voltage bring-up
 
 With the DUT disconnected, verify switch wiring, polarity, the two regulated rails and the ±2.495 V references. Confirm no oscillation at either input buffer, the fixed ×2 difference amplifier, the fixed ×5 stage or the output driver in both range positions. Check with the intended cable and scope load, including a longer cable as a stability stress test. Measure regulator and amplifier temperatures with fresh batteries and record current from each battery.
@@ -57,6 +59,12 @@ The 5 MHz bandwidth is initially a small-signal target. Derive and qualify volta
 Compare the direct capacitor voltage with integration of the independently measured capacitor current using the actual bank capacitance and CT transfer function. This is an independent consistency check, not a probe calibration. It is invalid when the capacitor bank fault changes the assumed capacitance or current path. Keep direct voltage capture for fault tests.
 
 The inspected stage-53 T1 is CST3015-200ED (1:200) with a 3 Ω burden. Do not copy the older 1:100 / 1.5 Ω bench document into this comparison. The [stage-53 CT correction](stage53-ct-correction.md) records the verified datasheet, corrected flux estimates and the separate DC-pulse/reset limitations. Recheck the actual populated CT and burden before interpreting measured currents.
+
+Measure R39 and the effective shunt capacitance across `ct_s1`–`ct_s2` on the assembled unit; do not use nominal 100 nF as a calibration value. C42's specified MPN is GRM31C5C1H104JA01L, C0G ±5%, not X7R ±10%. Record actual fitted part, measurement frequency, test level, temperature, fixture/loading correction and uncertainties. An in-circuit capacitance reading through the 3 Ω burden and CT winding is not a valid measurement unless the method explicitly separates those parallel paths. Measure the capacitor isolated from those paths, or fit the assembled complex transimpedance with an independently measured injected current.
+
+For the ideal CT/burden model use `Hct(f) = (Rb / 200) / (1 + j·2πf·Rb·Cb)`. Recover current as `I(f) = 200·(1/Rb + j·2πf·Cb)·Vburden(f)`; then obtain capacitor voltage from `Vc(f) = I(f)/(j·2πf·Cbank)` with measured bank capacitance and the verified current polarity. Include the measured downstream conditioning and acquisition transfer if observing CT_MON rather than directly across the burden. Do not add CT winding resistance to Rb in this signal correction; it belongs in a fuller CT model and the separate flux estimate.
+
+Nominal 3 Ω / 100 nF gives −6.4526° and 0.993665 voltage magnitude relative to the DC scale at 60 kHz; the inverse correction advances current by +6.4526° and multiplies its magnitude by 1.006375. These are calculated examples, **not calibration values**. Use the measured complex CT response where available and do not apply this RC correction twice. Integrate only within the characterized bandwidth; differentiation implicit in the inverse RC correction amplifies high-frequency noise. Record the integration constant/baseline for time-domain reconstruction. Allocate probe, CT, channel/cable and reference uncertainty together against the ≤1° residual target.
 
 ## Required result record
 

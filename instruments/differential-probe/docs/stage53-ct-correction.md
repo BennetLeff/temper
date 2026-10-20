@@ -44,6 +44,14 @@ The corrected estimate retains a large volt-time margin for the assumed symmetri
 
 The nominal burden gain remains 15 mV/A: `3 Ω / 200 = 1.5 Ω / 100`. That coincidence does not preserve the old CT's inductance, DCR, flux, phase or reset behavior.
 
+## Burden capacitance and the measurement correction
+
+C42 is **GRM31C5C1H104JA01L**, 100 nF across `ct_s1`–`ct_s2`, in parallel with R39. The [Murata part sheet](https://www.farnell.com/datasheets/1955740.pdf) specifies C0G, ±5%, 50 V. It is not an X7R ±10% part. Verify the as-built population before using that specification.
+
+The ideal current-source CT model gives `Vburden/Iprimary = (Rb/200)/(1+j·2πf·Rb·Cb)`. At nominal 3 Ω and 100 nF, the phase is −3.7745° at 35 kHz and −6.4526° at 60 kHz. The 60 kHz magnitude is 0.993665 of the DC transimpedance, a 0.6335% reduction. Capacitor ±5% alone spans approximately −6.1325° to −6.7723° at 60 kHz; actual R39 tolerance and the rest of the CT chain add uncertainty.
+
+Use **measured** Rb and effective Cb, or the measured complete complex transimpedance, for the cross-check. A capacitance meter across the intact 3 Ω parallel network is not adequate by default. The [qualification procedure](qualification.md#6-stage-53-cross-check) defines the measurement record, inverse correction, downstream-path distinction and integration limits. No fitted Rb/Cb or measured phase result exists yet. The nominal figures above must not populate a calibration record.
+
 ## DC pulses and reset are separate cases
 
 The older double-pulse procedure integrates the complete ramp, freewheel interval and second pulse. If its current shape were applied to the stage-53 CT, the 37 A plateau estimate would be `37/200 × 8.94 = 1.6539 V`. At a 50 V bus, ideal linear ramps to 37 A would consume approximately 61.2, 153.0 and 611.9 V·µs for 100 µH, 250 µH and 1 mH respectively. Each 10 µs of constant 37 A freewheel adds about 16.54 V·µs; the second pulse adds more.

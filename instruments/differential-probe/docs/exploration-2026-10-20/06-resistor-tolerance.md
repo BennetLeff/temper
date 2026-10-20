@@ -1,5 +1,7 @@
 # 06 — Can 1% HV resistors replace the 0.1% parts?
 
+**Disposition:** the [Rev B build decision](../revb-build-decision.md) keeps 0.1% parts and cancels this note's proposed dedicated comparison experiment. The calculations remain supporting research, not additional required bench work.
+
 **Decision: a worthwhile prototype experiment, with a corrected trim design and measured drift/VCR acceptance.** Initial tolerance alone does not justify twenty expensive 0.1% resistors. However, 4.87 kΩ + an unscreened 200 Ω trimmer does not cover every corner, and the available cheaper HVC part doubles the specified absolute TCR. This note proposes no CAD/BOM change or voltage release.
 
 ## Candidate parts and trim coverage

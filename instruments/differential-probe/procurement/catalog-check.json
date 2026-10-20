@@ -1,0 +1,807 @@
+{
+  "checked_on": "2026-10-20",
+  "local_catalog": [
+    {
+      "mpn": "HVCB2512BDE1M00",
+      "status": "fulfilled",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "HVCB2512BDE1M00",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "HVCB2512BDE1M00",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "HVCB2512BDE1M00"
+        }
+      }
+    },
+    {
+      "mpn": "GKG60015",
+      "status": "fulfilled",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "GKG60015",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "GKG60015",
+          "detected": {
+            "model_number": "GKG60015"
+          },
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "GKG60015"
+        }
+      }
+    },
+    {
+      "mpn": "C1812C330JHGACTU",
+      "status": "fulfilled",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "C1812C330JHGACTU",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "C1812C330JHGACTU",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "C1812C330JHGACTU"
+        }
+      }
+    },
+    {
+      "mpn": "RNCF0603TKY499R",
+      "status": "fulfilled",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "RNCF0603TKY499R",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "RNCF0603TKY499R",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "RNCF0603TKY499R"
+        }
+      }
+    },
+    {
+      "mpn": "RNCF0603TKY4K99",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C3942722",
+            "model": "RNCF0603TKY4K99",
+            "manufacturer": "SEI(Stackpole Elec)",
+            "package": "0603",
+            "stock": 1000,
+            "price": 2.2403,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 4.99kΩ Thin Film Resistor ±0.01% ±5ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "4.99kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thin Film Resistor",
+              "Tolerance": "±0.01%",
+              "Temperature Coefficient": "±5ppm/℃"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "RNCF0603TKY4K99",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "RNCF0603TKY4K99",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "RNCF0603TKY4K99"
+        }
+      }
+    },
+    {
+      "mpn": "ADA4817-1ARDZ-R7",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C207502",
+            "model": "ADA4817-1ARDZ-R7",
+            "manufacturer": "Analog Devices",
+            "package": "SOIC-8-EP",
+            "stock": 15127,
+            "price": 9.925,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "FET Input Amplifiers",
+            "subcategory_id": 3087,
+            "mounting_type": "smd",
+            "description": "-40℃~+105℃ -5V~5V -83dB 1 14mA 2pA 40mA 410MHz 4nV/√Hz@100kHz 500uV 5V~10V 7uV/℃ 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+105℃",
+              "Vos - Input Offset Voltage": "500uV",
+              "Input Offset Current(Ios)": "-",
+              "Output Current": "40mA",
+              "Input Offset Voltage Drift(Vos TC)": "7uV/℃",
+              "Single Supply": "5V~10V",
+              "Slew Rate": "870V/us",
+              "Gain Bandwidth Product": "410MHz",
+              "Quiescent Current(Iq)": "14mA",
+              "Common Mode Rejection Ratio(CMRR)": "-83dB",
+              "Number of Channels": "1",
+              "Noise density(eN)": "4nV/√Hz@100kHz",
+              "Rail To Rail": "-",
+              "Features": "Enable/shutdown function",
+              "Ib - Input Bias Current": "2pA",
+              "Dual Supply": "-5V~5V"
+            }
+          },
+          {
+            "lcsc": "C208248",
+            "model": "ADA4817-1ARDZ",
+            "manufacturer": "Analog Devices",
+            "package": "SOIC-8-EP",
+            "stock": 128,
+            "price": 12.7715,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "FET Input Amplifiers",
+            "subcategory_id": 3087,
+            "mounting_type": "smd",
+            "description": "-40℃~+105℃ -5V~5V -83dB 1 1.05GHz 19mA 2mV 2pA 40mA 4nV/√Hz@100kHz 5V~10V 7uV/℃ 870V/us Enable/shutdown function Rail-to-rail output SOIC-8-EP FET Input Amplifiers ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+105℃",
+              "Vos - Input Offset Voltage": "2mV",
+              "Output Current": "40mA",
+              "Input Offset Voltage Drift(Vos TC)": "7uV/℃",
+              "Single Supply": "5V~10V",
+              "Gain Bandwidth Product": "1.05GHz",
+              "Slew Rate": "870V/us",
+              "Quiescent Current(Iq)": "19mA",
+              "Common Mode Rejection Ratio(CMRR)": "-83dB",
+              "Number of Channels": "1",
+              "Noise density(eN)": "4nV/√Hz@100kHz",
+              "Rail To Rail": "Rail-to-rail output",
+              "Features": "Enable/shutdown function",
+              "Ib - Input Bias Current": "2pA",
+              "Dual Supply": "-5V~5V"
+            }
+          }
+        ],
+        "total": 3,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "ADA4817-1ARDZ",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 3
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "ADA4817-1ARDZ-R7",
+          "detected": {
+            "model_number": "ADA4817-1ARDZ"
+          },
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "ADA4817-1ARDZ"
+        }
+      }
+    },
+    {
+      "mpn": "OPA810IDR",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C1852077",
+            "model": "OPA810IDR",
+            "manufacturer": "Texas Instruments",
+            "package": "SOIC-8",
+            "stock": 2361,
+            "price": 2.8056,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "FET Input Amplifiers",
+            "subcategory_id": 3087,
+            "mounting_type": "smd",
+            "description": "-12V~-2.375V、2.375V~12V -40℃~+125℃ 1 100dB 100uV 192V/us 2.5uV/℃ 20pA 2pA 3.7mA 4.75V~27V 6.3nV/√Hz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit  Protection、Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+125℃",
+              "Vos - Input Offset Voltage": "100uV",
+              "Input Offset Current(Ios)": "20pA",
+              "Output Current": "75mA",
+              "Input Offset Voltage Drift(Vos TC)": "2.5uV/℃",
+              "Single Supply": "4.75V~27V",
+              "Slew Rate": "192V/us",
+              "Gain Bandwidth Product": "70MHz",
+              "Quiescent Current(Iq)": "3.7mA",
+              "Common Mode Rejection Ratio(CMRR)": "100dB",
+              "Number of Channels": "1",
+              "Noise density(eN)": "6.3nV/√Hz@500kHz",
+              "Rail To Rail": "Rail-to-Rail Input, Rail-to-Rail Output",
+              "Features": "Short-Circuit  Protection、Built-in compensation",
+              "Ib - Input Bias Current": "2pA",
+              "Dual Supply": "-12V~-2.375V、2.375V~12V"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "OPA810IDR",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "OPA810IDR",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "OPA810IDR"
+        }
+      }
+    },
+    {
+      "mpn": "ADP7142AUJZ-R7",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C514356",
+            "model": "ADP7142AUJZ-R7",
+            "manufacturer": "Analog Devices",
+            "package": "TSOT-5",
+            "stock": 4505,
+            "price": 3.474,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Power Management (PMIC)",
+            "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+            "subcategory_id": 2956,
+            "mounting_type": "smd",
+            "description": "-40℃~+125℃@(Tj) 1 11uVrms 200mA 40V Adjustable Over Current Protection、Over Temperature Protection、Soft Start、Enable Positive TSOT-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+            "specs": {
+              "Power Supply Rejection Ratio (PSRR)": "-",
+              "Operating Temperature": "-40℃~+125℃@(Tj)",
+              "standby current": "50uA",
+              "Noise": "11uVrms",
+              "Output Type": "Adjustable",
+              "Voltage - Supply": "40V",
+              "Output Current": "200mA",
+              "Output Configuration": "Positive",
+              "Features": "Over Current Protection、Short Circuit Protection、Thermal shutdown、Enable control、Adjustable soft-start、Built-in soft-start",
+              "Output Voltage": "-",
+              "Voltage Dropout": "-",
+              "Number of Outputs": "1"
+            }
+          },
+          {
+            "lcsc": "C659367",
+            "model": "ADP7142AUJZ-5.0-R7",
+            "manufacturer": "Analog Devices",
+            "package": "TSOT-23-5",
+            "stock": 3555,
+            "price": 4.1766,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Power Management (PMIC)",
+            "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+            "subcategory_id": 2956,
+            "mounting_type": "smd",
+            "description": "-40℃~+125℃@(Ta) 1 11uVrms 200mA 40V 5V 88dB@(10kHz) Fixed Over Current Protection、Over Temperature Protection、Enable Positive TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+            "specs": {
+              "Power Supply Rejection Ratio (PSRR)": "88dB@(10kHz)",
+              "Operating Temperature": "-40℃~+125℃@(Ta)",
+              "standby current": "50uA",
+              "Noise": "11uVrms",
+              "Output Type": "Fixed",
+              "Voltage - Supply": "40V",
+              "Output Current": "200mA",
+              "Output Configuration": "Positive",
+              "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection、Adjustable soft-start、Built-in soft-start",
+              "Output Voltage": "5V",
+              "Voltage Dropout": "200mV@(200mA)",
+              "Number of Outputs": "1"
+            }
+          }
+        ],
+        "total": 4,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "ADP7142AUJZ R7",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 4
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "ADP7142AUJZ-R7",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "ADP7142AUJZ R7"
+        }
+      }
+    },
+    {
+      "mpn": "ADP7182AUJZ-R7",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C514358",
+            "model": "ADP7182AUJZ-R7",
+            "manufacturer": "Analog Devices",
+            "package": "TSOT-23-5",
+            "stock": 5034,
+            "price": 3.3204,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Power Management (PMIC)",
+            "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+            "subcategory_id": 2956,
+            "mounting_type": "smd",
+            "description": "-40℃~+125℃@(Tj) 1 1.22V~27V 185mV@(200mA) 18uVrms 200mA 28V 650uA 66dB@(10kHz) Adjustable Negative Over Current Protection、Over Temperature Protection、Enable TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+            "specs": {
+              "Power Supply Rejection Ratio (PSRR)": "66dB@(10kHz)",
+              "standby current": "650uA",
+              "Operating Temperature": "-40℃~+125℃@(Tj)",
+              "Noise": "18uVrms",
+              "Output Type": "Adjustable",
+              "Voltage - Supply": "28V",
+              "Output Current": "200mA",
+              "Output Configuration": "Negative",
+              "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection",
+              "Output Voltage": "1.22V~27V",
+              "Voltage Dropout": "185mV@(200mA)",
+              "Number of Outputs": "1"
+            }
+          },
+          {
+            "lcsc": "C514357",
+            "model": "ADP7182AUJZ-5.0-R7",
+            "manufacturer": "Analog Devices",
+            "package": "TSOT-23-5",
+            "stock": 4496,
+            "price": 3.7272,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Power Management (PMIC)",
+            "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+            "subcategory_id": 2956,
+            "mounting_type": "smd",
+            "description": "-40℃~+125℃@(Tj) 1 18uVrms 200mA 28V 360mV@(200mA) 5V 650uA 66dB@(10kHz) Fixed Negative Over Current Protection、Thermal Shutdown TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+            "specs": {
+              "Power Supply Rejection Ratio (PSRR)": "66dB@(10kHz)",
+              "standby current": "650uA",
+              "Operating Temperature": "-40℃~+125℃@(Tj)",
+              "Noise": "18uVrms",
+              "Output Type": "Fixed",
+              "Voltage - Supply": "28V",
+              "Output Current": "200mA",
+              "Output Configuration": "Negative",
+              "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection",
+              "Voltage Dropout": "360mV@(200mA)",
+              "Output Voltage": "5V",
+              "Number of Outputs": "1"
+            }
+          }
+        ],
+        "total": 5,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "ADP7182AUJZ R7",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 5
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "ADP7182AUJZ-R7",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "ADP7182AUJZ R7"
+        }
+      }
+    }
+  ],
+  "live_jlc": [
+    {
+      "mpn": "HVCB2512BDE1M00",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C2482550",
+            "model": "HVCB2512BDE1M00",
+            "manufacturer": "SEI(Stackpole Elec)",
+            "package": "2512",
+            "stock": 0,
+            "price": 8.9152,
+            "price_10": 8.9152,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "specs": {
+              "Resistance": "1MΩ",
+              "Operating Temperature": "-55℃~+150℃",
+              "Power(Watts)": "2W",
+              "Type": "Thick Film Resistor",
+              "Voltage-Supply(Max)": "3kV",
+              "Tolerance": "±0.1%",
+              "Temperature Coefficient": "±25ppm/℃"
+            }
+          }
+        ],
+        "page": 1,
+        "per_page": 3,
+        "total": 1,
+        "total_pages": 1,
+        "has_more": false
+      }
+    },
+    {
+      "mpn": "GKG60015",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C3273413",
+            "model": "GKG60015",
+            "manufacturer": "EW Electronics",
+            "package": "Plugin",
+            "stock": 0,
+            "price": 1.7109,
+            "price_10": 1.7109,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Trimmers, Variable Capacitors",
+            "subcategory_id": 3055,
+            "mounting_type": "through_hole",
+            "specs": {
+              "Operating Temperature": "-25℃~+85℃",
+              "Voltage Rating": "100V",
+              "Q @ Frequency": "200@1MHz",
+              "Capacitance": "12pF~60pF",
+              "Height - Seated(Max)": "5mm"
+            }
+          }
+        ],
+        "page": 1,
+        "per_page": 3,
+        "total": 1,
+        "total_pages": 1,
+        "has_more": false
+      }
+    },
+    {
+      "mpn": "C1812C330JHGACTU",
+      "status": "fulfilled",
+      "result": {
+        "results": [],
+        "page": 1,
+        "per_page": 3,
+        "total": 0,
+        "total_pages": 0,
+        "has_more": false
+      }
+    },
+    {
+      "mpn": "RNCF0603TKY499R",
+      "status": "fulfilled",
+      "result": {
+        "results": [],
+        "page": 1,
+        "per_page": 3,
+        "total": 0,
+        "total_pages": 0,
+        "has_more": false
+      }
+    },
+    {
+      "mpn": "RNCF0603TKY4K99",
+      "status": "fulfilled",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C3942722",
+            "model": "RNCF0603TKY4K99",
+            "manufacturer": "SEI(Stackpole Elec)",
+            "package": "0603",
+            "stock": 1000,
+            "price": 2.2403,
+            "price_10": 1.9167,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "specs": {
+              "Resistance": "4.99kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thin Film Resistor",
+              "Tolerance": "±0.01%",
+              "Temperature Coefficient": "±5ppm/℃"
+            }
+          }
+        ],
+        "page": 1,
+        "per_page": 3,
+        "total": 1,
+        "total_pages": 1,
+        "has_more": false
+      }
+    }
+  ]
+}

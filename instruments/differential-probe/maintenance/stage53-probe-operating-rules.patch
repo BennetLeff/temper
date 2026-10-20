@@ -1,0 +1,32 @@
+diff --git a/firmware/components/power/COMMISSIONING.md b/firmware/components/power/COMMISSIONING.md
+index fbb79e6e8..532a794c9 100644
+--- a/firmware/components/power/COMMISSIONING.md
++++ b/firmware/components/power/COMMISSIONING.md
+@@ -119,6 +119,7 @@ Tank ceiling ladder (firmware `tank_freq.h`; floor = round-6 envelope peak + 3 A
+   - It is never called from a fault, sample or tick path.
+ - **Faults latch until MCU reset.** Any input fault, or a stale sample, makes `sample()` return false. `power_service` then forces the pads low and trips; it does not rebind. Hardware trips latch PERMIT independently and need the operator reset.
+ - **Isolation.** Every measurement on the HOT side uses isolated or differential probes. Use the isolation transformer for every AC step, and the power analyser in the inlet path. On the home bench a GFCI sits ahead of the isolation transformer, and step 5 adds a dim-bulb tester (`zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/BRING-UP.md`, the home-lab overview).
++  - **Custom differential-probe Rev B restriction:** batteries only, scope protective earth intact, and no additional galvanic HOT-to-earth reference. Do not use this prototype during steps 2–4 while their prescribed `hv_ret`–PE bond is fitted, and do not remove that bond early; use independently rated instrumentation. For later tank measurements, first complete the probe's qualification and audit every connected instrument for an additional HOT-to-earth path. Isolation-transformer operation does not prove a harmless first fault: Y/stray capacitance, stored charge and the other probe leg remain return paths. The probe's build/fault requirements are in `instruments/differential-probe/docs/revb-build-decision.md` on the probe branch; these restrictions do not alter any test limit or the existing power sequence.
+ - **Never weaken a check to make a step pass.** If a step needs a lower trip to demonstrate it, lower it in the bench `sdkconfig` only, and restore it before the next step.
+ - **Board revision.** Everything here is for stage 53 (board table). Before a board is powered, confirm its fitted parts against B1, B2, B9, B13 and B14 (the bank part and its fit mark) and enter them in the record. A board of any other stage needs its own table, rendered from that board's sources; nothing here transfers. Two known traps on earlier boards: before s50 BIAS_GOOD is high at idle (no option P), so step 2 item 6's check 1 latches `BIAS GOOD STUCK`; before s49 the OCP divider and band differ from B2–B5.
+ - **Bring-up power plan: BR1 out until step 4 passes** (owner decision 2026-10-18). PS2's output + is wired straight to V24_RAW, with no series diode (B18), and back-feeding an unpowered MEAN WELL output is unqualified. BR1 is the only part joining mains (l_filt / n_filt) to the bus (bus_p / hv_ret; B18). So the bring-up boards leave BR1 unfitted (the JLC order deselects it, as RV1), PS2 runs from its own input in steps 2–4, and the owner fits BR1 in step 4b.
+diff --git a/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/BRING-UP.md b/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/BRING-UP.md
+index 00f97a598..2f986ae91 100644
+--- a/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/BRING-UP.md
++++ b/zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/BRING-UP.md
+@@ -24,6 +24,7 @@ firmware and Kconfig symbol names, and every COMMISSIONING step named here exist
+ - **Never touch the board while it is fed from mains**, at any step. The bench sink and the HOT side are live, and the bench
+   insulation is catalogue pad, not the production M11 stack (OPEN-ITEMS M11).
+ - **HOT-side nodes: isolated or differential probes only.** Never clip a grounded probe to the bus or a switch node.
++- **Custom differential-probe Rev B:** battery power only, with the scope PE intact and no additional galvanic HOT-to-earth reference. This prototype is excluded from steps 2–4 while their required `hv_ret`–PE bond is fitted; use independently rated instrumentation for those steps and do not remove the bond early. After its prescribed removal before BR1 fitting, audit analyser terminals, supply negatives, probe grounds and debug connections before considering the qualified prototype for tank measurements. The isolation transformer does not bound transient earth current: Y/stray capacitance, stored charge and the probe's other leg still provide return paths. Retain the probe's 10 mm air / 20 mm PCB creepage, intact slots, 20 mm shield setback and clean assembly, with no coating credit. A future pod or lumped divider needs at least two independent series impedance sections, each qualified for the full tip waveform and duration after the other is bypassed; component count alone is not proof. See the probe branch's `instruments/differential-probe/docs/revb-build-decision.md`.
+ - **First-power ceiling 17.5 A** until a ladder step passes its thermal gate (COMMISSIONING "Raising the commissioned tank
+   ceiling", gate 0, and step 9a item 6).
+ - Stop at the first unexpected reading and write it down. Do not "try once more".
+@@ -78,6 +79,7 @@ a 270 nF tank and the 44 kHz PLL floor of the half-bridge, not native-21's bank
+ - Any reading outside the pass level of the step it belongs to.
+ 
+ ## Records to keep
++- For the custom probe's independent CT cross-check, record measured R39 and effective C42 capacitance, measurement conditions and uncertainty, plus the complete CT/acquisition gain and phase. C42's specified GRM31C5C1H104JA01L is 100 nF C0G ±5%; nominal 100 nF is not a calibration value. The nominal 3 Ω / 100 nF burden alone gives −6.4526° and −0.6335% amplitude at 60 kHz. Correct with the measured complex transfer before integrating current; do not treat a capacitance-meter reading through the intact parallel 3 Ω burden as an isolated capacitor measurement. This does not change the commissioned current limits or CT_ZC calibration.
+ - Photos of both boards before first power, including the shim and pad selected for each FET (bench-sink §6.2).
+ - The coil traveller: M1–M5 per coil, plus M4 for every pan you will cook on. Send them back to the coil study for its model
+   re-anchor (coil README §5, item 6).
