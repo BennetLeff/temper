@@ -13,7 +13,7 @@ The unchanged Rev B board is the engineering prototype to build, with the existi
 - [Checksums](validation/sha256.txt), [ERC](validation/erc.rpt), [DRC](validation/pcb-drc.json), and [assembly parity](validation/assembly-parity.json).
 - [Gerber review](validation/renders/gerber-review.png): copper, routed outline and top paste rendered with PyGerber's API V2. The older `raster-2d` renderer omitted rounded pads and thin outlines; those images were rejected and replaced, not treated as evidence of missing copper.
 
-Run `sh procurement/export.sh` from the probe directory (or invoke the script by path). ERC and DRC must pass before exports. The script derives BOM/placement data; it does not edit parts or the PCB. Native KiCad rotations have not yet been approved against JLC's component-placement preview. Blank LCSC entries require exact-MPN sourcing; do not accept automatic substitutions. The 50 Ω resistance trimmers and capacitance trimmers are included in the 135 onboard references; battery clips, panel switches and BNC are separate offboard purchases.
+Run `sh procurement/export.sh` from the probe directory (or invoke the script by path). ERC and DRC must pass before exports. The script derives BOM/placement data; it does not edit parts or the PCB. Native KiCad rotations have not yet been approved against JLC's component-placement preview. The [part map](jlc-part-map.json) supplies verified catalog IDs without changing schematic part identities. The Comment field carries the MPN because JLC ignored the separate MPN column when matching generic values. Blank LCSC entries require exact-MPN sourcing; do not accept automatic substitutions. The 50 Ω resistance trimmers and capacitance trimmers are included in the 135 onboard references; battery clips, panel switches and BNC are separate offboard purchases.
 
 The board SHA-256 is `b0c15add2b69967cee0593962e1b3b22795725ed36ccbfc408b05c3fb4002b65`. Fresh KiCad 10.0.4 ERC and DRC returned zero violations and zero PCB unconnected items. The rendered copper preserves both straight ladders and no underlying planes; the outline contains ten capacitor slots. The top paste render includes the divided exposed-pad apertures. These checks do not qualify the completed instrument at high voltage.
 
@@ -21,7 +21,7 @@ The board SHA-256 is `b0c15add2b69967cee0593962e1b3b22795725ed36ccbfc408b05c3fb4
 
 Uploaded ZIP parsed as 240 × 84 mm, four layers. Configured five PCBs, Standard top-side assembly, two populated, ENIG, and explicit layer sequence F.Cu / In1.Cu / In2.Cu / B.Cu. Production-file and parts-placement confirmation were enabled with automatic confirmation disabled. JLC added two 5 mm assembly rails and displayed 240 × 94 mm for the panel envelope. Require the production drawing to preserve the original finished outline and slots.
 
-The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. Sign-in returned to the quote page and cleared its settings; the same settings and Gerber upload were restored. JLC blocks continuation until its Assembly Service Terms and Conditions are accepted. User confirmation for that acceptance is pending; BOM/CPL matching and checkout remain unfinished. Review the complete order total before purchase.
+The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. The user explicitly approved assembly-terms acceptance, and both BOM and CPL were uploaded. The assembly project is saved in JLC. Automatic matches included incorrect dielectric, tolerance and manufacturer choices; the uploaded BOM now uses MPN comments and verified catalog IDs. Eighty of 135 references are selected with matching MPNs; the rest remain unresolved or unselected. Seven exact-part global-sourcing lines have been added to a separate cart, with a displayed subtotal of USD 692.89; sourcing checkout adds USD 7.00 handling for USD 699.89. This is a partial component quote, not the completed-board total. No payment has been authorized or submitted. See [live quote review](quote-review.md).
 
 Saved assembly remark:
 
@@ -29,7 +29,7 @@ Saved assembly remark:
 
 ## Sourcing evidence
 
-[Raw catalog and live JLC results](catalog-check.json) distinguish local-index results from live stock calls. The full assembly BOM has not yet been matched or priced by JLC.
+[Raw catalog and live JLC results](catalog-check.json) distinguish local-index results from live stock calls. The BOM has been processed by JLC; exact-part mapping and global sourcing remain incomplete. See [live quote review](quote-review.md).
 
 | Exact MPN | Quantity for two populated boards, before attrition | Current evidence / action |
 |---|---:|---|

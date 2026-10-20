@@ -24,11 +24,16 @@ out = Path('procurement')
 with (out / 'components-raw.csv').open(newline='') as stream:
     components = list(csv.DictReader(stream))
 onboard = [row for row in components if not row['Offboard'].strip()]
+part_map = json.loads((out / 'jlc-part-map.json').read_text())['parts']
 with (out / 'bom-jlc.csv').open('w', newline='') as stream:
     writer = csv.writer(stream)
-    writer.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #', 'MPN', 'Manufacturer'])
+    writer.writerow(['Comment', 'Designator', 'Footprint', 'LCSC Part #', 'MPN', 'Manufacturer', 'Value'])
     for row in onboard:
-        writer.writerow([row['Value'], row['Reference'], row['Footprint'], row['LCSC'].strip(), row['MPN'], row['Manufacturer']])
+        mapped = part_map.get(row['MPN'], {})
+        if mapped and mapped['mpn'].replace(' ', '') != row['MPN'].replace(' ', ''):
+            raise SystemExit(f"Part identity mismatch: {row['MPN']}")
+        lcsc = row['LCSC'].strip() or mapped.get('lcsc', '')
+        writer.writerow([row['MPN'], row['Reference'], row['Footprint'], lcsc, row['MPN'], row['Manufacturer'], row['Value']])
 with (out / 'positions-raw.csv').open(newline='') as stream:
     positions = list(csv.DictReader(stream))
 wanted = {row['Reference'] for row in onboard}
@@ -56,7 +61,7 @@ with ZipFile(out / 'revb-gerbers.zip', 'w', compression=ZIP_DEFLATED) as archive
 project_snapshot = out / 'validation' / 'source-project.json'
 project_snapshot.write_bytes(Path('cad/differential-probe.kicad_pro').read_bytes())
 inputs = [Path('cad/differential-probe' + suffix) for suffix in ('.kicad_pcb', '.kicad_sch', '.kicad_dru')] + [project_snapshot]
-outputs = sorted((out / 'gerbers').iterdir()) + [out / name for name in ('bom-jlc.csv', 'cpl-jlc.csv', 'revb-gerbers.zip')]
+outputs = sorted((out / 'gerbers').iterdir()) + [out / name for name in ('bom-jlc.csv', 'cpl-jlc.csv', 'revb-gerbers.zip', 'jlc-part-map.json')]
 (out / 'validation' / 'sha256.txt').write_text(''.join(
     f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path}\n' for path in inputs + outputs
 ))

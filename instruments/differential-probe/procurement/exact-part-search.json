@@ -1,0 +1,3680 @@
+[
+  {
+    "query": "C1812C330JHGACTU",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "C1812C330JHGACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C1812C330JHGACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C1812C330JHGACTU"
+    }
+  },
+  {
+    "query": "C1206C103F5GACTU",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "C1206C103F5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C1206C103F5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C1206C103F5GACTU"
+    }
+  },
+  {
+    "query": "C0805C222J5GACTU",
+    "results": [
+      {
+        "lcsc": "C2169606",
+        "model": "C0805C222J5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 1144,
+        "price": 0.0352,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "2.2nF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±5%",
+          "Capacitance": "2.2nF",
+          "Temperature Coefficient": "C0G"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C222J5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C222J5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C222J5GACTU"
+    }
+  },
+  {
+    "query": "C0805C681J5GACTU",
+    "results": [
+      {
+        "lcsc": "C2169158",
+        "model": "C0805C681J5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 864,
+        "price": 0.0342,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "50V 680pF C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±5%",
+          "Capacitance": "680pF",
+          "Temperature Coefficient": "C0G"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C681J5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C681J5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C681J5GACTU"
+    }
+  },
+  {
+    "query": "C0805C221J5GACTU",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "C0805C221J5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C221J5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C221J5GACTU"
+    }
+  },
+  {
+    "query": "C0805C470J5GACTU",
+    "results": [
+      {
+        "lcsc": "C452755",
+        "model": "C0805C470J5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 1999,
+        "price": 0.0218,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "47pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±5%",
+          "Capacitance": "47pF",
+          "Temperature Coefficient": "C0G"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C470J5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C470J5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C470J5GACTU"
+    }
+  },
+  {
+    "query": "C0805C100J5GACTU",
+    "results": [
+      {
+        "lcsc": "C7471456",
+        "model": "C0805C100J5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 634,
+        "price": 0.0255,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {}
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C100J5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C100J5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C100J5GACTU"
+    }
+  },
+  {
+    "query": "C0805C109C5GACTU",
+    "results": [
+      {
+        "lcsc": "C2177789",
+        "model": "C0805C109C5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 99,
+        "price": 0.088,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "1pF 50V C0G 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Capacitance": "1pF",
+          "Temperature Coefficient": "C0G"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C109C5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C109C5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C109C5GACTU"
+    }
+  },
+  {
+    "query": "C0805C181J5GACTU",
+    "results": [
+      {
+        "lcsc": "C2168941",
+        "model": "C0805C181J5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 412,
+        "price": 0.0254,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "180pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±5%",
+          "Capacitance": "180pF",
+          "Temperature Coefficient": "C0G"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C181J5GACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C181J5GACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C181J5GACTU"
+    }
+  },
+  {
+    "query": "C1210C106K3RACTU",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "C1210C106K3RACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C1210C106K3RACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C1210C106K3RACTU"
+    }
+  },
+  {
+    "query": "C0805C104K5RACTU",
+    "results": [
+      {
+        "lcsc": "C3018562",
+        "model": "C0805C104K5RACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 8600,
+        "price": 0.0822,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "description": "100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±10%",
+          "Capacitance": "100nF",
+          "Temperature Coefficient": "X7R"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "C0805C104K5RACTU",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "C0805C104K5RACTU",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "C0805C104K5RACTU"
+    }
+  },
+  {
+    "query": "GKG60015",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "GKG60015",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "GKG60015",
+      "detected": {
+        "model_number": "GKG60015"
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "GKG60015"
+    }
+  },
+  {
+    "query": "BAV199,215",
+    "results": [
+      {
+        "lcsc": "C145516",
+        "model": "BAV199LT1G",
+        "manufacturer": "onsemi",
+        "package": "SOT-23",
+        "stock": 417962,
+        "price": 0.0308,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Diodes",
+        "subcategory": "Diodes - General Purpose",
+        "subcategory_id": 2946,
+        "mounting_type": "smd",
+        "description": "-65℃~+150℃ 1 Pair Series Connection 1.25V@150mA 215mA 2A 5uA@70V 70V SOT-23 Diodes - General Purpose ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "2A",
+          "Voltage - DC Reverse(Vr)": "70V",
+          "Operating Junction Temperature Range": "-65℃~+150℃",
+          "Diode Configuration": "1 Pair Series Connection",
+          "Current - Rectified": "215mA",
+          "Reverse Leakage Current (Ir)": "5nA@70V"
+        }
+      },
+      {
+        "lcsc": "C40919",
+        "model": "BAV199,215",
+        "manufacturer": "Nexperia",
+        "package": "SOT-23",
+        "stock": 115576,
+        "price": 0.0378,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Diodes",
+        "subcategory": "Diodes - General Purpose",
+        "subcategory_id": 2946,
+        "mounting_type": "smd",
+        "description": "1 Pair Series Connection 1.25V@150mA 160mA 4A 5nA@75V 85V SOT-23 Diodes - General Purpose ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "4A",
+          "Voltage - DC Reverse(Vr)": "85V",
+          "Operating Junction Temperature Range": "-",
+          "Diode Configuration": "1 Pair Series Connection",
+          "Current - Rectified": "160mA",
+          "Reverse Leakage Current (Ir)": "5nA@75V"
+        }
+      },
+      {
+        "lcsc": "C68971",
+        "model": "BAV199",
+        "manufacturer": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+        "package": "SOT-23",
+        "stock": 55800,
+        "price": 0.027,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Diodes",
+        "subcategory": "Switching Diodes",
+        "subcategory_id": 2952,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃@(Tj) 1 Pair Series Connection 1.25V@150mA 1A 200mW 215mA 3us 5nA@75V 70V SOT-23 Switching Diodes ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "1A",
+          "Voltage - DC Reverse(Vr)": "70V",
+          "Operating Junction Temperature Range": "-55℃~+150℃",
+          "Reverse Recovery Time (trr)": "3us",
+          "Diode Configuration": "1 Pair Series Connection",
+          "Current - Rectified": "215mA",
+          "Pd - Power Dissipation": "200mW",
+          "Reverse Leakage Current (Ir)": "5nA@75V"
+        }
+      },
+      {
+        "lcsc": "C459847",
+        "model": "BAV199Q-7-F",
+        "manufacturer": "Diodes Incorporated",
+        "package": "SOT-23",
+        "stock": 54938,
+        "price": 0.1478,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Diodes",
+        "subcategory": "Diodes - General Purpose",
+        "subcategory_id": 2946,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1 Pair Series Connection 1.25V@150mA 160mA 4A 5nA@75V 85V SOT-23 Diodes - General Purpose ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "4A",
+          "Voltage - DC Reverse(Vr)": "85V",
+          "Operating Junction Temperature Range": "-55℃~+150℃",
+          "Diode Configuration": "1 Pair Series Connection",
+          "Current - Rectified": "160mA",
+          "Reverse Leakage Current (Ir)": "5nA@75V"
+        }
+      }
+    ],
+    "total": 39,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 4
+    },
+    "filters_applied": {
+      "query": "BAV199",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 39
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "BAV199,215",
+      "detected": {
+        "model_number": "BAV199"
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "BAV199"
+    }
+  },
+  {
+    "query": "SS14",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "SS14",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": "Diodes",
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "SS14",
+      "detected": {
+        "model_number": "SS14"
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "SS14"
+    }
+  },
+  {
+    "query": "1N4148W,115",
+    "results": [
+      {
+        "lcsc": "C81598",
+        "model": "1N4148W",
+        "manufacturer": "ST(Semtech)",
+        "package": "SOD-123",
+        "stock": 4303858,
+        "price": 0.0124,
+        "price_10": null,
+        "library_type": "basic",
+        "preferred": true,
+        "category": "Diodes",
+        "subcategory": "Switching Diodes",
+        "subcategory_id": 2952,
+        "mounting_type": "smd",
+        "description": "150mA 1A 1V@50mA 1uA@75V 400mW 4ns 75V Independent SOD-123 Switching Diodes ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1V@50mA",
+          "Non-Repetitive Peak Forward Surge Current": "1A",
+          "Voltage - DC Reverse(Vr)": "75V",
+          "Operating Junction Temperature Range": "-",
+          "Reverse Recovery Time (trr)": "4ns",
+          "Diode Configuration": "Standalone",
+          "Current - Rectified": "150mA",
+          "Pd - Power Dissipation": "400mW",
+          "Reverse Leakage Current (Ir)": "1uA@75V"
+        }
+      },
+      {
+        "lcsc": "C2128",
+        "model": "1N4148WS",
+        "manufacturer": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+        "package": "SOD-323",
+        "stock": 2970826,
+        "price": 0.0143,
+        "price_10": null,
+        "library_type": "basic",
+        "preferred": true,
+        "category": "Diodes",
+        "subcategory": "Switching Diodes",
+        "subcategory_id": 2952,
+        "mounting_type": "smd",
+        "description": "1.25V@150mA 100V 150mA 1uA@75V 200mW 2A 4ns Independent SOD-323 Switching Diodes ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "2A",
+          "Voltage - DC Reverse(Vr)": "100V",
+          "Operating Junction Temperature Range": "-",
+          "Reverse Recovery Time (trr)": "4ns",
+          "Diode Configuration": "Standalone",
+          "Current - Rectified": "150mA",
+          "Pd - Power Dissipation": "200mW",
+          "Reverse Leakage Current (Ir)": "1uA@75V"
+        }
+      },
+      {
+        "lcsc": "C7420318",
+        "model": "1N4148W",
+        "manufacturer": "hongjiacheng",
+        "package": "SOD-123",
+        "stock": 4802500,
+        "price": 0.007,
+        "price_10": null,
+        "library_type": "preferred",
+        "preferred": true,
+        "category": "Diodes",
+        "subcategory": "Switching Diodes",
+        "subcategory_id": 2952,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1.25V@150mA 100V 150mA 1uA@75V 2A 400mW 4ns Independent SOD-123 Switching Diodes ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "2A",
+          "Voltage - DC Reverse(Vr)": "100V",
+          "Operating Junction Temperature Range": "-55℃~+150℃",
+          "Reverse Recovery Time (trr)": "4ns",
+          "Diode Configuration": "Standalone",
+          "Current - Rectified": "150mA",
+          "Pd - Power Dissipation": "400mW",
+          "Reverse Leakage Current (Ir)": "1uA@75V"
+        }
+      },
+      {
+        "lcsc": "C7420320",
+        "model": "1N4148WT",
+        "manufacturer": "hongjiacheng",
+        "package": "SOD-523",
+        "stock": 2462561,
+        "price": 0.0127,
+        "price_10": null,
+        "library_type": "preferred",
+        "preferred": true,
+        "category": "Diodes",
+        "subcategory": "Switching Diodes",
+        "subcategory_id": 2952,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1.25V@150mA 100V 150mA 150mW 1uA@75V 2A 4ns Independent SOD-523 Switching Diodes ROHS",
+        "specs": {
+          "Voltage - Forward(Vf@If)": "1.25V@150mA",
+          "Non-Repetitive Peak Forward Surge Current": "2A",
+          "Voltage - DC Reverse(Vr)": "100V",
+          "Operating Junction Temperature Range": "-55℃~+150℃",
+          "Reverse Recovery Time (trr)": "4ns",
+          "Diode Configuration": "Standalone",
+          "Current - Rectified": "150mA",
+          "Pd - Power Dissipation": "150mW",
+          "Reverse Leakage Current (Ir)": "1uA@75V"
+        }
+      }
+    ],
+    "total": 252,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 4
+    },
+    "filters_applied": {
+      "query": "1N4148W",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 2,
+      "preferred": 4,
+      "extended": 246
+    },
+    "no_fee_available": true,
+    "parsed": {
+      "original_query": "1N4148W,115",
+      "detected": {
+        "model_number": "1N4148W"
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "1N4148W"
+    }
+  },
+  {
+    "query": "LTST-C170KRKT",
+    "results": [
+      {
+        "lcsc": "C94868",
+        "model": "LTST-C170KRKT",
+        "manufacturer": "Lite-On",
+        "package": "0805",
+        "stock": 135153,
+        "price": 0.0282,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Optoelectronics",
+        "subcategory": "LED Indication - Discrete",
+        "subcategory_id": 71,
+        "mounting_type": "smd",
+        "description": "-55℃~+85℃ 130° 20mA 2V 54mcd 631nm 639nm 75mW Discrete Diode Red Water Clear 0805 LED Indication - Discrete ROHS",
+        "specs": {
+          "Mounting Style": "-",
+          "Wavelength - Dominant": "631nm",
+          "Power(Watts)": "75mW",
+          "Operating Temperature": "-55℃~+85℃",
+          "Color Temperature": "-",
+          "Test Current": "20mA",
+          "Viewing Angle": "130°",
+          "Diode Configuration": "Discrete Diode",
+          "Illumination Color": "Red",
+          "Lens Color": "Water Clear",
+          "Peak Wavelength": "639nm",
+          "Luminous Intensity": "54mcd",
+          "Voltage - Forward(Vf)": "2V"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "LTST C170KRKT",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "LTST-C170KRKT",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "LTST C170KRKT"
+    }
+  },
+  {
+    "query": "MMBT3906,215",
+    "results": [
+      {
+        "lcsc": "C7420354",
+        "model": "MMBT3906",
+        "manufacturer": "hongjiacheng",
+        "package": "SOT-23",
+        "stock": 632721,
+        "price": 0.0117,
+        "price_10": null,
+        "library_type": "preferred",
+        "preferred": true,
+        "category": "Transistors/Thyristors",
+        "subcategory": "Bipolar (BJT)",
+        "subcategory_id": 2934,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1 PNP 100 100nA 200mA 200mW 300MHz 300mV 40V 5V PNP SOT-23 Bipolar (BJT) ROHS",
+        "specs": {
+          "Operating Temperature": "-55℃~+150℃",
+          "Transition frequency(fT)": "300MHz",
+          "Collector - Emitter Voltage VCEO": "40V",
+          "Configuration": "Standalone",
+          "Number": "1 PNP",
+          "DC Current Gain": "100",
+          "Current - Collector(Ic)": "200mA",
+          "Vce Saturation(VCE(sat))": "300mV",
+          "Emitter-Base Voltage(Vebo)": "5V",
+          "type": "PNP",
+          "Pd - Power Dissipation": "200mW",
+          "Current - Collector Cutoff": "100nA"
+        }
+      },
+      {
+        "lcsc": "C53444",
+        "model": "MMBT3906LT1G",
+        "manufacturer": "onsemi",
+        "package": "SOT-23",
+        "stock": 954853,
+        "price": 0.019,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Transistors/Thyristors",
+        "subcategory": "Bipolar (BJT)",
+        "subcategory_id": 2934,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1 PNP 200mA 225mW 250MHz 250mV 40V 50nA 5V 60 PNP SOT-23 Bipolar (BJT) ROHS",
+        "specs": {
+          "Operating Temperature": "-55℃~+150℃",
+          "Transition frequency(fT)": "250MHz",
+          "Collector - Emitter Voltage VCEO": "40V",
+          "Number": "1 PNP",
+          "DC Current Gain": "60",
+          "Current - Collector(Ic)": "200mA",
+          "Vce Saturation(VCE(sat))": "250mV",
+          "Emitter-Base Voltage(Vebo)": "5V",
+          "Pd - Power Dissipation": "225mW",
+          "type": "PNP",
+          "Current - Collector Cutoff": "50nA"
+        }
+      },
+      {
+        "lcsc": "C727128",
+        "model": "MMBT3906",
+        "manufacturer": "TWGMC",
+        "package": "SOT-23",
+        "stock": 345019,
+        "price": 0.0083,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Transistors/Thyristors",
+        "subcategory": "Bipolar (BJT)",
+        "subcategory_id": 2934,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1 PNP 100 100nA 200mA 200mW 300MHz 300mV 40V 5V PNP SOT-23 Bipolar (BJT) ROHS",
+        "specs": {
+          "Operating Temperature": "-55℃~+150℃",
+          "Transition frequency(fT)": "300MHz",
+          "Collector - Emitter Voltage VCEO": "40V",
+          "Number": "1 PNP",
+          "DC Current Gain": "100",
+          "Current - Collector(Ic)": "200mA",
+          "Vce Saturation(VCE(sat))": "300mV",
+          "Emitter-Base Voltage(Vebo)": "5V",
+          "type": "PNP",
+          "Pd - Power Dissipation": "200mW",
+          "Current - Collector Cutoff": "100nA"
+        }
+      },
+      {
+        "lcsc": "C909755",
+        "model": "MMBT3906",
+        "manufacturer": "GOODWORK",
+        "package": "SOT-23",
+        "stock": 159731,
+        "price": 0.01,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Transistors/Thyristors",
+        "subcategory": "Bipolar (BJT)",
+        "subcategory_id": 2934,
+        "mounting_type": "smd",
+        "description": "-55℃~+150℃ 1 PNP 100nA 200mA 200mW 300 300MHz 300mV 40V 5V PNP SOT-23 Bipolar (BJT) ROHS",
+        "specs": {
+          "Operating Temperature": "-55℃~+150℃",
+          "Transition frequency(fT)": "300MHz",
+          "Collector - Emitter Voltage VCEO": "40V",
+          "Number": "1 PNP",
+          "DC Current Gain": "300",
+          "Current - Collector(Ic)": "200mA",
+          "Vce Saturation(VCE(sat))": "300mV",
+          "Emitter-Base Voltage(Vebo)": "5V",
+          "type": "PNP",
+          "Pd - Power Dissipation": "200mW",
+          "Current - Collector Cutoff": "100nA"
+        }
+      }
+    ],
+    "total": 111,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 4
+    },
+    "filters_applied": {
+      "query": "MMBT3906",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 1,
+      "extended": 110
+    },
+    "no_fee_available": true,
+    "parsed": {
+      "original_query": "MMBT3906,215",
+      "detected": {
+        "model_number": "MMBT3906"
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "MMBT3906"
+    }
+  },
+  {
+    "query": "HVCB2512BDE1M00",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "HVCB2512BDE1M00",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "HVCB2512BDE1M00",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "HVCB2512BDE1M00"
+    }
+  },
+  {
+    "query": "RNCF0603TKY4K99",
+    "results": [
+      {
+        "lcsc": "C3942722",
+        "model": "RNCF0603TKY4K99",
+        "manufacturer": "SEI(Stackpole Elec)",
+        "package": "0603",
+        "stock": 1000,
+        "price": 2.2403,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 100mW 4.99kΩ Thin Film Resistor ±0.01% ±5ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "4.99kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "100mW",
+          "Type": "Thin Film Resistor",
+          "Tolerance": "±0.01%",
+          "Temperature Coefficient": "±5ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RNCF0603TKY4K99",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RNCF0603TKY4K99",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RNCF0603TKY4K99"
+    }
+  },
+  {
+    "query": "RT0805BRD07220L",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "RT0805BRD07220L",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD07220L",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD07220L"
+    }
+  },
+  {
+    "query": "RNCF0603TKY499R",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "RNCF0603TKY499R",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RNCF0603TKY499R",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RNCF0603TKY499R"
+    }
+  },
+  {
+    "query": "RC0805FR-0797R6L",
+    "results": [
+      {
+        "lcsc": "C483266",
+        "model": "RC0805FR-0797R6L",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 98,
+        "price": 0.0026,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 97.6Ω Thick Film Resistor ±1% ±100ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "97.6Ω",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thick Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±1%",
+          "Temperature Coefficient": "±100ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RC0805FR 0797R6L",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RC0805FR-0797R6L",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RC0805FR 0797R6L"
+    }
+  },
+  {
+    "query": "RT0805BRD0749R9L",
+    "results": [
+      {
+        "lcsc": "C865524",
+        "model": "RT0805BRD0749R9L",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 10355,
+        "price": 0.055,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 49.9Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "49.9Ω",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD0749R9L",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD0749R9L",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD0749R9L"
+    }
+  },
+  {
+    "query": "RT0805BRD0710KL",
+    "results": [
+      {
+        "lcsc": "C110775",
+        "model": "RT0805BRD0710KL",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 907972,
+        "price": 0.0378,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "10kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD0710KL",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD0710KL",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD0710KL"
+    }
+  },
+  {
+    "query": "RT0805BRD0747KL",
+    "results": [
+      {
+        "lcsc": "C865515",
+        "model": "RT0805BRD0747KL",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 18033,
+        "price": 0.0512,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 47kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "47kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD0747KL",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD0747KL",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD0747KL"
+    }
+  },
+  {
+    "query": "RT0805BRD0730KL",
+    "results": [
+      {
+        "lcsc": "C728649",
+        "model": "RT0805BRD0730KL",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 27842,
+        "price": 0.0533,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 30kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "30kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD0730KL",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD0730KL",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD0730KL"
+    }
+  },
+  {
+    "query": "RT0805BRD0729K4L",
+    "results": [
+      {
+        "lcsc": "C865361",
+        "model": "RT0805BRD0729K4L",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 2690,
+        "price": 0.0469,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 29.4kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "29.4kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD0729K4L",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD0729K4L",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD0729K4L"
+    }
+  },
+  {
+    "query": "RT0805BRD071KL",
+    "results": [
+      {
+        "lcsc": "C110774",
+        "model": "RT0805BRD071KL",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 211590,
+        "price": 0.0453,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 1kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "1kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD071KL",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD071KL",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD071KL"
+    }
+  },
+  {
+    "query": "RT0805BRD0725K5L",
+    "results": [
+      {
+        "lcsc": "C865332",
+        "model": "RT0805BRD0725K5L",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 147,
+        "price": 0.0435,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 25.5kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "25.5kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD0725K5L",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD0725K5L",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD0725K5L"
+    }
+  },
+  {
+    "query": "RT0805BRD07100KL",
+    "results": [
+      {
+        "lcsc": "C122537",
+        "model": "RT0805BRD07100KL",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 286163,
+        "price": 0.0406,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 100kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "100kΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD07100KL",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD07100KL",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD07100KL"
+    }
+  },
+  {
+    "query": "RT0805BRD071ML",
+    "results": [
+      {
+        "lcsc": "C706228",
+        "model": "RT0805BRD071ML",
+        "manufacturer": "YAGEO",
+        "package": "0805",
+        "stock": 80179,
+        "price": 0.0876,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "description": "-55℃~+155℃ 125mW 150V 1MΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "specs": {
+          "Resistance": "1MΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "125mW",
+          "Type": "Thin Film Resistor",
+          "Voltage-Supply(Max)": "150V",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "RT0805BRD071ML",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "RT0805BRD071ML",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "RT0805BRD071ML"
+    }
+  },
+  {
+    "query": "3296W-1-500LF",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "1 500LF",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [
+        {
+          "name": "Power",
+          "op": ">=",
+          "value": "3296W"
+        }
+      ],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "3296W-1-500LF",
+      "detected": {
+        "values": [
+          {
+            "raw": "3296W",
+            "type": "power",
+            "normalized": "3296W"
+          }
+        ]
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [
+        {
+          "name": "Power",
+          "op": ">=",
+          "value": "3296W"
+        }
+      ],
+      "remaining_text": "1 500LF"
+    }
+  },
+  {
+    "query": "PTS645SL43SMTR92 LFS",
+    "results": [],
+    "total": 0,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 0
+    },
+    "filters_applied": {
+      "query": "PTS645SL43SMTR92 LFS",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 0
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "PTS645SL43SMTR92 LFS",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "PTS645SL43SMTR92 LFS"
+    }
+  },
+  {
+    "query": "ADA4817-1ARDZ-R7",
+    "results": [
+      {
+        "lcsc": "C207502",
+        "model": "ADA4817-1ARDZ-R7",
+        "manufacturer": "Analog Devices",
+        "package": "SOIC-8-EP",
+        "stock": 15127,
+        "price": 9.925,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Amplifiers/Comparators",
+        "subcategory": "FET Input Amplifiers",
+        "subcategory_id": 3087,
+        "mounting_type": "smd",
+        "description": "-40℃~+105℃ -5V~5V -83dB 1 14mA 2pA 40mA 410MHz 4nV/√Hz@100kHz 500uV 5V~10V 7uV/℃ 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+105℃",
+          "Vos - Input Offset Voltage": "500uV",
+          "Input Offset Current(Ios)": "-",
+          "Output Current": "40mA",
+          "Input Offset Voltage Drift(Vos TC)": "7uV/℃",
+          "Single Supply": "5V~10V",
+          "Slew Rate": "870V/us",
+          "Gain Bandwidth Product": "410MHz",
+          "Quiescent Current(Iq)": "14mA",
+          "Common Mode Rejection Ratio(CMRR)": "-83dB",
+          "Number of Channels": "1",
+          "Noise density(eN)": "4nV/√Hz@100kHz",
+          "Rail To Rail": "-",
+          "Features": "Enable/shutdown function",
+          "Ib - Input Bias Current": "2pA",
+          "Dual Supply": "-5V~5V"
+        }
+      },
+      {
+        "lcsc": "C208248",
+        "model": "ADA4817-1ARDZ",
+        "manufacturer": "Analog Devices",
+        "package": "SOIC-8-EP",
+        "stock": 128,
+        "price": 12.7715,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Amplifiers/Comparators",
+        "subcategory": "FET Input Amplifiers",
+        "subcategory_id": 3087,
+        "mounting_type": "smd",
+        "description": "-40℃~+105℃ -5V~5V -83dB 1 1.05GHz 19mA 2mV 2pA 40mA 4nV/√Hz@100kHz 5V~10V 7uV/℃ 870V/us Enable/shutdown function Rail-to-rail output SOIC-8-EP FET Input Amplifiers ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+105℃",
+          "Vos - Input Offset Voltage": "2mV",
+          "Output Current": "40mA",
+          "Input Offset Voltage Drift(Vos TC)": "7uV/℃",
+          "Single Supply": "5V~10V",
+          "Gain Bandwidth Product": "1.05GHz",
+          "Slew Rate": "870V/us",
+          "Quiescent Current(Iq)": "19mA",
+          "Common Mode Rejection Ratio(CMRR)": "-83dB",
+          "Number of Channels": "1",
+          "Noise density(eN)": "4nV/√Hz@100kHz",
+          "Rail To Rail": "Rail-to-rail output",
+          "Features": "Enable/shutdown function",
+          "Ib - Input Bias Current": "2pA",
+          "Dual Supply": "-5V~5V"
+        }
+      },
+      {
+        "lcsc": "C654231",
+        "model": "ADA4817-1ARDZ-RL",
+        "manufacturer": "Analog Devices",
+        "package": "SOIC-8-EP",
+        "stock": 10,
+        "price": 9.5018,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Amplifiers/Comparators",
+        "subcategory": "FET Input Amplifiers",
+        "subcategory_id": 3087,
+        "mounting_type": "smd",
+        "description": "-40℃~+105℃ -5V~5V -83dB 1 1.05GHz 16mA 2mV 2pA 40mA 4nV/√Hz@100kHz 5V~10V 7uV/℃ 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+105℃",
+          "Vos - Input Offset Voltage": "2mV",
+          "Output Current": "40mA",
+          "Input Offset Voltage Drift(Vos TC)": "7uV/℃",
+          "Single Supply": "5V~10V",
+          "Gain Bandwidth Product": "1.05GHz",
+          "Slew Rate": "870V/us",
+          "Quiescent Current(Iq)": "16mA",
+          "Common Mode Rejection Ratio(CMRR)": "-83dB",
+          "Number of Channels": "1",
+          "Noise density(eN)": "4nV/√Hz@100kHz",
+          "Features": "Enable/shutdown function",
+          "Ib - Input Bias Current": "2pA",
+          "Dual Supply": "-5V~5V"
+        }
+      }
+    ],
+    "total": 3,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 3
+    },
+    "filters_applied": {
+      "query": "ADA4817-1ARDZ",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 3
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "ADA4817-1ARDZ-R7",
+      "detected": {
+        "model_number": "ADA4817-1ARDZ"
+      },
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "ADA4817-1ARDZ"
+    }
+  },
+  {
+    "query": "OPA810IDR",
+    "results": [
+      {
+        "lcsc": "C1852077",
+        "model": "OPA810IDR",
+        "manufacturer": "Texas Instruments",
+        "package": "SOIC-8",
+        "stock": 2361,
+        "price": 2.8056,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Amplifiers/Comparators",
+        "subcategory": "FET Input Amplifiers",
+        "subcategory_id": 3087,
+        "mounting_type": "smd",
+        "description": "-12V~-2.375V、2.375V~12V -40℃~+125℃ 1 100dB 100uV 192V/us 2.5uV/℃ 20pA 2pA 3.7mA 4.75V~27V 6.3nV/√Hz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit  Protection、Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+125℃",
+          "Vos - Input Offset Voltage": "100uV",
+          "Input Offset Current(Ios)": "20pA",
+          "Output Current": "75mA",
+          "Input Offset Voltage Drift(Vos TC)": "2.5uV/℃",
+          "Single Supply": "4.75V~27V",
+          "Slew Rate": "192V/us",
+          "Gain Bandwidth Product": "70MHz",
+          "Quiescent Current(Iq)": "3.7mA",
+          "Common Mode Rejection Ratio(CMRR)": "100dB",
+          "Number of Channels": "1",
+          "Noise density(eN)": "6.3nV/√Hz@500kHz",
+          "Rail To Rail": "Rail-to-Rail Input, Rail-to-Rail Output",
+          "Features": "Short-Circuit  Protection、Built-in compensation",
+          "Ib - Input Bias Current": "2pA",
+          "Dual Supply": "-12V~-2.375V、2.375V~12V"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "OPA810IDR",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "OPA810IDR",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "OPA810IDR"
+    }
+  },
+  {
+    "query": "TLV1704AIPWR",
+    "results": [
+      {
+        "lcsc": "C181596",
+        "model": "TLV1704AIPWR",
+        "manufacturer": "Texas Instruments",
+        "package": "TSSOP-14",
+        "stock": 578,
+        "price": 1.5883,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Amplifiers/Comparators",
+        "subcategory": "Comparators",
+        "subcategory_id": 3030,
+        "mounting_type": "smd",
+        "description": "-18V~-1.1V、1.1V~18V -40℃~+125℃ 0.5nA 2.2V~36V 20uV/℃ 300uV 365ns 36V 55uA 560ns 5nA Four channels Open Collector Rail-to-Rail Input TSSOP-14 Comparators ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+125℃",
+          "Vos - Input Offset Voltage": "300uV",
+          "Output Type": "Open Collector",
+          "Input Offset Current(Ios)": "0.5nA",
+          "Input Offset Voltage Drift(Vos TC)": "20uV/℃",
+          "Single Supply": "2.2V~36V",
+          "Input Hysteresis Voltage (Vhys)": "-",
+          "Response Time (tr)": "365ns",
+          "Common Mode Rejection Ratio(CMRR)": "-",
+          "Rail to Rail": "Rail-to-rail input",
+          "Number of Channels": "Four channels",
+          "Maximum Power Supply Range (Vdd-Vss)": "36V",
+          "Quiescent Current": "55uA",
+          "Features": "-",
+          "Ib - Input Bias Current": "5nA",
+          "Propagation Delay Time": "560ns",
+          "Output Mode": "-",
+          "Dual Supply": "-18V~-1.1V、1.1V~18V"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "TLV1704AIPWR",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "TLV1704AIPWR",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "TLV1704AIPWR"
+    }
+  },
+  {
+    "query": "TLV1702AIDGKR",
+    "results": [
+      {
+        "lcsc": "C2870937",
+        "model": "TLV1702AIDGKR",
+        "manufacturer": "Texas Instruments",
+        "package": "VSSOP-8",
+        "stock": 3337,
+        "price": 1.085,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Amplifiers/Comparators",
+        "subcategory": "Comparators",
+        "subcategory_id": 3030,
+        "mounting_type": "smd",
+        "description": "-18V~-1.1V、1.1V~18V -40℃~+125℃ 0.37us 0.5nA 2 2.2V~36V 20uV/℃ 3.5mV 36V 55uA 560ns 5nA Open Collector Rail-to-Rail Input VSSOP-8 Comparators ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+125℃",
+          "Vos - Input Offset Voltage": "3.5mV",
+          "Output Type": "Open Collector",
+          "Input Offset Current(Ios)": "0.5nA",
+          "Input Offset Voltage Drift(Vos TC)": "20uV/℃",
+          "Single Supply": "2.2V~36V",
+          "Input Hysteresis Voltage (Vhys)": "-",
+          "Response Time (tr)": "0.37us",
+          "Common Mode Rejection Ratio(CMRR)": "-",
+          "Rail to Rail": "Rail-to-rail input",
+          "Number of Channels": "2",
+          "Maximum Power Supply Range (Vdd-Vss)": "36V",
+          "Quiescent Current": "55uA",
+          "Features": "-",
+          "Ib - Input Bias Current": "5nA",
+          "Propagation Delay Time": "560ns",
+          "Output Mode": "-",
+          "Dual Supply": "-18V~-1.1V、1.1V~18V"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "TLV1702AIDGKR",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "TLV1702AIDGKR",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "TLV1702AIDGKR"
+    }
+  },
+  {
+    "query": "CD4013BM96",
+    "results": [
+      {
+        "lcsc": "C13527",
+        "model": "CD4013BM96",
+        "manufacturer": "Texas Instruments",
+        "package": "SOIC-14",
+        "stock": 91810,
+        "price": 0.2504,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Logic",
+        "subcategory": "Flip Flops",
+        "subcategory_id": 2163,
+        "mounting_type": "smd",
+        "description": "-55℃~+125℃ 1 10ns 2 24MHz 2ns 3V~18V 4000B Series 4uA 5pF 6.8mA 6.8mA 90ns@15V,50pF Asynchronous Complementary D-Type Rising Edge Set and Reset SOIC-14 Flip Flops ROHS",
+        "specs": {
+          "Operating Temperature": "-55℃~+125℃",
+          "Clock Frequency": "24MHz",
+          "Propagation Delay": "90ns@15V,50pF",
+          "Synchronous/Asynchronous": "Asynchronous",
+          "Number of Bits per Element": "1",
+          "Output Type": "Complementary",
+          "Trigger Type": "Rising Edge",
+          "Current - Output High(IOH)": "6.8mA",
+          "Setup Time": "10ns",
+          "Series": "4000B Series",
+          "Function": "Set and Reset",
+          "Type": "D-Type",
+          "Voltage - Supply": "3V~18V",
+          "Quiescent Current": "4uA",
+          "Number of Elements": "2",
+          "Hold Time": "2ns",
+          "Input Capacitance": "5pF",
+          "Current - Output Low(IOL)": "6.8mA"
+        }
+      }
+    ],
+    "total": 1,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 1
+    },
+    "filters_applied": {
+      "query": "CD4013BM96",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 1
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "CD4013BM96",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "CD4013BM96"
+    }
+  },
+  {
+    "query": "ADP7142AUJZ-R7",
+    "results": [
+      {
+        "lcsc": "C514356",
+        "model": "ADP7142AUJZ-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-5",
+        "stock": 4505,
+        "price": 3.474,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Tj) 1 11uVrms 200mA 40V Adjustable Over Current Protection、Over Temperature Protection、Soft Start、Enable Positive TSOT-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "-",
+          "Operating Temperature": "-40℃~+125℃@(Tj)",
+          "standby current": "50uA",
+          "Noise": "11uVrms",
+          "Output Type": "Adjustable",
+          "Voltage - Supply": "40V",
+          "Output Current": "200mA",
+          "Output Configuration": "Positive",
+          "Features": "Over Current Protection、Short Circuit Protection、Thermal shutdown、Enable control、Adjustable soft-start、Built-in soft-start",
+          "Output Voltage": "-",
+          "Voltage Dropout": "-",
+          "Number of Outputs": "1"
+        }
+      },
+      {
+        "lcsc": "C659367",
+        "model": "ADP7142AUJZ-5.0-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-23-5",
+        "stock": 3555,
+        "price": 4.1766,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Ta) 1 11uVrms 200mA 40V 5V 88dB@(10kHz) Fixed Over Current Protection、Over Temperature Protection、Enable Positive TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "88dB@(10kHz)",
+          "Operating Temperature": "-40℃~+125℃@(Ta)",
+          "standby current": "50uA",
+          "Noise": "11uVrms",
+          "Output Type": "Fixed",
+          "Voltage - Supply": "40V",
+          "Output Current": "200mA",
+          "Output Configuration": "Positive",
+          "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection、Adjustable soft-start、Built-in soft-start",
+          "Output Voltage": "5V",
+          "Voltage Dropout": "200mV@(200mA)",
+          "Number of Outputs": "1"
+        }
+      },
+      {
+        "lcsc": "C208543",
+        "model": "ADP7142AUJZ-3.3-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-23-5",
+        "stock": 2922,
+        "price": 3.3171,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Ta) 1 11uVrms 200mA 200mV@(200mA) 3.3V 40V 50uA 88dB@(10kHz) Fixed Over Current Protection、Over Temperature Protection、Soft Start、Enable Positive TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "88dB@(10kHz)",
+          "Operating Temperature": "-40℃~+125℃@(Ta)",
+          "standby current": "50uA",
+          "Noise": "11uVrms",
+          "Output Type": "Fixed",
+          "Voltage - Supply": "40V",
+          "Output Current": "200mA",
+          "Output Configuration": "Positive",
+          "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection、Adjustable soft-start、Built-in soft-start",
+          "Output Voltage": "3.3V",
+          "Voltage Dropout": "200mV@(200mA)",
+          "Number of Outputs": "1"
+        }
+      },
+      {
+        "lcsc": "C659366",
+        "model": "ADP7142AUJZ-1.8-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-23-5",
+        "stock": 13,
+        "price": 3.8155,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Ta) 1 1.8V 200mA 40V 68dB@(100kHz) Fixed Over Current Protection、Over Temperature Protection、Enable Positive TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "68dB@(100kHz)",
+          "Operating Temperature": "-40℃~+125℃@(Ta)",
+          "standby current": "50uA",
+          "Noise": "11uVrms",
+          "Output Type": "Fixed",
+          "Voltage - Supply": "40V",
+          "Output Current": "200mA",
+          "Output Configuration": "Positive",
+          "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection、Adjustable soft-start、Built-in soft-start",
+          "Output Voltage": "1.8V",
+          "Voltage Dropout": "200mV@(200mA)",
+          "Number of Outputs": "1"
+        }
+      }
+    ],
+    "total": 4,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 4
+    },
+    "filters_applied": {
+      "query": "ADP7142AUJZ R7",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 4
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "ADP7142AUJZ-R7",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "ADP7142AUJZ R7"
+    }
+  },
+  {
+    "query": "ADP7182AUJZ-R7",
+    "results": [
+      {
+        "lcsc": "C514358",
+        "model": "ADP7182AUJZ-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-23-5",
+        "stock": 5034,
+        "price": 3.3204,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Tj) 1 1.22V~27V 185mV@(200mA) 18uVrms 200mA 28V 650uA 66dB@(10kHz) Adjustable Negative Over Current Protection、Over Temperature Protection、Enable TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "66dB@(10kHz)",
+          "standby current": "650uA",
+          "Operating Temperature": "-40℃~+125℃@(Tj)",
+          "Noise": "18uVrms",
+          "Output Type": "Adjustable",
+          "Voltage - Supply": "28V",
+          "Output Current": "200mA",
+          "Output Configuration": "Negative",
+          "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection",
+          "Output Voltage": "1.22V~27V",
+          "Voltage Dropout": "185mV@(200mA)",
+          "Number of Outputs": "1"
+        }
+      },
+      {
+        "lcsc": "C514357",
+        "model": "ADP7182AUJZ-5.0-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-23-5",
+        "stock": 4496,
+        "price": 3.7272,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Tj) 1 18uVrms 200mA 28V 360mV@(200mA) 5V 650uA 66dB@(10kHz) Fixed Negative Over Current Protection、Thermal Shutdown TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "66dB@(10kHz)",
+          "standby current": "650uA",
+          "Operating Temperature": "-40℃~+125℃@(Tj)",
+          "Noise": "18uVrms",
+          "Output Type": "Fixed",
+          "Voltage - Supply": "28V",
+          "Output Current": "200mA",
+          "Output Configuration": "Negative",
+          "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection",
+          "Voltage Dropout": "360mV@(200mA)",
+          "Output Voltage": "5V",
+          "Number of Outputs": "1"
+        }
+      },
+      {
+        "lcsc": "C659407",
+        "model": "ADP7182AUJZ-1.8-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-5",
+        "stock": 489,
+        "price": 3.1226,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Tj) 1 1.8V 185mV 18uVrms 200mA 28V 650uA 66dB@(10kHz) Fixed Negative Over Current Protection、Over Temperature Protection、Soft Start、Over Voltage Protection、Enable、Short Circuit Protection TSOT-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "66dB@(10kHz)",
+          "standby current": "650uA",
+          "Operating Temperature": "-40℃~+125℃@(Tj)",
+          "Noise": "18uVrms",
+          "Voltage - Supply": "28V",
+          "Output Type": "Fixed",
+          "Output Current": "200mA",
+          "Output Configuration": "Negative",
+          "Features": "Over Current Protection、Short Circuit Protection、Thermal shutdown、Enable control、Built-in soft-start",
+          "Voltage Dropout": "185mV",
+          "Output Voltage": "1.8V",
+          "Number of Outputs": "1"
+        }
+      },
+      {
+        "lcsc": "C462196",
+        "model": "ADP7182AUJZ-2.5-R7",
+        "manufacturer": "Analog Devices",
+        "package": "TSOT-23-5",
+        "stock": 320,
+        "price": 5.5344,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "description": "-40℃~+125℃@(Tj) 1 185mV@(200mA) 18uVrms 2.5V 200mA 28V 650uA 66dB@(10kHz) Fixed Negative Over Current Protection、Over Temperature Protection、Enable TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "66dB@(10kHz)",
+          "standby current": "650uA",
+          "Operating Temperature": "-40℃~+125℃@(Tj)",
+          "Noise": "18uVrms",
+          "Output Type": "Fixed",
+          "Voltage - Supply": "28V",
+          "Output Current": "200mA",
+          "Output Configuration": "Negative",
+          "Features": "Over Current Protection、Thermal shutdown、Enable control、Input under-voltage protection",
+          "Voltage Dropout": "185mV@(200mA)",
+          "Output Voltage": "2.5V",
+          "Number of Outputs": "1"
+        }
+      }
+    ],
+    "total": 5,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 4
+    },
+    "filters_applied": {
+      "query": "ADP7182AUJZ R7",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 5
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "ADP7182AUJZ-R7",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "ADP7182AUJZ R7"
+    }
+  },
+  {
+    "query": "TL431BIDBZR",
+    "results": [
+      {
+        "lcsc": "C41283",
+        "model": "TL431BIDBZR",
+        "manufacturer": "Texas Instruments",
+        "package": "SOT-23-3",
+        "stock": 168644,
+        "price": 0.071,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Reference",
+        "subcategory_id": 3007,
+        "mounting_type": "smd",
+        "description": "-40℃~+85℃ 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel ±0.5% SOT-23-3 Voltage Reference ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+85℃",
+          "Noise - 1/10Hz to 10Hz": "-",
+          "Voltage - Supply": "2.5V~36V",
+          "Output Type": "Adjustable",
+          "Output Current": "100mA",
+          "Tolerance": "±0.5%",
+          "Minimum Cathode Current for Regulation": "700uA",
+          "Quiescent Current": "-",
+          "Features": "-",
+          "Temperature Coefficient": "-",
+          "Output Voltage": "2.495V~36V",
+          "Reference Type": "Parallel",
+          "Noise - 10Hz to 10kHz": "-"
+        }
+      },
+      {
+        "lcsc": "C78609",
+        "model": "TL431BIDBZR,215",
+        "manufacturer": "Nexperia",
+        "package": "SOT-23",
+        "stock": 8233,
+        "price": 0.2318,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Reference",
+        "subcategory_id": 3007,
+        "mounting_type": "smd",
+        "description": "-40℃~+85℃@(Ta) 100mA 2.495V~36V 2.495V~36V 400uA Adjustable Parallel ±0.5% SOT-23 Voltage Reference ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+85℃",
+          "Noise - 1/10Hz to 10Hz": "-",
+          "Voltage - Supply": "2.495V~36V",
+          "Output Type": "Adjustable",
+          "Output Current": "100mA",
+          "Tolerance": "±0.5%",
+          "Minimum Cathode Current for Regulation": "400uA",
+          "Quiescent Current": "-",
+          "Features": "-",
+          "Temperature Coefficient": "-",
+          "Output Voltage": "2.495V~36V",
+          "Reference Type": "Parallel",
+          "Noise - 10Hz to 10kHz": "-"
+        }
+      },
+      {
+        "lcsc": "C53114222",
+        "model": "TL431BIDBZR,215-JSM",
+        "manufacturer": "JSMSEMI",
+        "package": "SOT-23",
+        "stock": 5842,
+        "price": 0.0612,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Reference",
+        "subcategory_id": 3007,
+        "mounting_type": "smd",
+        "description": "-40℃~+85℃ 100mA 2.5V~36V 20ppm/℃ 400uA Adjustable Parallel ±0.5% SOT-23 Voltage Reference ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+85℃",
+          "Noise - 1/10Hz to 10Hz": "-",
+          "Output Type": "Adjustable",
+          "Voltage - Supply": "-",
+          "Output Current": "100mA",
+          "Tolerance": "±0.5%",
+          "Minimum Cathode Current for Regulation": "400uA",
+          "Quiescent Current": "-",
+          "Temperature Coefficient": "20ppm/℃",
+          "Output Voltage": "2.5V~36V",
+          "Reference Type": "Parallel",
+          "Noise - 10Hz to 10kHz": "-"
+        }
+      },
+      {
+        "lcsc": "C29780633",
+        "model": "TL431BIDBZR(UMW)",
+        "manufacturer": "UMW(Youtai Semiconductor Co., Ltd.)",
+        "package": "SOT-23",
+        "stock": 4330,
+        "price": 0.0396,
+        "price_10": null,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Reference",
+        "subcategory_id": 3007,
+        "mounting_type": "smd",
+        "description": "SOT-23 Voltage Reference ROHS",
+        "specs": {
+          "Operating Temperature": "-40℃~+125℃",
+          "Noise - 1/10Hz to 10Hz": "-",
+          "Voltage - Supply": "2.5V~36V",
+          "Output Type": "Adjustable",
+          "Output Current": "100mA",
+          "Tolerance": "±0.5%",
+          "Minimum Cathode Current for Regulation": "450uA",
+          "Quiescent Current": "1.5uA",
+          "Temperature Coefficient": "50ppm/℃",
+          "Output Voltage": "2.488V~36V",
+          "Reference Type": "Parallel",
+          "Noise - 10Hz to 10kHz": "-"
+        }
+      }
+    ],
+    "total": 6,
+    "page_info": {
+      "limit": 4,
+      "offset": 0,
+      "returned": 4
+    },
+    "filters_applied": {
+      "query": "TL431BIDBZR",
+      "subcategory_id": null,
+      "subcategory_name": null,
+      "subcategory_resolved": null,
+      "subcategory_ids": null,
+      "category_id": null,
+      "category_name": null,
+      "category_resolved": null,
+      "spec_filters": [],
+      "library_type": null,
+      "prefer_no_fee": true,
+      "min_stock": 10,
+      "package": null,
+      "packages": null,
+      "manufacturer": null,
+      "match_all_terms": true
+    },
+    "library_type_counts": {
+      "basic": 0,
+      "preferred": 0,
+      "extended": 6
+    },
+    "no_fee_available": false,
+    "parsed": {
+      "original_query": "TL431BIDBZR",
+      "detected": {},
+      "subcategory": null,
+      "package": null,
+      "mounting_type": null,
+      "spec_filters": [],
+      "remaining_text": "TL431BIDBZR"
+    }
+  },
+  {
+    "query": "C1812C330JHGACTU",
+    "results": [],
+    "page": 1,
+    "per_page": 8,
+    "total": 0,
+    "total_pages": 0,
+    "has_more": false
+  },
+  {
+    "query": "C1206C103F5GACTU",
+    "results": [
+      {
+        "lcsc": "C1917476",
+        "model": "C1206C103F5GACTU",
+        "manufacturer": "KEMET",
+        "package": "1206",
+        "stock": 0,
+        "price": 2.8367,
+        "price_10": 2.8367,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±1%",
+          "Capacitance": "10nF",
+          "Temperature Coefficient": "-"
+        }
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "C0805C221J5GACTU",
+    "results": [
+      {
+        "lcsc": "C2169015",
+        "model": "C0805C221J5GACTU",
+        "manufacturer": "KEMET",
+        "package": "0805",
+        "stock": 0,
+        "price": 0.0242,
+        "price_10": 0.0195,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "50V",
+          "Tolerance": "±5%",
+          "Capacitance": "220pF",
+          "Temperature Coefficient": "C0G"
+        }
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "C1210C106K3RACTU",
+    "results": [
+      {
+        "lcsc": "C2167571",
+        "model": "C1210C106K3RACTU",
+        "manufacturer": "KEMET",
+        "package": "1210",
+        "stock": 8,
+        "price": 0.2983,
+        "price_10": 0.2368,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+        "subcategory_id": 2929,
+        "mounting_type": "smd",
+        "specs": {
+          "Voltage Rating": "25V",
+          "Tolerance": "±10%",
+          "Capacitance": "10uF",
+          "Temperature Coefficient": "X7R"
+        }
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "GKG60015",
+    "results": [
+      {
+        "lcsc": "C3273413",
+        "model": "GKG60015",
+        "manufacturer": "EW Electronics",
+        "package": "Plugin",
+        "stock": 0,
+        "price": 1.7109,
+        "price_10": 1.7109,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Capacitors",
+        "subcategory": "Trimmers, Variable Capacitors",
+        "subcategory_id": 3055,
+        "mounting_type": "through_hole",
+        "specs": {
+          "Operating Temperature": "-25℃~+85℃",
+          "Voltage Rating": "100V",
+          "Q @ Frequency": "200@1MHz",
+          "Capacitance": "12pF~60pF",
+          "Height - Seated(Max)": "5mm"
+        }
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "SS14",
+    "results": [],
+    "page": 1,
+    "per_page": 8,
+    "total": 0,
+    "total_pages": 0,
+    "has_more": false
+  },
+  {
+    "query": "1N4148W,115",
+    "results": [],
+    "page": 1,
+    "per_page": 8,
+    "total": 0,
+    "total_pages": 0,
+    "has_more": false
+  },
+  {
+    "query": "MMBT3906,215",
+    "results": [
+      {
+        "lcsc": "C75549",
+        "model": "MMBT3906,215",
+        "manufacturer": "Nexperia",
+        "package": "SOT-23",
+        "stock": 111445,
+        "price": 0.0221,
+        "price_10": 0.0172,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Transistors/Thyristors",
+        "subcategory": "Bipolar (BJT)",
+        "subcategory_id": 2934,
+        "mounting_type": "smd",
+        "specs": {
+          "Operating Temperature": "-65℃~+150℃",
+          "Transition frequency(fT)": "250MHz",
+          "Collector - Emitter Voltage VCEO": "40V",
+          "Configuration": "Standalone",
+          "Number": "1 PNP",
+          "DC Current Gain": "100",
+          "Current - Collector(Ic)": "200mA",
+          "Vce Saturation(VCE(sat))": "400mV",
+          "Emitter-Base Voltage(Vebo)": "6V",
+          "Pd - Power Dissipation": "250mW",
+          "type": "PNP",
+          "Current - Collector Cutoff": "50nA"
+        }
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "HVCB2512BDE1M00",
+    "results": [
+      {
+        "lcsc": "C2482550",
+        "model": "HVCB2512BDE1M00",
+        "manufacturer": "SEI(Stackpole Elec)",
+        "package": "2512",
+        "stock": 0,
+        "price": 8.9152,
+        "price_10": 8.9152,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "specs": {
+          "Resistance": "1MΩ",
+          "Operating Temperature": "-55℃~+150℃",
+          "Power(Watts)": "2W",
+          "Type": "Thick Film Resistor",
+          "Voltage-Supply(Max)": "3kV",
+          "Tolerance": "±0.1%",
+          "Temperature Coefficient": "±25ppm/℃"
+        }
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 1,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "RT0805BRD07220L",
+    "results": [],
+    "page": 1,
+    "per_page": 8,
+    "total": 0,
+    "total_pages": 0,
+    "has_more": false
+  },
+  {
+    "query": "RNCF0603TKY499R",
+    "results": [],
+    "page": 1,
+    "per_page": 8,
+    "total": 0,
+    "total_pages": 0,
+    "has_more": false
+  },
+  {
+    "query": "3296W-1-500LF",
+    "results": [
+      {
+        "lcsc": "C83692",
+        "model": "3296W-1-500LF",
+        "manufacturer": "BOURNS",
+        "package": "SIP-3P,9.5x4.8mm",
+        "stock": 446,
+        "price": 1.0066,
+        "price_10": 0.7876,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Potentiometers, Variable Resistors",
+        "subcategory_id": 3033,
+        "mounting_type": "through_hole",
+        "specs": {
+          "Resistance": "50Ω",
+          "Tolerance": "±10%"
+        }
+      },
+      {
+        "lcsc": "C49190463",
+        "model": "3296W-1-500LF",
+        "manufacturer": "jieerrui",
+        "package": "Plugin-3P,9.5x4.9mm",
+        "stock": 577,
+        "price": 0.438,
+        "price_10": 0.3465,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Potentiometers, Variable Resistors",
+        "subcategory_id": 3033,
+        "mounting_type": "through_hole",
+        "specs": {
+          "Resistance": "50Ω",
+          "Power(Watts)": "500mW",
+          "Tolerance": "±10%",
+          "Number of Turns": "28",
+          "Temperature Coefficient": "±150ppm/℃"
+        }
+      },
+      {
+        "lcsc": "C55156110",
+        "model": "JT3296W-1-500LF",
+        "manufacturer": "Shenzhen JDT Fuse",
+        "package": "SIP-3P,9.5x4.9mm",
+        "stock": 200,
+        "price": 0.3929,
+        "price_10": 0.3139,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Potentiometers, Variable Resistors",
+        "subcategory_id": 3033,
+        "mounting_type": "through_hole",
+        "specs": {}
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 3,
+    "total_pages": 1,
+    "has_more": false
+  },
+  {
+    "query": "PTS645SL43SMTR92 LFS",
+    "results": [
+      {
+        "lcsc": "C9900309187",
+        "model": "LFS",
+        "manufacturer": "JLCPCB Assembly",
+        "package": "SMD-4P,4.6x2.8mm",
+        "stock": 0,
+        "price": 0.0398,
+        "price_10": 0.0205,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Others",
+        "subcategory": "SMT",
+        "subcategory_id": 2248,
+        "mounting_type": "smd",
+        "specs": {}
+      },
+      {
+        "lcsc": "C221875",
+        "model": "PTS645SL43SMTR92LFS",
+        "manufacturer": "C&K",
+        "package": "SMD-4P,6x6mm",
+        "stock": 0,
+        "price": 0.1146,
+        "price_10": 0.0873,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Switches",
+        "subcategory": "Tactile Switches",
+        "subcategory_id": 2970,
+        "mounting_type": "smd",
+        "specs": {
+          "Operating Temperature": "-40℃~+85℃",
+          "Operating Force": "1.3N",
+          "Contact Current": "50mA",
+          "Length": "6mm",
+          "Termination Style": "Gull Wing",
+          "Voltage Rating": "12V",
+          "Life": "-",
+          "Actuator Style": "Round Button",
+          "Switch Height": "0.85mm",
+          "Circuit": "SPST",
+          "Mounting Type": "Surface Mount,Vertical",
+          "With Lamp": "-",
+          "Width": "6mm"
+        }
+      },
+      {
+        "lcsc": "C9900160677",
+        "model": "LFS-01",
+        "manufacturer": "JLCPCB Assembly",
+        "package": "Through hole",
+        "stock": 0,
+        "price": 0.0398,
+        "price_10": 0.0205,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Others",
+        "subcategory": "New Arrivals",
+        "subcategory_id": 3286,
+        "mounting_type": "through_hole",
+        "specs": {}
+      },
+      {
+        "lcsc": "C2798513",
+        "model": "MDS LFS",
+        "manufacturer": "C&K",
+        "package": "Plugin",
+        "stock": 0,
+        "price": 4.9135,
+        "price_10": 4.9135,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Switches",
+        "subcategory": "Pushbutton Switches",
+        "subcategory_id": 2968,
+        "mounting_type": "through_hole",
+        "specs": {}
+      },
+      {
+        "lcsc": "C2801423",
+        "model": "MDG LFS",
+        "manufacturer": "C&K",
+        "package": "Plugin",
+        "stock": 0,
+        "price": 7.9315,
+        "price_10": 7.9315,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Switches",
+        "subcategory": "Pushbutton Switches",
+        "subcategory_id": 2968,
+        "mounting_type": "through_hole",
+        "specs": {}
+      },
+      {
+        "lcsc": "C668565",
+        "model": "MDPSLFS",
+        "manufacturer": "C&K",
+        "package": "Plugin",
+        "stock": 2,
+        "price": 6.6979,
+        "price_10": 5.7894,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Switches",
+        "subcategory": "Pushbutton Switches",
+        "subcategory_id": 2968,
+        "mounting_type": "through_hole",
+        "specs": {
+          "Operating Temperature": "-25℃~+70℃",
+          "Operating Force": "2.4N",
+          "Self Lock / No Lock": "Non-Latching",
+          "Termination Style": "PC Pin",
+          "Actuator Style": "Square Button",
+          "Circuit": "SPST",
+          "Mounting Type": "Through Hole"
+        }
+      },
+      {
+        "lcsc": "C2799091",
+        "model": "MDPG LFS",
+        "manufacturer": "C&K",
+        "package": "Plugin",
+        "stock": 0,
+        "price": 4.1439,
+        "price_10": 4.1439,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Switches",
+        "subcategory": "Pushbutton Switches",
+        "subcategory_id": 2968,
+        "mounting_type": "through_hole",
+        "specs": {}
+      },
+      {
+        "lcsc": "C3205778",
+        "model": "1LFS101",
+        "manufacturer": "Littelfuse",
+        "package": "-",
+        "stock": 0,
+        "price": 10.1554,
+        "price_10": 10.1554,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Circuit Protection",
+        "subcategory": "Fuseholders",
+        "subcategory_id": 2961,
+        "mounting_type": "not_sure",
+        "specs": {}
+      }
+    ],
+    "page": 1,
+    "per_page": 8,
+    "total": 4041,
+    "total_pages": 506,
+    "has_more": true
+  }
+]
