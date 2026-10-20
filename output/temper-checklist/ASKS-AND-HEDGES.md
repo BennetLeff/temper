@@ -68,3 +68,7 @@ Each row: who, what, rows gated, what to send, fallback if no answer. "Chaser" i
 
 ## 5. What I would send first
 A6 and A1 (the new test and the standard), because they shape everything. A9 and A7 next, because they gate the power order. Drafts: A1–A6 are in `CERTIFIER-EMAILS-A1-A6.md` (one email; recommended lab Intertek, via its contact form); A7 is the existing `JLC-LAMINATE-QUESTION.md` (support@jlcpcb.com); A18 goes to info@meanwellusa.com. The firmware sensor overlay (rows FW/DOC-02) is on local branch `fw/c49-plus-main-sensors` (82e4674f7).
+
+## 6. Firmware overlay status (2026-10-20)
+- Branch `fw/c49-plus-main-sensors` (82e4674f7): origin/main's sensor component on C49; host suite 21/21. C45 heatsink gain (0.855072) is already in `hs_ntc.h`.
+- **ESP-IDF v5.3.6 build does not run on C49.** The IDF wiring lives in main commits c775e925f and c7044f37d (hal renamed to temper_hal, `partitions.csv`, CMake). Cherry-picking them conflicts in `components/power/CMakeLists.txt`, `control/pll_control.c`, `temper_hal/esp32/hal_pwm_esp32.c`, `main/CMakeLists.txt` and deleted-vs-modified files. Even with those, `components/webui` requires `esp_vfs_fat`, which v5.3.6 does not have (it is under `fatfs`). So the J13 firmware has never been built for the target; this port is a real task, not a quick merge.
