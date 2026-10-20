@@ -20,6 +20,26 @@
 
 **Without a board change**, the operating limit on the 100 Ω range is at most about 220 pF on each DUT terminal (46.4°). That means no more than about 1 m of RG-174 or a short twisted pair (1 m twisted pair: 54.5°), and no relay multiplexer whose capacitance pushes past that.
 
+## With extracted board parasitics (`final_fixedextracted`)
+
+`../layout-parasitics/extracted.json` (high corner) adds board copper the earlier cases left out:
+- 5.6 pF on the summing node and 5.2 pF on HI;
+- 0.16 pF HI–LO, 0.40 pF LO–TIA out and 0.17 pF LO–LOW buffer;
+- 10.5 pF from TIA out to ground;
+- extracted branch inductances: C104 4.87 nH (10 nH stress retained), RF 21.7 / 50.5 / 33.1 nH by range.
+
+For the R_iso variant the summing side keeps 1.28 pF and the J3 side 3.8 pF, from the proposed placement in `../layout-parasitics/geometry_riso.json`. Cable capacitance is added on top.
+
+| Variant (TIA, worst DUT and C104 lead) | 0 pF cable | 100 pF | 220 pF | 470 pF | 1 nF |
+|---|---:|---:|---:|---:|---:|
+| Rev C, 100 Ω | 51.3° | 46.9° | 46.5° | **39.9°** | **29.5°** |
+| 22 Ω R_iso, 100 Ω | 51.7° | 60.7° | 72.1° | 83.5° | 94.2° |
+| 22 Ω R_iso, 5 kΩ / 100 kΩ | 52.5° / 52.3° | — | — | — | 130.8° / 131.9° |
+
+- **The board's own copper costs about 6° on every range at zero cable.** Almost all of it comes from the 10.5 pF on the TIA output trace: dropping that element alone restores 56.4°, while every other element moves the margin by under 1° (`extracted-attribution.md`).
+- **The minimum with R_iso and extracted parasitics is 51.7°.** That passes the 45° criterion but is below the 60° preferred nominal. It sits at zero cable, the condition R_iso does not help.
+- **Shortening the TIA-output copper is the lever for recovering margin there.** The TIA output runs to RF, the jumpers, C104 and the FDA input resistor.
+
 ## Method and limits
 
 - `loop_matrix.rs` modes `final_fixedfixture` (lumped stray 0–1000 pF on both DUT terminals), `final_fixedleads` (lossless LC-ladder leads, 20 sections/m: coax 50 Ω, 101 pF/m, 252.5 nH/m, shield grounded at the board; unshielded twisted pair 0.7 µH/m loop, 50 pF/m between wires, 10 pF/m to ground), `final_fixedriso` and `final_fixedrisoleads` (R_iso option `_risolo<Ω>`), and `final_fixedrisogrid` / `final_fixedrisocorners` (the existing fixedgrid and fixedcorners cases with 22 Ω). Every case keeps the 5 nH C104 lead and the 100 nH RF lead. The heaviest 100 Ω-range cases also cut the driver, HIGH and LOW follower loops.

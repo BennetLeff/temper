@@ -10,7 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-MODES = ["fixedfixture", "fixedleads", "fixedriso", "fixedrisoleads", "fixedrisogrid", "fixedrisocorners"]
+MODES = ["fixedfixture", "fixedleads", "fixedriso", "fixedrisoleads", "fixedrisogrid", "fixedrisocorners", "fixedextracted"]
 
 
 def rows(mode):
@@ -54,6 +54,14 @@ def main():
             if sub:
                 w = min(sub, key=lambda x: x[1])
                 out.append(f"| ↳ {rng} | {len(sub)} | {w[1]:.2f}° | | {min(x[2] for x in sub):.3f} |")
+    out += ["", "## Extracted board parasitics plus cable capacitance (TIA loop, worst DUT and C104 lead)", "",
+            "| Variant | Range | 0 pF | 100 pF | 220 pF | 470 pF | 1000 pF |", "|---|---|---:|---:|---:|---:|---:|"]
+    table = defaultdict(lambda: defaultdict(list))
+    for name, angle, _ in rows("fixedextracted"):
+        m = re.match(r"final_extracted_(\w+?)_\w+?_stray([\d.]+)(_risolo22)?_caplead", name)
+        table[("22 Ω R_iso" if m[3] else "Rev C", m[1])][float(m[2])].append(angle)
+    for (variant, rng), v in sorted(table.items(), key=lambda kv: (kv[0][0], ["r100", "r5k", "r100k"].index(kv[0][1]))):
+        out.append(f"| {variant} | {rng} | " + " | ".join(f"{min(v[s]):.1f}°" if s in v else "—" for s in [0, 100, 220, 470, 1000]) + " |")
     (HERE / "fixture-envelope-tables.md").write_text("\n".join(out) + "\n")
 
 

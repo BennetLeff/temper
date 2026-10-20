@@ -909,6 +909,43 @@ fn main() {
         }
         cases = riso_cases;
     }
+    if mode == "fixedextracted" {
+        // Board parasitics from ../layout-parasitics/extracted.json (high corner), with cable
+        // capacitance on top as Cstray. Rev C: board C on low (summing node) and hi, HI-LO and
+        // LO-TIA coupling, TIA-out to ground. R_iso variant: the summing side keeps 1.28 pF
+        // (geometry_riso.json), the J3 side 3.8 pF. C104 lead 4.87 nH extracted, 10 nH stress;
+        // RF lead per range from the extracted high values.
+        cases.clear();
+        for (range, r, rf_lead) in [("r100", 100., 21.65), ("r5k", 5000., 50.46), ("r100k", 100000., 33.14)] {
+            let mut duts = vec![("open", "RDUT hi low 1e12".to_string()), ("short", "RDUT hi low 0.01".into()), ("matched", format!("RDUT hi low {r}"))];
+            if range == "r100" {
+                duts.push(("coil50u", "RDUT hi coil 0.5\nLDUT coil low 50u".into()));
+            }
+            let strays = if range == "r100" { vec![0., 100., 220., 470., 1000.] } else { vec![0., 1000.] };
+            for riso in ["", "_risolo22"] {
+                let board = if riso.is_empty() {
+                    "Cbsum low 0 5.62p\nCbhi hi 0 5.234p\nCbhisum hi low 0.156p\nCbsumtia low tia 0.395p\nCbsumlbuf low lowbuf 0.166p\nCbtiao tia 0 10.547p\n"
+                } else {
+                    "Cbj3 low 0 3.8p\nCbsum sum 0 1.28p\nCbhi hi 0 5.234p\nCbhisum hi low 0.156p\nCbsumtia sum tia 0.395p\nCbtiao tia 0 10.547p\n"
+                };
+                // EXTRACT_DROP=<element> removes one board parasitic to attribute its effect.
+                let drop = std::env::var("EXTRACT_DROP").unwrap_or_default();
+                let board: String = board
+                    .lines()
+                    .filter(|l| drop.is_empty() || !l.starts_with(&format!("{drop} ")))
+                    .map(|l| format!("{l}\n"))
+                    .collect();
+                let riso = if drop.is_empty() { riso.to_string() } else { format!("_drop{drop}{riso}") };
+                for (n, dut) in &duts {
+                    for stray in &strays {
+                        for caplead in [4.87, 10.] {
+                            cases.push(Case {name:format!("extracted_{range}_{n}_stray{stray}{riso}_caplead{caplead}_local100_lead{rf_lead}"),r,cf:0.,dut:format!("{board}{dut}"),stray:stray*1e-12,rail:12.,five:5.,rtol:0.,bridge:100.,riso:4.32});
+                        }
+                    }
+                }
+            }
+        }
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
