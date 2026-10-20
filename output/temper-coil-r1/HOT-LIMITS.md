@@ -17,7 +17,17 @@ with 230 °C glass 113–131 °C; 28 A at the 0.23 Ω target 137–168 °C. Hot 
 | Printed ASA | Not looked up | Softens near 100 °C (typical) | No | No | |
 | Bonding and NTC-pad silicone | [DOWSIL 736 TDS](https://www.aircraftspruce.ca/catalog/pdf/736TDS.pdf) | -65 to 260 °C continuous, 315 °C intermittent | OK | OK | Dielectric strength at temperature; only if this product is the one bought |
 | PC95 ferrite bars | TDK PC95 sheet via [MHW](https://mhw-intl.com/wp-content/uploads/2021/01/TDK-EFD-Cores-PC95-PC47-With-Accessories.pdf) | Bs 530 mT at 25 °C, 410 mT at 100 °C, 380 mT at 120 °C; core loss minimum near 80–100 °C and rising by 120 °C | The coil review's ferrite estimate is about 85–110 °C | Ferrite itself is not at 150 °C | Bs and loss at 140 °C (the TDK graph was not readable); whether the bought bars are TDK PC95 |
-| M4 ring lug, nylon-insulated TE PIDG | [RS listing](https://se.rs-online.com/web/p/ring-terminals/7105376) | 105 °C maximum | **No** | **No** | A 150 °C part: the BOM allows a moulded lug or a bare lug plus at least 150 °C dual-wall heat-shrink; none was found or chosen |
+| M4 ring lug, nylon-insulated TE PIDG | [RS listing](https://se.rs-online.com/web/p/ring-terminals/7105376) | 105 °C maximum | **No** | **No** | See the candidates below |
+
+### Lug candidates for the 150 °C case (searched 2026-10-19; not ordered, no TE drawing read)
+- **TE PIDG STRATO-THERM 50840**: PTFE insulation, nickel-plated copper barrel, 14 AWG (2.0–2.15 mm²), #8 (M4) stud, 288 °C ([Heilind](https://heilind.com/amp50840.html), [RS](https://benl.rs-online.com/web/p/ring-terminals/1641967)).
+  - The barrel's copper area matches the Litz (1.96 mm² for 1000 × 0.05, 2.12 mm² for 270 × 0.10).
+  - RS shows it temporarily out of stock; the suffix matters (Master Electronics lists 50840-1 as a #10-stud variant).
+  - The RS listing gives a 4.0 mm ring hole, which is tight for an M4 screw: check TE's drawing.
+  - Whether the barrel takes the stripped Litz bundle is for the scrap-crimp qualification (BUILD-AND-MEASURE W9) to show.
+- **RS PRO DRNB** uninsulated M4 ring, brazed seam, 150 °C ([RS](https://uk.rs-online.com/web/p/products/8092228)), but its wire range is 0.5–1.5 mm², too small for this Litz.
+- **Bare lug plus heat-shrink:** every dual-wall adhesive-lined polyolefin tubing found is rated 110–135 °C continuous, so none covers 150 °C. A fluoropolymer or silicone sleeve was not found in this search.
+- **Stud size is unresolved in the repo:** the R43 BOM says "M4 ... (power-stage M6 as amended)" for the J2/J5 coil lugs. Confirm the stud before choosing a lug.
 
 ## Reading
 - Sustained heating uses route A: G11 former, class-155 stock Litz (class 200 for the qualification coil), silicone bonding. The 130 °C winding limit stands.
