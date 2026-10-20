@@ -196,6 +196,9 @@ impl Device {
             raw_max,
             sums,
             transport_crc32: checksum,
+            source_off: None,
+            source_off_check: None,
+            allowed_hazards: Vec::new(),
         };
         record.validate()?;
         Ok(record)

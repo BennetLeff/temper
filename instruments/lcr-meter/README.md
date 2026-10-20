@@ -26,7 +26,7 @@ With power removed, fit exactly one matched pair of removable jumpers:
 | Medium | JP2 | JP5 | 5 kΩ with local 100 pF |
 | High | JP3 | JP6 | 100 kΩ with local 100 pF |
 
-The first qualification targets are 35–60 kHz stage53 coil and resonant-capacitor measurements, plus a 1 kHz bus-capacitor check. The firmware permits 100 Hz–100 kHz excitation, but usable accuracy and impedance limits must be established with standards at each frequency and range. Maximum nominal source is approximately 3.6 Vpp; the 100 Ω source resistor limits short-circuit current to approximately 18 mA peak. This justifies omitting TI's optional BUF634A stages for this small-signal use.
+The first qualification targets are 35–60 kHz stage53 coil and resonant-capacitor measurements, plus a 1.5 kHz bus-capacitor check. The host's measurement grid is 1.5, 35.5, 40.5, 50.5 and 60.5 kHz: it refuses whole-kHz frequencies, where USB start-of-frame lines and aliased DDS harmonics land in the fit, and pairs each capture with a source-off record (see `host/README.md` and `validation/power-spurs/`). The firmware permits 100 Hz–100 kHz excitation, but usable accuracy and impedance limits must be established with standards at each frequency and range. Maximum nominal source is approximately 3.6 Vpp; the 100 Ω source resistor limits short-circuit current to approximately 18 mA peak. This justifies omitting TI's optional BUF634A stages for this small-signal use.
 
 ## Stage53 measurements
 
@@ -34,7 +34,7 @@ The first qualification targets are 35–60 kHz stage53 coil and resonant-capaci
 |---|---|---|
 | Coil, with and without pan | Complex impedance and equivalent series L/R at 35–60 kHz, roughly 5–30 Ω | Small-signal only; does not predict power-level loss, heating or saturation |
 | Five 100 nF capacitors / 0.5 µF bank | Individual values, bank impedance and relative loss comparisons | Calibrated ESR uncertainty must be measured; no milliohm claim |
-| 9 µF bus capacitors | Capacitance around 1 kHz, approximately 17.7 Ω | Discharge and isolate first; no high-voltage or high-frequency ESR qualification |
+| 9 µF bus capacitors | Capacitance around 1.5 kHz, approximately 11.8 Ω | Discharge and isolate first; no high-voltage or high-frequency ESR qualification |
 | Chokes, snubber/gate capacitors | Value comparison and gross faults within qualified ranges | Parallel circuit paths require disconnection or lifting a lead |
 | 1 mΩ current shunt | Unsupported | Requires a separate four-wire low-resistance measurement architecture |
 

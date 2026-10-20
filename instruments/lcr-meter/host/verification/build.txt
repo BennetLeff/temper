@@ -1,43 +1,62 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.154
+   Compiling serde v1.0.229
+   Compiling libc v0.2.191
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling syn v3.0.9
+   Compiling serde_derive v1.0.229
    Compiling temper-lcr v0.5.0 (/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/host)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.18s
-     Running unittests src/lib.rs (/tmp/temper-lcr-host-decim/debug/deps/temper_lcr-05e7fdd21283481d)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.77s
+     Running unittests src/lib.rs (/tmp/temper-lcr-host-hazard/debug/deps/temper_lcr-05e7fdd21283481d)
 
-running 2 tests
+running 3 tests
 test transport::tests::protocol_one_firmware_is_rejected_by_name ... ok
 test transport::tests::only_fixed_local_compensation_identity_is_accepted ... ok
+test integrity::tests::closed_form_response_matches_the_fit ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
 
-     Running unittests src/main.rs (/tmp/temper-lcr-host-decim/debug/deps/temper_lcr-9b7b422e649ef370)
+     Running unittests src/main.rs (/tmp/temper-lcr-host-hazard/debug/deps/temper_lcr-9b7b422e649ef370)
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/cli.rs (/tmp/temper-lcr-host-decim/debug/deps/cli-a5207339c36ba9fb)
+     Running tests/cli.rs (/tmp/temper-lcr-host-hazard/debug/deps/cli-a5207339c36ba9fb)
 
-running 19 tests
+running 25 tests
 test bilinear_fixture_recovers_complex_dut ... ok
 test clock_and_frequency_bounds ... ok
-test firmware_host_clock_contract ... ok
 test golden_payload_matches_firmware_vector ... ok
-test payload_encoding_round_trip_and_length_checks ... ok
-test parallel_feedback_capacitance ... ok
-test signed_wire_order_and_crc ... ok
+test firmware_host_clock_contract ... ok
+test hazard_prediction_matches_the_fit_of_a_synthesized_record ... ok
 test boxcar_reference_matches_direct_sums_for_every_decimation ... ok
 test corruption_and_weak_signal_rejected ... ok
+test parallel_feedback_capacitance ... ok
+test payload_encoding_round_trip_and_length_checks ... ok
 test noncoherent_capacitor_and_inductor ... ok
-test protocol_one_files_are_rejected_with_a_clear_error ... ok
 test full_calibration_and_identity_checks ... ok
+test signed_wire_order_and_crc ... ok
+test protocol_one_files_are_rejected_with_a_clear_error ... ok
 test cli_produces_correct_negative_reactance ... ok
 test boxcar_timebase_is_the_window_centre_and_gain_is_removed ... ok
 test extremes_are_crc_covered_and_must_bound_the_sums ... ok
 test noise_records_cannot_be_impedance ... ok
 test boxcar_suppresses_tone_that_undersampling_aliased ... ok
+test advise_grid_reports_nearest_clean_frequencies_as_json ... ok
 test every_compensated_range_uses_its_fitted_capacitor ... ok
+test source_off_check_passes_quiet_and_fails_interfered_records ... ok
 test single_clipped_conversion_is_flagged_after_averaging ... ok
+test allow_hazard_captures_and_records_the_hazard ... ok
+test hazard_check_flags_whole_khz_grid_and_passes_the_new_grid ... ok
+test short_standard_and_calibration_use_the_source_off_check ... ok
 
-test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.76s
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.63s
 
    Doc-tests temper_lcr
 
@@ -45,8 +64,15 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
+    Checking itoa v1.0.18
+    Checking memchr v2.8.3
+    Checking serde_core v1.0.229
+    Checking zmij v1.0.23
+    Checking libc v0.2.191
+    Checking serde_json v1.0.154
+    Checking serde v1.0.229
     Checking temper-lcr v0.5.0 (/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/host)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.57s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.76s
    Compiling proc-macro2 v1.0.107
    Compiling quote v1.0.47
    Compiling unicode-ident v1.0.27
@@ -60,5 +86,5 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
    Compiling syn v3.0.9
    Compiling serde_derive v1.0.229
    Compiling temper-lcr v0.5.0 (/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/host)
-    Finished `release` profile [optimized] target(s) in 4.95s
-Host executable: /tmp/temper-lcr-host-decim/release/temper-lcr
+    Finished `release` profile [optimized] target(s) in 4.61s
+Host executable: /tmp/temper-lcr-host-hazard/release/temper-lcr

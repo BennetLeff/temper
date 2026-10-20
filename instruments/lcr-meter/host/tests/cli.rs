@@ -42,6 +42,9 @@ fn record_from_conversions(conversions: &[[i16; 2]], decimation: u32, tuning_wor
         raw_min,
         raw_max,
         sums,
+        source_off: None,
+        source_off_check: None,
+        allowed_hazards: Vec::new(),
     }
 }
 fn quantize(x: f64) -> i16 {
@@ -533,7 +536,7 @@ fn full_calibration_and_identity_checks() {
     let s = sweep(Complex::new(0.2, 0.03));
     let a = sweep(Complex::new(20.6, 0.43));
     let b = sweep(Complex::new(102.2, 2.03));
-    let cal = calibrate(&s, &a, 20.0, &b, 100.0).unwrap();
+    let cal = calibrate(&s, &a, 20.0, &b, 100.0, false).unwrap();
     let true_z = Complex::new(7.0, -26.0);
     let r = synthetic(
         Complex::new(1.02, 0.02) * true_z + Complex::new(0.2, 0.03),
@@ -725,4 +728,414 @@ fn firmware_host_clock_contract() {
     assert!(main.contains(&format!("printf(\"INFO {PROTOCOL_VERSION} %s")));
     assert!(main.contains(&format!("printf(\"%s {PROTOCOL_VERSION} %")));
     assert!(main.contains("sm_config_set_clkdiv_int_frac(&config, 1, 0);"));
+}
+
+// ---------------------------------------------------------------- R1 hazards
+const OLD_GRID: [f64; 5] = [1000.0, 35000.0, 40000.0, 50000.0, 60000.0];
+const NEW_GRID: [f64; 5] = [1500.0, 35500.0, 40500.0, 50500.0, 60500.0];
+fn hazard_orders(report: &HazardReport, source: &str) -> Vec<u32> {
+    report
+        .hazards()
+        .filter(|i| i.source == source)
+        .map(|i| i.order)
+        .collect()
+}
+#[test]
+fn hazard_check_flags_whole_khz_grid_and_passes_the_new_grid() {
+    // 50 kHz (N = 2): DDS harmonics 9 and 11 fold into the main lobe.
+    let r = request_hazards(50000.0).unwrap();
+    assert!(r.hazardous);
+    assert_eq!(r.decimation, 2);
+    let dds = hazard_orders(&r, "AD9833 harmonic");
+    assert!(dds.contains(&9) && dds.contains(&11), "{dds:?}");
+    for i in r.hazards().filter(|i| i.order == 9 || i.order == 11) {
+        assert!(i.main_lobe && i.offset_bins.abs() < 0.05, "{i:?}");
+        assert!(i.leakage > DDS_LEAKAGE_LIMIT);
+    }
+    // Every whole-kHz point is an exact SOF harmonic in the main lobe.
+    for hz in OLD_GRID {
+        let r = request_hazards(hz).unwrap();
+        let sof: Vec<&Interference> = r
+            .hazards()
+            .filter(|i| i.source == "USB SOF harmonic")
+            .collect();
+        let h = (hz / 1000.0) as u32;
+        let direct = sof.iter().find(|i| i.order == h).unwrap();
+        assert!(
+            direct.main_lobe && direct.response > 0.99,
+            "{hz}: {direct:?}"
+        );
+        assert!(hazard_error(hz, &r).contains(&format!("USB SOF harmonic {h} ")));
+    }
+    // The power-spurs grid: no hazard, at least 28 dB SOF rejection over
+    // +-560 ppm and every DDS harmonic below the leakage limit.
+    for hz in NEW_GRID {
+        let r = request_hazards(hz).unwrap();
+        assert!(!r.hazardous, "{hz}: {:?}", r.hazards().collect::<Vec<_>>());
+        assert!(r.worst_sof_response < 10f64.powf(-28.0 / 20.0), "{hz}");
+        assert!(r.worst_dds_leakage < DDS_LEAKAGE_LIMIT, "{hz}");
+        assert!(r
+            .interference
+            .iter()
+            .all(|i| i.source != "USB SOF harmonic" && !i.hazard));
+    }
+    // 1.5 kHz keeps DDS harmonics 99/101 inside the main lobe, but the
+    // reconstruction filter and the 20-conversion boxcar hold them below 1e-5.
+    let r = request_hazards(1500.0).unwrap();
+    assert!(r
+        .interference
+        .iter()
+        .any(|i| i.order == 99 && i.main_lobe && i.leakage < DDS_LEAKAGE_LIMIT));
+    // The 9 uF bus capacitor at 1.5 kHz is 11.8 ohm: still on the 100 ohm range.
+    let xc = 1.0 / (std::f64::consts::TAU * 1500.0 * 9e-6);
+    assert!((xc - 11.79).abs() < 0.01);
+}
+/// The predicted leakage is what the real fit does to a synthesized record:
+/// a 9th DDS harmonic at 50 kHz on channel A.
+#[test]
+fn hazard_prediction_matches_the_fit_of_a_synthesized_record() {
+    let hz = 50000.0;
+    let f = frequency_hz(frequency_word(hz).unwrap());
+    let w = std::f64::consts::TAU * f;
+    let spur = 2000.0;
+    let r = simulated(
+        hz,
+        decimation_for(hz),
+        |t| 8000.0 * (w * t).cos() + spur * (9.0 * w * t).cos(),
+        |t| 8000.0 * (w * t).cos(),
+    );
+    let error = (fit_channel(&r, 0).unwrap().phasor_codes - Complex::new(8000.0, 0.0)).abs();
+    let report = request_hazards(hz).unwrap();
+    let k9 = report.interference.iter().find(|i| i.order == 9).unwrap();
+    // Worst-phase response bounds the error; this phase is close to worst.
+    assert!(
+        error <= spur * k9.response * 1.01 + 0.5,
+        "{error} vs {}",
+        spur * k9.response
+    );
+    assert!(
+        error > spur * k9.response * 0.5,
+        "{error} vs {}",
+        spur * k9.response
+    );
+}
+fn run_cli(args: &[&str]) -> std::process::Output {
+    std::process::Command::new(env!("CARGO_BIN_EXE_temper-lcr"))
+        .args(args)
+        .output()
+        .unwrap()
+}
+#[test]
+fn advise_grid_reports_nearest_clean_frequencies_as_json() {
+    let advice = advise(1000.0).unwrap();
+    assert!(!advice.clean);
+    assert_eq!(advice.suggested_hz, Some(991.0));
+    assert!(!advice.suggested.as_ref().unwrap().hazardous);
+    assert_eq!(nearest_clean_hz(1500.0).unwrap(), Some(1500.0));
+    let output = run_cli(&["advise-grid", "1000,50000,1500,35500,40500,50500,60500"]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let v: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(v["all_clean"], false);
+    assert_eq!(
+        v["suggested_grid"],
+        "991,49890,1500,35500,40500,50500,60500"
+    );
+    let first = &v["frequencies"][0];
+    assert_eq!(first["requested_hz"], 1000.0);
+    assert_eq!(first["clean"], false);
+    assert!(first["hazards"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|h| h["source"] == "USB SOF harmonic" && h["order"] == 1));
+    assert_eq!(first["suggested"]["decimation"], 20);
+    assert_eq!(first["suggested"]["hazardous"], false);
+    let fifty = &v["frequencies"][1];
+    let orders: Vec<u64> = fifty["hazards"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|h| h["source"] == "AD9833 harmonic")
+        .map(|h| h["order"].as_u64().unwrap())
+        .collect();
+    assert!(orders.contains(&9) && orders.contains(&11));
+    for i in 2..7 {
+        assert_eq!(v["frequencies"][i]["clean"], true);
+        assert_eq!(v["frequencies"][i]["hazards"].as_array().unwrap().len(), 0);
+    }
+    let all_clean = run_cli(&["advise-grid", "1500,35500,40500,50500,60500"]);
+    let v: serde_json::Value = serde_json::from_slice(&all_clean.stdout).unwrap();
+    assert_eq!(v["all_clean"], true);
+    assert!(!run_cli(&["advise-grid", "50"]).status.success());
+}
+
+// ------------------------------------------------- capture with a fake device
+/// Source-on: A = 3000 cos, B = 8000 cos. Source-off: rectangular +-1 code
+/// dither (its quantized mean is exact) plus `off_tone` codes at f per channel.
+fn fake_acquire(off_tone: [f64; 2], a_on: f64) -> impl FnMut(u32, u32, bool) -> Result<Record> {
+    let mut rng = XorShift(0x9e37_79b9);
+    move |word, decimation, source_on| {
+        let f = frequency_hz(word);
+        let w = std::f64::consts::TAU * f;
+        let conversions: Vec<[i16; 2]> = (0..DEFAULT_COUNT * decimation as usize)
+            .map(|i| {
+                let t = i as f64 / CONVERSION_RATE_HZ;
+                let c = (w * t).cos();
+                if source_on {
+                    [quantize(a_on * c), quantize(8000.0 * c)]
+                } else {
+                    [
+                        quantize(off_tone[0] * c + rng.unit()),
+                        quantize(off_tone[1] * c + rng.unit()),
+                    ]
+                }
+            })
+            .collect();
+        let mut r = record_from_conversions(&conversions, decimation, word);
+        r.source_enabled = source_on;
+        Ok(r)
+    }
+}
+fn capture_options(allow_hazard: bool) -> CaptureOptions {
+    CaptureOptions {
+        source_on: true,
+        allow_hazard,
+        source_off: true,
+        short_standard: false,
+    }
+}
+#[test]
+fn allow_hazard_captures_and_records_the_hazard() {
+    let mut calls = 0;
+    let refused = capture_grid(&[1000.0, 1500.0], capture_options(false), |_, _, _| {
+        calls += 1;
+        Err("must not acquire".to_string())
+    });
+    let error = refused.err().unwrap();
+    assert_eq!(calls, 0, "hazards are refused before anything is acquired");
+    assert!(
+        error.contains("1000 Hz") && error.contains("USB SOF harmonic 1 "),
+        "{error}"
+    );
+    assert!(error.contains("nearest clean frequency: 991 Hz"), "{error}");
+    assert!(
+        error.contains("--allow-hazard") && error.contains("advise-grid"),
+        "{error}"
+    );
+
+    let grid = capture_grid(
+        &[1000.0, 1500.0],
+        capture_options(true),
+        fake_acquire([0.0, 0.0], 3000.0),
+    )
+    .unwrap();
+    assert!(grid.source_off_failures.is_empty());
+    let hazards = grid.records[0].allowed_hazards.clone();
+    assert!(hazards
+        .iter()
+        .any(|h| h.source == "USB SOF harmonic" && h.order == 1 && h.hazard));
+    assert!(grid.records[1].allowed_hazards.is_empty());
+    // The hazard survives the capture file and analyze reports it again.
+    let sweep = Sweep {
+        setup: setup(),
+        records: grid.records,
+    };
+    let text = serde_json::to_string(&sweep).unwrap();
+    assert!(text.contains("allowed_hazards"));
+    let back = parse_sweep(&text).unwrap();
+    let key = |list: &[Interference]| -> Vec<(String, u32)> {
+        list.iter().map(|h| (h.source.clone(), h.order)).collect()
+    };
+    assert_eq!(key(&back.records[0].allowed_hazards), key(&hazards));
+    let m = analyze(&back.records[0], 100).unwrap();
+    assert!(m.valid, "{:?}", m.issues);
+    assert!(m.frequency_hazards.iter().any(|h| h.order == 1));
+    assert!(analyze(&back.records[1], 100)
+        .unwrap()
+        .frequency_hazards
+        .is_empty());
+    // The CLI refuses before opening the port; --allow-hazard gets past the check.
+    let output = run_cli(&[
+        "capture",
+        "/nonexistent-port",
+        "100",
+        "fx",
+        "1000,1500",
+        "/nonexistent.json",
+    ]);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!output.status.success());
+    assert!(
+        stderr.contains("Refusing to capture") && stderr.contains("991 Hz"),
+        "{stderr}"
+    );
+    let output = run_cli(&[
+        "capture",
+        "/nonexistent-port",
+        "100",
+        "fx",
+        "1000,1500",
+        "/nonexistent.json",
+        "--allow-hazard",
+    ]);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!output.status.success());
+    assert!(
+        stderr.contains("warning: --allow-hazard") && !stderr.contains("Refusing"),
+        "{stderr}"
+    );
+    assert!(!run_cli(&["analyze", "x.json", "--allow-hazard"])
+        .status
+        .success());
+}
+
+// ------------------------------------------------------ R2 source-off check
+#[test]
+fn source_off_check_passes_quiet_and_fails_interfered_records() {
+    // Limits: 1e-4 x 3000 = 0.3 codes on A, 1e-4 x 8000 = 0.8 codes on B.
+    let quiet = capture_grid(
+        &[1500.0],
+        capture_options(false),
+        fake_acquire([0.15, 0.4], 3000.0),
+    )
+    .unwrap();
+    assert!(quiet.source_off_failures.is_empty());
+    let check = quiet.records[0].source_off_check.clone().unwrap();
+    assert!(check.pass, "{check:?}");
+    for (channel, tone, on) in [(0, 0.15, 3000.0), (1, 0.4, 8000.0)] {
+        let c = &check.channels[channel];
+        assert!((c.source_on_codes - on).abs() < 0.5);
+        assert!((c.source_off_codes - tone).abs() < 0.02, "{c:?}");
+        assert!((c.limit_codes - 1e-4 * on).abs() < 1e-4);
+        assert!(c.noise_sigma_codes < 0.01);
+    }
+    let m = analyze(&quiet.records[0], 100).unwrap();
+    assert!(
+        m.valid && m.source_off.as_ref().unwrap().pass,
+        "{:?}",
+        m.issues
+    );
+
+    let loud = capture_grid(
+        &[1500.0],
+        capture_options(false),
+        fake_acquire([0.6, 0.4], 3000.0),
+    )
+    .unwrap();
+    assert_eq!(loud.source_off_failures.len(), 1);
+    let check = loud.records[0].source_off_check.clone().unwrap();
+    assert!(!check.pass && !check.channels[0].pass && check.channels[1].pass);
+    assert!(
+        check.diagnostic.contains("voltage (A)"),
+        "{}",
+        check.diagnostic
+    );
+    assert!(
+        check.diagnostic.contains("coherent interference"),
+        "{}",
+        check.diagnostic
+    );
+    // analyze recomputes the check from the stored source-off record.
+    let mut m = analyze(&loud.records[0], 100).unwrap();
+    assert!(!m.valid);
+    assert!(m.issues.iter().any(|i| i.starts_with(SOURCE_OFF_ISSUE)));
+    waive_source_off(&mut m);
+    assert!(m.valid && m.issues.is_empty() && m.waived_issues.len() == 1);
+    // A stored verdict cannot hide a failing record: only the data counts.
+    let mut forged = loud.records[0].clone();
+    forged.source_off_check = quiet.records[0].source_off_check.clone();
+    assert!(!analyze(&forged, 100).unwrap().valid);
+    // A source-off record from another frequency is unusable, hence invalid.
+    let mut mismatched = loud.records[0].clone();
+    mismatched.source_off = quiet.records[0].source_off.clone();
+    mismatched.source_off.as_mut().unwrap().tuning_word += 1;
+    assert!(!analyze(&mismatched, 100).unwrap().valid);
+    // Records without a pair (--no-source-off, older files) are not checked.
+    let mut unpaired = loud.records[0].clone();
+    unpaired.source_off = None;
+    assert!(analyze(&unpaired, 100).unwrap().source_off.is_none());
+
+    // CLI: analyze refuses the failed point unless overridden.
+    let folder = std::env::temp_dir().join(format!("temper-lcr-sourceoff-{}", std::process::id()));
+    std::fs::create_dir_all(&folder).unwrap();
+    let file = folder.join("dut.json");
+    let sweep = Sweep {
+        setup: setup(),
+        records: loud.records,
+    };
+    std::fs::write(&file, serde_json::to_vec(&sweep).unwrap()).unwrap();
+    let path = file.to_str().unwrap();
+    let refused = run_cli(&["analyze", path]);
+    assert!(!refused.status.success());
+    assert!(String::from_utf8_lossy(&refused.stderr).contains("source-off interference"));
+    let values: Vec<Measurement> = serde_json::from_slice(&refused.stdout).unwrap();
+    assert!(!values[0].valid && !values[0].source_off.as_ref().unwrap().pass);
+    let allowed = run_cli(&["analyze", path, "--allow-source-off-fail"]);
+    assert!(
+        allowed.status.success(),
+        "{}",
+        String::from_utf8_lossy(&allowed.stderr)
+    );
+    let values: Vec<Measurement> = serde_json::from_slice(&allowed.stdout).unwrap();
+    assert!(values[0].valid && values[0].waived_issues[0].starts_with("source-off"));
+    std::fs::remove_dir_all(folder).unwrap();
+}
+/// A short has almost no voltage signal, so its voltage channel is judged
+/// against the current channel; calibrate applies that rule to the short and
+/// the normal rule to the resistor standards.
+#[test]
+fn short_standard_and_calibration_use_the_source_off_check() {
+    let short_grid = |short_standard, tone| {
+        let mut options = capture_options(false);
+        options.short_standard = short_standard;
+        capture_grid(&[1500.0], options, fake_acquire([tone, 0.0], 20.0)).unwrap()
+    };
+    // 0.5 codes on A: 0.025 of the 20-code short signal, 6e-5 of B.
+    assert!(!short_grid(false, 0.5).source_off_failures.is_empty());
+    let short = short_grid(true, 0.5);
+    assert!(short.source_off_failures.is_empty());
+    assert!(
+        short.records[0]
+            .source_off_check
+            .as_ref()
+            .unwrap()
+            .short_standard
+    );
+    // Standards: B = 8000 codes for Zf, so A = 8000 Z / Zf(f).
+    let zf = feedback(100, frequency_hz(frequency_word(1500.0).unwrap())).unwrap();
+    let standard = |z: f64, tone: f64| {
+        let a = (Complex::new(z, 0.0) / zf).abs() * 8000.0;
+        Sweep {
+            setup: setup(),
+            records: capture_grid(
+                &[1500.0],
+                capture_options(false),
+                fake_acquire([tone, 0.0], a),
+            )
+            .unwrap()
+            .records,
+        }
+    };
+    let s = Sweep {
+        setup: setup(),
+        records: short.records,
+    };
+    let (one, two) = (standard(20.0, 0.0), standard(100.0, 0.0));
+    calibrate(&s, &one, 20.0, &two, 100.0, false).unwrap();
+    // A failing short or standard blocks calibration unless overridden.
+    let loud_short = Sweep {
+        setup: setup(),
+        records: short_grid(true, 2.0).records,
+    };
+    let error = calibrate(&loud_short, &one, 20.0, &two, 100.0, false).unwrap_err();
+    assert!(error.starts_with("short standard: source-off"), "{error}");
+    let loud_one = standard(20.0, 1.0); // limit 0.16 codes on A
+    let error = calibrate(&s, &loud_one, 20.0, &two, 100.0, false).unwrap_err();
+    assert!(error.starts_with("standard 1: source-off"), "{error}");
+    calibrate(&s, &loud_one, 20.0, &two, 100.0, true).unwrap();
+    calibrate(&loud_short, &one, 20.0, &two, 100.0, true).unwrap();
 }

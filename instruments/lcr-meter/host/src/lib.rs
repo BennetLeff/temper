@@ -3,7 +3,9 @@
 use serde::{Deserialize, Serialize};
 use std::f64::consts::{PI, TAU};
 use std::ops::{Add, Div, Mul, Sub};
+pub mod integrity;
 pub mod transport;
+pub use integrity::*;
 pub type Result<T> = std::result::Result<T, String>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -252,6 +254,16 @@ pub struct Record {
     pub sums: Vec<[i32; 2]>,
     /// CRC32 of the protocol-2 payload (extremes header and sums) as received.
     pub transport_crc32: u32,
+    /// Source-off record captured right after this one at the same tuning
+    /// word, decimation and length (R2). `analyze` recomputes the check from it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_off: Option<Box<Record>>,
+    /// The check as `capture` evaluated it; informational.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_off_check: Option<SourceOffCheck>,
+    /// Hazards that `capture --allow-hazard` accepted at this frequency (R1).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub allowed_hazards: Vec<Interference>,
 }
 impl Record {
     pub fn payload(&self) -> Vec<u8> {
@@ -444,6 +456,29 @@ pub struct Measurement {
     pub calibrated: bool,
     pub valid: bool,
     pub issues: Vec<String>,
+    /// R2 check recomputed from the paired source-off record; absent when the
+    /// capture has none (`capture --no-source-off` or an older file).
+    #[serde(default)]
+    pub source_off: Option<SourceOffCheck>,
+    /// R1 hazards at this acquisition. Informational: `capture` refuses them
+    /// unless `--allow-hazard`, and the source-off check cannot see DDS harmonics.
+    #[serde(default)]
+    pub frequency_hazards: Vec<Interference>,
+    /// Issues overridden on the command line; still reported, no longer invalidating.
+    #[serde(default)]
+    pub waived_issues: Vec<String>,
+}
+/// Every source-off issue starts with this prefix.
+pub const SOURCE_OFF_ISSUE: &str = "source-off";
+/// Override a failed source-off check: move its issue to `waived_issues`.
+pub fn waive_source_off(m: &mut Measurement) {
+    let (waived, kept): (Vec<String>, Vec<String>) = m
+        .issues
+        .drain(..)
+        .partition(|issue| issue.starts_with(SOURCE_OFF_ISSUE));
+    m.issues = kept;
+    m.waived_issues.extend(waived);
+    m.valid = m.issues.is_empty();
 }
 pub fn analyze(record: &Record, range: u32) -> Result<Measurement> {
     record.validate()?;
@@ -470,6 +505,25 @@ pub fn analyze(record: &Record, range: u32) -> Result<Measurement> {
     if !voltage.valid_signal() {
         issues.push("voltage signal too weak or distorted".into());
     }
+    let source_off = match &record.source_off {
+        None => None,
+        Some(off) => match source_off_check(record, off, false) {
+            Ok(check) => {
+                if !check.pass {
+                    issues.push(check.diagnostic.clone());
+                }
+                Some(check)
+            }
+            Err(e) => {
+                issues.push(format!("{SOURCE_OFF_ISSUE} record unusable: {e}"));
+                None
+            }
+        },
+    };
+    let hazards = frequency_hazards(hz, record.decimation, record.sums.len())?
+        .hazards()
+        .cloned()
+        .collect();
     let mut m = Measurement {
         frequency_hz: hz,
         raw_impedance_ohm: z,
@@ -485,6 +539,9 @@ pub fn analyze(record: &Record, range: u32) -> Result<Measurement> {
         calibrated: false,
         valid: issues.is_empty(),
         issues,
+        source_off,
+        frequency_hazards: hazards,
+        waived_issues: Vec::new(),
     };
     derived(&mut m);
     Ok(m)
@@ -580,20 +637,37 @@ fn compatible(a: &Sweep, b: &Sweep) -> Result<()> {
     }
     Ok(())
 }
+/// Three-standard calibration. Standards that carry a source-off record must
+/// pass the source-off check (the short with its voltage channel judged
+/// against its current channel) unless `allow_source_off_fail`.
 pub fn calibrate(
     short: &Sweep,
     load1: &Sweep,
     z1: f64,
     load2: &Sweep,
     z2: f64,
+    allow_source_off_fail: bool,
 ) -> Result<Calibration> {
     compatible(short, load1)?;
     compatible(short, load2)?;
     let mut points = Vec::new();
     for ((s, r1), r2) in short.records.iter().zip(&load1.records).zip(&load2.records) {
         let ms = analyze(s, short.setup.range_ohm)?;
-        let m1 = analyze(r1, short.setup.range_ohm)?;
-        let m2 = analyze(r2, short.setup.range_ohm)?;
+        let mut m1 = analyze(r1, short.setup.range_ohm)?;
+        let mut m2 = analyze(r2, short.setup.range_ohm)?;
+        if let Some(off) = &s.source_off {
+            let check = source_off_check(s, off, true)?;
+            if !check.pass && !allow_source_off_fail {
+                return Err(format!("short standard: {}", check.diagnostic));
+            }
+        }
+        for (name, m) in [("standard 1", &mut m1), ("standard 2", &mut m2)] {
+            if allow_source_off_fail {
+                waive_source_off(m);
+            } else if let Some(issue) = m.issues.iter().find(|i| i.starts_with(SOURCE_OFF_ISSUE)) {
+                return Err(format!("{name}: {issue}"));
+            }
+        }
         // Short intentionally has near-zero voltage. Current and clipping still matter.
         if !ms.current.valid_signal()
             || ms.voltage.clipped
