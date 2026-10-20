@@ -513,9 +513,9 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("R93", 81.2, 60.0, 0),
         ("U6", 93.0, 52.0, 0),
         ("C89", 97.5, 49.0, 0),
-        ("C90", 89.0, 56.0, 0),
-        ("R71", 98.0, 53.2, 180),
-        ("R72", 97.09, 56.000, 270),
+        ("C90", 92.5, 56.0, 0),
+        ("R71", 98.8, 53.2, 180),
+        ("R72", 97.89, 56.0, 270),
         // Supplies: switch-side reverse protection, LDOs, bulk and clamp diodes.
         ("D4", 118.50, 45.500, 0),
         ("U8", 112.0, 46.000, 180),
@@ -571,5 +571,263 @@ fn silk_text() -> Vec<(f64, f64, f64, &'static str)> {
     ]
 }
 impl Copper {
-    fn signals(&mut self) {}
+    /// Power pin to a plane via (In1 GND, In2 +4V8, B.Cu -4V8), net from the pad.
+    fn rail(&mut self, key: &str, v: (f64, f64)) {
+        let net = self.net(key);
+        let p = self.p(key);
+        self.path(&net, "F.Cu", 0.3, &[p, v]);
+        self.via(&net, v);
+    }
+    /// Track on `layer` between explicit points (pads are referenced by key).
+    fn run(&mut self, net: &str, layer: &str, pts: &[(f64, f64)]) {
+        self.path(net, layer, 0.25, pts);
+    }
+    /// Inner/bottom-layer run with vias at both ends.
+    fn hop(&mut self, net: &str, layer: &str, pts: &[(f64, f64)]) {
+        self.via(net, pts[0]);
+        self.path(net, layer, 0.25, pts);
+        self.via(net, *pts.last().unwrap());
+    }
+    fn signals(&mut self) {
+        let k = |c: &Copper, key: &str| c.p(key);
+        // ---- Slot-axis analog chain ------------------------------------------------
+        // Tap-to-buffer inputs: equal length (the N side jogs to absorb U1's 1.27 mm
+        // pin offset), F.Cu only.
+        let (u13, u15) = (k(self, "U1.3"), k(self, "U1.5"));
+        self.run("IN_P", "F.Cu", &[(68.0, 29.5), (u13.0, 29.5), u13]);
+        self.run("IN_N", "F.Cu", &[(68.0, 40.5), (71.5, 40.5), (71.5, 41.135), (u15.0, 41.135), u15]);
+        // Buffer outputs to the subtractor resistors: mirrored, equal length.
+        let (u11, u12, u16, u17) = (k(self, "U1.1"), k(self, "U1.2"), k(self, "U1.6"), k(self, "U1.7"));
+        let (r61, r62) = (k(self, "R61.1"), k(self, "R62.1"));
+        self.run("BUF_P", "F.Cu", &[u11, (u11.0, r61.1), r61]);
+        self.run("BUF_N", "F.Cu", &[u17, (u17.0, r62.1), r62]);
+        self.run("BUF_P", "F.Cu", &[u11, u12]);
+        self.run("BUF_N", "F.Cu", &[u16, u17]);
+        // Comparator taps leave from the feedback pins: BUF_P on In2, BUF_N on B.Cu.
+        self.run("BUF_P", "F.Cu", &[u12, (u12.0, 30.8)]);
+        self.hop("BUF_P", "In2.Cu", &[(u12.0, 30.8), (u12.0, 46.0), (75.6, 47.0), (75.6, 54.8)]);
+        self.run("BUF_N", "F.Cu", &[u16, (u16.0, 39.2)]);
+        self.hop("BUF_N", "B.Cu", &[(u16.0, 39.2), (79.5, 43.3), (88.4, 43.3), (88.4, 54.8), (84.4, 54.8)]);
+        self.rail("U1.4", k(self, "C82.2"));
+        self.rail("C82.2", (72.2, 31.0));
+        self.rail("C82.1", (70.9, 34.35));
+        self.rail("U1.8", k(self, "C81.1"));
+        self.rail("C81.1", (79.65, 36.2));
+        self.rail("C81.2", (81.55, 36.3));
+        // x2 subtractor (U3 channel 2).
+        let (r612, u35, r631) = (k(self, "R61.2"), k(self, "U3.5"), k(self, "R63.1"));
+        self.run("SUM_P", "F.Cu", &[r612, (85.6, r612.1), (85.6, u35.1), u35]);
+        self.run("SUM_P", "F.Cu", &[r631, (85.6, r631.1), (85.6, r612.1)]);
+        self.rail("R63.2", (88.9, 28.6));
+        self.rail("C84.1", (88.9, 28.6));
+        let (r651, u36, r622) = (k(self, "R65.1"), k(self, "U3.6"), k(self, "R62.2"));
+        self.run("SUM_N", "F.Cu", &[r651, (85.3, u36.1), u36]);
+        self.run("SUM_N", "F.Cu", &[r622, (r622.0, r651.1), r651]);
+        let (u37, r652) = (k(self, "U3.7"), k(self, "R65.2"));
+        self.run("RAW_OUT", "F.Cu", &[u37, r652, (r652.0, 37.2)]);
+        self.hop("RAW_OUT", "In2.Cu", &[(r652.0, 37.2), (83.0, 35.8), (83.0, 22.6), (81.0, 20.6), (81.0, 18.6)]);
+        let (r1001, r1011) = (k(self, "R100.1"), k(self, "R101.1"));
+        self.run("RAW_OUT", "F.Cu", &[r1001, (81.0, 18.6), r1011]);
+        self.rail("U3.8", (86.525, 38.1));
+        self.rail("C83.1", (86.525, 38.1));
+        self.rail("C83.2", (88.95, 40.3));
+        self.rail("U3.4", k(self, "C84.2"));
+        self.rail("C84.2", (91.55, 29.2));
+        // Shared output pole and coax driver (U3 channel 1).
+        let (u33, r692, c611) = (k(self, "U3.3"), k(self, "R69.2"), k(self, "C61.1"));
+        self.run("FILTER", "F.Cu", &[u33, r692]);
+        self.run("FILTER", "F.Cu", &[c611, (c611.0, u33.1)]);
+        self.rail("C61.2", (93.9, 28.9));
+        let (u31, u32, r701) = (k(self, "U3.1"), k(self, "U3.2"), k(self, "R70.1"));
+        self.run("DRIVE", "F.Cu", &[u32, u31, r701]);
+        let (r702, j31, d33) = (k(self, "R70.2"), k(self, "J3.1"), k(self, "D3.3"));
+        self.run("OUT", "F.Cu", &[r702, (138.5, r702.1), (140.4, j31.1), j31]);
+        self.run("OUT", "F.Cu", &[(d33.0, r702.1), d33]);
+        self.rail("D3.1", (129.8, 39.05));
+        self.rail("D3.2", (129.8, 40.95));
+        // Input clamps (the leg cells are mirror images; rails are not checked for symmetry).
+        self.rail("D1.1", (68.95, 25.6));
+        self.rail("D1.2", (67.05, 25.6));
+        self.rail("D2.1", (67.05, 44.4));
+        self.rail("D2.2", (68.95, 44.4));
+        // ---- Range select and x5 stage ---------------------------------------------
+        let (r1002, u123) = (k(self, "R100.2"), k(self, "U12.3"));
+        self.run("GAIN5_IN", "F.Cu", &[r1002, u123]);
+        let (u122, r671, r681) = (k(self, "U12.2"), k(self, "R67.1"), k(self, "R68.1"));
+        self.run("GAIN5_FB", "F.Cu", &[u122, (84.0, u122.1), (84.0, r681.1), r681]);
+        self.run("GAIN5_FB", "F.Cu", &[r671, (84.0, r671.1)]);
+        let (u126, r1021, r682) = (k(self, "U12.6"), k(self, "R102.1"), k(self, "R68.2"));
+        self.run("FINE_OUT", "F.Cu", &[u126, r1021]);
+        self.run("FINE_OUT", "F.Cu", &[(93.5, u126.1), (93.5, r682.1), r682]);
+        self.rail("U12.7", (92.3, 15.365));
+        self.rail("U12.4", (86.45, 18.9));
+        self.run("-4V8", "F.Cu", &[(86.45, 18.9), k(self, "C86.2")]);
+        self.rail("C86.2", (87.6, 20.5));
+        self.rail("C86.1", (84.55, 21.9));
+        self.rail("C85.1", (90.55, 22.3));
+        self.rail("C85.2", (92.45, 22.3));
+        self.rail("R67.2", (80.0, 13.5));
+        // Selected-range wiring to the PCB toggle: WIDE on the outer edge track.
+        let (r1012, sw11) = (k(self, "R101.2"), k(self, "SW1.1"));
+        self.run("WIDE_SEL", "F.Cu", &[r1012, (78.5, r1012.1), (78.5, 3.0), (sw11.0, 3.0), sw11]);
+        let (r1022, sw13) = (k(self, "R102.2"), k(self, "SW1.3"));
+        self.run("FINE_SEL", "F.Cu", &[r1022, (97.8, r1022.1), (97.8, 5.0), (sw13.0, 5.0), sw13]);
+        let (sw12, r691, r1031) = (k(self, "SW1.2"), k(self, "R69.1"), k(self, "R103.1"));
+        self.run("SELECTED", "F.Cu", &[sw12, (sw12.0, 33.0), (97.6, 33.0), r691]);
+        self.run("SELECTED", "F.Cu", &[r1031, (r1031.0, 26.0), (sw12.0, 26.0)]);
+        self.rail("R103.2", (128.5, 21.9));
+        let r711 = k(self, "R71.1");
+        self.hop("SELECTED", "B.Cu", &[(100.5, 33.0), (100.5, 51.4)]);
+        self.run("SELECTED", "F.Cu", &[(100.5, 51.4), r711]);
+        // ---- Warning latch ------------------------------------------------------------
+        let (u76, q13, r751) = (k(self, "U7.6"), k(self, "Q1.3"), k(self, "R75.1"));
+        self.run("SET", "F.Cu", &[u76, q13]);
+        self.run("SET", "F.Cu", &[r751, (r751.0, u76.1)]);
+        self.rail("R75.2", (110.6, 10.4));
+        self.rail("Q1.2", (114.7, 15.2));
+        self.run("Q_BASE", "F.Cu", &[k(self, "Q1.1"), k(self, "R74.2")]);
+        let (r741, r732) = (k(self, "R74.1"), k(self, "R73.2"));
+        self.run("OV_N", "F.Cu", &[r732, r741, (118.8, r741.1)]);
+        self.rail("R73.1", (117.21, 12.2));
+        let (u74, sw32a, sw32b) = (k(self, "U7.4"), (123.98, 26.25), (116.02, 26.25));
+        self.run("RESET", "F.Cu", &[u74, (sw32a.0, u74.1), sw32a, sw32b]);
+        for key in ["R95.1", "C95.2", "D8.1"] {
+            let p = k(self, key);
+            self.run("RESET", "F.Cu", &[p, (p.0, u74.1)]);
+        }
+        self.run("+4V8", "F.Cu", &[(116.02, 30.75), (123.98, 30.75)]);
+        self.via("+4V8", (120.0, 30.75));
+        self.rail("R95.2", (114.0, 22.3));
+        self.rail("C95.1", (117.6, 22.9));
+        self.rail("D8.2", (120.3, 22.85));
+        let (u71, r961) = (k(self, "U7.1"), k(self, "R96.1"));
+        self.run("OV_LED", "F.Cu", &[u71, (109.8, u71.1), (r961.0, 23.6), r961]);
+        self.run("LED_A", "F.Cu", &[k(self, "R96.2"), k(self, "D9.2")]);
+        self.rail("D9.1", (117.3, 24.6));
+        for (key, v) in [
+            ("U7.8", (101.6, 15.19)),
+            ("U7.9", (101.6, 16.46)),
+            ("U7.10", (100.5, 17.73)),
+            ("U7.11", (101.6, 19.0)),
+            ("U7.5", (110.3, 17.73)),
+            ("U7.3", (110.3, 20.27)),
+        ] {
+            self.rail(key, v);
+        }
+        let (u714, c911) = (k(self, "U7.14"), k(self, "C91.1"));
+        self.run("+4V8", "F.Cu", &[u714, (102.0, c911.1), c911]);
+        self.rail("C91.1", (100.6, 25.8));
+        self.rail("C91.2", (99.3, 22.65));
+        self.rail("U7.7", k(self, "C92.2"));
+        self.rail("C92.2", (106.95, 11.8));
+        self.rail("C92.1", (105.05, 11.8));
+        // ---- Warning comparators ------------------------------------------------------
+        // U5: LIM_P and LIM_N cross under the body; BUF_P/BUF_N loop around the outside.
+        let (u55, u59) = (k(self, "U5.5"), k(self, "U5.9"));
+        self.run("LIM_P", "F.Cu", &[u55, (78.3, u55.1), (81.7, u59.1), u59]);
+        let (u56, u510) = (k(self, "U5.6"), k(self, "U5.10"));
+        self.run("LIM_N", "F.Cu", &[u56, (78.3, u56.1), (78.9, 54.1)]);
+        self.run("LIM_N", "F.Cu", &[u510, (81.7, u510.1), (81.1, 51.9)]);
+        self.hop("LIM_N", "B.Cu", &[(78.9, 54.1), (80.9, 54.1), (81.1, 51.9)]);
+        self.hop("LIM_N", "B.Cu", &[(78.9, 54.1), (77.6, 55.4), (77.6, 58.9), (76.1, 59.0)]);
+        self.run("LIM_N", "F.Cu", &[(76.1, 59.0), (76.1, 60.0)]);
+        self.link("R91.2", "R92.1", "F.Cu", &[]);
+        self.hop("LIM_P", "In2.Cu", &[(80.0, 52.975), (79.25, 55.9)]);
+        self.run("LIM_P", "F.Cu", &[(79.25, 55.9), (79.25, 57.5)]);
+        self.link("R87.2", "R88.1", "F.Cu", &[]);
+        let (u52, u513, u51, u514) = (k(self, "U5.2"), k(self, "U5.13"), k(self, "U5.1"), k(self, "U5.14"));
+        self.run("OV_N", "F.Cu", &[u51, u52, u513, u514, (83.8, 49.2)]);
+        let (u54, u57) = (k(self, "U5.4"), k(self, "U5.7"));
+        self.run("BUF_P", "F.Cu", &[u54, (75.6, u54.1), (75.6, 54.8)]);
+        self.run("BUF_P", "F.Cu", &[u57, (75.6, u57.1)]);
+        let (u511, u58) = (k(self, "U5.11"), k(self, "U5.8"));
+        self.run("BUF_N", "F.Cu", &[u511, (84.4, u511.1), (84.4, 54.8)]);
+        self.run("BUF_N", "F.Cu", &[u58, (84.4, u58.1)]);
+        let (u53, c871) = (k(self, "U5.3"), k(self, "C87.1"));
+        self.run("+4V8", "F.Cu", &[u53, (75.6, u53.1), c871]);
+        self.rail("C87.1", (73.3, 50.45));
+        self.rail("C87.2", (73.3, 48.55));
+        self.rail("U5.12", (85.4, 51.35));
+        self.rail("C88.2", (87.2, 48.05));
+        self.rail("C88.1", (87.2, 49.95));
+        // Threshold ladders.
+        self.rail("R87.1", (75.4, 57.5));
+        self.rail("R89.2", (86.6, 57.5));
+        self.rail("R91.1", (72.3, 60.0));
+        self.rail("R93.2", (83.3, 60.0));
+        let (r882, r891, u63) = (k(self, "R88.2"), k(self, "R89.1"), k(self, "U6.3"));
+        self.run("OUT_LIM_P", "F.Cu", &[r882, r891]);
+        self.run("OUT_LIM_P", "F.Cu", &[(82.75, 57.5), (82.75, 56.3), (87.3, 56.3), (88.5, 55.1), (88.5, u63.1), u63]);
+        self.run("OUT_LIM_N", "F.Cu", &[(79.5, 60.0), (79.5, 61.6)]);
+        self.link("R92.2", "R93.1", "F.Cu", &[]);
+        let u66 = k(self, "U6.6");
+        self.hop("OUT_LIM_N", "In2.Cu", &[(79.5, 61.6), (81.7, 63.8), (95.8, 63.8), (95.8, 56.5), (96.6, 55.7), (96.6, u66.1)]);
+        self.run("OUT_LIM_N", "F.Cu", &[u66, (96.6, u66.1)]);
+        // U6: OV_N and OUT_HALF cross under the body.
+        let (u61, u67, u62, u65) = (k(self, "U6.1"), k(self, "U6.7"), k(self, "U6.2"), k(self, "U6.5"));
+        self.run("OV_N", "F.Cu", &[u61, (91.9, u61.1), (94.1, u67.1), u67]);
+        self.run("OUT_HALF", "F.Cu", &[u62, (91.9, u62.1), (94.1, u65.1), u65]);
+        self.run("OV_N", "F.Cu", &[u61, (90.0, u61.1), (89.4, 50.4)]);
+        self.hop("OV_N", "In2.Cu", &[(83.8, 49.2), (88.2, 49.2), (89.4, 50.4)]);
+        self.hop("OV_N", "In2.Cu", &[(89.4, 50.4), (89.4, 44.5), (101.8, 44.5), (101.8, 26.0), (118.8, 26.0), (118.8, 17.41)]);
+        let (r712, r721) = (k(self, "R71.2"), k(self, "R72.1"));
+        self.run("OUT_HALF", "F.Cu", &[u65, r712, r721]);
+        self.rail("R72.2", (99.2, 57.5));
+        let (u64, c902) = (k(self, "U6.4"), k(self, "C90.2"));
+        self.run("-4V8", "F.Cu", &[u64, (91.9, 53.9), (c902.0 - 0.6, c902.1 - 0.6), c902]);
+        self.rail("C90.2", (94.6, 56.0));
+        self.rail("C90.1", (91.55, 57.3));
+        let (u68, c891) = (k(self, "U6.8"), k(self, "C89.1"));
+        self.run("+4V8", "F.Cu", &[u68, (96.0, 50.1), c891]);
+        self.rail("C89.1", (96.55, 47.7));
+        self.rail("C89.2", (98.45, 47.7));
+        // ---- Supplies -----------------------------------------------------------------
+        let (bt11, sw22) = (k(self, "BT1.1"), k(self, "SW2.2"));
+        self.run("BAT_P", "B.Cu", &[bt11, (bt11.0, 27.0), (126.0, 27.0), (126.0, 50.0)]);
+        self.via("BAT_P", (126.0, 50.0));
+        self.run("BAT_P", "F.Cu", &[(126.0, 50.0), (sw22.0, 50.0), sw22]);
+        let (sw21, d42) = (k(self, "SW2.1"), k(self, "D4.2"));
+        self.run("SW_P", "F.Cu", &[sw21, (sw21.0, 47.0), (121.5, 47.0), d42]);
+        let (sw24, d51) = (k(self, "SW2.4"), k(self, "D5.1"));
+        self.run("SW_N", "F.Cu", &[sw24, (sw24.0, 64.5), (d51.0, 64.5), d51]);
+        let (bt22, sw25) = (k(self, "BT2.2"), k(self, "SW2.5"));
+        self.run("BAT_N", "F.Cu", &[bt22, (bt22.0, 60.6), (sw25.0, 60.6), sw25]);
+        // Positive LDO.
+        let (u81, u83, d41, c711) = (k(self, "U8.1"), k(self, "U8.3"), k(self, "D4.1"), k(self, "C71.1"));
+        self.run("+BAT", "F.Cu", &[u81, (114.3, u81.1), (114.3, u83.1), u83]);
+        self.run("+BAT", "F.Cu", &[d41, (114.3, d41.1)]);
+        self.run("+BAT", "F.Cu", &[c711, (114.3, 42.5), (114.3, u83.1)]);
+        self.rail("C71.2", (119.3, 41.7));
+        let u82 = k(self, "U8.2");
+        self.rail("U8.2", (110.9, u82.1));
+        let (u85, c721, d61) = (k(self, "U8.5"), k(self, "C72.1"), k(self, "D6.1"));
+        self.run("+4V8", "F.Cu", &[u85, (109.5, c721.1), c721]);
+        self.run("+4V8", "F.Cu", &[d61, (105.0, c721.1), c721]);
+        self.rail("C72.1", (105.5, 49.3));
+        let (u84, r812, r821) = (k(self, "U8.4"), k(self, "R81.2"), k(self, "R82.1"));
+        self.run("ADJ_0", "F.Cu", &[u84, r812, r821]);
+        self.rail("R81.1", (105.3, 43.5));
+        self.rail("R82.2", (108.41, 38.3));
+        self.rail("C72.2", (109.0, 46.3));
+        self.rail("D6.2", (104.9, 41.2));
+        // Negative LDO.
+        let (u92, u93, d52, c731) = (k(self, "U9.2"), k(self, "U9.3"), k(self, "D5.2"), k(self, "C73.1"));
+        self.run("-BAT", "F.Cu", &[u93, u92, (114.5, u92.1), (114.5, 59.5), d52]);
+        self.run("-BAT", "F.Cu", &[c731, (114.5, c731.1), (114.5, u92.1)]);
+        self.rail("C73.2", (119.8, 56.5));
+        let u91 = k(self, "U9.1");
+        self.run("GND", "F.Cu", &[u91, (112.0, u91.1), (112.0, u92.1), (110.9, u92.1)]);
+        self.via("GND", (110.9, u92.1));
+        let (u95, c741) = (k(self, "U9.5"), k(self, "C74.1"));
+        self.run("-4V8", "F.Cu", &[u95, (109.0, c741.1), c741]);
+        let (u94, r832, r841) = (k(self, "U9.4"), k(self, "R83.2"), k(self, "R84.1"));
+        self.run("ADJ_1", "F.Cu", &[u94, r832, r841]);
+        self.rail("R83.1", (105.3, 54.5));
+        self.rail("R84.2", (109.6, 50.587));
+        self.rail("C74.1", (105.3, 60.6));
+        self.rail("C74.2", (105.3, 56.5));
+        self.rail("D7.1", (101.9, 59.5));
+        self.rail("D7.2", (101.9, 55.5));
+    }
 }
+

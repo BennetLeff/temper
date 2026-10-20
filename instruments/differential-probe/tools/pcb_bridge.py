@@ -183,9 +183,9 @@ def mutant(kind: str, target: str) -> None:
             edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
             edge.SetLayer(k.Edge_Cuts); board.Add(edge)
     elif kind == 'clearance':
-        # GND track 6 mm from the TIP_P landing copper (10 mm rule).
+        # GND track 6 mm above the 4 mm TIP_P landing at (7, 27) (10 mm rule).
         track = k.PCB_TRACK(board)
-        track.SetStart(vec(16, 26)); track.SetEnd(vec(16, 28))
+        track.SetStart(vec(6, 19)); track.SetEnd(vec(8, 19))
         track.SetWidth(k.FromMM(.25)); track.SetLayer(k.F_Cu)
         track.SetNet(board.FindNet('GND')); board.Add(track)
     elif kind == 'slot':
@@ -194,11 +194,12 @@ def mutant(kind: str, target: str) -> None:
             if item.GetLayer() != k.Edge_Cuts:
                 continue
             points = (item.GetStart(), item.GetEnd())
-            if all(33 <= k.ToMM(p.x) <= 35 and 15 <= k.ToMM(p.y) <= 25 for p in points):
+            if all(16 <= k.ToMM(p.x) <= 18 and 15 <= k.ToMM(p.y) <= 25 for p in points):
                 board.Remove(item); removed += 1
         assert removed == 4, f'Expected four C1 slot edges, got {removed}'
     elif kind in ('interleg-none', 'interleg-short'):
-        # Remove, or shorten to x = 40 mm, the long slot on the y = 35 mm axis.
+        # Close the inter-leg notch at the board edge, or shorten it to end at
+        # x = 23 mm (6 mm past the first section, still past both tips).
         removed = 0
         for item in list(board.GetDrawings()):
             if item.GetLayer() != k.Edge_Cuts:
@@ -206,13 +207,13 @@ def mutant(kind: str, target: str) -> None:
             points = (item.GetStart(), item.GetEnd())
             if all(33.5 <= k.ToMM(p.y) <= 36.5 and k.ToMM(p.x) < 60 for p in points):
                 board.Remove(item); removed += 1
-        assert removed == 4, f'Expected four inter-leg slot edges, got {removed}'
-        if kind == 'interleg-short':
-            pts = [(12, 34.2), (40, 34.2), (40, 35.8), (12, 35.8), (12, 34.2)]
-            for a, b in zip(pts, pts[1:]):
-                edge = k.PCB_SHAPE(board); edge.SetShape(k.SHAPE_T_SEGMENT)
-                edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
-                edge.SetLayer(k.Edge_Cuts); board.Add(edge)
+        assert removed == 3, f'Expected three inter-leg notch edges, got {removed}'
+        end = 23 if kind == 'interleg-short' else 0
+        pts = [(0, 34.2), (end, 34.2), (end, 35.8), (0, 35.8)] if end else [(0, 34.2), (0, 35.8)]
+        for a, b in zip(pts, pts[1:]):
+            edge = k.PCB_SHAPE(board); edge.SetShape(k.SHAPE_T_SEGMENT)
+            edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
+            edge.SetLayer(k.Edge_Cuts); board.Add(edge)
     else:
         raise ValueError(kind)
     k.SaveBoard(target, board)

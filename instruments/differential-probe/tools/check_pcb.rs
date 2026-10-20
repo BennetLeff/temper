@@ -66,8 +66,9 @@ fn main() {
     let pad_rows = rows("validation/pcb-pads.tsv");
     let mut pads = BTreeMap::new();
     for p in &pad_rows {
-        if p[1].is_empty() {
-            assert!(p[2].is_empty(), "NPTH with assigned net");
+        // Unnumbered holes and "MP" mechanical support pins carry no net.
+        if p[1].is_empty() || p[1] == "MP" {
+            assert!(p[2].is_empty(), "mechanical pad with assigned net");
             continue;
         }
         let key = format!("{}.{}", p[0], p[1]);

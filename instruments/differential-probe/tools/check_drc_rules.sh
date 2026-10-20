@@ -21,8 +21,8 @@ jq -e 'any(.violations[]; .type == "clearance" and (.description | contains("TIP
 {
     echo 'PASS: GND track 6 mm from the TIP_P landing fails the explicit 10 mm air-clearance rule (ordinary 0.2 mm clearance alone would pass).'
     echo 'PASS: removing the C1 routed slot fails the explicit 4 mm section creepage rule.'
-    echo 'PASS: removing the long inter-leg slot fails TIP_P to TIP_N 20 mm creepage (facing resistor rows are 12.65 mm apart).'
-    echo 'PASS: shortening the inter-leg slot to end at x = 40 mm keeps the tips covered but fails rank-4/rank-3 opposite-leg creepage around the slot end.'
+    echo 'PASS: closing the inter-leg notch fails TIP_P to TIP_N 20 mm creepage (facing resistor rows are 12.65 mm apart).'
+    echo 'PASS: shortening the inter-leg notch to end at x = 23 mm keeps the tips covered but fails rank-4/rank-3 opposite-leg creepage around the notch end.'
     echo 'PASS: isolated opposing TIP pads with 20.5 mm edge spacing pass the revised 10/20 mm rules; the old 40 mm surface rule would reject this fixture.'
     echo 'PASS: isolated opposing TIP pads with 8 mm edge spacing fail both revised air and surface rules.'
     echo 'Known-bad fixtures live only in ignored build/drc-oracle; canonical board unchanged.'
