@@ -140,6 +140,20 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
         .replace("Vp vp 0 12", &format!("Vp vp 0 {}", c.rail))
         .replace("Vn vn 0 -12", &format!("Vn vn 0 -{}", c.rail))
         .replace("V5 v5 0 5", &format!("V5 v5 0 {}", c.five));
+    // Optional isolation resistor between the J3 LO pin (node low: DUT, LOW follower and
+    // fixture capacitance) and the TIA summing node (node sum: U7A -IN, RF, CF and C104).
+    let risolo = c
+        .name
+        .split_once("_risolo")
+        .map(|(_, v)| v.split('_').next().unwrap().parse::<f64>().unwrap());
+    let sum = if risolo.is_some() { "sum" } else { "low" };
+    if let Some(r) = risolo {
+        s = s
+            .replace("X7A 0 low tia", "X7A 0 sum tia")
+            .replace("RF low tia", "RF sum tia")
+            .replace("CF low tia", "CF sum tia");
+        s += &format!("Risolo low sum {r}\n");
+    }
     s += &format!(
         "Cstraylo low 0 {}\nCstrayhi hi 0 {}\n",
         c.stray.max(1e-24),
@@ -177,7 +191,7 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
             "drive" => ("X6A", "excite", "source", "source", "OPA2810", 0.000554524),
             "high" => ("X6B", "hi", "highbuf", "highbuf", "OPA2810", 0.000654719),
             "low" => ("X7B", "low", "lowbuf", "lowbuf", "OPA2810", 0.000201502),
-            "tia" => ("X7A", "0", "low", "tia", "OPA2810", 0.000100193),
+            "tia" => ("X7A", "0", sum, "tia", "OPA2810", 0.000100193),
             _ => panic!("loop {lp}"),
         };
         let old = format!("{inst} {positive} {negative} {out} vp vn {model}");
@@ -200,11 +214,11 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
     };
     if let Some((_, value)) = c.name.split_once("_local") {
         let cl: f64 = value.split('_').next().unwrap().parse().unwrap();
-        s += &format!("Clocal low tia {}\n", cl * 1e-12);
+        s += &format!("Clocal {sum} tia {}\n", cl * 1e-12);
     }
     if let Some((_, value)) = c.name.split_once("_caplead") {
         let l: f64 = value.split('_').next().unwrap().parse().unwrap();
-        s = s.replace("Clocal low tia ", "Clocal low local_cf_out ");
+        s = s.replace(&format!("Clocal {sum} tia "), &format!("Clocal {sum} local_cf_out "));
         s += &format!("Llocal local_cf_out tia {}\n", l * 1e-9);
     }
     if let Some((_, value)) = c.name.split_once("_series") {
@@ -222,8 +236,8 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
     if let Some((_, value)) = c.name.rsplit_once("_lead") {
         let l: f64 = value.parse().unwrap();
         s = s
-            .replace("RF low tia ", "RF low rf_end ")
-            .replace("CF low tia ", "CF low rf_end ")
+            .replace(&format!("RF {sum} tia "), &format!("RF {sum} rf_end "))
+            .replace(&format!("CF {sum} tia "), &format!("CF {sum} rf_end "))
             .replace("Rcf cf_series tia ", "Rcf cf_series rf_end ")
             .replace("Rseries series_mid tia ", "Rseries series_mid rf_end ");
         s += &format!("Lfeedback rf_end tia {}\n", l * 1e-9);
@@ -674,7 +688,7 @@ fn main() {
             }
         }
     }
-    if mode == "fixedgrid" || mode == "fixedcorners" {
+    if ["fixedgrid", "fixedcorners", "fixedrisogrid", "fixedrisocorners"].contains(&mode) {
         cases.clear();
         for (range, r) in [("r100", 100.), ("r5k", 5000.), ("r100k", 100000.)] {
             for (n, dut) in [
@@ -687,14 +701,14 @@ fn main() {
                 ("coil50u", "RDUT hi coil 0.5\nLDUT coil low 50u".into()),
             ] {
                 for stray in [0., 100.] {
-                    let corners = if mode == "fixedcorners" {
+                    let corners = if mode.ends_with("corners") {
                         vec![-1., 1.]
                     } else {
                         vec![0.]
                     };
                     for corner in corners {
                         let cl = 100. * (1. + 0.05 * corner);
-                        cases.push(Case {name:format!("fixed_{range}_{n}_stray{stray}_corner{corner}_caplead5_local{cl}_lead100"),r,cf:0.,dut:dut.clone(),stray:stray*1e-12,rail:12.*(1.+0.05*corner),five:5.*(1.+0.05*corner),rtol:0.001*corner,bridge:100.,riso:4.32});
+                        cases.push(Case {name:format!("fixed_{range}_{n}_stray{stray}_corner{corner}{}_caplead5_local{cl}_lead100", if mode.starts_with("fixedriso") { "_risolo22" } else { "" }),r,cf:0.,dut:dut.clone(),stray:stray*1e-12,rail:12.*(1.+0.05*corner),five:5.*(1.+0.05*corner),rtol:0.001*corner,bridge:100.,riso:4.32});
                     }
                 }
             }
@@ -821,6 +835,80 @@ fn main() {
             }
         }
     }
+    if mode == "fixedfixture" || mode == "fixedleads" || mode == "fixedrisoleads" {
+        // Fixture/lead envelope beyond the 0/100 pF lumped stray of fixedgrid. Lumped stray
+        // per DUT terminal up to 1 nF, plus distributed leads: the TIA crossover is 25–60 MHz,
+        // where a metre of coax is a sizeable fraction of a wavelength, so leads are LC ladders.
+        cases.clear();
+        let duts = |r: f64, coil: bool, hi: &str, lo: &str| {
+            let mut v = vec![
+                ("open", format!("RDUT {hi} {lo} 1e12")),
+                ("short", format!("RDUT {hi} {lo} 0.01")),
+                ("matched", format!("RDUT {hi} {lo} {r}")),
+            ];
+            if coil {
+                v.push(("coil50u", format!("RDUT {hi} coil 0.5\nLDUT coil {lo} 50u")));
+            }
+            v
+        };
+        for (range, r) in [("r100", 100.), ("r5k", 5000.), ("r100k", 100000.)] {
+            if mode == "fixedfixture" {
+                for (n, dut) in duts(r, range == "r100", "hi", "low") {
+                    for stray in [0., 100., 220., 470., 1000.] {
+                        cases.push(Case {name:format!("fixture_{range}_{n}_stray{stray}_caplead5_local100_lead100"),r,cf:0.,dut:dut.clone(),stray:stray*1e-12,rail:12.,five:5.,rtol:0.,bridge:100.,riso:4.32});
+                    }
+                }
+                continue;
+            }
+            // RG-174-like coax, shield grounded at the board: 50 Ω, 101 pF/m, 252.5 nH/m,
+            // lossless (less damping than real cable), 20 sections per metre.
+            // Unshielded twisted pair: 0.7 µH/m loop, 50 pF/m between wires, 10 pF/m to ground.
+            for (lead, metres) in [("coax0.5m", 0.5), ("coax1m", 1.), ("coax2m", 2.), ("twisted1m", 1.)] {
+                let sections = (20. * metres) as usize;
+                let dx = metres / sections as f64;
+                let mut ladder = String::new();
+                for (wire, start) in [("h", "hi"), ("l", "low")] {
+                    let mut prev = start.to_string();
+                    for k in 0..sections {
+                        let next = if k + 1 == sections { format!("{wire}_dut") } else { format!("{wire}_n{k}") };
+                        if lead.starts_with("coax") {
+                            ladder += &format!("Lw{wire}{k} {prev} {next} {}\nCw{wire}{k} {next} 0 {}\n", 252.5e-9 * dx, 101e-12 * dx);
+                        } else {
+                            ladder += &format!("Lw{wire}{k} {prev} {next} {}\nCw{wire}{k} {next} 0 {}\n", 0.35e-6 * dx, 10e-12 * dx);
+                            if wire == "l" {
+                                ladder += &format!("Cpair{k} h_{} {next} {}\n", if k + 1 == sections { "dut".to_string() } else { format!("n{k}") }, 50e-12 * dx);
+                            }
+                        }
+                        prev = next;
+                    }
+                }
+                for (n, dut) in duts(r, range == "r100", "h_dut", "l_dut") {
+                    cases.push(Case {name:format!("leads_{range}_{n}_{lead}{}_caplead5_local100_lead100", if mode == "fixedrisoleads" { "_risolo22" } else { "" }),r,cf:0.,dut:format!("{ladder}{dut}"),stray:0.,rail:12.,five:5.,rtol:0.,bridge:100.,riso:4.32});
+                }
+            }
+        }
+    }
+    if mode == "fixedriso" {
+        // Candidate fix: isolation resistor between J3 LO and the summing node, LOW follower
+        // left on the connector side. Same fixture envelope as fixedfixture/fixedleads.
+        let mut riso_cases = vec![];
+        for (range, r, values) in [("r100", 100., vec![10., 22., 47.]), ("r5k", 5000., vec![22., 47.]), ("r100k", 100000., vec![22., 47.])] {
+            let mut duts = vec![("open", "RDUT hi low 1e12".to_string()), ("short", "RDUT hi low 0.01".into())];
+            if range == "r100" {
+                duts.push(("matched", format!("RDUT hi low {r}")));
+                duts.push(("coil50u", "RDUT hi coil 0.5\nLDUT coil low 50u".into()));
+            }
+            let strays = if range == "r100" { vec![0., 100., 220., 470., 1000.] } else { vec![0., 1000.] };
+            for ri in values {
+                for (n, dut) in &duts {
+                    for stray in &strays {
+                        riso_cases.push(Case {name:format!("riso_{range}_{n}_stray{stray}_risolo{ri}_caplead5_local100_lead100"),r,cf:0.,dut:dut.clone(),stray:stray*1e-12,rail:12.,five:5.,rtol:0.,bridge:100.,riso:4.32});
+                    }
+                }
+            }
+        }
+        cases = riso_cases;
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
@@ -853,6 +941,12 @@ fn main() {
             vec!["fda_a", "fda_b"]
         } else if mode == "fda" || mode == "fixedfda" {
             vec!["fda_a", "fda_b", "fda_a_cm", "fda_b_cm"]
+        } else if (mode == "fixedfixture" && c.name.contains("_r100_") && c.name.contains("_stray1000_"))
+            || (mode == "fixedleads" && c.name.contains("_r100_") && c.name.contains("_coax2m_"))
+            || (mode == "fixedriso" && c.name.contains("_r100_") && c.name.contains("_stray1000_"))
+        {
+            // The heaviest fixture loads also load the source driver and both sense followers.
+            vec!["tia", "drive", "high", "low"]
         } else if mode == "low" {
             vec!["low"]
         } else if mode == "nominal" {

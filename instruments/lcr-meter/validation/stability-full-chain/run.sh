@@ -14,7 +14,7 @@ case "${1:---check}" in
   --full) LCR_REUSE= ;;
   *) echo 'Usage: sh run.sh --check|--full' >&2; exit 2 ;;
 esac
-for LCR_MODE in grid corners lead leadwide fda invariance compact fixedgrid fixedcorners fixedlead fixedfda fixedinvariance; do
+for LCR_MODE in grid corners lead leadwide fda invariance compact fixedgrid fixedcorners fixedlead fixedfda fixedinvariance fixedfixture fixedleads fixedriso fixedrisoleads fixedrisogrid fixedrisocorners; do
   "$LCR_LOOP_BUILD/matrix" "final_$LCR_MODE" $LCR_REUSE > "check-$LCR_MODE.log" 2>&1
 done
 "$LCR_LOOP_BUILD/internal" $LCR_REUSE > check-internal.log 2>&1

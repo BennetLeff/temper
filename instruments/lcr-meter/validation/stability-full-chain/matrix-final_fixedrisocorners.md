@@ -1,0 +1,90 @@
+# Strict full-chain bilateral loop matrix
+
+All printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.
+
+| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |
+|---|---|---|
+| final_fixed_r100_matched_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 54.5470 MHz / 64.31° (down) | 0.73336 at 101.9373 MHz |
+| final_fixed_r100_matched_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 55.0558 MHz / 63.53° (down) | 0.72997 at 101.9373 MHz |
+| final_fixed_r100_matched_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 34.7319 MHz / 70.16° (down) | 0.76884 at 85.7696 MHz |
+| final_fixed_r100_matched_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 36.6009 MHz / 69.72° (down) | 0.75314 at 84.1395 MHz |
+| final_fixed_r100_short_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 51.3159 MHz / 70.08° (down) | 0.74751 at 103.9122 MHz |
+| final_fixed_r100_short_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 52.1301 MHz / 68.58° (down) | 0.74298 at 103.9122 MHz |
+| final_fixed_r100_short_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5028 MHz / 76.53° (down) | 0.81088 at 90.8518 MHz |
+| final_fixed_r100_short_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 30.3118 MHz / 76.98° (down) | 0.79637 at 87.4312 MHz |
+| final_fixed_r100_open_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.5252 MHz / 57.75° (down) | 0.70888 at 101.9373 MHz |
+| final_fixed_r100_open_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.7875 MHz / 57.80° (down) | 0.70804 at 101.9373 MHz |
+| final_fixed_r100_open_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 35.0805 MHz / 62.68° (down) | 0.75823 at 80.9717 MHz |
+| final_fixed_r100_open_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 36.7858 MHz / 63.03° (down) | 0.74107 at 79.4328 MHz |
+| final_fixed_r100_cap100n_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 51.3135 MHz / 70.08° (down) | 0.74751 at 103.9122 MHz |
+| final_fixed_r100_cap100n_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 52.1281 MHz / 68.58° (down) | 0.74298 at 103.9122 MHz |
+| final_fixed_r100_cap100n_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5028 MHz / 76.52° (down) | 0.81086 at 90.8518 MHz |
+| final_fixed_r100_cap100n_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 30.3116 MHz / 76.97° (down) | 0.79634 at 87.4312 MHz |
+| final_fixed_r100_cap500n_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 51.3149 MHz / 70.08° (down) | 0.74751 at 103.9122 MHz |
+| final_fixed_r100_cap500n_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 52.1293 MHz / 68.58° (down) | 0.74298 at 103.9122 MHz |
+| final_fixed_r100_cap500n_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5018 MHz / 76.53° (down) | 0.81088 at 90.8518 MHz |
+| final_fixed_r100_cap500n_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 30.3107 MHz / 76.98° (down) | 0.79636 at 87.4312 MHz |
+| final_fixed_r100_cap9u_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 51.3153 MHz / 70.08° (down) | 0.74751 at 103.9122 MHz |
+| final_fixed_r100_cap9u_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 52.1296 MHz / 68.58° (down) | 0.74298 at 103.9122 MHz |
+| final_fixed_r100_cap9u_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5015 MHz / 76.53° (down) | 0.81088 at 90.8518 MHz |
+| final_fixed_r100_cap9u_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 30.3104 MHz / 76.98° (down) | 0.79637 at 87.4312 MHz |
+| final_fixed_r100_coil50u_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.5700 MHz / 57.79° (down) | 0.70911 at 101.4009 MHz |
+| final_fixed_r100_coil50u_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.8254 MHz / 57.84° (down) | 0.70830 at 101.9373 MHz |
+| final_fixed_r100_coil50u_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 35.1324 MHz / 62.64° (down) | 0.75816 at 80.9329 MHz |
+| final_fixed_r100_coil50u_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 36.8330 MHz / 62.99° (down) | 0.74098 at 79.7765 MHz |
+| final_fixed_r5k_matched_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.4219 MHz / 58.75° (down) | 0.71159 at 101.9373 MHz |
+| final_fixed_r5k_matched_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.6946 MHz / 58.61° (down) | 0.71023 at 101.9373 MHz |
+| final_fixed_r5k_matched_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 37.2940 MHz / 74.57° (down) | 0.75237 at 84.1395 MHz |
+| final_fixed_r5k_matched_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 39.3982 MHz / 71.84° (down) | 0.73542 at 82.5404 MHz |
+| final_fixed_r5k_short_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 57.9242 MHz / 58.33° (down) | 0.69874 at 101.9373 MHz |
+| final_fixed_r5k_short_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.2933 MHz / 58.14° (down) | 0.69658 at 101.9373 MHz |
+| final_fixed_r5k_short_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.4852 MHz / 91.48° (down) | 0.80314 at 89.1251 MHz |
+| final_fixed_r5k_short_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4473 MHz / 88.19° (down) | 0.78897 at 87.4312 MHz |
+| final_fixed_r5k_open_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.5699 MHz / 58.54° (down) | 0.71061 at 101.9373 MHz |
+| final_fixed_r5k_open_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.8398 MHz / 58.44° (down) | 0.70938 at 101.9373 MHz |
+| final_fixed_r5k_open_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 37.2219 MHz / 74.47° (down) | 0.75222 at 84.1395 MHz |
+| final_fixed_r5k_open_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 39.3356 MHz / 71.76° (down) | 0.73525 at 82.5404 MHz |
+| final_fixed_r5k_cap100n_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 57.9243 MHz / 58.33° (down) | 0.69874 at 101.9373 MHz |
+| final_fixed_r5k_cap100n_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.2933 MHz / 58.14° (down) | 0.69658 at 101.9373 MHz |
+| final_fixed_r5k_cap100n_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.4900 MHz / 91.47° (down) | 0.80311 at 89.1251 MHz |
+| final_fixed_r5k_cap100n_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4511 MHz / 88.17° (down) | 0.78894 at 87.4312 MHz |
+| final_fixed_r5k_cap500n_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 57.9243 MHz / 58.33° (down) | 0.69874 at 101.9373 MHz |
+| final_fixed_r5k_cap500n_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.2933 MHz / 58.14° (down) | 0.69658 at 101.9373 MHz |
+| final_fixed_r5k_cap500n_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.4851 MHz / 91.48° (down) | 0.80313 at 89.1251 MHz |
+| final_fixed_r5k_cap500n_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4467 MHz / 88.18° (down) | 0.78897 at 87.4312 MHz |
+| final_fixed_r5k_cap9u_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 57.9242 MHz / 58.33° (down) | 0.69874 at 101.9373 MHz |
+| final_fixed_r5k_cap9u_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.2933 MHz / 58.14° (down) | 0.69658 at 101.9373 MHz |
+| final_fixed_r5k_cap9u_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.4839 MHz / 91.48° (down) | 0.80314 at 89.1251 MHz |
+| final_fixed_r5k_cap9u_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4457 MHz / 88.19° (down) | 0.78897 at 87.4312 MHz |
+| final_fixed_r5k_coil50u_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.6146 MHz / 58.57° (down) | 0.71083 at 102.4275 MHz |
+| final_fixed_r5k_coil50u_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.8773 MHz / 58.46° (down) | 0.70960 at 102.6735 MHz |
+| final_fixed_r5k_coil50u_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 37.2677 MHz / 74.40° (down) | 0.75216 at 84.2203 MHz |
+| final_fixed_r5k_coil50u_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 39.3738 MHz / 71.70° (down) | 0.73517 at 82.3032 MHz |
+| final_fixed_r100k_matched_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.5632 MHz / 58.57° (down) | 0.71072 at 101.9373 MHz |
+| final_fixed_r100k_matched_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.8331 MHz / 58.46° (down) | 0.70947 at 101.9373 MHz |
+| final_fixed_r100k_matched_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 37.2951 MHz / 74.67° (down) | 0.75226 at 84.1395 MHz |
+| final_fixed_r100k_matched_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 39.4038 MHz / 71.91° (down) | 0.73527 at 82.5404 MHz |
+| final_fixed_r100k_short_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.0302 MHz / 58.12° (down) | 0.69751 at 101.9373 MHz |
+| final_fixed_r100k_short_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.4042 MHz / 57.96° (down) | 0.69543 at 101.9373 MHz |
+| final_fixed_r100k_short_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5203 MHz / 91.80° (down) | 0.80309 at 89.1251 MHz |
+| final_fixed_r100k_short_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4939 MHz / 88.41° (down) | 0.78891 at 87.4312 MHz |
+| final_fixed_r100k_open_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.5694 MHz / 58.56° (down) | 0.71066 at 101.9373 MHz |
+| final_fixed_r100k_open_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.8394 MHz / 58.45° (down) | 0.70942 at 101.9373 MHz |
+| final_fixed_r100k_open_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 37.2914 MHz / 74.67° (down) | 0.75225 at 84.1395 MHz |
+| final_fixed_r100k_open_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 39.4006 MHz / 71.90° (down) | 0.73526 at 82.5404 MHz |
+| final_fixed_r100k_cap100n_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.0302 MHz / 58.12° (down) | 0.69751 at 101.9373 MHz |
+| final_fixed_r100k_cap100n_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.4042 MHz / 57.96° (down) | 0.69543 at 101.9373 MHz |
+| final_fixed_r100k_cap100n_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5252 MHz / 91.78° (down) | 0.80306 at 89.1251 MHz |
+| final_fixed_r100k_cap100n_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4979 MHz / 88.40° (down) | 0.78888 at 87.4312 MHz |
+| final_fixed_r100k_cap500n_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.0302 MHz / 58.12° (down) | 0.69751 at 101.9373 MHz |
+| final_fixed_r100k_cap500n_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.4042 MHz / 57.96° (down) | 0.69543 at 101.9373 MHz |
+| final_fixed_r100k_cap500n_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5201 MHz / 91.79° (down) | 0.80308 at 89.1251 MHz |
+| final_fixed_r100k_cap500n_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4934 MHz / 88.41° (down) | 0.78890 at 87.4312 MHz |
+| final_fixed_r100k_cap9u_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 58.0302 MHz / 58.12° (down) | 0.69751 at 101.9373 MHz |
+| final_fixed_r100k_cap9u_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 58.4042 MHz / 57.96° (down) | 0.69543 at 101.9373 MHz |
+| final_fixed_r100k_cap9u_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 28.5189 MHz / 91.80° (down) | 0.80309 at 89.1251 MHz |
+| final_fixed_r100k_cap9u_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 31.4924 MHz / 88.41° (down) | 0.78891 at 87.4312 MHz |
+| final_fixed_r100k_coil50u_stray0_corner-1_risolo22_caplead5_local95_lead100_tia | 15.8976 MHz / 111.99° (down); 15.9493 MHz / -169.79° (up); 58.6145 MHz / 58.58° (down) | 0.71089 at 102.4275 MHz |
+| final_fixed_r100k_coil50u_stray0_corner1_risolo22_caplead5_local105_lead100_tia | 15.9036 MHz / 115.58° (down); 15.9451 MHz / -176.77° (up); 58.8773 MHz / 58.47° (down) | 0.70964 at 102.6981 MHz |
+| final_fixed_r100k_coil50u_stray100_corner-1_risolo22_caplead5_local95_lead100_tia | 37.3368 MHz / 74.60° (down) | 0.75218 at 84.3112 MHz |
+| final_fixed_r100k_coil50u_stray100_corner1_risolo22_caplead5_local105_lead100_tia | 39.4385 MHz / 71.84° (down) | 0.73519 at 82.3526 MHz |
