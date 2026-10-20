@@ -65,15 +65,15 @@ fn main() {
         ("U8", "2", "GND"),
         ("U9", "1", "GND"),
         ("U9", "2", "-BAT"),
-        ("U10", "1", "REF_P"),
-        ("U10", "2", "REF_P"),
-        ("U10", "3", "GND"),
-        ("U11", "1", "GND"),
-        ("U11", "2", "GND"),
-        ("U11", "3", "REF_N"),
-        ("D1", "1", "REF_N"),
-        ("D1", "2", "REF_P"),
+        ("D1", "1", "-4V8"),
+        ("D1", "2", "+4V8"),
         ("D1", "3", "IN_P"),
+        ("D2", "1", "-4V8"),
+        ("D2", "2", "+4V8"),
+        ("D2", "3", "IN_N"),
+        ("D3", "1", "-4V8"),
+        ("D3", "2", "+4V8"),
+        ("D3", "3", "OUT"),
         ("U5", "3", "+4V8"),
         ("U5", "12", "-4V8"),
         ("U6", "8", "+4V8"),
@@ -82,8 +82,6 @@ fn main() {
         ("U7", "7", "-4V8"),
         ("U7", "6", "SET"),
         ("U7", "4", "RESET"),
-        ("SW2", "3", "NC:SW2.3"),
-        ("SW2", "6", "NC:SW2.6"),
         ("J3", "1", "OUT"),
         ("J3", "2", "GND"),
     ] {
@@ -93,18 +91,41 @@ fn main() {
             "datasheet/intent mismatch at {r}.{p}"
         );
     }
-    for u in ["U1", "U2"] {
-        for (p, n) in [("7", "+4V8"), ("4", "-4V8"), ("8", "+4V8"), ("9", "GND")] {
-            assert_eq!(by_pin[&format!("{u}.{p}")], n);
+    // OPA2810 dual, SOIC-8: 1 OUT1, 2 -IN1, 3 +IN1, 4 V-, 5 +IN2, 6 -IN2, 7 OUT2, 8 V+.
+    for (u, pins) in [
+        (
+            "U1",
+            [
+                ("1", "BUF_P"),
+                ("2", "BUF_P"),
+                ("3", "IN_P"),
+                ("5", "IN_N"),
+                ("6", "BUF_N"),
+                ("7", "BUF_N"),
+            ],
+        ),
+        (
+            "U3",
+            [
+                ("1", "RAW_OUT"),
+                ("2", "SUM_N"),
+                ("3", "SUM_P"),
+                ("5", "FILTER"),
+                ("6", "DRIVE"),
+                ("7", "DRIVE"),
+            ],
+        ),
+    ] {
+        for (p, n) in pins.iter().chain([("8", "+4V8"), ("4", "-4V8")].iter()) {
+            assert_eq!(by_pin[&format!("{u}.{p}")], *n, "OPA2810 pinout {u}.{p}");
         }
     }
-    for u in ["U3", "U4", "U12"] {
-        for (p, n) in [("7", "+4V8"), ("4", "-4V8")] {
-            assert_eq!(by_pin[&format!("{u}.{p}")], n);
-        }
-        for p in ["1", "5", "8"] {
-            assert_eq!(by_pin[&format!("{u}.{p}")], format!("NC:{u}.{p}"));
-        }
+    // OPA810 single, SOIC-8: 2 -IN, 3 +IN, 4 V-, 6 OUT, 7 V+, 1/5/8 NC.
+    for (p, n) in [("7", "+4V8"), ("4", "-4V8"), ("3", "GAIN5_IN"), ("2", "GAIN5_FB"), ("6", "FINE_OUT")] {
+        assert_eq!(by_pin[&format!("U12.{p}")], n);
+    }
+    for p in ["1", "5", "8"] {
+        assert_eq!(by_pin[&format!("U12.{p}")], format!("NC:U12.{p}"));
     }
     for (refdes, pin, net) in [
         ("CT1", "1", "TAP_P"),
@@ -112,16 +133,16 @@ fn main() {
         ("CT2", "1", "TAP_N"),
         ("CT2", "2", "GND"),
         ("R63", "1", "SUM_P"),
-        ("R64", "2", "GND"),
+        ("R63", "2", "GND"),
         ("R65", "1", "SUM_N"),
-        ("R66", "2", "RAW_OUT"),
+        ("R65", "2", "RAW_OUT"),
         ("U12", "3", "GAIN5_IN"),
         ("U12", "2", "GAIN5_FB"),
         ("U12", "6", "FINE_OUT"),
         ("R67", "1", "GAIN5_FB"),
         ("R67", "2", "GND"),
         ("R68", "1", "GAIN5_FB"),
-        ("R99", "2", "FINE_OUT"),
+        ("R68", "2", "FINE_OUT"),
         ("R100", "1", "RAW_OUT"),
         ("R100", "2", "GAIN5_IN"),
         ("SW1", "1", "WIDE_SEL"),
@@ -218,22 +239,43 @@ fn main() {
         ("R102", "RT0805BRD0749R9L"),
         ("CT1", "GKG60015"),
         ("CT2", "GKG60015"),
-        ("C45", "C0805C470J5GACTU"),
-        ("C55", "C0805C470J5GACTU"),
+        ("C41", "C1206C103F5GACTU"),
+        ("C51", "C1206C103F5GACTU"),
+        ("C42", "C0805C302F5GACTU"),
+        ("C52", "C0805C302F5GACTU"),
+        ("C43", "C0805C161F5GACTU"),
+        ("C53", "C0805C161F5GACTU"),
+        ("R12", "RT0805BRD07220RL"),
+        ("R32", "RT0805BRD07220RL"),
+        ("U1", "OPA2810IDR"),
+        ("U3", "OPA2810IDR"),
+        ("U12", "OPA810IDR"),
     ] {
         assert_eq!(mpns[r], m, "calculation source {r}");
     }
-    for r in ["R87", "R91"] {
-        assert_eq!(mpns[r], "RT0805BRD0725K5L");
+    for leg in [0, 20] {
+        for i in 1..=5 {
+            assert_eq!(mpns[&format!("R{}", leg + i)], "HVCB2512BDE2M00");
+        }
     }
-    for r in [
-        "R61", "R62", "R63", "R64", "R65", "R66", "R67", "R68", "R97", "R98", "R99",
+    for (r, m) in [
+        ("R61", "RNCF0603TKY499R"),
+        ("R62", "RNCF0603TKY499R"),
+        ("R67", "RNCF0603TKY499R"),
+        ("R63", "RNCF0603TKY1K00"),
+        ("R65", "RNCF0603TKY1K00"),
+        ("R68", "RNCF0603TKY2K00"),
+        ("R87", "RT0805BRD0766K5L"),
+        ("R91", "RT0805BRD0766K5L"),
+        ("R88", "RT0805BRD071KL"),
+        ("R92", "RT0805BRD071KL"),
+        ("R89", "RT0805BRD0710KL"),
+        ("R93", "RT0805BRD0710KL"),
     ] {
-        assert_eq!(mpns[r], "RNCF0603TKY499R");
+        assert_eq!(mpns[r], m, "gain/threshold source {r}");
     }
-    for r in ["R89", "R93"] {
-        assert_eq!(mpns[r], "RT0805BRD0729K4L");
-    }
+    let wide_gain = 1000. / 499.;
+    let fine_stage = 1. + 2000. / 499.;
     let load = 1. / (1. / 20_000. + 1. / 1_000_000.);
     let selection_gain = load / (load + 49.9);
     let source_r = 97.6 + 1. / (1. / 49.9 + 1. / load);
@@ -242,7 +284,7 @@ fn main() {
     let min_trim = (top * 0.999) / 1999. - 4990. * 1.0001;
     let max_trim = (top * 1.001) / 1999. - 4990. * 0.9999;
     assert!(min_trim >= 0. && max_trim < 45.);
-    report+=&format!("DC trim at all 0.1% upper-string / 0.01% bottom-resistor corners: {min_trim:.3} to {max_trim:.3} ohm (50-ohm pot, min end-to-end 45 ohm).\n");
+    report+=&format!("DC trim at all 0.1% upper-string / 0.01% bottom-resistor corners: {min_trim:.3} to {max_trim:.3} ohm (50-ohm pot, min end-to-end 45 ohm). Five 2-Mohm 0.1% bodies give the same string-tolerance corners as ten 1-Mohm bodies.\n");
     for f in [35e3, 60e3] {
         let x = f / cutoff;
         report += &format!(
@@ -252,21 +294,71 @@ fn main() {
             -x.atan().to_degrees()
         );
     }
-    let coarse_cap = 13_158e-12;
-    let trim_pf = (cap - coarse_cap) * 1e12;
-    assert!((12. ..60.).contains(&trim_pf));
-    report+=&format!("Coarse low-leg C = 13.158 nF, fine trimmer 12-60 pF; ideal nominal trim = {trim_pf:.3} pF before assembly strays.\nSelected-path DC insertion factor = {selection_gain:.8}, load = {load:.3} ohm; shared RC source R = {source_r:.4} ohm.\n");
+    // Rev C low-leg compensation coverage. Fixed 10 nF 1% C0G, then two
+    // select-on-test C0G positions chosen in sequence with a re-measurement
+    // after each fit, then the 12-60 pF trimmer. Every fitted part is taken
+    // at either end of its tolerance; selection does not know where.
+    let c_nominal = cap * 1e12; // pF
+    // Archived divider model (evidence/2026-10-20-divider-output.txt): untrimmed
+    // 60 kHz-vs-DC mismatch, 1st..99th percentile, -8.26..+4.20 %.
+    let need_lo = c_nominal * (1. - 0.0826);
+    let need_hi = c_nominal * (1. + 0.0420);
+    let parasitic = (2.0, 15.0); // buffer, clamp and layout capacitance at the tap, pF
+    let tol = 0.01;
+    let fixed = 10_000.0;
+    let (trim_lo, trim_hi) = (12.0, 60.0);
+    let s2: Vec<f64> = [
+        0., 10., 11., 12., 13., 15., 16., 18., 20., 22., 24., 27., 30., 33., 36., 39., 43., 47.,
+        51., 56., 62., 68., 75., 82., 91., 100., 110., 120., 130., 150., 160., 180., 200., 220.,
+        240., 270., 300., 330., 360.,
+    ]
+    .to_vec();
+    let s1: Vec<f64> = [1800., 2000., 2200., 2400., 2700., 3000., 3300., 3600., 3900.].to_vec();
+    // Residual X2 that stage 2 + trimmer can absorb for every S2 tolerance outcome.
+    let covers = |set: &[f64], lo: f64, hi: f64, x: f64| -> Option<f64> {
+        set.iter()
+            .map(|&v| {
+                let a = x - v * (1. + tol) - lo; // trimmer/next stage must not go below lo
+                let b = hi - (x - v * (1. - tol)); // nor above hi
+                a.min(b)
+            })
+            .filter(|m| *m >= 0.)
+            .reduce(f64::max)
+    };
+    let stage2_hi = s2.last().unwrap() * (1. - tol) + trim_hi;
+    let mut worst2 = f64::INFINITY;
+    let mut x = trim_lo;
+    while x <= stage2_hi {
+        let m = covers(&s2, trim_lo, trim_hi, x)
+            .unwrap_or_else(|| panic!("stage-2 coverage gap at residual {x:.2} pF"));
+        worst2 = worst2.min(m);
+        x += 0.05;
+    }
+    let x1_lo = need_lo - parasitic.1 - fixed * (1. + tol);
+    let x1_hi = need_hi - parasitic.0 - fixed * (1. - tol);
+    let mut worst1 = f64::INFINITY;
+    let mut x = x1_lo;
+    while x <= x1_hi {
+        let m = covers(&s1, trim_lo, stage2_hi, x)
+            .unwrap_or_else(|| panic!("stage-1 coverage gap at residual {x:.1} pF"));
+        worst1 = worst1.min(m);
+        x += 0.5;
+    }
+    let nominal_trim = c_nominal - fixed - 3000. - 160.;
+    assert!((trim_lo..trim_hi).contains(&(nominal_trim - parasitic.0)));
+    report+=&format!("Low-leg C requirement: {need_lo:.1}..{need_hi:.1} pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on {c_nominal:.1} pF), less {:.0}..{:.0} pF tap parasitics.\nCompensation coverage PASS: fixed 10 nF +/-1 %, S1 E24 1.8-3.9 nF +/-1 %, S2 E24 0-360 pF +/-1 %, trimmer {trim_lo:.0}-{trim_hi:.0} pF. Stage-1 residual {x1_lo:.1}..{x1_hi:.1} pF covered with >= {worst1:.1} pF margin; stage-2 residual {trim_lo:.0}..{stage2_hi:.1} pF covered with >= {worst2:.2} pF margin at worst-case part tolerance. Nominal 10 nF + 3.0 nF + 160 pF leaves {nominal_trim:.1} pF for trimmer plus parasitics.\n",parasitic.0,parasitic.1);
+    report+=&format!("Selected-path DC insertion factor = {selection_gain:.8}, load = {load:.3} ohm; shared RC source R = {source_r:.4} ohm.\n");
     let mag = |f: f64, fine: bool| {
         let mut value = 1. / (1. + (f / cutoff).powi(2)).sqrt();
-        for pole in [70e6 / 3., 140e6] {
+        for pole in [70e6 / (1. + wide_gain), 140e6] {
             value /= (1. + (f / pole).powi(2)).sqrt();
         }
         if fine {
-            value /= (1. + (f / (70e6 / 5.)).powi(2)).sqrt();
+            value /= (1. + (f / (70e6 / fine_stage)).powi(2)).sqrt();
         }
         value
     };
-    for (g, range, fine) in [(2., 1500., false), (10., 300., true)] {
+    for (g, range, fine) in [(wide_gain, 1500., false), (wide_gain * fine_stage, 300., true)] {
         let mut lo = 0.;
         let mut hi = 20e6;
         for _ in 0..80 {
@@ -278,32 +370,67 @@ fn main() {
             }
         }
         let total_gain = g * selection_gain * 1_000_000. / (1_000_000. + 49.9);
-        report+=&format!("Gain {g}: nominal probe ratio {:.0}:1 before insertion loss; loaded DC estimate {:.3}:1; initial {range:.0} Vpk -> {:.4} Vpk output.\n",2000./g,2000./total_gain,range/2000.*total_gain);
-        report+=&format!("Gain {g}: illustrative first-order cascaded -3dB bandwidth {:.3} MHz; NOT an IC macromodel result or qualification.\n",(lo+hi)/2e6);
+        report+=&format!("Gain {g:.6}: loaded DC estimate {:.3}:1; initial {range:.0} Vpk -> {:.4} Vpk output.\n",2000./total_gain,range/2000.*total_gain);
+        report+=&format!("Gain {g:.6}: illustrative first-order cascaded -3dB bandwidth {:.3} MHz; NOT an IC macromodel result or qualification.\n",(lo+hi)/2e6);
     }
-    report+="Bandwidth estimate uses U3 noise gain 3 / 70 MHz GBW, U12 gain 5 / 70 MHz GBW, U4 140 MHz unity bandwidth, and C61 only; real amplifier poles, parasitics, scope cable/load and source impedance must be simulated/measured.\n";
-    report+=&format!("At 3000 V DC per tip: total dissipation {:.3} W/leg; {:.4} W per 1-Mohm resistor; ~300 V/resistor and ~600 V/segment capacitor.\n",3000f64.powi(2)/(top+bottom),(3000./(top+bottom)).powi(2)*1e6);
+    report+="Bandwidth estimate uses U3A noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3B 140 MHz unity bandwidth, and C61 only; see validation/spice for the vendor-model result.\n";
+    let body = 2e6;
+    let i_dc = 3000. / (top + bottom);
+    report+=&format!("At 3000 V DC per tip: total dissipation {:.3} W/leg; {:.4} W and {:.0} V per 2-Mohm body (five per leg); section capacitor ~600 V.\n",3000f64.powi(2)/(top+bottom),i_dc*i_dc*body,i_dc*body);
+    report+=&format!("2-Mohm 2512 power-limited continuous voltage sqrt(2 W x 2 Mohm) = {:.0} V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and {:.3} W (2 W rating at 70 C; derating applies).\n",(2.0f64*body).sqrt(),1500f64.powi(2)/body);
     report+="At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.\nAt 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitance adds to this.\n";
-    let threshold = 2.495 * 10. / 35.5;
-    let output_threshold = 2.495 * 10. / 39.4;
-    // Conservative static warning budget, conditional on the documented calibrated gain/offset bounds.
+    // Rail-referenced warning thresholds (no TL431). Ladder per polarity:
+    // rail - 66.5k - LIM - 1k - OUT_LIM - 10k - GND, 0.1 % resistors.
     let res_tol = 0.001 + 25e-6 * 60.; // 0.1% initial plus 25ppm/C over -25..85C, relative to 25C.
-    let ref_max = 2.507 + 0.034 + 0.005; // TL431B initial + full-temp deviation + current/load allowance.
-    let div_max = 10_000. * (1. + res_tol) / (25_500. * (1. - res_tol) + 10_000. * (1. + res_tol));
-    let output_div_max =
-        10_000. * (1. + res_tol) / (29_400. * (1. - res_tol) + 10_000. * (1. + res_tol));
+    let (ra, rb, rc) = (66_500., 1_000., 10_000.);
+    // ADP7142 ADJ 1.2 V: +1.8 % worst over line/load/TJ -40..125C; ADP7182 ADJ
+    // -1.22 V nominal, -1.244 V worst magnitude (+1.97 %). Feedback 30k|29.4k over 10k.
+    let fb = |r_top: f64, hi: bool| {
+        let k = if hi {
+            (1. + res_tol) / (1. - res_tol)
+        } else {
+            (1. - res_tol) / (1. + res_tol)
+        };
+        1. + r_top / 10_000. * k
+    };
+    let pos_max = 1.2 * 1.018 * fb(30_000., true);
+    let neg_max = 1.244 * fb(29_400., true);
+    let pos_min = 1.2 * (1. - 0.018) * fb(30_000., false);
+    let neg_min = 1.184 * fb(29_400., false);
+    let rail_max = pos_max.max(neg_max);
+    let rail_min = pos_min.min(neg_min);
+    let hi = 1. + res_tol;
+    let lo = 1. - res_tol;
+    let tip_div_max = (rb * hi + rc * hi) / (ra * lo + rb * hi + rc * hi);
+    let out_div_max = rc * hi / (ra * lo + rb * lo + rc * hi);
+    let tip_div_min = (rb * lo + rc * lo) / (ra * hi + rb * lo + rc * lo);
+    let out_div_min = rc * lo / (ra * hi + rb * hi + rc * lo);
     let comp_error = 0.0055 + 0.0002; // comparator offset and input-bias/PSRR allowance.
-    let tip_max = (ref_max * div_max + comp_error + 0.005) / 0.98 * 2000.;
+    let tip_max = (rail_max * tip_div_max + comp_error + 0.005) / 0.98 * 2000.;
     let sense_min = (1. - res_tol) / 2.; // matched nominal 10k/10k, opposing tolerances.
-    let selected_max = (ref_max * output_div_max + comp_error) / sense_min;
+    let selected_max = (rail_max * out_div_max + comp_error) / sense_min;
     let wide_offset = 0.025;
     let fine_offset = 0.130;
+    let wide_late = (selected_max + wide_offset) / 0.98 * 1000.;
+    let fine_late = (selected_max + fine_offset) / 0.98 * 200.;
     assert!(tip_max < 1500.);
-    assert!((selected_max + wide_offset) / 0.98 * 1000. < 1500.);
-    assert!((selected_max + fine_offset) / 0.98 * 200. < 300.);
-    report+=&format!("Nominal rails +{:.4} / -{:.4} V. Input warning +/-{threshold:.6} V buffered = {:.2} V/tip. Selected-output warning +/-{:.6} V = {:.2} V differential on wide / {:.2} V on fine.\n",1.2*(1.+30./10.),1.22*(1.+29.4/10.),threshold*2000.,output_threshold*2.,output_threshold*2000.,output_threshold*400.);
-    report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {:.2} V wide / {:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine.\n",(selected_max+wide_offset)/0.98*1000.,(selected_max+fine_offset)/0.98*200.);
-    report+="Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits, regulator/reference rails valid, and no clamp-induced reference disturbance; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.\n";
+    assert!(wide_late < 1500.);
+    assert!(fine_late < 300.);
+    let tip_nom = 4.8 * (rb + rc) / (ra + rb + rc);
+    let out_nom = 4.8 * rc / (ra + rb + rc);
+    let tip_early = ((rail_min * tip_div_min - comp_error - 0.005) / 1.02 * 2000.).max(0.);
+    let sel_early = (rail_min * out_div_min - comp_error) / ((1. + res_tol) / 2.);
+    report+=&format!("Rails: +{:.4} / -{:.4} V nominal; worst-case magnitudes {rail_min:.4}..{rail_max:.4} V (ADP7142 +/-1.8 %, ADP7182 -2.95/+1.97 % ADJ, feedback 0.1 % + 25 ppm/C).\n",1.2*(1.+30./10.),1.22*(1.+29.4/10.));
+    report+=&format!("Input warning +/-{tip_nom:.6} V buffered = {:.2} V/tip nominal. Selected-output warning +/-{:.6} V = {:.2} V differential on wide / {:.2} V on fine (nominal, before gain calibration).\n",tip_nom*2000.,out_nom*2.,out_nom*2000.,out_nom*400.);
+    report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {wide_late:.2} V wide / {fine_late:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine. Earliest possible trip (gain <=102%): {tip_early:.0} V/tip, {:.0} V wide / {:.0} V fine.\n",(sel_early-wide_offset).max(0.)/1.02*1000.,(sel_early-fine_offset).max(0.)/1.02*200.);
+    report+="Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits and both rails inside their regulated range; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.\n";
+    // Clamp current returned into the LDO outputs must stay below their own load.
+    // OPA2810 2x2 channels + OPA810: 3.0 mA/channel minimum assumed (3.6 typ);
+    // ladder, ADJ divider and latch pull-ups add ~0.2 mA per rail.
+    let rail_load_min = 5. * 3.0e-3 + 0.2e-3;
+    let clamp_worst = 5.28e-3 * 2f64.sqrt(); // one tap, open bottom bank, 3 kVpk 60 kHz
+    assert!(clamp_worst < rail_load_min);
+    report+=&format!("Clamp return: single fault (one bottom bank open, 3 kVpk at 60 kHz) injects <= {:.1} mA peak into a rail whose minimum load is ~{:.1} mA, so neither LDO output is back-driven. Normal in-range inputs (|tap| <= 1.5 V) never forward-bias the rail clamps.\n",clamp_worst*1e3,rail_load_min*1e3);
     report+="\nNot established by these checks: CMRR, amplitude/phase accuracy, 5 MHz system bandwidth, input-to-earth capacitance, overload recovery, unpowered input survival, transient withstand, creepage or clearance. PCB, fixed shield and fixture must be qualified together.\n";
     fs::write("validation/checks.txt", &report).unwrap();
     print!("{report}");

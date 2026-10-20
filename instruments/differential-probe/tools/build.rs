@@ -299,10 +299,8 @@ impl Design {
             ((cx, cy - 5.), (cx, cy - 3.))
         } else if small {
             ((cx + 7., cy - 1.), (cx + 7., cy + 1.))
-        } else if kind == "TL431" {
-            ((cx + 12., cy - 8.), (cx + 12., cy - 6.))
-        } else if kind == "ADA4817" {
-            ((cx - 12., cy - 16.), (cx - 12., cy - 14.))
+        } else if kind == "OPA2810" {
+            ((cx - 12., cy - 22.), (cx - 12., cy - 20.))
         } else if kind == "BUTTON" {
             ((cx + 7., cy - 10.), (cx + 7., cy - 8.))
         } else {
@@ -343,14 +341,6 @@ impl Design {
         let p = &self.placed[r];
         let s = p.sheet;
         let (xy, a) = p.pins[n];
-        if ["U1", "U2", "U3"].contains(&r) && n == "8" {
-            assert_eq!(net, "+4V8", "ADA4817 enable is active HIGH");
-            let vs = self.point(r, "7");
-            self.wire(s, xy, (xy.0, xy.1 - 2.));
-            self.wire(s, (xy.0, xy.1 - 2.), (vs.0, vs.1 - 2.));
-            self.dot(s, (vs.0, vs.1 - 2.));
-            return;
-        }
         let rad = (a as f64).to_radians();
         let end = (xy.0 - 5. * rad.cos(), xy.1 + 5. * rad.sin());
         self.wire(s, xy, end);
@@ -394,6 +384,10 @@ impl Design {
         self.link(r, "7", "+4V8");
         self.link(r, "4", "-4V8");
     }
+    fn dual_power(&mut self, r: &str) {
+        self.link(r, "8", "+4V8");
+        self.link(r, "4", "-4V8");
+    }
     fn finish(&self) {
         for (r, p) in &self.placed {
             for n in p.pins.keys() {
@@ -413,7 +407,7 @@ impl Design {
         let titles = [
             "Differential probe / compensated inputs",
             "Differential probe / gain, output and overload",
-            "Differential probe / battery supply and references",
+            "Differential probe / battery supply and thresholds",
         ];
         for s in 0..3 {
             let mut body = self.pages[s].clone();
@@ -424,7 +418,7 @@ impl Design {
                     body+=&format!("(sheet (at {} {}) (size {} {}) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid {}) {} {} (instances (project \"differential-probe\" (path {} (page {})))))\n",x*G,182.*G,45.*G,10.*G,id(&format!("sheet{j}")),prop("Sheetname",names[j],(x,180.),false),prop("Sheetfile",&format!("{}.kicad_sch",names[j]),(x,194.),false),q(&format!("/{}",id("root"))),q(&(j+1).to_string()));
                 }
             }
-            fs::write(format!("cad/{}.kicad_sch",names[s]),format!("(kicad_sch (version 20250114) (generator \"temper_probe\") (uuid {}) (paper \"A3\") (title_block (title {}) (date \"2026-10-20\") (rev \"B prototype\") (company \"Temper / instruments\") (comment 1 \"Voltage ratings are qualification targets; not CAT rated\")) (lib_symbols {syms}) {body} (embedded_fonts no))\n",id(if s==0 {"root"} else {names[s]}),q(titles[s]))).unwrap();
+            fs::write(format!("cad/{}.kicad_sch",names[s]),format!("(kicad_sch (version 20250114) (generator \"temper_probe\") (uuid {}) (paper \"A3\") (title_block (title {}) (date \"2026-10-20\") (rev \"C prototype\") (company \"Temper / instruments\") (comment 1 \"Voltage ratings are qualification targets; not CAT rated\")) (lib_symbols {syms}) {body} (embedded_fonts no))\n",id(if s==0 {"root"} else {names[s]}),q(titles[s]))).unwrap();
         }
         let local = syms.replace("(symbol \"Probe:", "(symbol \"");
         fs::write(
@@ -445,7 +439,7 @@ impl Design {
             expected += &format!("{r}\t{n}\t{v}\n");
         }
         fs::write("validation/expected-pins.tsv", expected).unwrap();
-        let mut table="(fp_lib_table (version 7) (lib (name \"Probe\") (type \"KiCad\") (uri \"${KIPRJMOD}/Probe.pretty\") (options \"\") (descr \"RD-8-4 exposed pad adapted from KiCad\"))".to_string();
+        let mut table="(fp_lib_table (version 7) (lib (name \"Probe\") (type \"KiCad\") (uri \"${KIPRJMOD}/Probe.pretty\") (options \"\") (descr \"Project HV, trimmer, board-edge and landing footprints\"))".to_string();
         for lib in [
             "Resistor_SMD",
             "Capacitor_SMD",
@@ -461,20 +455,7 @@ impl Design {
         }
         table += ")\n";
         fs::write("cad/fp-lib-table", table).unwrap();
-        let fp=fs::read_to_string("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Package_SO.pretty/SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.29x3mm.kicad_mod").unwrap().replace("SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.29x3mm","ADA4817_RD-8-4").replace("(size 2.29 3)","(size 2.29 2.29)");
         fs::create_dir_all("cad/Probe.pretty").unwrap();
-        // The smaller exposed pad also needs smaller, contained paste apertures.
-        let fp = fp
-            .replace("(size 0.92 1.21)", "(size 0.9 0.9)")
-            .replace("(at -0.57 -0.75)", "(at -0.55 -0.55)")
-            .replace("(at -0.57 0.75)", "(at -0.55 0.55)")
-            .replace("(at 0.57 -0.75)", "(at 0.55 -0.55)")
-            .replace("(at 0.57 0.75)", "(at 0.55 0.55)");
-        let fp = fp.replace(
-            "/ADA4817_RD-8-4.step",
-            "/SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.29x3mm.step",
-        );
-        fs::write("cad/Probe.pretty/ADA4817_RD-8-4.kicad_mod", fp).unwrap();
         // The HV capacitor straddles a routed slot. Keep the body outline on
         // the assembly layer; printing it across the cutout is not useful.
         let cap = fs::read_to_string("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/Capacitor_SMD.pretty/C_1812_4532Metric.kicad_mod").unwrap()
@@ -536,6 +517,17 @@ fn c(v: &str, code: &str) -> Part {
     } else {
         format!("C0805C{code}J5GACTU")
     };
+    part(
+        v,
+        &m,
+        "KEMET",
+        "Capacitor_SMD:C_0805_2012Metric",
+        &format!("https://search.kemet.com/download/specsheet/{m}"),
+        "",
+    )
+}
+fn c1(v: &str, code: &str) -> Part {
+    let m = format!("C0805C{code}F5GACTU");
     part(
         v,
         &m,
@@ -669,24 +661,24 @@ fn main() {
     ] {
         d.syms.insert(k.into(), official(lib, k, p, h));
     }
+    // One-unit block symbol for the dual OPA2810: SOIC-8/VSSOP-8 pin numbers.
     d.syms.insert(
-        "ADA4817".into(),
+        "OPA2810".into(),
         custom(
-            "ADA4817",
+            "OPA2810",
             vec![
-                pin("3", "+IN", "input", -8., 3., 0),
-                pin("2", "-IN", "input", -8., -3., 0),
-                pin("6", "OUT", "output", 8., 0., 180),
-                pin("1", "FB", "passive", 8., -6., 180),
-                pin("7", "+VS", "power_in", 0., 10., 270),
-                pin("4", "-VS", "power_in", 0., -10., 90),
-                pin("8", "PD", "input", -4., 10., 270),
-                pin("5", "NIC", "no_connect", 4., -10., 90),
-                pin("9", "EP", "passive", -4., -10., 90),
+                pin("3", "+IN1", "input", -10., 12., 0),
+                pin("2", "-IN1", "input", -10., 8., 0),
+                pin("1", "OUT1", "output", 10., 10., 180),
+                pin("5", "+IN2", "input", -10., -8., 0),
+                pin("6", "-IN2", "input", -10., -12., 0),
+                pin("7", "OUT2", "output", 10., -10., 180),
+                pin("8", "V+", "power_in", 0., 18., 270),
+                pin("4", "V-", "power_in", 0., -18., 90),
             ],
-            6.,
             8.,
-            true,
+            16.,
+            false,
         ),
     );
     d.syms.insert(
@@ -771,20 +763,6 @@ fn main() {
             ),
         );
     }
-    d.syms.insert(
-        "TL431".into(),
-        custom(
-            "TL431",
-            vec![
-                pin("1", "K", "passive", 0., 7., 270),
-                pin("2", "REF", "input", -7., 0., 0),
-                pin("3", "A", "passive", 0., -7., 90),
-            ],
-            5.,
-            5.,
-            false,
-        ),
-    );
     let mut ps = vec![
         pin("3", "V+", "power_in", 0., 18., 270),
         pin("12", "V-", "power_in", 0., -18., 90),
@@ -887,12 +865,14 @@ fn main() {
             .collect();
         d.syms.insert(k.into(), custom(k, ps, 4., 5., false));
     }
+    // Rev C: one 2 MR body per compensated section (five per leg), replacing
+    // Rev B's two series 1 MR bodies. Current Stackpole HVC catalog, 2512.
     let hv = part(
-        "1 MR / 0.1%",
-        "HVCB2512BDE1M00",
+        "2 MR / 0.1%",
+        "HVCB2512BDE2M00",
         "Stackpole",
         "Resistor_SMD:R_2512_6332Metric",
-        "https://seielect.com/Catalog/SEI-HVCB.pdf",
+        "https://www.seielect.com/Catalog/SEI-hvc.pdf",
         "",
     );
     let hv_c = part(
@@ -903,13 +883,13 @@ fn main() {
         "https://search.kemet.com/download/specsheet/C1812C330JHGACTU",
         "",
     );
-    let ada = part(
-        "ADA4817-1ARDZ-R7",
-        "ADA4817-1ARDZ-R7",
-        "Analog Devices",
-        "Probe:ADA4817_RD-8-4",
-        "https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf",
-        "C207502",
+    let opa2 = part(
+        "OPA2810IDR",
+        "OPA2810IDR",
+        "Texas Instruments",
+        "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "https://www.ti.com/lit/ds/symlink/opa2810.pdf",
+        "C1849413",
     );
     let opa = part(
         "OPA810IDR",
@@ -943,6 +923,22 @@ fn main() {
         "https://seielect.com/Catalog/SEI-RNCF.pdf",
         "",
     );
+    let rp1k = part(
+        "1.00 kR / 0.01%",
+        "RNCF0603TKY1K00",
+        "Stackpole",
+        "Resistor_SMD:R_0603_1608Metric",
+        "https://seielect.com/Catalog/SEI-RNCF.pdf",
+        "",
+    );
+    let rp2k = part(
+        "2.00 kR / 0.01%",
+        "RNCF0603TKY2K00",
+        "Stackpole",
+        "Resistor_SMD:R_0603_1608Metric",
+        "https://seielect.com/Catalog/SEI-RNCF.pdf",
+        "",
+    );
     let rf = part(
         "4.99 kR / 0.01%",
         "RNCF0603TKY4K99",
@@ -967,19 +963,11 @@ fn main() {
         "https://search.kemet.com/download/specsheet/C1210C106K3RACTU",
         "",
     );
-    let switch = part(
-        "DPDT / ON-ON",
-        "7201SYZBE",
-        "C&K",
-        "",
-        "https://www.ckswitches.com/media/1422/7000.pdf",
-        "",
-    );
-    // Sheet 1: symmetrical five-section input dividers.
+    // Sheet 1: symmetrical five-section input dividers, one 2 MR body per section.
     d.text(
         0,
         (12., 10.),
-        "2000:1 INPUTS  /  matched geometry, fixed grounded shield",
+        "2000:1 INPUTS  /  mirror-matched geometry about the inter-leg slot, fixed grounded shield",
         2.5,
     );
     for (row, suffix) in ["P", "N"].iter().enumerate() {
@@ -1005,19 +993,13 @@ fn main() {
             } else {
                 format!("{suffix}_SEG{}", i + 1)
             };
-            let mid = format!("{suffix}_R{}", i + 1);
-            let r1 = format!("R{}", base + i * 2 + 1);
-            let r2 = format!("R{}", base + i * 2 + 2);
+            let rr = format!("R{}", base + i + 1);
             let cr = format!("C{}", base + i + 1);
-            d.place(0, &r1, "R_Small_US", &hv, (x + 10., y), 90, false, true);
-            d.place(0, &r2, "R_Small_US", &hv, (x + 24., y), 90, false, true);
-            d.tag(&r1, "1", &a);
-            d.tag(&r1, "2", &mid);
-            d.tag(&r2, "1", &mid);
-            d.tag(&r2, "2", &b);
-            d.wire(0, (x, y), (x + 8., y));
-            d.wire(0, (x + 12., y), (x + 22., y));
-            d.wire(0, (x + 26., y), (x + 36., y));
+            d.place(0, &rr, "R_Small_US", &hv, (x + 18., y), 90, false, true);
+            d.tag(&rr, "1", &a);
+            d.tag(&rr, "2", &b);
+            d.wire(0, (x, y), (x + 16., y));
+            d.wire(0, (x + 20., y), (x + 36., y));
             d.place(0, &cr, "C", &hv_c, (x + 18., y + 12.), 90, false, true);
             d.tag(&cr, "1", &a);
             d.tag(&cr, "2", &b);
@@ -1051,34 +1033,38 @@ fn main() {
             0,
             &ir,
             "R_Small_US",
-            &r("220 R", "220"),
+            &r("220 R", "220R"),
             (238., y),
             90,
             &format!("TAP_{suffix}"),
             &format!("IN_{suffix}"),
             false,
         );
-        let u = format!("U{}", row + 1);
-        d.place(0, &u, "ADA4817", &ada, (285., y + 3.), 0, false, true);
-        d.link(&u, "3", &format!("IN_{suffix}"));
-        d.link(&u, "2", &format!("BUF_{suffix}"));
-        d.link(&u, "6", &format!("BUF_{suffix}"));
-        d.link(&u, "1", &format!("BUF_{suffix}"));
-        d.amp_power(&u);
-        d.link(&u, "8", "+4V8");
-        d.link(&u, "9", "GND");
-        d.nc(&u, "5");
+        // Rail-referenced input clamps: pin 1 (A1) to -4V8, pin 2 (K2) to +4V8.
         let dr = format!("D{}", row + 1);
         d.place(0, &dr, "BAV199", &clamp, (255., y + 26.), 0, false, true);
-        d.link(&dr, "1", "REF_N");
-        d.link(&dr, "2", "REF_P");
+        d.link(&dr, "1", "-4V8");
+        d.link(&dr, "2", "+4V8");
         d.link(&dr, "3", &format!("IN_{suffix}"));
     }
+    // One OPA2810 buffers both taps; it sits on the slot axis between the legs.
+    d.place(0, "U1", "OPA2810", &opa2, (285., 118.), 0, false, true);
+    for (p, n) in [
+        ("3", "IN_P"),
+        ("2", "BUF_P"),
+        ("1", "BUF_P"),
+        ("5", "IN_N"),
+        ("6", "BUF_N"),
+        ("7", "BUF_N"),
+    ] {
+        d.link("U1", p, n);
+    }
+    d.dual_power("U1");
     d.block(
         0,
         (10., 162.),
         (178., 215.),
-        "AC COMPENSATION / coarse C0G bank + accessible fine trim",
+        "AC COMPENSATION / fixed C0G + two select-on-test C0G + accessible fine trim",
     );
     let c10 = part(
         "10 nF / 1%",
@@ -1093,12 +1079,8 @@ fn main() {
         let tap = format!("TAP_{suf}");
         let cps = [
             c10.clone(),
-            c("2.2 nF", "222"),
-            c("680 pF", "681"),
-            c("220 pF", "221"),
-            c("47 pF", "470"),
-            c("10 pF", "100"),
-            c("1 pF", "010"),
+            c1("SOT 3.0 nF / 1%", "302"),
+            c1("SOT 160 pF / 1%", "161"),
         ];
         d.label(0, (20., y - 5.), &tap);
         d.power(0, (20., y + 5.), "GND");
@@ -1112,14 +1094,14 @@ fn main() {
             d.wire(0, (x, y + 3.), (x, y + 5.));
             d.wire(0, (if i == 0 { 20. } else { x - 22. }, y - 5.), (x, y - 5.));
             d.wire(0, (if i == 0 { 20. } else { x - 22. }, y + 5.), (x, y + 5.));
-            if i < 6 {
+            if i < 2 {
                 d.dot(0, (x, y - 5.));
                 d.dot(0, (x, y + 5.));
             }
         }
     }
     let ac_trim = part(
-        "12-60 pF / set ~35 pF", "GKG60015", "EW Electronics",
+        "12-60 pF / set ~33 pF", "GKG60015", "EW Electronics",
         "Probe:GKG60015_TopAdjust",
         "https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/8929/Gkgxxx15%20Specs%20and%20Kit-April%202026.pdf", "",
     );
@@ -1136,7 +1118,7 @@ fn main() {
             false,
         );
     }
-    d.text(0,(230.,165.),"Coarse Csum = 13.158 nF per leg.\nCT1/2: rotor to GND; nominal 35.4 pF.\nAdjust through shield tool holes.\nSelect coarse bank after assembly.\nTIP_P / TIP_N: captive HV leads.",1.27);
+    d.text(0,(230.,165.),"Fixed 10 nF 1% + select-on-test S1 (E24 1.6-3.9 nF, 1%)\n+ S2 (E24 0-360 pF, 1%) + 12-60 pF trimmer.\nNominal 10 nF + 3.0 nF + 160 pF + ~33 pF.\nCT1/2: rotor to GND. Adjust through shield tool holes.\nTIP_P / TIP_N: captive HV leads.",1.27);
     // Sheet 2: subtraction, bandwidth limit, output clamp, latched overrange.
     d.text(
         1,
@@ -1150,14 +1132,13 @@ fn main() {
         (195., 106.),
         "FIXED x2 SUBTRACTOR / FIXED x5 GAIN / OUTPUT SELECTION",
     );
-    d.place(1, "U3", "OPA810", &opa, (82., 56.), 0, false, true);
-    for (p, n) in [("3", "SUM_P"), ("2", "SUM_N"), ("6", "RAW_OUT")] {
+    // U3 is one OPA2810: channel 1 is the fixed x2 subtractor, channel 2 the
+    // output driver. The possibly saturated x5 stage stays in its own OPA810.
+    d.place(1, "U3", "OPA2810", &opa2, (82., 60.), 0, false, true);
+    for (p, n) in [("3", "SUM_P"), ("2", "SUM_N"), ("1", "RAW_OUT")] {
         d.link("U3", p, n);
     }
-    d.amp_power("U3");
-    for p in ["1", "5", "8"] {
-        d.nc("U3", p);
-    }
+    d.dual_power("U3");
     d.two(
         1,
         "R61",
@@ -1180,18 +1161,18 @@ fn main() {
         "SUM_N",
         false,
     );
-    for (ra, rb, y, a, b, mid) in [
-        ("R63", "R64", 83., "SUM_P", "GND", "GP2_M"),
-        ("R65", "R66", 99., "SUM_N", "RAW_OUT", "GN2_M"),
-    ] {
-        d.place(1, ra, "R_Small_US", &rp, (42., y), 90, false, true);
-        d.place(1, rb, "R_Small_US", &rp, (64., y), 90, false, true);
-        d.link(ra, "1", a);
-        d.link(rb, "2", b);
-        d.tag(ra, "2", mid);
-        d.tag(rb, "1", mid);
-        d.wire(1, (44., y), (62., y));
-    }
+    d.two(1, "R63", "R_Small_US", &rp1k, (42., 83.), 90, "SUM_P", "GND", false);
+    d.two(
+        1,
+        "R65",
+        "R_Small_US",
+        &rp1k,
+        (42., 99.),
+        90,
+        "SUM_N",
+        "RAW_OUT",
+        false,
+    );
     d.place(1, "U12", "OPA810", &opa, (156., 56.), 0, false, true);
     d.amp_power("U12");
     for (p, n) in [("3", "GAIN5_IN"), ("2", "GAIN5_FB"), ("6", "FINE_OUT")] {
@@ -1211,35 +1192,18 @@ fn main() {
         "GAIN5_IN",
         false,
     );
-    d.place(1, "R67", "R_Small_US", &rp, (102., 98.), 0, false, true);
-    d.tag("R67", "1", "GAIN5_FB");
-    d.link("R67", "2", "GND");
-    d.wire(1, (102., 96.), (102., 90.));
-    d.wire(1, (102., 90.), (114., 90.));
-    d.label_dir(1, (102., 90.), "GAIN5_FB", 180);
-    for (i, refdes) in ["R68", "R97", "R98", "R99"].iter().enumerate() {
-        let left = if i == 0 {
-            "GAIN5_FB".to_string()
-        } else {
-            format!("GAIN5_F{i}")
-        };
-        let right = if i == 3 {
-            "FINE_OUT".to_string()
-        } else {
-            format!("GAIN5_F{}", i + 1)
-        };
-        let x = 116. + i as f64 * 23.;
-        d.place(1, refdes, "R_Small_US", &rp, (x, 90.), 90, false, true);
-        d.tag(refdes, "1", &left);
-        if i == 3 {
-            d.link(refdes, "2", &right);
-        } else {
-            d.tag(refdes, "2", &right);
-        }
-        if i < 3 {
-            d.wire(1, (x + 2., 90.), (x + 21., 90.));
-        }
-    }
+    d.two(1, "R67", "R_Small_US", &rp, (102., 98.), 0, "GAIN5_FB", "GND", false);
+    d.two(
+        1,
+        "R68",
+        "R_Small_US",
+        &rp2k,
+        (130., 90.),
+        90,
+        "GAIN5_FB",
+        "FINE_OUT",
+        false,
+    );
     d.two(
         1,
         "R101",
@@ -1262,12 +1226,9 @@ fn main() {
         "FINE_SEL",
         false,
     );
-    d.place(1, "SW1", "DPDT", &switch, (230., 83.), 0, false, false);
+    d.place(1, "SW1", "SPDT", &switch, (230., 83.), 0, false, true);
     for (p, n) in [("1", "WIDE_SEL"), ("2", "SELECTED"), ("3", "FINE_SEL")] {
         d.link("SW1", p, n);
-    }
-    for p in ["4", "5", "6"] {
-        d.nc("SW1", p);
     }
     d.two(
         1,
@@ -1280,12 +1241,12 @@ fn main() {
         "GND",
         false,
     );
-    d.text(1,(15.,16.),"SW1 pin 2 selects 1 = 1000:1, 3 = 200:1. No switched feedback. Verify BBM contacts; allow settling during changes.",1.27);
+    d.text(1,(15.,16.),"SW1 common (pin 2) selects 1 = 1000:1, 3 = 200:1. No switched feedback. Verify BBM contacts; allow settling during changes.",1.27);
     d.block(
         1,
         (200., 22.),
         (318., 106.),
-        "SHARED FILTER / COAX DRIVER / OUTPUT CLAMP",
+        "SHARED FILTER / COAX DRIVER (U3 ch 2) / OUTPUT CLAMP",
     );
     d.two(
         1,
@@ -1314,31 +1275,22 @@ fn main() {
         "GND",
         false,
     );
-    d.place(1, "U4", "OPA810", &opa, (266., 47.), 0, false, true);
-    d.amp_power("U4");
-    for (p, n) in [("3", "FILTER"), ("2", "DRIVE")] {
-        d.link("U4", p, n)
-    }
-    for p in ["1", "5", "8"] {
-        d.nc("U4", p)
-    }
-    d.tag("U4", "6", "DRIVE");
-    d.place(
+    d.link("U3", "5", "FILTER");
+    d.link("U3", "6", "DRIVE");
+    d.link("U3", "7", "DRIVE");
+    d.two(
         1,
         "R70",
         "R_Small_US",
         &r("49.9 R", "49R9"),
         (294., 47.),
         90,
+        "DRIVE",
+        "OUT",
         false,
-        true,
     );
-    d.tag("R70", "1", "DRIVE");
-    d.link("R70", "2", "OUT");
-    d.wire(1, (274., 47.), (292., 47.));
-    d.label(1, (280., 47.), "DRIVE");
     d.place(1, "D3", "BAV199", &clamp, (267., 88.), 0, false, true);
-    for (p, n) in [("1", "REF_N"), ("2", "REF_P"), ("3", "OUT")] {
+    for (p, n) in [("1", "-4V8"), ("2", "+4V8"), ("3", "OUT")] {
         d.link("D3", p, n)
     }
     let bnc = part(
@@ -1513,7 +1465,7 @@ fn main() {
         "Reset / LED on power sheet. Verify both rails first.",
         1.27,
     );
-    // Sheet 3: battery supply, decoupling, shunt references, latch UI.
+    // Sheet 3: battery supply, decoupling, rail-referenced thresholds, latch UI.
     d.text(
         2,
         (12., 10.),
@@ -1559,10 +1511,10 @@ fn main() {
     let sch = part(
         "SS14",
         "SS14",
-        "Diodes Incorporated",
+        "MDD (Microdiode Semiconductor)",
         "Diode_SMD:D_SMA",
-        "https://www.diodes.com/assets/Datasheets/ds23001.pdf",
-        "",
+        "https://www.lcsc.com/product-detail/C2480.html",
+        "C2480",
     );
     d.two(
         2,
@@ -1679,83 +1631,32 @@ fn main() {
         2,
         (200., 22.),
         (318., 124.),
-        "SHUNT CLAMPS / COMPARATOR THRESHOLDS",
+        "RAIL-REFERENCED COMPARATOR THRESHOLDS (no shunt references)",
     );
-    let shunt = part(
-        "TL431BIDBZR",
-        "TL431BIDBZR",
-        "Texas Instruments",
-        "Package_TO_SOT_SMD:SOT-23",
-        "https://www.ti.com/lit/ds/symlink/tl431.pdf",
-        "C41283",
-    );
-    for (i, (net, rail, y)) in [("REF_P", "+4V8", 49.), ("REF_N", "-4V8", 99.)]
-        .iter()
-        .enumerate()
+    // One three-resistor ladder per polarity: rail - 66.5k - LIM - 1k - OUT_LIM - 10k - GND.
+    for (i, (rail, lim, out_lim, y)) in [
+        ("+4V8", "LIM_P", "OUT_LIM_P", 40.),
+        ("-4V8", "LIM_N", "OUT_LIM_N", 90.),
+    ]
+    .iter()
+    .enumerate()
     {
-        let u = format!("U{}", 10 + i);
-        d.place(2, &u, "TL431", &shunt, (226., *y + 8.), 0, false, true);
-        let kat = if i == 0 { *net } else { "GND" };
-        let an = if i == 0 { "GND" } else { *net };
-        d.link(&u, "1", kat);
-        d.link(&u, "2", kat);
-        d.link(&u, "3", an);
-        d.two(
-            2,
-            &format!("R{}", 85 + i),
-            "R_Small_US",
-            &r("1 kR", "1K"),
-            (209., *y - 8.),
-            0,
-            rail,
-            net,
-            false,
-        );
-        for (j, (lim, rt, code)) in [
-            (if i == 0 { "LIM_P" } else { "LIM_N" }, "25.5 kR", "25K5"),
-            (
-                if i == 0 { "OUT_LIM_P" } else { "OUT_LIM_N" },
-                "29.4 kR",
-                "29K4",
-            ),
-        ]
-        .iter()
-        .enumerate()
-        {
-            let x = 265. + j as f64 * 30.;
-            d.two(
-                2,
-                &format!("R{}", 87 + i * 4 + j * 2),
-                "R_Small_US",
-                &r(rt, code),
-                (x, *y - 9.),
-                0,
-                net,
-                lim,
-                false,
-            );
-            d.two(
-                2,
-                &format!("R{}", 88 + i * 4 + j * 2),
-                "R_Small_US",
-                &r("10 kR", "10K"),
-                (x, *y + 9.),
-                0,
-                lim,
-                "GND",
-                false,
-            );
-        }
+        let x = 240. + i as f64 * 40.;
+        let base = 87 + i * 4;
+        d.two(2, &format!("R{base}"), "R_Small_US", &r("66.5 kR", "66K5"), (x, *y - 12.), 0, rail, lim, false);
+        d.two(2, &format!("R{}", base + 1), "R_Small_US", &r("1 kR", "1K"), (x, *y), 0, lim, out_lim, false);
+        d.two(2, &format!("R{}", base + 2), "R_Small_US", &r("10 kR", "10K"), (x, *y + 12.), 0, out_lim, "GND", false);
     }
+    d.text(2,(205.,112.),"Thresholds track the LDO rails; budget in tools/check.rs.\nInput clamps D1-D3 return to the rails; rail load absorbs clamp current.",1.27);
     d.block(
         2,
         (10., 130.),
         (194., 209.),
         "LOCAL DECOUPLING / RAIL REVERSAL DIODES",
     );
-    for i in 0..7 {
-        let x = 23. + i as f64 * 23.;
-        d.text(2, (x + 2., 142.), &format!("U{}", i + 1), 1.27);
+    for (i, u) in ["U1", "U3", "U12", "U5", "U6", "U7"].iter().enumerate() {
+        let x = 23. + i as f64 * 25.;
+        d.text(2, (x + 2., 142.), u, 1.27);
         for (j, (y, a, b)) in [(153., "+4V8", "GND"), (179., "GND", "-4V8")]
             .iter()
             .enumerate()
@@ -1771,15 +1672,13 @@ fn main() {
         }
         if i > 0 {
             for y in [144., 166., 190.] {
-                d.wire(2, (x - 23., y), (x, y));
-                if i < 6 {
+                d.wire(2, (x - 25., y), (x, y));
+                if i < 5 {
                     d.dot(2, (x, y));
                 }
             }
         }
     }
-    d.two(2, "C96", "C", &dec, (177., 153.), 0, "+4V8", "GND", false);
-    d.two(2, "C97", "C", &dec, (177., 179.), 0, "GND", "-4V8", false);
     d.power(2, (23., 144.), "+4V8");
     d.power(2, (23., 190.), "-4V8");
     d.wire(2, (23., 166.), (16., 166.));
@@ -1836,12 +1735,12 @@ fn main() {
     );
     d.two(2, "C95", "C", &dec, (277., 154.), 0, "+4V8", "RESET", false);
     let small_d = part(
-        "1N4148W,115",
-        "1N4148W,115",
-        "Nexperia",
+        "1N4148W-E3-18",
+        "1N4148W-E3-18",
+        "Vishay",
         "Diode_SMD:D_SOD-123",
-        "https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf",
-        "",
+        "https://www.vishay.com/docs/85748/1n4148w.pdf",
+        "C191428",
     );
     d.two(
         2,
