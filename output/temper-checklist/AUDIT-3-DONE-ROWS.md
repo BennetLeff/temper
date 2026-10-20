@@ -37,4 +37,4 @@ G-05 (decision; basis still IN PROGRESS), PWR-03, PWR-04 (vendor DFM pass), PWR-
 Caveat on "stands": a DONE decision in this list may still have an open consequence in another row. Example: PWR-21 (bridge devices) is a selection, and its thermal and clamp behaviour is open under the PWR-28 to PWR-44 rows.
 
 ## Proposed edits to CHECKLIST.md (not applied)
-Eight rows change status: FW-28, FW-26, CTL-08, PWR-01 and PWR-80 to IN PROGRESS/OPEN, ENC-35 to SUPERSEDED, ENC-18 on a check, and the status wording for the verified-versus-decided split. After that the DONE count would be about 43 rather than 50. I have not applied them because the checklist is the subagent's deliverable and the owner is auditing it; apply them if you want the file to match.
+Six rows change status: FW-28, FW-26, CTL-08, PWR-01 and PWR-80 move to IN PROGRESS or OPEN, and ENC-35 to SUPERSEDED. ENC-18 changes only if its CAD does not use the MPM-65 body. That leaves 44 DONE rows rather than 50 (43 if ENC-18 also drops). I have not applied the edits because the checklist is the subagent's deliverable and the owner is auditing it; apply them if you want the file to match.
