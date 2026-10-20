@@ -1,0 +1,37 @@
+--- a/validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py	2026-10-18 22:17:02
++++ b/validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py	2026-10-18 22:17:02
+@@ -53,8 +53,11 @@
+                    1206W4F100KT5E (V.3 p.4/9, p.5/9): 1/4 W at 70 C derating to 0 W at 155 C, range -55..155 C.
+                    2512: R10/R12/R18/R20 UniRoyal 25121WF680JT4E from stage 42 (thick-film chip resistor data sheet V.3
+                    2019-02-12: p.4/9 table 6 1 W at 70 C; p.5/9 table 7 -55..155 C, section 9 figure 1 linear to 0 W
+-                   at 155 C). Gated on the element (155 C) and on the derating line at the terminal with the R5 20 %
+-                   power margin; a gate resistor in any other package stops the gate
++                   at 155 C). From candidate 54: UniRoyal PS122WF680JT4E, PS12 2 W 2512 (UniRoyal product catalogue
++                   2023~2024 p.23: 2 W, derating 100 % at 70 C to 0 % at 155 C ambient, -55~+155 C; same 6.35 x 3.20 x
++                   0.55 mm body and terminals). The 2512 rating is picked by the run file's MPN (GATE_R_MPN). Gated on
++                   the element (155 C) and on the derating line at the terminal with the R5 20 % power margin; a gate
++                   resistor in any other package, or a 2512 of an unlisted MPN, stops the gate
+   rail monitors    (OPEN-ITEMS S16, monitor-probes-2026-10-15; hot-copper runs only, from the run files' probes):
+                    gated TA rows, pad-copper max + P x RthJA as the die / local-ambient proxy, limit = the T_A grade
+                    of the MPN the frozen BOM places there (MONITOR_GRADES): U17 / U19 / U21 TL431xI 85 C, TL431BQ
+@@ -110,6 +113,9 @@
+ GATE_R_PKG = {("on", "chip1206"): ("1206 element 155 C (FH RS-06L V11.0 p.2)", 155.0, 0.25),
+               ("off", "chip1206"): ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25),
+               ("on", "chip2512"): ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0)}
++# 2512 R_on rating by MPN (candidate 54): the package spec alone no longer fixes the rated power
++GATE_R_MPN = {"25121WF680JT4E": ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0),
++              "PS122WF680JT4E": ("2512 element 155 C (UniRoyal PS12 catalogue 2023~2024 p.23)", 155.0, 2.0)}
+ PKG_NAME = {"chip1206": "1206", "chip2512": "2512"}
+ BASIS = {"c17.5_h10": {"ceiling_a": 17.5, "h": 10, "bay_c": 61.0, "role": "release"},
+          "c22_h10": {"ceiling_a": 22.0, "h": 10, "bay_c": 55.0, "role": "ratchet"},
+@@ -400,6 +406,10 @@
+             if key not in GATE_R_PKG:
+                 raise SystemExit(f"b3_ratings_gate: no rating for gate resistor {p['ref']} in package spec {spec!r}")
+             basis, lim, rated_w = GATE_R_PKG[key]
++            if spec == "chip2512":
++                if p.get("mpn") not in GATE_R_MPN:
++                    raise SystemExit(f"b3_ratings_gate: no rating for 2512 gate resistor {p['ref']} MPN {p.get('mpn')!r}")
++                basis, lim, rated_w = GATE_R_MPN[p["mpn"]]
+             rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
+             lim_t = 155.0 - 85.0 * p["watts_into_model"] / (0.8 * rated_w)
+             rows.append(dict(item=f"{p['ref']}: {PKG_NAME[spec]} terminal derating at {p['watts_into_model']:.3f} W "

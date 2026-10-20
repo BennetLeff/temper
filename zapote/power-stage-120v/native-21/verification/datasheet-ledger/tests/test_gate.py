@@ -48,9 +48,9 @@ def main():
 
     # 1. the real ledger: the known VIOLATIONs (now none), no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a
     # fix lands or a new finding is recorded. History: DECISIONS 49 IPW65R018CFD7 S4 diode dv/dt (PARTIAL at stage 42,
-    # typical Qrr); 25121WF680JT4E failed the 80 % derating rule at the 22 A c22 point. 2026-10-15 batches A/B merge
+    # typical Qrr); PS122WF680JT4E failed the 80 % derating rule at the 22 A c22 point. 2026-10-15 batches A/B merge
     # (DECISIONS 56 stress basis): thermal ratings are judged at the release case c18_h10 (bay 61 C), electrical ones at
-    # s42's 49.7 V/ns S4 edge, so 25121WF680JT4E, CSS2H, the bank, ISO6721FB and 2EDR8259X all end PARTIAL.
+    # s42's 49.7 V/ns S4 edge, so PS122WF680JT4E, CSS2H, the bank, ISO6721FB and 2EDR8259X all end PARTIAL.
     KNOWN_VIOLATIONS = []
     rc, out, rep = run(LEDGER)
     expect("real ledger exits 1 on exactly the known violations (0 when there are none)",
@@ -60,7 +60,7 @@ def main():
            # stage 49: the bank was B32643B8104J000 (c34). Stage 51: KNSCHA MMK104J3DF1KN208G2. Stage 52 (prototype
            # BOM): TDK B32643H8104J000 (PARTIAL on its bench rating-basis / ESR / F_T / S25 / 28 A-route gaps; KNSCHA
            # and B32643B are not-fitted alternates)
-           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "B32643H8104J000",
+           rep and all(m in rep["partial"] for m in ("PS122WF680JT4E", "CSS2H-2512R-1L00F", "B32643H8104J000",
                                                      "ISO6721FBDR", "2EDR8259XXUMA1")),
            str(rep and rep["violations"]))
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))
@@ -142,6 +142,7 @@ def main():
         d["entries"]["1704004"]["status"] = "PARTIAL"
         d["entries"]["1704004"]["gaps"] = ["synthetic gap"]
         d["entries"]["0603WAF1002T5E"]["status"] = "VERIFIED"  # invalid on purpose: no datasheet
+        d["entries"]["0603WAF1002T5E"]["datasheet"] = None  # the live line gained one in c54; keep the case synthetic
         rc, out, rep = run(write(td, d), bom=bom)
         expect("VERIFIED without datasheet/ratings is rejected", rc == 1 and any("VERIFIED needs" in e for e in rep["errors"]))
 

@@ -100,9 +100,12 @@
 #define TANK_PEAK_PER_RMS      2.17f /* round 6 board-side-protection.csv, 22 A row */
 #define TANK_PEAK_PICKUP_A     3.0f
 #define TANK_PEAK_TRIP_CAP_A   62.0f
-/* config cap: below the stage-15 CT band low corner (64.55 A), so the firmware trip stays under
- * the hardware trip. CT_MON range is 80 A (62 A -> 2.58 V < 2.85 V). */
-#define TANK_PEAK_TRIP_MAX_A   64.5f
+/* config cap: just above TANK_PEAK_TRIP_CAP_A, the highest trip tank_peak_trip_for() returns, so it never
+ * binds on a derived trip (power-stage OPEN-ITEMS S29, 11-candidates/c54-ct-band). It stays under the CT
+ * comparators' low corner with room for the firmware's own CT_MON error (ESP32-S3 ATTEN3 +/-50 mV = 3.3 A):
+ * 2.05 A under 64.55 A (R44 / R45 10 k, boards to stage 53), 4.86 A under 67.36 A (R44 / R45 11 k). The
+ * hardware trip stays the backstop. CT_MON range is 80 A (62 A -> 2.58 V < 2.85 V). Was 64.5 A (0.05 A). */
+#define TANK_PEAK_TRIP_MAX_A   62.5f
 #define TANK_RMS_TRIP_RATIO    1.05f
 #define TANK_CREST_GUARD_RATIO 1.5f
 /* Peak estimate from the AD8436 per-sample envelope: sqrt(2) x crest RMS sample x 1.05, until

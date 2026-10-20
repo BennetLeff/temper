@@ -166,9 +166,13 @@ component Bias6k2:
     signal p2 ~ pin 2
 
 component Bias4k99:
+    """Panasonic ERJ-PA3F4991V 4.99 k 1 % 0603 anti-surge thick film (LCSC / JLC C4036134): the split bleeds R71 / R72 /
+    R74 / R75 (0.048 W each) and hb.rosc R131. Stage 54 (11-candidates/c54-release-margins): 0.25 W at 105 C ambient or
+    0.33 W at 130 C terminal, 0 W at 155 C, -55..155 C, AEC-Q200 (Panasonic ERJ P/PA/PM 29-Sep-23 p.2-3); the B3 release
+    margin of R75 goes +2.5 -> +41.6 K. Stages to 53: UniRoyal 0603WAF4991T5E, 0.1 W (C23046)."""
     designator_prefix = "R"
-    mpn = "0603WAF4991T5E"
-    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    mpn = "ERJ-PA3F4991V"
+    manufacturer = "Panasonic"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1

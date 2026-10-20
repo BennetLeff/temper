@@ -1,0 +1,445 @@
+{
+ "generated_by": "validation-results/11-candidates/c54-ledger-desk/scripts/apply_ledger.py",
+ "note": "Datasheet records for the c54 SIGNAL audit. Local copies are untrusted downloads kept outside the repo; sha256 prefixes re-verified on 2026-10-18; 'file_date' is the local copy's modification date (the fetch date of the lane that downloaded it). pages_used are PDF page indices cited by the ratings' sources.",
+ "records": {
+  "uniroyal": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha256_prefix16": "11cd644d5d8a34a6",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "0603WAF1000T5E",
+    "0603WAF1002T5E",
+    "0603WAF1003T5E",
+    "0603WAF2702T5E",
+    "0603WAF3302T5E",
+    "0603WAF4991T5E",
+    "0603WAF5601T5E",
+    "0603WAF1001T5E",
+    "0603WAF2200T5E",
+    "0603WAF0000T5E",
+    "1206W4F1001T5E",
+    "1206W4F100KT5E"
+   ],
+   "pages_used": [
+    4,
+    5,
+    6
+   ]
+  },
+  "yageo_rc": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/b426be3ce22c6de3e0c3a2248e49159e.pdf?productCode=C130275",
+   "revision": "Yageo RC_L series 0075-2512 product specification V.12 (Aug 02, 2022)",
+   "sha256_prefix16": "e7dbabb061192522",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-rc/PYu-RC_Group_51_RoHS_L.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "RC1206FR-072K2L",
+    "RC1206FR-073RL",
+    "RC1206FR-0716K5L"
+   ],
+   "pages_used": [
+    2,
+    6,
+    7
+   ]
+  },
+  "yageo_rl": {
+   "url": "https://store.comet.bg/download-file.php?id=22105",
+   "revision": "Yageo RL series 0402-2512 product specification V.3 (Apr 07, 2023), distributor mirror (Yageo URL 404)",
+   "sha256_prefix16": "a222719aba346137",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-rl/comet-22105.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "RL1206FR-070R68L"
+   ],
+   "pages_used": [
+    2,
+    5,
+    6
+   ]
+  },
+  "yageo_rt": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha256_prefix16": "0a729d144519a702",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "RT0603BRD07105KL",
+    "RT0603BRD0710KL",
+    "RT0603BRD0711KL",
+    "RT0603BRD07140KL",
+    "RT0603BRD0715K8L",
+    "RT0603BRD072K21L",
+    "RT0603BRD074K42L",
+    "RT0603BRD0763K4L",
+    "RT0603BRD076K2L",
+    "RT0603BRD071KL",
+    "RT0603BRD0749K9L"
+   ],
+   "pages_used": [
+    5,
+    6
+   ]
+  },
+  "tnpw": {
+   "url": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+   "revision": "Vishay TNPW e3 doc 28758, rev 10-Apr-2026",
+   "sha256_prefix16": "6f0508c568cb355a",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/vishay_tnpw.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "TNPW060311K7BEEA"
+   ],
+   "pages_used": [
+    1,
+    2
+   ]
+  },
+  "kemet_c0g": {
+   "url": "https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf",
+   "revision": "KEMET C1003 C0G SMD commercial grade (2/20/2025)",
+   "sha256_prefix16": "02d179914aeb9585",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/kemet-c0g/KEM_C1003_C0G_SMD.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "C0603C102J5GACTU"
+   ],
+   "pages_used": [
+    1
+   ]
+  },
+  "yageo_cc": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/23ccee80ee542e7cf156a772bb589942.pdf?productCode=C14663",
+   "revision": "Yageo CC general purpose X7R 6.3-250 V, V.26 (Nov 19, 2024)",
+   "sha256_prefix16": "61a606825ab314ea",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-cc/yageo-cc-x7r-lcsc-C14663.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "CC0603KRX7R9BB104",
+    "CC0805KRX7R9BB104"
+   ],
+   "pages_used": [
+    2
+   ]
+  },
+  "CL05B104KB54PNC": {
+   "url": "https://product.samsungsem.com/mlcc/CL05B104KB54PN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL05B104KB54PN, issued JUL.15.2025",
+   "sha256_prefix16": "92054b775800cad8",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL05B104KB54PN-specsheet/CL05B104KB54PN-specsheet.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "CL05B104KB54PNC"
+   ],
+   "pages_used": [
+    1
+   ]
+  },
+  "CL10C101JB8NNNC": {
+   "url": "https://product.samsungsem.com/mlcc/CL10C101JB8NNN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL10C101JB8NNN, issued JUL.17.2020",
+   "sha256_prefix16": "aec8f5c040150719",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL10C101JB8NNN-specsheet/CL10C101JB8NNN-specsheet.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "CL10C101JB8NNNC"
+   ],
+   "pages_used": [
+    1
+   ]
+  },
+  "CL10C331JB8NNNC": {
+   "url": "https://product.samsungsem.com/mlcc/CL10C331JB8NNN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL10C331JB8NNN, issued JUL.17.2020",
+   "sha256_prefix16": "78b8db7110ad25cd",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL10C331JB8NNN-specsheet/CL10C331JB8NNN-specsheet.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "CL10C331JB8NNNC"
+   ],
+   "pages_used": [
+    1
+   ]
+  },
+  "CL21B105KBFNNNE": {
+   "url": "https://product.samsungsem.com/mlcc/CL21B105KBFNNN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL21B105KBFNNN, issued MAY.09.2024",
+   "sha256_prefix16": "583b7deb63d39dd5",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL21B105KBFNNN-specsheet/CL21B105KBFNNN-specsheet.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "CL21B105KBFNNNE"
+   ],
+   "pages_used": [
+    1
+   ]
+  },
+  "GRM188R71E105KA12D": {
+   "url": "https://store.comet.bg/download-file.php?id=22967",
+   "revision": "Murata product data sheet GRM188R71E105KA12#, last updated 04/27/2021 (distributor mirror)",
+   "sha256_prefix16": "5421aafe2e0574d4",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/murata/GRM188R71E105KA12D/comet-22967.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "GRM188R71E105KA12D"
+   ],
+   "pages_used": [
+    2
+   ]
+  },
+  "GRM21BZ71E106KE15L": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/25c25013e9e59794670905e9d029f396.pdf?productCode=C237493",
+   "revision": "Murata reference sheet GRM21BZ71E106KE15-01A (as of Jan.9, 2025)",
+   "sha256_prefix16": "8a398f916d26f901",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/murata/GRM21BZ71E106KE15L/GRM21BZ71E106KE15L-lcsc-C237493.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "GRM21BZ71E106KE15L"
+   ],
+   "pages_used": [
+    2
+   ]
+  },
+  "GRM31C5C1H104JA01L": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/357d841984a94b5db925be64cf2c2923.pdf?productCode=C97946",
+   "revision": "Murata reference sheet GRM31C5C1H104JA01_ (as of Mar.5, 2016)",
+   "sha256_prefix16": "5c84ef333cecfe38",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/murata/GRM31C5C1H104JA01L/GRM31C5C1H104JA01L-lcsc-C97946.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "GRM31C5C1H104JA01L"
+   ],
+   "pages_used": [
+    1
+   ]
+  },
+  "svpc": {
+   "url": "https://industrial.panasonic.com/cdbs/www-data/pdf/AAB8000/AAB8000C256.pdf",
+   "revision": "Panasonic OS-CON SVPC series AAB8000C256 (series pages 06-Feb-17, PDF 2025-10-29)",
+   "sha256_prefix16": "1c506b7474c01158",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/panasonic-svpc-official/AAB8000C256.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "6SVPC220MV"
+   ],
+   "pages_used": [
+    2
+   ]
+  },
+  "sn74lvc1g00": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf",
+   "revision": "TI SCES212AC (April 1999, revised August 2026)",
+   "sha256_prefix16": "1264f79853e6119b",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g00/sn74lvc1g00.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "SN74LVC1G00DBVR"
+   ],
+   "pages_used": [
+    4,
+    5
+   ]
+  },
+  "sn74lvc1g10": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g10.pdf",
+   "revision": "TI SCES486E (September 2003, revised December 2013)",
+   "sha256_prefix16": "4902c8770413a400",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g10/sn74lvc1g10.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "SN74LVC1G10DBVR"
+   ],
+   "pages_used": [
+    2,
+    3
+   ]
+  },
+  "sn74lvc1g17": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+   "revision": "TI SCES351Y (July 2001, revised October 2025)",
+   "sha256_prefix16": "c76fa723fac45024",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g17/sn74lvc1g17.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "SN74LVC1G17DBVR"
+   ],
+   "pages_used": [
+    4,
+    5
+   ]
+  },
+  "sn74lvc1g332": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf",
+   "revision": "TI SCES489E (September 2003, revised December 2013)",
+   "sha256_prefix16": "5ecad3180cb93664",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g332/sn74lvc1g332.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "SN74LVC1G332DBVR"
+   ],
+   "pages_used": [
+    2,
+    3
+   ]
+  },
+  "sn74lvc1g132": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf",
+   "revision": "TI SCES546E (February 2004, revised August 2026)",
+   "sha256_prefix16": "fae33d78fe46834a",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g132/sn74lvc1g132.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "SN74LVC1G132DBVR"
+   ],
+   "pages_used": [
+    4,
+    5
+   ]
+  },
+  "tlv3201": {
+   "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+   "revision": "TI SBOS561C (March 2012, revised May 2024)",
+   "sha256_prefix16": "1777bba814c74772",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/tlv3201/tlv3201.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "TLV3201AIDBVR"
+   ],
+   "pages_used": [
+    4,
+    5
+   ]
+  },
+  "tlvh431": {
+   "url": "https://www.ti.com/lit/ds/symlink/tlvh431.pdf",
+   "revision": "TI SLVS555N (November 2004, revised June 2024)",
+   "sha256_prefix16": "e30d628cb6475d48",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s16-monitor-dl/tlvh431.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "TLVH431BQDBZR"
+   ],
+   "pages_used": [
+    5
+   ]
+  },
+  "tps3700": {
+   "url": "https://www.ti.com/lit/ds/symlink/tps3700.pdf",
+   "revision": "TI SBVS187G (February 2012, revised February 2019)",
+   "sha256_prefix16": "3bb7daed20b154bf",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s16-fmea-b-dl/tps3700/tps3700.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "TPS3700DDCR"
+   ],
+   "pages_used": [
+    5
+   ]
+  },
+  "tps7a47": {
+   "url": "https://www.ti.com/lit/ds/symlink/tps7a47.pdf",
+   "revision": "TI SBVS204G (June 2012, revised May 2026)",
+   "sha256_prefix16": "8ca46a9968923d2e",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/pin-absmax-dl/pdf/tps7a47.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "TPS7A4700RGWR"
+   ],
+   "pages_used": [
+    4,
+    5
+   ]
+  },
+  "bas116h": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/3effef0d92ac4111bb2691a2d714473d.pdf?productCode=C74210",
+   "revision": "Nexperia BAS116H Rev. 3, 31 May 2011 (LCSC copy; assets.nexperia.com 403)",
+   "sha256_prefix16": "04966fbaa922997c",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/bas116h/BAS116H_lcsc_C74210.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "BAS116H,115"
+   ],
+   "pages_used": [
+    2
+   ]
+  },
+  "pmeg": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/598a8a4be41fa942ad873c7b94285078.pdf?productCode=C456127",
+   "revision": "Nexperia PMEG6030EP product data sheet, 7 November 2017 (LCSC copy; assets.nexperia.com 403)",
+   "sha256_prefix16": "89bc99ad6f4835fb",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/pmeg6030ep/PMEG6030EP_lcsc_C456127.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "PMEG6030EP,115"
+   ],
+   "pages_used": [
+    3
+   ]
+  },
+  "molex": {
+   "url": "https://www.molex.com/pdm_docs/ps/PS-43045-001.pdf",
+   "revision": "Molex PS-43045 Micro-Fit 3.0 dual row product specification, Rev R (2025-11-14)",
+   "sha256_prefix16": "b5f03865599a0576",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/conn/molex43045/PS-43045-001.pdf",
+   "sha_reverified_2026_10_18": true,
+   "file_date": "2026-10-15",
+   "lines": [
+    "0430451612"
+   ],
+   "pages_used": [
+    7,
+    8
+   ]
+  }
+ },
+ "extra": {
+  "30KPA150CA Littelfuse": {
+   "revision": "Revised BA.08/27/20",
+   "sha256_prefix16": "1fe25d7c0973063d",
+   "local_copy": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/30kpa-littelfuse/30KPA_littelfuse_lcsc_C19111562.pdf",
+   "pages_used": [
+    1,
+    2
+   ],
+   "sha_reverified_2026_10_18": true
+  },
+  "KEMET R46 X2 (repo copy)": {
+   "repo_copy": "validation-results/07-conducted-emi/sources/KEM_F3095_R46_X2_310_110C.pdf",
+   "sha256_prefix16": "5a3131ce8de74451",
+   "pages_used": [
+    6,
+    8
+   ],
+   "sha_reverified_2026_10_18": true
+  }
+ }
+}

@@ -114,6 +114,38 @@ STAGE_FACTS = {
         # bench OVP supply limit: must sit above the OVP band top and below the D3 / D17 string stand-off
         "ovp_supply_limit_v": 295.0, "ovp_supply_current_ma": 50,
     },
+    "54": {
+        # kelvin_budget.py s54 note (no OCP part or OCP-net copper change; R35 keeps 11 k, its line now also
+        # carries R44 / R45); DECISIONS 81. The OCP band record is still s52's own solve, carried.
+        "band_record": "11-candidates/s52-proto-bom/results/bands-s52.json",
+        "band_basis_key": "band_basis_s52",
+        "band_record_cite": "s52 solve carried to s54 (kelvin_budget.py s53 / s54 notes, DECISIONS 75 / 81)",
+        # DECISIONS 23 (stage 20): CST3015-200ED is 1:200 (was -100ED 1:100).
+        "ct_ratio": {"CST3015-200ED": 200, "CST3015-100ED": 100},
+        # DECISIONS 73 / 74, OPEN-ITEMS S28: bank part -> (fit mark, ladder stop A, basis).
+        "bank": {
+            "B32643H8104J000": ("H", 24.0, "vendor ratio 0.844 and strict gate 0.862 at 24 A; 26 A fails the 85 % rule "
+                                "(0.915); pre-build gate S25 on C22: ΔT ≤ 20 K × F_T(T_A)² and T_A + ΔT ≤ 125 °C "
+                                "(DECISIONS 74, OPEN-ITEMS S25 / S28)"),
+            "B32643B8104J000": ("B", 28.0, "26 / 28 A bench-gated per step; the mark raises nothing (DECISIONS 74)"),
+            "MMK104J3DF1KN208G2": ("none (27.5 mm hole)", 22.0, "24 A only with the bench gap-flow credit, S25 "
+                                   "(DECISIONS 73)"),
+        },
+        # DECISIONS 71 (c50 option P, SPICE 96 corners; review section 6 bench bounds).
+        "bias_good_timing": [
+            ("B15a", "PERMIT ↑ → DIS ↓", "≤ 13.6 µs, plus the 2EDR8259X DIS-to-output delay (unpublished; C39)"),
+            ("B15b", "PERMIT ↑ → GPIO35 ≥ VIH", "≤ 0.53 ms"),
+            ("B15c", "PERMIT ↓ → TP19 ↓ (hold node below U40 VT− min)", "≤ 90.3 µs; ≤ 122.9 µs with one pump cap shorted"),
+            ("B15d", "PERMIT ↓ → GPIO35 ≤ VIL", "≤ 0.36 ms"),
+        ],
+        # OPEN-ITEMS S18 residual (1): "the firmware's 60 kHz window top is a PS2 rating constraint".
+        "ps2_window_top_hz": 60000,
+        # DECISIONS 61 / 56: the ladder steps; DECISIONS 9 / kelvin_budget FLOOR: 3.0 A pickup + 2 A margin.
+        "ladder": [17.5, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0],
+        "floor_pickup_a": 3.0, "floor_margin_a": 2.0,
+        # bench OVP supply limit: must sit above the OVP band top and below the D3 / D17 string stand-off
+        "ovp_supply_limit_v": 295.0, "ovp_supply_current_ma": 50,
+    },
 }
 
 # role (ato address) -> designator the procedure and the threshold engine assume
@@ -176,6 +208,8 @@ def mpn_ohms(mpn: str) -> float | None:
         (r"RC(?:0402|0603|0805|1206|2512)FR-07(\w+)L", lambda g: _code(g[0])),  # Yageo RC 1 %
         (r"(?:0603WAF|0402WGF|1206W4F|0805W8F)(\d{3})(\d)T5E", lambda g: int(g[0]) * 10 ** int(g[1])),
         (r"25121WF(\d{2})(\d)JT4E", lambda g: int(g[0]) * 10 ** int(g[1])),
+        (r"PS122WF(\d{2})(\d)JT4E", lambda g: int(g[0]) * 10 ** int(g[1])),       # UniRoyal PS12 2 W (stage 54 R_on)
+        (r"ERJ-PA3F(\d{3})(\d)V", lambda g: int(g[0]) * 10 ** int(g[1])),          # Panasonic ERJ-PA3 1 % (stage 54)
         (r"TNPW0603(\w+)BEEA", lambda g: _code(g[0])),
         (r"CSS2H-2512R-(\d)L(\d{2})F", lambda g: float(f"{g[0]}.{g[1]}") * 1e-3),
     ):
@@ -279,7 +313,7 @@ def render() -> tuple[str, list[str]]:
     for f in ("default.csv", "default.net"):   # the engine's validate_inputs reads the unit-level frozen copy
         if _sha(PS / "frozen" / f) != _sha(FROZEN / f):
             raise GateError(f"zapote/power-stage-120v/frozen/{f} differs from native-21/frozen/{f}")
-    over = {r: bom[r] for r in ("R5", "R32", "R33", "R34", "R35", "R39", "R43", "R46")}
+    over = {r: bom[r] for r in ("R5", "R32", "R33", "R34", "R35", "R39", "R43", "R44", "R45", "R46")}
     thr.validate_inputs(overrides=over)
     rt = (0.001, 25e-6)
     for r in ("R30", "R32", "R33", "R34", "R35", "R36", "R37", "R40", "R41", "R43", "R44", "R45", "R46"):
@@ -330,11 +364,14 @@ def render() -> tuple[str, list[str]]:
     r0_c28 = tlv[("c28_h10", "R0", "Q1")]["ocp_before_A"]
     r1_rel = tlv[("c17.5_h10", "R1", "Q1")]["ocp_before_A"]
 
-    # --- B3 temperature of the CT burden (the only CT part with a gated B3 row)
+    # --- B3 temperature of the CT network: R39 always; R40-R46 once B3 gates them (stage 54, "tank-CT band basis" rows)
     mg = json.loads(read(MARGINS))
     if set(mg["board_sha256"].values()) != {rec["board"]}:
         raise GateError(f"{rel(MARGINS)} is not solved on board {rec['board'][:12]}")
     r39_t = max(r["est_c"] for rows_ in mg["cases"].values() for r in rows_ if r["item"].startswith("R39:"))
+    ct_refs = [r for rows_ in mg["cases"].values() for r in rows_
+               if r["item"].split(":")[0] in ("R40", "R41", "R43", "R44", "R45", "R46") and "tank-CT band basis" in r["item"]]
+    ct_ref = max(ct_refs, key=lambda r: r["est_c"]) if ct_refs else None
 
     # --- D3 / D17 stand-off (datasheet ledger)
     led = json.loads(read(LEDGER))
@@ -395,8 +432,11 @@ def render() -> tuple[str, list[str]]:
     crest = c_define(TANK_FREQ_H, "TANK_CREST_GUARD_RATIO")
     ship_a = int(kc["TEMPER_POWER_TANK_CEILING_DA"]) / 10
     ct_low = min(ct_band["ct_pos_a"][0], ct_band["ct_neg_a"][0])
-    if not trip_max < ct_low:
-        findings.append(f"TANK_PEAK_TRIP_MAX_A {trip_max} A is not below the CT band low corner {ct_low} A")
+    # OPEN-ITEMS S29 (c54-ct-band): the cap needs max(1 A, 2 %) under the corner, not just "below" (it was 0.05 A)
+    b17_need = max(1.0, 0.02 * trip_max)
+    if ct_low - trip_max < b17_need:
+        findings.append(f"TANK_PEAK_TRIP_MAX_A {trip_max} A is {ct_low - trip_max:.2f} A below the CT band low corner "
+                        f"{ct_low} A; the rule is {b17_need:.2f} A (max(1 A, 2 %))")
     fmax_hi = int(kc["TEMPER_POWER_F_MAX_HZ.range"].split()[1])
     if fmax_hi > facts["ps2_window_top_hz"] or int(kc["TEMPER_POWER_F_MAX_HZ"]) > facts["ps2_window_top_hz"]:
         findings.append(f"TEMPER_POWER_F_MAX_HZ allows {fmax_hi} Hz, above the PS2 window top {facts['ps2_window_top_hz']} Hz")
@@ -467,8 +507,12 @@ def render() -> tuple[str, list[str]]:
         f"**band {ct_band['ct_pos_a'][0]:.2f}–{ct_band['ct_pos_a'][1]:.2f} A (+), "
         f"{ct_band['ct_neg_a'][0]:.2f}–{ct_band['ct_neg_a'][1]:.2f} A (−)**", "`round3/thresholds.py` exact_corners, "
         "−10 / 85 °C uniform, v3v3 3.135–3.465 V, the frozen parts")
-    row("B10", "CT network temperature basis", f"R39 B3 maximum {r39_t:.1f} °C (≤ the 85 °C corner); R40–R46 have no "
-        "B3 row: **provisional** (assumed ≤ 85 °C)", f"`{rel(MARGINS)}`")
+    if ct_ref is None:
+        b10 = f"R39 B3 maximum {r39_t:.1f} °C (≤ the 85 °C corner); R40–R46 have no B3 row: **provisional** (assumed ≤ 85 °C)"
+    else:
+        b10 = (f"R39 B3 maximum {r39_t:.1f} °C; R40–R46 gated B3 rows, maximum {ct_ref['est_c']:.1f} °C "
+               f"({ct_ref['item'].split(':')[0]}); all ≤ the 85 °C corner")
+    row("B10", "CT network temperature basis", b10, f"`{rel(MARGINS)}`")
     row("B11", "VBUS sense (U4 " + bom["U4"] + ")", f"k = R30 / (R26..R30) = {k_board * 1e3:.4f} × 10⁻³; "
         f"controller receiver: ADC = {d11['bias_V'] * 1e3:.2f} mV + 0.5 × k × V_bus; firmware over-range "
         f"{ovr_mv:g} mV = **{ovr_v:.1f} V** (D-11 ±6 %: {ovr_v * 0.94:.1f}–{ovr_v * 1.06:.1f} V)",
@@ -491,7 +535,9 @@ def render() -> tuple[str, list[str]]:
         f"rating constraint; Kconfig default {kc['TEMPER_POWER_F_MAX_HZ']}, range {kc['TEMPER_POWER_F_MAX_HZ.range']}",
         "OPEN-ITEMS S18 residual 1; Kconfig")
     row("B17", "Firmware peak-trip config cap", f"`TANK_PEAK_TRIP_MAX_A` {trip_max:g} A against the B9 low corner "
-        f"{ct_low:.2f} A: {'below (holds)' if trip_max < ct_low else '**NOT below**'}", "`tank_freq.h`; B9")
+        f"{ct_low:.2f} A: {ct_low - trip_max:.2f} A under it "
+        f"({'holds' if ct_low - trip_max >= max(1.0, 0.02 * trip_max) else '**under the max(1 A, 2 %) rule**'}; "
+        f"derived trips stop at `TANK_PEAK_TRIP_CAP_A` {cap:g} A)", "`tank_freq.h`; B9")
     # --- bring-up with BR1 left out (owner decision 2026-10-18): what joins mains to the bus, PS2's output, and
     #     where the isolated DC supply lands on the bus
     br1 = {p: n for n, nodes in nets.items() for r, p in nodes if r == "BR1"}

@@ -1,0 +1,2146 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 12,
+   "list": [
+    {
+     "componentId": 345726,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X1,Y1 1nF \u00b120% 250V \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102ma4bn01f_C373381.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0977
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.0781
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.0683
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.061
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0552
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0523
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.0752
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0941
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0504
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0587
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.0658
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0532
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "345726-DE1E3RA102MA4BN01F/C373381",
+     "leastPatchNumber": 2,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.24905,
+     "preMinPurchaseNum": 116,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0977,
+     "componentCode": "C373381",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MA4BN01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583524341216104448",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2011121534_Murata-Electronics-DE1E3RA102MA4BN01F_C373381.pdf",
+     "dataManualFileAccessId": "8588931929705467904",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MA4BN01F",
+     "minImage": "",
+     "minImageAccessId": "8583524342193917952",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 250V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MA4BN01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 748806,
+     "componentLibraryType": "expand",
+     "stockCount": 279,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X1,Y1 1nF \u00b120% 500V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102ma4bq01f_C710534.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1701
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.1351
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.1201
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1013
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.093
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0879
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1638
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0895
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.1301
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0976
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0847
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.1157
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 149,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "748806-DE1E3RA102MA4BQ01F/C710534",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.42582,
+     "preMinPurchaseNum": 67,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1701,
+     "componentCode": "C710534",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MA4BQ01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583728054728601600",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Murata-Electronics-DE1E3RA102MA4BQ01F_C710534.pdf",
+     "dataManualFileAccessId": "8589900335780298752",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MA4BQ01F",
+     "minImage": "",
+     "minImageAccessId": "8583728055608729600",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 500V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MA4BQ01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 748807,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1nF \u00b120% 300V \u7b49\u7ea7:X1,Y1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mn4ap01f_C710535.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1444
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1161
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 599,
+       "productPrice": 0.1019
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.0913
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.0828
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.0786
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.088
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1391
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1119
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.0798
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 599,
+       "productPrice": 0.0982
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.0757
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 3,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "748807-DE1E3RA102MN4AP01F/C710535",
+     "leastPatchNumber": 2,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 600,
+     "shopCostPrice": 0.36462,
+     "preMinPurchaseNum": 78,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1444,
+     "componentCode": "C710535",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MN4AP01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583728055160614912",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Murata-Electronics-DE1E3RA102MN4AP01F_C710535.pdf",
+     "dataManualFileAccessId": "8589900335784628224",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MN4AP01F",
+     "minImage": "",
+     "minImageAccessId": "8583728056100274176",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 300V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MN4AP01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 750061,
+     "componentLibraryType": "expand",
+     "stockCount": 4,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X1,Y1 1nF \u00b120% 250V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mn4an01f_C711571.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1746
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1445
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 599,
+       "productPrice": 0.1295
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.1183
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.1093
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.1047
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 600,
+       "endNumber": 2399,
+       "productPrice": 0.1139
+      },
+      {
+       "startNumber": 4800,
+       "endNumber": -1,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1682
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1392
+      },
+      {
+       "startNumber": 2400,
+       "endNumber": 4799,
+       "productPrice": 0.1053
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 599,
+       "productPrice": 0.1248
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 4,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "750061-DE1E3RA102MN4AN01F/C711571",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 600,
+     "shopCostPrice": 0.38345,
+     "preMinPurchaseNum": 63,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1746,
+     "componentCode": "C711571",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MN4AN01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583811309100417024",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Murata-Electronics-DE1E3RA102MN4AN01F_C711571.pdf",
+     "dataManualFileAccessId": "8590162945582788608",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MN4AN01F",
+     "minImage": "",
+     "minImageAccessId": "8583811310027358208",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 250V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MN4AN01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 948049,
+     "componentLibraryType": "expand",
+     "stockCount": 4,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X1,Y1 1nF \u00b120% 250V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mj4bn01f_C882979.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0706
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.069
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.068
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 509,
+       "productPrice": 0.067
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 519,
+       "productPrice": 0.067
+      },
+      {
+       "startNumber": 520,
+       "endNumber": -1,
+       "productPrice": 0.067
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 509,
+       "productPrice": 0.0645
+      },
+      {
+       "startNumber": 520,
+       "endNumber": -1,
+       "productPrice": 0.0645
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.068
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0664
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0655
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 519,
+       "productPrice": 0.0645
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 4,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "948049-DE1E3RA102MJ4BN01F/C882979",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.31962,
+     "preMinPurchaseNum": 131,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0706,
+     "componentCode": "C882979",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MJ4BN01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583853013194706944",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201242130_Murata-Electronics-DE1E3RA102MJ4BN01F_C882979.pdf",
+     "dataManualFileAccessId": "8590171200933691392",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MJ4BN01F",
+     "minImage": "",
+     "minImageAccessId": "8583853014104330240",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 250V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MJ4BN01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1714355,
+     "componentLibraryType": "expand",
+     "stockCount": 148,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X1,Y1 1nF \u00b120% 500V \u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mn4aq01f_C1623509.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4964
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4882
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4817
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.4768
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.4768
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.4768
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.4593
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4703
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.4593
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4782
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.4593
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.464
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 148,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "1714355-DE1E3RA102MN4AQ01F/C1623509",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 1.81953,
+     "preMinPurchaseNum": 19,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4964,
+     "componentCode": "C1623509",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MN4AQ01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8767605806487887872",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201191130_Murata-Electronics-DE1E3RA102MN4AQ01F_C1623509.pdf",
+     "dataManualFileAccessId": "8588921547532328960",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MN4AQ01F",
+     "minImage": "",
+     "minImageAccessId": "8767605807615750144",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 500V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MN4AQ01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7169967,
+     "componentLibraryType": "expand",
+     "stockCount": 3980,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1nF \u00b120% 300V 440V \u7b49\u7ea7:X1,Y1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102ma4bp01f_C6224759.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0876
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.0709
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.0626
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0562
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0513
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0487
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0542
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0469
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0844
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.0603
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0494
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 249,
+       "productPrice": 0.0683
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 3976,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "7169967-DE1E3RA102MA4BP01F/C6224759",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.21342,
+     "preMinPurchaseNum": 128,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0876,
+     "componentCode": "C6224759",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MA4BP01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8784197650270621696",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308111348_Murata-Electronics-DE1E3RA102MA4BP01F_C6224759.pdf",
+     "dataManualFileAccessId": "8602534066550300672",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MA4BP01F",
+     "minImage": "",
+     "minImageAccessId": "8784197650719682560",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 300V\u3001440V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "300V\u3001440V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MA4BP01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 973773,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "DE1E3RA102MTMBP01F",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/through-hole-ceramic-capacitors_murata-electronics-de1e3ra102mtmbp01f_C907723.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0543
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0445
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0396
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0358
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0329
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0314
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": 39999,
+       "productPrice": 0.0311
+      },
+      {
+       "startNumber": 40000,
+       "endNumber": -1,
+       "productPrice": 0.0309
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0302
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0345
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0523
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0381
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0428
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0317
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": 39999,
+       "productPrice": 0.0299
+      },
+      {
+       "startNumber": 40000,
+       "endNumber": -1,
+       "productPrice": 0.0298
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "364a42e16f3c4d62838511fe993589d6",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "973773-DE1E3RA102MTMBP01F/C907723",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.127,
+     "preMinPurchaseNum": 203,
+     "minPurchaseNum": 203,
+     "initialPrice": 0.0445,
+     "componentCode": "C907723",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MTMBP01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583843520595021824",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MTMBP01F",
+     "minImage": "",
+     "minImageAccessId": "8583843521476907008",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "\u63d2\u4ef6,P=10mm Safety Capacitors ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MTMBP01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 973869,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Through Hole Ceramic Capacitors",
+     "erpComponentName": "1000pF \u00b120%",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2103
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1589
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.1494
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.14
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1357
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1336
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1287
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.144
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2026
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1308
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1348
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1531
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "C373381",
+     "urlSuffix": "973869-DE1E3RA102MA4BN01F/C907968",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "C373381",
+     "replaceUrlSuffix": "345726-DE1E3RA102MA4BN01F/C373381",
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.63132,
+     "preMinPurchaseNum": 61,
+     "minPurchaseNum": 61,
+     "initialPrice": 0.1494,
+     "componentCode": "C907968",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MA4BN01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585234876669046784",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MA4BN01F",
+     "minImage": "",
+     "minImageAccessId": "8585234877596123136",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "\u63d2\u4ef6 Through Hole Ceramic Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Pin Spacing",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Body Thickness",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Diameter",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Through Hole Ceramic Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MA4BN01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5700207,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1nF \u00b120% 500V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mj4bq01f_C5119294.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3196
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2575
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2311
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1979
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1757
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1669
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1607
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2226
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3079
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1693
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1907
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2481
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "5700207-DE1E3RA102MJ4BQ01F/C5119294",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.7533,
+     "preMinPurchaseNum": 40,
+     "minPurchaseNum": 40,
+     "initialPrice": 0.2311,
+     "componentCode": "C5119294",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MJ4BQ01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584839296355848192",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2207251801_Murata-Electronics-DE1E3RA102MJ4BQ01F_C5119294.pdf",
+     "dataManualFileAccessId": "8590235268868435968",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MJ4BQ01F",
+     "minImage": "",
+     "minImageAccessId": "8584839297254510592",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 500V \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "safety certification",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MJ4BQ01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7556258,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1nF \u00b120% 440V 400V \u7b49\u7ea7:X1,Y1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mj4bh01f_C6601326.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1916
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1537
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1374
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1171
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1081
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1028
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1128
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.099
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1845
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1042
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1323
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1481
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "7556258-DE1E3RA102MJ4BH01F/C6601326",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.46032,
+     "preMinPurchaseNum": 48,
+     "minPurchaseNum": 48,
+     "initialPrice": 0.1916,
+     "componentCode": "C6601326",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MJ4BH01F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8796221531506925568",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308111502_Murata-Electronics-DE1E3RA102MJ4BH01F_C6601326.pdf",
+     "dataManualFileAccessId": "8601067640874426368",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MJ4BH01F",
+     "minImage": "",
+     "minImageAccessId": "8796221532320215040",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 400V\u3001440V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "400V\u3001440V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MJ4BH01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21369470,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "1nF \u00b120% 440V 400V \u7b49\u7ea7:Y1 \u7b49\u7ea7:X1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra102mn4ah01f_C20041506.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.121
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.121
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.121
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0484
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1199,
+       "productPrice": 0.0467
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 0.0459
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0466
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.1166
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.1166
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1166
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 0.0442
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1199,
+       "productPrice": 0.045
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "21369470-DE1E3RA102MN4AH01F/C20041506",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 600,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 75,
+     "minPurchaseNum": 75,
+     "initialPrice": 0.121,
+     "componentCode": "C20041506",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA102MN4AH01F",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2403280919_Murata-Electronics-DE1E3RA102MN4AH01F_C20041506.pdf",
+     "dataManualFileAccessId": "8603479812359413760",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA102MN4AH01F",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 1nF 400V\u3001440V Y1\u3001X1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "400V\u3001440V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "Y1\u3001X1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA102</span>MN4AH01F",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "DE1E3RA102"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-19T04:01:21Z"
+}

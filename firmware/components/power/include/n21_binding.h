@@ -93,8 +93,9 @@ typedef struct {
     float tank_rms_trip_a;     /* half-cycle RMS trip: 1.05 x ceiling */
     float tank_crest_guard_a;  /* per AD8436 sample: 1.5 x ceiling */
     float tank_peak_trip_a;    /* raw CT_MON instantaneous: min(2.17 x ceiling + 3, 62) A, kept
-                                * below TANK_PEAK_TRIP_MAX_A (64.5 A, the stage-15 CT band low
-                                * corner 64.55 A); the hardware CT/shunt bands are the backstop */
+                                * below TANK_PEAK_TRIP_MAX_A (62.5 A, under the CT band low corner:
+                                * 64.55 A to stage 53, 67.36 A with R44 / R45 11 k); the hardware
+                                * CT/shunt bands are the backstop */
     float cos_phi_min_current_a; /* below this CT_ZC is undefined: cos(phi) := 1 (conservative) */
     uint32_t acq_period_us, sample_max_age_us, ct_zc_max_age_us, capture_age_us, half_max_gap_us;
     uint32_t bench_max_ms;

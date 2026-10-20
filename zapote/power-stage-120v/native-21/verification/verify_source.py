@@ -48,8 +48,9 @@ def main() -> None:
     assert parts['r_blw']['mpn'] == 'AC05000001507JAC00'   # stage 28: J11 fault-current limiter
     for leg in ('leg_a', 'leg_b'):   # stage 29 (DECISIONS 31): 2EDR8259X drivers with 8.2 ohm gates
         assert parts[f'{leg}.driver']['mpn'] == '2EDR8259XXUMA1'
-        # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and 4.7 nF C0G Cgs
-        assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == '25121WF680JT4E'
+        # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and 4.7 nF C0G Cgs; stage 54
+        # (11-candidates/c54-release-margins): UniRoyal PS12 2 W PS122WF680JT4E on the same land (was 25121WF680JT4E, 1 W)
+        assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == 'PS122WF680JT4E'
         assert parts[f'{leg}.r_gh']['footprint'] == parts[f'{leg}.r_gl']['footprint'] == 'Resistor_SMD:R_2512_6332Metric'
         assert parts[f'{leg}.cgs_h']['mpn'] == parts[f'{leg}.cgs_l']['mpn'] == 'GRM1885C1H472JA01D'
         # stage 43: the 1 kV snubbers are the ordered YAGEO part (C113872); GRM31A5C3A102JW01D is not a Murata part
@@ -57,6 +58,14 @@ def main() -> None:
         assert parts[f'{leg}.c_snub_h']['footprint'] == parts[f'{leg}.c_snub_l']['footprint'] == 'Capacitor_SMD:C_1206_3216Metric'
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
+    # stage 54 (OPEN-ITEMS S29, 11-candidates/c54-ct-band): the CT trip references' 10 k legs R44 / R45 -> 11 k on the
+    # existing RT0603BRD0711KL line (band 64.55-76.09 -> 67.36-79.32 A)
+    assert all((parts[r]['mpn'], parts[r].get('value')) == ('RT0603BRD0711KL', '11kohm') for r in ('r_ct_hi_bot', 'r_ct_lo_top'))
+    # stage 54 (11-candidates/c54-release-margins): the 4.99 k line (split bleeds R71 / R72 / R74 / R75, hb.rosc R131) is
+    # Panasonic ERJ-PA3F4991V (0.25 W at 105 C ambient) on the same 0603 land (was 0603WAF4991T5E, 0.1 W)
+    for p in ('leg_a.bias_h.rbleed', 'leg_a.bias_l.rbleed', 'leg_b.bias_h.rbleed', 'leg_b.bias_l.rbleed', 'hb.rosc'):
+        assert parts[p]['mpn'] == 'ERJ-PA3F4991V' and parts[p]['footprint'] == 'Resistor_SMD:R_0603_1608Metric', p
+    assert not any(part.get('mpn') in ('25121WF680JT4E', '0603WAF4991T5E') for part in parts.values())
     assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 16))   # stage 19b; 5: stage 40; 6-12: stage 44; 13-15: stage 48
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'

@@ -1,0 +1,4115 @@
+{
+ "0603WAF1000T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 3.1622776601683795,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 3.16 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 0.0035,
+    "unit": "V",
+    "condition": "R6: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:4",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:6"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.0,
+    "unit": "W",
+    "condition": "R6: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:5",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:6"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.0035 V <= 3.16228 V (R6)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.0001 mW <= 50 % of 100 mW (R6)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF1002T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 31.622776601683793,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 31.6 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 15.4612,
+    "unit": "V",
+    "condition": "R13: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:6",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:11"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.024146,
+    "unit": "W",
+    "condition": "R13: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:7",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:11"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "15.5 V <= 31.6228 V (R13)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "24.1 mW <= 50 % of 100 mW (R13)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF1003T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 75.0,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 100 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 25.6197,
+    "unit": "V",
+    "condition": "R62: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:8",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:21"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.00663,
+    "unit": "W",
+    "condition": "R62: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:9",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:21"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "25.6 V <= 75 V (R62)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "6.63 mW <= 50 % of 100 mW (R62)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF2702T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 51.96152422706632,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 52 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 6.9973,
+    "unit": "V",
+    "condition": "R127: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:10",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:29"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.001832,
+    "unit": "W",
+    "condition": "R127: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:11",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:29"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "7 V <= 51.9615 V (R127)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "1.83 mW <= 50 % of 100 mW (R127)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF3302T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 57.445626465380286,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 57.4 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "R125: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:12",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:35"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000367,
+    "unit": "W",
+    "condition": "R125: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:13",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:35"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.46 V <= 57.4456 V (R125)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.367 mW <= 50 % of 100 mW (R125)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF4991T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 22.338307903688676,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 22.3 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 15.4612,
+    "unit": "V",
+    "condition": "R72: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:15",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:37"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.048389,
+    "unit": "W",
+    "condition": "R72: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:16",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:37"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "15.5 V <= 22.3383 V (R72)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "48.4 mW <= 50 % of 100 mW (R72)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF5601T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 23.664319132398465,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(P70 x R) = 23.7 V, 75 V max working) (UniRoyal 0603: max working 75 V, overload 150 V (ratings table))",
+    "source": "p.5 ratings table and RCWV = sqrt(P x R) (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 2.625,
+    "unit": "V",
+    "condition": "R31: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:17",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:41"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.001243,
+    "unit": "W",
+    "condition": "R31: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:18",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:41"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.62 V <= 23.6643 V (R31)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "1.24 mW <= 50 % of 100 mW (R31)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF1001T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 10.0,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x 1 k) = 10 V, 75 V)",
+    "source": "p.5 ratings table and RCWV (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 4.09,
+    "unit": "V",
+    "condition": "R47: CT-fault ct_sense_mon with J4.14 shorted (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:21",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:19"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.016897,
+    "unit": "W",
+    "condition": "R47: CT-fault ct_sense_mon with J4.14 shorted (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:22",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:19"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "4.09 V <= 10 V (R47)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "16.9 mW <= 50 % of 100 mW (R47)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF2200T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 4.69041575982343,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x 220) = 4.69 V, 75 V)",
+    "source": "p.5 ratings table and RCWV (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (0603 1/10 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 2.51086,
+    "unit": "V",
+    "condition": "R132: pump peak taken as RMS (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:24",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:23"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.028373,
+    "unit": "W",
+    "condition": "R132: pump peak taken as RMS (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:25",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:23"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.51 V <= 4.69042 V (R132)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "28.4 mW <= 50 % of 100 mW (R132)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "0603WAF0000T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Jumper rated current",
+    "datasheet_limit": 1.0,
+    "unit": "A",
+    "basis": "0603 jumper: < 50 mOhm, rated current 1 A, max overload current 2 A",
+    "source": "p.5 ratings table"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Operating current",
+    "worst_case_value": 0.00025,
+    "unit": "A",
+    "condition": "functional bond; leakage bound (product budget)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:26",
+     "validation-results/07-conducted-emi/leakage/README.md:12-13"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "I",
+    "rating": "Jumper rated current",
+    "stress": "Operating current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.25 mA << 1 A"
+   }
+  ],
+  "derating_rule": "Operating current <= 50 % of the jumper rating; fault and surge currents through the bond are a lab item.",
+  "add_gaps": [
+   "certifier / bench: surge and fault current through the PE-SELV bond (common-mode surge returning via SELV GND, or a barrier fault) is not evidenced; the 0603 jumper is rated 1 A (2 A overload, p.5) and would open, which leaves SELV unbonded (functional bond only): confirm in the surge / abnormal tests"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "1206W4F1001T5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 15.811388300841896,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.25 W x 1 k) = 15.8 V, 200 V)",
+    "source": "p.5 ratings table and RCWV (p.5)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.25,
+    "unit": "W",
+    "basis": "0.25 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.4 power table (1206 W4 = 1/4 W), p.5 sect. 9 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 4.09,
+    "unit": "V",
+    "condition": "R42: CT-fault bound",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:28",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:27"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.016897,
+    "unit": "W",
+    "condition": "R42: CT-fault bound",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:29",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:27"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "4.09 V <= 15.8114 V (R42)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "16.9 mW <= 50 % of 250 mW (R42)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "1206W4F100KT5E": {
+  "datasheet_key": "uniroyal",
+  "ratings": [
+   {
+    "parameter": "RCWV",
+    "datasheet_limit": 0.5,
+    "unit": "V",
+    "basis": "sqrt(0.25 W x 1.00 ohm)",
+    "source": "p.5 RCWV = sqrt(P x R)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.25,
+    "unit": "W",
+    "basis": "1/4 W at 70 C, linear to 0 at 155 C",
+    "source": "p.4 power table (1206 W4 = 1/4 W), p.5 sect. 9 derating"
+   },
+   {
+    "parameter": "5 s overload energy",
+    "datasheet_limit": 7.8125,
+    "unit": "J",
+    "basis": "2.5 x RCWV for 5 s = 6.25 x P70 x 5 s (short-time overload, the nearest published pulse number; no single-pulse rating)",
+    "source": "p.5 overload rule; p.6 short-time overload"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "RMS voltage",
+    "worst_case_value": 0.25233,
+    "unit": "V",
+    "condition": "sqrt(P x R) at the B3 heat row",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:30"
+    ]
+   },
+   {
+    "parameter": "Power",
+    "worst_case_value": 0.06304,
+    "unit": "W",
+    "condition": "B3 heat row (R58, c17.5 and c28)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:30",
+     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md:40"
+    ]
+   },
+   {
+    "parameter": "Energy per turn-off edge",
+    "worst_case_value": 1e-06,
+    "unit": "J",
+    "condition": "gate-charge share per edge (ns pulse; peak bound 12.6 A)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:31",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:32"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V",
+    "rating": "RCWV",
+    "stress": "RMS voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "RMS within RCWV"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "63.0 mW <= 125 mW"
+   },
+   {
+    "id": "edge energy",
+    "rating": "5 s overload energy",
+    "stress": "Energy per turn-off edge",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "uJ per edge vs J"
+   }
+  ],
+  "derating_rule": "RMS within RCWV; power <= 50 % of P70; per-edge energy <= 50 % of the short-time overload energy (no pulse curve is published).",
+  "add_gaps": [
+   "owner (maker question): UniRoyal publishes no single-pulse rating; the 12.6 A, ns-wide turn-off peak is compared by energy (0.92 uJ per edge) with the 5 s overload, the nearest published number (the same basis as 25121WF680JT4E)"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+   "revision": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019)",
+   "sha": "11cd644d5d8a34a6",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/uniroyal-1206/uniroyal-1206W4F.pdf"
+  }
+ },
+ "RC1206FR-072K2L": {
+  "datasheet_key": "yageo_rc",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 23.45207879911715,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.25 W x 2.2 k) = 23.5 V, 200 V) (Yageo RC1206: max working 200 V, overload 400 V (Table 3))",
+    "source": "p.6 Table 3; p.7 rated voltage = sqrt(P x R) or max working"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.25,
+    "unit": "W",
+    "basis": "0.25 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.6 Table 3 (RC1206 1/4 W, '07' standard power p.2), p.7 Fig. 10-1"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 14.981,
+    "unit": "V",
+    "condition": "R59: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:33",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:214"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.103044,
+    "unit": "W",
+    "condition": "R59: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:34",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:214"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "15 V <= 23.4521 V (R59)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "103 mW <= 50 % of 250 mW (R59)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/b426be3ce22c6de3e0c3a2248e49159e.pdf?productCode=C130275",
+   "revision": "Yageo RC_L series 0075-2512 product specification V.12 (Aug 02, 2022)",
+   "sha": "e7dbabb061192522",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-rc/PYu-RC_Group_51_RoHS_L.pdf"
+  }
+ },
+ "RC1206FR-073RL": {
+  "datasheet_key": "yageo_rc",
+  "ratings": [
+   {
+    "parameter": "RCWV",
+    "datasheet_limit": 0.8660254037844386,
+    "unit": "V",
+    "basis": "sqrt(0.25 W x 3.0 ohm)",
+    "source": "p.7 rated voltage = sqrt(P x R)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.25,
+    "unit": "W",
+    "basis": "1/4 W at 70 C ('07' standard power)",
+    "source": "p.6 Table 3 (RC1206 1/4 W, '07' standard power p.2), p.7 Fig. 10-1"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "RMS voltage, c28",
+    "worst_case_value": 0.62689,
+    "unit": "V",
+    "condition": "sqrt(P x R) at the c28 heat row",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:35"
+    ]
+   },
+   {
+    "parameter": "Power, release case",
+    "worst_case_value": 0.0506,
+    "unit": "W",
+    "condition": "B3 heat row at c17.5",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:35"
+    ]
+   },
+   {
+    "parameter": "Power, c28",
+    "worst_case_value": 0.1297,
+    "unit": "W",
+    "condition": "B3 heat row at c28 (28 A Kconfig ceiling)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:35"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V",
+    "rating": "RCWV",
+    "stress": "RMS voltage, c28",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "within RCWV at c28"
+   },
+   {
+    "id": "P release",
+    "rating": "Rated power P70",
+    "stress": "Power, release case",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "50.6 mW <= 125 mW"
+   },
+   {
+    "id": "P c28",
+    "rating": "Rated power P70",
+    "stress": "Power, c28",
+    "max_ratio": 0.5,
+    "severity": "gap",
+    "rule": "129.7 mW is 52 % of P70 at the 28 A ceiling"
+   }
+  ],
+  "derating_rule": "RMS within RCWV; power <= 50 % of P70 at the release case; the 28 A ceiling (c28) is reported.",
+  "add_gaps": [
+   "owner: at the 28 A Kconfig ceiling (c28 heat row 0.1297 W) the burden dissipates 52 % of P70, over the 50 % rule (the temperature check at the c28 terminal still passes, 75.6 / 99.9 C); the firmware ships 17.5 A, where it is 20 %. Raising the ceiling to 28 A needs a 1/2 W burden or the rule waived on the B3 terminal margin"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/b426be3ce22c6de3e0c3a2248e49159e.pdf?productCode=C130275",
+   "revision": "Yageo RC_L series 0075-2512 product specification V.12 (Aug 02, 2022)",
+   "sha": "e7dbabb061192522",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-rc/PYu-RC_Group_51_RoHS_L.pdf"
+  }
+ },
+ "RC1206FR-0716K5L": {
+  "datasheet_key": "yageo_rc",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 200,
+    "unit": "V",
+    "basis": "Yageo RC1206: max working 200 V, overload 400 V (Table 3)",
+    "source": "p.6 Table 3"
+   },
+   {
+    "parameter": "Max overload voltage",
+    "datasheet_limit": 400,
+    "unit": "V",
+    "basis": "RC1206 max overload 400 V (short-time)",
+    "source": "p.6 Table 3"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.25,
+    "unit": "W",
+    "basis": "1/4 W at 70 C",
+    "source": "p.6 Table 3 (RC1206 1/4 W, '07' standard power p.2), p.7 Fig. 10-1"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Peak working voltage per resistor",
+    "worst_case_value": 50.389215,
+    "unit": "V",
+    "condition": "line high corner crest share",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:36"
+    ]
+   },
+   {
+    "parameter": "Surge voltage per resistor",
+    "worst_case_value": 116.04798,
+    "unit": "V",
+    "condition": "RV1 clamp 455 V at 100 A shared by the string (the clamp at 245-750 A is the R1/R2 desk item)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:37"
+    ]
+   },
+   {
+    "parameter": "Power per resistor",
+    "worst_case_value": 0.07618,
+    "unit": "W",
+    "condition": "line high corner, string current bound",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:36"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Peak working voltage per resistor",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "crest within the working voltage"
+   },
+   {
+    "id": "surge",
+    "rating": "Max overload voltage",
+    "stress": "Surge voltage per resistor",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "455 V clamp / 4 <= overload"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power per resistor",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "76.2 mW <= 125 mW"
+   }
+  ],
+  "derating_rule": "Working voltage peak <= the maximum working voltage; surge share <= the overload voltage; power <= 50 % of P70.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/b426be3ce22c6de3e0c3a2248e49159e.pdf?productCode=C130275",
+   "revision": "Yageo RC_L series 0075-2512 product specification V.12 (Aug 02, 2022)",
+   "sha": "e7dbabb061192522",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-rc/PYu-RC_Group_51_RoHS_L.pdf"
+  }
+ },
+ "RL1206FR-070R68L": {
+  "datasheet_key": "yageo_rl",
+  "ratings": [
+   {
+    "parameter": "Rated current",
+    "datasheet_limit": 0.6063390625908324,
+    "unit": "A",
+    "basis": "sqrt(P70 / R) = sqrt(0.25 W / 0.68 ohm) (1/4 W normal power)",
+    "source": "p.5 Table 2 (RL1206 1/4 W, '07' standard power p.2)"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.25,
+    "unit": "W",
+    "basis": "1/4 W at 70 C, Fig. 5 to 0 at 155 C",
+    "source": "p.5 Table 2; p.6 Fig. 5"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "RMS current",
+    "worst_case_value": 0.099032,
+    "unit": "A",
+    "condition": "2 x the 49.5 mA mean channel current (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:38"
+    ]
+   },
+   {
+    "parameter": "Power",
+    "worst_case_value": 0.006736,
+    "unit": "W",
+    "condition": "I_rms^2 x 0.687 ohm",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:38"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "I",
+    "rating": "Rated current",
+    "stress": "RMS current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "99 mA vs 0.61 A"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "6.74 mW <= 125 mW"
+   }
+  ],
+  "derating_rule": "Current and power <= 50 % of the P70-derived ratings.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://store.comet.bg/download-file.php?id=22105",
+   "revision": "Yageo RL series 0402-2512 product specification V.3 (Apr 07, 2023), distributor mirror (Yageo URL 404)",
+   "sha": "a222719aba346137",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-rl/comet-22105.pdf"
+  }
+ },
+ "RT0603BRD07105KL": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 75.0,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 102 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 4.6665,
+    "unit": "V",
+    "condition": "R48: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:39",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:225"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000208,
+    "unit": "W",
+    "condition": "R48: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:40",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:225"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "4.67 V <= 75 V (R48)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.208 mW <= 50 % of 100 mW (R48)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD0710KL": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 31.622776601683793,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 31.6 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "R50: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:41",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:231"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.002614,
+    "unit": "W",
+    "condition": "R50: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:42",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:231"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 31.6228 V (R50)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "2.61 mW <= 50 % of 100 mW (R50)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD0711KL": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 33.166247903554,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 33.2 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 2.5587,
+    "unit": "V",
+    "condition": "R61: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:43",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:245"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000596,
+    "unit": "W",
+    "condition": "R61: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:44",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:245"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.56 V <= 33.1662 V (R61)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.596 mW <= 50 % of 100 mW (R61)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD07140KL": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 75.0,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 118 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 2.3476,
+    "unit": "V",
+    "condition": "R37: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:45",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:253"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 3.9e-05,
+    "unit": "W",
+    "condition": "R37: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:46",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:253"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.35 V <= 75 V (R37)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.0394 mW <= 50 % of 100 mW (R37)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD0715K8L": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 39.74921382870358,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 39.7 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 2.4255,
+    "unit": "V",
+    "condition": "R30: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:47",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:254"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000373,
+    "unit": "W",
+    "condition": "R30: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:48",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:254"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.43 V <= 39.7492 V (R30)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.373 mW <= 50 % of 100 mW (R30)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD072K21L": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 14.866068747318506,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 14.9 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 0.6282,
+    "unit": "V",
+    "condition": "R43: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:49",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:258"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000179,
+    "unit": "W",
+    "condition": "R43: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:50",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:258"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.628 V <= 14.8661 V (R43)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.179 mW <= 50 % of 100 mW (R43)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD074K42L": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 21.02379604162864,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 21 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 0.7839,
+    "unit": "V",
+    "condition": "R79: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:51",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:266"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000139,
+    "unit": "W",
+    "condition": "R79: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:52",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:266"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.784 V <= 21.0238 V (R79)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.139 mW <= 50 % of 100 mW (R79)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD0763K4L": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 75.0,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 79.6 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 14.7265,
+    "unit": "V",
+    "condition": "R92: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:53",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:269"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.003424,
+    "unit": "W",
+    "condition": "R92: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:54",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:269"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "14.7 V <= 75 V (R92)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "3.42 mW <= 50 % of 100 mW (R92)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD076K2L": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 24.899799195977465,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x R) = 24.9 V, 75 V max working) (Yageo RT0603: max working 75 V, overload 150 V (Table 2))",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 0.796,
+    "unit": "V",
+    "condition": "R77: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:55",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:272"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000102,
+    "unit": "W",
+    "condition": "R77: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:56",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:272"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.796 V <= 24.8998 V (R77)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.102 mW <= 50 % of 100 mW (R77)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD071KL": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 10.0,
+    "unit": "V",
+    "basis": "min(RCWV = sqrt(0.1 W x 1 k) = 10 V, 75 V)",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 1.735968,
+    "unit": "V",
+    "condition": "R40: CT bias midpoint",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:58",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:57"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.003017,
+    "unit": "W",
+    "condition": "R40: CT bias midpoint",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:59",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:57"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "1.74 V <= 10 V (R40)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "3.02 mW <= 50 % of 100 mW (R40)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "RT0603BRD0749K9L": {
+  "datasheet_key": "yageo_rt",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 70.63993204979744,
+    "unit": "V",
+    "basis": "min(RCWV = 70.6 V, 75 V)",
+    "source": "p.5 Table 2; p.6 RATED VOLTAGE"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.1,
+    "unit": "W",
+    "basis": "0.1 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.5 Table 2 (RT0603 1/10 W), p.6 Fig. 6 derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 3.765,
+    "unit": "V",
+    "condition": "R9: DT pin / hold node bound",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:61",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:60"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 0.000284,
+    "unit": "W",
+    "condition": "R9: DT pin / hold node bound",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:62",
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:60"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.76 V <= 70.6399 V (R9)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.284 mW <= 50 % of 100 mW (R9)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+   "revision": "Yageo RT series 0100-2512 product specification V.16 (May 06, 2025)",
+   "sha": "0a729d144519a702",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/yageo_rt.pdf"
+  }
+ },
+ "TNPW060311K7BEEA": {
+  "datasheet_key": "tnpw",
+  "ratings": [
+   {
+    "parameter": "Max working voltage",
+    "datasheet_limit": 100.0,
+    "unit": "V",
+    "basis": "TNPW0603 operating voltage Umax 100 V (AC rms or DC); RCWV at the General-mode 0.11 W is sqrt(0.11 x 11.7 k) = 35.9 V",
+    "source": "p.1 technical specifications"
+   },
+   {
+    "parameter": "Rated power P70",
+    "datasheet_limit": 0.11,
+    "unit": "W",
+    "basis": "0.11 W at 70 C ambient, linear derating to 0 at 155 C",
+    "source": "p.2 'Maximum resistance change at rated dissipation' (General operation 0.11 W at 70 C, 125 C film), p.1 P70 0.21 W"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Voltage across (worst ref)",
+    "worst_case_value": 0.3955,
+    "unit": "V",
+    "condition": "R145: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:63",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:302"
+    ]
+   },
+   {
+    "parameter": "Power (worst ref)",
+    "worst_case_value": 1.3e-05,
+    "unit": "W",
+    "condition": "R145: static worst case over the registry rail ranges (fault envelopes included)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:64",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:302"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V working",
+    "rating": "Max working voltage",
+    "stress": "Voltage across (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.396 V <= 100 V (R145)"
+   },
+   {
+    "id": "P <= 50 % P70",
+    "rating": "Rated power P70",
+    "stress": "Power (worst ref)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.0135 mW <= 50 % of 110 mW (R145)"
+   }
+  ],
+  "derating_rule": "Voltage <= the maximum working voltage (or RCWV where lower); power <= 50 % of P70 at the static worst case (the temperature-dependent derating is the temp-ratings check at the B3 terminal estimate, 20 % margin).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+   "revision": "Vishay TNPW e3 doc 28758, rev 10-Apr-2026",
+   "sha": "6f0508c568cb355a",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/dl/vishay_tnpw.pdf"
+  }
+ },
+ "C0603C102J5GACTU": {
+  "datasheet_key": "kemet_c0g",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.1 ordering code '5 = 50' V (C0G 10-250 VDC family)"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 6.93,
+    "unit": "V",
+    "condition": "C164: heartbeat pump node: bounded by two v3v3 swings (pump of a 3.3 V buffer, ledger BAT54S-7-F reverse 3.465 V per node)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:65",
+     "validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 6.93,
+    "unit": "V",
+    "condition": "C164: heartbeat pump node: bounded by two v3v3 swings (pump of a 3.3 V buffer, ledger BAT54S-7-F reverse 3.465 V per node)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:66",
+     "validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "6.93 V <= 80 % of 50 V (C164)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "6.93 V <= 50 V (C164)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf",
+   "revision": "KEMET C1003 C0G SMD commercial grade (2/20/2025)",
+   "sha": "02d179914aeb9585",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/kemet-c0g/KEM_C1003_C0G_SMD.pdf"
+  }
+ },
+ "CC0603KRX7R9BB104": {
+  "datasheet_key": "yageo_cc",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.2 ordering code '9 = 50 V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 24.57,
+    "unit": "V",
+    "condition": "C74: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:67",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:94"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 32.4,
+    "unit": "V",
+    "condition": "C74: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:68",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:94"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "24.6 V <= 80 % of 50 V (C74)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "32.4 V <= 50 V (C74)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/23ccee80ee542e7cf156a772bb589942.pdf?productCode=C14663",
+   "revision": "Yageo CC general purpose X7R 6.3-250 V, V.26 (Nov 19, 2024)",
+   "sha": "61a606825ab314ea",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-cc/yageo-cc-x7r-lcsc-C14663.pdf"
+  }
+ },
+ "CC0805KRX7R9BB104": {
+  "datasheet_key": "yageo_cc",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.2 ordering code '9 = 50 V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "C8: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:69",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:128"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "C8: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:70",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:128"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "17.4 V <= 80 % of 50 V (C8)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "17.4 V <= 50 V (C8)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/23ccee80ee542e7cf156a772bb589942.pdf?productCode=C14663",
+   "revision": "Yageo CC general purpose X7R 6.3-250 V, V.26 (Nov 19, 2024)",
+   "sha": "61a606825ab314ea",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/yageo-cc/yageo-cc-x7r-lcsc-C14663.pdf"
+  }
+ },
+ "CL05B104KB54PNC": {
+  "datasheet_key": "CL05B104KB54PNC",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.1 '(6) Rated Voltage 50V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 2.0773,
+    "unit": "V",
+    "condition": "C114: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:71",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:136"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 2.0773,
+    "unit": "V",
+    "condition": "C114: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:72",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:136"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "2.08 V <= 80 % of 50 V (C114)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.08 V <= 50 V (C114)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://product.samsungsem.com/mlcc/CL05B104KB54PN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL05B104KB54PN, issued JUL.15.2025",
+   "sha": "92054b775800cad8",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL05B104KB54PN-specsheet/CL05B104KB54PN-specsheet.pdf"
+  }
+ },
+ "CL10C101JB8NNNC": {
+  "datasheet_key": "CL10C101JB8NNNC",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.1 '(6) Rated Voltage 50V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "C167: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:73",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:149"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "C167: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:74",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:149"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "3.46 V <= 80 % of 50 V (C167)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.46 V <= 50 V (C167)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://product.samsungsem.com/mlcc/CL10C101JB8NNN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL10C101JB8NNN, issued JUL.17.2020",
+   "sha": "aec8f5c040150719",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL10C101JB8NNN-specsheet/CL10C101JB8NNN-specsheet.pdf"
+  }
+ },
+ "CL10C331JB8NNNC": {
+  "datasheet_key": "CL10C331JB8NNNC",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.1 '(6) Rated Voltage 50V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 24.57,
+    "unit": "V",
+    "condition": "C105: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:75",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:152"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 32.4,
+    "unit": "V",
+    "condition": "C105: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:76",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:152"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "24.6 V <= 80 % of 50 V (C105)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "32.4 V <= 50 V (C105)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://product.samsungsem.com/mlcc/CL10C331JB8NNN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL10C331JB8NNN, issued JUL.17.2020",
+   "sha": "78b8db7110ad25cd",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL10C331JB8NNN-specsheet/CL10C331JB8NNN-specsheet.pdf"
+  }
+ },
+ "CL21B105KBFNNNE": {
+  "datasheet_key": "CL21B105KBFNNNE",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.1 '(6) Rated Voltage 50V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "C146: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:77",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:156"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "C146: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:78",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:156"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "17.4 V <= 80 % of 50 V (C146)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "17.4 V <= 50 V (C146)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://product.samsungsem.com/mlcc/CL21B105KBFNNN.do (specsheet download)",
+   "revision": "Samsung SEM specification CL21B105KBFNNN, issued MAY.09.2024",
+   "sha": "583b7deb63d39dd5",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/samsung/CL21B105KBFNNN-specsheet/CL21B105KBFNNN-specsheet.pdf"
+  }
+ },
+ "GRM188R71E105KA12D": {
+  "datasheet_key": "GRM188R71E105KA12D",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 25,
+    "unit": "V",
+    "basis": "25 V DC rated",
+    "source": "p.2 'Rated Voltage 25Vdc'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "C64: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:79",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:197"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "C64: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:80",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:197"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "17.4 V <= 80 % of 25 V (C64)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "17.4 V <= 25 V (C64)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [
+   "certifier (abnormal operation): a TPS7A4700 (U26) pass-element short puts V24_RAW (<= 32.4 V, PS2 OVP clamp) on V15_LS / NR; C64's 25 V rating is below that, so the single-fault outcome is a test item (the LM2901B line's stated case)"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://store.comet.bg/download-file.php?id=22967",
+   "revision": "Murata product data sheet GRM188R71E105KA12#, last updated 04/27/2021 (distributor mirror)",
+   "sha": "5421aafe2e0574d4",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/murata/GRM188R71E105KA12D/comet-22967.pdf"
+  }
+ },
+ "GRM21BZ71E106KE15L": {
+  "datasheet_key": "GRM21BZ71E106KE15L",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 25,
+    "unit": "V",
+    "basis": "25 V DC rated",
+    "source": "p.2 Rated Value 'DC 25V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 17.2765,
+    "unit": "V",
+    "condition": "C11: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:81",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:198"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 17.2765,
+    "unit": "V",
+    "condition": "C11: registry rail ranges (op) / fault envelopes",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:82",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:198"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "17.3 V <= 80 % of 25 V (C11)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "17.3 V <= 25 V (C11)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [
+   "certifier (abnormal operation): the HS rails p_ha / p_hb have no fault envelope; R24C2T25/R has no output over-voltage protection (Rev. 1-2024 p.2 lists only the 32 V VOUT+ to VOUT- pin abs max), so a feedback-open module could exceed C11 / C18's 25 V rating; the outcome (part damage, no hazard?) is a single-fault test item"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/25c25013e9e59794670905e9d029f396.pdf?productCode=C237493",
+   "revision": "Murata reference sheet GRM21BZ71E106KE15-01A (as of Jan.9, 2025)",
+   "sha": "8a398f916d26f901",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/murata/GRM21BZ71E106KE15L/GRM21BZ71E106KE15L-lcsc-C237493.pdf"
+  }
+ },
+ "GRM31C5C1H104JA01L": {
+  "datasheet_key": "GRM31C5C1H104JA01L",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 50,
+    "unit": "V",
+    "basis": "50 V DC rated",
+    "source": "p.1 rated value 'DC 50 V'"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 2.358855,
+    "unit": "V",
+    "condition": "C42: burden voltage at the 155.7 A CT-fault tank peak",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:83",
+     "DECISIONS.md:2314-2315"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 2.358855,
+    "unit": "V",
+    "condition": "C42: burden voltage at the 155.7 A CT-fault tank peak",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:84",
+     "DECISIONS.md:2314-2315"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "2.36 V <= 80 % of 50 V (C42)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.36 V <= 50 V (C42)"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/357d841984a94b5db925be64cf2c2923.pdf?productCode=C97946",
+   "revision": "Murata reference sheet GRM31C5C1H104JA01_ (as of Mar.5, 2016)",
+   "sha": "5c84ef333cecfe38",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/murata/GRM31C5C1H104JA01L/GRM31C5C1H104JA01L-lcsc-C97946.pdf"
+  }
+ },
+ "6SVPC220MV": {
+  "datasheet_key": "svpc",
+  "ratings": [
+   {
+    "parameter": "Rated voltage",
+    "datasheet_limit": 6.3,
+    "unit": "V",
+    "basis": "6.3 V DC rated",
+    "source": "p.2 characteristics list row '6.3 ... 6SVPC220MV'"
+   },
+   {
+    "parameter": "Ripple current at 10-100 kHz, 105 C",
+    "datasheet_limit": 2.2119999999999997,
+    "unit": "A",
+    "basis": "3160 mA rms at 100 kHz / +105 C x frequency factor 0.7 (10-100 kHz)",
+    "source": "p.2 row and frequency correction factor table"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "DC voltage, operating (worst ref)",
+    "worst_case_value": 2.0773,
+    "unit": "V",
+    "condition": "C127: damp node = the split rail (no DC in R51-R56): same nets as C52",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:86",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:191"
+    ]
+   },
+   {
+    "parameter": "DC voltage, rail fault envelope (worst ref)",
+    "worst_case_value": 2.0773,
+    "unit": "V",
+    "condition": "C127: damp node = the split rail (no DC in R51-R56): same nets as C52",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:87",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:191"
+    ]
+   },
+   {
+    "parameter": "Ripple current",
+    "worst_case_value": 0.099032,
+    "unit": "A",
+    "condition": "2 x mean bias channel current (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:85"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V op <= 80 % VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, operating (worst ref)",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "2.08 V <= 80 % of 6.3 V (C127)"
+   },
+   {
+    "id": "V fault <= VR",
+    "rating": "Rated voltage",
+    "stress": "DC voltage, rail fault envelope (worst ref)",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.08 V <= 6.3 V (C127)"
+   },
+   {
+    "id": "ripple",
+    "rating": "Ripple current at 10-100 kHz, 105 C",
+    "stress": "Ripple current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "99 mA vs 2.2 A"
+   }
+  ],
+  "derating_rule": "DC voltage <= 80 % of the rated voltage in operation and <= 100 % at a rail's fault envelope (PS2 OVP clamp on V24_RAW); ripple <= 50 % of the frequency-corrected 105 C rating; dissipation negligible (temp-ratings).",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://industrial.panasonic.com/cdbs/www-data/pdf/AAB8000/AAB8000C256.pdf",
+   "revision": "Panasonic OS-CON SVPC series AAB8000C256 (series pages 06-Feb-17, PDF 2025-10-29)",
+   "sha": "1c506b7474c01158",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/passives/panasonic-svpc-official/AAB8000C256.pdf"
+  }
+ },
+ "SN74LVC1G00DBVR": {
+  "datasheet_key": "sn74lvc1g00",
+  "ratings": [
+   {
+    "parameter": "VCC abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "supply voltage range -0.5..6.5 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VCC recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "operating 1.65..5.5 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "VI abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "input voltage range -0.5..6.5 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VI recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "input voltage 0..5.5 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "IO abs max",
+    "datasheet_limit": 50,
+    "unit": "mA",
+    "basis": "continuous output current +-50 mA",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "IOL recommended at VCC 3 V",
+    "datasheet_limit": 24,
+    "unit": "mA",
+    "basis": "IOL / -IOH 24 mA at VCC = 3 V (16 mA at 2.3 V, 32 mA at 4.5 V)",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VCC",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "U22: supply rail maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:145"
+    ]
+   },
+   {
+    "parameter": "Input voltage",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "U22: highest input pin (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:142"
+    ]
+   },
+   {
+    "parameter": "Output current",
+    "worst_case_value": 0.377,
+    "unit": "mA",
+    "condition": "U22: Y low sinks the R73 10 k pull-up from v3v3 (3.465 V / 9.9 k) plus the 2EDR8259X DIS input (<= 27 uA high-level leakage, 2EDR8259X Rev 1.7 p.14)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:88",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:14"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VCC rec",
+    "rating": "VCC recommended max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.46 V <= 5.5 V"
+   },
+   {
+    "id": "VCC abs",
+    "rating": "VCC abs max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "inside abs max"
+   },
+   {
+    "id": "VI rec",
+    "rating": "VI recommended max",
+    "stress": "Input voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.46 V <= 5.5 V"
+   },
+   {
+    "id": "IO <= 50 % abs",
+    "rating": "IO abs max",
+    "stress": "Output current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.377 mA <= 25 mA"
+   },
+   {
+    "id": "IOL rec",
+    "rating": "IOL recommended at VCC 3 V",
+    "stress": "Output current",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.377 mA <= 24 mA"
+   }
+  ],
+  "derating_rule": "VCC and inputs inside the recommended operating conditions (pin_absmax gates the abs max per pin); output current <= 50 % of the abs-max IO and inside the recommended IOL / IOH; input edges inside the recommended transition rate for non-Schmitt inputs.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf",
+   "revision": "TI SCES212AC (April 1999, revised August 2026)",
+   "sha": "1264f79853e6119b",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g00/sn74lvc1g00.pdf"
+  }
+ },
+ "SN74LVC1G10DBVR": {
+  "datasheet_key": "sn74lvc1g10",
+  "ratings": [
+   {
+    "parameter": "VCC abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "supply voltage range -0.5..6.5 V",
+    "source": "p.2 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VCC recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "operating 1.65..5.5 V",
+    "source": "p.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "VI abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "input voltage range -0.5..6.5 V",
+    "source": "p.2 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VI recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "input voltage 0..5.5 V",
+    "source": "p.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "IO abs max",
+    "datasheet_limit": 50,
+    "unit": "mA",
+    "basis": "continuous output current +-50 mA",
+    "source": "p.2 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "IOL recommended at VCC 3 V",
+    "datasheet_limit": 24,
+    "unit": "mA",
+    "basis": "IOL / -IOH 24 mA at VCC = 3 V (16 mA at 2.3 V, 32 mA at 4.5 V)",
+    "source": "p.3 Recommended Operating Conditions"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VCC",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U8: supply rail maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:73"
+    ]
+   },
+   {
+    "parameter": "Input voltage",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U8: highest input pin (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:69"
+    ]
+   },
+   {
+    "parameter": "Output current",
+    "worst_case_value": 0.02,
+    "unit": "mA",
+    "condition": "U8: Y drives the U9 CA-IS3720 input only (IIH / IIL <= 20 uA, CA-IS372x v1.02 p.10)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:89"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VCC rec",
+    "rating": "VCC recommended max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "VCC abs",
+    "rating": "VCC abs max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "inside abs max"
+   },
+   {
+    "id": "VI rec",
+    "rating": "VI recommended max",
+    "stress": "Input voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "IO <= 50 % abs",
+    "rating": "IO abs max",
+    "stress": "Output current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.02 mA <= 25 mA"
+   },
+   {
+    "id": "IOL rec",
+    "rating": "IOL recommended at VCC 3 V",
+    "stress": "Output current",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.02 mA <= 24 mA"
+   }
+  ],
+  "derating_rule": "VCC and inputs inside the recommended operating conditions (pin_absmax gates the abs max per pin); output current <= 50 % of the abs-max IO and inside the recommended IOL / IOH; input edges inside the recommended transition rate for non-Schmitt inputs.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g10.pdf",
+   "revision": "TI SCES486E (September 2003, revised December 2013)",
+   "sha": "4902c8770413a400",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g10/sn74lvc1g10.pdf"
+  }
+ },
+ "SN74LVC1G17DBVR": {
+  "datasheet_key": "sn74lvc1g17",
+  "ratings": [
+   {
+    "parameter": "VCC abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "supply voltage range -0.5..6.5 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VCC recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "operating 1.65..5.5 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "VI abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "input voltage range -0.5..6.5 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VI recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "input voltage 0..5.5 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "IO abs max",
+    "datasheet_limit": 50,
+    "unit": "mA",
+    "basis": "continuous output current +-50 mA",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "IOL recommended at VCC 3 V",
+    "datasheet_limit": 24,
+    "unit": "mA",
+    "basis": "IOL / -IOH 24 mA at VCC = 3 V (16 mA at 2.3 V, 32 mA at 4.5 V)",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VCC",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U15: supply rail maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:122"
+    ]
+   },
+   {
+    "parameter": "Input voltage",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U15: highest input pin (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:119"
+    ]
+   },
+   {
+    "parameter": "Output current",
+    "worst_case_value": 0.025909,
+    "unit": "mA",
+    "condition": "U40: Y drives R146 220 k to J4.1 plus U22.B / U23.B",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:90"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VCC rec",
+    "rating": "VCC recommended max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "VCC abs",
+    "rating": "VCC abs max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "inside abs max"
+   },
+   {
+    "id": "VI rec",
+    "rating": "VI recommended max",
+    "stress": "Input voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "IO <= 50 % abs",
+    "rating": "IO abs max",
+    "stress": "Output current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.0259 mA <= 25 mA"
+   },
+   {
+    "id": "IOL rec",
+    "rating": "IOL recommended at VCC 3 V",
+    "stress": "Output current",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.0259 mA <= 24 mA"
+   }
+  ],
+  "derating_rule": "VCC and inputs inside the recommended operating conditions (pin_absmax gates the abs max per pin); output current <= 50 % of the abs-max IO and inside the recommended IOL / IOH; input edges inside the recommended transition rate for non-Schmitt inputs.",
+  "add_gaps": [
+   "owner (interface contract): the controller-side load on J4.16 (LINE_ZC from U24) is not in the repo; the check covers the board side only. The J4 logic contract (FAULT-INTERFACE.md:28-33) states ~350 uA for BUS_FAULT; record the LINE_ZC / CT_ZC input loads in the controller's interface document"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+   "revision": "TI SCES351Y (July 2001, revised October 2025)",
+   "sha": "c76fa723fac45024",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g17/sn74lvc1g17.pdf"
+  }
+ },
+ "SN74LVC1G332DBVR": {
+  "datasheet_key": "sn74lvc1g332",
+  "ratings": [
+   {
+    "parameter": "VCC abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "supply voltage range -0.5..6.5 V",
+    "source": "p.2 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VCC recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "operating 1.65..5.5 V",
+    "source": "p.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "VI abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "input voltage range -0.5..6.5 V",
+    "source": "p.2 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VI recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "input voltage 0..5.5 V",
+    "source": "p.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "IO abs max",
+    "datasheet_limit": 50,
+    "unit": "mA",
+    "basis": "continuous output current +-50 mA",
+    "source": "p.2 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "IOL recommended at VCC 3 V",
+    "datasheet_limit": 24,
+    "unit": "mA",
+    "basis": "IOL / -IOH 24 mA at VCC = 3 V (16 mA at 2.3 V, 32 mA at 4.5 V)",
+    "source": "p.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "Input transition rate, recommended max",
+    "datasheet_limit": 10,
+    "unit": "ns/V",
+    "basis": "dt/dv 10 ns/V at VCC 3.3 V +- 0.3 V (non-Schmitt inputs)",
+    "source": "p.3 Recommended Operating Conditions"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VCC",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "U13: supply rail maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:110"
+    ]
+   },
+   {
+    "parameter": "Input voltage",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "U13: highest input pin (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:106"
+    ]
+   },
+   {
+    "parameter": "Output current",
+    "worst_case_value": 0.35,
+    "unit": "mA",
+    "condition": "U13: Y drives J4.10 BUS_FAULT into the controller interlock (~350 uA maximum pull-up load)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:92",
+     "FAULT-INTERFACE.md:32"
+    ]
+   },
+   {
+    "parameter": "Input transition rate, U13.A",
+    "worst_case_value": 132.5625,
+    "unit": "ns/V",
+    "condition": "R134 / C167 RC edge (tau 106 ns) at the VIL band edge; 64-71 ns/V at the ~1.5 V switching point",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:91",
+     "DECISIONS.md:1108"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VCC rec",
+    "rating": "VCC recommended max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.46 V <= 5.5 V"
+   },
+   {
+    "id": "VCC abs",
+    "rating": "VCC abs max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "inside abs max"
+   },
+   {
+    "id": "VI rec",
+    "rating": "VI recommended max",
+    "stress": "Input voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.46 V <= 5.5 V"
+   },
+   {
+    "id": "IO <= 50 % abs",
+    "rating": "IO abs max",
+    "stress": "Output current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.35 mA <= 25 mA"
+   },
+   {
+    "id": "IOL rec",
+    "rating": "IOL recommended at VCC 3 V",
+    "stress": "Output current",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "0.35 mA <= 24 mA"
+   },
+   {
+    "id": "dt/dv U13.A",
+    "rating": "Input transition rate, recommended max",
+    "stress": "Input transition rate, U13.A",
+    "max_ratio": 1.0,
+    "severity": "gap",
+    "rule": "133 ns/V against the 10 ns/V recommended maximum (functional, not an abs-max overstress)"
+   }
+  ],
+  "derating_rule": "VCC and inputs inside the recommended operating conditions (pin_absmax gates the abs max per pin); output current <= 50 % of the abs-max IO and inside the recommended IOL / IOH; input edges inside the recommended transition rate for non-Schmitt inputs.",
+  "add_gaps": [
+   "finding (c54, recommended-operating-condition exceedance, not an abs-max overstress): U13.A is a non-Schmitt LVC1G332 input fed through the R134 1 k / C167 100 pF CMTI filter (DECISIONS.md:1108); its edge crosses the input band at 93-133 ns/V against TI's 10 ns/V recommended maximum (SCES489E p.3), so the output may chatter while BUS_FAULT crosses threshold (a fault-direction level into the controller latch: nuisance double edges, not a missed trip). Owner: accept with the bench probe of DECISIONS.md:1128 item 4, or move the RC behind a Schmitt input (e.g. an LVC1G17 or a Schmitt OR) at the next spin; bench: scope U13.Y on BUS_FAULT edges with R134 / C167 fitted"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf",
+   "revision": "TI SCES489E (September 2003, revised December 2013)",
+   "sha": "5ecad3180cb93664",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g332/sn74lvc1g332.pdf"
+  }
+ },
+ "SN74LVC1G132DBVR": {
+  "datasheet_key": "sn74lvc1g132",
+  "ratings": [
+   {
+    "parameter": "VCC abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "supply voltage range -0.5..6.5 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VCC recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "operating 1.65..5.5 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "VI abs max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "input voltage range -0.5..6.5 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VI recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "input voltage 0..5.5 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "IO abs max",
+    "datasheet_limit": 50,
+    "unit": "mA",
+    "basis": "continuous output current +-50 mA",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "IOL recommended at VCC 3 V",
+    "datasheet_limit": 24,
+    "unit": "mA",
+    "basis": "IOL / -IOH 24 mA at VCC = 3 V (16 mA at 2.3 V, 32 mA at 4.5 V)",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VCC",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U45: supply rail maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:351"
+    ]
+   },
+   {
+    "parameter": "Input voltage",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U45: highest input pin (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:347"
+    ]
+   },
+   {
+    "parameter": "Output current",
+    "worst_case_value": 11.3,
+    "unit": "mA",
+    "condition": "U46: Y sources / sinks the heartbeat pump through R132 220 ohm: 11.3 mA SPICE peak, every corner incl. one pump cap shorted (ledger BAT54S-7-F)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:93",
+     "validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VCC rec",
+    "rating": "VCC recommended max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "VCC abs",
+    "rating": "VCC abs max",
+    "stress": "VCC",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "inside abs max"
+   },
+   {
+    "id": "VI rec",
+    "rating": "VI recommended max",
+    "stress": "Input voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "IO <= 50 % abs",
+    "rating": "IO abs max",
+    "stress": "Output current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "11.3 mA <= 25 mA"
+   },
+   {
+    "id": "IOL rec",
+    "rating": "IOL recommended at VCC 3 V",
+    "stress": "Output current",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "11.3 mA <= 24 mA"
+   }
+  ],
+  "derating_rule": "VCC and inputs inside the recommended operating conditions (pin_absmax gates the abs max per pin); output current <= 50 % of the abs-max IO and inside the recommended IOL / IOH; input edges inside the recommended transition rate for non-Schmitt inputs.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf",
+   "revision": "TI SCES546E (February 2004, revised August 2026)",
+   "sha": "fae33d78fe46834a",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/sn74lvc1g132/sn74lvc1g132.pdf"
+  }
+ },
+ "TLV3201AIDBVR": {
+  "datasheet_key": "tlv3201",
+  "ratings": [
+   {
+    "parameter": "Supply recommended max",
+    "datasheet_limit": 5.5,
+    "unit": "V",
+    "basis": "VS 2.7..5.5 V",
+    "source": "p.4 6.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "Supply abs max",
+    "datasheet_limit": 7,
+    "unit": "V",
+    "basis": "supply voltage 7 V",
+    "source": "p.4 6.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "Input pin current abs max",
+    "datasheet_limit": 10,
+    "unit": "mA",
+    "basis": "signal input pins +-10 mA; inputs swinging > 0.5 V beyond the rails must be current-limited to 10 mA (note 2)",
+    "source": "p.4 6.1 and note (2)"
+   },
+   {
+    "parameter": "Common-mode range above VCC",
+    "datasheet_limit": 0.2,
+    "unit": "V",
+    "basis": "VCM (VEE) - 0.2 .. (VCC) + 0.2 V over -40..125 C",
+    "source": "p.5 6.5 Electrical Characteristics"
+   },
+   {
+    "parameter": "Output short-circuit current abs max",
+    "datasheet_limit": 100,
+    "unit": "mA",
+    "basis": "output short circuit to ground 100 mA",
+    "source": "p.4 6.1"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Supply",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "U6: HOT5 / v3v3 maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:63"
+    ]
+   },
+   {
+    "parameter": "Input above VCC, CT fault",
+    "worst_case_value": 0.959823,
+    "unit": "V",
+    "condition": "U10-U12 on ct_sense_mon at the 155.7 A CT-fault peak (diode-clamped, current-limited)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:94",
+     "DECISIONS.md:2314-2315"
+    ]
+   },
+   {
+    "parameter": "Input clamp current, CT fault",
+    "worst_case_value": 0.969519,
+    "unit": "mA",
+    "condition": "R42 1 k limits it",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:94"
+    ]
+   },
+   {
+    "parameter": "Input, highest declared pin",
+    "worst_case_value": 2.8389,
+    "unit": "V",
+    "condition": "U10 (pin_absmax op model: OCP / OVP / CT reference inputs)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:94"
+    ]
+   },
+   {
+    "parameter": "Output load",
+    "worst_case_value": 0.02,
+    "unit": "mA",
+    "condition": "outputs drive LVC / CA-IS3720 inputs (<= 20 uA) and J4.13 (CT_ZC, controller side not in the repo)",
+    "evidence": [
+     "native-21/frozen/default.net"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VS rec",
+    "rating": "Supply recommended max",
+    "stress": "Supply",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 5.5 V"
+   },
+   {
+    "id": "VS abs",
+    "rating": "Supply abs max",
+    "stress": "Supply",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "inside 7 V"
+   },
+   {
+    "id": "CT input current",
+    "rating": "Input pin current abs max",
+    "stress": "Input clamp current, CT fault",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.97 mA <= 50 % of 10 mA (note 2 permits > 0.5 V beyond the rail at <= 10 mA)"
+   },
+   {
+    "id": "CT input in CM range",
+    "rating": "Common-mode range above VCC",
+    "stress": "Input above VCC, CT fault",
+    "max_ratio": 1.0,
+    "severity": "gap",
+    "rule": "0.96 V above VCC at the 155.7 A fault peak: outside the specified VCM (+0.2 V) and the 0.5 V abs max, allowed by note 2 at <= 10 mA; comparator output is not specified there"
+   },
+   {
+    "id": "output",
+    "rating": "Output short-circuit current abs max",
+    "stress": "Output load",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "uA loads"
+   }
+  ],
+  "derating_rule": "Supply inside the recommended range; declared inputs inside abs max (pin_absmax); inputs that swing beyond the rails current-limited to <= 50 % of the 10 mA note-2 limit; outputs far below the short-circuit rating.",
+  "add_gaps": [
+   "bench: at the 155.7 A CT-fault tank peak the CT inputs (U10 / U11 / U12) reach 0.96 V above VCC, beyond the specified common-mode range (VCC + 0.2 V), current-limited to 0.97 mA by R42 (inside note 2's 10 mA); the comparators' outputs are unspecified there (phase reversal not excluded by the sheet). In operation (OCP band top 119.09 A) the excursion is smaller; inject primary current past the trip and watch CT_OC / CT_ZC",
+   "owner (interface contract): J4.13 CT_ZC (U12) controller-side load is not in the repo"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+   "revision": "TI SBOS561C (March 2012, revised May 2024)",
+   "sha": "1777bba814c74772",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/tlv3201/tlv3201.pdf"
+  }
+ },
+ "TLVH431BQDBZR": {
+  "datasheet_key": "tlvh431",
+  "ratings": [
+   {
+    "parameter": "Cathode voltage recommended max",
+    "datasheet_limit": 18,
+    "unit": "V",
+    "basis": "VKA VREF..18 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "Cathode current recommended max",
+    "datasheet_limit": 70,
+    "unit": "mA",
+    "basis": "IK (continuous) 0.1..70 mA",
+    "source": "p.5 5.3"
+   },
+   {
+    "parameter": "Cathode current abs max",
+    "datasheet_limit": 80,
+    "unit": "mA",
+    "basis": "IK -25..80 mA",
+    "source": "p.5 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "Cathode current recommended min",
+    "datasheet_limit": 0.1,
+    "unit": "mA",
+    "basis": "IK min 0.1 mA (IK(min) <= 100 uA, p.8)",
+    "source": "p.5 5.3"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VKA",
+    "worst_case_value": 2.0773,
+    "unit": "V",
+    "condition": "U16: split voltage maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:124"
+    ]
+   },
+   {
+    "parameter": "IK max",
+    "worst_case_value": 3.129734,
+    "unit": "mA",
+    "condition": "whole bleed current (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:95"
+    ]
+   },
+   {
+    "parameter": "IK min",
+    "worst_case_value": 2.74295,
+    "unit": "mA",
+    "condition": "floor of the shunt current (2.74 mA >= the 0.1 mA recommended minimum; a floor, so not a stress/limit check)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:95"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VKA rec",
+    "rating": "Cathode voltage recommended max",
+    "stress": "VKA",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "2.08 V <= 18 V"
+   },
+   {
+    "id": "IK rec",
+    "rating": "Cathode current recommended max",
+    "stress": "IK max",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "3.13 mA <= 70 mA"
+   },
+   {
+    "id": "IK abs 50 %",
+    "rating": "Cathode current abs max",
+    "stress": "IK max",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "<= 40 mA"
+   }
+  ],
+  "derating_rule": "VKA and IK inside the recommended operating conditions (IK >= 0.1 mA); IK <= 50 % of the abs max.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/tlvh431.pdf",
+   "revision": "TI SLVS555N (November 2004, revised June 2024)",
+   "sha": "e30d628cb6475d48",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s16-monitor-dl/tlvh431.pdf"
+  }
+ },
+ "TPS3700DDCR": {
+  "datasheet_key": "tps3700",
+  "ratings": [
+   {
+    "parameter": "VDD recommended max",
+    "datasheet_limit": 18,
+    "unit": "V",
+    "basis": "VDD 1.8..18 V",
+    "source": "p.5 6.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "Input recommended max",
+    "datasheet_limit": 6.5,
+    "unit": "V",
+    "basis": "VI INA+, INB- 0..6.5 V",
+    "source": "p.5 6.3"
+   },
+   {
+    "parameter": "Output voltage recommended max",
+    "datasheet_limit": 18,
+    "unit": "V",
+    "basis": "VO OUTA, OUTB 0..18 V",
+    "source": "p.5 6.3"
+   },
+   {
+    "parameter": "Output terminal current abs max",
+    "datasheet_limit": 40,
+    "unit": "mA",
+    "basis": "output terminal current 40 mA",
+    "source": "p.5 6.1 Absolute Maximum Ratings"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VDD",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "HOT5 maximum (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:116"
+    ]
+   },
+   {
+    "parameter": "Input voltage",
+    "worst_case_value": 0.4452,
+    "unit": "V",
+    "condition": "U14 INA+ / INB- divider taps (pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:114"
+    ]
+   },
+   {
+    "parameter": "Output voltage",
+    "worst_case_value": 5.11,
+    "unit": "V",
+    "condition": "pull-up to HOT5",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:112"
+    ]
+   },
+   {
+    "parameter": "Output sink current",
+    "worst_case_value": 0.511512,
+    "unit": "mA",
+    "condition": "R50 pull-up",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:96",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:231"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VDD rec",
+    "rating": "VDD recommended max",
+    "stress": "VDD",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 18 V"
+   },
+   {
+    "id": "VI rec",
+    "rating": "Input recommended max",
+    "stress": "Input voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "< 0.5 V <= 6.5 V"
+   },
+   {
+    "id": "VO rec",
+    "rating": "Output voltage recommended max",
+    "stress": "Output voltage",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "5.11 V <= 18 V"
+   },
+   {
+    "id": "IO 50 %",
+    "rating": "Output terminal current abs max",
+    "stress": "Output sink current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "0.51 mA <= 20 mA"
+   }
+  ],
+  "derating_rule": "Supply, inputs and outputs inside the recommended operating conditions; output current <= 50 % of the abs max.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/tps3700.pdf",
+   "revision": "TI SBVS187G (February 2012, revised February 2019)",
+   "sha": "3bb7daed20b154bf",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s16-fmea-b-dl/tps3700/tps3700.pdf"
+  }
+ },
+ "TPS7A4700RGWR": {
+  "datasheet_key": "tps7a47",
+  "ratings": [
+   {
+    "parameter": "VIN recommended max",
+    "datasheet_limit": 35,
+    "unit": "V",
+    "basis": "VI 3.0..35 V",
+    "source": "p.5 5.3 Recommended Operating Conditions"
+   },
+   {
+    "parameter": "VIN abs max",
+    "datasheet_limit": 36,
+    "unit": "V",
+    "basis": "IN pin to GND -0.4..+36 V",
+    "source": "p.4 5.1 Absolute Maximum Ratings"
+   },
+   {
+    "parameter": "VOUT recommended max",
+    "datasheet_limit": 34,
+    "unit": "V",
+    "basis": "VO 1.4..34 V",
+    "source": "p.5 5.3"
+   },
+   {
+    "parameter": "IOUT recommended max",
+    "datasheet_limit": 1.0,
+    "unit": "A",
+    "basis": "IO 0..1.0 A",
+    "source": "p.5 5.3"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "VIN operating",
+    "worst_case_value": 24.57,
+    "unit": "V",
+    "condition": "V24_RAW maximum (PS2 24 V +-2 %, pin_absmax op model)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:171"
+    ]
+   },
+   {
+    "parameter": "VIN fault envelope",
+    "worst_case_value": 32.4,
+    "unit": "V",
+    "condition": "PS2 OVP clamp top (MPM-20-SPEC p.2)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:97",
+     "native-21/layout/gates/pin_absmax_registry.json"
+    ]
+   },
+   {
+    "parameter": "VOUT",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "V15_LS maximum",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/ic_pins.md:175"
+    ]
+   },
+   {
+    "parameter": "IOUT",
+    "worst_case_value": 0.129032,
+    "unit": "A",
+    "condition": "2 I_ch + 30 mA",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:97"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VIN rec",
+    "rating": "VIN recommended max",
+    "stress": "VIN operating",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "24.57 V <= 35 V"
+   },
+   {
+    "id": "VIN fault abs",
+    "rating": "VIN abs max",
+    "stress": "VIN fault envelope",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "32.4 V <= 36 V"
+   },
+   {
+    "id": "VOUT rec",
+    "rating": "VOUT recommended max",
+    "stress": "VOUT",
+    "max_ratio": 1.0,
+    "severity": "violation",
+    "rule": "17.4 V <= 34 V"
+   },
+   {
+    "id": "IOUT 50 %",
+    "rating": "IOUT recommended max",
+    "stress": "IOUT",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "129 mA <= 500 mA"
+   }
+  ],
+  "derating_rule": "VIN, VOUT, IOUT inside the recommended conditions in operation; VIN at the PS2 OVP clamp inside the abs max; IOUT <= 50 % of 1 A; TJ <= 125 C (the temp-ratings / B3 gate row).",
+  "add_gaps": [],
+  "notes": null,
+  "function": "low-noise LDO U26 (V15_LS, the LS span from V24_RAW); TJ is the B3 body-model row: 120.6 / 125 C at the release case (+4.4 K) and 124.9 C at c28 (+0.1 K), temp-ratings 2026-10-15 results.md:38 (the old 'Tj 89 C, 36 K margin', DECISIONS.md:825, was the superseded stage-15 h25 model)",
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.ti.com/lit/ds/symlink/tps7a47.pdf",
+   "revision": "TI SBVS204G (June 2012, revised May 2026)",
+   "sha": "8ca46a9968923d2e",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/pin-absmax-dl/pdf/tps7a47.pdf"
+  }
+ },
+ "BAS116H,115": {
+  "datasheet_key": "bas116h",
+  "ratings": [
+   {
+    "parameter": "VR",
+    "datasheet_limit": 75,
+    "unit": "V",
+    "basis": "reverse voltage 75 V (VRRM 85 V)",
+    "source": "p.2 Table 5 Limiting values"
+   },
+   {
+    "parameter": "IF",
+    "datasheet_limit": 215,
+    "unit": "mA",
+    "basis": "forward current 215 mA (FR4, standard footprint)",
+    "source": "p.2 Table 5"
+   },
+   {
+    "parameter": "IFRM",
+    "datasheet_limit": 500,
+    "unit": "mA",
+    "basis": "repetitive peak forward current 500 mA",
+    "source": "p.2 Table 5"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Reverse voltage",
+    "worst_case_value": 4.465,
+    "unit": "V",
+    "condition": "clamp pair across v3v3",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:98"
+    ]
+   },
+   {
+    "parameter": "Forward current (peak bound)",
+    "worst_case_value": 4.131313,
+    "unit": "mA",
+    "condition": "CT-fault excursion through R42",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:98"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VR 50 %",
+    "rating": "VR",
+    "stress": "Reverse voltage",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "4.5 V <= 37.5 V"
+   },
+   {
+    "id": "IF 50 %",
+    "rating": "IFRM",
+    "stress": "Forward current (peak bound)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "4.1 mA <= 250 mA"
+   }
+  ],
+  "derating_rule": "Reverse voltage and peak forward current <= 50 % of the limiting values.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/3effef0d92ac4111bb2691a2d714473d.pdf?productCode=C74210",
+   "revision": "Nexperia BAS116H Rev. 3, 31 May 2011 (LCSC copy; assets.nexperia.com 403)",
+   "sha": "04966fbaa922997c",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/bas116h/BAS116H_lcsc_C74210.pdf"
+  }
+ },
+ "PMEG6030EP,115": {
+  "datasheet_key": "pmeg",
+  "ratings": [
+   {
+    "parameter": "VR",
+    "datasheet_limit": 60,
+    "unit": "V",
+    "basis": "reverse voltage 60 V (Tj 25 C)",
+    "source": "p.3 Table 5 Limiting values"
+   },
+   {
+    "parameter": "IF(AV)",
+    "datasheet_limit": 3.0,
+    "unit": "A",
+    "basis": "average forward current 3 A (square wave, delta 0.5, 20 kHz)",
+    "source": "p.3 Table 5"
+   },
+   {
+    "parameter": "IFSM",
+    "datasheet_limit": 50,
+    "unit": "A",
+    "basis": "non-repetitive peak forward current 50 A (tp 8 ms square); no repetitive peak (IFRM) is published",
+    "source": "p.3 Table 5"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "Reverse voltage",
+    "worst_case_value": 17.425,
+    "unit": "V",
+    "condition": "driver span maximum",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:99",
+     "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:92"
+    ]
+   },
+   {
+    "parameter": "Average forward current",
+    "worst_case_value": 0.026616,
+    "unit": "A",
+    "condition": "turn-off charge x 60 kHz",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:100"
+    ]
+   },
+   {
+    "parameter": "Peak forward current (bound)",
+    "worst_case_value": 12.626812,
+    "unit": "A",
+    "condition": "ns-wide turn-off peak",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:100"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "VR 50 %",
+    "rating": "VR",
+    "stress": "Reverse voltage",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "17.4 V <= 30 V"
+   },
+   {
+    "id": "IF(AV) 50 %",
+    "rating": "IF(AV)",
+    "stress": "Average forward current",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "27 mA <= 1.5 A"
+   },
+   {
+    "id": "peak vs IFSM",
+    "rating": "IFSM",
+    "stress": "Peak forward current (bound)",
+    "max_ratio": 0.5,
+    "severity": "violation",
+    "rule": "12.6 A <= 25 A (IFSM as the nearest published peak)"
+   }
+  ],
+  "derating_rule": "VR, average and peak current <= 50 % of the limiting values (the peak against IFSM, no IFRM being published).",
+  "add_gaps": [
+   "owner (maker question): Nexperia publishes no repetitive peak forward current; the ns-wide 12.6 A turn-off peak bound is compared with the 8 ms non-repetitive IFSM (50 A), whose I2t is about seven orders larger"
+  ],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/598a8a4be41fa942ad873c7b94285078.pdf?productCode=C456127",
+   "revision": "Nexperia PMEG6030EP product data sheet, 7 November 2017 (LCSC copy; assets.nexperia.com 403)",
+   "sha": "89bc99ad6f4835fb",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/semis-a/pmeg6030ep/PMEG6030EP_lcsc_C456127.pdf"
+  }
+ },
+ "0430451612": {
+  "datasheet_key": "molex",
+  "ratings": [
+   {
+    "parameter": "UL voltage rating",
+    "datasheet_limit": 600,
+    "unit": "V",
+    "basis": "UL 1977 / CSA C22.2 No. 182.3: 600 V AC rms or DC (series 43045)",
+    "source": "sheet 7 sect. 4.1 Safety agency ratings"
+   },
+   {
+    "parameter": "Contact current, 24-circuit 30 AWG W-B",
+    "datasheet_limit": 1.0,
+    "unit": "A",
+    "basis": "current derating reference, 24 circuits, 30 AWG, wire-to-board: 1 A (the lowest cell; 30 C rise; UL / CSA single circuit 8 A)",
+    "source": "sheet 8 sect. 4.3 current derating"
+   }
+  ],
+  "stresses": [
+   {
+    "parameter": "SELV voltage",
+    "worst_case_value": 3.465,
+    "unit": "V",
+    "condition": "J4 carries SELV logic and the 3.3 V controller rail",
+    "evidence": [
+     "native-21/frozen/default.net"
+    ]
+   },
+   {
+    "parameter": "Contact current, J4.3 v3v3",
+    "worst_case_value": 0.036743,
+    "unit": "A",
+    "condition": "all v3v3 loads at datasheet maximum (bound)",
+    "evidence": [
+     "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:101"
+    ]
+   }
+  ],
+  "checks": [
+   {
+    "id": "V 80 %",
+    "rating": "UL voltage rating",
+    "stress": "SELV voltage",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "3.5 V <= 480 V"
+   },
+   {
+    "id": "I 80 %",
+    "rating": "Contact current, 24-circuit 30 AWG W-B",
+    "stress": "Contact current, J4.3 v3v3",
+    "max_ratio": 0.8,
+    "severity": "violation",
+    "rule": "37 mA <= 800 mA (the lowest derating cell)"
+   }
+  ],
+  "derating_rule": "Voltage and per-contact current <= 80 % of the lowest applicable rating (the JST VH rule); the UL 1977 / CSA basis applies.",
+  "add_gaps": [],
+  "notes": null,
+  "function": null,
+  "drop_gaps": null,
+  "datasheet": {
+   "url": "https://www.molex.com/pdm_docs/ps/PS-43045-001.pdf",
+   "revision": "Molex PS-43045 Micro-Fit 3.0 dual row product specification, Rev R (2025-11-14)",
+   "sha": "b5f03865599a0576",
+   "local": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s47/temp-ratings-dl/conn/molex43045/PS-43045-001.pdf"
+  }
+ }
+}

@@ -1,8 +1,8 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 252,
-  "native19-reviewed": 83,
+  "passive-two-terminal": 254,
+  "native19-reviewed": 81,
   "passive-untyped": 23,
   "eco-pin-table": 14
  },
@@ -2229,7 +2229,7 @@
    }
   },
   "R71": {
-   "mpn": "0603WAF4991T5E",
+   "mpn": "ERJ-PA3F4991V",
    "source_instance": "leg_a.bias_h.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2244,7 +2244,7 @@
    }
   },
   "R72": {
-   "mpn": "0603WAF4991T5E",
+   "mpn": "ERJ-PA3F4991V",
    "source_instance": "leg_a.bias_l.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2349,7 +2349,7 @@
    }
   },
   "R74": {
-   "mpn": "0603WAF4991T5E",
+   "mpn": "ERJ-PA3F4991V",
    "source_instance": "leg_b.bias_h.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2364,7 +2364,7 @@
    }
   },
   "R75": {
-   "mpn": "0603WAF4991T5E",
+   "mpn": "ERJ-PA3F4991V",
    "source_instance": "leg_b.bias_l.rbleed",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2634,9 +2634,9 @@
    }
   },
   "R44": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "r_ct_hi_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2649,9 +2649,9 @@
    }
   },
   "R45": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "r_ct_lo_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3579,7 +3579,7 @@
    }
   },
   "R131": {
-   "mpn": "0603WAF4991T5E",
+   "mpn": "ERJ-PA3F4991V",
    "source_instance": "hb.rosc",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4926,7 +4926,7 @@
    }
   },
   "R10": {
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "source_instance": "leg_a.r_gh",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4941,7 +4941,7 @@
    }
   },
   "R12": {
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "source_instance": "leg_a.r_gl",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4956,7 +4956,7 @@
    }
   },
   "R18": {
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "source_instance": "leg_b.r_gh",
    "basis": "passive-two-terminal",
    "pins": {
@@ -4971,7 +4971,7 @@
    }
   },
   "R20": {
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "source_instance": "leg_b.r_gl",
    "basis": "passive-two-terminal",
    "pins": {

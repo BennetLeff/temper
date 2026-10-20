@@ -1,0 +1,7674 @@
+[
+ {
+  "mpn": "0430451612",
+  "des": "J4",
+  "pins": [
+   [
+    "1",
+    "bias_good_j4"
+   ],
+   [
+    "10",
+    "bus_fault"
+   ],
+   [
+    "11",
+    "vbus_p"
+   ],
+   [
+    "12",
+    "vbus_n"
+   ],
+   [
+    "13",
+    "ct_zc"
+   ],
+   [
+    "14",
+    "ct_mon"
+   ],
+   [
+    "15",
+    "selv_gnd"
+   ],
+   [
+    "16",
+    "line_zc"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ],
+   [
+    "3",
+    "v3v3"
+   ],
+   [
+    "4",
+    "selv_gnd"
+   ],
+   [
+    "5",
+    "pwm_ha"
+   ],
+   [
+    "6",
+    "pwm_la"
+   ],
+   [
+    "7",
+    "pwm_hb"
+   ],
+   [
+    "8",
+    "pwm_lb"
+   ],
+   [
+    "9",
+    "permit"
+   ]
+  ]
+ },
+ {
+  "mpn": "0603WAF0000T5E",
+  "des": "R38",
+  "pins": [
+   [
+    "1",
+    "pe"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "0603WAF1000T5E",
+  "des": "R6",
+  "pins": [
+   [
+    "1",
+    "permit"
+   ],
+   [
+    "2",
+    "leg_a-permit_gate"
+   ]
+  ],
+  "op": [
+   0.0,
+   0.0035
+  ],
+  "fault": [
+   0.0,
+   0.0035
+  ],
+  "divider": "leg_a-permit_gate",
+  "vmax_op": 0.0035,
+  "vmax_fault": 0.0035,
+  "r_min": 99.0,
+  "p_op_mW": 0.0001,
+  "p_fault_mW": 0.0001
+ },
+ {
+  "mpn": "0603WAF1000T5E",
+  "des": "R14",
+  "pins": [
+   [
+    "1",
+    "permit"
+   ],
+   [
+    "2",
+    "leg_b-permit_gate"
+   ]
+  ],
+  "op": [
+   0.0,
+   0.0035
+  ],
+  "fault": [
+   0.0,
+   0.0035
+  ],
+  "divider": "leg_b-permit_gate",
+  "vmax_op": 0.0035,
+  "vmax_fault": 0.0035,
+  "r_min": 99.0,
+  "p_op_mW": 0.0001,
+  "p_fault_mW": 0.0001
+ },
+ {
+  "mpn": "0603WAF1001T5E",
+  "des": "R47",
+  "pins": [
+   [
+    "1",
+    "ct_sense_mon"
+   ],
+   [
+    "2",
+    "ct_mon"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "0603WAF1001T5E",
+  "des": "R134",
+  "pins": [
+   [
+    "1",
+    "bus_fault_iso"
+   ],
+   [
+    "2",
+    "bus_fault_flt"
+   ]
+  ],
+  "op": [
+   0.0,
+   0.0
+  ],
+  "fault": [
+   0.0,
+   0.0
+  ],
+  "vmax_op": 0.0,
+  "vmax_fault": 0.0,
+  "r_min": 990.0,
+  "p_op_mW": 0.0,
+  "p_fault_mW": 0.0
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R11",
+  "pins": [
+   [
+    "1",
+    "leg_a-gate_h"
+   ],
+   [
+    "2",
+    "sw_a"
+   ]
+  ],
+  "op": [
+   -2.0611,
+   15.3127
+  ],
+  "fault": [
+   -2.0611,
+   15.3127
+  ],
+  "vmax_op": 15.3127,
+  "vmax_fault": 15.3127,
+  "r_min": 9900.0,
+  "p_op_mW": 23.6847,
+  "p_fault_mW": 23.6847
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R13",
+  "pins": [
+   [
+    "1",
+    "leg_a-gate_l"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ]
+  ],
+  "op": [
+   -2.0773,
+   15.4612
+  ],
+  "fault": [
+   -2.0773,
+   15.4612
+  ],
+  "vmax_op": 15.4612,
+  "vmax_fault": 15.4612,
+  "r_min": 9900.0,
+  "p_op_mW": 24.1463,
+  "p_fault_mW": 24.1463
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R19",
+  "pins": [
+   [
+    "1",
+    "leg_b-gate_h"
+   ],
+   [
+    "2",
+    "sw_b"
+   ]
+  ],
+  "op": [
+   -2.0611,
+   15.3127
+  ],
+  "fault": [
+   -2.0611,
+   15.3127
+  ],
+  "vmax_op": 15.3127,
+  "vmax_fault": 15.3127,
+  "r_min": 9900.0,
+  "p_op_mW": 23.6847,
+  "p_fault_mW": 23.6847
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R21",
+  "pins": [
+   [
+    "1",
+    "leg_b-gate_l"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ]
+  ],
+  "op": [
+   -2.0773,
+   15.4612
+  ],
+  "fault": [
+   -2.0773,
+   15.4612
+  ],
+  "vmax_op": 15.4612,
+  "vmax_fault": 15.4612,
+  "r_min": 9900.0,
+  "p_op_mW": 24.1463,
+  "p_fault_mW": 24.1463
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R73",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "leg_a-driver_dis"
+   ]
+  ],
+  "op": [
+   -0.0,
+   3.465
+  ],
+  "fault": [
+   -0.0,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465,
+  "r_min": 9900.0,
+  "p_op_mW": 1.2127,
+  "p_fault_mW": 1.2127
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R76",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "leg_b-driver_dis"
+   ]
+  ],
+  "op": [
+   -0.0,
+   3.465
+  ],
+  "fault": [
+   -0.0,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465,
+  "r_min": 9900.0,
+  "p_op_mW": 1.2127,
+  "p_fault_mW": 1.2127
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R91",
+  "pins": [
+   [
+    "1",
+    "ls_v5"
+   ],
+   [
+    "2",
+    "monitor_ls-good"
+   ]
+  ],
+  "op": [
+   -0.0,
+   5.11
+  ],
+  "fault": [
+   -0.0,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11,
+  "r_min": 9900.0,
+  "p_op_mW": 2.6376,
+  "p_fault_mW": 2.6376
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R109",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-v5"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-good"
+   ]
+  ],
+  "op": [
+   -0.0,
+   5.11
+  ],
+  "fault": [
+   -0.0,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11,
+  "r_min": 9900.0,
+  "p_op_mW": 2.6376,
+  "p_fault_mW": 2.6376
+ },
+ {
+  "mpn": "0603WAF1002T5E",
+  "des": "R124",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-v5"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-good"
+   ]
+  ],
+  "op": [
+   -0.0,
+   5.11
+  ],
+  "fault": [
+   -0.0,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11,
+  "r_min": 9900.0,
+  "p_op_mW": 2.6376,
+  "p_fault_mW": 2.6376
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R7",
+  "pins": [
+   [
+    "1",
+    "leg_a-permit_gate"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   0.0,
+   3.4616
+  ],
+  "fault": [
+   0.0,
+   3.4616
+  ],
+  "divider": "leg_a-permit_gate",
+  "vmax_op": 3.4616,
+  "vmax_fault": 3.4616,
+  "r_min": 99000.0,
+  "p_op_mW": 0.121,
+  "p_fault_mW": 0.121
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R15",
+  "pins": [
+   [
+    "1",
+    "leg_b-permit_gate"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   0.0,
+   3.4616
+  ],
+  "fault": [
+   0.0,
+   3.4616
+  ],
+  "divider": "leg_b-permit_gate",
+  "vmax_op": 3.4616,
+  "vmax_fault": 3.4616,
+  "r_min": 99000.0,
+  "p_op_mW": 0.121,
+  "p_fault_mW": 0.121
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R62",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "bias_ha-en"
+   ]
+  ],
+  "op": [
+   18.3699,
+   19.4282
+  ],
+  "fault": [
+   18.3699,
+   25.6197
+  ],
+  "divider": "bias_ha-en",
+  "vmax_op": 19.4282,
+  "vmax_fault": 25.6197,
+  "r_min": 99000.0,
+  "p_op_mW": 3.8127,
+  "p_fault_mW": 6.63
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R128",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "bias_hb-en"
+   ]
+  ],
+  "op": [
+   18.3699,
+   19.4282
+  ],
+  "fault": [
+   18.3699,
+   25.6197
+  ],
+  "divider": "bias_hb-en",
+  "vmax_op": 19.4282,
+  "vmax_fault": 25.6197,
+  "r_min": 99000.0,
+  "p_op_mW": 3.8127,
+  "p_fault_mW": 6.63
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R135",
+  "pins": [
+   [
+    "1",
+    "permit"
+   ],
+   [
+    "2",
+    "hsb_good"
+   ]
+  ],
+  "op": [
+   -3.465,
+   3.465
+  ],
+  "fault": [
+   -3.465,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465,
+  "r_min": 99000.0,
+  "p_op_mW": 0.1213,
+  "p_fault_mW": 0.1213
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R136",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "hot5_en"
+   ]
+  ],
+  "op": [
+   11.2724,
+   12.3208
+  ],
+  "fault": [
+   11.2724,
+   12.3208
+  ],
+  "divider": "hot5_en",
+  "vmax_op": 12.3208,
+  "vmax_fault": 12.3208,
+  "r_min": 99000.0,
+  "p_op_mW": 1.5334,
+  "p_fault_mW": 1.5334
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R138",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "monitor_ls-ldo_en"
+   ]
+  ],
+  "op": [
+   12.9954,
+   13.7785
+  ],
+  "fault": [
+   12.9954,
+   13.7785
+  ],
+  "divider": "monitor_ls-ldo_en",
+  "vmax_op": 13.7785,
+  "vmax_fault": 13.7785,
+  "r_min": 99000.0,
+  "p_op_mW": 1.9176,
+  "p_fault_mW": 1.9176
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R140",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-ldo_en"
+   ]
+  ],
+  "op": [
+   12.9745,
+   13.6611
+  ],
+  "fault": [
+   12.9745,
+   13.6611
+  ],
+  "divider": "bias_ha.monitor-ldo_en",
+  "vmax_op": 13.6611,
+  "vmax_fault": 13.6611,
+  "r_min": 99000.0,
+  "p_op_mW": 1.8851,
+  "p_fault_mW": 1.8851
+ },
+ {
+  "mpn": "0603WAF1003T5E",
+  "des": "R142",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-ldo_en"
+   ]
+  ],
+  "op": [
+   12.9745,
+   13.6611
+  ],
+  "fault": [
+   12.9745,
+   13.6611
+  ],
+  "divider": "bias_hb.monitor-ldo_en",
+  "vmax_op": 13.6611,
+  "vmax_fault": 13.6611,
+  "r_min": 99000.0,
+  "p_op_mW": 1.8851,
+  "p_fault_mW": 1.8851
+ },
+ {
+  "mpn": "0603WAF2200T5E",
+  "des": "R132",
+  "pins": [
+   [
+    "1",
+    "hb_bufo"
+   ],
+   [
+    "2",
+    "hb_s"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "0603WAF2702T5E",
+  "des": "R127",
+  "pins": [
+   [
+    "1",
+    "bias_ha-en"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.9032,
+   5.3063
+  ],
+  "fault": [
+   4.9032,
+   6.9973
+  ],
+  "divider": "bias_ha-en",
+  "vmax_op": 5.3063,
+  "vmax_fault": 6.9973,
+  "r_min": 26730.0,
+  "p_op_mW": 1.0534,
+  "p_fault_mW": 1.8317
+ },
+ {
+  "mpn": "0603WAF2702T5E",
+  "des": "R129",
+  "pins": [
+   [
+    "1",
+    "bias_hb-en"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.9032,
+   5.3063
+  ],
+  "fault": [
+   4.9032,
+   6.9973
+  ],
+  "divider": "bias_hb-en",
+  "vmax_op": 5.3063,
+  "vmax_fault": 6.9973,
+  "r_min": 26730.0,
+  "p_op_mW": 1.0534,
+  "p_fault_mW": 1.8317
+ },
+ {
+  "mpn": "0603WAF2702T5E",
+  "des": "R137",
+  "pins": [
+   [
+    "1",
+    "hot5_en"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   3.0088,
+   3.3651
+  ],
+  "fault": [
+   3.0088,
+   3.3651
+  ],
+  "divider": "hot5_en",
+  "vmax_op": 3.3651,
+  "vmax_fault": 3.3651,
+  "r_min": 26730.0,
+  "p_op_mW": 0.4236,
+  "p_fault_mW": 0.4236
+ },
+ {
+  "mpn": "0603WAF2702T5E",
+  "des": "R139",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-ldo_en"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   3.4686,
+   3.7632
+  ],
+  "fault": [
+   3.4686,
+   3.7632
+  ],
+  "divider": "monitor_ls-ldo_en",
+  "vmax_op": 3.7632,
+  "vmax_fault": 3.7632,
+  "r_min": 26730.0,
+  "p_op_mW": 0.5298,
+  "p_fault_mW": 0.5298
+ },
+ {
+  "mpn": "0603WAF2702T5E",
+  "des": "R141",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-ldo_en"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   3.4631,
+   3.7311
+  ],
+  "fault": [
+   3.4631,
+   3.7311
+  ],
+  "divider": "bias_ha.monitor-ldo_en",
+  "vmax_op": 3.7311,
+  "vmax_fault": 3.7311,
+  "r_min": 26730.0,
+  "p_op_mW": 0.5208,
+  "p_fault_mW": 0.5208
+ },
+ {
+  "mpn": "0603WAF2702T5E",
+  "des": "R143",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-ldo_en"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   3.4631,
+   3.7311
+  ],
+  "fault": [
+   3.4631,
+   3.7311
+  ],
+  "divider": "bias_hb.monitor-ldo_en",
+  "vmax_op": 3.7311,
+  "vmax_fault": 3.7311,
+  "r_min": 26730.0,
+  "p_op_mW": 0.5208,
+  "p_fault_mW": 0.5208
+ },
+ {
+  "mpn": "0603WAF3302T5E",
+  "des": "R125",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "line_zc_raw"
+   ]
+  ],
+  "op": [
+   -0.0,
+   3.465
+  ],
+  "fault": [
+   -0.0,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465,
+  "r_min": 32670.0,
+  "p_op_mW": 0.3675,
+  "p_fault_mW": 0.3675
+ },
+ {
+  "mpn": "0603WAF4991T5E",
+  "des": "R71",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "sw_a"
+   ]
+  ],
+  "op": [
+   14.4873,
+   15.3127
+  ],
+  "fault": [
+   14.4873,
+   15.3127
+  ],
+  "vmax_op": 15.3127,
+  "vmax_fault": 15.3127,
+  "r_min": 4940.1,
+  "p_op_mW": 47.4644,
+  "p_fault_mW": 47.4644
+ },
+ {
+  "mpn": "0603WAF4991T5E",
+  "des": "R72",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ]
+  ],
+  "op": [
+   14.4977,
+   15.4612
+  ],
+  "fault": [
+   14.4977,
+   15.4612
+  ],
+  "vmax_op": 15.4612,
+  "vmax_fault": 15.4612,
+  "r_min": 4940.1,
+  "p_op_mW": 48.3894,
+  "p_fault_mW": 48.3894
+ },
+ {
+  "mpn": "0603WAF4991T5E",
+  "des": "R74",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "sw_b"
+   ]
+  ],
+  "op": [
+   14.4873,
+   15.3127
+  ],
+  "fault": [
+   14.4873,
+   15.3127
+  ],
+  "vmax_op": 15.3127,
+  "vmax_fault": 15.3127,
+  "r_min": 4940.1,
+  "p_op_mW": 47.4644,
+  "p_fault_mW": 47.4644
+ },
+ {
+  "mpn": "0603WAF4991T5E",
+  "des": "R75",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ]
+  ],
+  "op": [
+   14.4977,
+   15.4612
+  ],
+  "fault": [
+   14.4977,
+   15.4612
+  ],
+  "vmax_op": 15.4612,
+  "vmax_fault": 15.4612,
+  "r_min": 4940.1,
+  "p_op_mW": 48.3894,
+  "p_fault_mW": 48.3894
+ },
+ {
+  "mpn": "0603WAF4991T5E",
+  "des": "R131",
+  "pins": [
+   [
+    "1",
+    "hb_tx"
+   ],
+   [
+    "2",
+    "hb_rc"
+   ]
+  ],
+  "op": [
+   0.0,
+   0.0
+  ],
+  "fault": [
+   0.0,
+   0.0
+  ],
+  "vmax_op": 0.0,
+  "vmax_fault": 0.0,
+  "r_min": 4940.1,
+  "p_op_mW": 0.0,
+  "p_fault_mW": 0.0
+ },
+ {
+  "mpn": "0603WAF5601T5E",
+  "des": "R31",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ref25"
+   ]
+  ],
+  "op": [
+   2.375,
+   2.625
+  ],
+  "fault": [
+   2.375,
+   2.625
+  ],
+  "vmax_op": 2.625,
+  "vmax_fault": 2.625,
+  "r_min": 5544.0,
+  "p_op_mW": 1.2429,
+  "p_fault_mW": 1.2429
+ },
+ {
+  "mpn": "1206W4F1001T5E",
+  "des": "R42",
+  "pins": [
+   [
+    "1",
+    "ct_s1"
+   ],
+   [
+    "2",
+    "ct_sense_mon"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "1206W4F100KT5E",
+  "des": "R53",
+  "pins": [
+   [
+    "1",
+    "leg_a-off_h"
+   ],
+   [
+    "2",
+    "leg_a-out_h"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "1206W4F100KT5E",
+  "des": "R54",
+  "pins": [
+   [
+    "1",
+    "leg_a-off_l"
+   ],
+   [
+    "2",
+    "leg_a-out_l"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "1206W4F100KT5E",
+  "des": "R57",
+  "pins": [
+   [
+    "1",
+    "leg_b-off_h"
+   ],
+   [
+    "2",
+    "leg_b-out_h"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "1206W4F100KT5E",
+  "des": "R58",
+  "pins": [
+   [
+    "1",
+    "leg_b-off_l"
+   ],
+   [
+    "2",
+    "leg_b-out_l"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "6SVPC220MV",
+  "des": "C126",
+  "pins": [
+   [
+    "1",
+    "leg_a.bias_h-damp"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "6SVPC220MV",
+  "des": "C127",
+  "pins": [
+   [
+    "1",
+    "leg_a.bias_l-damp"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "6SVPC220MV",
+  "des": "C128",
+  "pins": [
+   [
+    "1",
+    "leg_b.bias_h-damp"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "6SVPC220MV",
+  "des": "C129",
+  "pins": [
+   [
+    "1",
+    "leg_b.bias_l-damp"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "BAS116H,115",
+  "des": "D4",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "ct_sense_mon"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "BAS116H,115",
+  "des": "D5",
+  "pins": [
+   [
+    "1",
+    "ct_sense_mon"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "BAT54S-7-F",
+  "des": "D18",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-good"
+   ],
+   [
+    "2",
+    "vote_nc"
+   ],
+   [
+    "3",
+    "mon_good_ha"
+   ]
+  ]
+ },
+ {
+  "mpn": "BAT54S-7-F",
+  "des": "D19",
+  "pins": [
+   [
+    "1",
+    "selv_gnd"
+   ],
+   [
+    "2",
+    "hb_hold"
+   ],
+   [
+    "3",
+    "hb_x"
+   ]
+  ]
+ },
+ {
+  "mpn": "BAT54S-7-F",
+  "des": "D20",
+  "pins": [
+   [
+    "1",
+    "vote_b_nc"
+   ],
+   [
+    "2",
+    "mon_good_hb"
+   ],
+   [
+    "3",
+    "monitor_ls-good"
+   ]
+  ]
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C27",
+  "pins": [
+   [
+    "1",
+    "vsense_in"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   -0.002,
+   2.4255
+  ],
+  "fault": [
+   -0.002,
+   2.4255
+  ],
+  "vmax_op": 2.4255,
+  "vmax_fault": 2.4255
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C31",
+  "pins": [
+   [
+    "1",
+    "ocp_thresh"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   1.0112,
+   1.0258
+  ],
+  "fault": [
+   1.0112,
+   1.0258
+  ],
+  "vmax_op": 1.0258,
+  "vmax_fault": 1.0258
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C33",
+  "pins": [
+   [
+    "1",
+    "ovp_thresh"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   2.319,
+   2.3476
+  ],
+  "fault": [
+   2.319,
+   2.3476
+  ],
+  "vmax_op": 2.3476,
+  "vmax_fault": 2.3476
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C66",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-uv"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.8265,
+   1.9326
+  ],
+  "fault": [
+   1.8265,
+   1.9326
+  ],
+  "vmax_op": 1.9326,
+  "vmax_fault": 1.9326
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C67",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-ov"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.5169,
+   1.6061
+  ],
+  "fault": [
+   1.5169,
+   1.6061
+  ],
+  "vmax_op": 1.6061,
+  "vmax_fault": 1.6061
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C68",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-spanuv"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.7861,
+   1.8844
+  ],
+  "fault": [
+   1.7861,
+   1.8844
+  ],
+  "vmax_op": 1.8844,
+  "vmax_fault": 1.8844
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C69",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-spanov"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.5826,
+   1.6698
+  ],
+  "fault": [
+   1.5826,
+   1.6698
+  ],
+  "vmax_op": 1.6698,
+  "vmax_fault": 1.6698
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C76",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-uv"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.8265,
+   1.9176
+  ],
+  "fault": [
+   1.8265,
+   1.9176
+  ],
+  "vmax_op": 1.9176,
+  "vmax_fault": 1.9176
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C77",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-ov"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.5169,
+   1.5935
+  ],
+  "fault": [
+   1.5169,
+   1.5935
+  ],
+  "vmax_op": 1.5935,
+  "vmax_fault": 1.5935
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C78",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-spanuv"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.7832,
+   1.8683
+  ],
+  "fault": [
+   1.7832,
+   1.8683
+  ],
+  "vmax_op": 1.8683,
+  "vmax_fault": 1.8683
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C79",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-spanov"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.58,
+   1.6555
+  ],
+  "fault": [
+   1.58,
+   1.6555
+  ],
+  "vmax_op": 1.6555,
+  "vmax_fault": 1.6555
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C83",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-uv"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.8265,
+   1.9176
+  ],
+  "fault": [
+   1.8265,
+   1.9176
+  ],
+  "vmax_op": 1.9176,
+  "vmax_fault": 1.9176
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C84",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-ov"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.5169,
+   1.5935
+  ],
+  "fault": [
+   1.5169,
+   1.5935
+  ],
+  "vmax_op": 1.5935,
+  "vmax_fault": 1.5935
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C85",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-spanuv"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.7832,
+   1.8683
+  ],
+  "fault": [
+   1.7832,
+   1.8683
+  ],
+  "vmax_op": 1.8683,
+  "vmax_fault": 1.8683
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C86",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-spanov"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.58,
+   1.6555
+  ],
+  "fault": [
+   1.58,
+   1.6555
+  ],
+  "vmax_op": 1.6555,
+  "vmax_fault": 1.6555
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C164",
+  "pins": [
+   [
+    "1",
+    "hb_s"
+   ],
+   [
+    "2",
+    "hb_m"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C165",
+  "pins": [
+   [
+    "1",
+    "hb_m"
+   ],
+   [
+    "2",
+    "hb_x"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "C0603C102J5GACTU",
+  "des": "C166",
+  "pins": [
+   [
+    "1",
+    "hb_hold"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C7",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C14",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C25",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   14.3774,
+   15.5815
+  ],
+  "fault": [
+   14.3774,
+   15.5815
+  ],
+  "vmax_op": 15.5815,
+  "vmax_fault": 15.5815
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C28",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C29",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C32",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C34",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C35",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C36",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C37",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C44",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C45",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C46",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C47",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C48",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C49",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C54",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C61",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C65",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C70",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C74",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C75",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C80",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C81",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C82",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C87",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C89",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C131",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C133",
+  "pins": [
+   [
+    "1",
+    "ls_v5"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C134",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C135",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C139",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C144",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C153",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C154",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C155",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C156",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C157",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-v5"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C158",
+  "pins": [
+   [
+    "1",
+    "ls_v5"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C159",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-v5"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C160",
+  "pins": [
+   [
+    "1",
+    "ls_v5"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C161",
+  "pins": [
+   [
+    "1",
+    "ls_v5"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C163",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C168",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C169",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C170",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C171",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C172",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C173",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C174",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C175",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C176",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C177",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0603KRX7R9BB104",
+  "des": "C178",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CC0805KRX7R9BB104",
+  "des": "C8",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CC0805KRX7R9BB104",
+  "des": "C10",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CC0805KRX7R9BB104",
+  "des": "C15",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CC0805KRX7R9BB104",
+  "des": "C17",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C110",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C111",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C112",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C113",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C114",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C115",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C116",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C117",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C118",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C119",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C120",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C121",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C122",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C123",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C124",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL05B104KB54PNC",
+  "des": "C125",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL10C101JB8NNNC",
+  "des": "C30",
+  "pins": [
+   [
+    "1",
+    "ocp_node"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   0.7202,
+   1.4229
+  ],
+  "fault": [
+   0.7202,
+   1.4229
+  ],
+  "vmax_op": 1.4229,
+  "vmax_fault": 1.4229
+ },
+ {
+  "mpn": "CL10C101JB8NNNC",
+  "des": "C167",
+  "pins": [
+   [
+    "1",
+    "bus_fault_flt"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   0.0,
+   3.465
+  ],
+  "fault": [
+   0.0,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CL10C331JB8NNNC",
+  "des": "C71",
+  "pins": [
+   [
+    "1",
+    "bias_ha-fbm"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   2.4425,
+   2.5587
+  ],
+  "fault": [
+   2.4425,
+   2.5587
+  ],
+  "vmax_op": 2.5587,
+  "vmax_fault": 2.5587
+ },
+ {
+  "mpn": "CL10C331JB8NNNC",
+  "des": "C72",
+  "pins": [
+   [
+    "1",
+    "bias_hb-fbm"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   2.4425,
+   2.5587
+  ],
+  "fault": [
+   2.4425,
+   2.5587
+  ],
+  "vmax_op": 2.5587,
+  "vmax_fault": 2.5587
+ },
+ {
+  "mpn": "CL10C331JB8NNNC",
+  "des": "C105",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL10C331JB8NNNC",
+  "des": "C109",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL10C331JB8NNNC",
+  "des": "C162",
+  "pins": [
+   [
+    "1",
+    "hb_rc"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   0.0,
+   5.11
+  ],
+  "fault": [
+   0.0,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CL21B105KBFNNNE",
+  "des": "C145",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CL21B105KBFNNNE",
+  "des": "C146",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL21B105KBFNNNE",
+  "des": "C147",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CL21B105KBFNNNE",
+  "des": "C148",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL21B105KBFNNNE",
+  "des": "C149",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CL21B105KBFNNNE",
+  "des": "C150",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   3.135,
+   3.465
+  ],
+  "fault": [
+   3.135,
+   3.465
+  ],
+  "vmax_op": 3.465,
+  "vmax_fault": 3.465
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C9",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C16",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C24",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C26",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C90",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C91",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C92",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C93",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C94",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C95",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C96",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C97",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C98",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C99",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C100",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C102",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C103",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C104",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C106",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C107",
+  "pins": [
+   [
+    "1",
+    "v24_raw"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   23.43,
+   24.57
+  ],
+  "fault": [
+   23.43,
+   32.4
+  ],
+  "vmax_op": 24.57,
+  "vmax_fault": 32.4
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C108",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C132",
+  "pins": [
+   [
+    "1",
+    "ls_v5"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C136",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-v5"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "CL32B106KBJNNNE",
+  "des": "C140",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-v5"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   4.89,
+   5.11
+  ],
+  "fault": [
+   4.89,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11
+ },
+ {
+  "mpn": "GRM1885C1H472JA01D",
+  "des": "C55",
+  "pins": [
+   [
+    "1",
+    "leg_a-gate_h"
+   ],
+   [
+    "2",
+    "sw_a"
+   ]
+  ],
+  "op": [
+   -2.0611,
+   15.3127
+  ],
+  "fault": [
+   -2.0611,
+   15.3127
+  ],
+  "vmax_op": 15.3127,
+  "vmax_fault": 15.3127
+ },
+ {
+  "mpn": "GRM1885C1H472JA01D",
+  "des": "C56",
+  "pins": [
+   [
+    "1",
+    "leg_a-gate_l"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ]
+  ],
+  "op": [
+   -2.0773,
+   15.4612
+  ],
+  "fault": [
+   -2.0773,
+   15.4612
+  ],
+  "vmax_op": 15.4612,
+  "vmax_fault": 15.4612
+ },
+ {
+  "mpn": "GRM1885C1H472JA01D",
+  "des": "C62",
+  "pins": [
+   [
+    "1",
+    "leg_b-gate_h"
+   ],
+   [
+    "2",
+    "sw_b"
+   ]
+  ],
+  "op": [
+   -2.0611,
+   15.3127
+  ],
+  "fault": [
+   -2.0611,
+   15.3127
+  ],
+  "vmax_op": 15.3127,
+  "vmax_fault": 15.3127
+ },
+ {
+  "mpn": "GRM1885C1H472JA01D",
+  "des": "C63",
+  "pins": [
+   [
+    "1",
+    "leg_b-gate_l"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ]
+  ],
+  "op": [
+   -2.0773,
+   15.4612
+  ],
+  "fault": [
+   -2.0773,
+   15.4612
+  ],
+  "vmax_op": 15.4612,
+  "vmax_fault": 15.4612
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C50",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C51",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C52",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C53",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C57",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C58",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0611
+  ],
+  "fault": [
+   1.9638,
+   2.0611
+  ],
+  "vmax_op": 2.0611,
+  "vmax_fault": 2.0611
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C59",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C60",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.9638,
+   2.0773
+  ],
+  "fault": [
+   1.9638,
+   2.0773
+  ],
+  "vmax_op": 2.0773,
+  "vmax_fault": 2.0773
+ },
+ {
+  "mpn": "GRM188R71E105KA12D",
+  "des": "C64",
+  "pins": [
+   [
+    "1",
+    "ldo_nr"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   16.575,
+   17.425
+  ],
+  "fault": [
+   16.575,
+   17.425
+  ],
+  "vmax_op": 17.425,
+  "vmax_fault": 17.425
+ },
+ {
+  "mpn": "GRM21BZ71E106KE15L",
+  "des": "C11",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "GRM21BZ71E106KE15L",
+  "des": "C18",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   16.5484,
+   17.2765
+  ],
+  "fault": [
+   16.5484,
+   17.2765
+  ],
+  "vmax_op": 17.2765,
+  "vmax_fault": 17.2765
+ },
+ {
+  "mpn": "GRM31C5C1H104JA01L",
+  "des": "C42",
+  "pins": [
+   [
+    "1",
+    "ct_s1"
+   ],
+   [
+    "2",
+    "ct_s2"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "GRM31C5C1H104JA01L",
+  "des": "C43",
+  "pins": [
+   [
+    "1",
+    "ct_s2"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "LM2901BIDR",
+  "des": "U29",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-good"
+   ],
+   [
+    "10",
+    "monitor_ls-spanov"
+   ],
+   [
+    "11",
+    "monitor_ls-halfref"
+   ],
+   [
+    "12",
+    "n_ls"
+   ],
+   [
+    "13",
+    "monitor_ls-good"
+   ],
+   [
+    "14",
+    "monitor_ls-good"
+   ],
+   [
+    "2",
+    "monitor_ls-good"
+   ],
+   [
+    "3",
+    "v15_ls"
+   ],
+   [
+    "4",
+    "monitor_ls-ov"
+   ],
+   [
+    "5",
+    "monitor_ls-halfref"
+   ],
+   [
+    "6",
+    "monitor_ls-halfref"
+   ],
+   [
+    "7",
+    "monitor_ls-uv"
+   ],
+   [
+    "8",
+    "monitor_ls-halfref"
+   ],
+   [
+    "9",
+    "monitor_ls-spanuv"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "LM2901BIDR",
+  "des": "U30",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-good"
+   ],
+   [
+    "10",
+    "bias_ha.monitor-spanov"
+   ],
+   [
+    "11",
+    "bias_ha.monitor-halfref"
+   ],
+   [
+    "12",
+    "n_ha"
+   ],
+   [
+    "13",
+    "bias_ha.monitor-good"
+   ],
+   [
+    "14",
+    "bias_ha.monitor-good"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-good"
+   ],
+   [
+    "3",
+    "p_ha"
+   ],
+   [
+    "4",
+    "bias_ha.monitor-ov"
+   ],
+   [
+    "5",
+    "bias_ha.monitor-halfref"
+   ],
+   [
+    "6",
+    "bias_ha.monitor-halfref"
+   ],
+   [
+    "7",
+    "bias_ha.monitor-uv"
+   ],
+   [
+    "8",
+    "bias_ha.monitor-halfref"
+   ],
+   [
+    "9",
+    "bias_ha.monitor-spanuv"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "LM2901BIDR",
+  "des": "U31",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-good"
+   ],
+   [
+    "10",
+    "bias_hb.monitor-spanov"
+   ],
+   [
+    "11",
+    "bias_hb.monitor-halfref"
+   ],
+   [
+    "12",
+    "n_hb"
+   ],
+   [
+    "13",
+    "bias_hb.monitor-good"
+   ],
+   [
+    "14",
+    "bias_hb.monitor-good"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-good"
+   ],
+   [
+    "3",
+    "p_hb"
+   ],
+   [
+    "4",
+    "bias_hb.monitor-ov"
+   ],
+   [
+    "5",
+    "bias_hb.monitor-halfref"
+   ],
+   [
+    "6",
+    "bias_hb.monitor-halfref"
+   ],
+   [
+    "7",
+    "bias_hb.monitor-uv"
+   ],
+   [
+    "8",
+    "bias_hb.monitor-halfref"
+   ],
+   [
+    "9",
+    "bias_hb.monitor-spanuv"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "LM4050AEM3-2.5/NOPB",
+  "des": "U5",
+  "pins": [
+   [
+    "1",
+    "ref25"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ],
+   [
+    "3",
+    "u_ref-nc"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "PMEG6030EP,115",
+  "des": "D6",
+  "pins": [
+   [
+    "1",
+    "leg_a-off_h"
+   ],
+   [
+    "2",
+    "leg_a-gate_h"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "PMEG6030EP,115",
+  "des": "D7",
+  "pins": [
+   [
+    "1",
+    "leg_a-off_l"
+   ],
+   [
+    "2",
+    "leg_a-gate_l"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "PMEG6030EP,115",
+  "des": "D8",
+  "pins": [
+   [
+    "1",
+    "leg_b-off_h"
+   ],
+   [
+    "2",
+    "leg_b-gate_h"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "PMEG6030EP,115",
+  "des": "D9",
+  "pins": [
+   [
+    "1",
+    "leg_b-off_l"
+   ],
+   [
+    "2",
+    "leg_b-gate_l"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RC1206FR-0716K5L",
+  "des": "R67",
+  "pins": [
+   [
+    "1",
+    "l_filt"
+   ],
+   [
+    "2",
+    "r1mid"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RC1206FR-0716K5L",
+  "des": "R68",
+  "pins": [
+   [
+    "1",
+    "r1mid"
+   ],
+   [
+    "2",
+    "led1"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RC1206FR-0716K5L",
+  "des": "R69",
+  "pins": [
+   [
+    "1",
+    "led2"
+   ],
+   [
+    "2",
+    "r2mid"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RC1206FR-0716K5L",
+  "des": "R70",
+  "pins": [
+   [
+    "1",
+    "r2mid"
+   ],
+   [
+    "2",
+    "n_filt"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RC1206FR-072K2L",
+  "des": "R59",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "monitor_ls-ref"
+   ]
+  ],
+  "op": [
+   14.021,
+   14.981
+  ],
+  "fault": [
+   14.021,
+   14.981
+  ],
+  "vmax_op": 14.981,
+  "vmax_fault": 14.981,
+  "r_min": 2178.0,
+  "p_op_mW": 103.0442,
+  "p_fault_mW": 103.0442
+ },
+ {
+  "mpn": "RC1206FR-072K2L",
+  "des": "R63",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-ref"
+   ]
+  ],
+  "op": [
+   13.9944,
+   14.8325
+  ],
+  "fault": [
+   13.9944,
+   14.8325
+  ],
+  "vmax_op": 14.8325,
+  "vmax_fault": 14.8325,
+  "r_min": 2178.0,
+  "p_op_mW": 101.0115,
+  "p_fault_mW": 101.0115
+ },
+ {
+  "mpn": "RC1206FR-072K2L",
+  "des": "R65",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-ref"
+   ]
+  ],
+  "op": [
+   13.9944,
+   14.8325
+  ],
+  "fault": [
+   13.9944,
+   14.8325
+  ],
+  "vmax_op": 14.8325,
+  "vmax_fault": 14.8325,
+  "r_min": 2178.0,
+  "p_op_mW": 101.0115,
+  "p_fault_mW": 101.0115
+ },
+ {
+  "mpn": "RC1206FR-073RL",
+  "des": "R39",
+  "pins": [
+   [
+    "1",
+    "ct_s1"
+   ],
+   [
+    "2",
+    "ct_s2"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RL1206FR-070R68L",
+  "des": "R51",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "leg_a.bias_h-damp"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RL1206FR-070R68L",
+  "des": "R52",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "leg_a.bias_l-damp"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RL1206FR-070R68L",
+  "des": "R55",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "leg_b.bias_h-damp"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RL1206FR-070R68L",
+  "des": "R56",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "leg_b.bias_l-damp"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RT0603BRD07104KL",
+  "des": "R87",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "monitor_ls-spanov"
+   ]
+  ],
+  "op": [
+   14.9867,
+   15.7613
+  ],
+  "fault": [
+   14.9867,
+   15.7613
+  ],
+  "divider": "monitor_ls-spanov",
+  "vmax_op": 15.7613,
+  "vmax_fault": 15.7613,
+  "r_min": 103896.0,
+  "p_op_mW": 2.391,
+  "p_fault_mW": 2.391
+ },
+ {
+  "mpn": "RT0603BRD07104KL",
+  "des": "R105",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-spanov"
+   ]
+  ],
+  "op": [
+   14.9626,
+   15.627
+  ],
+  "fault": [
+   14.9626,
+   15.627
+  ],
+  "divider": "bias_ha.monitor-spanov",
+  "vmax_op": 15.627,
+  "vmax_fault": 15.627,
+  "r_min": 103896.0,
+  "p_op_mW": 2.3505,
+  "p_fault_mW": 2.3505
+ },
+ {
+  "mpn": "RT0603BRD07104KL",
+  "des": "R120",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-spanov"
+   ]
+  ],
+  "op": [
+   14.9626,
+   15.627
+  ],
+  "fault": [
+   14.9626,
+   15.627
+  ],
+  "divider": "bias_hb.monitor-spanov",
+  "vmax_op": 15.627,
+  "vmax_fault": 15.627,
+  "r_min": 103896.0,
+  "p_op_mW": 2.3505,
+  "p_fault_mW": 2.3505
+ },
+ {
+  "mpn": "RT0603BRD07105KL",
+  "des": "R48",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "hot5_uv_sense"
+   ]
+  ],
+  "op": [
+   4.464,
+   4.6665
+  ],
+  "fault": [
+   4.464,
+   4.6665
+  ],
+  "divider": "hot5_uv_sense",
+  "vmax_op": 4.6665,
+  "vmax_fault": 4.6665,
+  "r_min": 104895.0,
+  "p_op_mW": 0.2076,
+  "p_fault_mW": 0.2076
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R32",
+  "pins": [
+   [
+    "1",
+    "ref25"
+   ],
+   [
+    "2",
+    "ocp_node"
+   ]
+  ],
+  "op": [
+   1.2814,
+   1.576
+  ],
+  "fault": [
+   1.2814,
+   1.576
+  ],
+  "divider": "ocp_node",
+  "vmax_op": 1.576,
+  "vmax_fault": 1.576,
+  "r_min": 9990.0,
+  "p_op_mW": 0.2486,
+  "p_fault_mW": 0.2486
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R36",
+  "pins": [
+   [
+    "1",
+    "ref25"
+   ],
+   [
+    "2",
+    "ovp_thresh"
+   ]
+  ],
+  "op": [
+   0.1654,
+   0.168
+  ],
+  "fault": [
+   0.1654,
+   0.168
+  ],
+  "divider": "ovp_thresh",
+  "vmax_op": 0.168,
+  "vmax_fault": 0.168,
+  "r_min": 9990.0,
+  "p_op_mW": 0.0028,
+  "p_fault_mW": 0.0028
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R44",
+  "pins": [
+   [
+    "1",
+    "ct_ref_hi"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   2.5666,
+   2.8389
+  ],
+  "fault": [
+   2.5666,
+   2.8389
+  ],
+  "divider": "ct_ref_hi",
+  "vmax_op": 2.8389,
+  "vmax_fault": 2.8389,
+  "r_min": 9990.0,
+  "p_op_mW": 0.8067,
+  "p_fault_mW": 0.8067
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R45",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "ct_ref_lo"
+   ]
+  ],
+  "op": [
+   2.5666,
+   2.8389
+  ],
+  "fault": [
+   2.5666,
+   2.8389
+  ],
+  "divider": "ct_ref_lo",
+  "vmax_op": 2.8389,
+  "vmax_fault": 2.8389,
+  "r_min": 9990.0,
+  "p_op_mW": 0.8067,
+  "p_fault_mW": 0.8067
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R49",
+  "pins": [
+   [
+    "1",
+    "hot5_uv_sense"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   0.4244,
+   0.4452
+  ],
+  "fault": [
+   0.4244,
+   0.4452
+  ],
+  "divider": "hot5_uv_sense",
+  "vmax_op": 0.4452,
+  "vmax_fault": 0.4452,
+  "r_min": 9990.0,
+  "p_op_mW": 0.0198,
+  "p_fault_mW": 0.0198
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R50",
+  "pins": [
+   [
+    "1",
+    "hot5"
+   ],
+   [
+    "2",
+    "hot5_uv_raw"
+   ]
+  ],
+  "op": [
+   -0.0,
+   5.11
+  ],
+  "fault": [
+   -0.0,
+   5.11
+  ],
+  "vmax_op": 5.11,
+  "vmax_fault": 5.11,
+  "r_min": 9990.0,
+  "p_op_mW": 2.6138,
+  "p_fault_mW": 2.6138
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R78",
+  "pins": [
+   [
+    "1",
+    "bias_ls-fb"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.2113,
+   1.2833
+  ],
+  "fault": [
+   1.2113,
+   1.2833
+  ],
+  "divider": "bias_ls-fb",
+  "vmax_op": 1.2833,
+  "vmax_fault": 1.2833,
+  "r_min": 9990.0,
+  "p_op_mW": 0.1649,
+  "p_fault_mW": 0.1649
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R80",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-halfref"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.6938,
+   1.7722
+  ],
+  "fault": [
+   1.6938,
+   1.7722
+  ],
+  "divider": "monitor_ls-halfref",
+  "vmax_op": 1.7722,
+  "vmax_fault": 1.7722,
+  "r_min": 9990.0,
+  "p_op_mW": 0.3144,
+  "p_fault_mW": 0.3144
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R82",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-uv"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.8265,
+   1.9326
+  ],
+  "fault": [
+   1.8265,
+   1.9326
+  ],
+  "divider": "monitor_ls-uv",
+  "vmax_op": 1.9326,
+  "vmax_fault": 1.9326,
+  "r_min": 9990.0,
+  "p_op_mW": 0.3739,
+  "p_fault_mW": 0.3739
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R84",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-ov"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.5169,
+   1.6061
+  ],
+  "fault": [
+   1.5169,
+   1.6061
+  ],
+  "divider": "monitor_ls-ov",
+  "vmax_op": 1.6061,
+  "vmax_fault": 1.6061,
+  "r_min": 9990.0,
+  "p_op_mW": 0.2582,
+  "p_fault_mW": 0.2582
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R96",
+  "pins": [
+   [
+    "1",
+    "bias_ha.split-fb"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.2113,
+   1.2733
+  ],
+  "fault": [
+   1.2113,
+   1.2733
+  ],
+  "divider": "bias_ha.split-fb",
+  "vmax_op": 1.2733,
+  "vmax_fault": 1.2733,
+  "r_min": 9990.0,
+  "p_op_mW": 0.1623,
+  "p_fault_mW": 0.1623
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R98",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-halfref"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.6938,
+   1.7722
+  ],
+  "fault": [
+   1.6938,
+   1.7722
+  ],
+  "divider": "bias_ha.monitor-halfref",
+  "vmax_op": 1.7722,
+  "vmax_fault": 1.7722,
+  "r_min": 9990.0,
+  "p_op_mW": 0.3144,
+  "p_fault_mW": 0.3144
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R100",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-uv"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.8265,
+   1.9176
+  ],
+  "fault": [
+   1.8265,
+   1.9176
+  ],
+  "divider": "bias_ha.monitor-uv",
+  "vmax_op": 1.9176,
+  "vmax_fault": 1.9176,
+  "r_min": 9990.0,
+  "p_op_mW": 0.3681,
+  "p_fault_mW": 0.3681
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R102",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-ov"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.5169,
+   1.5935
+  ],
+  "fault": [
+   1.5169,
+   1.5935
+  ],
+  "divider": "bias_ha.monitor-ov",
+  "vmax_op": 1.5935,
+  "vmax_fault": 1.5935,
+  "r_min": 9990.0,
+  "p_op_mW": 0.2542,
+  "p_fault_mW": 0.2542
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R111",
+  "pins": [
+   [
+    "1",
+    "bias_hb.split-fb"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.2113,
+   1.2733
+  ],
+  "fault": [
+   1.2113,
+   1.2733
+  ],
+  "divider": "bias_hb.split-fb",
+  "vmax_op": 1.2733,
+  "vmax_fault": 1.2733,
+  "r_min": 9990.0,
+  "p_op_mW": 0.1623,
+  "p_fault_mW": 0.1623
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R113",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-halfref"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.6938,
+   1.7722
+  ],
+  "fault": [
+   1.6938,
+   1.7722
+  ],
+  "divider": "bias_hb.monitor-halfref",
+  "vmax_op": 1.7722,
+  "vmax_fault": 1.7722,
+  "r_min": 9990.0,
+  "p_op_mW": 0.3144,
+  "p_fault_mW": 0.3144
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R115",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-uv"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.8265,
+   1.9176
+  ],
+  "fault": [
+   1.8265,
+   1.9176
+  ],
+  "divider": "bias_hb.monitor-uv",
+  "vmax_op": 1.9176,
+  "vmax_fault": 1.9176,
+  "r_min": 9990.0,
+  "p_op_mW": 0.3681,
+  "p_fault_mW": 0.3681
+ },
+ {
+  "mpn": "RT0603BRD0710KL",
+  "des": "R117",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-ov"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.5169,
+   1.5935
+  ],
+  "fault": [
+   1.5169,
+   1.5935
+  ],
+  "divider": "bias_hb.monitor-ov",
+  "vmax_op": 1.5935,
+  "vmax_fault": 1.5935,
+  "r_min": 9990.0,
+  "p_op_mW": 0.2542,
+  "p_fault_mW": 0.2542
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R35",
+  "pins": [
+   [
+    "1",
+    "ocp_thresh"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   1.0112,
+   1.0258
+  ],
+  "fault": [
+   1.0112,
+   1.0258
+  ],
+  "divider": "ocp_thresh",
+  "vmax_op": 1.0258,
+  "vmax_fault": 1.0258,
+  "r_min": 10989.0,
+  "p_op_mW": 0.0958,
+  "p_fault_mW": 0.0958
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R61",
+  "pins": [
+   [
+    "1",
+    "bias_hb-fbm"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   2.4425,
+   2.5587
+  ],
+  "fault": [
+   2.4425,
+   2.5587
+  ],
+  "divider": "bias_hb-fbm",
+  "vmax_op": 2.5587,
+  "vmax_fault": 2.5587,
+  "r_min": 10989.0,
+  "p_op_mW": 0.5958,
+  "p_fault_mW": 0.5958
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R86",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-spanuv"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.7861,
+   1.8844
+  ],
+  "fault": [
+   1.7861,
+   1.8844
+  ],
+  "divider": "monitor_ls-spanuv",
+  "vmax_op": 1.8844,
+  "vmax_fault": 1.8844,
+  "r_min": 10989.0,
+  "p_op_mW": 0.3231,
+  "p_fault_mW": 0.3231
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R88",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-spanov"
+   ],
+   [
+    "2",
+    "n_ls"
+   ]
+  ],
+  "op": [
+   1.5826,
+   1.6698
+  ],
+  "fault": [
+   1.5826,
+   1.6698
+  ],
+  "divider": "monitor_ls-spanov",
+  "vmax_op": 1.6698,
+  "vmax_fault": 1.6698,
+  "r_min": 10989.0,
+  "p_op_mW": 0.2537,
+  "p_fault_mW": 0.2537
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R93",
+  "pins": [
+   [
+    "1",
+    "bias_ha-fbm"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   2.4425,
+   2.5587
+  ],
+  "fault": [
+   2.4425,
+   2.5587
+  ],
+  "divider": "bias_ha-fbm",
+  "vmax_op": 2.5587,
+  "vmax_fault": 2.5587,
+  "r_min": 10989.0,
+  "p_op_mW": 0.5958,
+  "p_fault_mW": 0.5958
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R104",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-spanuv"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.7832,
+   1.8683
+  ],
+  "fault": [
+   1.7832,
+   1.8683
+  ],
+  "divider": "bias_ha.monitor-spanuv",
+  "vmax_op": 1.8683,
+  "vmax_fault": 1.8683,
+  "r_min": 10989.0,
+  "p_op_mW": 0.3176,
+  "p_fault_mW": 0.3176
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R106",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-spanov"
+   ],
+   [
+    "2",
+    "n_ha"
+   ]
+  ],
+  "op": [
+   1.58,
+   1.6555
+  ],
+  "fault": [
+   1.58,
+   1.6555
+  ],
+  "divider": "bias_ha.monitor-spanov",
+  "vmax_op": 1.6555,
+  "vmax_fault": 1.6555,
+  "r_min": 10989.0,
+  "p_op_mW": 0.2494,
+  "p_fault_mW": 0.2494
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R119",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-spanuv"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.7832,
+   1.8683
+  ],
+  "fault": [
+   1.7832,
+   1.8683
+  ],
+  "divider": "bias_hb.monitor-spanuv",
+  "vmax_op": 1.8683,
+  "vmax_fault": 1.8683,
+  "r_min": 10989.0,
+  "p_op_mW": 0.3176,
+  "p_fault_mW": 0.3176
+ },
+ {
+  "mpn": "RT0603BRD0711KL",
+  "des": "R121",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-spanov"
+   ],
+   [
+    "2",
+    "n_hb"
+   ]
+  ],
+  "op": [
+   1.58,
+   1.6555
+  ],
+  "fault": [
+   1.58,
+   1.6555
+  ],
+  "divider": "bias_hb.monitor-spanov",
+  "vmax_op": 1.6555,
+  "vmax_fault": 1.6555,
+  "r_min": 10989.0,
+  "p_op_mW": 0.2494,
+  "p_fault_mW": 0.2494
+ },
+ {
+  "mpn": "RT0603BRD07140KL",
+  "des": "R37",
+  "pins": [
+   [
+    "1",
+    "ovp_thresh"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   2.319,
+   2.3476
+  ],
+  "fault": [
+   2.319,
+   2.3476
+  ],
+  "divider": "ovp_thresh",
+  "vmax_op": 2.3476,
+  "vmax_fault": 2.3476,
+  "r_min": 139860.0,
+  "p_op_mW": 0.0394,
+  "p_fault_mW": 0.0394
+ },
+ {
+  "mpn": "RT0603BRD0715K8L",
+  "des": "R30",
+  "pins": [
+   [
+    "1",
+    "vsense_in"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   -0.002,
+   2.4255
+  ],
+  "fault": [
+   -0.002,
+   2.4255
+  ],
+  "divider": "vsense_in",
+  "vmax_op": 2.4255,
+  "vmax_fault": 2.4255,
+  "r_min": 15784.2,
+  "p_op_mW": 0.3727,
+  "p_fault_mW": 0.3727
+ },
+ {
+  "mpn": "RT0603BRD0716KL",
+  "des": "R34",
+  "pins": [
+   [
+    "1",
+    "ref25"
+   ],
+   [
+    "2",
+    "ocp_thresh"
+   ]
+  ],
+  "op": [
+   1.4714,
+   1.4916
+  ],
+  "fault": [
+   1.4714,
+   1.4916
+  ],
+  "divider": "ocp_thresh",
+  "vmax_op": 1.4916,
+  "vmax_fault": 1.4916,
+  "r_min": 15984.0,
+  "p_op_mW": 0.1392,
+  "p_fault_mW": 0.1392
+ },
+ {
+  "mpn": "RT0603BRD071KL",
+  "des": "R40",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "ct_s2"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RT0603BRD071KL",
+  "des": "R41",
+  "pins": [
+   [
+    "1",
+    "ct_s2"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RT0603BRD072K21L",
+  "des": "R43",
+  "pins": [
+   [
+    "1",
+    "v3v3"
+   ],
+   [
+    "2",
+    "ct_ref_hi"
+   ]
+  ],
+  "op": [
+   0.5665,
+   0.6282
+  ],
+  "fault": [
+   0.5665,
+   0.6282
+  ],
+  "divider": "ct_ref_hi",
+  "vmax_op": 0.6282,
+  "vmax_fault": 0.6282,
+  "r_min": 2207.79,
+  "p_op_mW": 0.1787,
+  "p_fault_mW": 0.1787
+ },
+ {
+  "mpn": "RT0603BRD072K21L",
+  "des": "R46",
+  "pins": [
+   [
+    "1",
+    "ct_ref_lo"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": [
+   0.5665,
+   0.6282
+  ],
+  "fault": [
+   0.5665,
+   0.6282
+  ],
+  "divider": "ct_ref_lo",
+  "vmax_op": 0.6282,
+  "vmax_fault": 0.6282,
+  "r_min": 2207.79,
+  "p_op_mW": 0.1787,
+  "p_fault_mW": 0.1787
+ },
+ {
+  "mpn": "RT0603BRD072K94L",
+  "des": "R83",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "monitor_ls-ov"
+   ]
+  ],
+  "op": [
+   0.4455,
+   0.4727
+  ],
+  "fault": [
+   0.4455,
+   0.4727
+  ],
+  "divider": "monitor_ls-ov",
+  "vmax_op": 0.4727,
+  "vmax_fault": 0.4727,
+  "r_min": 2937.06,
+  "p_op_mW": 0.0761,
+  "p_fault_mW": 0.0761
+ },
+ {
+  "mpn": "RT0603BRD072K94L",
+  "des": "R101",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-ov"
+   ]
+  ],
+  "op": [
+   0.4455,
+   0.469
+  ],
+  "fault": [
+   0.4455,
+   0.469
+  ],
+  "divider": "bias_ha.monitor-ov",
+  "vmax_op": 0.469,
+  "vmax_fault": 0.469,
+  "r_min": 2937.06,
+  "p_op_mW": 0.0749,
+  "p_fault_mW": 0.0749
+ },
+ {
+  "mpn": "RT0603BRD072K94L",
+  "des": "R116",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-ov"
+   ]
+  ],
+  "op": [
+   0.4455,
+   0.469
+  ],
+  "fault": [
+   0.4455,
+   0.469
+  ],
+  "divider": "bias_hb.monitor-ov",
+  "vmax_op": 0.469,
+  "vmax_fault": 0.469,
+  "r_min": 2937.06,
+  "p_op_mW": 0.0749,
+  "p_fault_mW": 0.0749
+ },
+ {
+  "mpn": "RT0603BRD0749K9L",
+  "des": "R9",
+  "pins": [
+   [
+    "1",
+    "leg_a.driver-dt"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RT0603BRD0749K9L",
+  "des": "R17",
+  "pins": [
+   [
+    "1",
+    "leg_b.driver-dt"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RT0603BRD0749K9L",
+  "des": "R133",
+  "pins": [
+   [
+    "1",
+    "hb_hold"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ]
+  ],
+  "op": null,
+  "fault": null,
+  "status": "UNDECLARED"
+ },
+ {
+  "mpn": "RT0603BRD074K42L",
+  "des": "R79",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-ref"
+   ],
+   [
+    "2",
+    "monitor_ls-halfref"
+   ]
+  ],
+  "op": [
+   0.7481,
+   0.7839
+  ],
+  "fault": [
+   0.7481,
+   0.7839
+  ],
+  "divider": "monitor_ls-halfref",
+  "vmax_op": 0.7839,
+  "vmax_fault": 0.7839,
+  "r_min": 4415.58,
+  "p_op_mW": 0.1392,
+  "p_fault_mW": 0.1392
+ },
+ {
+  "mpn": "RT0603BRD074K42L",
+  "des": "R97",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-ref"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-halfref"
+   ]
+  ],
+  "op": [
+   0.7481,
+   0.7839
+  ],
+  "fault": [
+   0.7481,
+   0.7839
+  ],
+  "divider": "bias_ha.monitor-halfref",
+  "vmax_op": 0.7839,
+  "vmax_fault": 0.7839,
+  "r_min": 4415.58,
+  "p_op_mW": 0.1392,
+  "p_fault_mW": 0.1392
+ },
+ {
+  "mpn": "RT0603BRD074K42L",
+  "des": "R112",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-ref"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-halfref"
+   ]
+  ],
+  "op": [
+   0.7481,
+   0.7839
+  ],
+  "fault": [
+   0.7481,
+   0.7839
+  ],
+  "divider": "bias_hb.monitor-halfref",
+  "vmax_op": 0.7839,
+  "vmax_fault": 0.7839,
+  "r_min": 4415.58,
+  "p_op_mW": 0.1392,
+  "p_fault_mW": 0.1392
+ },
+ {
+  "mpn": "RT0603BRD0763K4L",
+  "des": "R92",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "bias_ha-fbm"
+   ]
+  ],
+  "op": [
+   14.0976,
+   14.7265
+  ],
+  "fault": [
+   14.0976,
+   14.7265
+  ],
+  "divider": "bias_ha-fbm",
+  "vmax_op": 14.7265,
+  "vmax_fault": 14.7265,
+  "r_min": 63336.6,
+  "p_op_mW": 3.4241,
+  "p_fault_mW": 3.4241
+ },
+ {
+  "mpn": "RT0603BRD0763K4L",
+  "des": "R94",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "bias_hb-fbm"
+   ]
+  ],
+  "op": [
+   14.0976,
+   14.7265
+  ],
+  "fault": [
+   14.0976,
+   14.7265
+  ],
+  "divider": "bias_hb-fbm",
+  "vmax_op": 14.7265,
+  "vmax_fault": 14.7265,
+  "r_min": 63336.6,
+  "p_op_mW": 3.4241,
+  "p_fault_mW": 3.4241
+ },
+ {
+  "mpn": "RT0603BRD0763K4L",
+  "des": "R144",
+  "pins": [
+   [
+    "1",
+    "ref25"
+   ],
+   [
+    "2",
+    "ref25_wd"
+   ]
+  ],
+  "op": [
+   2.0943,
+   2.1268
+  ],
+  "fault": [
+   2.0943,
+   2.1268
+  ],
+  "divider": "ref25_wd",
+  "vmax_op": 2.1268,
+  "vmax_fault": 2.1268,
+  "r_min": 63336.6,
+  "p_op_mW": 0.0714,
+  "p_fault_mW": 0.0714
+ },
+ {
+  "mpn": "RT0603BRD076K2L",
+  "des": "R77",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "bias_ls-fb"
+   ]
+  ],
+  "op": [
+   0.7507,
+   0.796
+  ],
+  "fault": [
+   0.7507,
+   0.796
+  ],
+  "divider": "bias_ls-fb",
+  "vmax_op": 0.796,
+  "vmax_fault": 0.796,
+  "r_min": 6193.8,
+  "p_op_mW": 0.1023,
+  "p_fault_mW": 0.1023
+ },
+ {
+  "mpn": "RT0603BRD076K2L",
+  "des": "R95",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "bias_ha.split-fb"
+   ]
+  ],
+  "op": [
+   0.7507,
+   0.7898
+  ],
+  "fault": [
+   0.7507,
+   0.7898
+  ],
+  "divider": "bias_ha.split-fb",
+  "vmax_op": 0.7898,
+  "vmax_fault": 0.7898,
+  "r_min": 6193.8,
+  "p_op_mW": 0.1007,
+  "p_fault_mW": 0.1007
+ },
+ {
+  "mpn": "RT0603BRD076K2L",
+  "des": "R110",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "bias_hb.split-fb"
+   ]
+  ],
+  "op": [
+   0.7507,
+   0.7898
+  ],
+  "fault": [
+   0.7507,
+   0.7898
+  ],
+  "divider": "bias_hb.split-fb",
+  "vmax_op": 0.7898,
+  "vmax_fault": 0.7898,
+  "r_min": 6193.8,
+  "p_op_mW": 0.1007,
+  "p_fault_mW": 0.1007
+ },
+ {
+  "mpn": "RT0603BRD07750RL",
+  "des": "R81",
+  "pins": [
+   [
+    "1",
+    "leg_ret"
+   ],
+   [
+    "2",
+    "monitor_ls-uv"
+   ]
+  ],
+  "op": [
+   0.1368,
+   0.1452
+  ],
+  "fault": [
+   0.1368,
+   0.1452
+  ],
+  "divider": "monitor_ls-uv",
+  "vmax_op": 0.1452,
+  "vmax_fault": 0.1452,
+  "r_min": 749.25,
+  "p_op_mW": 0.0281,
+  "p_fault_mW": 0.0281
+ },
+ {
+  "mpn": "RT0603BRD07750RL",
+  "des": "R99",
+  "pins": [
+   [
+    "1",
+    "sw_a"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-uv"
+   ]
+  ],
+  "op": [
+   0.1368,
+   0.1441
+  ],
+  "fault": [
+   0.1368,
+   0.1441
+  ],
+  "divider": "bias_ha.monitor-uv",
+  "vmax_op": 0.1441,
+  "vmax_fault": 0.1441,
+  "r_min": 749.25,
+  "p_op_mW": 0.0277,
+  "p_fault_mW": 0.0277
+ },
+ {
+  "mpn": "RT0603BRD07750RL",
+  "des": "R114",
+  "pins": [
+   [
+    "1",
+    "sw_b"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-uv"
+   ]
+  ],
+  "op": [
+   0.1368,
+   0.1441
+  ],
+  "fault": [
+   0.1368,
+   0.1441
+  ],
+  "divider": "bias_hb.monitor-uv",
+  "vmax_op": 0.1441,
+  "vmax_fault": 0.1441,
+  "r_min": 749.25,
+  "p_op_mW": 0.0277,
+  "p_fault_mW": 0.0277
+ },
+ {
+  "mpn": "RT0603BRD077K5L",
+  "des": "R33",
+  "pins": [
+   [
+    "1",
+    "ocp_node"
+   ],
+   [
+    "2",
+    "ocp_kelvin_n"
+   ]
+  ],
+  "op": [
+   0.9608,
+   1.1823
+  ],
+  "fault": [
+   0.9608,
+   1.1823
+  ],
+  "divider": "ocp_node",
+  "vmax_op": 1.1823,
+  "vmax_fault": 1.1823,
+  "r_min": 7492.5,
+  "p_op_mW": 0.1866,
+  "p_fault_mW": 0.1866
+ },
+ {
+  "mpn": "RT0603BRD0790K9L",
+  "des": "R85",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "2",
+    "monitor_ls-spanuv"
+   ]
+  ],
+  "op": [
+   14.7826,
+   15.5473
+  ],
+  "fault": [
+   14.7826,
+   15.5473
+  ],
+  "divider": "monitor_ls-spanuv",
+  "vmax_op": 15.5473,
+  "vmax_fault": 15.5473,
+  "r_min": 90809.1,
+  "p_op_mW": 2.6618,
+  "p_fault_mW": 2.6618
+ },
+ {
+  "mpn": "RT0603BRD0790K9L",
+  "des": "R103",
+  "pins": [
+   [
+    "1",
+    "p_ha"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-spanuv"
+   ]
+  ],
+  "op": [
+   14.7588,
+   15.4148
+  ],
+  "fault": [
+   14.7588,
+   15.4148
+  ],
+  "divider": "bias_ha.monitor-spanuv",
+  "vmax_op": 15.4148,
+  "vmax_fault": 15.4148,
+  "r_min": 90809.1,
+  "p_op_mW": 2.6167,
+  "p_fault_mW": 2.6167
+ },
+ {
+  "mpn": "RT0603BRD0790K9L",
+  "des": "R118",
+  "pins": [
+   [
+    "1",
+    "p_hb"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-spanuv"
+   ]
+  ],
+  "op": [
+   14.7588,
+   15.4148
+  ],
+  "fault": [
+   14.7588,
+   15.4148
+  ],
+  "divider": "bias_hb.monitor-spanuv",
+  "vmax_op": 15.4148,
+  "vmax_fault": 15.4148,
+  "r_min": 90809.1,
+  "p_op_mW": 2.6167,
+  "p_fault_mW": 2.6167
+ },
+ {
+  "mpn": "SN74LVC1G00DBVR",
+  "des": "U22",
+  "pins": [
+   [
+    "1",
+    "leg_a-permit_gate"
+   ],
+   [
+    "2",
+    "bias_good"
+   ],
+   [
+    "3",
+    "selv_gnd"
+   ],
+   [
+    "4",
+    "leg_a-driver_dis"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "leg_a-driver_dis",
+    "r_loads": [
+     [
+      "R73",
+      9900.0
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G00DBVR",
+  "des": "U23",
+  "pins": [
+   [
+    "1",
+    "leg_b-permit_gate"
+   ],
+   [
+    "2",
+    "bias_good"
+   ],
+   [
+    "3",
+    "selv_gnd"
+   ],
+   [
+    "4",
+    "leg_b-driver_dis"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "leg_b-driver_dis",
+    "r_loads": [
+     [
+      "R76",
+      9900.0
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G10DBVR",
+  "des": "U8",
+  "pins": [
+   [
+    "1",
+    "ocp_ok_hot"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ],
+   [
+    "3",
+    "ovp_ok_hot"
+   ],
+   [
+    "4",
+    "bus_fault_hot"
+   ],
+   [
+    "5",
+    "hot5"
+   ],
+   [
+    "6",
+    "hot5_ok_hot"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "bus_fault_hot",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G132DBVR",
+  "des": "U45",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-good"
+   ],
+   [
+    "2",
+    "hb_rc"
+   ],
+   [
+    "3",
+    "n_ls"
+   ],
+   [
+    "4",
+    "hb_tx"
+   ],
+   [
+    "5",
+    "ls_v5"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "hb_tx",
+    "r_loads": [
+     [
+      "R131",
+      4940.1
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G132DBVR",
+  "des": "U46",
+  "pins": [
+   [
+    "1",
+    "hsb_good"
+   ],
+   [
+    "2",
+    "hb_rx"
+   ],
+   [
+    "3",
+    "selv_gnd"
+   ],
+   [
+    "4",
+    "hb_bufo"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "hb_bufo",
+    "r_loads": [
+     [
+      "R132",
+      217.8
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G17DBVR",
+  "des": "U15",
+  "pins": [
+   [
+    "1",
+    "u_hot5_schmitt-nc"
+   ],
+   [
+    "2",
+    "hot5_uv_raw"
+   ],
+   [
+    "3",
+    "ocp_kelvin_p"
+   ],
+   [
+    "4",
+    "hot5_ok_hot"
+   ],
+   [
+    "5",
+    "hot5"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "hot5_ok_hot",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G17DBVR",
+  "des": "U24",
+  "pins": [
+   [
+    "1",
+    "line_zc.buffer-nc"
+   ],
+   [
+    "2",
+    "line_zc_raw"
+   ],
+   [
+    "3",
+    "selv_gnd"
+   ],
+   [
+    "4",
+    "line_zc"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "line_zc",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G17DBVR",
+  "des": "U40",
+  "pins": [
+   [
+    "1",
+    "u_bias_flt-nc"
+   ],
+   [
+    "2",
+    "hb_hold"
+   ],
+   [
+    "3",
+    "selv_gnd"
+   ],
+   [
+    "4",
+    "bias_good"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "bias_good",
+    "r_loads": [
+     [
+      "R146",
+      217800.0
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "mpn": "SN74LVC1G332DBVR",
+  "des": "U13",
+  "pins": [
+   [
+    "1",
+    "bus_fault_flt"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ],
+   [
+    "3",
+    "ct_oc_pos"
+   ],
+   [
+    "4",
+    "bus_fault"
+   ],
+   [
+    "5",
+    "v3v3"
+   ],
+   [
+    "6",
+    "ct_oc_neg"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "4",
+    "fn": "Y",
+    "net": "bus_fault",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "TL431BQDBZR",
+  "des": "U17",
+  "pins": [
+   [
+    "1",
+    "monitor_ls-ref"
+   ],
+   [
+    "2",
+    "monitor_ls-ref"
+   ],
+   [
+    "3",
+    "n_ls"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TL431BQDBZR",
+  "des": "U19",
+  "pins": [
+   [
+    "1",
+    "bias_ha.monitor-ref"
+   ],
+   [
+    "2",
+    "bias_ha.monitor-ref"
+   ],
+   [
+    "3",
+    "n_ha"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TL431BQDBZR",
+  "des": "U21",
+  "pins": [
+   [
+    "1",
+    "bias_hb.monitor-ref"
+   ],
+   [
+    "2",
+    "bias_hb.monitor-ref"
+   ],
+   [
+    "3",
+    "n_hb"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TLV3201AIDBVR",
+  "des": "U6",
+  "pins": [
+   [
+    "1",
+    "ocp_ok_hot"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ],
+   [
+    "3",
+    "ocp_node"
+   ],
+   [
+    "4",
+    "ocp_thresh"
+   ],
+   [
+    "5",
+    "hot5"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "1",
+    "fn": "OUT",
+    "net": "ocp_ok_hot",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "TLV3201AIDBVR",
+  "des": "U7",
+  "pins": [
+   [
+    "1",
+    "ovp_ok_hot"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ],
+   [
+    "3",
+    "ovp_thresh"
+   ],
+   [
+    "4",
+    "vsense_in"
+   ],
+   [
+    "5",
+    "hot5"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "1",
+    "fn": "OUT",
+    "net": "ovp_ok_hot",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "TLV3201AIDBVR",
+  "des": "U10",
+  "pins": [
+   [
+    "1",
+    "ct_oc_pos"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ],
+   [
+    "3",
+    "ct_sense_mon"
+   ],
+   [
+    "4",
+    "ct_ref_hi"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "1",
+    "fn": "OUT",
+    "net": "ct_oc_pos",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "TLV3201AIDBVR",
+  "des": "U11",
+  "pins": [
+   [
+    "1",
+    "ct_oc_neg"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ],
+   [
+    "3",
+    "ct_ref_lo"
+   ],
+   [
+    "4",
+    "ct_sense_mon"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "1",
+    "fn": "OUT",
+    "net": "ct_oc_neg",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "TLV3201AIDBVR",
+  "des": "U12",
+  "pins": [
+   [
+    "1",
+    "ct_zc"
+   ],
+   [
+    "2",
+    "selv_gnd"
+   ],
+   [
+    "3",
+    "ct_sense_mon"
+   ],
+   [
+    "4",
+    "ct_s2"
+   ],
+   [
+    "5",
+    "v3v3"
+   ]
+  ],
+  "outputs": [
+   {
+    "pin": "1",
+    "fn": "OUT",
+    "net": "ct_zc",
+    "r_loads": []
+   }
+  ]
+ },
+ {
+  "mpn": "TLVH431BQDBZR",
+  "des": "U16",
+  "pins": [
+   [
+    "1",
+    "bias_ls-fb"
+   ],
+   [
+    "2",
+    "leg_ret"
+   ],
+   [
+    "3",
+    "n_ls"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TLVH431BQDBZR",
+  "des": "U18",
+  "pins": [
+   [
+    "1",
+    "bias_ha.split-fb"
+   ],
+   [
+    "2",
+    "sw_a"
+   ],
+   [
+    "3",
+    "n_ha"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TLVH431BQDBZR",
+  "des": "U20",
+  "pins": [
+   [
+    "1",
+    "bias_hb.split-fb"
+   ],
+   [
+    "2",
+    "sw_b"
+   ],
+   [
+    "3",
+    "n_hb"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TNPW060311K7BEEA",
+  "des": "R145",
+  "pins": [
+   [
+    "1",
+    "ref25_wd"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ]
+  ],
+  "op": [
+   0.3835,
+   0.3955
+  ],
+  "fault": [
+   0.3835,
+   0.3955
+  ],
+  "divider": "ref25_wd",
+  "vmax_op": 0.3955,
+  "vmax_fault": 0.3955,
+  "r_min": 11583.0,
+  "p_op_mW": 0.0135,
+  "p_fault_mW": 0.0135
+ },
+ {
+  "mpn": "TPS3700DDCR",
+  "des": "U14",
+  "pins": [
+   [
+    "1",
+    "hot5_uv_raw"
+   ],
+   [
+    "2",
+    "ocp_kelvin_p"
+   ],
+   [
+    "3",
+    "hot5_uv_sense"
+   ],
+   [
+    "4",
+    "ref25_wd"
+   ],
+   [
+    "5",
+    "hot5"
+   ],
+   [
+    "6",
+    "hot5_uv_raw"
+   ]
+  ],
+  "outputs": []
+ },
+ {
+  "mpn": "TPS7A4700RGWR",
+  "des": "U26",
+  "pins": [
+   [
+    "1",
+    "v15_ls"
+   ],
+   [
+    "10",
+    "n_ls"
+   ],
+   [
+    "11",
+    "p11"
+   ],
+   [
+    "12",
+    "p12"
+   ],
+   [
+    "13",
+    "v24_raw"
+   ],
+   [
+    "14",
+    "ldo_nr"
+   ],
+   [
+    "15",
+    "v24_raw"
+   ],
+   [
+    "16",
+    "v24_raw"
+   ],
+   [
+    "17",
+    "p17"
+   ],
+   [
+    "18",
+    "p18"
+   ],
+   [
+    "19",
+    "p19"
+   ],
+   [
+    "2",
+    "p2"
+   ],
+   [
+    "20",
+    "v15_ls"
+   ],
+   [
+    "21",
+    "n_ls"
+   ],
+   [
+    "3",
+    "v15_ls"
+   ],
+   [
+    "4",
+    "n_ls"
+   ],
+   [
+    "5",
+    "n_ls"
+   ],
+   [
+    "6",
+    "p6"
+   ],
+   [
+    "7",
+    "n_ls"
+   ],
+   [
+    "8",
+    "n_ls"
+   ],
+   [
+    "9",
+    "n_ls"
+   ]
+  ],
+  "outputs": []
+ }
+]

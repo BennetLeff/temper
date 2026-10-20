@@ -1,0 +1,48 @@
+git apply --check 01-bom-r44-r45-11k.patch (working tree): ok
+git apply --check 02-firmware-peak-trip-max.patch (working tree): ok
+git apply --check 03-b3-ct-network-rows.patch (working tree): ok
+git apply --check 05-open-items-s29.patch (working tree): ok
+git apply 01-bom-r44-r45-11k.patch (temporary copy, in sequence): ok
+git apply 02-firmware-peak-trip-max.patch (temporary copy, in sequence): ok
+git apply 03-b3-ct-network-rows.patch (temporary copy, in sequence): ok
+git apply 04-b3-r39-heat-1to200.patch (temporary copy, in sequence): ok
+git apply 05-open-items-s29.patch (temporary copy, in sequence): ok
+
+patched b3_ratings_gate.py on the committed s53 runs (board 82af7bd93e62):
+  c17.5_h10: existing 104 rows identical to margins.json: True; tank-CT rows (est / limit / margin):
+    R39 70.3 / 85.0 C / +14.7 K  (body element)
+    R40 62.2 / 85.0 C / +22.8 K  (pad copper + 3.00 mW x 46.3 K/W)
+    R41 62.7 / 85.0 C / +22.3 K  (pad copper + 3.00 mW x 46.3 K/W)
+    R43 62.1 / 85.0 C / +22.9 K  (pad copper + 0.18 mW x 46.3 K/W)
+    R44 62.1 / 85.0 C / +22.9 K  (pad copper + 0.81 mW x 46.3 K/W)
+    R45 62.2 / 85.0 C / +22.8 K  (pad copper + 0.81 mW x 46.3 K/W)
+    R46 62.1 / 85.0 C / +22.9 K  (pad copper + 0.18 mW x 46.3 K/W)
+  c22_h10: existing 104 rows identical to margins.json: True; tank-CT rows (est / limit / margin):
+    R39 69.4 / 85.0 C / +15.6 K  (body element)
+    R40 56.4 / 85.0 C / +28.6 K  (pad copper + 3.00 mW x 46.3 K/W)
+    R41 57.2 / 85.0 C / +27.8 K  (pad copper + 3.00 mW x 46.3 K/W)
+    R43 56.3 / 85.0 C / +28.7 K  (pad copper + 0.18 mW x 46.3 K/W)
+    R44 56.3 / 85.0 C / +28.7 K  (pad copper + 0.81 mW x 46.3 K/W)
+    R45 56.5 / 85.0 C / +28.5 K  (pad copper + 0.81 mW x 46.3 K/W)
+    R46 56.4 / 85.0 C / +28.6 K  (pad copper + 0.18 mW x 46.3 K/W)
+  c28_h10: existing 104 rows identical to margins.json: True; tank-CT rows (est / limit / margin):
+    R39 78.1 / 85.0 C / +6.9 K  (body element)
+    R40 56.8 / 85.0 C / +28.2 K  (pad copper + 3.00 mW x 46.3 K/W)
+    R41 57.9 / 85.0 C / +27.1 K  (pad copper + 3.00 mW x 46.3 K/W)
+    R43 56.7 / 85.0 C / +28.3 K  (pad copper + 0.18 mW x 46.3 K/W)
+    R44 56.7 / 85.0 C / +28.3 K  (pad copper + 0.81 mW x 46.3 K/W)
+    R45 56.9 / 85.0 C / +28.1 K  (pad copper + 0.81 mW x 46.3 K/W)
+    R46 56.7 / 85.0 C / +28.3 K  (pad copper + 0.18 mW x 46.3 K/W)
+  metrics identical: True; pass True (committed True)
+
+heat rows (watts_nominal / watts_worst, mW); committed file: 40 parts, R39 69.135 / 129.654
+  after 03: 46 parts; R39 69.135 / 129.654; R40 3.002 / 3.002; R41 3.002 / 3.002; R43 0.178 / 0.178; R44 0.805 / 0.805; R45 0.805 / 0.805; R46 0.178 / 0.178; c28 R39 129.654
+  after 04: 46 parts; R39 34.572 / 64.827; R40 3.002 / 3.002; R41 3.002 / 3.002; R43 0.178 / 0.178; R44 0.805 / 0.805; R45 0.805 / 0.805; R46 0.178 / 0.178; c28 R39 64.827
+  thermal_body.spec_for(R44, RT0603BRD0710KL, R_0603) = chip0603
+
+table tool (01 + 02), patched tank_freq.h (62.5 A):
+  | B17 | Firmware peak-trip config cap | `TANK_PEAK_TRIP_MAX_A` 62.5 A against the B9 low corner 64.55 A: 2.05 A under it (holds; derived trips stop at `TANK_PEAK_TRIP_CAP_A` 62 A) | `tank_freq.h`; B9 |
+  findings on TANK_PEAK: []
+table tool (01 + 02), negative control: unpatched tank_freq.h (64.5 A):
+  | B17 | Firmware peak-trip config cap | `TANK_PEAK_TRIP_MAX_A` 64.5 A against the B9 low corner 64.55 A: 0.05 A under it (**under the max(1 A, 2 %) rule**; derived trips stop at `TANK_PEAK_TRIP_CAP_A` 62 A) | `tank_freq.h`; B9 |
+  findings on TANK_PEAK: ['TANK_PEAK_TRIP_MAX_A 64.5 A is 0.05 A below the CT band low corner 64.55 A; the rule is 1.29 A (max(1 A, 2 %))']

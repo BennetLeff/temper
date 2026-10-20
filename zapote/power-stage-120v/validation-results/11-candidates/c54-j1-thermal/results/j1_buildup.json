@@ -1,0 +1,51 @@
+{
+ "own_rise_k_s21": 4.094,
+ "source_runs": "run files",
+ "cases": {
+  "c17.5_h10": {
+   "bay_c": 61.0,
+   "b3_pad_max_cell_p0p25_c_at_model_50C": 87.188,
+   "b3_pad_max_cell_p0p5_c_at_model_50C": 86.908,
+   "pad_rise_over_model_ambient_k": 37.188,
+   "mesh_allowance_k": 0.838,
+   "bay_shift_k": 11.0,
+   "pad_est_c": 99.03,
+   "own_rise_k": 4.09,
+   "j1_est_c": 103.12,
+   "margin_to_105_k": 1.88,
+   "hot_pad_mean_est_c": 98.01,
+   "cool_pad_mean_est_c": 71.14,
+   "hot_minus_cool_pad_k": 26.87
+  },
+  "c28_h10": {
+   "bay_c": 55.0,
+   "b3_pad_max_cell_p0p25_c_at_model_50C": 87.199,
+   "b3_pad_max_cell_p0p5_c_at_model_50C": 86.928,
+   "pad_rise_over_model_ambient_k": 37.199,
+   "mesh_allowance_k": 0.811,
+   "bay_shift_k": 5.0,
+   "pad_est_c": 93.01,
+   "own_rise_k": 4.09,
+   "j1_est_c": 97.1,
+   "margin_to_105_k": 7.9,
+   "hot_pad_mean_est_c": 92.02,
+   "cool_pad_mean_est_c": 65.24,
+   "hot_minus_cool_pad_k": 26.78
+  }
+ },
+ "s21_records": {
+  "s47 (OPEN-ITEMS S21 text, commit 723589bc9)": {
+   "pad_c": 100.5,
+   "own_rise_k": 4.09,
+   "est_c": 104.6,
+   "margin_k": 0.4
+  },
+  "s52 re-base (HEAD)": {
+   "pad_c": 99.0,
+   "own_rise_k": 4.09,
+   "est_c": 103.1,
+   "margin_k": 1.9
+  }
+ },
+ "check": "104.6 C (S21) = s47 pad 100.5 + 4.09 K; on the s53 board of record the same rule gives 103.12 C = bay 61 + pad rise 37.19 + mesh 0.84 + own 4.09 K"
+}

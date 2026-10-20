@@ -786,7 +786,7 @@ static void test_tank_ceiling_config(void)
     assert(n21_config_set_tank_ceiling(&c, 28));
     c.tank_peak_trip_a = 62;                        /* 28 A: 62 A accepted */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BIND);
-    c.tank_peak_trip_a = 65;                        /* at/above the 64.5 A cap (CT band 64.55 A) */
+    c.tank_peak_trip_a = 65;                        /* above the derived 62 A and the 62.5 A cap */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c.tank_peak_trip_a = 45;                        /* a bench may lower a trip, never raise it */
     c.tank_rms_trip_a = 20;

@@ -27,7 +27,50 @@ referenced by `parameter`, same unit, numeric), `layout_guidance [{item, enforce
 or starts with `UNCHECKED`), `gaps`, and `finding` (required for VIOLATION). When a BOM line is added or an MPN changes, add
 the entry in the same commit or the gate fails.
 
-## Current findings (after stage 28, 2026-10-14: 92 BOM lines, 2 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 0 VIOLATION; the gate PASSES)
+## Current findings (stage 53, c54 desk pass 2026-10-18: 95 BOM lines, 3 VERIFIED / 92 PARTIAL / 0 UNAUDITED / 0 VIOLATION; the gate PASSES)
+Record of the pass: `validation-results/11-candidates/c54-ledger-desk/README.md` (scripts, run order, datasheet records).
+- **Every SIGNAL line now has electrical ratings.** The 51 lines that carried 'Not audited' or 'only the temperature
+  rating is audited' got datasheet-page ratings and worst-case stresses from the pin_absmax net model (resistor V / P,
+  capacitor V, IC supply / input / output current, diode VR / IF): 102 gaps closed, checks 387 -> 522, ratings 366 -> 493.
+  None fails a violation-severity check.
+- **No VIOLATION.** Two new findings at gap severity, stated prominently:
+  - **SN74LVC1G332 U13.A slow input edge.** R134 1 k / C167 100 pF (DECISIONS.md:1108) gives 93-133 ns/V against TI's
+    10 ns/V recommended maximum for a non-Schmitt input: a recommended-condition breach, not an abs-max overstress.
+    BUS_FAULT may chatter at threshold (nuisance double edges into the latch, not a missed trip). Under the LM2901B /
+    2EDR convention, which treats recommended conditions at violation severity, this would be a VIOLATION, so it is the
+    owner's call: accept it with the DECISIONS.md:1128 bench probe, or put the RC behind a Schmitt input at the next spin.
+  - **C1/C2 R46 X2 ripple current (model estimate).** C2 sits at BR1's AC input, in parallel with the DC link while BR1
+    conducts. Its 35-90 kHz current is 1.15 A line-cycle RMS at the release ceiling and 1.74 A at 28 A
+    (c54 scripts/cx_current.py, which runs the s19b network with the native-21 L1 and DC link). The KEMET 22.5 mm limit
+    is >= 1.5 A at Th <= 70 C (p.8, lower candidate trace) and derates by sqrt(dTlim / 20 K) above that (p.6).
+    - Release passes only while C2's Th stays <= 86.4 C. With the L1 body beside it (92.4 C) as Th, it is 1.16 of the
+      rating.
+    - 28 A exceeds the rating at any Th.
+    - Bench: a current probe and a thermocouple on C2. Owner: a 28 A-route part / layout. C1 behind the inlet module is at most
+      0.15 A (0.11 A at the release case).
+- **Desk gaps (8) worked:**
+  - R5 element with the worst audited +6 K mesh correction: 130.1 C, 0.765 of 170 C. Now a B3-estimate gap.
+  - Bank F_T on the chord of the two published table points: 26.09 K, ratio 0.767 at 24 A. Now an owner maker question;
+    the approval basis is now a certifier gap.
+  - C5/C6 footprint name: owner (library record).
+  - L1 curve digitisation: does not move the release check (0.649 at -3 %). Merged into the bench local-air gap.
+  - L1 ALT-D3 8 uH stray: model-estimate, because ALT-D3's surge.py is not committed.
+  - C1/C2 ripple: computed (above); bench and owner gaps.
+  - R1/R2 RV1 Vc at 750 A: Figure 4 cannot be attributed. Now bench.
+- **Record fixes (OPEN-ITEMS S21):**
+  - 30KPA150CA: Littelfuse's identical-row sheet is recorded (TJ 175 C, UL E230531, aT 0.1 %/C typical). Good-Ark
+    (150 C) stays binding, and the delivered maker is an owner record.
+  - TPS7A4700: the function text is replaced. TJ is 120.6 / 125 C at release; the old 'Tj 89 C, 36 K' came from the
+    superseded stage-15 h25 model.
+  - SN74LVC1G132: its +5 % VCC stand-in is replaced by the registry's 5.11 V.
+- **What keeps lines PARTIAL:** 209 gaps (54 bench, 31 certifier, 46 owner, 76 B3-estimate, 2 model-estimate). Every
+  gap and the test or answer that closes it are in
+  `validation-results/11-candidates/c54-ledger-desk/results/gap-classes.md`.
+  - 39 lines are PARTIAL only because their local temperature is the B3 body model. They become VERIFIED on a bench
+    thermal run, and no desk work can close them honestly.
+
+### History (per-stage notes up to stage 43; superseded, and the per-line text below is stale; `ledger.json` is the record)
+After stage 28, 2026-10-14: 92 BOM lines, 2 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 0 VIOLATION.
 Stage 38 (2026-10-15): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 59 UNAUDITED / 0 VIOLATION; PASS. PS1 IRM-20-15 removed, IRM-20-24 -> MPM-20-24.
 Stage 40 (2026-10-15, candidate 30a): 92 BOM lines. CA-IS3720LW removed (U44 is now the second ISO6721FBDR); D20 joins
 BAT54S-7-F (its reverse stress is D18's), R135 joins 0603WAF1002T5E and C168 joins CC0603KRX7R9BB104. The one VIOLATION is

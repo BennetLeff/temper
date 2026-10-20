@@ -117,7 +117,11 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # L1 TDK B82726S2243A020 = C7084710 (Extended, 0 at JLC; Mouser 62 / DigiKey 29 cover the lot through
                 # global sourcing) and C3 / C4 Murata DE1E3RA222MJ4BH01F = C7170908 (Extended, 104 in stock). The bank
                 # B32643H8104J000 has no JLC / LCSC listing: it stays a consigned line (no LCSC number).
-                "B82726S2243A020": "C7084710", "DE1E3RA222MJ4BH01F": "C7170908"})
+                "B82726S2243A020": "C7084710", "DE1E3RA222MJ4BH01F": "C7170908",
+                # stage 54 (11-candidates/c54-release-margins, JLC part API 2026-10-19, scripts/jlc-raw there): R10 / R12 /
+                # R18 / R20 UniRoyal PS122WF680JT4E = C2793964 (Extended, 3,856 in stock) and the 4.99 k line R71 / R72 /
+                # R74 / R75 / R131 Panasonic ERJ-PA3F4991V = C4036134 (Extended, 4,339 in stock; was the Basic C23046)
+                "PS122WF680JT4E": "C2793964", "ERJ-PA3F4991V": "C4036134"})
 # Lines with an LCSC code that JLC holds none of for the lot: consigned like the bank (no LCSC number, so JLC neither places
 # nor shortage-blocks them, and the CPL audit lists them as excluded). Stage 52 review (s52-proto-bom/fp3d-review row 17):
 # L1 B82726S2243A020 = C7084710 has JLC stock 0 (sourcing/STOCK-2026-10-16.csv, read 2026-10-16T19:12Z) against Mouser 62 /

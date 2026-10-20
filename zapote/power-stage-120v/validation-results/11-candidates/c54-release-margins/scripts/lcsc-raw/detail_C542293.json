@@ -1,0 +1,308 @@
+{
+ "code": 200,
+ "msg": null,
+ "result": {
+  "parentCatalogList": [
+   {
+    "catalogId": 30,
+    "catalogNameEn": "Passives"
+   },
+   {
+    "catalogId": 495,
+    "catalogNameEn": "Capacitors"
+   }
+  ],
+  "isCableCategory": false,
+  "productId": 562983,
+  "productCode": "C542293",
+  "productModel": "16SVPK220M",
+  "productNameEn": "CAP ALUM POLY 220uF \u00b120% 16V SMD",
+  "productKeyAttributes": "CAP ALUM POLY 220uF \u00b120% 16V SMD",
+  "parentCatalogId": 312,
+  "parentCatalogName": "Capacitors",
+  "catalogId": 1139,
+  "catalogName": "Aluminum - Polymer Capacitors",
+  "brandId": 121,
+  "brandNameEn": "PANASONIC",
+  "encapStandard": "SMD,D6.3xL6mm",
+  "split": 1,
+  "productUnit": "Piece",
+  "minPacketUnit": "Reel",
+  "minBuyNumber": 1,
+  "maxBuyNumber": -1,
+  "minPacketNumber": 1000,
+  "isEnvironment": true,
+  "allHotLevel": null,
+  "isHot": false,
+  "isPreSale": false,
+  "isReel": true,
+  "reelPrice": 3.0,
+  "stockNumber": 0,
+  "stockSz": 0,
+  "domesticStockVO": {
+   "total": 0,
+   "shipImmediately": 0,
+   "ship3Days": 0
+  },
+  "overseasStockVO": {
+   "total": 0,
+   "shipImmediately": 0,
+   "ship3Days": 0
+  },
+  "productPriceList": [
+   {
+    "ladder": 1,
+    "productPrice": "1.0439",
+    "usdPrice": 1.0439,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.0439,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 10,
+    "productPrice": "0.8453",
+    "usdPrice": 0.8453,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.8453,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 30,
+    "productPrice": "0.7469",
+    "usdPrice": 0.7469,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.7469,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 100,
+    "productPrice": "0.6484",
+    "usdPrice": 0.6484,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.6484,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 500,
+    "productPrice": "0.5893",
+    "usdPrice": 0.5893,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.5893,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 1000,
+    "productPrice": "0.5581",
+    "usdPrice": 0.5581,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 0.5581,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   }
+  ],
+  "productImages": [
+   "https://assets.lcsc.com/images/lcsc/900x900/20230211_PANASONIC-16SVPK220M_C542293_front.jpg",
+   "https://assets.lcsc.com/images/lcsc/900x900/20230211_PANASONIC-16SVPK220M_C542293_back.jpg",
+   "https://assets.lcsc.com/images/lcsc/900x900/20230211_PANASONIC-16SVPK220M_C542293_blank.jpg"
+  ],
+  "edaSvgInfo": {
+   "schSvg": "//image.easyeda.com/component_svgs/prod/15261015a3da45e2b81485e8257ea351.svg?t=1744294568",
+   "pcbSvg": "//image.easyeda.com/component_svgs/prod/ff56c0f2a0fe4e4abe227426f36c2b91.svg?t=1744294568"
+  },
+  "faqs": null,
+  "pdfUrl": "https://datasheet.lcsc.com/datasheet/pdf/ebf3716c1e43e0b17abd10c20deff9d5.pdf?productCode=C542293",
+  "authenticationList": [
+   "ROHS3 \u8ba4\u8bc1"
+  ],
+  "isRohsCert": true,
+  "rohsCertType": "ROHS3",
+  "rohsCertList": [
+   {
+    "fileCode": "wj1799840",
+    "fileName": "SVPK\u7cfb\u5217_RoHS\u8ba4\u8bc1(\u82f1\u6587\u7248)_PANASONIC(\u677e\u4e0b).pdf",
+    "url": "https://datasheet.lcsc.com/certification/rohs/7696f63827ba60753c23cbfe9bb7d5e3.pdf"
+   }
+  ],
+  "productDescEn": "220uF \u00b120% 16V Aluminum - Polymer Capacitors SMD,D6.3xL6mm 1000hrs@125\u2103",
+  "productIntroEn": "220uF \u00b120% 16V Aluminum - Polymer Capacitors SMD,D6.3xL6mm 1000hrs@125\u2103",
+  "paramVOList": [
+   {
+    "paramCode": "param_11008_nt",
+    "paramName": "\u5de5\u4f5c\u5bff\u547d",
+    "paramNameEn": "Lifetime",
+    "paramValue": "1000hrs@125\u2103",
+    "paramValueEn": "1000hrs@125\u2103",
+    "paramValueEnForSearch": 1000.0,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 8
+   },
+   {
+    "paramCode": "param_11022_n",
+    "paramName": "\u5bb9\u503c",
+    "paramNameEn": "Capacitance",
+    "paramValue": "220uF",
+    "paramValueEn": "220uF",
+    "paramValueEnForSearch": 220000000.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 1
+   },
+   {
+    "paramCode": "param_11005_n",
+    "paramName": "\u7535\u5bb9\u4f53\u957f\u5ea6",
+    "paramNameEn": "Height - Seated (Max)",
+    "paramValue": "6mm",
+    "paramValueEn": "6mm",
+    "paramValueEnForSearch": 6.0,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 7
+   },
+   {
+    "paramCode": "param_34895",
+    "paramName": "\u6781\u6027\u7c7b\u578b",
+    "paramNameEn": "Polarity type",
+    "paramValue": "\u6709\u6781\u6027",
+    "paramValueEn": "Polarized",
+    "paramValueEnForSearch": -1.0,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 28
+   },
+   {
+    "paramCode": "param_10993_n",
+    "paramName": "\u989d\u5b9a\u7535\u538b",
+    "paramNameEn": "Voltage Rating",
+    "paramValue": "16V",
+    "paramValueEn": "16V",
+    "paramValueEnForSearch": 16.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 3
+   },
+   {
+    "paramCode": "param_11038_s",
+    "paramName": "\u5de5\u4f5c\u6e29\u5ea6",
+    "paramNameEn": "Operating Temperature",
+    "paramValue": "-55\u2103~+125\u2103",
+    "paramValueEn": "-55\u2103~+125\u2103",
+    "paramValueEnForSearch": null,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 7
+   },
+   {
+    "paramCode": "param_11004_n",
+    "paramName": "\u7535\u5bb9\u4f53\u76f4\u5f84",
+    "paramNameEn": "Diameter",
+    "paramValue": "6.3mm",
+    "paramValueEn": "6.3mm",
+    "paramValueEnForSearch": 6.3,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 6
+   },
+   {
+    "paramCode": "param_10996_n",
+    "paramName": "\u811a\u95f4\u8ddd",
+    "paramNameEn": "Pin Spacing",
+    "paramValue": "-",
+    "paramValueEn": "-",
+    "paramValueEnForSearch": null,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 6
+   },
+   {
+    "paramCode": "param_10998_nt",
+    "paramName": "\u7b49\u6548\u4e32\u8054\u7535\u963b(ESR)",
+    "paramNameEn": "Equivalent Series Resistance(ESR)",
+    "paramValue": "22m\u03a9",
+    "paramValueEn": "22m\u03a9",
+    "paramValueEnForSearch": 0.022,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 5
+   },
+   {
+    "paramCode": "param_11006_nt",
+    "paramName": "\u7eb9\u6ce2\u7535\u6d41",
+    "paramNameEn": "Ripple Current",
+    "paramValue": "52mA@120Hz",
+    "paramValueEn": "52mA@120Hz",
+    "paramValueEnForSearch": 0.052,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 4
+   },
+   {
+    "paramCode": "param_10992_s",
+    "paramName": "\u7cbe\u5ea6",
+    "paramNameEn": "Tolerance",
+    "paramValue": "\u00b120%",
+    "paramValueEn": "\u00b120%",
+    "paramValueEnForSearch": null,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 2
+   }
+  ],
+  "wmCatalogId": 1139,
+  "wmCatalogNameEn": "Aluminum - Polymer Capacitors",
+  "productArrange": "Tape & Reel (TR)",
+  "productWeight": 0.000806,
+  "foreignWeight": 0.0,
+  "isForeignOnsale": true,
+  "isForeignDisplay": true,
+  "isNotOverstock": false,
+  "productCycle": "normal",
+  "isHasBattery": false,
+  "pdfLinkUrl": null,
+  "isShowForeignPrice": true,
+  "isRealPrice": true,
+  "productLadderPrice": null,
+  "ladderDiscountRate": null,
+  "eccn": "EAR99",
+  "currencyType": "USD",
+  "currencySymbol": "$",
+  "title": "PANASONIC 16SVPK220M",
+  "weight": 0.806,
+  "hasThirdPartyStock": false,
+  "flashSaleProductPO": null,
+  "htsMap": {
+   "BR": "85322200",
+   "TARIC": "8532220000",
+   "IN": "85322200",
+   "CN": "8532229000",
+   "MX": "8532.22.99",
+   "CA": "8532220000",
+   "US": "8532230020"
+  },
+  "isAsianBrand": null,
+  "isMro": false,
+  "isInfringement": false,
+  "isSample": false,
+  "sampleNumber": null,
+  "alternatePartList": []
+ },
+ "ok": true,
+ "_fetched_utc": "2026-10-19T04:14:13Z"
+}

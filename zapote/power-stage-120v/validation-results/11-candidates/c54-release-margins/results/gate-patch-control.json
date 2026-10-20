@@ -1,0 +1,74 @@
+{
+ "C1_fitted_reproduces_margins_json": true,
+ "C2_rows": {
+  "c17.5_h10 R10": {
+   "gate_margin_k": 12.9,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 12.9
+  },
+  "c17.5_h10 R12": {
+   "gate_margin_k": 16.9,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 16.9
+  },
+  "c17.5_h10 R18": {
+   "gate_margin_k": 16.8,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 16.8
+  },
+  "c17.5_h10 R20": {
+   "gate_margin_k": 15.7,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 15.7
+  },
+  "c22_h10 R10": {
+   "gate_margin_k": 1.2,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 1.2
+  },
+  "c22_h10 R12": {
+   "gate_margin_k": 0.7,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 0.7
+  },
+  "c22_h10 R18": {
+   "gate_margin_k": 9.2,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 9.2
+  },
+  "c22_h10 R20": {
+   "gate_margin_k": 5.7,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": 5.7
+  },
+  "c28_h10 R10": {
+   "gate_margin_k": -31.4,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": -31.4
+  },
+  "c28_h10 R12": {
+   "gate_margin_k": -39.4,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": -39.4
+  },
+  "c28_h10 R18": {
+   "gate_margin_k": -13.6,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": -13.6
+  },
+  "c28_h10 R20": {
+   "gate_margin_k": -22.0,
+   "gate_limit_c": 143.5,
+   "predicted_margin_k": -22.0
+  }
+ },
+ "C2_rows_match": true,
+ "C2_release_margin_K": 3.8,
+ "C2_release_worst": "c17.5_h10: laminate: 1 mm-block copper peak",
+ "C2_release_matches_prediction": true,
+ "C2_ratchet_rated_part_margin_K": -42.1,
+ "C2_ratchet_worst": "laminate: 1 mm-block copper peak",
+ "C2_pass": true,
+ "C3_unlisted_mpn_stops": true,
+ "PASS": true
+}

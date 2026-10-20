@@ -1,0 +1,549 @@
+{
+ "study": "validation-results/11-candidates/c54-release-margins",
+ "apply": "replace the entries keyed by the 'replaces' MPN with these (ledger.json 'entries'); bump the README counts; no status change (all stay PARTIAL)",
+ "entries": [
+  {
+   "replaces": "25121WF680JT4E",
+   "entry": {
+    "mpn": "PS122WF680JT4E",
+    "designators": [
+     "R10",
+     "R12",
+     "R18",
+     "R20"
+    ],
+    "class": "POWER",
+    "function": "Turn-on gate resistors R10/R12/R18/R20, 68 ohm 1 % 2 W 2512 anti-surge (UniRoyal PS12; candidate 54 BOM swap for 25121WF680JT4E, same value / footprint; DECISIONS 54 gate network unchanged)",
+    "status": "PARTIAL",
+    "datasheet": {
+     "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_UNI-ROYAL-Uniroyal-Elec-PS122WF680JT4E_C2793964.pdf",
+     "revision": "UniRoyal (Uniohm) product catalogue 2023~2024, 200 pp (PDF ModDate 2025-09-16); PS series pp.23-24",
+     "fetched": "2026-10-18",
+     "repo_copy": null,
+     "sha256_prefix16": "ef35c54db5ef3b90",
+     "note": "LCSC copy (redirects to datasheet.lcsc.com ...72ec9a36...pdf?productCode=C2793964); fetch: validation-results/11-candidates/c54-release-margins/scripts/fetch_datasheets.py; not committed"
+    },
+    "ratings": [
+     {
+      "parameter": "Power 70 C",
+      "datasheet_limit": 2.0,
+      "unit": "W",
+      "basis": "rated power at 70 C ambient, PS12 (2512)",
+      "source": "p.23 power-rating table (PS12 2W)"
+     },
+     {
+      "parameter": "Power derated at the c17.5 terminal estimate (release)",
+      "datasheet_limit": 0.5736,
+      "unit": "W",
+      "basis": "2 W x (155 - T) / 85 at T = 130.6 C (R10 terminal, B3 release case c17.5_h10, bay 61 C); the curve is an ambient curve, applied at the terminal (the B3 gate's convention)",
+      "source": "p.23 Derating Curve (100 % at 70 C to 0 % at 155 C, 'Ambient temperature')"
+     },
+     {
+      "parameter": "Power derated at the c22 terminal estimate",
+      "datasheet_limit": 0.2878,
+      "unit": "W",
+      "basis": "2 W x (155 - T) / 85 at T = 142.8 C (R12 terminal, B3 c22_h10, bay 55 C)",
+      "source": "p.23 Derating Curve"
+     },
+     {
+      "parameter": "Operating temperature max",
+      "datasheet_limit": 155,
+      "unit": "C",
+      "basis": "-55~+155 C",
+      "source": "p.23 specification table (Operating Temperature)"
+     },
+     {
+      "parameter": "Max working voltage",
+      "datasheet_limit": 500,
+      "unit": "V",
+      "basis": "PS12; RCWV = sqrt(P R) = 11.7 V at 68 ohm",
+      "source": "p.23 specification table"
+     },
+     {
+      "parameter": "One-pulse limiting power, 1-10 us",
+      "datasheet_limit": 2000.0,
+      "unit": "W",
+      "basis": "PS12 curve read from the plot (flat ~2000 W from 1 us to 10 us; single pulse)",
+      "source": "p.23 'Curve of Pulse Duration'"
+     }
+    ],
+    "stresses": [
+     {
+      "parameter": "R_on dissipation, 60 kHz window top",
+      "worst_case_value": 0.217,
+      "unit": "W",
+      "condition": "c28 heat file: (382.6 + 61 nC) x 17 V x 60 kHz per FET, split by resistance; unchanged by the swap (same 68 ohm); the gate-network study simulates ~0.17 W",
+      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json"
+     },
+     {
+      "parameter": "Element estimate c17.5 (release)",
+      "worst_case_value": 134.48,
+      "unit": "C",
+      "condition": "R10, B3 body model c17.5_h10 bay 61 C (chip2512 r_pad 37.6 K/W from the body dimensions, identical for PS12); terminal 130.6 C",
+      "evidence": [
+       {
+        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+        "b3_row": {
+         "case": "c17.5_h10",
+         "item": "R10: 2512 element"
+        },
+        "est_c": 134.5
+       },
+       {
+        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+        "b3_row": {
+         "case": "c17.5_h10",
+         "item": "R10: 2512 terminal"
+        },
+        "est_c": 130.6
+       },
+       "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+      ]
+     },
+     {
+      "parameter": "Element estimate c28",
+      "worst_case_value": 188.21,
+      "unit": "C",
+      "condition": "R12, c28_h10 bay 55 C; terminal 182.9 C",
+      "evidence": [
+       {
+        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+        "b3_row": {
+         "case": "c28_h10",
+         "item": "R12: 2512 element"
+        },
+        "est_c": 188.2
+       }
+      ]
+     },
+     {
+      "parameter": "Gate-drive step across R_on",
+      "worst_case_value": 17.0,
+      "unit": "V",
+      "condition": "driver swing at the turn-on edge (2EDR8259X, 17 V supply), well under 1 us per edge",
+      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py"
+     },
+     {
+      "parameter": "Edge peak power",
+      "worst_case_value": 4.25,
+      "unit": "W",
+      "condition": "17 V^2 / 68 ohm (driver and Rg,int ignored: an upper bound), decaying with the gate time constant (~1 us); energy ~3.6 uJ per edge (0.217 W / 60 kHz)",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     }
+    ],
+    "derating_rule": "Dissipation <= 80 % of the curve-derated power at the B3 terminal estimate and element <= 155 C at the release case (c17.5_h10, bay 61 C; DECISIONS 56/61); c22/c28 are the airflow-route gap; voltage <= 80 % of the working voltage.",
+    "checks": [
+     {
+      "id": "power c17.5 (release)",
+      "rating": "Power derated at the c17.5 terminal estimate (release)",
+      "stress": "R_on dissipation, 60 kHz window top",
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "rule": "<= 80 % of the derated power at the release terminal (B3 row R10 +12.9 K once the gate carries the 2 W line, results/b3-gate.patch)",
+      "ratio": 0.3783
+     },
+     {
+      "id": "element c17.5 (release)",
+      "rating": "Operating temperature max",
+      "stress": "Element estimate c17.5 (release)",
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "rule": "element <= 155 C at the release case",
+      "ratio": 0.8676
+     },
+     {
+      "id": "power c22",
+      "rating": "Power derated at the c22 terminal estimate",
+      "stress": "R_on dissipation, 60 kHz window top",
+      "max_ratio": 0.8,
+      "severity": "gap",
+      "rule": "airflow route (c22/c28): passes on the 2 W line (R12 +0.7 K)",
+      "ratio": 0.754
+     },
+     {
+      "id": "element c28",
+      "rating": "Operating temperature max",
+      "stress": "Element estimate c28",
+      "max_ratio": 1.0,
+      "severity": "gap",
+      "rule": "airflow route (c22/c28): element over 155 C at c28 in still air",
+      "ratio": 1.2143
+     },
+     {
+      "id": "voltage",
+      "rating": "Max working voltage",
+      "stress": "Gate-drive step across R_on",
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "rule": "<= 80 %",
+      "ratio": 0.034
+     },
+     {
+      "id": "edge pulse",
+      "rating": "One-pulse limiting power, 1-10 us",
+      "stress": "Edge peak power",
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "rule": "edge peak under the single-pulse limit (repetitive heating is the power check)",
+      "ratio": 0.0021
+     }
+    ],
+    "layout_guidance": [
+     {
+      "item": "2512 terminal temperature (derating line, 20 % margin) and element",
+      "enforced_by": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py"
+     },
+     {
+      "item": "gate run clearances round the 2512 (3.2 mm to the other potential group)",
+      "enforced_by": "native-21/section.kicad_dru"
+     }
+    ],
+    "gaps": [
+     "bench: the terminal temperatures are B3 body-model estimates (still air); the R_on power basis (0.217 W charge-split bound against the study's ~0.17 W) is an IR bench item.",
+     "owner: airflow route (c22/c28): at c28 (28 A, bay 55 C) the R12 terminal (182.9 C) is past the curve's 155 C zero-power point and the element is 188.2 C.",
+     "the pulse limit is read from a log-log plot (p.23), not a table.",
+     "b3_ratings_gate.py rates every 2512 R_on at 1 W until results/b3-gate.patch (GATE_R_MPN) is applied."
+    ],
+    "finding": null,
+    "notes": "Candidate 54 (validation-results/11-candidates/c54-release-margins). JLC C2793964 extended; stock and price in results/bom-patch.json. Same body and terminals as 25121WF680JT4E (V.3 p.4/9 vs catalogue p.23: L 6.35 W 3.20 H 0.55 A 0.60 B 0.50 mm), so the B3 solve, heat file and terminal / element estimates are unchanged. Second source: Yageo RC2512JK-7W68RL (2 W, 5 %, RC_L V.12 p.6/p.7)."
+   },
+   "validated": {
+    "errors": [],
+    "checks": [
+     {
+      "id": "power c17.5 (release)",
+      "rating": "Power derated at the c17.5 terminal estimate (release)",
+      "stress": "R_on dissipation, 60 kHz window top",
+      "ratio": 0.3783,
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "ok": true
+     },
+     {
+      "id": "element c17.5 (release)",
+      "rating": "Operating temperature max",
+      "stress": "Element estimate c17.5 (release)",
+      "ratio": 0.8676,
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "ok": true
+     },
+     {
+      "id": "power c22",
+      "rating": "Power derated at the c22 terminal estimate",
+      "stress": "R_on dissipation, 60 kHz window top",
+      "ratio": 0.754,
+      "max_ratio": 0.8,
+      "severity": "gap",
+      "ok": true
+     },
+     {
+      "id": "element c28",
+      "rating": "Operating temperature max",
+      "stress": "Element estimate c28",
+      "ratio": 1.2143,
+      "max_ratio": 1.0,
+      "severity": "gap",
+      "ok": false
+     },
+     {
+      "id": "voltage",
+      "rating": "Max working voltage",
+      "stress": "Gate-drive step across R_on",
+      "ratio": 0.034,
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "ok": true
+     },
+     {
+      "id": "edge pulse",
+      "rating": "One-pulse limiting power, 1-10 us",
+      "stress": "Edge peak power",
+      "ratio": 0.0021,
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "ok": true
+     }
+    ]
+   }
+  },
+  {
+   "replaces": "0603WAF4991T5E",
+   "entry": {
+    "mpn": "ERJ-PA3F4991V",
+    "designators": [
+     "R71",
+     "R72",
+     "R74",
+     "R75",
+     "R131"
+    ],
+    "class": "SIGNAL",
+    "function": "4.99 k 0603 anti-surge: split bleeds R71/R72/R74/R75 (p -> src) and R131 (candidate 54 swap for 0603WAF4991T5E, same value / footprint)",
+    "status": "PARTIAL",
+    "datasheet": {
+     "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404091153_PANASONIC-ERJ-PA3F4991V_C4036134.pdf",
+     "revision": "Panasonic 'Anti-Surge Thick Film Chip Resistors ERJ P, PA, PM type', 29-Sep-23, 9 pp.",
+     "fetched": "2026-10-18",
+     "repo_copy": null,
+     "sha256_prefix16": "441511405b982033",
+     "note": "LCSC copy; fetch: validation-results/11-candidates/c54-release-margins/scripts/fetch_datasheets.py; not committed"
+    },
+    "ratings": [
+     {
+      "parameter": "Power at rated ambient 105 C",
+      "datasheet_limit": 0.25,
+      "unit": "W",
+      "basis": "ERJPA3 (0603) 0.25 W at rated ambient temperature 105 C",
+      "source": "p.2 Ratings table"
+     },
+     {
+      "parameter": "Power at rated terminal part temperature 130 C",
+      "datasheet_limit": 0.33,
+      "unit": "W",
+      "basis": "ERJPA3 0.33 W at rated terminal part temperature 130 C; footnote *2 gives this rating priority",
+      "source": "p.2 Ratings table, footnote *2"
+     },
+     {
+      "parameter": "Terminal temperature limit at P (derating line, 20 % margin), worst ref R75",
+      "datasheet_limit": 142.96,
+      "unit": "C",
+      "basis": "155 - (155 - 105) x 0.04815 W / (0.8 x 0.25 W): the ambient line read at the pad (stricter than the terminal-part line, 150.4 C); P = (V_PN 17.510 - V_SPLIT 2.0088 V)^2 / 4.99 k (b3_ratings_gate MONITOR_SELF['tlvh431'] operating point); R131 carries no bleed (signal)",
+      "source": "p.3 Power derating curve (ambient: 100 % to 105 C, 0 at 155 C; terminal part: 100 % to 130 C, 0 at 155 C)"
+     },
+     {
+      "parameter": "Limiting element voltage",
+      "datasheet_limit": 150,
+      "unit": "V",
+      "basis": "ERJPA3",
+      "source": "p.2 Ratings table"
+     }
+    ],
+    "stresses": [
+     {
+      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "worst_case_value": 101.4,
+      "unit": "C",
+      "condition": "R75 pad-copper probe, B3 hot-copper estimate, s53 82af7bd9; worst of 5 refs",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     },
+     {
+      "parameter": "Local temperature, c28_h10 @ 55 C",
+      "worst_case_value": 140.3,
+      "unit": "C",
+      "condition": "R75 pad-copper probe, c28_h10 still air bay 55 C",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     },
+     {
+      "parameter": "Voltage across the bleed",
+      "worst_case_value": 15.5,
+      "unit": "V",
+      "condition": "V_PN - V_SPLIT (b3_ratings_gate MONITOR_SELF['tlvh431'] basis)",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     }
+    ],
+    "derating_rule": "Pad (terminal) temperature <= the derating line at P with the 20 % power margin (G6), release case; c22/c28 the airflow-route gap; voltage <= 80 % of the limiting element voltage.",
+    "checks": [
+     {
+      "id": "temperature, release case",
+      "rating": "Terminal temperature limit at P (derating line, 20 % margin), worst ref R75",
+      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "rule": "101.4 C <= 143.0 C (R75)",
+      "ratio": 0.7093
+     },
+     {
+      "id": "temperature, c28",
+      "rating": "Terminal temperature limit at P (derating line, 20 % margin), worst ref R75",
+      "stress": "Local temperature, c28_h10 @ 55 C",
+      "max_ratio": 1.0,
+      "severity": "gap",
+      "rule": "140.3 C <= 143.0 C (R75): passes in still air at c28",
+      "ratio": 0.9814
+     },
+     {
+      "id": "voltage",
+      "rating": "Limiting element voltage",
+      "stress": "Voltage across the bleed",
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "rule": "<= 80 %",
+      "ratio": 0.1033
+     }
+    ],
+    "layout_guidance": [],
+    "gaps": [
+     "the pad temperature is the B3 body-model estimate (still air), not a measurement",
+     "the bleeds' own 0.048 W each is not a B3 heat row (b3-ratings/runs/heat_c17.5.json): their pads read board heat only; same for the fitted part, and the swap leaves ~40 K for it"
+    ],
+    "finding": null,
+    "notes": "Candidate 54 (validation-results/11-candidates/c54-release-margins). JLC C4036134 extended (0603WAF4991T5E, C23046, is basic). Second source Vishay RCS06034K99FKEA (0.25 W at 70 C, doc 20065 p.1)."
+   },
+   "validated": {
+    "errors": [],
+    "checks": [
+     {
+      "id": "temperature, release case",
+      "rating": "Terminal temperature limit at P (derating line, 20 % margin), worst ref R75",
+      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "ratio": 0.7093,
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "ok": true
+     },
+     {
+      "id": "temperature, c28",
+      "rating": "Terminal temperature limit at P (derating line, 20 % margin), worst ref R75",
+      "stress": "Local temperature, c28_h10 @ 55 C",
+      "ratio": 0.9814,
+      "max_ratio": 1.0,
+      "severity": "gap",
+      "ok": true
+     },
+     {
+      "id": "voltage",
+      "rating": "Limiting element voltage",
+      "stress": "Voltage across the bleed",
+      "ratio": 0.1033,
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "ok": true
+     }
+    ]
+   }
+  },
+  {
+   "replaces": "6SVPC220MV",
+   "entry": {
+    "mpn": "16SVPK220M",
+    "designators": [
+     "C126",
+     "C127",
+     "C128",
+     "C129"
+    ],
+    "class": "SIGNAL",
+    "function": "220 uF polymer bias reservoir behind the 0.68 ohm damping resistor (src - n split, ~2.0 V); candidate 54 swap for 6SVPC220MV, same C6 can and land",
+    "status": "PARTIAL",
+    "datasheet": {
+     "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2205061630_PANASONIC-16SVPK220M_C542293.pdf",
+     "revision": "Panasonic OS-CON SVPK series (LCSC copy, PDF ModDate 2022-03-09, 7 pp.)",
+     "fetched": "2026-10-18",
+     "repo_copy": null,
+     "sha256_prefix16": "52d07f7c41c7c080",
+     "note": "fetch: validation-results/11-candidates/c54-release-margins/scripts/fetch_datasheets.py; not committed"
+    },
+    "ratings": [
+     {
+      "parameter": "Temperature rating (category)",
+      "datasheet_limit": 125.0,
+      "unit": "C",
+      "basis": "category -55 to +125 C; endurance +125 C 1000 h at rated voltage",
+      "source": "p.1 Specifications"
+     },
+     {
+      "parameter": "Rated voltage",
+      "datasheet_limit": 16.0,
+      "unit": "V",
+      "basis": "16SVPK220M",
+      "source": "p.2 list"
+     }
+    ],
+    "stresses": [
+     {
+      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "worst_case_value": 100.2,
+      "unit": "C",
+      "condition": "C129 pad-copper probe (local-ambient proxy), own ripple heat negligible, s53 82af7bd9",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     },
+     {
+      "parameter": "Local temperature, c28_h10 @ 55 C",
+      "worst_case_value": 138.6,
+      "unit": "C",
+      "condition": "C129 pad-copper probe, c28_h10 still air bay 55 C",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     },
+     {
+      "parameter": "Working voltage",
+      "worst_case_value": 2.01,
+      "unit": "V",
+      "condition": "src - n split, V_SPLIT = 1.24 x (1 + 6.2 / 10) (b3_ratings_gate V_SPLIT)",
+      "evidence": "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
+     }
+    ],
+    "derating_rule": "Local (pad) temperature <= category temperature at the release case; c22/c28 the airflow-route gap; voltage <= 80 % of rated.",
+    "checks": [
+     {
+      "id": "temperature, release case",
+      "rating": "Temperature rating (category)",
+      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "rule": "100.2 C <= 125 C (C129)",
+      "ratio": 0.8016
+     },
+     {
+      "id": "temperature, c28",
+      "rating": "Temperature rating (category)",
+      "stress": "Local temperature, c28_h10 @ 55 C",
+      "max_ratio": 1.0,
+      "severity": "gap",
+      "rule": "airflow route (c22/c28)",
+      "ratio": 1.1088
+     },
+     {
+      "id": "voltage",
+      "rating": "Rated voltage",
+      "stress": "Working voltage",
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "rule": "<= 80 %",
+      "ratio": 0.1256
+     }
+    ],
+    "layout_guidance": [],
+    "gaps": [
+     "the local temperature is the B3 pad estimate (still air), not a measurement; life is outside this check",
+     "ESR 22 mOhm max against SVPC's 15 (both sit behind the 0.68 ohm damping resistor); leakage 704 uA max at rated 16 V after 2 min (p.2), against ~3.1 mA of split bleed current: bench-confirm the split voltage at power-up",
+     "sourcing: JLC / LCSC 0 in stock on the read date; Digi-Key 1,420 (results/bom-patch.json)"
+    ],
+    "finding": null,
+    "notes": "Candidate 54 (validation-results/11-candidates/c54-release-margins). Same C6 can as SVPC (p.1 dims: D 6.3, L 5.9, W = H 6.6, C 7.3, P 2.1 mm)."
+   },
+   "validated": {
+    "errors": [],
+    "checks": [
+     {
+      "id": "temperature, release case",
+      "rating": "Temperature rating (category)",
+      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "ratio": 0.8016,
+      "max_ratio": 1.0,
+      "severity": "violation",
+      "ok": true
+     },
+     {
+      "id": "temperature, c28",
+      "rating": "Temperature rating (category)",
+      "stress": "Local temperature, c28_h10 @ 55 C",
+      "ratio": 1.1088,
+      "max_ratio": 1.0,
+      "severity": "gap",
+      "ok": false
+     },
+     {
+      "id": "voltage",
+      "rating": "Rated voltage",
+      "stress": "Working voltage",
+      "ratio": 0.1256,
+      "max_ratio": 0.8,
+      "severity": "violation",
+      "ok": true
+     }
+    ]
+   }
+  }
+ ]
+}

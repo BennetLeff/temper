@@ -68,8 +68,10 @@ static void test_trip_derivation(void)
         assert(NEAR(tank_peak_trip_for(k[i].c), k[i].peak, 1e-3));
         assert(NEAR(tank_rms_trip_for(k[i].c), k[i].rms, 1e-3));
         assert(NEAR(tank_crest_guard_for(k[i].c), k[i].crest, 1e-3));
-        /* Firmware trip below the stage-15 CT band low corner (64.55 A) and the config cap. */
-        assert(tank_peak_trip_for(k[i].c) < TANK_PEAK_TRIP_MAX_A && TANK_PEAK_TRIP_MAX_A < 64.55f);
+        /* Firmware trip below the config cap; the cap above the derived-trip cap and >= 2 A under the lowest CT
+         * band low corner of any board (64.55 A, R44 / R45 10 k; OPEN-ITEMS S29). */
+        assert(tank_peak_trip_for(k[i].c) < TANK_PEAK_TRIP_MAX_A && TANK_PEAK_TRIP_CAP_A < TANK_PEAK_TRIP_MAX_A &&
+               TANK_PEAK_TRIP_MAX_A <= 64.55f - 2.0f);
         /* The crest guard sits above the crest (x1.41) of a half at the RMS trip. */
         assert(tank_crest_guard_for(k[i].c) > 1.41421356f * tank_rms_trip_for(k[i].c));
         /* Peak trip less the 3 A pickup margin covers 2.17 x ceiling up to 26 A ... */

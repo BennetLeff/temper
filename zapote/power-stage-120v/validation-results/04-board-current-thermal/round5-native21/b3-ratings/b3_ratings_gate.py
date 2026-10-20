@@ -53,8 +53,11 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    1206W4F100KT5E (V.3 p.4/9, p.5/9): 1/4 W at 70 C derating to 0 W at 155 C, range -55..155 C.
                    2512: R10/R12/R18/R20 UniRoyal 25121WF680JT4E from stage 42 (thick-film chip resistor data sheet V.3
                    2019-02-12: p.4/9 table 6 1 W at 70 C; p.5/9 table 7 -55..155 C, section 9 figure 1 linear to 0 W
-                   at 155 C). Gated on the element (155 C) and on the derating line at the terminal with the R5 20 %
-                   power margin; a gate resistor in any other package stops the gate
+                   at 155 C). From candidate 54: UniRoyal PS122WF680JT4E, PS12 2 W 2512 (UniRoyal product catalogue
+                   2023~2024 p.23: 2 W, derating 100 % at 70 C to 0 % at 155 C ambient, -55~+155 C; same 6.35 x 3.20 x
+                   0.55 mm body and terminals). The 2512 rating is picked by the run file's MPN (GATE_R_MPN). Gated on
+                   the element (155 C) and on the derating line at the terminal with the R5 20 % power margin; a gate
+                   resistor in any other package, or a 2512 of an unlisted MPN, stops the gate
   rail monitors    (OPEN-ITEMS S16, monitor-probes-2026-10-15; hot-copper runs only, from the run files' probes):
                    gated TA rows, pad-copper max + P x RthJA as the die / local-ambient proxy, limit = the T_A grade
                    of the MPN the frozen BOM places there (MONITOR_GRADES): U17 / U19 / U21 TL431xI 85 C, TL431BQ
@@ -72,6 +75,17 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    x the 10 mm board ring's excess over the bay). Limit = the curve's ambient at the module's load under the
                    ledger rule (output <= 90 % of the curve-derated power): MODULES. The case node and the pads are
                    reported, never rated
+  J1 1714971       (OPEN-ITEMS S21, 11-candidates/c54-j1-thermal; hot-copper runs only) gated on the clamp (terminal
+                   point) temperature against 105 C: the terminal's upper limiting temperature (Phoenix online-catalog PDF
+                   1714971, generated 2026-10-16, p.5 'Ambient temperature (operation) -40 C ... 105 C (Depending on the
+                   current carrying capacity/derating curve)'; p.4 IEC 60947-7-4 rise test 'ambient temperature and
+                   temperature rise ... shall not exceed the upper limiting temperature'), which is also the inlet lead's
+                   insulation rating (>= 14 AWG, >= 105 C, F1-RECOMMENDATION.md:179). The clamp is c54's two-node model
+                   (TERMINALS): B3's pad-copper probe (both pads: the hotter pole) as a Thevenin source through the 0.9 mm
+                   solder pin, the clamp's I^2 R_pole, the 14 AWG lead as a semi-infinite Joule-heated insulated fin in
+                   the bay air, the PA housing to board-heated air; est = the maximum over the c54 input grid (no direction
+                   assumed). Replaces temp-ratings' 'pad + 4.09 K' (the 6 mm2 curve scaled I^2), which is not a bound for
+                   the 14 AWG lead
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), DC-link C5/C6 TDK B32676G1905K000
                    Top,max 105 C case (B3267* June 2026 p.13; 110 C until 2026-10-15), B82726 125 C (p.4), other
                    1206 (MPNs not re-read)
@@ -103,13 +117,17 @@ GATED = {"recom": ("Tj abs max (RECOM Rev.1-2024 p.2)", 150.0), "rgw": ("TJ max 
          "css2h": ("element max (Bourns CSS2H p.1)", 170.0)}
 ADVISORY = {"film_radial": ("MKP Top,max (TDK June 2026 p.35)", 110.0),
             "film_mmkp": ("MMKP Top,max 125 C case (TDK B3264*B June 2026 p.2, p.12)", 125.0), "film_mmkp82": ("MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)", 105.0), "film_mmkp_h": ("MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)", 125.0), "film_4pin": ("MKP Top,max 105 C case (TDK B3267* June 2026 p.13)", 105.0),
-            "choke": ("B82726 climatic upper (TDK p.4)", 125.0), "chip1206": ("1206 thick film (unverified)", 155.0)}
+            "choke": ("B82726 climatic upper (TDK p.4)", 125.0), "chip1206": ("1206 thick film (unverified)", 155.0),
+            "chip0603": ("0603 thin film element 155 C (Yageo RT V.16 p.5 Table 2)", 155.0)}
 GATED_REFS = {r: ("MKP Top,max 110 C (TDK B3265* June 2026 p.35)", 110.0, None) for r in ("C38", "C39", "C40", "C41")}
 # gate resistors: (ref group, body-model package spec) -> (basis, element limit C, rated W at 70 C); 0 W at 155 C
 GATE_R = {"R10": "on", "R12": "on", "R18": "on", "R20": "on", "R53": "off", "R54": "off", "R57": "off", "R58": "off"}
 GATE_R_PKG = {("on", "chip1206"): ("1206 element 155 C (FH RS-06L V11.0 p.2)", 155.0, 0.25),
               ("off", "chip1206"): ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25),
               ("on", "chip2512"): ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0)}
+# 2512 R_on rating by MPN (candidate 54): the package spec alone no longer fixes the rated power
+GATE_R_MPN = {"25121WF680JT4E": ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0),
+              "PS122WF680JT4E": ("2512 element 155 C (UniRoyal PS12 catalogue 2023~2024 p.23)", 155.0, 2.0)}
 PKG_NAME = {"chip1206": "1206", "chip2512": "2512"}
 BASIS = {"c17.5_h10": {"ceiling_a": 17.5, "h": 10, "bay_c": 61.0, "role": "release"},
          "c22_h10": {"ceiling_a": 22.0, "h": 10, "bay_c": 55.0, "role": "ratchet"},
@@ -256,6 +274,70 @@ def module_rows(c, r25, r05, bay, mpns=None, allow_pins_only=False):
     return rows
 
 
+# ---- mains terminal rows (OPEN-ITEMS S21, 11-candidates/c54-j1-thermal). One pole of the terminal is two nodes: the clamp
+# C and the pad P. B3 solves the board with nothing attached, so its pad-copper probe is P's open-circuit temperature T_P0;
+# the pin (k A / L, 0.9 x 0.9 mm, Phoenix p.4) ties C to P through the pad's driving-point resistance R_b. C makes
+# I^2 R_pole and loses heat to the lead (a semi-infinite insulated fin with Joule heat q'(T) = I^2 r'20 (1 + a (T - 20)):
+# H' = 1 / (ln(do/dc) / (2 pi k_pvc) + 1 / (h pi do)), theta_inf = q'(T_air) / (H' - b), b = I^2 r'20 a,
+# G = sqrt(k_cu A (H' - b))) and to air through the PA housing (G_h). Both poles carry the line current, so no heat
+# crosses between them. The row is the maximum of T_C over the grid (2^8 corners); c54 README section 2 gives each range.
+# I is the run file's i_line_a. The lead is the product's 14 AWG (F1-RECOMMENDATION.md:20 / :179): a cord change edits LEAD.
+TERMINALS = {"J1": {"mpn": "1714971", "nets": r"^ac_(l|n)_in$", "limit_c": 105.0,
+                    "basis": "1714971 clamp <= 105 C (Phoenix 1714971 PDF 2026-10-16 p.5 upper limiting temperature, "
+                             "p.4 IEC 60947-7-4; = the 105 C inlet lead, F1-RECOMMENDATION:179; c54 two-node model, "
+                             "grid maximum, 14 AWG lead)"}}
+TERM_LEAD = {"a_m2": 2.081e-6, "r20": 8.286e-3, "dc": 1.85e-3, "do": 3.43e-3}   # 14 AWG, 105 C AWM, 0.79 mm wall
+TERM_K_CU, TERM_K_PVC, TERM_ALPHA, TERM_PIN_A = 390.0, 0.19, 0.00393, 0.9e-3 * 0.9e-3
+TERM_GRID = {"r_pole_mohm": (0.4, 1.0),       # IEC voltage-drop limit 3.2 mV at 0.1 x 32 A = 1.0 mohm; Phoenix '60 % below'
+             "pin_k": (120.0, 380.0),         # 'Cu alloy' (p.3)
+             "pin_l_mm": (5.0, 8.0),
+             "r_b_kw": (20.0, 180.0),         # pad driving point (edge strip fin estimate .. inner-layer coupled)
+             "cord_h": (8.0, 18.0),           # lead surface h: jacketed / laced pair .. single lead in free air
+             "lead_air_rise_k": (0.0, 5.0),   # the lead leaves the board over the y = 0 edge within 5 mm
+             "housing_air_rise_k": (5.0, 15.0),  # board-heated air round the body (thermal_body.MODULE_AIR_RISE_K)
+             "g_h": (0.005, 0.010)}           # W/K per pole, housing to air
+
+
+def terminal_clamp_c(t_p0, bay, i_a, p, lead=TERM_LEAD):
+    """Clamp temperature [C] of one terminal pole (c54 two-node model) at one grid point p."""
+    import math
+    t_air, t_hous = bay + p["lead_air_rise_k"], bay + p["housing_air_rise_k"]
+    hp = 1.0 / (math.log(lead["do"] / lead["dc"]) / (2 * math.pi * TERM_K_PVC) + 1.0 / (p["cord_h"] * math.pi * lead["do"]))
+    b = i_a ** 2 * lead["r20"] * TERM_ALPHA
+    if hp <= b:
+        raise SystemExit(f"b3_ratings_gate: the terminal lead runs away thermally at {i_a} A (H' {hp:.4f} <= {b:.4f})")
+    t_inf = t_air + i_a ** 2 * lead["r20"] * (1 + TERM_ALPHA * (t_air - 20.0)) / (hp - b)
+    g_cord = math.sqrt(TERM_K_CU * lead["a_m2"] * (hp - b))
+    g_pb = 1.0 / (1.0 / (p["pin_k"] * TERM_PIN_A / (p["pin_l_mm"] * 1e-3)) + p["r_b_kw"])
+    pw = i_a ** 2 * p["r_pole_mohm"] * 1e-3
+    return (pw + g_pb * t_p0 + g_cord * t_inf + p["g_h"] * t_hous) / (g_pb + g_cord + p["g_h"])
+
+
+def terminal_rows(c, r25, r05, bay, i_line, mpns=None):
+    """Gated clamp rows of the mains terminals (TERMINALS) from the run files' probes (hot-copper runs only)."""
+    import itertools
+    if "probes" not in r25 or "probes" not in r05:
+        raise SystemExit(f"b3_ratings_gate: {c} run files carry no probes (re-solve with run_basis.py: body_runs probes)")
+    mpns = bom_mpns() if mpns is None else mpns
+    rows = []
+    for ref, t in TERMINALS.items():
+        if mpns.get(ref) != t["mpn"]:
+            raise SystemExit(f"b3_ratings_gate: {ref} is {mpns.get(ref)!r} on the BOM, not {t['mpn']}: re-rate its clamp "
+                             "(TERMINALS; 11-candidates/c54-j1-thermal)")
+        if ref not in r25["probes"] or ref not in r05["probes"]:
+            raise SystemExit(f"b3_ratings_gate: terminal {ref} not on the board")
+        nets = r25["probes"][ref]["nets"]
+        if not nets or not all(re.search(t["nets"], n) for n in nets):
+            raise SystemExit(f"b3_ratings_gate: terminal {ref} nets {nets} are not {t['nets']}: ref moved")
+        pad = est(r25["probes"][ref]["pad_max_cell_c"], r05["probes"][ref]["pad_max_cell_c"], bay)
+        keys = list(TERM_GRID)
+        worst = max(terminal_clamp_c(pad, bay, i_line, dict(zip(keys, v)))
+                    for v in itertools.product(*(TERM_GRID[k] for k in keys)))
+        rows.append(dict(item=f"{ref}: {t['basis']} at {i_line:g} A", gated=True, limit_c=t["limit_c"], est_c=worst,
+                         pad_c=round(pad, 1)))
+    return rows
+
+
 def bom_mpns(path=BOM_CSV):
     """designator -> MPN (the 'Comment' column) of the frozen native-21 BOM."""
     import csv
@@ -340,6 +422,57 @@ def probe_rows(c, r25, r05, bay, mpns=None):
     return rows
 
 
+# ---- tank-CT network rows (OPEN-ITEMS S29, validation-results/11-candidates/c54-ct-band). COMMISSIONING B9's CT trip
+# band is the round-3 exact-corner model (02-protection-timing/round3/thresholds.py) with the network at a uniform 85 C
+# (and -10 C); the firmware peak-trip cap (B17) and the 64.17 A floor are judged against it. These gated rows keep that
+# temperature a bound: each part on its body element where it has a B3 heat row (R39, the burden; R40-R46 once
+# b3/make_heat_sources.py carries them), else its pad-copper maximum + P x 46.3 K/W (0603 element to pad, derived as
+# thermal_body chip1206) with P the divider's static dissipation at the v3v3 contract top. Limit: the band's 85 C. A part
+# above it does not fail the band by itself (c54: the 64.17 A floor holds to a uniform 100.4 C with R44 / R45 10 k,
+# 268.8 C with 11 k), but B9 is then no longer a bound: re-run the band at the row's temperature before moving the limit.
+CT_BAND_T_C = 85.0
+CT_RTH_0603 = 46.3
+CT_V3V3_MAX = 3.465
+CT_NET = {"R39": {"ct_s1", "ct_s2"}, "R40": {"ct_s2", "v3v3"}, "R41": {"ct_s2", "selv_gnd"},
+          "R43": {"ct_ref_hi", "v3v3"}, "R44": {"ct_ref_hi", "selv_gnd"}, "R45": {"ct_ref_lo", "v3v3"},
+          "R46": {"ct_ref_lo", "selv_gnd"}}
+CT_PAIR = {"R40": "R41", "R41": "R40", "R43": "R44", "R44": "R43", "R45": "R46", "R46": "R45"}
+
+
+def _rt0603_ohm(ref, mpn):
+    m = re.fullmatch(r"RT0603BRD07(\d+)([RK])(\d*)L", mpn or "")
+    if not m:
+        raise SystemExit(f"b3_ratings_gate: CT network {ref} is {mpn!r}, not an RT0603BRD07 part (CT rows model it)")
+    return float(f"{m.group(1)}.{m.group(3) or '0'}") * (1e3 if m.group(2) == "K" else 1.0)
+
+
+def ct_rows(c, r25, r05, bay, mpns=None):
+    """Gated tank-CT network rows against the CT band's 85 C basis (hot-copper runs only)."""
+    if "probes" not in r25 or "probes" not in r05:
+        raise SystemExit(f"b3_ratings_gate: {c} run files carry no probes (re-solve with run_basis.py: body_runs probes)")
+    mpns = bom_mpns() if mpns is None else mpns
+    p25, p05 = r25["probes"], r05["probes"]
+    b25, b05 = {p["ref"]: p for p in r25["parts"]}, {p["ref"]: p for p in r05["parts"]}
+    rows = []
+    for ref, nets in CT_NET.items():
+        if ref not in p25 or ref not in p05:
+            raise SystemExit(f"b3_ratings_gate: CT network {ref} not on the board")
+        if set(p25[ref]["nets"]) != nets:
+            raise SystemExit(f"b3_ratings_gate: CT network {ref} nets {p25[ref]['nets']} are not {sorted(nets)}: ref moved")
+        if ref in b25 and ref in b05 and b25[ref].get("tj_c") is not None:
+            t, what = est(b25[ref]["tj_c"], b05[ref]["tj_c"], bay), "body element"
+        elif ref in CT_PAIR:
+            r_x, r_o = _rt0603_ohm(ref, mpns.get(ref)), _rt0603_ohm(CT_PAIR[ref], mpns.get(CT_PAIR[ref]))
+            w = (CT_V3V3_MAX / (r_x + r_o)) ** 2 * r_x
+            t = est(p25[ref]["pad_max_cell_c"], p05[ref]["pad_max_cell_c"], bay) + w * CT_RTH_0603
+            what = f"pad copper + {w * 1e3:.2f} mW x {CT_RTH_0603:g} K/W"
+        else:
+            raise SystemExit(f"b3_ratings_gate: CT network {ref} has no B3 heat row (b3/make_heat_sources.py)")
+        rows.append(dict(item=f"{ref}: tank-CT band basis {CT_BAND_T_C:g} C (COMMISSIONING B9, round3 exact_corners; "
+                              f"{what})", gated=True, limit_c=CT_BAND_T_C, est_c=t))
+    return rows
+
+
 CASE_RE = re.compile(r"^c(\d+(?:\.\d+)?)_h(\d+)(?:_jet(\d+(?:\.\d+)?)(?:a(\d+(?:\.\d+)?))?)?$")
 
 
@@ -400,6 +533,10 @@ def evaluate(r25: dict, r05: dict, bay: float):
             if key not in GATE_R_PKG:
                 raise SystemExit(f"b3_ratings_gate: no rating for gate resistor {p['ref']} in package spec {spec!r}")
             basis, lim, rated_w = GATE_R_PKG[key]
+            if spec == "chip2512":
+                if p.get("mpn") not in GATE_R_MPN:
+                    raise SystemExit(f"b3_ratings_gate: no rating for 2512 gate resistor {p['ref']} MPN {p.get('mpn')!r}")
+                basis, lim, rated_w = GATE_R_MPN[p["mpn"]]
             rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
             lim_t = 155.0 - 85.0 * p["watts_into_model"] / (0.8 * rated_w)
             rows.append(dict(item=f"{p['ref']}: {PKG_NAME[spec]} terminal derating at {p['watts_into_model']:.3f} W "
@@ -499,7 +636,9 @@ def run(runs: Path, cases, bay: float | None = None, release=None, allow_cold_co
             out["basis"]["cases"][c]["copper"] = cu
         rows = evaluate(r25, r05, b)
         if cu is not None:                   # probe rows are part of the hot-copper basis (cold controls: pre-S17 rows)
-            pr = probe_rows(c, r25, r05, b) + module_rows(c, r25, r05, b, allow_pins_only=allow_module_pins_only)
+            pr = (probe_rows(c, r25, r05, b) + module_rows(c, r25, r05, b, allow_pins_only=allow_module_pins_only)
+                  + ct_rows(c, r25, r05, b)
+                  + terminal_rows(c, r25, r05, b, out["basis"]["cases"][c]["i_line_a"]))
             for r in pr:
                 r["margin_k"] = round(r["limit_c"] - r["est_c"], 1)
                 r["est_c"], r["limit_c"] = round(r["est_c"], 1), round(r["limit_c"], 1)

@@ -109,7 +109,7 @@
   },
   "R18": {
    "fp": "Resistor_SMD:R_2512_6332Metric",
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "at": [
     4.5,
     12.4,
@@ -384,7 +384,7 @@
   },
   "R20": {
    "fp": "Resistor_SMD:R_2512_6332Metric",
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "at": [
     22.5,
     12.4,
@@ -642,7 +642,7 @@
   },
   "R10": {
    "fp": "Resistor_SMD:R_2512_6332Metric",
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "at": [
     62.6,
     12.4,
@@ -898,7 +898,7 @@
   },
   "R12": {
    "fp": "Resistor_SMD:R_2512_6332Metric",
-   "mpn": "25121WF680JT4E",
+   "mpn": "PS122WF680JT4E",
    "at": [
     44.6,
     12.4,
@@ -938,6 +938,132 @@
     3.13
    ],
    "layer": "F.Cu"
+  },
+  "R40": {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "mpn": "RT0603BRD071KL",
+   "at": [
+    3.525,
+    132.865
+   ],
+   "fab": [
+    -0.8,
+    -0.4125,
+    0.8,
+    0.4125
+   ],
+   "crt": [
+    -1.48,
+    -0.73,
+    1.48,
+    0.73
+   ],
+   "layer": "F.Cu"
+  },
+  "R41": {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "mpn": "RT0603BRD071KL",
+   "at": [
+    86.145,
+    128.775
+   ],
+   "fab": [
+    -0.8,
+    -0.4125,
+    0.8,
+    0.4125
+   ],
+   "crt": [
+    -1.48,
+    -0.73,
+    1.48,
+    0.73
+   ],
+   "layer": "F.Cu"
+  },
+  "R43": {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "mpn": "RT0603BRD072K21L",
+   "at": [
+    10.825,
+    132.865
+   ],
+   "fab": [
+    -0.8,
+    -0.4125,
+    0.8,
+    0.4125
+   ],
+   "crt": [
+    -1.48,
+    -0.73,
+    1.48,
+    0.73
+   ],
+   "layer": "F.Cu"
+  },
+  "R44": {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "mpn": "RT0603BRD0711KL",
+   "at": [
+    7.175,
+    132.865
+   ],
+   "fab": [
+    -0.8,
+    -0.4125,
+    0.8,
+    0.4125
+   ],
+   "crt": [
+    -1.48,
+    -0.73,
+    1.48,
+    0.73
+   ],
+   "layer": "F.Cu"
+  },
+  "R45": {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "mpn": "RT0603BRD0711KL",
+   "at": [
+    18.125,
+    132.865
+   ],
+   "fab": [
+    -0.8,
+    -0.4125,
+    0.8,
+    0.4125
+   ],
+   "crt": [
+    -1.48,
+    -0.73,
+    1.48,
+    0.73
+   ],
+   "layer": "F.Cu"
+  },
+  "R46": {
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "mpn": "RT0603BRD072K21L",
+   "at": [
+    14.475,
+    132.865
+   ],
+   "fab": [
+    -0.8,
+    -0.4125,
+    0.8,
+    0.4125
+   ],
+   "crt": [
+    -1.48,
+    -0.73,
+    1.48,
+    0.73
+   ],
+   "layer": "F.Cu"
   }
  },
  "edits": [
@@ -946,6 +1072,7 @@
   "stage 48 (candidate 48, 2026-10-16): U3 / U37 / U38 / U39 mpn TPS70950DBVR -> TPS70950QDBVRQ1 (same DBV body); U3 moved to (118.3, 61.75) at rotation 0 (patches21.S48_MOVES), same SOT-23-5 fab / courtyard box. Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
   "stage 49 (candidate 34, 2026-10-16): C21 / C22 / C23 / C151 / C152 mpn B32654A1104K000 -> B32643B8104J000 on temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial (TDK B3264*B p.2 / p.11: 14.5 x 29.5 x 26.5 mm body, e 22.5 mm); pin 1 stays at x 163.0, rows y 53.2 / 68.2 / 83.2 / 98.2 / 113.2 (place.py). Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
   "stage 51 (DECISIONS 73, 2026-10-16): C21 / C22 / C23 / C151 / C152 mpn B32643B8104J000 -> MMK104J3DF1KN208G2 (KNSCHA MMKP82, spec KNS20200505002 p.3: 31.5 x 19.5 x 11 +-0.5 mm, P 27.5) on temper:Bank_Film_DualPitch_P22.5_P27.5_Radial; fab = the fitted KNSCHA body at its maximum (32 x 11.5 mm, x -2.25 .. 29.75 from pin 1), crt = the union courtyard with the TDK alternate; pin 1 stays at x 163.0, same rows. Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
-  "stage 52 (DECISIONS 74, 2026-10-16, prototype lot): C21 / C22 / C23 / C151 / C152 mpn MMK104J3DF1KN208G2 -> B32643H8104J000 (TDK B3264*H June 2026 p.14: 14.5 x 29.5 x 26.5 mm maximum body, the B32643B body; p.3 e 22.5 mm) in the dual-pitch footprint's 22.5 mm hole; fab = that body (x -2.0 .. 24.5 from pin 1), crt = the union courtyard. L1 mpn B82726S2203A020 -> B82726S2243A020 (same sheet and drawing, same body). Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board."
+  "stage 52 (DECISIONS 74, 2026-10-16, prototype lot): C21 / C22 / C23 / C151 / C152 mpn MMK104J3DF1KN208G2 -> B32643H8104J000 (TDK B3264*H June 2026 p.14: 14.5 x 29.5 x 26.5 mm maximum body, the B32643B body; p.3 e 22.5 mm) in the dual-pitch footprint's 22.5 mm hole; fab = that body (x -2.0 .. 24.5 from pin 1), crt = the union courtyard. L1 mpn B82726S2203A020 -> B82726S2243A020 (same sheet and drawing, same body). Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board.",
+  "stage 54 (11-candidates/c54-release-margins, c54-ct-band, 2026-10-19): R10 / R12 / R18 / R20 mpn 25121WF680JT4E -> PS122WF680JT4E (UniRoyal PS12 2 W, same 2512 body; b3_ratings_gate GATE_R_MPN rates R_on by this MPN). New entries R40 / R41 / R43 / R44 / R45 / R46 (the tank-CT network's 0603 thin-film resistors, which b3/make_heat_sources.py now carries as heat rows; body_runs and thermal_body.build_network_parts need a body entry per heat row): footprint, pose and F.Fab / F.CrtYd boxes read with extract_bodies.py from the s53 board of record (section.kicad_pcb 82af7bd93e62; identical on the c54 board), mpn from the stage-54 frozen BOM (R44 / R45 RT0603BRD0711KL, 11 k). Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board."
  ]
 }

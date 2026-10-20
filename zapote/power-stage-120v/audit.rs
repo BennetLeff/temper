@@ -341,10 +341,12 @@ const IDENTITY: &[(&str, &str)] = &[
     // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at.
     // stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors (with Cgs 4.7 nF) hold the CFD7's S4
     // reverse-diode dv/dt and diF/dt; the 8.2 ohm 1206 broke both limits (85.8 V/ns, 2,101 A/us)
-    ("leg_a.r_gh", "25121WF680JT4E"),
-    ("leg_a.r_gl", "25121WF680JT4E"),
-    ("leg_b.r_gh", "25121WF680JT4E"),
-    ("leg_b.r_gl", "25121WF680JT4E"),
+    // stage 54 (11-candidates/c54-release-margins): UniRoyal PS12 2 W on the same 2512 land (was 25121WF680JT4E, 1 W;
+    // stage54_checks)
+    ("leg_a.r_gh", "PS122WF680JT4E"),
+    ("leg_a.r_gl", "PS122WF680JT4E"),
+    ("leg_b.r_gh", "PS122WF680JT4E"),
+    ("leg_b.r_gl", "PS122WF680JT4E"),
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
     ("leg_b.r_dt", "RT0603BRD0749K9L"),
     // stage 43: the 1 kV drain-source snubbers are the ordered YAGEO part (JLC C113872); the former source MPN
@@ -405,8 +407,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("d_ct_hi", "BAS116H,115"),
     ("d_ct_lo", "BAS116H,115"),
     ("r_ct_hi_top", "RT0603BRD072K21L"),
-    ("r_ct_hi_bot", "RT0603BRD0710KL"),
-    ("r_ct_lo_top", "RT0603BRD0710KL"),
+    ("r_ct_hi_bot", "RT0603BRD0711KL"),   // c54-ct-band (OPEN-ITEMS S29): 10 k -> 11 k
+    ("r_ct_lo_top", "RT0603BRD0711KL"),
     ("r_ct_lo_bot", "RT0603BRD072K21L"),
     ("u_ct_pos", "TLV3201AIDBVR"),
     ("u_ct_neg", "TLV3201AIDBVR"),
@@ -426,7 +428,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.bias_h.chf4", "CL05B104KB54PNC"),
     ("leg_a.bias_h.rdamp", "RL1206FR-070R68L"),
     ("leg_a.bias_h.cbulk", "6SVPC220MV"),
-    ("leg_a.bias_h.rbleed", "0603WAF4991T5E"),
+    ("leg_a.bias_h.rbleed", "ERJ-PA3F4991V"),   // stage 54 (c54-release-margins): was 0603WAF4991T5E
     ("leg_a.bias_l.clocal1", "CL32B106KBJNNNE"),
     ("leg_a.bias_l.clocal2", "CL32B106KBJNNNE"),
     ("leg_a.bias_l.cmid1", "GRM188R71E105KA12D"),
@@ -437,7 +439,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.bias_l.chf4", "CL05B104KB54PNC"),
     ("leg_a.bias_l.rdamp", "RL1206FR-070R68L"),
     ("leg_a.bias_l.cbulk", "6SVPC220MV"),
-    ("leg_a.bias_l.rbleed", "0603WAF4991T5E"),
+    ("leg_a.bias_l.rbleed", "ERJ-PA3F4991V"),
     ("leg_a.dis_or", "SN74LVC1G00DBVR"),
     ("leg_a.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_a.r_driver_dis", "0603WAF1002T5E"),
@@ -457,7 +459,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.bias_h.chf4", "CL05B104KB54PNC"),
     ("leg_b.bias_h.rdamp", "RL1206FR-070R68L"),
     ("leg_b.bias_h.cbulk", "6SVPC220MV"),
-    ("leg_b.bias_h.rbleed", "0603WAF4991T5E"),
+    ("leg_b.bias_h.rbleed", "ERJ-PA3F4991V"),
     ("leg_b.bias_l.clocal1", "CL32B106KBJNNNE"),
     ("leg_b.bias_l.clocal2", "CL32B106KBJNNNE"),
     ("leg_b.bias_l.cmid1", "GRM188R71E105KA12D"),
@@ -468,7 +470,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.bias_l.chf4", "CL05B104KB54PNC"),
     ("leg_b.bias_l.rdamp", "RL1206FR-070R68L"),
     ("leg_b.bias_l.cbulk", "6SVPC220MV"),
-    ("leg_b.bias_l.rbleed", "0603WAF4991T5E"),
+    ("leg_b.bias_l.rbleed", "ERJ-PA3F4991V"),
     ("leg_b.dis_or", "SN74LVC1G00DBVR"),
     ("leg_b.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_b.r_driver_dis", "0603WAF1002T5E"),
@@ -510,7 +512,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("hb.vote_b", "BAT54S-7-F"),
     ("hb.rgate", "0603WAF1003T5E"),   // stage 50 (c50-permit-gate): 100 k from PERMIT (10 k from v3v3 before)
     ("hb.osc", "SN74LVC1G132DBVR"),
-    ("hb.rosc", "0603WAF4991T5E"),
+    ("hb.rosc", "ERJ-PA3F4991V"),
     ("hb.cosc", "CL10C331JB8NNNC"),
     ("hb.iso", "CA-IS3720HW"),
     ("hb.buf", "SN74LVC1G132DBVR"),
@@ -897,6 +899,35 @@ fn stage52_checks(m: &Model, e: &mut Vec<String>) {
         let mpn = m.resolved.get(c).cloned().unwrap_or_default();
         if !parts.contains(&mpn.as_str()) {
             e.push(format!("stage52: {c} ({mpn}) is not a qualified part for its footprint ({})", parts.join(" / ")));
+        }
+    }
+}
+
+// Stage 54 (11-candidates/c54-release-margins, c54-ct-band): BOM-only swaps on unchanged footprints. The R_on 2512s must be
+// a part the B3 gate rates by MPN (b3_ratings_gate.py GATE_R_MPN: PS12 2 W fitted, the 25121WF 1 W of stages 42-53), and
+// the split bleeds / hb.rosc a 4.99 k 0603 the B3 release margin was computed for (ERJ-PA3 fitted, 0603WAF the former
+// line). Any other part, or another footprint, fails.
+const S54_RON_FP: &str = "Resistor_SMD:R_2512_6332Metric";
+const S54_RON_PARTS: &[&str] = &["PS122WF680JT4E", "25121WF680JT4E"];
+const S54_RON: &[&str] = &["leg_a.r_gh", "leg_a.r_gl", "leg_b.r_gh", "leg_b.r_gl"];
+const S54_4K99_FP: &str = "Resistor_SMD:R_0603_1608Metric";
+const S54_4K99_PARTS: &[&str] = &["ERJ-PA3F4991V", "0603WAF4991T5E"];
+const S54_4K99: &[&str] = &["leg_a.bias_h.rbleed", "leg_a.bias_l.rbleed", "leg_b.bias_h.rbleed", "leg_b.bias_l.rbleed",
+                            "hb.rosc"];
+
+fn stage54_checks(m: &Model, e: &mut Vec<String>) {
+    let groups = [(S54_RON, S54_RON_FP, S54_RON_PARTS), (S54_4K99, S54_4K99_FP, S54_4K99_PARTS)];
+    for (paths, fp, parts) in groups {
+        for c in paths.iter() {
+            match m.reff(c).and_then(|r| m.comps.get(r)) {
+                Some(comp) if comp.footprint == fp => {}
+                Some(comp) => e.push(format!("stage54: {c} footprint {} is not {fp}", comp.footprint)),
+                None => e.push(format!("stage54: {c} not found")),
+            }
+            let mpn = m.resolved.get(*c).cloned().unwrap_or_default();
+            if !parts.contains(&mpn.as_str()) {
+                e.push(format!("stage54: {c} ({mpn}) is not a qualified part for its footprint ({})", parts.join(" / ")));
+            }
         }
     }
 }
@@ -1456,6 +1487,7 @@ fn audit(m: &Model) -> Vec<String> {
     stage49_checks(m, &mut e);
     stage51_checks(m, &mut e);
     stage52_checks(m, &mut e);
+    stage54_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -1486,7 +1518,8 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "d_ct_hi", "1", "v3v3");         // cathode
     expect(&mut e, m, "d_ct_lo", "1", "ct_sense_mon"); // cathode
     expect(&mut e, m, "d_ct_lo", "2", "selv_gnd");     // anode
-    // Trip references: REF_HI = 3.3 * 10/12.21, REF_LO = 3.3 * 2.21/12.21 (stage 15: 64.55-76.09 A band).
+    // Trip references: REF_HI = 3.3 * 11/13.21, REF_LO = 3.3 * 2.21/13.21 (c54-ct-band: 67.36-79.32 A band;
+    // stage 15 to 53: 10 k, 64.55-76.09 A).
     expect(&mut e, m, "r_ct_hi_top", "1", "v3v3");
     expect(&mut e, m, "r_ct_hi_top", "2", "ct_ref_hi");
     expect(&mut e, m, "r_ct_hi_bot", "1", "ct_ref_hi");
@@ -1888,6 +1921,17 @@ mod tests {
     }
 
     #[test]
+    fn s53_ct_references_fail() {
+        // 10 k bottom legs put the CT low corner at 64.55 A: 0.38 A over the 64.17 A floor (28 A envelope peak +
+        // pickup + margin) and no room for the firmware peak trip's CT_MON error (OPEN-ITEMS S29, c54-ct-band).
+        for path in ["r_ct_hi_bot", "r_ct_lo_top"] {
+            let mut m = built();
+            m.set_part(path, "RT0603BRD0710KL");
+            fails(&m, &format!("{path} is RT0603BRD0710KL"));
+        }
+    }
+
+    #[test]
     fn stage14_ct_references_fail() {
         // 3.32 k references put the CT trip at 50.56-60.01 A, inside the 28 A envelope (59.2 A peak).
         for path in ["r_ct_hi_top", "r_ct_lo_bot"] {
@@ -2255,6 +2299,32 @@ mod tests {
         m.set_part("c_res3", "B32643H8823J000");
         fails(&m, "stage51: c_res3 (B32643H8823J000)");
         fails(&m, "stage49: c_res3 (B32643H8823J000) has no bank voltage rating");
+    }
+
+    #[test]
+    fn stage54_bom_holds() {
+        // c54-release-margins / c54-ct-band: the stage-54 BOM passes; each stage-53 part on the same footprint fails only
+        // its identity row (R_on 25121WF680JT4E, the 0603WAF4991T5E 4.99 k line); an unqualified part fails the stage-54
+        // whitelist; a footprint change fails it too
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        for (path, alt) in [("leg_a.r_gh", "25121WF680JT4E"), ("leg_b.r_gl", "25121WF680JT4E"),
+                            ("leg_a.bias_h.rbleed", "0603WAF4991T5E"), ("hb.rosc", "0603WAF4991T5E")] {
+            let mut m = built();
+            m.set_part(path, alt);
+            fails(&m, &format!("{path} is {alt}"));
+            assert!(!audit(&m).iter().any(|x| x.starts_with("stage54")), "{path}: {:#?}", audit(&m));
+        }
+        let mut m = built();
+        m.set_part("leg_b.r_gh", "RC2512FK-0768RL");
+        fails(&m, "stage54: leg_b.r_gh (RC2512FK-0768RL)");
+        let mut m = built();
+        m.set_part("leg_b.bias_l.rbleed", "RC0603FR-074K99L");
+        fails(&m, "stage54: leg_b.bias_l.rbleed (RC0603FR-074K99L)");
+        let mut m = built();
+        let r = m.reff("leg_a.r_gl").unwrap().to_string();
+        m.comps.get_mut(&r).unwrap().footprint = "Resistor_SMD:R_1206_3216Metric".into();
+        fails(&m, "stage54: leg_a.r_gl footprint");
     }
 
     #[test]

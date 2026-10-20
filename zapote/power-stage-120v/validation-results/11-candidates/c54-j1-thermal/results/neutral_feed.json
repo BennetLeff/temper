@@ -1,0 +1,58 @@
+{
+ "drive_a": 15.0,
+ "scale_to_13p5A": 0.81,
+ "nets": {
+  "ac_l_main": {
+   "net": "ac_l_in",
+   "source_pad": [
+    "J1.1:15"
+   ],
+   "sink_pad": [
+    "F1.1"
+   ],
+   "r_mohm": 0.291,
+   "loss_w": 0.0655,
+   "j1_barrel_hop_w": 0.0,
+   "max_a_per_mm": {
+    "F.Cu": 5.709
+   },
+   "sheet_joule_within_w": {
+    "r3mm": 0.0201,
+    "r6mm": 0.0447,
+    "r10mm": 0.0627,
+    "r20mm": 0.0644
+   },
+   "edge_strip_joule_w": 0.0
+  },
+  "ac_n_main": {
+   "net": "ac_n_in",
+   "source_pad": [
+    "J1.2:15"
+   ],
+   "sink_pad": [
+    "L1.2"
+   ],
+   "r_mohm": 2.5435,
+   "loss_w": 0.5723,
+   "j1_barrel_hop_w": 0.0811,
+   "max_a_per_mm": {
+    "B.Cu": 6.948
+   },
+   "sheet_joule_within_w": {
+    "r3mm": 0.0267,
+    "r6mm": 0.0577,
+    "r10mm": 0.0974,
+    "r20mm": 0.1969
+   },
+   "edge_strip_joule_w": 0.171
+  }
+ },
+ "neutral_local_heat": {
+  "now_w_15A": 0.2521,
+  "mirrored_w_15A": 0.1058,
+  "reduction": 0.58,
+  "now_w_13p5A": 0.2042,
+  "line_side_total_w_13p5A": 0.0531,
+  "r_ratio_n_over_l": 8.74
+ }
+}

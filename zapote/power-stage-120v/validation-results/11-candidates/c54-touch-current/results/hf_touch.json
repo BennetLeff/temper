@@ -1,0 +1,345 @@
+{
+ "note": "c54: switching-frequency (35-60 kHz harmonics) touch current in the open-PE test, versus board Y (C3/C4).",
+ "meter_control": [
+  {
+   "f_hz": 60.0,
+   "weighted_mA_per_mA_mna": 0.99622953817061,
+   "closed_form": 0.9962295381706098
+  },
+  {
+   "f_hz": 60.0,
+   "UL101_mA_per_mA_mna": 0.9964218262238039,
+   "closed_form": 0.9964218262238039
+  },
+  {
+   "f_hz": 35000.0,
+   "weighted_mA_per_mA_mna": 0.019681399527127136,
+   "closed_form": 0.019681399527127122
+  },
+  {
+   "f_hz": 35000.0,
+   "UL101_mA_per_mA_mna": 0.02020602534723449,
+   "closed_form": 0.020206025347234483
+  }
+ ],
+ "options": {
+  "Y2.2": {
+   "CY_nF": 2.2,
+   "corners": {
+    "nominal": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.03164301751656544,
+      "unweighted_mA": 1.5313126938813457,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.0318574557157725,
+      "unweighted_mA": 1.5416897126189066,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.06178916832667099,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "chokes -30 % (L1 + module)": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.04230485707204448,
+      "unweighted_mA": 2.0472940872300267,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.04252565590026171,
+      "unweighted_mA": 2.0579797085998486,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.18813678097673905,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "Y -20 %": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.04324664321272986,
+      "unweighted_mA": 2.09283973330164,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.0434970101308942,
+      "unweighted_mA": 2.1049555420578145,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.120673290588616,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "Y +20 %": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.023947376196491635,
+      "unweighted_mA": 1.1589043295929011,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.024106363494900678,
+      "unweighted_mA": 1.166598004372935,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.0387244424799049,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "coil + board 51 pF": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.05184044914498208,
+      "unweighted_mA": 2.508725109216465,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.05219191906353106,
+      "unweighted_mA": 2.5257332966748223,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.10061868841494052,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    }
+   },
+   "worst_weighted_mA_any_meter_any_corner": 0.18813678097673905
+  },
+  "Y1.5": {
+   "CY_nF": 1.5,
+   "corners": {
+    "nominal": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.0504720058161081,
+      "unweighted_mA": 2.442505557117197,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.050660107398912246,
+      "unweighted_mA": 2.4516086674872706,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.1361141934249967,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "chokes -30 % (L1 + module)": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.047279250662425054,
+      "unweighted_mA": 2.288176885263471,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.047242841822952485,
+      "unweighted_mA": 2.2864195318260165,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.12679279532237292,
+      "unweighted_mA": NaN,
+      "fs_hz": 41000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "Y -20 %": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.0534160460243665,
+      "unweighted_mA": 2.5850468498500847,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.05342879474915634,
+      "unweighted_mA": 2.5856657414779347,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.11322042349541796,
+      "unweighted_mA": NaN,
+      "fs_hz": 39000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "Y +20 %": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.04206079662616905,
+      "unweighted_mA": 2.0354532416471502,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.04231246826321805,
+      "unweighted_mA": 2.047632156407516,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.1135974745515396,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "coil + board 51 pF": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.08287295105262833,
+      "unweighted_mA": 4.010476654111743,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.08319052717381135,
+      "unweighted_mA": 4.025845485171339,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.22621676370229474,
+      "unweighted_mA": NaN,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     }
+    }
+   },
+   "worst_weighted_mA_any_meter_any_corner": 0.22621676370229474
+  },
+  "Y1.0": {
+   "CY_nF": 1.0,
+   "corners": {
+    "nominal": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.05051876512833086,
+      "unweighted_mA": 2.584518597722514,
+      "fs_hz": 37000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.05048705923422846,
+      "unweighted_mA": 2.5828992520726404,
+      "fs_hz": 37000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.09191490047801545,
+      "unweighted_mA": NaN,
+      "fs_hz": 41000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "chokes -30 % (L1 + module)": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.041730177016784734,
+      "unweighted_mA": 2.308138212644357,
+      "fs_hz": 40000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.041643751614756,
+      "unweighted_mA": 2.303365789226719,
+      "fs_hz": 40000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.05811461863163983,
+      "unweighted_mA": NaN,
+      "fs_hz": 50000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "Y -20 %": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.04641521982584049,
+      "unweighted_mA": 2.567092994637906,
+      "fs_hz": 40000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.04635802477603543,
+      "unweighted_mA": 2.5639332703035644,
+      "fs_hz": 40000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.0631597206329266,
+      "unweighted_mA": NaN,
+      "fs_hz": 41000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "Y +20 %": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.053416046024358864,
+      "unweighted_mA": 2.5850468498497112,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.053428794749301484,
+      "unweighted_mA": 2.5856657414850273,
+      "fs_hz": 35000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.11322042349541797,
+      "unweighted_mA": NaN,
+      "fs_hz": 39000.0,
+      "cfg": "198V/pan_28A"
+     }
+    },
+    "coil + board 51 pF": {
+     "lisn_mains_iec60990": {
+      "weighted_mA": 0.08365387904202633,
+      "unweighted_mA": 4.164106816172629,
+      "fs_hz": 36000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "stiff_mains_iec60990": {
+      "weighted_mA": 0.08357202918791667,
+      "unweighted_mA": 4.1600376305454985,
+      "fs_hz": 36000.0,
+      "cfg": "198V/pan_28A"
+     },
+     "lisn_mains_ul101": {
+      "weighted_mA": 0.153880514661038,
+      "unweighted_mA": NaN,
+      "fs_hz": 41000.0,
+      "cfg": "198V/pan_28A"
+     }
+    }
+   },
+   "worst_weighted_mA_any_meter_any_corner": 0.153880514661038
+  }
+ }
+}

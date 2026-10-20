@@ -1,0 +1,14 @@
+{
+ "base": "bor",
+ "CY_nF": 2.2,
+ "nominal_patch": {
+  "LCM": 0.00075,
+  "LDM": 8e-06,
+  "RCH": 0.0032,
+  "CCH": 5.070448871531245e-12,
+  "RLOSSCH": 4401.46757129632,
+  "LNEW": 0.0001,
+  "CY": 2.2000000000000003e-09
+ },
+ "script": "validation-results/07-conducted-emi/s19b/emi_s19b.py"
+}

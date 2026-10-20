@@ -99,7 +99,7 @@ static bool config_ok(const n21_config_t *c)
            isfinite(c->tank_crest_guard_a) && c->tank_crest_guard_a >= c->tank_rms_trip_a &&
            c->tank_crest_guard_a <= tank_crest_guard_for(ceiling) + 1e-3f &&
            /* Peak trip: never above the value derived from the ceiling, never at or above the
-            * stage-15 CT band (the hardware trip stays the backstop). */
+            * config cap under the CT band (the hardware trip stays the backstop). */
            isfinite(c->tank_peak_trip_a) && c->tank_peak_trip_a > 0 &&
            c->tank_peak_trip_a <= tank_peak_trip_for(ceiling) + 1e-3f &&
            c->tank_peak_trip_a < TANK_PEAK_TRIP_MAX_A &&

@@ -1,0 +1,8 @@
+{
+ "base": "prod",
+ "CY_nF": 2.2,
+ "nominal_patch": {
+  "CY": 2.2000000000000003e-09
+ },
+ "script": "validation-results/07-conducted-emi/s19b/emi_s19b.py"
+}

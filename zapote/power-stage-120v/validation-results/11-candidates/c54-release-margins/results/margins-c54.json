@@ -1,0 +1,806 @@
+{
+ "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+ "margins_json_sha256_16": "29d02050a51f9b45",
+ "gate_sha256_16": "d33ec609ebb5bffe",
+ "rule": 0.8,
+ "estimator": "Q(0.25) + 3.0 |Q(0.25) - Q(0.5)| + (bay - 50.0) (b3_ratings_gate.est)",
+ "r_on": {
+  "c17.5_h10": {
+   "R10": {
+    "P_w": 0.21699,
+    "terminal_est_c": 130.62,
+    "element_est_c": 134.48,
+    "element_margin_k": 20.5,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": 1.3,
+      "ratio_to_derated": 0.7565
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 12.9,
+      "ratio_to_derated": 0.3782
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 12.9,
+      "ratio_to_derated": 0.3782
+     }
+    }
+   },
+   "R12": {
+    "P_w": 0.21699,
+    "terminal_est_c": 126.54,
+    "element_est_c": 131.94,
+    "element_margin_k": 23.1,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": 5.4,
+      "ratio_to_derated": 0.648
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 16.9,
+      "ratio_to_derated": 0.324
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 16.9,
+      "ratio_to_derated": 0.324
+     }
+    }
+   },
+   "R18": {
+    "P_w": 0.21699,
+    "terminal_est_c": 126.69,
+    "element_est_c": 131.11,
+    "element_margin_k": 23.9,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": 5.3,
+      "ratio_to_derated": 0.6514
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 16.8,
+      "ratio_to_derated": 0.3257
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 16.8,
+      "ratio_to_derated": 0.3257
+     }
+    }
+   },
+   "R20": {
+    "P_w": 0.21699,
+    "terminal_est_c": 127.75,
+    "element_est_c": 132.51,
+    "element_margin_k": 22.5,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": 4.2,
+      "ratio_to_derated": 0.6768
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 15.7,
+      "ratio_to_derated": 0.3384
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 15.7,
+      "ratio_to_derated": 0.3384
+     }
+    }
+   }
+  },
+  "c22_h10": {
+   "R10": {
+    "P_w": 0.21699,
+    "terminal_est_c": 142.28,
+    "element_est_c": 146.79,
+    "element_margin_k": 8.2,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -10.3,
+      "ratio_to_derated": 1.4498
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 1.2,
+      "ratio_to_derated": 0.7249
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 1.2,
+      "ratio_to_derated": 0.7249
+     }
+    }
+   },
+   "R12": {
+    "P_w": 0.21699,
+    "terminal_est_c": 142.77,
+    "element_est_c": 148.16,
+    "element_margin_k": 6.8,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -10.8,
+      "ratio_to_derated": 1.5077
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 0.7,
+      "ratio_to_derated": 0.7538
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 0.7,
+      "ratio_to_derated": 0.7538
+     }
+    }
+   },
+   "R18": {
+    "P_w": 0.21699,
+    "terminal_est_c": 134.3,
+    "element_est_c": 138.54,
+    "element_margin_k": 16.5,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -2.4,
+      "ratio_to_derated": 0.8912
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 9.2,
+      "ratio_to_derated": 0.4456
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 9.2,
+      "ratio_to_derated": 0.4456
+     }
+    }
+   },
+   "R20": {
+    "P_w": 0.21699,
+    "terminal_est_c": 137.81,
+    "element_est_c": 142.82,
+    "element_margin_k": 12.2,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -5.9,
+      "ratio_to_derated": 1.0729
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 5.7,
+      "ratio_to_derated": 0.5364
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": 5.7,
+      "ratio_to_derated": 0.5364
+     }
+    }
+   }
+  },
+  "c28_h10": {
+   "R10": {
+    "P_w": 0.21699,
+    "terminal_est_c": 174.9,
+    "element_est_c": 180.14,
+    "element_margin_k": -25.1,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -43.0,
+      "ratio_to_derated": null
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -31.4,
+      "ratio_to_derated": null
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -31.4,
+      "ratio_to_derated": null
+     }
+    }
+   },
+   "R12": {
+    "P_w": 0.21699,
+    "terminal_est_c": 182.92,
+    "element_est_c": 188.21,
+    "element_margin_k": -33.2,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -51.0,
+      "ratio_to_derated": null
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -39.4,
+      "ratio_to_derated": null
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -39.4,
+      "ratio_to_derated": null
+     }
+    }
+   },
+   "R18": {
+    "P_w": 0.21699,
+    "terminal_est_c": 157.09,
+    "element_est_c": 160.94,
+    "element_margin_k": -5.9,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -25.1,
+      "ratio_to_derated": null
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -13.6,
+      "ratio_to_derated": null
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -13.6,
+      "ratio_to_derated": null
+     }
+    }
+   },
+   "R20": {
+    "P_w": 0.21699,
+    "terminal_est_c": 165.49,
+    "element_est_c": 171.15,
+    "element_margin_k": -16.1,
+    "parts": {
+     "25121WF680JT4E": {
+      "terminal_limit_c": 131.94,
+      "margin_k": -33.5,
+      "ratio_to_derated": null
+     },
+     "PS122WF680JT4E": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -22.0,
+      "ratio_to_derated": null
+     },
+     "RC2512JK-7W68RL": {
+      "terminal_limit_c": 143.47,
+      "margin_k": -22.0,
+      "ratio_to_derated": null
+     }
+    }
+   }
+  }
+ },
+ "r_on_edge": {
+  "step_v": 17.0,
+  "peak_w": 4.25,
+  "energy_uj_per_edge": 3.62,
+  "ps12_one_pulse_w_1_10us": 2000.0,
+  "ratio": 0.00213
+ },
+ "release_after": {
+  "b3_release_margin_K_before": 1.3,
+  "b3_release_margin_K_after": 3.8,
+  "worst_after": "laminate: 1 mm-block copper peak",
+  "next_rows": [
+   "+3.8 K laminate: 1 mm-block copper peak",
+   "+4.2 K PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "+4.4 K U26: TJ max (TI SBVS204G p.4)",
+   "+6.0 K laminate: FET-row copper",
+   "+6.5 K C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "+9.1 K C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)"
+  ]
+ },
+ "split_bleed": {
+  "P_w": 0.04815,
+  "basis": "(V_PN 17.510 - V_SPLIT 2.0088 V)^2 / 4.99 k (b3_ratings_gate MONITOR_SELF['tlvh431'] operating point); R131 carries no bleed (signal)",
+  "cases": {
+   "c17.5_h10": {
+    "R71": {
+     "pad_est_c": 93.23,
+     "P_w": 0.04815,
+     "nets": [
+      "p_ha",
+      "sw_a"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": 10.6
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 49.7,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 57.2
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 41.3
+      }
+     }
+    },
+    "R72": {
+     "pad_est_c": 92.05,
+     "P_w": 0.04815,
+     "nets": [
+      "leg_ret",
+      "v15_ls"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": 11.8
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 50.9,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 58.4
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 42.5
+      }
+     }
+    },
+    "R74": {
+     "pad_est_c": 98.42,
+     "P_w": 0.04815,
+     "nets": [
+      "p_hb",
+      "sw_b"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": 5.4
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 44.5,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 52.0
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 36.1
+      }
+     }
+    },
+    "R75": {
+     "pad_est_c": 101.36,
+     "P_w": 0.04815,
+     "nets": [
+      "leg_ret",
+      "v15_ls"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": 2.5
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 41.6,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 49.1
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 33.2
+      }
+     }
+    },
+    "R131": {
+     "pad_est_c": 88.36,
+     "P_w": 0.0,
+     "nets": [
+      "hb_rc",
+      "hb_tx"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 66.6
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 66.6,
+       "terminal_line_limit_c": 155.0,
+       "terminal_line_margin_k": 66.6
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 66.6
+      }
+     }
+    }
+   },
+   "c22_h10": {
+    "R71": {
+     "pad_est_c": 100.6,
+     "P_w": 0.04815,
+     "nets": [
+      "p_ha",
+      "sw_a"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": 3.2
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 42.4,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 49.8
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 33.9
+      }
+     }
+    },
+    "R72": {
+     "pad_est_c": 99.79,
+     "P_w": 0.04815,
+     "nets": [
+      "leg_ret",
+      "v15_ls"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": 4.0
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 43.2,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 50.7
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 34.7
+      }
+     }
+    },
+    "R74": {
+     "pad_est_c": 104.29,
+     "P_w": 0.04815,
+     "nets": [
+      "p_hb",
+      "sw_b"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": -0.5
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 38.7,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 46.1
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 30.2
+      }
+     }
+    },
+    "R75": {
+     "pad_est_c": 111.26,
+     "P_w": 0.04815,
+     "nets": [
+      "leg_ret",
+      "v15_ls"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": -7.4
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 31.7,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 39.2
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 23.3
+      }
+     }
+    },
+    "R131": {
+     "pad_est_c": 84.97,
+     "P_w": 0.0,
+     "nets": [
+      "hb_rc",
+      "hb_tx"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 70.0
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 70.0,
+       "terminal_line_limit_c": 155.0,
+       "terminal_line_margin_k": 70.0
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 70.0
+      }
+     }
+    }
+   },
+   "c28_h10": {
+    "R71": {
+     "pad_est_c": 125.49,
+     "P_w": 0.04815,
+     "nets": [
+      "p_ha",
+      "sw_a"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": -21.7
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 17.5,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 25.0
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 9.0
+      }
+     }
+    },
+    "R72": {
+     "pad_est_c": 125.77,
+     "P_w": 0.04815,
+     "nets": [
+      "leg_ret",
+      "v15_ls"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": -21.9
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 17.2,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 24.7
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 8.8
+      }
+     }
+    },
+    "R74": {
+     "pad_est_c": 124.84,
+     "P_w": 0.04815,
+     "nets": [
+      "p_hb",
+      "sw_b"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": -21.0
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 18.1,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 25.6
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": 9.7
+      }
+     }
+    },
+    "R75": {
+     "pad_est_c": 140.33,
+     "P_w": 0.04815,
+     "nets": [
+      "leg_ret",
+      "v15_ls"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 103.84,
+       "margin_k": -36.5
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 142.96,
+       "margin_k": 2.6,
+       "terminal_line_limit_c": 150.44,
+       "terminal_line_margin_k": 10.1
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 134.53,
+       "margin_k": -5.8
+      }
+     }
+    },
+    "R131": {
+     "pad_est_c": 90.03,
+     "P_w": 0.0,
+     "nets": [
+      "hb_rc",
+      "hb_tx"
+     ],
+     "parts": {
+      "0603WAF4991T5E": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 65.0
+      },
+      "ERJ-PA3F4991V": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 65.0,
+       "terminal_line_limit_c": 155.0,
+       "terminal_line_margin_k": 65.0
+      },
+      "RCS06034K99FKEA": {
+       "terminal_limit_c": 155.0,
+       "margin_k": 65.0
+      }
+     }
+    }
+   }
+  }
+ },
+ "caps": {
+  "c17.5_h10": {
+   "C126": {
+    "pad_est_c": 96.31,
+    "margin_k": {
+     "6SVPC220MV": 8.7,
+     "16SVPK220M": 28.7
+    }
+   },
+   "C127": {
+    "pad_est_c": 92.09,
+    "margin_k": {
+     "6SVPC220MV": 12.9,
+     "16SVPK220M": 32.9
+    }
+   },
+   "C128": {
+    "pad_est_c": 99.22,
+    "margin_k": {
+     "6SVPC220MV": 5.8,
+     "16SVPK220M": 25.8
+    }
+   },
+   "C129": {
+    "pad_est_c": 100.15,
+    "margin_k": {
+     "6SVPC220MV": 4.8,
+     "16SVPK220M": 24.8
+    }
+   }
+  },
+  "c22_h10": {
+   "C126": {
+    "pad_est_c": 105.46,
+    "margin_k": {
+     "6SVPC220MV": -0.5,
+     "16SVPK220M": 19.5
+    }
+   },
+   "C127": {
+    "pad_est_c": 100.61,
+    "margin_k": {
+     "6SVPC220MV": 4.4,
+     "16SVPK220M": 24.4
+    }
+   },
+   "C128": {
+    "pad_est_c": 105.69,
+    "margin_k": {
+     "6SVPC220MV": -0.7,
+     "16SVPK220M": 19.3
+    }
+   },
+   "C129": {
+    "pad_est_c": 109.84,
+    "margin_k": {
+     "6SVPC220MV": -4.8,
+     "16SVPK220M": 15.2
+    }
+   }
+  },
+  "c28_h10": {
+   "C126": {
+    "pad_est_c": 133.54,
+    "margin_k": {
+     "6SVPC220MV": -28.5,
+     "16SVPK220M": -8.5
+    }
+   },
+   "C127": {
+    "pad_est_c": 127.57,
+    "margin_k": {
+     "6SVPC220MV": -22.6,
+     "16SVPK220M": -2.6
+    }
+   },
+   "C128": {
+    "pad_est_c": 127.47,
+    "margin_k": {
+     "6SVPC220MV": -22.5,
+     "16SVPK220M": -2.5
+    }
+   },
+   "C129": {
+    "pad_est_c": 138.58,
+    "margin_k": {
+     "6SVPC220MV": -33.6,
+     "16SVPK220M": -13.6
+    }
+   }
+  }
+ },
+ "u26": {
+  "c17.5_h10": {
+   "tj_est_c": 120.64,
+   "limit_c": 125.0,
+   "margin_k": 4.4,
+   "P_w": 0.9032
+  },
+  "c22_h10": {
+   "tj_est_c": 118.15,
+   "limit_c": 125.0,
+   "margin_k": 6.9,
+   "P_w": 0.9032
+  },
+  "c28_h10": {
+   "tj_est_c": 124.91,
+   "limit_c": 125.0,
+   "margin_k": 0.1,
+   "P_w": 0.9032
+  }
+ },
+ "datasheets": {
+  "25121WF680JT4E": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12,2019): p.4/9 table 6 2512 1 W at 70 C; p.5/9 section 7 -55..+155 C, 200 V; p.5/9 section 9 figure 1 (100 % at 70 C to 0 % at 155 C, ambient); p.4/9 dims L 6.35+-0.10 W 3.20+-0.20 H 0.55+-0.10 A 0.60+-0.25 B 0.50+-0.20 (sha256 11cd644d5d8a34a6)",
+  "PS122WF680JT4E": "UniRoyal product catalogue 2023~2024 (LCSC copy, 200 pp, sha256 ef35c54db5ef3b90), 'High-Precision Anti-Surge Thick Film Chip Resistors - PS' p.23: PS12 2512 power rating 2W; Derating Curve 100 % at 70 C to 0 % at 155 C vs 'Ambient temperature'; operating -55~+155 C; max working 500 V, max overload 1000 V; dims L 6.35+-0.10 W 3.20+-0.20 H 0.55+-0.10 A 0.60+-0.25 B 0.50+-0.20 (B 1.80 only as a special order); 'Curve of Pulse Duration' PS12 one-pulse limiting power ~2000 W flat from 1 us to 10 us (read from the plot); AEC-Q200; p.24 TCR +-100 ppm/C, ordering code PS12 2W F (1 %)",
+  "RC2512JK-7W68RL": "Yageo RC_L series V.12 (Aug 02, 2022) (sha256 e7dbabb061192522): p.2 '7W = 7 inch dia. Reel & 2 x standard power'; p.6 table 2 RC2512 2W, -55 to 155 C, 200 V, 5 % 1 ohm-1 Mohm +-200 ppm/C; p.7 Fig. 10-1 (100 % at 70 C to 0 % at 155 C, Tamb), 'RC2512=1W, 2W'; p.4 table 1 RC2512 L 6.35+-0.10 W 3.10+-0.15 H 0.55+-0.10 I1 0.60+-0.20 I2 0.60+-0.20",
+  "0603WAF4991T5E": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12,2019) p.4/9 0603 1/10 W at 70 C, p.5/9 -55..155 C and section 9 derating (sha256 11cd644d5d8a34a6)",
+  "ERJ-PA3F4991V": "Panasonic 'Anti-Surge Thick Film Chip Resistors ERJ P, PA, PM type' (29-Sep-23; LCSC copy sha256 441511405b982033): p.2 Ratings ERJPA3 (0603) 0.25 W at rated ambient temperature 105 C, or 0.33 W at rated terminal part temperature 130 C, limiting element voltage 150 V, +-1 % 10 ohm-1 Mohm E96, +-100 ppm/K, category -55 to +155 C, AEC-Q200 grade 1; footnote *2 'give priority to the rated terminal part temperature'; p.3 Power derating curves (ambient: 100 % to 105 C, 0 at 155 C; terminal part: 100 % to 130 C, 0 at 155 C)",
+  "RCS06034K99FKEA": "Vishay RCS e3 doc 20065 (Rev. 04-Jul-2022; LCSC copy sha256 596179837e4c91bd) p.1 RCS0603 P70 0.25 W, film max 155 C, -55..+155 C, 75 V; p.6 derating",
+  "6SVPC220MV": "Panasonic OS-CON SVPC AAB8000C256 p.1, p.2: category -55..+105 C, 2000 h at 105 C, 220 uF 6.3 V, ESR 15 mOhm, 3160 mA rms 100 kHz (ledger; sha 1c506b7474c01158)",
+  "16SVPK220M": "Panasonic OS-CON SVPK series (LCSC copy, 7 pp, sha256 52d07f7c41c7c080): p.1 Features '125 C 1000 h', Specifications category -55 to +125 C, endurance +125 C 1000 h rated voltage applied; p.1 Dimensions C6: D 6.3, L 5.9 (+0.1/-0.4), W = H 6.6, C 7.3, R 0.6-0.8, P 2.1 mm (= SVPC C6); p.2 characteristics list 16SVPK220M: 220 uF, 16 V, C6, ripple 1040 mA (100 kHz, 105 < Tx <= 125 C) / 3300 mA (Tx <= 105 C), ESR 22 mOhm (100-300 kHz, 20 C), tan d 0.12, LC 704 uA",
+  "TPS7A4700RGWR": "TI SBVS204G p.4 (TPS7A47 TJ -40..125 C; the -Q1 grade TPS7A4701QRGWRQ1 is also -40..125 C)"
+ }
+}

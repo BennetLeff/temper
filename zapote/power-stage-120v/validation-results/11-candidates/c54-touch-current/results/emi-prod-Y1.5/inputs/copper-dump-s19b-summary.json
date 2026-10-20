@@ -1,0 +1,27 @@
+{
+ "sw_a": [
+  {
+   "layer": "F.Cu",
+   "area_mm2": 1702.3252170677297,
+   "edge_mm_facing_sink": 4.58839900000001
+  },
+  {
+   "layer": "F.Cu",
+   "area_mm2": 24.251425559661584,
+   "edge_mm_facing_sink": 0.0
+  },
+  {
+   "layer": "B.Cu",
+   "area_mm2": 201.77123790701444,
+   "edge_mm_facing_sink": 12.842496999999987
+  }
+ ],
+ "sw_b": [
+  {
+   "layer": "B.Cu",
+   "area_mm2": 3307.8635355427396,
+   "edge_mm_facing_sink": 7.616955000000003
+  }
+ ],
+ "board_sha256": "b19a45530bb0f39d2d3c0412e3774b6d5a47c4238d3fee867790cce410756662"
+}

@@ -1,0 +1,84 @@
+--- a/zapote/power-stage-120v/native-21/verification/datasheet-ledger/ledger.json
++++ b/zapote/power-stage-120v/native-21/verification/datasheet-ledger/ledger.json
+@@ -1021,8 +1021,15 @@
+      "parameter": "Touch-current budget (requirement, not a datasheet limit)",
+      "datasheet_limit": 0.25,
+      "unit": "mA",
+-     "basis": "50 % of the UL 1026 0.5 mA portable-appliance limit (clause unconfirmed, DECISIONS.md:844)",
+-     "source": "validation-results/07-conducted-emi/leakage/README.md:12"
++     "basis": "50 % of the 0.5 mA UL grounded-portable limit (project rule, F5); see the limit row for the basis",
++     "source": "validation-results/11-candidates/c54-touch-current/README.md"
++    },
++    {
++     "parameter": "Touch-current limit, grounded portable appliance (requirement, not a datasheet limit)",
++     "datasheet_limit": 0.5,
++     "unit": "mA",
++     "basis": "UL: 0.5 mA for grounded (3-wire) portable cord-connected appliances, open ground, both polarities (IAEI 'UL Question Corner: Leakage current', Feb 2019; the same wording in UL 982 sec. 23 as quoted by Chroma AN 19071; AAFES TM H-13). Applies through UL 1026 (portable household cooking appliances; scope 1.1 read on shopulstandards.com); UL 858 covers floor / cabinet / wall / counter-MOUNTED equipment (scope 1.1 read) and has its own sec. 55 test for cord-connected 120 V <= 1.75 kW units (limit not read; 0.75 mA if the unit is classed stationary). UL 1026 clause text not read: confidence in the value high, in the clause and classification medium. c54 README section 1.",
++     "source": "validation-results/11-candidates/c54-touch-current/README.md"
+     }
+    ],
+    "stresses": [
+@@ -1037,10 +1044,11 @@
+      "parameter": "Touch current PE open, 132 V",
+      "worst_case_value": 0.2412,
+      "unit": "mA",
+-     "condition": "stage 52: the stage-38 budget with C3/C4 = DE1E3RA222MJ4BH01F (2200 pF +20 %): 0.24123 mA, margin 8.77 uA (the A4 part's value; control +-30 % 0.25217 mA FAIL)",
++     "condition": "stage 52: the stage-38 budget with C3/C4 = DE1E3RA222MJ4BH01F (2200 pF +20 %): 0.24123 mA, margin 8.77 uA (the A4 part's value; control +-30 % 0.25217 mA FAIL); c54 (2026-10-18): stacked bounds (Y +20 % at 20 C, 132 V, MPM datasheet max x1.2); C3/C4 cannot be reduced: 1.5 nF gives EMI sensitivity min 3.62 dB, 1.0 nF -0.30 dB",
+      "evidence": [
+       "validation-results/11-candidates/s52-proto-bom/results/s1-s52.json",
+-      "validation-results/07-conducted-emi/leakage/README.md:12"
++      "validation-results/07-conducted-emi/leakage/README.md:12",
++      "validation-results/11-candidates/c54-touch-current/results/summary.json"
+      ]
+     },
+     {
+@@ -1049,6 +1057,16 @@
+      "unit": "V",
+      "condition": "bound: 2 kV line-earth combination-wave open-circuit voltage (ALT-D3 lab level) plus the 197.6 V crest",
+      "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:114; native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:16"
++    },
++    {
++     "parameter": "Touch current incl. switching-frequency estimate, UL meter, worst corner",
++     "worst_case_value": 0.3059,
++     "unit": "mA",
++     "condition": "60 Hz DESIGN 0.2412 mA (+) HF 0.1881 mA in quadrature; HF = the co-design hf_touch.py estimator on the current s19b model, board of record (L1 2243, module DM 100 uH), 1500 ohm || 0.15 uF meter, line-crest sources, worst corner 'chokes -30 % (L1 + module)'; nominal 0.2490 mA. An estimate, not a measurement",
++     "evidence": [
++      "validation-results/11-candidates/c54-touch-current/results/summary.json",
++      "validation-results/11-candidates/c54-touch-current/results/hf_touch.json"
++     ]
+     }
+    ],
+    "derating_rule": "Line-to-PE voltage <= 80 % of the Y1 rating (Murata: supply incl. fluctuation <= rating +10 %); Y capacitance sized so touch current with PE open <= the applicable limit (UL 1026 0.5 mA for portable appliances, clause unconfirmed).",
+@@ -1079,6 +1097,15 @@
+      "severity": "violation",
+      "rule": "0.2412 <= 0.25 mA (margin 8.8 uA)",
+      "ratio": 0.9648
++    },
++    {
++     "id": "touch total",
++     "rating": "Touch-current limit, grounded portable appliance (requirement, not a datasheet limit)",
++     "stress": "Touch current incl. switching-frequency estimate, UL meter, worst corner",
++     "max_ratio": 0.75,
++     "severity": "gap",
++     "rule": "0.306 <= 0.375 mA (75 % of 0.5 mA)",
++     "ratio": 0.6118
+     }
+    ],
+    "layout_guidance": [
+@@ -1088,12 +1115,13 @@
+     }
+    ],
+    "gaps": [
+-    "certifier: the 0.5 mA limit clause (UL 1026 portable) is unconfirmed; owner: the 0.2412 mA pass depends on the off-board D-22 module Y removal and PS3 = MPM-65-15ST, and fails with +0.15 nF Y per line.",
++    "certifier: governing standard / clause (UL 1026 grounded portable 0.5 mA expected; UL 858 sec. 55 or a stationary class would give 0.75 mA), test voltage and meter network are unconfirmed; bench: the open-PE touch current with the 1500 ohm || 0.15 uF meter at 132 V, both polarities, includes the 35-60 kHz term (c54 estimate 0.06 nominal / 0.19 mA worst corner, crest); owner: the 60 Hz pass (8.8 uA) depends on the off-board D-22 module Y removal and PS3 = MPM-65-15ST and fails with +0.15 nF Y per line; C3/C4 cannot be reduced (c54).",
+     "owner: the spec is Murata's Jun 2023 reference specification from a distributor; Murata asks buyers to consult the approval sheet before ordering.",
+-    "bench: surface temperature (125 C limit incl. self-heating) is not evidenced; B3 has no C3/C4 row."
++    "bench: surface temperature (125 C limit incl. self-heating) is not evidenced; B3 has no C3/C4 row.",
++    "datasheet: the +20 % tolerance is at 20 C; char. E allows +20/-55 % over -25..85 C (p.11 item 7) with no curve, so a cold capacitor can exceed the modelled 2.64 nF (bound 1.44 x 2.2 nF: 0.2675 mA 60 Hz, 53.5 % of 0.5 mA)."
+    ],
+    "finding": null,
+-   "notes": "S52 (2026-10-16, validation-results/11-candidates/s52-proto-bom/README.md): replaces DE1E3RA222MA4BP01F (Y1 300 V, A4 long leads; JLC 6, kept in `alternates`) with the H01F code (Y1 400 V, J4 crimp; JLC C7170908 104): same body, P10 pads and certificates, S1 unchanged, creepage unchanged (same pads)."
++   "notes": "S52 (2026-10-16, validation-results/11-candidates/s52-proto-bom/README.md): replaces DE1E3RA222MA4BP01F (Y1 300 V, A4 long leads; JLC 6, kept in `alternates`) with the H01F code (Y1 400 V, J4 crimp; JLC C7170908 104): same body, P10 pads and certificates, S1 unchanged, creepage unchanged (same pads). C54 (2026-10-18, validation-results/11-candidates/c54-touch-current/README.md): kept at 2.2 nF; the 1.0 / 1.5 nF H01F codes (same specification and approvals) fail the EMI rule on the board of record."
+   },
+   "GBJ2510-F": {
+    "mpn": "GBJ2510-F",

@@ -1,0 +1,651 @@
+{
+ "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+ "cases": {
+  "c17.5_h10": {
+   "bay_c": 61.0,
+   "files": {
+    "p0p25": {
+     "sha256_16": "2ef704a96fa75d7a",
+     "parts": {
+      "R10": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 108.12378679669592,
+       "tj_c": 114.60871689859262,
+       "spec": "chip2512"
+      },
+      "R12": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 109.10677371741806,
+       "tj_c": 115.73606470861299,
+       "spec": "chip2512"
+      },
+      "R18": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 105.93703035100157,
+       "tj_c": 112.30058493858215,
+       "spec": "chip2512"
+      },
+      "R20": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 107.62932141932217,
+       "tj_c": 113.97756729891412,
+       "spec": "chip2512"
+      },
+      "U26": {
+       "mpn": "TPS7A4700RGWR",
+       "watts_into_model": 0.9032239999999998,
+       "pad_max_cell_c": 98.53453279570095,
+       "tj_c": 98.2028868665652,
+       "spec": "rgw"
+      }
+     },
+     "probes": {
+      "R71": {
+       "pad_max_cell_c": 81.60719352826618,
+       "nets": [
+        "p_ha",
+        "sw_a"
+       ]
+      },
+      "R72": {
+       "pad_max_cell_c": 80.32892008085585,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R74": {
+       "pad_max_cell_c": 87.04231183016009,
+       "nets": [
+        "p_hb",
+        "sw_b"
+       ]
+      },
+      "R75": {
+       "pad_max_cell_c": 89.4243010829673,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R131": {
+       "pad_max_cell_c": 74.33399219528991,
+       "nets": [
+        "hb_rc",
+        "hb_tx"
+       ]
+      },
+      "C126": {
+       "pad_max_cell_c": 84.0421168264351,
+       "nets": [
+        "leg_a.bias_h-damp",
+        "n_ha"
+       ]
+      },
+      "C127": {
+       "pad_max_cell_c": 80.23102231404877,
+       "nets": [
+        "leg_a.bias_l-damp",
+        "n_ls"
+       ]
+      },
+      "C128": {
+       "pad_max_cell_c": 87.39485922468927,
+       "nets": [
+        "leg_b.bias_h-damp",
+        "n_hb"
+       ]
+      },
+      "C129": {
+       "pad_max_cell_c": 87.82230918030714,
+       "nets": [
+        "leg_b.bias_l-damp",
+        "n_ls"
+       ]
+      }
+     }
+    },
+    "p0p5": {
+     "sha256_16": "324ef78ac2204a93",
+     "parts": {
+      "R10": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 104.29210978565865,
+       "tj_c": 111.65150644767705,
+       "spec": "chip2512"
+      },
+      "R12": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 106.96342335715957,
+       "tj_c": 114.00069548382699,
+       "spec": "chip2512"
+      },
+      "R18": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 102.687279203975,
+       "tj_c": 109.69721086478506,
+       "spec": "chip2512"
+      },
+      "R20": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 104.58921598228848,
+       "tj_c": 111.46781692386281,
+       "spec": "chip2512"
+      },
+      "U26": {
+       "mpn": "TPS7A4700RGWR",
+       "watts_into_model": 0.9032239999999998,
+       "pad_max_cell_c": 93.97654968360558,
+       "tj_c": 94.39021449004792,
+       "spec": "rgw"
+      }
+     },
+     "probes": {
+      "R71": {
+       "pad_max_cell_c": 81.39869518403073,
+       "nets": [
+        "p_ha",
+        "sw_a"
+       ]
+      },
+      "R72": {
+       "pad_max_cell_c": 80.0900739969079,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R74": {
+       "pad_max_cell_c": 87.16898792874062,
+       "nets": [
+        "p_hb",
+        "sw_b"
+       ]
+      },
+      "R75": {
+       "pad_max_cell_c": 89.11305843201919,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R131": {
+       "pad_max_cell_c": 73.32593004466908,
+       "nets": [
+        "hb_rc",
+        "hb_tx"
+       ]
+      },
+      "C126": {
+       "pad_max_cell_c": 83.62051148444357,
+       "nets": [
+        "leg_a.bias_h-damp",
+        "n_ha"
+       ]
+      },
+      "C127": {
+       "pad_max_cell_c": 79.94538697505786,
+       "nets": [
+        "leg_a.bias_l-damp",
+        "n_ls"
+       ]
+      },
+      "C128": {
+       "pad_max_cell_c": 87.1204136940631,
+       "nets": [
+        "leg_b.bias_h-damp",
+        "n_hb"
+       ]
+      },
+      "C129": {
+       "pad_max_cell_c": 87.37972377190286,
+       "nets": [
+        "leg_b.bias_l-damp",
+        "n_ls"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "c22_h10": {
+   "bay_c": 55.0,
+   "files": {
+    "p0p25": {
+     "sha256_16": "df5254b7383fb6ac",
+     "parts": {
+      "R10": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 126.2034965250543,
+       "tj_c": 132.6833617424166,
+       "spec": "chip2512"
+      },
+      "R12": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 130.04585012567014,
+       "tj_c": 136.59442554899275,
+       "spec": "chip2512"
+      },
+      "R18": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 119.53713434270183,
+       "tj_c": 125.647869689134,
+       "spec": "chip2512"
+      },
+      "R20": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 123.59067815115345,
+       "tj_c": 129.84602190508048,
+       "spec": "chip2512"
+      },
+      "U26": {
+       "mpn": "TPS7A4700RGWR",
+       "watts_into_model": 0.9032239999999998,
+       "pad_max_cell_c": 102.30412106403908,
+       "tj_c": 101.94167741169208,
+       "spec": "rgw"
+      }
+     },
+     "probes": {
+      "R71": {
+       "pad_max_cell_c": 94.21671487911726,
+       "nets": [
+        "p_ha",
+        "sw_a"
+       ]
+      },
+      "R72": {
+       "pad_max_cell_c": 93.47930846171195,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R74": {
+       "pad_max_cell_c": 98.93953704170988,
+       "nets": [
+        "p_hb",
+        "sw_b"
+       ]
+      },
+      "R75": {
+       "pad_max_cell_c": 104.09052921905206,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R131": {
+       "pad_max_cell_c": 77.05071365171682,
+       "nets": [
+        "hb_rc",
+        "hb_tx"
+       ]
+      },
+      "C126": {
+       "pad_max_cell_c": 97.24813545413198,
+       "nets": [
+        "leg_a.bias_h-damp",
+        "n_ha"
+       ]
+      },
+      "C127": {
+       "pad_max_cell_c": 93.69440709973473,
+       "nets": [
+        "leg_a.bias_l-damp",
+        "n_ls"
+       ]
+      },
+      "C128": {
+       "pad_max_cell_c": 98.67751469172836,
+       "nets": [
+        "leg_b.bias_h-damp",
+        "n_hb"
+       ]
+      },
+      "C129": {
+       "pad_max_cell_c": 101.81368054971375,
+       "nets": [
+        "leg_b.bias_l-damp",
+        "n_ls"
+       ]
+      }
+     }
+    },
+    "p0p5": {
+     "sha256_16": "7702b9cb207a28a3",
+     "parts": {
+      "R10": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 122.5118662762497,
+       "tj_c": 129.64803302430278,
+       "spec": "chip2512"
+      },
+      "R12": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 127.47227963657626,
+       "tj_c": 134.4057701710915,
+       "spec": "chip2512"
+      },
+      "R18": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 116.28123132683862,
+       "tj_c": 123.01838747281845,
+       "spec": "chip2512"
+      },
+      "R20": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 120.51795255181727,
+       "tj_c": 127.18822459914621,
+       "spec": "chip2512"
+      },
+      "U26": {
+       "mpn": "TPS7A4700RGWR",
+       "watts_into_model": 0.9032239999999998,
+       "pad_max_cell_c": 97.83215670207859,
+       "tj_c": 98.20712331617142,
+       "spec": "rgw"
+      }
+     },
+     "probes": {
+      "R71": {
+       "pad_max_cell_c": 93.75474831424683,
+       "nets": [
+        "p_ha",
+        "sw_a"
+       ]
+      },
+      "R72": {
+       "pad_max_cell_c": 93.04307603067707,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R74": {
+       "pad_max_cell_c": 99.05665239449395,
+       "nets": [
+        "p_hb",
+        "sw_b"
+       ]
+      },
+      "R75": {
+       "pad_max_cell_c": 103.36608503707187,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R131": {
+       "pad_max_cell_c": 76.076282406744,
+       "nets": [
+        "hb_rc",
+        "hb_tx"
+       ]
+      },
+      "C126": {
+       "pad_max_cell_c": 96.17817090208757,
+       "nets": [
+        "leg_a.bias_h-damp",
+        "n_ha"
+       ]
+      },
+      "C127": {
+       "pad_max_cell_c": 93.05614102558462,
+       "nets": [
+        "leg_a.bias_l-damp",
+        "n_ls"
+       ]
+      },
+      "C128": {
+       "pad_max_cell_c": 98.00699855520166,
+       "nets": [
+        "leg_b.bias_h-damp",
+        "n_hb"
+       ]
+      },
+      "C129": {
+       "pad_max_cell_c": 100.80638748910721,
+       "nets": [
+        "leg_b.bias_l-damp",
+        "n_ls"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "c28_h10": {
+   "bay_c": 55.0,
+   "files": {
+    "p0p25": {
+     "sha256_16": "308f70ec1fd16e07",
+     "parts": {
+      "R10": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 158.64372310434862,
+       "tj_c": 165.04543795449308,
+       "spec": "chip2512"
+      },
+      "R12": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 167.3479960808286,
+       "tj_c": 173.69122059298388,
+       "spec": "chip2512"
+      },
+      "R18": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 141.94123817136548,
+       "tj_c": 147.55586260218422,
+       "spec": "chip2512"
+      },
+      "R20": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 150.82347582865663,
+       "tj_c": 156.885027007179,
+       "spec": "chip2512"
+      },
+      "U26": {
+       "mpn": "TPS7A4700RGWR",
+       "watts_into_model": 0.9032239999999998,
+       "pad_max_cell_c": 109.52420021474413,
+       "tj_c": 109.1030124727732,
+       "spec": "rgw"
+      }
+     },
+     "probes": {
+      "R71": {
+       "pad_max_cell_c": 117.5434264184193,
+       "nets": [
+        "p_ha",
+        "sw_a"
+       ]
+      },
+      "R72": {
+       "pad_max_cell_c": 118.20987565947718,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R74": {
+       "pad_max_cell_c": 119.8326205152356,
+       "nets": [
+        "p_hb",
+        "sw_b"
+       ]
+      },
+      "R75": {
+       "pad_max_cell_c": 130.52854986903588,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R131": {
+       "pad_max_cell_c": 82.2611531098728,
+       "nets": [
+        "hb_rc",
+        "hb_tx"
+       ]
+      },
+      "C126": {
+       "pad_max_cell_c": 121.46580681824149,
+       "nets": [
+        "leg_a.bias_h-damp",
+        "n_ha"
+       ]
+      },
+      "C127": {
+       "pad_max_cell_c": 119.11658439914646,
+       "nets": [
+        "leg_a.bias_l-damp",
+        "n_ls"
+       ]
+      },
+      "C128": {
+       "pad_max_cell_c": 118.22748535720694,
+       "nets": [
+        "leg_b.bias_h-damp",
+        "n_hb"
+       ]
+      },
+      "C129": {
+       "pad_max_cell_c": 127.12613698497155,
+       "nets": [
+        "leg_b.bias_l-damp",
+        "n_ls"
+       ]
+      }
+     }
+    },
+    "p0p5": {
+     "sha256_16": "ea43196bffb4eb3d",
+     "parts": {
+      "R10": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 154.89197231967316,
+       "tj_c": 161.679159897894,
+       "spec": "chip2512"
+      },
+      "R12": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 163.82468886700528,
+       "tj_c": 170.5184108404998,
+       "spec": "chip2512"
+      },
+      "R18": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 138.55841495178402,
+       "tj_c": 144.76205660736323,
+       "spec": "chip2512"
+      },
+      "R20": {
+       "mpn": "25121WF680JT4E",
+       "watts_into_model": 0.21698899382866887,
+       "pad_max_cell_c": 147.60002564159305,
+       "tj_c": 153.79816652324715,
+       "spec": "chip2512"
+      },
+      "U26": {
+       "mpn": "TPS7A4700RGWR",
+       "watts_into_model": 0.9032239999999998,
+       "pad_max_cell_c": 105.20027675071375,
+       "tj_c": 105.50182700245843,
+       "spec": "rgw"
+      }
+     },
+     "probes": {
+      "R71": {
+       "pad_max_cell_c": 116.56178218059605,
+       "nets": [
+        "p_ha",
+        "sw_a"
+       ]
+      },
+      "R72": {
+       "pad_max_cell_c": 117.35639802490851,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R74": {
+       "pad_max_cell_c": 119.83394915159042,
+       "nets": [
+        "p_hb",
+        "sw_b"
+       ]
+      },
+      "R75": {
+       "pad_max_cell_c": 128.92802398451818,
+       "nets": [
+        "leg_ret",
+        "v15_ls"
+       ]
+      },
+      "R131": {
+       "pad_max_cell_c": 81.33944972912144,
+       "nets": [
+        "hb_rc",
+        "hb_tx"
+       ]
+      },
+      "C126": {
+       "pad_max_cell_c": 119.10667594798136,
+       "nets": [
+        "leg_a.bias_h-damp",
+        "n_ha"
+       ]
+      },
+      "C127": {
+       "pad_max_cell_c": 117.96614661711929,
+       "nets": [
+        "leg_a.bias_l-damp",
+        "n_ls"
+       ]
+      },
+      "C128": {
+       "pad_max_cell_c": 116.81341793757699,
+       "nets": [
+        "leg_b.bias_h-damp",
+        "n_hb"
+       ]
+      },
+      "C129": {
+       "pad_max_cell_c": 124.97369309239714,
+       "nets": [
+        "leg_b.bias_l-damp",
+        "n_ls"
+       ]
+      }
+     }
+    }
+   }
+  }
+ },
+ "note": "values copied verbatim from b3-ratings/runs/<case>_p0p25|p0p5.json (gitignored; the s53 chain's B3 BASIS solves); est() is applied in release_margins.py"
+}

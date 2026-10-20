@@ -146,6 +146,15 @@ res(["0603WAF0000T5E"], 0.1, 70, 155, UNI, "0603 jumper: <50 mOhm, rated current
     "current derating published; carries no current in operation")
 res(["1206W4F1003T5E", "1206W4F100KT5E", "1206W4F1001T5E"], 0.25, 70, 155, UNI,
     "1206 'W4' 1/4 W at 70 C derating to 0 W at 155 C; operating -55..155 C (100K = 1.00 ohm)")
+# stage 54 (11-candidates/c54-release-margins): R10 / R12 / R18 / R20 and the 4.99 k line move to higher-rated parts on the
+# same lands. The c54 lane read both documents (datasheets not committed: c54-release-margins/scripts/fetch_datasheets.py)
+res(["PS122WF680JT4E"], 2.0, 70, 155, "UniRoyal product catalogue 2023~2024, PS series p.23 (derating curve, ratings), p.24 "
+    "(TCR, ordering code)", "PS12 2512 2 W at 70 C derating to 0 W at 155 C, x-axis 'Ambient temperature'; operating "
+    "-55..+155 C; AEC-Q200. Same 6.35 x 3.20 x 0.55 mm body and terminals as 25121WF (V.3 p.4/9)")
+res(["ERJ-PA3F4991V"], 0.25, 105, 155, "Panasonic ERJ P/PA/PM series (29-Sep-23) p.2 Ratings ERJPA3, p.3 derating curves",
+    "ERJPA3 0.25 W at rated ambient 105 C or 0.33 W at rated terminal-part 130 C, both to 0 W at 155 C; category "
+    "-55..+155 C; AEC-Q200 grade 1. Gated on the stricter ambient line read at the pad (footnote *2 gives the terminal "
+    "line priority: 150.4 C at 0.048 W against 143.0 C here)")
 RT = "Yageo RT series V.16 (May 06, 2025) p.5 Table 2, p.6 Fig. 6 (sha 0a729d144519a702)"
 res(["RT0603BRD0749K9L", "RT0603BRD0715K8L", "RT0603BRD0710KL", "RT0603BRD0712K6L", "RT0603BRD07140KL", "RT0603BRD071KL",
      "RT0603BRD072K21L", "RT0603BRD07105KL", "RT0603BRD076K2L", "RT0603BRD074K42L", "RT0603BRD07750RL", "RT0603BRD072K94L",

@@ -90,6 +90,13 @@ SPECS = {
              "96 % alumina, handbook), path (L/2)/(2 k W t) = 1.6 mm / (2 x 24 x 1.6 mm x 0.635 mm) = 33 K/W. "
              "Rating 0.25 W at 70 C derated to 0 at 155 C is the vendor-typical 1206 curve (Yageo RC_L / UniRoyal "
              "datasheets were not retrievable from this host: NOT re-verified here)"),
+    "chip0603": dict(  # thin-film chip resistors, 0603 (1.6 x 0.8 x 0.45 mm alumina): R40-R46 CT network (c54-ct-band)
+        label="0603 chip resistor", r_pad=46.3, r_top=0.0, body_mm=(1.6, 0.8), standoff_mm=0.05,
+        pad_filter=None, tj_limit=155.0,
+        cite="DERIVED as chip1206: element-to-termination conduction through the 96 % alumina substrate, k = 24 W/mK, "
+             "path (L/2)/(2 k W t) = 0.8 mm / (2 x 24 x 0.8 mm x 0.45 mm) = 46.3 K/W (L 1.6, W 0.8, H 0.45 mm nominal "
+             "0603). Rating 1/10 W at 70 C derated to 0 W at 155 C, operating -55..155 C: Yageo RT series V.16 p.5 "
+             "Table 2, p.6 Fig. 6 (datasheet ledger, RT0603BRD07 lines). Dissipation here is <= 3 mW"),
     "chip2512": dict(  # thick-film chip resistors, 2512 (6.35 x 3.20 x 0.55 mm alumina): R10/R12/R18/R20 from stage 42
         label="2512 chip resistor", r_pad=37.6, r_top=0.0, body_mm=(6.35, 3.2), standoff_mm=0.05,
         pad_filter=None, tj_limit=155.0,
@@ -392,6 +399,8 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "dbv5"
     if mpn.startswith("CSS2H"):
         return "css2h"
+    if "R_0603" in fp and mpn.startswith("RT0603"):   # c54-ct-band: the CT reference network's thin-film 0603s
+        return "chip0603"
     if "R_1206" in fp:
         return "chip1206"
     if "Resistor_SMD:R_2512" in fp:     # stage 42 (candidate 39): the 68 ohm 2512 turn-on resistors

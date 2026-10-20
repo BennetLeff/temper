@@ -1,0 +1,507 @@
+{
+ "basis": {
+  "V": 132.0,
+  "f_Hz": 60.0,
+  "Y_tol": 0.2,
+  "supply_freq_factor": 1.2,
+  "limit_portable_mA": 0.5,
+  "limit_stationary_mA": 0.75,
+  "budget_mA": 0.25
+ },
+ "breakdown": {
+  "total_mA": 0.24122504213869903,
+  "per_polarity_mA": {
+   "L_hot": 0.24122504213869903,
+   "N_hot": 0.24122504213869903
+  },
+  "items": [
+   {
+    "item": "Y 2.2 nF (+20 %)",
+    "mA_basis": 0.13137386495075654,
+    "share_pct": 54.46112218946965,
+    "mA_nominal_tol_and_60Hz_test": 0.1094782207922971
+   },
+   {
+    "item": "coil-to-PE 31 pF (+20 %)",
+    "mA_basis": 0.001851177187942478,
+    "share_pct": 0.7674067217607086,
+    "mA_nominal_tol_and_60Hz_test": 0.001851177187942478
+   },
+   {
+    "item": "MPM-20-24 datasheet max x132.0/264 V x1.20",
+    "mA_basis": 0.048,
+    "share_pct": 19.898431595008724,
+    "mA_nominal_tol_and_60Hz_test": 0.04
+   },
+   {
+    "item": "MPM-65-15ST datasheet max x132.0/264 V x1.20",
+    "mA_basis": 0.06,
+    "share_pct": 24.873039493760906,
+    "mA_nominal_tol_and_60Hz_test": 0.05
+   },
+   {
+    "item": "SCF31X-220-2R1A011JH inlet CM choke (module, stage 38)",
+    "mA_basis": 0.0,
+    "share_pct": 0.0,
+    "mA_nominal_tol_and_60Hz_test": 0.0,
+    "note": "no PE terminal: series element, no 60 Hz path to PE (the module's four Y caps were removed at s38)"
+   }
+  ],
+  "total_nominal_Y_and_supplies_tested_at_60Hz_mA": 0.20132939798023958,
+  "per_nF_per_line_mA": 0.05971539315943478
+ },
+ "parasitic_bound": {
+  "caps_pF": {
+   "CBRP bus_p-PE": 10.0,
+   "CBRN bus_n-PE": 10.0,
+   "2 x CTABH (Q2/Q5 tabs)": 13.995272777772806,
+   "CTABA + CPOURA (sw_a)": 8.41894299575435,
+   "CTABB + CPOURB (sw_b)": 9.071326858246865
+  },
+  "total_pF": 51.48554263177402,
+  "mA_at_full_line_V": 0.002562066183569356,
+  "touch_with_bound_mA": 0.24378710832226838,
+  "note": "every HV node charged at the full 132 V line amplitude: an upper bound (the bus nodes' 60 Hz component to PE is at most the line). Coil 31 pF is already in the rule."
+ },
+ "corners": [
+  {
+   "V": 120.0,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.18302672543658144,
+   "pct_of_0.5": 36.60534508731629,
+   "margin_to_budget_mA": 0.06697327456341856
+  },
+  {
+   "V": 120.0,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.1993903618002178,
+   "pct_of_0.5": 39.87807236004356,
+   "margin_to_budget_mA": 0.0506096381997822
+  },
+  {
+   "V": 120.0,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.19297929096315392,
+   "pct_of_0.5": 38.595858192630786,
+   "margin_to_budget_mA": 0.057020709036846084
+  },
+  {
+   "V": 120.0,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.20934292732679027,
+   "pct_of_0.5": 41.86858546535805,
+   "margin_to_budget_mA": 0.040657072673209727
+  },
+  {
+   "V": 120.0,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.2029318564897264,
+   "pct_of_0.5": 40.58637129794528,
+   "margin_to_budget_mA": 0.04706814351027361
+  },
+  {
+   "V": 120.0,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.21929549285336275,
+   "pct_of_0.5": 43.85909857067255,
+   "margin_to_budget_mA": 0.03070450714663725
+  },
+  {
+   "V": 127.0,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.19370328442038204,
+   "pct_of_0.5": 38.74065688407641,
+   "margin_to_budget_mA": 0.05629671557961796
+  },
+  {
+   "V": 127.0,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.21102146623856385,
+   "pct_of_0.5": 42.20429324771277,
+   "margin_to_budget_mA": 0.038978533761436146
+  },
+  {
+   "V": 127.0,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.2042364162693379,
+   "pct_of_0.5": 40.84728325386758,
+   "margin_to_budget_mA": 0.04576358373066211
+  },
+  {
+   "V": 127.0,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.2215545980875197,
+   "pct_of_0.5": 44.31091961750394,
+   "margin_to_budget_mA": 0.028445401912480295
+  },
+  {
+   "V": 127.0,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.21476954811829377,
+   "pct_of_0.5": 42.95390962365875,
+   "margin_to_budget_mA": 0.03523045188170623
+  },
+  {
+   "V": 127.0,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.23208772993647558,
+   "pct_of_0.5": 46.417545987295114,
+   "margin_to_budget_mA": 0.017912270063524416
+  },
+  {
+   "V": 132.0,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.20132939798023958,
+   "pct_of_0.5": 40.26587959604792,
+   "margin_to_budget_mA": 0.04867060201976042
+  },
+  {
+   "V": 132.0,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.2193293979802396,
+   "pct_of_0.5": 43.86587959604792,
+   "margin_to_budget_mA": 0.030670602019760407
+  },
+  {
+   "V": 132.0,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.2122772200594693,
+   "pct_of_0.5": 42.45544401189386,
+   "margin_to_budget_mA": 0.03772277994053069
+  },
+  {
+   "V": 132.0,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.2302772200594693,
+   "pct_of_0.5": 46.05544401189386,
+   "margin_to_budget_mA": 0.019722779940530705
+  },
+  {
+   "V": 132.0,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.223225042138699,
+   "pct_of_0.5": 44.6450084277398,
+   "margin_to_budget_mA": 0.02677495786130099
+  },
+  {
+   "V": 132.0,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.24122504213869903,
+   "pct_of_0.5": 48.245008427739805,
+   "margin_to_budget_mA": 0.008774957861300975
+  },
+  {
+   "V": 134.62,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.20532548148560495,
+   "pct_of_0.5": 41.06509629712099,
+   "margin_to_budget_mA": 0.04467451851439505
+  },
+  {
+   "V": 134.62,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.22368275421287767,
+   "pct_of_0.5": 44.73655084257553,
+   "margin_to_budget_mA": 0.02631724578712233
+  },
+  {
+   "V": 134.62,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.21649060124549818,
+   "pct_of_0.5": 43.29812024909964,
+   "margin_to_budget_mA": 0.03350939875450182
+  },
+  {
+   "V": 134.62,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.2348478739727709,
+   "pct_of_0.5": 46.969574794554184,
+   "margin_to_budget_mA": 0.015152126027229096
+  },
+  {
+   "V": 134.62,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.2276557210053914,
+   "pct_of_0.5": 45.53114420107828,
+   "margin_to_budget_mA": 0.022344278994608613
+  },
+  {
+   "V": 134.62,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.2460129937326641,
+   "pct_of_0.5": 49.20259874653282,
+   "margin_to_budget_mA": 0.003987006267335891
+  },
+  {
+   "V": 139.7,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.21307361286242021,
+   "pct_of_0.5": 42.61472257248404,
+   "margin_to_budget_mA": 0.036926387137579786
+  },
+  {
+   "V": 139.7,
+   "Y_tol": 0.0,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.23212361286242023,
+   "pct_of_0.5": 46.42472257248404,
+   "margin_to_budget_mA": 0.017876387137579774
+  },
+  {
+   "V": 139.7,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.2246600578962717,
+   "pct_of_0.5": 44.932011579254336,
+   "margin_to_budget_mA": 0.025339942103728308
+  },
+  {
+   "V": 139.7,
+   "Y_tol": 0.1,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.24371005789627168,
+   "pct_of_0.5": 48.74201157925434,
+   "margin_to_budget_mA": 0.006289942103728324
+  },
+  {
+   "V": 139.7,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.0,
+   "touch_mA": 0.23624650293012311,
+   "pct_of_0.5": 47.249300586024624,
+   "margin_to_budget_mA": 0.013753497069876885
+  },
+  {
+   "V": 139.7,
+   "Y_tol": 0.2,
+   "supply_freq_factor": 1.2,
+   "touch_mA": 0.2552965029301231,
+   "pct_of_0.5": 51.05930058602463,
+   "margin_to_budget_mA": -0.005296502930123126
+  }
+ ],
+ "options": [
+  {
+   "option": "O0 as built: C3/C4 2.2 nF",
+   "Y_nF_L_N": [
+    2.2,
+    2.2
+   ],
+   "touch_60Hz_mA": 0.24122504213869903,
+   "per_polarity_mA": {
+    "L_hot": 0.24122504213869903,
+    "N_hot": 0.24122504213869903
+   },
+   "margin_to_budget_mA": 0.008774957861300975,
+   "margin_to_budget_pct": 3.50998314452039,
+   "pct_of_0.5": 48.245008427739805,
+   "pct_of_0.75": 32.16333895182654,
+   "extra_Y_per_line_nF_before_budget_fail": 0.1469463298662812,
+   "emi_board_of_record": {
+    "nominal_min_margin_dB": 11.13942425834125,
+    "sensitivity_min_margin_22A_dB": 8.277041401184633,
+    "sensitivity_min_margin_all_dB": 6.951316284394082,
+    "verdict": "PASS"
+   },
+   "hf_touch_estimate": {
+    "UL_meter_nominal_mA": 0.06178916832667099,
+    "UL_meter_worst_mA": 0.18813678097673905,
+    "UL_meter_worst_corner": "chokes -30 % (L1 + module)",
+    "IEC60990_worst_mA": 0.05184044914498208,
+    "lab_reading_estimate_nominal_mA": 0.24901289580525504,
+    "lab_reading_estimate_worst_mA": 0.30591660515752755,
+    "lab_reading_worst_pct_of_0.5": 61.183321031505514
+   }
+  },
+  {
+   "option": "O1 C3/C4 -> 1.5 nF (DE1E3RA152MJ4BH01F)",
+   "Y_nF_L_N": [
+    1.5,
+    1.5
+   ],
+   "touch_60Hz_mA": 0.19942426692709467,
+   "per_polarity_mA": {
+    "L_hot": 0.19942426692709467,
+    "N_hot": 0.19942426692709467
+   },
+   "margin_to_budget_mA": 0.05057573307290533,
+   "margin_to_budget_pct": 20.230293229162132,
+   "pct_of_0.5": 39.884853385418936,
+   "pct_of_0.75": 26.589902256945958,
+   "extra_Y_per_line_nF_before_budget_fail": 0.8469463298662814,
+   "emi_board_of_record": {
+    "nominal_min_margin_dB": 7.791494374352922,
+    "sensitivity_min_margin_22A_dB": 4.947650675752641,
+    "sensitivity_min_margin_all_dB": 3.6219255589740698,
+    "verdict": "INCONCLUSIVE"
+   },
+   "hf_touch_estimate": {
+    "UL_meter_nominal_mA": 0.1361141934249967,
+    "UL_meter_worst_mA": 0.22621676370229474,
+    "UL_meter_worst_corner": "coil + board 51 pF",
+    "IEC60990_worst_mA": 0.08287295105262833,
+    "lab_reading_estimate_nominal_mA": 0.24144794861656316,
+    "lab_reading_estimate_worst_mA": 0.3015693326904262,
+    "lab_reading_worst_pct_of_0.5": 60.313866538085236
+   }
+  },
+  {
+   "option": "O2 C3/C4 -> 1.0 nF (DE1E3RA102MJ4BH01F)",
+   "Y_nF_L_N": [
+    1.0,
+    1.0
+   ],
+   "touch_60Hz_mA": 0.16956657034737727,
+   "per_polarity_mA": {
+    "L_hot": 0.16956657034737727,
+    "N_hot": 0.16956657034737727
+   },
+   "margin_to_budget_mA": 0.08043342965262273,
+   "margin_to_budget_pct": 32.17337186104909,
+   "pct_of_0.5": 33.913314069475454,
+   "pct_of_0.75": 22.60887604631697,
+   "extra_Y_per_line_nF_before_budget_fail": 1.3469463298662816,
+   "emi_board_of_record": {
+    "nominal_min_margin_dB": 4.2387806603613996,
+    "sensitivity_min_margin_22A_dB": 1.0273279406059856,
+    "sensitivity_min_margin_all_dB": -0.2970598433178111,
+    "verdict": "INCONCLUSIVE"
+   },
+   "hf_touch_estimate": {
+    "UL_meter_nominal_mA": 0.09191490047801545,
+    "UL_meter_worst_mA": 0.153880514661038,
+    "UL_meter_worst_corner": "coil + board 51 pF",
+    "IEC60990_worst_mA": 0.08365387904202633,
+    "lab_reading_estimate_nominal_mA": 0.1928760501183481,
+    "lab_reading_estimate_worst_mA": 0.2289804239923535,
+    "lab_reading_worst_pct_of_0.5": 45.7960847984707
+   }
+  },
+  {
+   "option": "O3 delete C4 (one Y, L side only)",
+   "Y_nF_L_N": [
+    2.2,
+    0.0
+   ],
+   "touch_60Hz_mA": 0.24122504213869903,
+   "per_polarity_mA": {
+    "L_hot": 0.24122504213869903,
+    "N_hot": 0.10985117718794248
+   },
+   "margin_to_budget_mA": 0.008774957861300975,
+   "margin_to_budget_pct": 3.50998314452039,
+   "pct_of_0.5": 48.245008427739805,
+   "pct_of_0.75": 32.16333895182654,
+   "extra_Y_per_line_nF_before_budget_fail": 0.1469463298662812
+  },
+  {
+   "option": "O4 no Y at all",
+   "Y_nF_L_N": [
+    0.0,
+    0.0
+   ],
+   "touch_60Hz_mA": 0.10985117718794248,
+   "per_polarity_mA": {
+    "L_hot": 0.10985117718794248,
+    "N_hot": 0.10985117718794248
+   },
+   "margin_to_budget_mA": 0.14014882281205754,
+   "margin_to_budget_pct": 56.059529124823015,
+   "pct_of_0.5": 21.970235437588496,
+   "pct_of_0.75": 14.646823625058998,
+   "extra_Y_per_line_nF_before_budget_fail": 2.346946329866282
+  }
+ ],
+ "basis_variants": {
+  "supplies_tested_at_60Hz_(factor_1.0)": {
+   "touch_mA": 0.223225042138699,
+   "margin_to_budget_mA": 0.02677495786130099
+  },
+  "supply_scale_factor_that_fails_budget": 1.081249609826861,
+  "rated_120V_nominal_parts_supplies_x1.0": 0.18302672543658144
+ },
+ "emi": {
+  "bor-Y2.2": {
+   "nominal_min_margin_dB": 11.13942425834125,
+   "sensitivity_min_margin_22A_dB": 8.277041401184633,
+   "sensitivity_min_margin_all_dB": 6.951316284394082,
+   "verdict": "PASS"
+  },
+  "bor-Y1.5": {
+   "nominal_min_margin_dB": 7.791494374352922,
+   "sensitivity_min_margin_22A_dB": 4.947650675752641,
+   "sensitivity_min_margin_all_dB": 3.6219255589740698,
+   "verdict": "INCONCLUSIVE"
+  },
+  "bor-Y1.0": {
+   "nominal_min_margin_dB": 4.2387806603613996,
+   "sensitivity_min_margin_22A_dB": 1.0273279406059856,
+   "sensitivity_min_margin_all_dB": -0.2970598433178111,
+   "verdict": "INCONCLUSIVE"
+  },
+  "prod-Y2.2": {
+   "nominal_min_margin_dB": 12.374473525419013,
+   "sensitivity_min_margin_22A_dB": 9.512040132661483,
+   "sensitivity_min_margin_all_dB": 8.18631501597065,
+   "verdict": "PASS"
+  },
+  "prod-Y1.5": {
+   "nominal_min_margin_dB": 9.031522637775176,
+   "sensitivity_min_margin_22A_dB": 6.1875797563930774,
+   "sensitivity_min_margin_all_dB": 4.861854639598526,
+   "verdict": "INCONCLUSIVE"
+  }
+ },
+ "checks": [
+  {
+   "check": "committed DESIGN row reproduced by the imported model",
+   "ok": true,
+   "detail": "0.2412250421 vs result.json 0.2412250421"
+  },
+  {
+   "check": "c54 per-polarity rule == committed rule at the basis",
+   "ok": true,
+   "detail": "0.2412250421"
+  },
+  {
+   "check": "EMI control: bor CY 2.2 reproduces the scorecard source",
+   "ok": true,
+   "detail": "11.139424 / 6.951316 dB"
+  },
+  {
+   "check": "EMI control: prod CY 2.2 reproduces committed s19b results.json",
+   "ok": true,
+   "detail": "12.374474 vs 12.374474"
+  },
+  {
+   "check": "O3 (one Y) does not lower the worst polarity",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

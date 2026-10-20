@@ -1,0 +1,706 @@
+{
+ "inputs": {
+  "t_p0_release_c": 99.03,
+  "bay_c": 61.0,
+  "hot_minus_cool_pad_k": 26.87,
+  "pad_rise_k": 38.03,
+  "grid": {
+   "r_pole_mohm": [
+    0.4,
+    1.0
+   ],
+   "pin_k": [
+    120.0,
+    380.0
+   ],
+   "pin_l_mm": [
+    5.0,
+    8.0
+   ],
+   "r_b_kw": [
+    20.0,
+    180.0
+   ],
+   "cord_h": [
+    8.0,
+    18.0
+   ],
+   "lead_air_rise_k": [
+    0.0,
+    5.0
+   ],
+   "housing_air_rise_k": [
+    5.0,
+    15.0
+   ],
+   "g_h": [
+    0.005,
+    0.01
+   ]
+  },
+  "central": {
+   "r_pole_mohm": 0.6,
+   "pin_k": 250.0,
+   "pin_l_mm": 6.5,
+   "r_b_kw": 80.0,
+   "cord_h": 12.0,
+   "lead_air_rise_k": 2.0,
+   "housing_air_rise_k": 10.0,
+   "g_h": 0.0075
+  }
+ },
+ "curve": {
+  "rise_32A_knee_k": 23.62,
+  "rise_13p5A_read_k": 5.27,
+  "rise_15A_read_k": 6.1,
+  "rise_13p5A_s21_scaled_k": 4.09,
+  "power_fit": {
+   "c": 0.0451,
+   "n": 1.808,
+   "points": 61,
+   "rise_13p5A_k": 4.99,
+   "rise_15A_k": 6.03
+  },
+  "if_reduction_factor_0p8": {
+   "rise_32A_k": 15.74,
+   "rise_13p5A_k": 3.54
+  }
+ },
+ "calibration": {
+  "rise_23K_at_32A": [
+   {
+    "g_pb_w_k": 0.01,
+    "h": 12.0,
+    "lead_theta_inf_k": 22.17,
+    "r_pole_mohm": 0.256
+   },
+   {
+    "g_pb_w_k": 0.01,
+    "h": 17.0,
+    "lead_theta_inf_k": 15.66,
+    "r_pole_mohm": 0.399
+   },
+   {
+    "g_pb_w_k": 0.03,
+    "h": 12.0,
+    "lead_theta_inf_k": 22.17,
+    "r_pole_mohm": 0.718
+   },
+   {
+    "g_pb_w_k": 0.03,
+    "h": 17.0,
+    "lead_theta_inf_k": 15.66,
+    "r_pole_mohm": 0.861
+   },
+   {
+    "g_pb_w_k": 0.06,
+    "h": 12.0,
+    "lead_theta_inf_k": 22.17,
+    "r_pole_mohm": 1.41
+   },
+   {
+    "g_pb_w_k": 0.06,
+    "h": 17.0,
+    "lead_theta_inf_k": 15.66,
+    "r_pole_mohm": 1.553
+   }
+  ],
+  "rise_if_0p8_at_32A": [
+   {
+    "g_pb_w_k": 0.01,
+    "h": 12.0,
+    "lead_theta_inf_k": 22.17,
+    "r_pole_mohm": 0.039
+   },
+   {
+    "g_pb_w_k": 0.01,
+    "h": 17.0,
+    "lead_theta_inf_k": 15.66,
+    "r_pole_mohm": 0.155
+   },
+   {
+    "g_pb_w_k": 0.03,
+    "h": 12.0,
+    "lead_theta_inf_k": 22.17,
+    "r_pole_mohm": 0.347
+   },
+   {
+    "g_pb_w_k": 0.03,
+    "h": 17.0,
+    "lead_theta_inf_k": 15.66,
+    "r_pole_mohm": 0.463
+   },
+   {
+    "g_pb_w_k": 0.06,
+    "h": 12.0,
+    "lead_theta_inf_k": 22.17,
+    "r_pole_mohm": 0.808
+   },
+   {
+    "g_pb_w_k": 0.06,
+    "h": 17.0,
+    "lead_theta_inf_k": 15.66,
+    "r_pole_mohm": 0.924
+   }
+  ]
+ },
+ "release_14awg_13p5A": {
+  "low": {
+   "t_c": 76.21,
+   "t_pad_c": 83.37,
+   "t_p0": 99.03,
+   "lead_far_c": 71.29,
+   "p_pole_w": 0.0729,
+   "q_to_board_w": -0.087,
+   "q_to_lead_w": 0.0578,
+   "inputs": {
+    "r_pole_mohm": 0.4,
+    "pin_k": 120.0,
+    "pin_l_mm": 8.0,
+    "r_b_kw": 180.0,
+    "cord_h": 18.0,
+    "lead_air_rise_k": 0.0,
+    "housing_air_rise_k": 5.0,
+    "g_h": 0.01
+   }
+  },
+  "high": {
+   "t_c": 98.79,
+   "t_pad_c": 98.9,
+   "t_p0": 99.03,
+   "lead_far_c": 89.28,
+   "p_pole_w": 0.1822,
+   "q_to_board_w": -0.0067,
+   "q_to_lead_w": 0.075,
+   "inputs": {
+    "r_pole_mohm": 1.0,
+    "pin_k": 380.0,
+    "pin_l_mm": 5.0,
+    "r_b_kw": 20.0,
+    "cord_h": 8.0,
+    "lead_air_rise_k": 5.0,
+    "housing_air_rise_k": 15.0,
+    "g_h": 0.005
+   }
+  },
+  "central": {
+   "t_c": 87.49,
+   "t_pad_c": 90.79,
+   "t_p0": 99.03,
+   "lead_far_c": 78.31,
+   "p_pole_w": 0.1094,
+   "q_to_board_w": -0.103,
+   "q_to_lead_w": 0.0887,
+   "inputs": {
+    "r_pole_mohm": 0.6,
+    "pin_k": 250.0,
+    "pin_l_mm": 6.5,
+    "r_b_kw": 80.0,
+    "cord_h": 12.0,
+    "lead_air_rise_k": 2.0,
+    "housing_air_rise_k": 10.0,
+    "g_h": 0.0075
+   }
+  }
+ },
+ "c28_14awg_13p5A": {
+  "low": {
+   "t_c": 70.11,
+   "t_pad_c": 77.3,
+   "t_p0": 93.01,
+   "lead_far_c": 65.08,
+   "p_pole_w": 0.0729,
+   "q_to_board_w": -0.0873,
+   "q_to_lead_w": 0.0591,
+   "inputs": {
+    "r_pole_mohm": 0.4,
+    "pin_k": 120.0,
+    "pin_l_mm": 8.0,
+    "r_b_kw": 180.0,
+    "cord_h": 18.0,
+    "lead_air_rise_k": 0.0,
+    "housing_air_rise_k": 5.0,
+    "g_h": 0.01
+   }
+  },
+  "high": {
+   "t_c": 92.68,
+   "t_pad_c": 92.83,
+   "t_p0": 93.01,
+   "lead_far_c": 82.82,
+   "p_pole_w": 0.1822,
+   "q_to_board_w": -0.009,
+   "q_to_lead_w": 0.0778,
+   "inputs": {
+    "r_pole_mohm": 1.0,
+    "pin_k": 380.0,
+    "pin_l_mm": 5.0,
+    "r_b_kw": 20.0,
+    "cord_h": 8.0,
+    "lead_air_rise_k": 5.0,
+    "housing_air_rise_k": 15.0,
+    "g_h": 0.005
+   }
+  },
+  "central": {
+   "t_c": 81.36,
+   "t_pad_c": 84.7,
+   "t_p0": 93.01,
+   "lead_far_c": 72.01,
+   "p_pole_w": 0.1094,
+   "q_to_board_w": -0.1039,
+   "q_to_lead_w": 0.0905,
+   "inputs": {
+    "r_pole_mohm": 0.6,
+    "pin_k": 250.0,
+    "pin_l_mm": 6.5,
+    "r_b_kw": 80.0,
+    "cord_h": 12.0,
+    "lead_air_rise_k": 2.0,
+    "housing_air_rise_k": 10.0,
+    "g_h": 0.0075
+   }
+  }
+ },
+ "sensitivity_14awg_13p5A": {
+  "r_b_kw": {
+   "at_low": 3.26,
+   "at_high": -2.22
+  },
+  "cord_h": {
+   "at_low": 3.18,
+   "at_high": -2.74
+  },
+  "r_pole_mohm": {
+   "at_low": -1.4,
+   "at_high": 2.79
+  },
+  "g_h": {
+   "at_low": 1.75,
+   "at_high": -1.44
+  },
+  "housing_air_rise_k": {
+   "at_low": -1.44,
+   "at_high": 1.44
+  },
+  "lead_air_rise_k": {
+   "at_low": -0.78,
+   "at_high": 1.17
+  },
+  "pin_k": {
+   "at_low": -1.02,
+   "at_high": 0.41
+  },
+  "pin_l_mm": {
+   "at_low": 0.27,
+   "at_high": -0.25
+  }
+ },
+ "lead_alone_14awg": {
+  "h8_air+0": 83.89,
+  "h8_air+5": 89.28,
+  "h18_air+0": 71.29,
+  "h18_air+5": 76.47
+ },
+ "trip_14awg_15A": {
+  "low": {
+   "t_c": 78.99,
+   "t_pad_c": 87.25,
+   "t_p0": 105.33,
+   "lead_far_c": 73.81,
+   "p_pole_w": 0.09,
+   "q_to_board_w": -0.1004,
+   "q_to_lead_w": 0.0606,
+   "inputs": {
+    "r_pole_mohm": 0.4,
+    "pin_k": 120.0,
+    "pin_l_mm": 8.0,
+    "r_b_kw": 180.0,
+    "cord_h": 18.0,
+    "lead_air_rise_k": 0.0,
+    "housing_air_rise_k": 5.0,
+    "g_h": 0.01
+   }
+  },
+  "high": {
+   "t_c": 107.11,
+   "t_pad_c": 107.49,
+   "t_p0": 107.95,
+   "lead_far_c": 95.27,
+   "p_pole_w": 0.225,
+   "q_to_board_w": -0.0231,
+   "q_to_lead_w": 0.0925,
+   "inputs": {
+    "r_pole_mohm": 1.0,
+    "pin_k": 380.0,
+    "pin_l_mm": 5.0,
+    "r_b_kw": 20.0,
+    "cord_h": 8.0,
+    "lead_air_rise_k": 5.0,
+    "housing_air_rise_k": 15.0,
+    "g_h": 0.005
+   }
+  },
+  "central": {
+   "t_c": 92.51,
+   "t_pad_c": 96.56,
+   "t_p0": 106.64,
+   "lead_far_c": 82.14,
+   "p_pole_w": 0.135,
+   "q_to_board_w": -0.1261,
+   "q_to_lead_w": 0.0997,
+   "inputs": {
+    "r_pole_mohm": 0.6,
+    "pin_k": 250.0,
+    "pin_l_mm": 6.5,
+    "r_b_kw": 80.0,
+    "cord_h": 12.0,
+    "lead_air_rise_k": 2.0,
+    "housing_air_rise_k": 10.0,
+    "g_h": 0.0075
+   }
+  },
+  "t_p0_range_c": [
+   105.33,
+   107.95
+  ]
+ },
+ "fixes": {
+  "a_limit": {
+   "what": "105 C is Phoenix's upper limiting temperature for 1714971 (p.5); the PA housing's ball-pressure temperature is 125 C (p.3), which is a material test, not a use limit; no higher-limit MKDS 5 variant in this footprint was found and the UL RTI of the housing is unpublished (Product iQ needs a login). The lead's 105 C insulation co-binds at the clamp.",
+   "credit_k": 0.0
+  },
+  "b_neutral_copper": {
+   "what": "ac_n_in F.Cu strip mirroring the B.Cu strip x 283.6-289.4, y 3.5-26.5 into J1.2's F.Cu pad, stitched to B.Cu (layout change; B3 re-solve to confirm)",
+   "pad_reduction_k": [
+    8.96,
+    13.44
+   ],
+   "t_p0_range_c": [
+    85.59,
+    90.07
+   ],
+   "release_13p5A": {
+    "low": {
+     "t_c": 74.21,
+     "t_pad_c": 77.78,
+     "t_p0": 85.59,
+     "lead_far_c": 71.29,
+     "p_pole_w": 0.0729,
+     "q_to_board_w": -0.0434,
+     "q_to_lead_w": 0.0343,
+     "inputs": {
+      "r_pole_mohm": 0.4,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 18.0,
+      "lead_air_rise_k": 0.0,
+      "housing_air_rise_k": 5.0,
+      "g_h": 0.01
+     }
+    },
+    "high": {
+     "t_c": 96.4,
+     "t_pad_c": 94.41,
+     "t_p0": 90.07,
+     "lead_far_c": 89.28,
+     "p_pole_w": 0.1822,
+     "q_to_board_w": 0.0241,
+     "q_to_lead_w": 0.0561,
+     "inputs": {
+      "r_pole_mohm": 1.0,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 8.0,
+      "lead_air_rise_k": 5.0,
+      "housing_air_rise_k": 15.0,
+      "g_h": 0.005
+     }
+    },
+    "central": {
+     "t_c": 83.66,
+     "t_pad_c": 84.85,
+     "t_p0": 87.83,
+     "lead_far_c": 78.31,
+     "p_pole_w": 0.1094,
+     "q_to_board_w": -0.0373,
+     "q_to_lead_w": 0.0517,
+     "inputs": {
+      "r_pole_mohm": 0.6,
+      "pin_k": 250.0,
+      "pin_l_mm": 6.5,
+      "r_b_kw": 80.0,
+      "cord_h": 12.0,
+      "lead_air_rise_k": 2.0,
+      "housing_air_rise_k": 10.0,
+      "g_h": 0.0075
+     }
+    }
+   },
+   "trip_15A": {
+    "low": {
+     "t_c": 76.51,
+     "t_pad_c": 80.35,
+     "t_p0": 88.75,
+     "lead_far_c": 73.81,
+     "p_pole_w": 0.09,
+     "q_to_board_w": -0.0467,
+     "q_to_lead_w": 0.0316,
+     "inputs": {
+      "r_pole_mohm": 0.4,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 18.0,
+      "lead_air_rise_k": 0.0,
+      "housing_air_rise_k": 5.0,
+      "g_h": 0.01
+     }
+    },
+    "high": {
+     "t_c": 103.38,
+     "t_pad_c": 101.35,
+     "t_p0": 96.89,
+     "lead_far_c": 95.27,
+     "p_pole_w": 0.225,
+     "q_to_board_w": 0.0247,
+     "q_to_lead_w": 0.0633,
+     "inputs": {
+      "r_pole_mohm": 1.0,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 8.0,
+      "lead_air_rise_k": 5.0,
+      "housing_air_rise_k": 15.0,
+      "g_h": 0.005
+     }
+    },
+    "central": {
+     "t_c": 87.77,
+     "t_pad_c": 89.22,
+     "t_p0": 92.82,
+     "lead_far_c": 82.14,
+     "p_pole_w": 0.135,
+     "q_to_board_w": -0.045,
+     "q_to_lead_w": 0.0542,
+     "inputs": {
+      "r_pole_mohm": 0.6,
+      "pin_k": 250.0,
+      "pin_l_mm": 6.5,
+      "r_b_kw": 80.0,
+      "cord_h": 12.0,
+      "lead_air_rise_k": 2.0,
+      "housing_air_rise_k": 10.0,
+      "g_h": 0.0075
+     }
+    }
+   }
+  },
+  "c_other_terminal": {
+   "what": "a terminal with a higher limit gains nothing while the 105 C lead sits in its clamp; with a 125 C lead as well, the margin becomes 125 - T_C(high)",
+   "credit_k": 0.0,
+   "with_125C_terminal_and_lead_margin_k": 26.21
+  },
+  "d_12awg": {
+   "what": "12 AWG cord and inlet leads (product spec)",
+   "release_13p5A": {
+    "low": {
+     "t_c": 72.95,
+     "t_pad_c": 81.13,
+     "t_p0": 99.03,
+     "lead_far_c": 66.54,
+     "p_pole_w": 0.0729,
+     "q_to_board_w": -0.0994,
+     "q_to_lead_w": 0.1028,
+     "inputs": {
+      "r_pole_mohm": 0.4,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 18.0,
+      "lead_air_rise_k": 0.0,
+      "housing_air_rise_k": 5.0,
+      "g_h": 0.01
+     }
+    },
+    "high": {
+     "t_c": 95.41,
+     "t_pad_c": 97.03,
+     "t_p0": 99.03,
+     "lead_far_c": 78.32,
+     "p_pole_w": 0.1822,
+     "q_to_board_w": -0.0999,
+     "q_to_lead_w": 0.1852,
+     "inputs": {
+      "r_pole_mohm": 1.0,
+      "pin_k": 380.0,
+      "pin_l_mm": 5.0,
+      "r_b_kw": 20.0,
+      "cord_h": 8.0,
+      "lead_air_rise_k": 5.0,
+      "housing_air_rise_k": 15.0,
+      "g_h": 0.005
+     }
+    },
+    "central": {
+     "t_c": 83.21,
+     "t_pad_c": 87.74,
+     "t_p0": 99.03,
+     "lead_far_c": 71.19,
+     "p_pole_w": 0.1094,
+     "q_to_board_w": -0.1411,
+     "q_to_lead_w": 0.1589,
+     "inputs": {
+      "r_pole_mohm": 0.6,
+      "pin_k": 250.0,
+      "pin_l_mm": 6.5,
+      "r_b_kw": 80.0,
+      "cord_h": 12.0,
+      "lead_air_rise_k": 2.0,
+      "housing_air_rise_k": 10.0,
+      "g_h": 0.0075
+     }
+    }
+   },
+   "lead_alone": {
+    "h8_air+0": 73.12,
+    "h8_air+5": 78.32,
+    "h18_air+0": 66.54,
+    "h18_air+5": 71.63
+   },
+   "trip_15A": {
+    "low": {
+     "t_c": 75.05,
+     "t_pad_c": 84.55,
+     "t_p0": 105.33,
+     "lead_far_c": 67.87,
+     "p_pole_w": 0.09,
+     "q_to_board_w": -0.1154,
+     "q_to_lead_w": 0.1149,
+     "inputs": {
+      "r_pole_mohm": 0.4,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 18.0,
+      "lead_air_rise_k": 0.0,
+      "housing_air_rise_k": 5.0,
+      "g_h": 0.01
+     }
+    },
+    "high": {
+     "t_c": 102.84,
+     "t_pad_c": 105.13,
+     "t_p0": 107.95,
+     "lead_far_c": 81.36,
+     "p_pole_w": 0.225,
+     "q_to_board_w": -0.1409,
+     "q_to_lead_w": 0.2317,
+     "inputs": {
+      "r_pole_mohm": 1.0,
+      "pin_k": 380.0,
+      "pin_l_mm": 5.0,
+      "r_b_kw": 20.0,
+      "cord_h": 8.0,
+      "lead_air_rise_k": 5.0,
+      "housing_air_rise_k": 15.0,
+      "g_h": 0.005
+     }
+    },
+    "central": {
+     "t_c": 87.27,
+     "t_pad_c": 92.82,
+     "t_p0": 106.64,
+     "lead_far_c": 73.18,
+     "p_pole_w": 0.135,
+     "q_to_board_w": -0.1728,
+     "q_to_lead_w": 0.1858,
+     "inputs": {
+      "r_pole_mohm": 0.6,
+      "pin_k": 250.0,
+      "pin_l_mm": 6.5,
+      "r_b_kw": 80.0,
+      "cord_h": 12.0,
+      "lead_air_rise_k": 2.0,
+      "housing_air_rise_k": 10.0,
+      "g_h": 0.0075
+     }
+    }
+   }
+  },
+  "b_plus_d": {
+   "release_13p5A": {
+    "low": {
+     "t_c": 71.24,
+     "t_pad_c": 75.74,
+     "t_p0": 85.59,
+     "lead_far_c": 66.54,
+     "p_pole_w": 0.0729,
+     "q_to_board_w": -0.0547,
+     "q_to_lead_w": 0.0753,
+     "inputs": {
+      "r_pole_mohm": 0.4,
+      "pin_k": 120.0,
+      "pin_l_mm": 8.0,
+      "r_b_kw": 180.0,
+      "cord_h": 18.0,
+      "lead_air_rise_k": 0.0,
+      "housing_air_rise_k": 5.0,
+      "g_h": 0.01
+     }
+    },
+    "high": {
+     "t_c": 89.72,
+     "t_pad_c": 89.88,
+     "t_p0": 90.07,
+     "lead_far_c": 78.32,
+     "p_pole_w": 0.1822,
+     "q_to_board_w": -0.0098,
+     "q_to_lead_w": 0.1235,
+     "inputs": {
+      "r_pole_mohm": 1.0,
+      "pin_k": 380.0,
+      "pin_l_mm": 5.0,
+      "r_b_kw": 20.0,
+      "cord_h": 8.0,
+      "lead_air_rise_k": 5.0,
+      "housing_air_rise_k": 15.0,
+      "g_h": 0.005
+     }
+    },
+    "central": {
+     "t_c": 79.84,
+     "t_pad_c": 82.13,
+     "t_p0": 87.83,
+     "lead_far_c": 71.19,
+     "p_pole_w": 0.1094,
+     "q_to_board_w": -0.0713,
+     "q_to_lead_w": 0.1144,
+     "inputs": {
+      "r_pole_mohm": 0.6,
+      "pin_k": 250.0,
+      "pin_l_mm": 6.5,
+      "r_b_kw": 80.0,
+      "cord_h": 12.0,
+      "lead_air_rise_k": 2.0,
+      "housing_air_rise_k": 10.0,
+      "g_h": 0.0075
+     }
+    }
+   }
+  }
+ },
+ "gate_row_constants_high_corner": {
+  "r_pole_mohm": 1.0,
+  "pin_k": 380.0,
+  "pin_l_mm": 5.0,
+  "r_b_kw": 20.0,
+  "cord_h": 8.0,
+  "lead_air_rise_k": 5.0,
+  "housing_air_rise_k": 15.0,
+  "g_h": 0.005
+ }
+}

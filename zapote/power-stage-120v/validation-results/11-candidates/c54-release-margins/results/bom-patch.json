@@ -1,0 +1,628 @@
+{
+ "study": "validation-results/11-candidates/c54-release-margins",
+ "board_of_record": "native-21 s53 82af7bd9",
+ "rule": "same footprint, same value, no layout edit",
+ "prices": "unit USD; 'at 5' / 'at 500' are the ladder step at 5 / 500 pieces; per-board figures use the JLC ladder at 5 x qty and 500 x qty pieces (5 / 500 boards)",
+ "changes": [
+  {
+   "from": {
+    "mpn": "25121WF680JT4E",
+    "lcsc": "C50371",
+    "designators": [
+     "R10",
+     "R12",
+     "R18",
+     "R20"
+    ],
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "role": "R_on 68 ohm 1 % 1 W",
+    "jlc_library": "expand",
+    "jlc_stock": 3063,
+    "jlc_price_usd_at_5": 0.0453,
+    "jlc_price_usd_at_500": 0.0327,
+    "jlc_ladder": [
+     [
+      1,
+      0.0453
+     ],
+     [
+      100,
+      0.0368
+     ],
+     [
+      300,
+      0.0327
+     ],
+     [
+      1000,
+      0.0294
+     ],
+     [
+      4000,
+      0.027
+     ],
+     [
+      8000,
+      0.0257
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T03:58:22Z",
+    "lcsc_stock": 2860,
+    "lcsc_price_usd_at_5": null,
+    "lcsc_price_usd_at_500": 0.0328,
+    "lcsc_ladder": [
+     [
+      10,
+      0.0455
+     ],
+     [
+      100,
+      0.037
+     ],
+     [
+      300,
+      0.0328
+     ],
+     [
+      1000,
+      0.0296
+     ],
+     [
+      4000,
+      0.0271
+     ],
+     [
+      8000,
+      0.0258
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:12Z",
+    "per_board_usd_at_5_boards": 0.1812,
+    "per_board_usd_at_500_boards_jlc_ladder": 0.1176
+   },
+   "to": {
+    "mpn": "PS122WF680JT4E",
+    "lcsc": "C2793964",
+    "designators": [
+     "R10",
+     "R12",
+     "R18",
+     "R20"
+    ],
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "role": "R_on 68 ohm 1 % 2 W, PS12",
+    "jlc_library": "expand",
+    "jlc_stock": 3856,
+    "jlc_price_usd_at_5": 0.1073,
+    "jlc_price_usd_at_500": 0.0667,
+    "jlc_ladder": [
+     [
+      1,
+      0.1073
+     ],
+     [
+      50,
+      0.0856
+     ],
+     [
+      150,
+      0.0748
+     ],
+     [
+      500,
+      0.0667
+     ],
+     [
+      2500,
+      0.0603
+     ],
+     [
+      4000,
+      0.057
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T03:58:18Z",
+    "lcsc_stock": 2930,
+    "lcsc_price_usd_at_5": 0.1081,
+    "lcsc_price_usd_at_500": 0.0672,
+    "lcsc_ladder": [
+     [
+      5,
+      0.1081
+     ],
+     [
+      50,
+      0.0863
+     ],
+     [
+      150,
+      0.0754
+     ],
+     [
+      500,
+      0.0672
+     ],
+     [
+      2500,
+      0.0607
+     ],
+     [
+      4000,
+      0.0574
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:12Z",
+    "per_board_usd_at_5_boards": 0.4292,
+    "per_board_usd_at_500_boards_jlc_ladder": 0.2668
+   },
+   "second_source": {
+    "mpn": "RC2512JK-7W68RL",
+    "lcsc": "C876271",
+    "designators": [
+     "R10",
+     "R12",
+     "R18",
+     "R20"
+    ],
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "role": "68 ohm 5 % 2 W (Yageo RC_L double power; 5 % / 200 ppm)",
+    "jlc_library": "expand",
+    "jlc_stock": 3708,
+    "jlc_price_usd_at_5": 0.1103,
+    "jlc_price_usd_at_500": 0.0743,
+    "jlc_ladder": [
+     [
+      1,
+      0.1103
+     ],
+     [
+      50,
+      0.0912
+     ],
+     [
+      150,
+      0.0815
+     ],
+     [
+      500,
+      0.0743
+     ],
+     [
+      2500,
+      0.0686
+     ],
+     [
+      4000,
+      0.0657
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T03:58:18Z",
+    "lcsc_stock": 3705,
+    "lcsc_price_usd_at_5": 0.1112,
+    "lcsc_price_usd_at_500": 0.0749,
+    "lcsc_ladder": [
+     [
+      5,
+      0.1112
+     ],
+     [
+      50,
+      0.0918
+     ],
+     [
+      150,
+      0.0822
+     ],
+     [
+      500,
+      0.0749
+     ],
+     [
+      2500,
+      0.0691
+     ],
+     [
+      4000,
+      0.0662
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:12Z"
+   },
+   "source_edit": "elec/src/parts.ato component R68Gate2512: mpn 25121WF680JT4E -> PS122WF680JT4E (value, footprint unchanged)",
+   "delta_usd_per_board_at_500_boards": 0.1492
+  },
+  {
+   "from": {
+    "mpn": "0603WAF4991T5E",
+    "lcsc": "C23046",
+    "designators": [
+     "R71",
+     "R72",
+     "R74",
+     "R75",
+     "R131"
+    ],
+    "footprint": "Resistor_SMD:R_0603_1608Metric",
+    "role": "4.99 k 1 % 0.1 W",
+    "jlc_library": "base",
+    "jlc_stock": 1895691,
+    "jlc_price_usd_at_5": 0.0021,
+    "jlc_price_usd_at_500": 0.0021,
+    "jlc_ladder": [
+     [
+      1,
+      0.0021
+     ],
+     [
+      1000,
+      0.0016
+     ],
+     [
+      5000,
+      0.0013
+     ],
+     [
+      10000,
+      0.0012
+     ],
+     [
+      50000,
+      0.001
+     ],
+     [
+      50200,
+      0.001
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T04:18:06Z",
+    "lcsc_stock": 1586700,
+    "lcsc_price_usd_at_5": null,
+    "lcsc_price_usd_at_500": 0.0021,
+    "lcsc_ladder": [
+     [
+      100,
+      0.0021
+     ],
+     [
+      1000,
+      0.0016
+     ],
+     [
+      5000,
+      0.0014
+     ],
+     [
+      10000,
+      0.0012
+     ],
+     [
+      50000,
+      0.001
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:12Z",
+    "per_board_usd_at_5_boards": 0.0105,
+    "per_board_usd_at_500_boards_jlc_ladder": 0.008
+   },
+   "to": {
+    "mpn": "ERJ-PA3F4991V",
+    "lcsc": "C4036134",
+    "designators": [
+     "R71",
+     "R72",
+     "R74",
+     "R75",
+     "R131"
+    ],
+    "footprint": "Resistor_SMD:R_0603_1608Metric",
+    "role": "4.99 k 1 % 0.25 W (105 C ambient) / 0.33 W (130 C terminal) anti-surge",
+    "jlc_library": "expand",
+    "jlc_stock": 4339,
+    "jlc_price_usd_at_5": 0.0347,
+    "jlc_price_usd_at_500": 0.0332,
+    "jlc_ladder": [
+     [
+      1,
+      0.0347
+     ],
+     [
+      100,
+      0.0338
+     ],
+     [
+      300,
+      0.0332
+     ],
+     [
+      1000,
+      0.0327
+     ],
+     [
+      1020,
+      0.0327
+     ],
+     [
+      1040,
+      0.0327
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T04:01:58Z",
+    "lcsc_stock": 4330,
+    "lcsc_price_usd_at_5": null,
+    "lcsc_price_usd_at_500": 0.0331,
+    "lcsc_ladder": [
+     [
+      10,
+      0.0345
+     ],
+     [
+      100,
+      0.0336
+     ],
+     [
+      300,
+      0.0331
+     ],
+     [
+      1000,
+      0.0325
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:13Z",
+    "per_board_usd_at_5_boards": 0.1735,
+    "per_board_usd_at_500_boards_jlc_ladder": 0.1635
+   },
+   "second_source": {
+    "mpn": "RCS06034K99FKEA",
+    "lcsc": "C4104448",
+    "designators": [
+     "R71",
+     "R72",
+     "R74",
+     "R75",
+     "R131"
+    ],
+    "footprint": "Resistor_SMD:R_0603_1608Metric",
+    "role": "4.99 k 1 % 0.25 W at 70 C (Vishay RCS)",
+    "jlc_library": "expand",
+    "jlc_stock": 745,
+    "jlc_price_usd_at_5": 0.0551,
+    "jlc_price_usd_at_500": 0.0373,
+    "jlc_ladder": [
+     [
+      1,
+      0.0551
+     ],
+     [
+      100,
+      0.0433
+     ],
+     [
+      300,
+      0.0373
+     ],
+     [
+      1000,
+      0.0329
+     ],
+     [
+      5000,
+      0.0294
+     ],
+     [
+      10000,
+      0.0276
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T04:01:59Z",
+    "lcsc_stock": 740,
+    "lcsc_price_usd_at_5": null,
+    "lcsc_price_usd_at_500": 0.0375,
+    "lcsc_ladder": [
+     [
+      10,
+      0.0554
+     ],
+     [
+      100,
+      0.0435
+     ],
+     [
+      300,
+      0.0375
+     ],
+     [
+      1000,
+      0.0331
+     ],
+     [
+      5000,
+      0.0295
+     ],
+     [
+      10000,
+      0.0277
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:13Z"
+   },
+   "source_edit": "elec/src/f6_parts.ato component Bias4k99 (and whatever component places R131): mpn 0603WAF4991T5E -> ERJ-PA3F4991V. The whole line moves (R131 too) so the BOM keeps one 4.99 k line; 0603WAF4991T5E is a JLC basic part, ERJ-PA3F4991V an extended one (one extended line either way)",
+   "delta_usd_per_board_at_500_boards": 0.1555
+  },
+  {
+   "from": {
+    "mpn": "6SVPC220MV",
+    "lcsc": "C128504",
+    "designators": [
+     "C126",
+     "C127",
+     "C128",
+     "C129"
+    ],
+    "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+    "role": "220 uF 6.3 V OS-CON SVPC, 105 C",
+    "jlc_library": "expand",
+    "jlc_stock": 840,
+    "jlc_price_usd_at_5": 1.0205,
+    "jlc_price_usd_at_500": 0.6842,
+    "jlc_ladder": [
+     [
+      1,
+      1.0205
+     ],
+     [
+      50,
+      0.7838
+     ],
+     [
+      150,
+      0.6842
+     ],
+     [
+      1000,
+      0.5585
+     ],
+     [
+      2000,
+      0.5013
+     ],
+     [
+      5000,
+      0.4687
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T04:04:10Z",
+    "lcsc_stock": 840,
+    "lcsc_price_usd_at_5": 0.9996,
+    "lcsc_price_usd_at_500": 0.6702,
+    "lcsc_ladder": [
+     [
+      5,
+      0.9996
+     ],
+     [
+      50,
+      0.7677
+     ],
+     [
+      150,
+      0.6702
+     ],
+     [
+      1000,
+      0.547
+     ],
+     [
+      2000,
+      0.491
+     ],
+     [
+      5000,
+      0.4591
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:13Z",
+    "per_board_usd_at_5_boards": 4.082,
+    "per_board_usd_at_500_boards_jlc_ladder": 2.0052
+   },
+   "to": {
+    "mpn": "16SVPK220M",
+    "lcsc": "C542293",
+    "designators": [
+     "C126",
+     "C127",
+     "C128",
+     "C129"
+    ],
+    "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+    "role": "220 uF 16 V OS-CON SVPK, 125 C, same C6 can",
+    "jlc_library": "expand",
+    "jlc_stock": 0,
+    "jlc_price_usd_at_5": 1.0385,
+    "jlc_price_usd_at_500": 0.5862,
+    "jlc_ladder": [
+     [
+      1,
+      1.0385
+     ],
+     [
+      10,
+      0.8409
+     ],
+     [
+      30,
+      0.743
+     ],
+     [
+      100,
+      0.645
+     ],
+     [
+      500,
+      0.5862
+     ],
+     [
+      1000,
+      0.5552
+     ]
+    ],
+    "jlc_read_utc": "2026-10-19T04:13:52Z",
+    "lcsc_stock": 0,
+    "lcsc_price_usd_at_5": 1.0439,
+    "lcsc_price_usd_at_500": 0.5893,
+    "lcsc_ladder": [
+     [
+      1,
+      1.0439
+     ],
+     [
+      10,
+      0.8453
+     ],
+     [
+      30,
+      0.7469
+     ],
+     [
+      100,
+      0.6484
+     ],
+     [
+      500,
+      0.5893
+     ],
+     [
+      1000,
+      0.5581
+     ]
+    ],
+    "lcsc_read_utc": "2026-10-19T04:14:13Z",
+    "distributor_read": {
+     "distributor": "Digi-Key",
+     "part": "P124158CT-ND (cut tape)",
+     "stock": 1420,
+     "price_usd_at_1": 1.77,
+     "price_usd_at_10": 1.146,
+     "price_usd_at_100": 0.8032,
+     "price_usd_at_500": 0.66154,
+     "lead_time": "55 weeks (manufacturer standard)",
+     "read": "2026-10-18 (local), https://www.digikey.com/en/products/result?keywords=16SVPK220M"
+    },
+    "per_board_usd_at_5_boards": 4.154,
+    "per_board_usd_at_500_boards_jlc_ladder": 2.2208
+   },
+   "source_edit": "elec/src/f6_parts.ato component Bias220u: mpn 6SVPC220MV -> 16SVPK220M",
+   "sourcing_flag": "JLC 0 and LCSC 0 in stock on the read date; Digi-Key 1,420 (55-week factory lead). Buy the 20 prototype pieces at Digi-Key and consign them to JLC (or JLC global sourcing); keep 6SVPC220MV as the stock fallback (it passes the release case, +4.8 K)",
+   "delta_usd_per_board_at_500_boards": 0.2156
+  }
+ ],
+ "frozen_bom_rows_after": [
+  "PS122WF680JT4E,\"R10,R12,R18,R20\",Resistor_SMD:R_2512_6332Metric,PS122WF680JT4E,0.00",
+  "ERJ-PA3F4991V,\"R71,R72,R74,R75,R131\",Resistor_SMD:R_0603_1608Metric,ERJ-PA3F4991V,0.00",
+  "16SVPK220M,\"C126,C127,C128,C129\",Capacitor_SMD:CP_Elec_6.3x5.9,16SVPK220M,0.00"
+ ],
+ "not_changed": {
+  "U26 TPS7A4700RGWR": "no BOM swap raises TJ max (TPS7A47 and TPS7A47-Q1 are both -40..125 C); needs layout (README section 4)",
+  "J1": "another lane"
+ }
+}

@@ -126,6 +126,8 @@ def limit_for(ref, row):
                                   f"terminal; G6 rule (>= 20 % margin, pad <= 160 C) gives {min(t_g6, 160.0):.1f} C"), "pad_max_cell_c", True
     if k == "chip1206":
         return 155.0, "1206 chip resistor 155 C max (vendor-typical, NOT re-verified here)", "tj_c", False
+    if k == "chip0603":   # c54-ct-band: the tank-CT network's thin-film 0603s (b3_ratings_gate gates them at the band's 85 C)
+        return 155.0, "0603 thin-film chip resistor element 155 C (Yageo RT V.16 p.5 Table 2)", "tj_c", False
     if k == "film_mmkp_h":
         return 125.0, "MMKP film capacitor Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)", "tj_c", False
     if k == "film_mmkp82":

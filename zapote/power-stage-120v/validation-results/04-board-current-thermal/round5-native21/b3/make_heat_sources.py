@@ -19,6 +19,7 @@ turn-on resistor and the 1 Ω F6 turn-off path. The split below (driver 50 %, R_
 is an estimate; the FET's internal gate resistance takes part of it on the heatsink, so the board
 share is overstated.
 """
+import csv
 import json
 import math
 import re
@@ -74,8 +75,25 @@ D_LIM = 0.3e-3 - R_S * _W1
 BANK_MPN = "B32643H8104J000"
 FROZEN_CSV = (UNIT / "native-21/frozen/default.csv").read_text()
 assert f"{BANK_MPN},\"C21," in FROZEN_CSV, "the heat rows' bank MPN is not the frozen BOM's"
+_BOM = {d.strip(): r["Comment"] for r in csv.DictReader(FROZEN_CSV.splitlines()) for d in r["Designator"].split(",")}
+
+
+def _rt0603_ohm(ref):
+    m = re.fullmatch(r"RT0603BRD07(\d+)([RK])(\d*)L", _BOM[ref])
+    assert m, (ref, _BOM[ref])
+    return float(f"{m.group(1)}.{m.group(3) or '0'}") * (1e3 if m.group(2) == "K" else 1.0)
+
+
 SHARE = 6.55 / 28.0
 I_T = {"nominal": 21.47, "worst": 29.4, "c28": 29.4}      # run_study.py OPS tank RMS (worst: the 1.05 x 28 A trip)
+# R39 burden loss on the fitted CT (stage 20, DECISIONS 23: T1 CST3015-200ED 1:200, R39 3.0 ohm RC1206FR-073RL):
+# (I / 200)^2 x 3 ohm, half of task 03's (I / 100)^2 x 1.5 ohm (c54-ct-band). From the frozen BOM.
+CT_N = {"CST3015-200ED": 200, "CST3015-100ED": 100}[_BOM["T1"]]
+R39_OHM = {"RC1206FR-073RL": 3.0, "RC1206FR-071R5L": 1.5}[_BOM["R39"]]
+
+
+def r39_w(i_tank):
+    return (i_tank / CT_N) ** 2 * R39_OHM
 
 
 def esr_worst(f):
@@ -103,7 +121,8 @@ for r in rows:
         r["note"] = "CSS2H-2512R-1L00F (stage 17), I^2 x 1 mOhm; heat on current pads 1 / 4 only"
         r["pad_numbers"] = ["1", "4"]
     if r["ref"] == "R39":
-        r["watts_worst"] = (I_T["worst"] / 100) ** 2 * 1.5
+        r["watts_nominal"], r["watts_worst"] = r39_w(I_T["nominal"]), r39_w(I_T["worst"])
+        r["note"] = f"{_BOM['R39']} on {_BOM['T1']}: (I / {CT_N})^2 x {R39_OHM:g} ohm (c54-ct-band; was task 03's 1:100 x 1.5 ohm)"
 BANK = ("C21", "C22", "C23", "C151", "C152")
 # Board fraction 0.3 (estimate): a radial film part sheds most of its heat from its body (stage 49: TDK 14.5 x 29.5 x
 # 26.5 mm, <= 15 K at 0.55 W typ, p.11; stage 51: KNSCHA 11 x 19.5 x 31.5 mm, 10 K at about 0.41 W); the leads carry the
@@ -160,6 +179,18 @@ for ref in ("U37", "U38", "U39"):
 for ref in ("R67", "R68", "R69", "R70"):
     add(ref, 0.074, 0.074, "estimate", "LINE_ZC string at 140 V RMS (ECO: 0.297 W total)")
 
+# OPEN-ITEMS S29 (validation-results/11-candidates/c54-ct-band): the tank-CT reference network, so B3 solves the parts
+# whose temperature sets COMMISSIONING B9's CT trip band (b3_ratings_gate.py CT rows, limit = the band's 85 C basis).
+# R40 / R41: the 1.65 V bias midpoint; R43 / R44 and R45 / R46: the trip references. Static divider dissipation at the
+# v3v3 contract top (3.465 V, FAULT-INTERFACE / controller_calcs CONTRACT), values from the frozen BOM (RT0603BRD 0.1 %).
+V3V3_MAX = 3.465
+for top, bot in (("R40", "R41"), ("R43", "R44"), ("R45", "R46")):
+    r_t, r_b = _rt0603_ohm(top), _rt0603_ohm(bot)
+    i_div = V3V3_MAX / (r_t + r_b)
+    for ref, r_x in ((top, r_t), (bot, r_b)):
+        add(ref, i_div ** 2 * r_x, i_div ** 2 * r_x, "estimate",
+            f"{_BOM[ref]}: tank-CT divider {top} / {bot}, (3.465 V / {r_t + r_b:.0f} ohm)^2 x {r_x:.0f} ohm (v3v3 top)")
+
 at = {}
 for p in PADS:
     at.setdefault(p["ref"], []).append((p["x"], p["y"]))
@@ -175,7 +206,7 @@ for r in rows:
 # 1 mOhm, R39 = (I/100)^2 x 1.5 Ohm, the bank at ESR_typ, C5/C6 by (I/21.47)^2), L1 by (11.1 / 14.25)^2 (task
 # 03's nominal line current 1710 W / 120 V); bias, gate drive and supplies as nominal (set by f, not by
 # the ceiling).
-C28 = {"R5": I_T["c28"] ** 2 * 1e-3, "R39": (I_T["c28"] / 100) ** 2 * 1.5}
+C28 = {"R5": I_T["c28"] ** 2 * 1e-3, "R39": r39_w(I_T["c28"])}
 C28.update({ref: (SHARE * I_T["c28"]) ** 2 * ESR_TYP for ref in BANK})
 C28_SCALE = {"C5": (I_T["c28"] / 21.47) ** 2, "C6": (I_T["c28"] / 21.47) ** 2, "L1": (11.1 / (1710 / 120)) ** 2}
 # thermal-refine 2026-10-15: in the c28 file the frequency-set rows sit at the 60 kHz top of the control window (DECISIONS 1:

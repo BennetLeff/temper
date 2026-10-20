@@ -1,0 +1,78 @@
+{
+ "c17.5_h10": {
+  "p0p25": {
+   "file": "c17.5_h10_p0p25.json",
+   "sha256": "2ef704a96fa75d7a49777494c27070486e5b30a193078a5f00843c6daf9a3502",
+   "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+   "bay_c": 61.0,
+   "i_line_a": 13.5,
+   "i_t_a": 18.375,
+   "copper_temp_model": "hot-iterated",
+   "layer": "F.Cu",
+   "pad_max_cell_c": 87.18773594617198,
+   "pad_mean_c": 73.57603911332576,
+   "pad_max_padmean_c": 87.00867048975218,
+   "cells": 307,
+   "nets": [
+    "ac_l_in",
+    "ac_n_in"
+   ]
+  },
+  "p0p5": {
+   "file": "c17.5_h10_p0p5.json",
+   "sha256": "324ef78ac2204a939f30b22409a9296496a047c1c8d5b2da25fa0466c4cf778c",
+   "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+   "bay_c": 61.0,
+   "i_line_a": 13.5,
+   "i_t_a": 18.375,
+   "copper_temp_model": "hot-iterated",
+   "layer": "F.Cu",
+   "pad_max_cell_c": 86.90833844108334,
+   "pad_mean_c": 73.44335843181071,
+   "pad_max_padmean_c": 86.75817948626585,
+   "cells": 91,
+   "nets": [
+    "ac_l_in",
+    "ac_n_in"
+   ]
+  }
+ },
+ "c28_h10": {
+  "p0p25": {
+   "file": "c28_h10_p0p25.json",
+   "sha256": "308f70ec1fd16e07c3ae1ed93ca7a442d921e5f4c7ee758aee1bf41c39d0795a",
+   "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+   "bay_c": 55.0,
+   "i_line_a": 13.5,
+   "i_t_a": 29.4,
+   "copper_temp_model": "hot-iterated",
+   "layer": "F.Cu",
+   "pad_max_cell_c": 87.19856681885491,
+   "pad_mean_c": 73.63187593035121,
+   "pad_max_padmean_c": 87.02084688154301,
+   "cells": 307,
+   "nets": [
+    "ac_l_in",
+    "ac_n_in"
+   ]
+  },
+  "p0p5": {
+   "file": "c28_h10_p0p5.json",
+   "sha256": "ea43196bffb4eb3d15b855b21d8fce7cf09c2d593a0f138429bcad391a016650",
+   "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+   "bay_c": 55.0,
+   "i_line_a": 13.5,
+   "i_t_a": 29.4,
+   "copper_temp_model": "hot-iterated",
+   "layer": "F.Cu",
+   "pad_max_cell_c": 86.92830295261597,
+   "pad_mean_c": 73.50985646510904,
+   "pad_max_padmean_c": 86.77919654471255,
+   "cells": 91,
+   "nets": [
+    "ac_l_in",
+    "ac_n_in"
+   ]
+  }
+ }
+}

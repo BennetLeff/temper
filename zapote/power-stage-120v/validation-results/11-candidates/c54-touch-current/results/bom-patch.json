@@ -1,0 +1,574 @@
+{
+ "candidate": "c54-touch-current",
+ "date": "2026-10-18",
+ "decision": "NO BOM CHANGE. C3 / C4 stay Murata DE1E3RA222MJ4BH01F (2.2 nF Y1). Reducing them breaks the conducted-EMI rule (>= 6 dB in every sensitivity) and does not lower the estimated touch current the laboratory reads (the switching-frequency term rises as Y falls). README section 4.",
+ "lines": [
+  {
+   "designators": [
+    "C3",
+    "C4"
+   ],
+   "action": "keep",
+   "mpn": "DE1E3RA222MJ4BH01F",
+   "manufacturer": "Murata",
+   "value": "2200 pF +/-20 %, char. E, D 9.0 / T 4.0 / F 10.0 / d 0.6 mm, J4 (p.9)",
+   "datasheet": "Murata Reference Specification Type RA, EGD08G, as of Jun. 2023 (LCSC copy, sha256 c959488a2523ac21..., the same file for the 1.0 / 1.5 / 2.2 nF H01F parts): p.6 approvals UL/cUL UL60384-14 / CSA E60384-14 file E37921, ENEC (VDE) 40043033, CQC16001138225, Y1 AC400 V / X1 AC440 V; p.9 part list; p.11 item 7 char. E +20/-55 % (-25..85 C)",
+   "lcsc": "C7170908",
+   "jlc_library": "expand",
+   "jlc_stock": 104,
+   "read_utc": "2026-10-19T04:01:57Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     1.1626
+    ],
+    [
+     10,
+     0.9536
+    ],
+    [
+     30,
+     0.8507
+    ],
+    [
+     100,
+     0.7479
+    ],
+    [
+     500,
+     0.6858
+    ],
+    [
+     1000,
+     0.6532
+    ]
+   ],
+   "octopart_read_utc": "2026-10-19T04:06:19Z",
+   "url": "https://octopart.com/search?q=DE1E3RA222MJ4BH01F",
+   "authorised_offers": [
+    {
+     "seller": "Newark",
+     "stock": 3350,
+     "moq": 1,
+     "offer_updated": "2026-10-19T00:30:33Z",
+     "usd_ladder": [
+      [
+       1,
+       1.04
+      ],
+      [
+       10,
+       0.526
+      ],
+      [
+       100,
+       0.481
+      ],
+      [
+       500,
+       0.405
+      ]
+     ]
+    },
+    {
+     "seller": "Future Electronics",
+     "stock": 500,
+     "moq": 500,
+     "offer_updated": "2026-10-19T00:15:26Z",
+     "usd_ladder": [
+      [
+       1000,
+       0.295
+      ],
+      [
+       7500,
+       0.285
+      ]
+     ]
+    },
+    {
+     "seller": "Mouser",
+     "stock": 6002,
+     "moq": 1,
+     "offer_updated": "2026-10-16T21:15:31Z",
+     "usd_ladder": [
+      [
+       1,
+       1.02
+      ],
+      [
+       10,
+       0.51
+      ],
+      [
+       100,
+       0.465
+      ],
+      [
+       1000,
+       0.389
+      ]
+     ]
+    },
+    {
+     "seller": "DigiKey",
+     "stock": 5409,
+     "moq": 1,
+     "offer_updated": "2026-10-18T12:16:24Z",
+     "usd_ladder": [
+      [
+       1,
+       1.02
+      ],
+      [
+       10,
+       0.654
+      ],
+      [
+       100,
+       0.4646
+      ],
+      [
+       500,
+       0.38936
+      ]
+     ]
+    }
+   ],
+   "touch_60Hz_mA": 0.24122504213869903,
+   "emi_board_of_record_dB": {
+    "nominal_min_margin_dB": 11.13942425834125,
+    "sensitivity_min_margin_22A_dB": 8.277041401184633,
+    "sensitivity_min_margin_all_dB": 6.951316284394082,
+    "verdict": "PASS"
+   }
+  }
+ ],
+ "rejected_alternates": [
+  {
+   "mpn": "DE1E3RA152MJ4BH01F",
+   "value": "1500 pF +/-20 %, char. E, D 8.0 / T 4.0 / F 10.0 / d 0.6, J4 (p.9)",
+   "same_footprint": true,
+   "approvals": "as the fitted part (p.6, same specification)",
+   "lcsc": "C6601328",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "read_utc": "2026-10-19T04:01:54Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     0.0952
+    ],
+    [
+     10,
+     0.0952
+    ],
+    [
+     12,
+     0.0952
+    ],
+    [
+     200,
+     0.0381
+    ],
+    [
+     500,
+     0.0368
+    ],
+    [
+     1000,
+     0.0361
+    ]
+   ],
+   "octopart_read_utc": "2026-10-19T04:05:47Z",
+   "url": "https://octopart.com/search?q=DE1E3RA152MJ4BH01F",
+   "authorised_offers": [
+    {
+     "seller": "Mouser",
+     "stock": 466,
+     "moq": 1,
+     "offer_updated": "2026-10-16T21:15:31Z",
+     "usd_ladder": [
+      [
+       1,
+       0.55
+      ],
+      [
+       10,
+       0.253
+      ],
+      [
+       100,
+       0.227
+      ],
+      [
+       1000,
+       0.18
+      ]
+     ]
+    },
+    {
+     "seller": "DigiKey",
+     "stock": 130,
+     "moq": 1,
+     "offer_updated": "2026-10-18T12:16:24Z",
+     "usd_ladder": [
+      [
+       1,
+       0.55
+      ],
+      [
+       10,
+       0.335
+      ],
+      [
+       100,
+       0.2266
+      ],
+      [
+       500,
+       0.18352
+      ]
+     ]
+    }
+   ],
+   "touch_60Hz_mA": 0.19942426692709467,
+   "emi_board_of_record_dB": {
+    "nominal_min_margin_dB": 7.791494374352922,
+    "sensitivity_min_margin_22A_dB": 4.947650675752641,
+    "sensitivity_min_margin_all_dB": 3.6219255589740698,
+    "verdict": "INCONCLUSIVE"
+   },
+   "emi_production_L1_2203_dB": {
+    "nominal_min_margin_dB": 9.031522637775176,
+    "sensitivity_min_margin_22A_dB": 6.1875797563930774,
+    "sensitivity_min_margin_all_dB": 4.861854639598526,
+    "verdict": "INCONCLUSIVE"
+   },
+   "hf_touch_estimate": {
+    "UL_meter_nominal_mA": 0.1361141934249967,
+    "UL_meter_worst_mA": 0.22621676370229474,
+    "UL_meter_worst_corner": "coil + board 51 pF",
+    "IEC60990_worst_mA": 0.08287295105262833,
+    "lab_reading_estimate_nominal_mA": 0.24144794861656316,
+    "lab_reading_estimate_worst_mA": 0.3015693326904262,
+    "lab_reading_worst_pct_of_0.5": 60.313866538085236
+   },
+   "why_rejected": "EMI sensitivity minimum 3.62 dB (coil + board 51 pF, CM 180 kHz) < 6 dB: INCONCLUSIVE; production L1 gives 4.86 dB. Lab-reading estimate unchanged (0.302 vs 0.306 mA worst)."
+  },
+  {
+   "mpn": "DE1E3RA102MJ4BH01F",
+   "value": "1000 pF +/-20 %, char. E, D 7.0 / T 4.0 / F 10.0 / d 0.6, J4 (p.9)",
+   "same_footprint": true,
+   "approvals": "as the fitted part (p.6, same specification)",
+   "lcsc": "C6601326",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "read_utc": "2026-10-19T04:01:56Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     0.1916
+    ],
+    [
+     50,
+     0.1537
+    ],
+    [
+     150,
+     0.1374
+    ],
+    [
+     500,
+     0.1171
+    ],
+    [
+     2500,
+     0.1081
+    ],
+    [
+     5000,
+     0.1028
+    ]
+   ],
+   "octopart_read_utc": "2026-10-19T04:06:03Z",
+   "url": "https://octopart.com/search?q=DE1E3RA102MJ4BH01F",
+   "authorised_offers": [
+    {
+     "seller": "Newark",
+     "stock": 493,
+     "moq": 1,
+     "offer_updated": "2026-10-19T00:30:33Z",
+     "usd_ladder": [
+      [
+       1,
+       0.896
+      ],
+      [
+       10,
+       0.445
+      ],
+      [
+       100,
+       0.406
+      ],
+      [
+       1000,
+       0.332
+      ]
+     ]
+    },
+    {
+     "seller": "DigiKey",
+     "stock": 4758,
+     "moq": 1,
+     "offer_updated": "2026-10-18T12:16:24Z",
+     "usd_ladder": [
+      [
+       1,
+       0.88
+      ],
+      [
+       10,
+       0.557
+      ],
+      [
+       100,
+       0.3896
+      ],
+      [
+       500,
+       0.32296
+      ]
+     ]
+    }
+   ],
+   "touch_60Hz_mA": 0.16956657034737727,
+   "emi_board_of_record_dB": {
+    "nominal_min_margin_dB": 4.2387806603613996,
+    "sensitivity_min_margin_22A_dB": 1.0273279406059856,
+    "sensitivity_min_margin_all_dB": -0.2970598433178111,
+    "verdict": "INCONCLUSIVE"
+   },
+   "hf_touch_estimate": {
+    "UL_meter_nominal_mA": 0.09191490047801545,
+    "UL_meter_worst_mA": 0.153880514661038,
+    "UL_meter_worst_corner": "coil + board 51 pF",
+    "IEC60990_worst_mA": 0.08365387904202633,
+    "lab_reading_estimate_nominal_mA": 0.1928760501183481,
+    "lab_reading_estimate_worst_mA": 0.2289804239923535,
+    "lab_reading_worst_pct_of_0.5": 45.7960847984707
+   },
+   "why_rejected": "EMI nominal 4.24 dB, sensitivity minimum -0.30 dB (chokes -30 %): INCONCLUSIVE, near FAIL."
+  },
+  {
+   "mpn": "DE1E3RA102MA4BP01F",
+   "note": "1.0 nF A4 long-lead P01F (Y1 300 V): the only 1.0 nF code JLC stocks",
+   "lcsc": "C6224759",
+   "jlc_library": "expand",
+   "jlc_stock": 3980,
+   "read_utc": "2026-10-19T04:01:55Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     0.0876
+    ],
+    [
+     50,
+     0.0709
+    ],
+    [
+     250,
+     0.0626
+    ],
+    [
+     500,
+     0.0562
+    ],
+    [
+     2500,
+     0.0513
+    ],
+    [
+     5000,
+     0.0487
+    ]
+   ],
+   "octopart_read_utc": "2026-10-19T04:06:08Z",
+   "url": "https://octopart.com/search?q=DE1E3RA102MA4BP01F",
+   "authorised_offers": [
+    {
+     "seller": "Future Electronics",
+     "stock": 250,
+     "moq": 250,
+     "offer_updated": "2026-10-19T00:15:26Z",
+     "usd_ladder": [
+      [
+       750,
+       0.265
+      ],
+      [
+       6250,
+       0.25
+      ]
+     ]
+    },
+    {
+     "seller": "Mouser",
+     "stock": 2362,
+     "moq": 1,
+     "offer_updated": "2026-10-16T21:15:31Z",
+     "usd_ladder": [
+      [
+       1,
+       0.93
+      ],
+      [
+       10,
+       0.462
+      ],
+      [
+       100,
+       0.377
+      ],
+      [
+       1000,
+       0.347
+      ]
+     ]
+    },
+    {
+     "seller": "DigiKey",
+     "stock": 1390,
+     "moq": 1,
+     "offer_updated": "2026-10-18T12:16:24Z",
+     "usd_ladder": [
+      [
+       1,
+       0.93
+      ],
+      [
+       10,
+       0.595
+      ],
+      [
+       50,
+       0.4612
+      ],
+      [
+       500,
+       0.35024
+      ]
+     ]
+    }
+   ],
+   "why_rejected": "as DE1E3RA102MJ4BH01F (EMI)"
+  },
+  {
+   "option": "delete C4 (single Y on L)",
+   "touch_60Hz_mA": 0.24122504213869903,
+   "why_rejected": "UL tests both polarities; the worst polarity still sees C3, so the touch current is unchanged (0.2412 mA) while the CM filter loses its balance."
+  }
+ ],
+ "other_stock_reads": {
+  "DE1E3RA152MA4BP01F": {
+   "lcsc": "C22264996",
+   "mpn": "DE1E3RA152MA4BP01F",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "read_utc": "2026-10-19T04:01:55Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     0.1191
+    ],
+    [
+     10,
+     0.1191
+    ],
+    [
+     12,
+     0.1191
+    ],
+    [
+     250,
+     0.0476
+    ],
+    [
+     500,
+     0.0459
+    ],
+    [
+     1000,
+     0.0451
+    ]
+   ]
+  },
+  "DE1E3RA152MJ4BP01F": {
+   "lcsc": "C21790117",
+   "mpn": "DE1E3RA152MJ4BP01F",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "read_utc": "2026-10-19T04:01:57Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     0.1127
+    ],
+    [
+     10,
+     0.1127
+    ],
+    [
+     12,
+     0.1127
+    ],
+    [
+     200,
+     0.045
+    ],
+    [
+     500,
+     0.0435
+    ],
+    [
+     1000,
+     0.0428
+    ]
+   ]
+  },
+  "DE1E3RA152MN4AN01F": {
+   "lcsc": "C3287169",
+   "mpn": "DE1E3RA152MN4AN01F",
+   "jlc_library": "expand",
+   "jlc_stock": 74,
+   "read_utc": "2026-10-19T04:01:56Z",
+   "jlc_usd_ladder": [
+    [
+     1,
+     0.2164
+    ],
+    [
+     50,
+     0.1736
+    ],
+    [
+     150,
+     0.1552
+    ],
+    [
+     600,
+     0.1323
+    ],
+    [
+     2400,
+     0.1222
+    ],
+    [
+     4800,
+     0.116
+    ]
+   ]
+  }
+ }
+}

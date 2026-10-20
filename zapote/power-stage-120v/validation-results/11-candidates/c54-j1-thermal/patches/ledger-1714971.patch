@@ -1,0 +1,111 @@
+--- a/zapote/power-stage-120v/native-21/verification/datasheet-ledger/ledger.json
++++ b/zapote/power-stage-120v/native-21/verification/datasheet-ledger/ledger.json
+@@ -11139,7 +11139,7 @@
+      "parameter": "Temperature rating (upper limiting temperature (ambient + own rise))",
+      "datasheet_limit": 105.0,
+      "unit": "C",
+-     "basis": "Ambient (operation) -40..105 C 'depending on the current carrying capacity / derating curve'; IEC 60947-7-4 rise test: ambient + rise <= upper limiting temperature. cULus E60425 (B/C 300 V 30 A) and CSA 13631 state no temperature [temp-ratings 2026-10-15]",
++     "basis": "Ambient (operation) -40..105 C 'depending on the current carrying capacity / derating curve' (p.5); IEC 60947-7-4 rise test: ambient + rise <= upper limiting temperature (p.4). Applied to the clamp (terminal point), where the inlet lead's 105 C insulation (F1-RECOMMENDATION.md:179) is the same limit. The p.6 derating curve is for 6 mm2 conductors (nominal section 4 mm2, p.1) and is not used for the 14 AWG lead [c54-j1-thermal 2026-10-18]. cULus E60425 (B/C 300 V 30 A) and CSA 13631 state no temperature; UL 1059's component rise limit is 30 K at 25 C ambient (Phoenix electrical-tests page), an approval test at 30 A, not an end-product limit",
+      "source": "Phoenix Contact online-catalog PDF 1714971 MKDS 5/ 2-9,5 (generated 2026-10-16) p.5 ambient conditions, p.4 temperature-rise test, p.6 derating (sha 36517cfd4b96d200)"
+     }
+    ],
+@@ -11174,20 +11174,35 @@
+     },
+     {
+      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
+-     "worst_case_value": 103.1,
+-     "unit": "C",
+-     "condition": "J1: pad + own contact rise; B3 hot-copper estimate (gate estimator, pad-copper probe 99.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation)) + 4.09 K (own rise at 13.5 A scaled I^2 from the p.6 curve (32 A flat to 82 C on 6 mm2 = 23 K rise))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s52 5e7c12c1 (S18 B3 model)",
+-     "evidence": [
+-      "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
++     "worst_case_value": 98.79,
++     "unit": "C",
++     "condition": "J1 clamp (terminal point), c54-j1-thermal two-node model with the 14 AWG inlet lead: B3 hot-pole pad (J1.2, nothing attached) through the 0.9 mm pin, clamp I^2 R_pole (0.4-1.0 mohm), the lead as a Joule-heated insulated fin in bay air, the PA housing to board-heated air; maximum over the input grid (low 76.21 / central 87.49 C); B3 pad 99.03 C at 13.5 A, still air, bay 61 C; board s53 82af7bd9. Replaces temp-ratings' pad + 4.09 K (6 mm2 curve scaled)",
++     "evidence": [
++      "validation-results/11-candidates/c54-j1-thermal/results/j1_thermal.json",
++      "validation-results/11-candidates/c54-j1-thermal/README.md",
++      "validation-results/11-candidates/c54-j1-thermal/scripts/j1_thermal.py"
+      ]
+     },
+     {
+      "parameter": "Local temperature, c28_h10 @ 55 C",
+-     "worst_case_value": 97.1,
+-     "unit": "C",
+-     "condition": "J1: pad + own contact rise; B3 hot-copper estimate (gate estimator, pad-copper probe 93.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation)) + 4.09 K (own rise at 13.5 A scaled I^2 from the p.6 curve (32 A flat to 82 C on 6 mm2 = 23 K rise))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s52 5e7c12c1 (S18 B3 model)",
+-     "evidence": [
+-      "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
++     "worst_case_value": 92.68,
++     "unit": "C",
++     "condition": "J1 clamp (terminal point), c54-j1-thermal two-node model with the 14 AWG inlet lead: B3 hot-pole pad (J1.2, nothing attached) through the 0.9 mm pin, clamp I^2 R_pole (0.4-1.0 mohm), the lead as a Joule-heated insulated fin in bay air, the PA housing to board-heated air; maximum over the input grid (low 70.11 / central 81.36 C); B3 pad 93.01 C, c28_h10 still air at bay 55 C; board s53 82af7bd9",
++     "evidence": [
++      "validation-results/11-candidates/c54-j1-thermal/results/j1_thermal.json",
++      "validation-results/11-candidates/c54-j1-thermal/README.md",
++      "validation-results/11-candidates/c54-j1-thermal/scripts/j1_thermal.py"
++     ]
++    },
++    {
++     "parameter": "Local temperature at the 15 A trip (c17.5_h10 @ 61 C)",
++     "worst_case_value": 107.11,
++     "unit": "C",
++     "condition": "J1 clamp (terminal point), c54-j1-thermal two-node model with the 14 AWG inlet lead: B3 hot-pole pad (J1.2, nothing attached) through the 0.9 mm pin, clamp I^2 R_pole (0.4-1.0 mohm), the lead as a Joule-heated insulated fin in bay air, the PA housing to board-heated air; maximum over the input grid (low 78.99 / central 92.51 C) at a sustained 15 A, B3 pad scaled to 105.33-107.95 C (line-driven share x (15/13.5)^2); the 15 A trip is not a steady operating point. With c54 fix (b) (J1.2 neutral F.Cu strip): 103.38 C",
++     "evidence": [
++      "validation-results/11-candidates/c54-j1-thermal/results/j1_thermal.json",
++      "validation-results/11-candidates/c54-j1-thermal/README.md",
++      "validation-results/11-candidates/c54-j1-thermal/scripts/j1_thermal.py"
+      ]
+     }
+    ],
+@@ -11244,8 +11259,8 @@
+      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
+      "max_ratio": 1.0,
+      "severity": "violation",
+-     "rule": "103.1 C <= 105.0 C (J1)",
+-     "ratio": 0.9819
++     "rule": "98.79 C <= 105.0 C (J1 clamp, c54 grid maximum)",
++     "ratio": 0.9409
+     },
+     {
+      "id": "temperature, c28 (temp-ratings 2026-10-15)",
+@@ -11253,8 +11268,17 @@
+      "stress": "Local temperature, c28_h10 @ 55 C",
+      "max_ratio": 1.0,
+      "severity": "gap",
+-     "rule": "97.1 C <= 105.0 C (J1); an overrun is the airflow-route (c22/c28) owner gap",
+-     "ratio": 0.9248
++     "rule": "92.68 C <= 105.0 C (J1 clamp); an overrun is the airflow-route (c22/c28) owner gap",
++     "ratio": 0.8827
++    },
++    {
++     "id": "temperature, 15 A trip (c54)",
++     "rating": "Temperature rating (upper limiting temperature (ambient + own rise))",
++     "stress": "Local temperature at the 15 A trip (c17.5_h10 @ 61 C)",
++     "max_ratio": 1.0,
++     "severity": "gap",
++     "rule": "107.11 C <= 105.0 C (J1 clamp at a sustained 15 A; c54 fix (b) gives 103.38 C)",
++     "ratio": 1.0201
+     }
+    ],
+    "layout_guidance": [
+@@ -11265,12 +11289,21 @@
+     {
+      "item": "copper at J1 pins carries 13.5-15 A",
+      "enforced_by": "DECISIONS.md:841 (task-04 DC run at 15 A)"
++    },
++    {
++     "item": "J1 clamp <= 105 C at the release case (c54 two-node model on the B3 pad probe)",
++     "enforced_by": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py"
++    },
++    {
++     "item": "J1.2 neutral feed: ac_n_in F.Cu strip mirroring the B.Cu edge strip x 283.6-289.4, y 3.5-26.5, landed on J1.2's F.Cu pad (c54 fix b)",
++     "enforced_by": "UNCHECKED: layout change proposed for the integration session (c54-j1-thermal README 5)"
+     }
+    ],
+    "gaps": [
+     "certifier: ratings are from Phoenix catalog extracts (2017 LCSC copy; the 2010 copy agrees on 30 A UL/cUL/CSA but prints 600 V for UL/cUL); UL Product iQ (E60425, XCFR2), database.ul.com and phoenixcontact.com all returned 403 on 2026-10-13 and again 2026-10-15: confirm 1714971 on UL E60425 and CSA 13631 before the certification submission.",
+     "owner: no 3D model in temper.pretty; the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json).",
+-    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; the p.6 derating curve is for 6 mm2 conductors only; the 14 AWG (2.1 mm2) inlet wire cools the terminal less, so the rise is larger than the scaled 4.1 K; no UL temperature (UL 1059 rise / RTI) found (Product iQ blocked)"
++    "[c54-j1-thermal 2026-10-18] the clamp temperature is a model bound (B3 pad, R_pole 0.4-1.0 mohm at 0.5-0.6 Nm, the 14 AWG lead in bay air within 5 K of the bay over its first 10 cm), not a measurement: bench (c54 README section 6) the mV drop clamp-to-pad at 13.5 A on the 14 AWG lead and thermocouples on both screws, the J1.2 pad and the lead 50 mm out; release margin +6.2 K at the high bound; at a sustained 15 A the high bound is 107.11 C (-2.1 K), 103.38 C with fix (b).",
++    "[c54-j1-thermal 2026-10-18] certifier: UL 858 temperature-test limits for the terminal housing (RTI of the Phoenix PA, not published; UL Product iQ E60425 needs a login) and for the lead insulation were not read (standard not available); UL 1059's 30 K at 25 C is the component's own approval test."
+    ],
+    "finding": "Stage 27 replacement for 1711725 (15 A cULus / 10 A CSA). UL/cUL and CSA group B 30 A at 300 V: 45-55 % across the 13.5 A hold, 15 A trip and 16.5 A envelope, 83 % at F1's 25 A non-interrupting ceiling (FINDINGS #4 / #11 closed on rating).",
+    "notes": "Wire range UL 30-10 AWG; the cord and inlet leads are 14 AWG (F1-RECOMMENDATION.md). Pitch 9.52 mm: L-N copper gap 6.52 mm with 3.0 mm pads."

@@ -1,0 +1,96 @@
+--- a/firmware/components/power/include/tank_freq.h
++++ b/firmware/components/power/include/tank_freq.h
+@@ -100,9 +100,12 @@
+ #define TANK_PEAK_PER_RMS      2.17f /* round 6 board-side-protection.csv, 22 A row */
+ #define TANK_PEAK_PICKUP_A     3.0f
+ #define TANK_PEAK_TRIP_CAP_A   62.0f
+-/* config cap: below the stage-15 CT band low corner (64.55 A), so the firmware trip stays under
+- * the hardware trip. CT_MON range is 80 A (62 A -> 2.58 V < 2.85 V). */
+-#define TANK_PEAK_TRIP_MAX_A   64.5f
++/* config cap: just above TANK_PEAK_TRIP_CAP_A, the highest trip tank_peak_trip_for() returns, so it never
++ * binds on a derived trip (power-stage OPEN-ITEMS S29, 11-candidates/c54-ct-band). It stays under the CT
++ * comparators' low corner with room for the firmware's own CT_MON error (ESP32-S3 ATTEN3 +/-50 mV = 3.3 A):
++ * 2.05 A under 64.55 A (R44 / R45 10 k, boards to stage 53), 4.86 A under 67.36 A (R44 / R45 11 k). The
++ * hardware trip stays the backstop. CT_MON range is 80 A (62 A -> 2.58 V < 2.85 V). Was 64.5 A (0.05 A). */
++#define TANK_PEAK_TRIP_MAX_A   62.5f
+ #define TANK_RMS_TRIP_RATIO    1.05f
+ #define TANK_CREST_GUARD_RATIO 1.5f
+ /* Peak estimate from the AD8436 per-sample envelope: sqrt(2) x crest RMS sample x 1.05, until
+--- a/firmware/components/power/include/n21_binding.h
++++ b/firmware/components/power/include/n21_binding.h
+@@ -93,8 +93,9 @@
+     float tank_rms_trip_a;     /* half-cycle RMS trip: 1.05 x ceiling */
+     float tank_crest_guard_a;  /* per AD8436 sample: 1.5 x ceiling */
+     float tank_peak_trip_a;    /* raw CT_MON instantaneous: min(2.17 x ceiling + 3, 62) A, kept
+-                                * below TANK_PEAK_TRIP_MAX_A (64.5 A, the stage-15 CT band low
+-                                * corner 64.55 A); the hardware CT/shunt bands are the backstop */
++                                * below TANK_PEAK_TRIP_MAX_A (62.5 A, under the CT band low corner:
++                                * 64.55 A to stage 53, 67.36 A with R44 / R45 11 k); the hardware
++                                * CT/shunt bands are the backstop */
+     float cos_phi_min_current_a; /* below this CT_ZC is undefined: cos(phi) := 1 (conservative) */
+     uint32_t acq_period_us, sample_max_age_us, ct_zc_max_age_us, capture_age_us, half_max_gap_us;
+     uint32_t bench_max_ms;
+--- a/firmware/components/power/n21_binding.c
++++ b/firmware/components/power/n21_binding.c
+@@ -99,7 +99,7 @@
+            isfinite(c->tank_crest_guard_a) && c->tank_crest_guard_a >= c->tank_rms_trip_a &&
+            c->tank_crest_guard_a <= tank_crest_guard_for(ceiling) + 1e-3f &&
+            /* Peak trip: never above the value derived from the ceiling, never at or above the
+-            * stage-15 CT band (the hardware trip stays the backstop). */
++            * config cap under the CT band (the hardware trip stays the backstop). */
+            isfinite(c->tank_peak_trip_a) && c->tank_peak_trip_a > 0 &&
+            c->tank_peak_trip_a <= tank_peak_trip_for(ceiling) + 1e-3f &&
+            c->tank_peak_trip_a < TANK_PEAK_TRIP_MAX_A &&
+--- a/firmware/test/test_tank_freq.c
++++ b/firmware/test/test_tank_freq.c
+@@ -68,8 +68,10 @@
+         assert(NEAR(tank_peak_trip_for(k[i].c), k[i].peak, 1e-3));
+         assert(NEAR(tank_rms_trip_for(k[i].c), k[i].rms, 1e-3));
+         assert(NEAR(tank_crest_guard_for(k[i].c), k[i].crest, 1e-3));
+-        /* Firmware trip below the stage-15 CT band low corner (64.55 A) and the config cap. */
+-        assert(tank_peak_trip_for(k[i].c) < TANK_PEAK_TRIP_MAX_A && TANK_PEAK_TRIP_MAX_A < 64.55f);
++        /* Firmware trip below the config cap; the cap above the derived-trip cap and >= 2 A under the lowest CT
++         * band low corner of any board (64.55 A, R44 / R45 10 k; OPEN-ITEMS S29). */
++        assert(tank_peak_trip_for(k[i].c) < TANK_PEAK_TRIP_MAX_A && TANK_PEAK_TRIP_CAP_A < TANK_PEAK_TRIP_MAX_A &&
++               TANK_PEAK_TRIP_MAX_A <= 64.55f - 2.0f);
+         /* The crest guard sits above the crest (x1.41) of a half at the RMS trip. */
+         assert(tank_crest_guard_for(k[i].c) > 1.41421356f * tank_rms_trip_for(k[i].c));
+         /* Peak trip less the 3 A pickup margin covers 2.17 x ceiling up to 26 A ... */
+--- a/firmware/test/test_n21_binding.c
++++ b/firmware/test/test_n21_binding.c
+@@ -786,7 +786,7 @@
+     assert(n21_config_set_tank_ceiling(&c, 28));
+     c.tank_peak_trip_a = 62;                        /* 28 A: 62 A accepted */
+     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BIND);
+-    c.tank_peak_trip_a = 65;                        /* at/above the 64.5 A cap (CT band 64.55 A) */
++    c.tank_peak_trip_a = 65;                        /* above the derived 62 A and the 62.5 A cap */
+     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+     c.tank_peak_trip_a = 45;                        /* a bench may lower a trip, never raise it */
+     c.tank_rms_trip_a = 20;
+--- a/firmware/tools/commissioning_board_table.py
++++ b/firmware/tools/commissioning_board_table.py
+@@ -395,8 +395,11 @@
+     crest = c_define(TANK_FREQ_H, "TANK_CREST_GUARD_RATIO")
+     ship_a = int(kc["TEMPER_POWER_TANK_CEILING_DA"]) / 10
+     ct_low = min(ct_band["ct_pos_a"][0], ct_band["ct_neg_a"][0])
+-    if not trip_max < ct_low:
+-        findings.append(f"TANK_PEAK_TRIP_MAX_A {trip_max} A is not below the CT band low corner {ct_low} A")
++    # OPEN-ITEMS S29 (c54-ct-band): the cap needs max(1 A, 2 %) under the corner, not just "below" (it was 0.05 A)
++    b17_need = max(1.0, 0.02 * trip_max)
++    if ct_low - trip_max < b17_need:
++        findings.append(f"TANK_PEAK_TRIP_MAX_A {trip_max} A is {ct_low - trip_max:.2f} A below the CT band low corner "
++                        f"{ct_low} A; the rule is {b17_need:.2f} A (max(1 A, 2 %))")
+     fmax_hi = int(kc["TEMPER_POWER_F_MAX_HZ.range"].split()[1])
+     if fmax_hi > facts["ps2_window_top_hz"] or int(kc["TEMPER_POWER_F_MAX_HZ"]) > facts["ps2_window_top_hz"]:
+         findings.append(f"TEMPER_POWER_F_MAX_HZ allows {fmax_hi} Hz, above the PS2 window top {facts['ps2_window_top_hz']} Hz")
+@@ -491,7 +494,9 @@
+         f"rating constraint; Kconfig default {kc['TEMPER_POWER_F_MAX_HZ']}, range {kc['TEMPER_POWER_F_MAX_HZ.range']}",
+         "OPEN-ITEMS S18 residual 1; Kconfig")
+     row("B17", "Firmware peak-trip config cap", f"`TANK_PEAK_TRIP_MAX_A` {trip_max:g} A against the B9 low corner "
+-        f"{ct_low:.2f} A: {'below (holds)' if trip_max < ct_low else '**NOT below**'}", "`tank_freq.h`; B9")
++        f"{ct_low:.2f} A: {ct_low - trip_max:.2f} A under it "
++        f"({'holds' if ct_low - trip_max >= max(1.0, 0.02 * trip_max) else '**under the max(1 A, 2 %) rule**'}; "
++        f"derived trips stop at `TANK_PEAK_TRIP_CAP_A` {cap:g} A)", "`tank_freq.h`; B9")
+     # --- bring-up with BR1 left out (owner decision 2026-10-18): what joins mains to the bus, PS2's output, and
+     #     where the isolated DC supply lands on the bus
+     br1 = {p: n for n, nodes in nets.items() for r, p in nodes if r == "BR1"}

@@ -73,17 +73,17 @@
   },
   {
    "ref": "R39",
-   "watts_nominal": 0.06913512,
-   "watts_worst": 0.129654,
+   "watts_nominal": 0.0345720675,
+   "watts_worst": 0.064827,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "task03",
-   "note": "RC1206FR-071R5L, task 03 round 3",
+   "note": "RC1206FR-073RL on CST3015-200ED: (I / 200)^2 x 3 ohm (c54-ct-band; was task 03's 1:100 x 1.5 ohm)",
    "x_mm": 133.795,
    "y_mm": 130.175,
    "has_unquantified_loss": false,
    "use_as_complete_b3_heat_source": true,
-   "part": "RC1206FR-071R5L, task 03 round 3"
+   "part": "RC1206FR-073RL on CST3015-200ED"
   },
   {
    "ref": "R5",
@@ -570,10 +570,94 @@
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
    "part": "LINE_ZC string at 140 V RMS (ECO"
+  },
+  {
+   "ref": "R40",
+   "watts_nominal": 0.0030015562499999997,
+   "watts_worst": 0.0030015562499999997,
+   "board_fraction": 1.0,
+   "sink_fraction": 0.0,
+   "basis": "estimate",
+   "note": "RT0603BRD071KL: tank-CT divider R40 / R41, (3.465 V / 2000 ohm)^2 x 1000 ohm (v3v3 top)",
+   "x_mm": 3.525,
+   "y_mm": 132.865,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "RT0603BRD071KL"
+  },
+  {
+   "ref": "R41",
+   "watts_nominal": 0.0030015562499999997,
+   "watts_worst": 0.0030015562499999997,
+   "board_fraction": 1.0,
+   "sink_fraction": 0.0,
+   "basis": "estimate",
+   "note": "RT0603BRD071KL: tank-CT divider R40 / R41, (3.465 V / 2000 ohm)^2 x 1000 ohm (v3v3 top)",
+   "x_mm": 86.145,
+   "y_mm": 128.775,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "RT0603BRD071KL"
+  },
+  {
+   "ref": "R43",
+   "watts_nominal": 0.0001520523428962414,
+   "watts_worst": 0.0001520523428962414,
+   "board_fraction": 1.0,
+   "sink_fraction": 0.0,
+   "basis": "estimate",
+   "note": "RT0603BRD072K21L: tank-CT divider R43 / R44, (3.465 V / 13210 ohm)^2 x 2210 ohm (v3v3 top)",
+   "x_mm": 10.825,
+   "y_mm": 132.865,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "RT0603BRD072K21L"
+  },
+  {
+   "ref": "R44",
+   "watts_nominal": 0.0007568216162256358,
+   "watts_worst": 0.0007568216162256358,
+   "board_fraction": 1.0,
+   "sink_fraction": 0.0,
+   "basis": "estimate",
+   "note": "RT0603BRD0711KL: tank-CT divider R43 / R44, (3.465 V / 13210 ohm)^2 x 11000 ohm (v3v3 top)",
+   "x_mm": 7.175,
+   "y_mm": 132.865,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "RT0603BRD0711KL"
+  },
+  {
+   "ref": "R45",
+   "watts_nominal": 0.0007568216162256358,
+   "watts_worst": 0.0007568216162256358,
+   "board_fraction": 1.0,
+   "sink_fraction": 0.0,
+   "basis": "estimate",
+   "note": "RT0603BRD0711KL: tank-CT divider R45 / R46, (3.465 V / 13210 ohm)^2 x 11000 ohm (v3v3 top)",
+   "x_mm": 18.125,
+   "y_mm": 132.865,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "RT0603BRD0711KL"
+  },
+  {
+   "ref": "R46",
+   "watts_nominal": 0.0001520523428962414,
+   "watts_worst": 0.0001520523428962414,
+   "board_fraction": 1.0,
+   "sink_fraction": 0.0,
+   "basis": "estimate",
+   "note": "RT0603BRD072K21L: tank-CT divider R45 / R46, (3.465 V / 13210 ohm)^2 x 2210 ohm (v3v3 top)",
+   "x_mm": 14.475,
+   "y_mm": 132.865,
+   "has_unquantified_loss": true,
+   "use_as_complete_b3_heat_source": true,
+   "part": "RT0603BRD072K21L"
   }
  ],
  "totals_W": {
-  "nominal": 8.295,
-  "worst": 14.971
+  "nominal": 8.269,
+  "worst": 14.914
  }
 }

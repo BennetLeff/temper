@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "520b76f00bbc34b90deac33dc1a922d713cd8765f455173f87eee79d85e5474a",
+    "build/default.csv": "7c8f8de96f765840022ef9953bb8e2520092955ebe21c3a7511aa74d00ff4743",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "4938c8bc0945f1ca1906523df9edd88b855345faa801b27ee7c6c737cf2ff23e",
+    "build/default.net": "efc4094b8f4b16c130efbeaeb71da6dd40bdc21e8401969893fae45ac6682891",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -407,8 +407,8 @@
         "designator": "R71",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF4991T5E",
+        "manufacturer": "Panasonic",
+        "mpn": "ERJ-PA3F4991V",
         "value": "4.99kohm"
       }
     },
@@ -528,8 +528,8 @@
         "designator": "R72",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF4991T5E",
+        "manufacturer": "Panasonic",
+        "mpn": "ERJ-PA3F4991V",
         "value": "4.99kohm"
       }
     },
@@ -572,7 +572,7 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "25121WF680JT4E",
+        "mpn": "PS122WF680JT4E",
         "value": "68ohm"
       }
     },
@@ -594,7 +594,7 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "25121WF680JT4E",
+        "mpn": "PS122WF680JT4E",
         "value": "68ohm"
       }
     },
@@ -949,8 +949,8 @@
         "designator": "R74",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF4991T5E",
+        "manufacturer": "Panasonic",
+        "mpn": "ERJ-PA3F4991V",
         "value": "4.99kohm"
       }
     },
@@ -1070,8 +1070,8 @@
         "designator": "R75",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF4991T5E",
+        "manufacturer": "Panasonic",
+        "mpn": "ERJ-PA3F4991V",
         "value": "4.99kohm"
       }
     },
@@ -1114,7 +1114,7 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "25121WF680JT4E",
+        "mpn": "PS122WF680JT4E",
         "value": "68ohm"
       }
     },
@@ -1136,7 +1136,7 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_2512_6332Metric",
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "25121WF680JT4E",
+        "mpn": "PS122WF680JT4E",
         "value": "68ohm"
       }
     },
@@ -2024,8 +2024,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -2035,8 +2035,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -3735,8 +3735,8 @@
         "designator": "R131",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF4991T5E",
+        "manufacturer": "Panasonic",
+        "mpn": "ERJ-PA3F4991V",
         "value": "4.99kohm"
       }
     },
@@ -4014,9 +4014,9 @@
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
     "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
-    "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
-    "elec/src/parts.ato": "197a2de797d1ef0fd5bca27fd89622f0140d83711a6da2776e6627770e624884",
-    "elec/src/power_stage_120v.ato": "66b5d4e945c098c2418ca7dd4e12ecb95bf664ad0c275c725f0bb1362dbe8283",
+    "elec/src/f6_parts.ato": "9942dbf3afdcb74a8269661ebe7b719f763881c3d4ed13c7b71c709a63bc9018",
+    "elec/src/parts.ato": "0324ec34f83003f654dcca91b928bff464e59bd8d1cebad13dbde845a1c1c056",
+    "elec/src/power_stage_120v.ato": "1e6aeb03841421cd55f15c3522ecf6e2637bfe26b0d4c0b120bc11276712ada3",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

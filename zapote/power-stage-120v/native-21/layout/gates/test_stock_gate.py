@@ -302,5 +302,41 @@ if CR1.exists():
     check("consign-r1: D3 / D17's read counts only the Good-Ark offer (not the Littelfuse listing)",
           sr["30KPA150CA"]["best_auth_moq_le_need"].startswith("DigiKey"), sr["30KPA150CA"])
 
+# ---- stage 54 (BOM-only, 11-candidates/c54-release-margins): R10 / R12 / R18 / R20 PS122WF680JT4E (C2793964) and the
+# 4.99 k line ERJ-PA3F4991V (C4036134). The dated read STOCK-2026-10-19-c54.csv (JLC part API 2026-10-19) clears them;
+# once run_all.sh has merged the s54 snapshot, SNAPSHOT-2026-10-15.csv carries the same JLC rows. The read and the
+# negative control are checked on a copy of the snapshot without the two rows, so they hold before and after run_all.sh;
+# the fab BOM check only needs both lines to clear, from either source.
+C54 = SRC / "STOCK-2026-10-19-c54.csv"
+if C54.exists():
+    with tempfile.TemporaryDirectory() as td:
+        b54 = Path(td) / "bom54.csv"
+        with open(b54, "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #", "Manufacturer Part Number", "Mount", "Assembly"])
+            w.writerow(["PS122WF680JT4E", "R10,R12,R18,R20", "R_2512_6332Metric", "C2793964", "PS122WF680JT4E", "SMD", ""])
+            w.writerow(["ERJ-PA3F4991V", "R71,R72,R74,R75,R131", "R_0603_1608Metric", "C4036134", "ERJ-PA3F4991V", "SMD", ""])
+        snap0 = Path(td) / "snap-without-s54.csv"
+        with open(SNAPD, newline="") as fi, open(snap0, "w", newline="") as fo:
+            rd = csv.DictReader(fi)
+            wr = csv.DictWriter(fo, fieldnames=rd.fieldnames)
+            wr.writeheader()
+            wr.writerows(r for r in rd if r["mpn"].strip() not in ("PS122WF680JT4E", "ERJ-PA3F4991V"))
+        g54 = sc.stock_gate(b54, snap0, DEF)
+        check("s54: PS122WF680JT4E (JLC 3,856 vs 80) and ERJ-PA3F4991V (JLC 4,339 vs 100) clear at 20 boards on the default "
+              "--stock list, both from STOCK-2026-10-19-c54.csv",
+              g54["bom_lines_short_proto"] == 0 and all(str(g54["bom_stock_read_overrides"].get(m, "")).startswith(C54.name)
+                                                        for m in ("PS122WF680JT4E", "ERJ-PA3F4991V")), g54)
+        DEF18 = ",".join(x for x in DEF.split(",") if Path(x).name < "STOCK-2026-10-19")
+        check("s54 without the 2026-10-19 read: both new lines are short (not in the snapshot; negative control)",
+              {l["mpn"] for l in sc.stock_gate(b54, snap0, DEF18)["bom_short_lines_proto"]}
+              == {"PS122WF680JT4E", "ERJ-PA3F4991V"})
+    fab_mpns = {r["Manufacturer Part Number"].strip() for r in csv.DictReader(open(FABBOM))}
+    if {"PS122WF680JT4E", "ERJ-PA3F4991V"} <= fab_mpns:
+        gf = sc.stock_gate(FABBOM, SNAPD, DEF)
+        check("s54 fab BOM: the two new lines clear at 20 boards (the 2026-10-19 read or the merged snapshot row)",
+              not {l["mpn"] for l in gf["bom_short_lines_proto"]} & {"PS122WF680JT4E", "ERJ-PA3F4991V"},
+              gf["bom_short_lines_proto"])
+
 print("PASS" if not fails else f"{fails} FAILED")
 sys.exit(1 if fails else 0)

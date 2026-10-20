@@ -52,8 +52,9 @@ def test_cli_check_passes_and_fails_on_stale_value(tmp_path, monkeypatch):
 
 def test_render_reproduces_the_records(rendered):
     block = rendered[0]
-    # CT band: DECISIONS 13 / 23 (64.55-76.09 A, nominal 70.18 A) from the round-3 engine on the frozen parts
-    assert "**band 64.55–76.09 A (+), 64.55–76.09 A (−)**" in block and "nominal 70.18 A" in block
+    # CT band: c54-ct-band (R44 / R45 11 k: 67.36-79.32 A, nominal 73.19 A; DECISIONS 13 / 23 had 64.55-76.09 A,
+    # 70.18 A with 10 k) from the round-3 engine on the frozen parts
+    assert "**band 67.36–79.32 A (+), 67.36–79.32 A (−)**" in block and "nominal 73.19 A" in block
     # OCP: kelvin_budget BAND_BEFORE["native21s53"] and budget-native21s53.json (DECISIONS 75: 69.18-114.57 A)
     assert "71.59–114.57 A before Kelvin" in block and "low corner after Kelvin 69.18 A" in block
     assert "**69.13 A at the bound**" in block and "nominal trip 92.59 A, U6 VCM 1.0185 V" in block
@@ -117,7 +118,7 @@ def test_unknown_symbols_fail(rendered, ctx):
 
 def test_new_board_of_record_refuses(tmp_path, monkeypatch):
     note = tmp_path / "FAB-NOTE.md"
-    note.write_text(cbt.FAB_NOTE.read_text().replace("Board: native-21 stage 53,", "Board: native-21 stage 54,"))
+    note.write_text(cbt.FAB_NOTE.read_text().replace("Board: native-21 stage 54,", "Board: native-21 stage 55,"))
     monkeypatch.setattr(cbt, "FAB_NOTE", note)
     with pytest.raises(cbt.GateError, match="re-base"):
         cbt.render()
@@ -155,7 +156,7 @@ def test_bringup_drift_fails(ctx, line, expect):
 
 
 def test_bringup_must_name_board_of_record(ctx):
-    text = cbt.BRINGUP.read_text().replace("**stage 53**", "**the current stage**", 1)
+    text = cbt.BRINGUP.read_text().replace("**stage 54**", "**the current stage**", 1)
     assert any("does not name the board of record" in e for e in _check_bringup(text, ctx))
 
 
@@ -171,7 +172,7 @@ def test_cli_check_fails_on_stale_bringup(tmp_path, monkeypatch):
 @pytest.mark.parametrize("mpn,ohms", [
     ("RT0603BRD077K5L", 7.5e3), ("RT0603BRD0716KL", 16e3), ("RT0603BRD072K21L", 2.21e3), ("RT0603BRD0749K9L", 49.9e3),
     ("RC1206FR-07470KL", 470e3), ("RC1206FR-073RL", 3.0), ("0603WAF1003T5E", 100e3), ("1206W4F1001T5E", 1e3),
-    ("25121WF680JT4E", 68.0), ("TNPW060311K7BEEA", 11.7e3), ("CSS2H-2512R-1L00F", 1e-3), ("TLV3201AIDBVR", None),
+    ("25121WF680JT4E", 68.0), ("PS122WF680JT4E", 68.0), ("ERJ-PA3F4991V", 4.99e3), ("TNPW060311K7BEEA", 11.7e3), ("CSS2H-2512R-1L00F", 1e-3), ("TLV3201AIDBVR", None),
 ])
 def test_mpn_ohms(mpn, ohms):
     got = cbt.mpn_ohms(mpn)
