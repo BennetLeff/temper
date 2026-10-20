@@ -16,7 +16,7 @@ Same rules as passes 1 and 2: verdicts rest on source lines read in this pass; n
 ## Still not re-checked after four passes
 C1 (needs bench), C8, C11, C17, C26, C30, C31, C32, C34, C35.
 
-## Running tally (23 of 35 looked at)
+## Running tally (24 of 35 looked at)
 - Stale documentation with a known answer: C3, C6, C7, C9, C12, C13, C16, C21, C23, C24, C27, C28, C29, C33 (14).
 - Not a contradiction: C10. Cosmetic: C20. Deliberate hold: C22.
 - Real engineering gaps: C2, C4/C5, C15 (4 entries).
