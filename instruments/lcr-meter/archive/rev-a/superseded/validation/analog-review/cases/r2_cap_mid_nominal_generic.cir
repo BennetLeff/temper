@@ -1,0 +1,50 @@
+Temper LCR generic two-pole loop sensitivity - r2_cap_mid_nominal_generic
+* Explicit generic assumptions: A0=100000, GBW=1e7, pole2=2e7, Ro=20
+* Input capacitances are sensitivity estimates, not extracted PCB parasitics.
+* No current limiting, slew limiting, thermal behavior, noise or rail clamps.
+.subckt generic plus minus out
+EGAIN n1 0 plus minus 100000
+RDOM n1 n2 1000
+CDOM n2 0 1.5915494309189533e-6
+RSECOND n2 n3 1000
+CSECOND n3 0 7.957747154594766e-12
+EOUT internal 0 n3 0 1
+ROUT internal out 20
+CDIFF plus minus 4p
+CMPLUS plus 0 2p
+CMMINUS minus 0 2p
+.ends generic
+VRAIL vcc 0 3.3
+RBIASP vcc bias 47k
+RBIASN bias 0 47k
+CBIAS bias 0 1u
+* Direct input after AC rebias: 100mV, 1us pulse, 10ns edges.
+* A short pulse avoids interpreting the bias network's DC drift as oscillation.
+VIN stimulus 0 DC 1.65 AC 1 PULSE(1.65 1.75 10u 10n 10n 1u 4m)
+XDRIVER stimulus drive drive generic
+RSOURCE drive hi 10
+CFIXHI hi 0 100p
+CDUT hi remote 1.5915494309189535e-9
+RLEAD remote lead .2
+LLEAD lead lo 1u
+CFIXLO lo 0 100p
+XTIA bias lo tia generic
+RFEEDBACK tia lo 2e3
+CFEEDBACK tia lo 1e-9
+RKEEP tia lo 1meg
+CKEEP tia lo 22p
+* Internal AD5933 unity receive stage is represented only by its 20k load.
+RRECEIVE tia bias 20k
+.options reltol=1e-5
+.control
+set wr_singlescale
+set wr_vecnames
+ac dec 120 1 100meg
+let drivergain=mag(v(drive))
+let tiagain=mag(v(tia))
+wrdata /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/temper-lcr-spice-31235/r2_cap_mid_nominal_generic-ac.dat drivergain tiagain
+tran 10n 1m 0 10n
+wrdata /var/folders/c0/2frqysjx1c568ymcn_3nvrym0000gn/T/temper-lcr-spice-31235/r2_cap_mid_nominal_generic-tr.dat v(drive) v(tia)
+quit
+.endc
+.end

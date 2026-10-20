@@ -1,0 +1,13 @@
+PICO_SDK_PATH is /private/tmp/temper-lcr-firmware/pico-sdk
+Target board (PICO_BOARD) is 'pico'.
+Using board configuration from /private/tmp/temper-lcr-firmware/pico-sdk/src/boards/include/boards/pico.h
+Pico Platform (PICO_PLATFORM) is 'rp2040'.
+Build type is Release
+TinyUSB available at /private/tmp/temper-lcr-firmware/pico-sdk/lib/tinyusb/hw/bsp/rp2040; enabling build support for USB.
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: /private/tmp/temper-lcr-firmware/build
+[  1%] Built target temper_lcr_capture_pio_h
+[  3%] Built target bs2_default
+[  6%] Built target bs2_default_library
+[100%] Built target temper_lcr

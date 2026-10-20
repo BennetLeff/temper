@@ -1,0 +1,38 @@
+{
+  "board_sha256": "15546293b47b16b7edba8a79bdc3feafe582b2b85618be469d930ba27e1816d9",
+  "review_date": "2026-10-20",
+  "method": "Native KiCad PDF/SVG and actual Gerber raster images opened and visually inspected; native drill maps inspected.",
+  "images": {
+    "pcb-front.png": "a9e4c5c3a155637a67fbeca48c29fe0bb4c77491035273eb6ec2b639a80e8cc3",
+    "assembly-top.png": "a0e713cd5e6996bf99a7390841f82dfac7d30c3211384b4d621c07539dde2022",
+    "schematic-page-1.png": "b49e56d08fee253ba560da004d21427ea7d9f7829137aad507db12a1eab3131b",
+    "schematic-page-2.png": "d73664d1f7e6f838b9693657c473c344e0d2d64a2046dfd4fab61f9ea88030ba",
+    "schematic-page-3.png": "105f0414d44b74b52fd23bb9c14351714a9058e701c0d8cfefb06ef999527c57",
+    "schematic-page-4.png": "581cc05ca81f7fe377a877ccb8f99e7be61332f6880fbbcb7a10f50944acf798",
+    "schematic-page-5.png": "740561ee86da67030cb7cfdb1d24fd5b938473a06f11b7b15d029696cb1194a3",
+    "schematic-page-6.png": "af5e713b2bf7033f7d90f65253bb201a837ba71412f238b8901daed445c6d8ff",
+    "gerber-top-copper.png": "2da811814df7217ae27b96ee38f4986ab73ce08c1d9532394c6b2533fb2aa5a3",
+    "gerber-ground.png": "129292bf81ba491cc014b2f8a98ccf6c6a230f603297d982d51d97e43d5f217d",
+    "gerber-inner-routing.png": "a4c171a67136dcd398954afaa5417f7f39b3d5c333c1c4c0adc743dc382ff76a",
+    "gerber-bottom-copper.png": "e8b9a70338d753025c05e956104b6edddb11855e7d3496c4391b4e64cb986fdf",
+    "gerber-top-mask.png": "1730398a57fad16069a180d066f18ab6fce7fd0555aef141c2fc603ad324f335",
+    "gerber-bottom-mask.png": "3973972a3d265849700017d3c1344fc84e60b82f3ac7c9bbefa012732d939315",
+    "gerber-top-paste.png": "6f4b9cc2a2e59cbcc0f6f63a7095dbaeb6dfec3fae496f64dd9b6b38c4fac7f7",
+    "gerber-top-silk.png": "8a3cfab9ef0d727042a79f92e5eaf04ceca52b63b027aeba022aec2a179cdc41",
+    "gerber-outline.png": "19e3a93daf5da4263c8708a17185259603b6e28ddf188b2e0355f37f7b94905c"
+  },
+  "drill_maps": {
+    "temper-lcr-PTH-drl_map.pdf": "68f43ceefb6046d5a67f6129ed960697dc2ff3b29df0c1aa8378bab07dbbf2b6",
+    "temper-lcr-NPTH-drl_map.pdf": "5b2afafb9a5a40803b192af160bde1a40a4f00c5733205d34536bf3e538feaab"
+  },
+  "findings": [
+    "Six schematic pages legible without content/title overlap; AFE uses connected amplifier triangles and matched RG/RF network.",
+    "Inner ground copper continuous outside amplifier signal-node relief; no non-GND In1 tracks.",
+    "Top copper, inner routing, bottom copper, mask, paste and outline correspond to routed revision B.",
+    "Top silkscreen identifies all range pairs and bench controls. Bottom silkscreen is intentionally empty (Gerber aperture list empty).",
+    "Paste apertures include segmented QFN exposed-pad windows; thirteen SMT-overlapping vias require filled/capped planarized process.",
+    "222 plated holes including seven routed slots; six non-plated holes including four 3.2mm mounting holes.",
+    "Assembly view uses component references and suppresses values; vector SVG supports detailed inspection."
+  ],
+  "unresolved": "Vendor DFM/placement preview and fabricated hardware inspection/measurement not performed."
+}

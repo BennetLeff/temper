@@ -1,0 +1,2493 @@
+                             Product         Sample &          Technical             Tools &           Support &         Reference
+                             Folder          Buy               Documents             Software          Community         Design
+
+
+
+                                                                                                                               TPS7A49
+                                                                                                 SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+                 TPS7A49 36-V, 150-mA, Ultralow-Noise, Positive Linear Regulator
+1 Features                                                                 3 Description
+•
+1   Input Voltage Range: 3 V to 36 V                                       The TPS7A49 series of devices are positive, high-
+                                                                           voltage (36 V), ultralow-noise (15.4 μVRMS, 72-dB
+•   Noise:                                                                 PSRR) linear regulators that can source a 150-mA
+    – 12.7 μVRMS (20 Hz to 20 kHz)                                         load.
+    – 15.4 μVRMS (10 Hz to 100 kHz)                                        These linear regulators include a CMOS logic-level-
+•   Power-Supply Ripple Rejection:                                         compatible enable pin and capacitor-programmable
+    – 72 dB (120 Hz)                                                       soft-start function that allows for customized power-
+                                                                           management schemes. Other available features
+    – ≥ 52 dB (10 Hz to 400 kHz)                                           include built-in current limit and thermal shutdown
+•   Adjustable Output: 1.194 V to 33 V                                     protection to safeguard the device and system during
+•   Output Current: 150 mA                                                 fault conditions.
+•   Dropout Voltage: 260 mV at 100 mA                                      The TPS7A49 family is designed using bipolar
+•   Stable with Ceramic Capacitors ≥ 2.2 μF                                technology, and is ideal for high-accuracy, high-
+                                                                           precision instrumentation applications where clean
+•   CMOS Logic-Level-Compatible Enable Pin
+                                                                           voltage rails are critical to maximize system
+•   Fixed Current-Limit and Thermal Shutdown                               performance. This design makes the device an
+    Protection                                                             excellent choice to power operational amplifiers,
+•   Packages: 8-Pin HVSSOP PowerPAD™ and                                   analog-to-digital converters (ADCs), digital-to-analog
+    3-mm × 3-mm VSON                                                       converters (DACs), and other high-performance
+                                                                           analog circuitry.
+•   Operating Temperature Range:
+    –40°C to 125°C                                                         In addition, the TPS7A49 family of linear regulators is
+                                                                           suitable for post dc-dc converter regulation. By
+2 Applications                                                             filtering out the output voltage ripple inherent to dc-dc
+                                                                           switching conversion, maximum system performance
+•   Supply Rails for Op Amps, DACs, ADCs, and                              is provided in sensitive instrumentation, test and
+    Other High-Precision Analog Circuitry                                  measurement, audio, and RF applications.
+•   Audio                                                                  For applications where positive and negative high-
+•   Post DC-DC Converter Regulation and                                    performance rails are required, consider TI’s
+    Ripple Filtering                                                       TPS7A30xx family of negative high-voltage, ultralow-
+•   Test and Measurement                                                   noise linear regulators as well.
+•   Rx, Tx, and PA Circuitry                                                                    Device Information(1)
+•   Industrial Instrumentation                                               PART NUMBER              PACKAGE           BODY SIZE (NOM)
+•   Base Stations and Telecom Infrastructure                                                    HVSSOP PowerPAD (8)    3.00 mm × 3.00 mm
+                                                                           TPS7A49
+                                                                                                VSON (8)               3.00 mm × 3.00 mm
+
+                                                                           (1) For all available packages, see the orderable addendum at
+                                                                               the end of the data sheet.
+
+                    Post DC-DC Converter Regulation for High-Performance Analog Circuitry
+
+
+
+
+                                               +18V      IN   OUT
+                                                                    +15V
+                                                          TPS7A49
+
+                                                         EN   GND
+
+
+
+
+                                               -18V      IN   OUT
+                                                                    -15V
+                                                          TPS7A30
+
+                                                         EN   GND
+
+                                                                               EVM
+
+
+
+
+1
+
+
+
+
+      An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+      intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                                                     www.ti.com
+
+
+                                                                             Table of Contents
+    1   Features .................................................................. 1               9      Application and Implementation ........................ 14
+    2   Applications ........................................................... 1                         9.1 Application Information............................................ 14
+    3   Description ............................................................. 1                        9.2 Typical Application .................................................. 16
+    4   Revision History..................................................... 2                            9.3 Do's and Don’ts ...................................................... 19
+    5   Pin Configuration and Functions ......................... 4                                 10 Power Supply Recommendations ..................... 19
+    6   Specifications......................................................... 5                   11 Layout................................................................... 19
+         6.1    Absolute Maximum Ratings ..................................... 5                           11.1 Layout Guidelines ................................................. 19
+         6.2    ESD Ratings ............................................................ 5                 11.2 Layout Example .................................................... 21
+         6.3    Recommended Operating Conditions....................... 5                                  11.3 Package Mounting ................................................ 21
+         6.4    Thermal Information .................................................. 6            12 Device and Documentation Support ................. 22
+         6.5    Electrical Characteristics........................................... 6                    12.1     Device Support...................................................... 22
+         6.6    Typical Characteristics .............................................. 7                   12.2     Documentation Support ........................................ 22
+    7   Parameter Measurement Information ................ 11                                              12.3     Community Resources.......................................... 22
+                                                                                                           12.4     Trademarks ........................................................... 22
+    8   Detailed Description ............................................ 12
+                                                                                                           12.5     Electrostatic Discharge Caution ............................ 22
+         8.1    Overview ................................................................. 12
+                                                                                                           12.6     Glossary ................................................................ 23
+         8.2    Functional Block Diagram ....................................... 12
+         8.3    Feature Description................................................. 12             13 Mechanical, Packaging, and Orderable
+         8.4    Device Functional Modes........................................ 13
+                                                                                                       Information ........................................................... 23
+
+
+
+4 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision D (March 2015) to Revision E                                                                                                                                     Page
+
+•   Added DRB package to document ......................................................................................................................................... 1
+•   Added TI Design .................................................................................................................................................................... 1
+•   Changed Shutdown Protection Features bullet: removed Integrated .................................................................................... 1
+•   Changed Packages Features bullet ...................................................................................................................................... 1
+•   Added VSON row to Device Information table ...................................................................................................................... 1
+•   Added DRB package to Pin Configuration and Functions section ........................................................................................ 4
+•   Changed Pin Functions table: changed EN (changed VEN ≤ VEN(low)) and FB (deleted control-loop from first
+    sentence) pin descriptions ..................................................................................................................................................... 4
+•   Added DRB column to Thermal Information table ................................................................................................................. 6
+•   Changed 35°C to 45°C in Thermal Protection section ......................................................................................................... 13
+•   Changed TJ value for disabled mode in Table 1 to match Electrical Characteristics table ................................................. 13
+•   Changed first sentence of Application Information section ................................................................................................. 14
+•   Changed first sentence of Post DC-DC Converter Filtering section ................................................................................... 15
+•   Changed Equation 3 ............................................................................................................................................................ 17
+•   Changed 1.27 kΩ to 100 kΩ in description of R2 setting in the Detailed Design Procedure section .................................. 17
+•   Added third paragraph and Figure 36 to Power Dissipation section .................................................................................... 20
+•   Changed capacitor size value in footnote of Figure 37 ....................................................................................................... 21
+
+
+Changes from Revision C (December 2013) to Revision D                                                                                                                                  Page
+
+•   Added ESD Ratings table, Feature Description section, Device Functional Modes, Application and Implementation
+    section, Power Supply Recommendations section, Layout section, Device and Documentation Support section, and
+    Mechanical, Packaging, and Orderable Information section ................................................................................................. 1
+•   Changed 9th bullet in Features list ........................................................................................................................................ 1
+•   Removed pin drawing from front page of data sheet ............................................................................................................ 1
+•   Revised Thermal Information table values ............................................................................................................................. 6
+2        Submit Documentation Feedback                                                                                 Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                                           Product Folder Links: TPS7A49
+                                                                                                                                                                                 TPS7A49
+www.ti.com                                                                                                                          SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+•   Added statement about typical value measurement temperature to Electrical Characteristics conditions ........................... 6
+•   Added footnote to Internal reference specification ................................................................................................................. 6
+•   Added Feedback voltage (VFB) parameter to Electrical Characteristics................................................................................. 6
+•   Changed Line regulation typical specification from 0.11 to 0.086 %VOUT .............................................................................. 6
+•   Changed Ground current typical specification for IOUT = 0 mA from 61 to 49 µA................................................................... 6
+•   Changed CBYP to CFF throughout data sheet.......................................................................................................................... 6
+•   Changed footnote in Electrical Characteristics describing CFF (CBYP) capacitor ................................................................... 6
+•   Added statement about typical value measurement temperature to Typical Characteristics conditions ............................... 7
+•   Changed Figure 1 to show correct device performance......................................................................................................... 7
+•   Changed Figure 14; changed CBYP to CFF ............................................................................................................................. 8
+•   Changed Figure 16; changed CBYP to CFF ............................................................................................................................. 8
+•   Changed Figure 18; changed CBYP to CFF ............................................................................................................................. 8
+•   Moved Figure 25, Figure 26, and Figure 27 to end of Typical Characteristics section........................................................ 11
+•   Changed Equation 1; corrected notation on CNR/SS .............................................................................................................. 12
+•   Changed Equation 2 ............................................................................................................................................................ 14
+•   Changed paragraph 1 of Noise Reduction and Feed-Forward Capacitor Requirements ................................................... 14
+•   Changed Figure 29; changed CBYP to CFF ............................................................................................................................ 16
+
+
+Changes from Revision B (January 2010) to Revision C                                                                                                                                     Page
+
+•   Changed VREF parameter typical specification in Electrical Characteristics table .................................................................. 6
+
+
+Changes from Revision A (September 2010) to Revision B                                                                                                                                   Page
+
+•   Changed HBM max value from 500V to 1500V ..................................................................................................................... 5
+
+
+Changes from Original (August 2010) to Revision A                                                                                                                                        Page
+
+•   Revised Features list .............................................................................................................................................................. 1
+•   Changed Description text (paragraph 1) to remove description of maximum load ................................................................ 1
+•   Changed description of NC pin (pin 3) in Pin Descriptions table ........................................................................................... 4
+•   Revised shutdown supply current, feedback current, and enable current specifications; rounded typical performance
+    values ..................................................................................................................................................................................... 6
+•   Updated Figure 1 to show correct device performance.......................................................................................................... 7
+•   Revised Functional Block Diagram for clarification .............................................................................................................. 12
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                                                                   Submit Documentation Feedback                           3
+                                                                          Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                    www.ti.com
+
+
+5 Pin Configuration and Functions
+
+                           DGN Package                                                                        DRB Package
+                     8-Pin HVSSOP PowerPAD                                                                      VSON-8
+                             Top View                                                                          Top View
+
+                    OUT         1         8        IN                                                   OUT   1           8   IN
+                     FB         2         7        DNC
+                                                                                                         FB   2           7   DNC
+                     NC         3         6        NR/SS
+                    GND         4         5        EN                                                    NC   3           6   NR/SS
+                                                                                                       GND    4           5   EN
+
+
+
+                                                                     Pin Functions
+        PIN
+                          I/O                                                         DESCRIPTION
+    NAME      NO.
+DNC            7          —         Do not connect. Do not route this pin to any electrical net, not even GND or IN.
+                                    This pin turns the regulator on or off. If VEN ≥ VEN(high), the regulator is enabled.
+EN             5           I
+                                    If VEN ≤ VEN(low), the regulator is disabled. The EN pin can be connected to IN, if not used. VEN ≤ VIN.
+FB             2           I        This pin is the input to the error amplifier. FB is used to set the output voltage of the device.
+GND            4          —         Ground
+IN             8           I        Input supply
+NC             3          —         Not internally connected. This pin can either be left open or tied to GND.
+                                    Noise-reduction pin. Connecting an external capacitor to this pin bypasses noise generated by the internal
+NR/SS          6          —         band gap. This capacitor allows RMS noise to be reduced to very low levels and also controls the soft-start
+                                    function.
+OUT            1          O         Regulator output. A capacitor ≥ 2.2 μF must be tied from this pin to ground to ensure stability.
+                                    Must either be left open or tied to ground.
+PowerPAD                  —
+                                    Solder to the printed-circuit-board (PCB) plane to enhance thermal performance.
+
+
+
+
+4          Submit Documentation Feedback                                                             Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                              Product Folder Links: TPS7A49
+                                                                                                                                    TPS7A49
+www.ti.com                                                                                      SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+6 Specifications
+6.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted) (1)
+                                                                                                              MIN          MAX        UNIT
+                                         IN pin to GND pin                                                    –0.3          36            V
+                                         OUT pin to GND pin                                                   –0.3          33            V
+                                         OUT pin to IN pin                                                    –36           0.3           V
+                                         FB pin to GND pin                                                    –0.3           2            V
+Voltage                                  FB pin to IN pin                                                     –36           0.3           V
+                                         EN pin to IN pin                                                     –36           0.3           V
+                                         EN pin to GND pin                                                    –0.3          36            V
+                                         NR/SS pin to IN pin                                                  –36           0.3           V
+                                         NR/SS pin to GND pin                                                 –0.3           2            V
+Current                                  Peak output                                                          Internally limited
+                                         Operating virtual junction, TJ                                       –40          125            °C
+Temperature
+                                         Storage, Tstg                                                        –65          150            °C
+
+(1)    Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress ratings
+       only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under Recommended
+       Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device reliability.
+
+6.2 ESD Ratings
+                                                                                                                           VALUE      UNIT
+                                                                                                   (1)
+                                           Human body model (HBM), per ANSI/ESDA/JEDEC JS-001                               ±1500
+V(ESD)       Electrostatic discharge                                                                                                      V
+                                           Charged device model (CDM), per JEDEC specification JESD22-C101 (2)               ±500
+
+(1)    JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)    JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+
+6.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                     MIN           NOM                  MAX         UNIT
+VIN                 Input supply voltage                                                3                                  35        V
+VEN                 Enable supply voltage                                               0                                 VIN        V
+VOUT                Output voltage                                                    VFB                                  33        V
+IOUT                Output current                                                      0                                 150       mA
+TJ                  Operating junction temperature                                    –40                                 125        °C
+CIN                 Input capacitor                                                   2.2                10                          µF
+COUT                Output capacitor                                                  2.2                10                          µF
+CNR                 Noise reduction capacitor                                           0                10                          nF
+CFF                 Feed-forward capacitor                                              0                10                          nF
+R2                  Lower feedback resistor                                                                               237        kΩ
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                              Submit Documentation Feedback               5
+                                                            Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                www.ti.com
+
+
+6.4 Thermal Information
+                                                                                                          TPS7A49
+                                                      (1)                                       DGN
+                                   THERMAL METRIC                                                                                        UNIT
+                                                                                          (HVSSOP PowerPAD)         DRB (VSON)
+                                                                                               8 PINS                 8 PINS
+RθJA                  Junction-to-ambient thermal resistance                                       63.4                47.7              °C/W
+RθJC(top)             Junction-to-case(top) thermal resistance                                     53                  55.3              °C/W
+RθJB                  Junction-to-board thermal resistance                                         37.4                23.3              °C/W
+ψJT                   Junction-to-top characterization parameter                                   3.7                  1.1              °C/W
+ψJB                   Junction-to-board characterization parameter                                 37.1                23.5              °C/W
+RθJC(bot)             Junction-to-case(bottom) thermal resistance                                  13.5                 7.0              °C/W
+
+(1)    For more information about traditional and new thermal metrics, see the IC Package Thermal Metrics application report, SPRA953.
+
+6.5 Electrical Characteristics
+At TJ = –40°C to 125°C, VIN = VOUT(nom) + 1 V or VIN = 3 V (whichever is greater), VEN = VIN, IOUT = 1 mA, CIN = 2.2 μF, COUT =
+2.2 μF, CNR/SS = 0 nF, and the FB pin tied to OUT, unless otherwise noted. Typical values are at TA = 25°C.
+                     PARAMETER                                      TEST CONDITIONS                         MIN        TYP       MAX         UNIT
+VIN             Input voltage range                                                                           3                     35        V
+VREF            Internal reference (1)               TJ = 25°C, VNR/SS = VREF                              1.176      1.188      1.212        V
+VFB             Feedback voltage                                                                                      1.185                   V
+                Output voltage range (2)             VIN ≥ VOUT(nom) + 1 V                                  VREF                    33        V
+                Nominal accuracy                     TJ = 25°C, VIN = VOUT(nom) + 0.5 V                     –1.5                   1.5     %VOUT
+VOUT
+                                                     VOUT(nom) + 1 V ≤ VIN ≤ 35 V,
+                Overall accuracy                                                                            –2.5                   2.5     %VOUT
+                                                     1 mA ≤ IOUT ≤ 150 mA
+ DVOUT(DVIN)
+  VOUT(NOM)     Line regulation                      TJ = 25°C, VOUT(nom) + 1 V ≤ VIN ≤ 35 V                          0.086                %VOUT
+
+ DVOUT(DIOUT)
+  VOUT(NOM)     Load regulation                      TJ = 25°C, 1 mA ≤ IOUT ≤ 150 mA                                   0.04                %VOUT
+
+                                                     VIN = 95% VOUT(nom), IOUT = 100 mA                                260                   mV
+VDO             Dropout voltage
+                                                     VIN = 95% VOUT(nom), IOUT = 150 mA                                333         600       mV
+ILIM            Current limit                        VOUT = 90% VOUT(nom)                                   220        309         500       mA
+                                                     IOUT = 0 mA                                                        49         100       μA
+IGND            Ground current
+                                                     IOUT = 100 mA                                                     800                   μA
+ISHDN           Shutdown supply current              VEN = 0.4 V                                                        0.8          3       μA
+IFB             Feedback current (3)                                                                                     3         100       nA
+                                                     VEN = VIN = VOUT(nom) + 1 V                                       0.02          1       μA
+IEN             Enable current
+                                                     VEN = VIN = 35 V                                                   0.2          1       μA
+VEN(high)       Enable high-level voltage                                                                    2.1                   VIN        V
+VEN(low)        Enable low-level voltage                                                                      0                    0.4        V
+                                                     VIN = 3 V, VOUT(nom) = VREF, COUT = 10 μF,
+                                                                                                                       15.4                μVRMS
+                                                     CNR/SS = 10 nF, BW = 10 Hz to 100 kHz
+Vn              Output noise voltage                 VIN = 6.2 V, VOUT(nom) = 5 V, COUT = 10 μF,
+                                                     CNR/SS = CFF (4) = 10 nF, BW = 10 Hz to                          21.15                μVRMS
+                                                     100 kHz
+                                                     VIN = 6.2 V, VOUT(nom) = 5 V, COUT = 10 μF,
+PSRR            Power-supply rejection ratio                                                                            72                   dB
+                                                     CNR/SS = CFF (4) = 10 nF, f = 120 Hz
+                                                     Shutdown, temperature increasing                                  170                    °C
+Tsd             Thermal shutdown temperature
+                                                     Reset, temperature decreasing                                     150                    °C
+TJ              Operating junction temperature                                                              –40                    125        °C
+
+(1)    VREF is measured at the NR/SS pin.
+(2)    To ensure stability at no load conditions, a current from the feedback resistive network equal to or greater than 5 μA is required.
+(3)    IFB > 0 flows out of the device.
+(4)    CFF refers to a feed-forward capacitor connected to the FB and OUT pins.
+
+6          Submit Documentation Feedback                                                       Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                             Product Folder Links: TPS7A49
+                                                                                                                                                                                                         TPS7A49
+www.ti.com                                                                                                                                                  SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+6.6 Typical Characteristics
+At TJ = –40°C to 125°C, VIN = VOUT(nom) + 1 V or VIN = 3 V (whichever is greater), VEN = VIN, IOUT = 1 mA, CIN = 2.2 μF, COUT =
+2.2 μF, CNR/SS = 0 nF, and the FB pin tied to OUT, unless otherwise noted. Typical values are at TA = 25°C.
+
+                             1.191                                                                                                100
+                                                                                                  TJ = -40qC
+                            1.1895                                                                TJ = 25qC                        90
+                             1.188                                                                TJ = 85qC                        80
+                                                                                                  TJ = 105qC
+     Feedback Voltage (V)
+
+
+
+
+                            1.1865                                                                TJ = 125qC                       70
+
+                             1.185                                                                                                 60
+
+
+
+
+                                                                                                                     IFB (nA)
+                            1.1835                                                                                                 50
+
+                             1.182                                                                                                 40
+
+                            1.1805                                                                                                 30
+                                                                                                                                   20
+                             1.179
+                                                                                                                                   10
+                            1.1775
+                                                                                                                                    0
+                             1.176
+                                     0     5       10        15    20    25    30      35        40     45     50                       -40 -25 -10         5     20 35 50 65            80        95    110 125
+                                                                  Input Voltage (V)                                                                                Temperature (°C)
+
+
+
+
+                                       Figure 1. Feedback Voltage vs Input Voltage                                                              Figure 2. Feedback Current vs Temperature
+                            2500                                                                                                  1200
+                                            0mA                                                  TJ = +25°C
+                                            10mA
+                                                                                                                                  1000
+                            2000            50mA
+                                            100mA
+                                            150mA                                                                                  800
+                            1500
+     IGND (mA)
+
+
+
+
+                                                                                                                    IGND (mA)
+
+
+
+
+                                                                                                                                   600
+                            1000
+                                                                                                                                   400                                                                   +125°C
+                                                                                                                                                                                                         +105°C
+                             500                                                                                                                                                                         +85°C
+                                                                                                                                   200
+                                                                                                                                                                                                         +25°C
+                                                                                                                                                IOUT = 100mA                                             -40°C
+                               0                                                                                                        0
+                                   0           5        10        15     20      25         30        35       40                           0          5    10     15      20       25        30         35       40
+                                                                       VIN (V)                                                                                           VIN (V)
+
+
+
+
+                                         Figure 3. Ground Current vs Input Voltage                                                              Figure 4. Ground Current vs Input Voltage
+                            2500                                                                                                  100
+                                                                                                      +125°C                                                                                            +125°C
+                                                                                                                                   90
+                                                                                                      +105°C                                                                                            +105°C
+                            2000                                                                      +85°C                        80                                                                   +85°C
+                                                                                                      +25°C                        70                                                                   +25°C
+                                                                                                      -40°C                                                                                             -40°C
+                            1500                                                                                                   60
+    IGND (mA)
+
+
+
+
+                                                                                                                       IEN (nA)
+
+
+
+
+                                                                                                                                   50
+                            1000                                                                                                   40
+                                                                                                                                   30
+                             500                                                                                                   20
+                                                                                                                                   10
+                               0                                                                                                    0
+                                   0      15       30    45       60    75    90      105 120 135 150                                   0          5       10     15      20       25     30            35       40
+                                                                    IOUT (mA)                                                                                           VEN (V)
+
+
+
+
+                                       Figure 5. Ground Current vs Output Current                                                               Figure 6. Enable Current vs Enable Voltage
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                                                                                            Submit Documentation Feedback                         7
+                                                                                                 Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                                                    www.ti.com
+
+
+Typical Characteristics (continued)
+At TJ = –40°C to 125°C, VIN = VOUT(nom) + 1 V or VIN = 3 V (whichever is greater), VEN = VIN, IOUT = 1 mA, CIN = 2.2 μF, COUT =
+2.2 μF, CNR/SS = 0 nF, and the FB pin tied to OUT, unless otherwise noted. Typical values are at TA = 25°C.
+                100                                                                                            3.5
+                                                                                                                             +125°C
+                 90
+                                                                                                                 3           +105°C
+                 80                                                                                                          +85°C
+                 70                                                                                            2.5           +25°C
+                                                                                                                             -40°C
+
+
+
+
+                                                                                                  ISHDN (mA)
+                 60
+                                                                                                                 2
+      IQ (mA)
+
+
+
+
+                 50
+                                                                                                               1.5
+                 40
+                                                                                 +125°C
+                 30                                                              +105°C                          1
+                 20                                                              +85°C
+                                                                                 +25°C                         0.5
+                 10       IOUT = 0mA
+                                                                                 -40°C                                                                                 VEN = 0.4V
+                  0                                                                                              0
+                      0       5           10        15     20      25     30     35       40                          0       5       10     15     20      25    30        35      40
+                                                         VIN (V)                                                                                  VIN (V)
+
+
+
+
+                          Figure 7. Quiescent Current vs Input Voltage                                                    Figure 8. Shutdown Current vs Input Voltage
+                450                                                                                            500
+                                                                                                                             10mA
+                400                                                                                            450
+                                                                                                                             50mA
+                350                                                                                            400           100mA
+                                                                                                                             150mA
+                                                                                                               350
+                300
+                                                                                                               300
+     VDO (mV)
+
+
+
+
+                                                                                                 VDO (mV)
+
+
+
+
+                250
+                                                                                                               250
+                200
+                                                                                                               200
+                150                                                              +125°C
+                                                                                 +105°C                        150
+                100                                                              +85°C                         100
+                 50                                                              +25°C
+                                                                                                                50
+                                                                                 -40°C
+                  0                                                                                              0
+                      0     15       30        45   60    75    90      105 120 135 150                              -40 -25 -10        5   20 35 50 65          80    95   110 125
+                                                      IOUT (mA)                                                                              Temperature (°C)
+
+
+
+
+                          Figure 9. Dropout Voltage vs Output Current                                                     Figure 10. Dropout Voltage vs Temperature
+                450                                                                                            500
+                                                                     VOUT = 90% VOUT(NOM)                                                                   VOUT = 90% VOUT(NOM)
+                400
+                                                                                                               450
+                350
+
+                300                                                                                            400
+    ILIM (mA)
+
+
+
+
+                                                                                                 ILIM (mA)
+
+
+
+
+                250
+                                                                                                               350
+                200
+
+                150                                                              +125°C                        300
+                                                                                 +105°C
+                100                                                              +85°C
+                                                                                                               250
+                 50                                                              +25°C
+                                                                                 -40°C
+                  0                                                                                            200
+                      0          5        10        15     20      25     30     35       40                         -40 -25 -10       5    20 35 50 65          80    95   110 125
+                                                         VIN (V)                                                                             Temperature (°C)
+
+
+
+
+                           Figure 11. Current Limit vs Input Voltage                                                        Figure 12. Current Limit vs Temperature
+
+
+
+
+8               Submit Documentation Feedback                                                                                     Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                                               Product Folder Links: TPS7A49
+                                                                                                                                                                             TPS7A49
+www.ti.com                                                                                                                                 SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+Typical Characteristics (continued)
+At TJ = –40°C to 125°C, VIN = VOUT(nom) + 1 V or VIN = 3 V (whichever is greater), VEN = VIN, IOUT = 1 mA, CIN = 2.2 μF, COUT =
+2.2 μF, CNR/SS = 0 nF, and the FB pin tied to OUT, unless otherwise noted. Typical values are at TA = 25°C.
+                     2.5                                                                                             90
+
+                                                                                                                     80
+                                                                                                                                                                       COUT = 10mF
+                       2                                                                                             70
+                                                                           ON
+                                                                                                                     60
+
+
+
+
+                                                                                                         PSRR (dB)
+                     1.5
+      VEN (V)
+
+
+
+
+                                                                                                                     50
+                                                           OFF
+                                                                                                                     40
+                       1                                                                                                   VOUT = 5V                COUT = 2.2mF
+                                                                                                                     30
+                                                                                                                           VIN = 6.2V
+                                                                                                                     20    IOUT = 150mA
+                     0.5
+                                                                                                                           CNR/SS = 10nF
+                                                                                                                     10
+                                                                                                                           CFF = 10nF
+                       0                                                                                              0
+                           -40 -25 -10      5        20 35 50 65            80       95   110 125                         10     100         1k        10k      100k    1M      10M
+                                                      Temperature (°C)                                                                            Frequency (Hz)
+
+
+
+
+                       Figure 13. Enable Threshold Voltage vs Temperature                                                 Figure 14. Power-Supply Rejection Ratio vs COUT
+                       1                                                                                             90
+                                                                                          +125°C
+                      0.8                                                                                            80
+                                                                                          +105°C                                                   CNR/SS = 10nF
+                      0.6                                                                 +85°C                      70
+                                                                                          +25°C
+                      0.4                                                                                            60
+                                                                                          -40°C
+     VOUT(NOM) (%)
+
+
+
+
+                                                                                                         PSRR (dB)
+
+
+
+
+                      0.2
+                                                                                                                     50
+                       0
+                                                                                                                     40
+                     -0.2                                                                                                  VOUT = 1.2V
+                                                                                                                     30
+                     -0.4                                                                                                  VIN = 3.2V              CNR/SS = 0nF
+                                                                                                                     20    IOUT = 150mA
+                     -0.6
+                                                                                                                           COUT = 10mF
+                     -0.8                                                                                            10
+                                                                                                                           CFF = 0nF
+                      -1                                                                                              0
+                            0     5        10         15      20      25        30        35       40                     10     100         1k        10k      100k    1M      10M
+                                                            VIN (V)                                                                               Frequency (Hz)
+
+
+
+
+                                         Figure 15. Line Regulation                                                       Figure 16. Power-Supply Rejection Ratio vs CNR/SS
+                       1                                                                                             90
+                                                                                          +125°C
+                      0.8                                                                                            80
+                                                                                          +105°C                                                     CFF = 10nF
+                      0.6                                                                 +85°C                      70
+                                                                                          +25°C
+                      0.4                                                                                            60
+                                                                                          -40°C
+    VOUT(NOM) (%)
+
+
+
+
+                                                                                                         PSRR (dB)
+
+
+
+
+                      0.2
+                                                                                                                     50
+                       0
+                                                                                                                     40
+                     -0.2                                                                                                  VOUT = 5V
+                                                                                                                     30
+                     -0.4                                                                                                  VIN = 6.2V               CFF = 0nF
+                     -0.6                                                                                            20    IOUT = 150mA
+                                                                                                                           COUT = 10mF
+                     -0.8                                                                                            10
+                                                                                                                           CNR/SS = 10nF
+                      -1                                                                                              0
+                            0   15    30        45     60    75    90      105 120 135 150                                10     100         1k        10k      100k    1M      10M
+                                                         IOUT (mA)                                                                                Frequency (Hz)
+
+
+
+
+                                       Figure 17. Load Regulation                                                          Figure 18. Power-Supply Rejection Ratio vs CFF
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                                                                        Submit Documentation Feedback            9
+                                                                                      Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                                             www.ti.com
+
+
+Typical Characteristics (continued)
+At TJ = –40°C to 125°C, VIN = VOUT(nom) + 1 V or VIN = 3 V (whichever is greater), VEN = VIN, IOUT = 1 mA, CIN = 2.2 μF, COUT =
+2.2 μF, CNR/SS = 0 nF, and the FB pin tied to OUT, unless otherwise noted. Typical values are at TA = 25°C.
+
+                                      VEN                                                                                    VEN
+
+
+
+
+                                                                                              5V/div
+       5V/div
+       1V/div
+
+
+
+
+                                                                                              1V/div
+                                                                     VOUT = 1.2V                                                                             VOUT = 1.2V
+                                      VOUT                              VIN = 3V                                                    VOUT                        VIN = 3V
+                                                                   IOUT = 100mA                                                                            IOUT = 100mA
+                                                                    COUT = 10mF                                                                             COUT = 10mF
+                                                                    CNR/SS = 0nF                                                                           CNR/SS = 10nF
+
+
+                                             Time (50ms/div)                                                                           Time (5ms/div)
+
+
+
+
+                            Figure 19. Capacitor-Programmable Soft-Start                                           Figure 20. Capacitor-Programmable Soft-Start
+
+                                                                                                                                                              VOUT = 15V
+                                                                                                                                                         VIN = 33V to 18V
+                                                                                              20mV/div 5V/div                                               IOUT = 100mA
+                                                                                                                             VIN                             COUT = 10mF
+                                                                                                                                                            CNR/SS = 10nF
+       20mV/div
+
+
+
+
+                                      VOUT
+
+                                                                                                                             VOUT
+                                                                     VOUT = 15V
+                                      VIN                       VIN = 18V to 33V
+       5V/div
+
+
+
+
+                                                                   IOUT = 100mA
+                                                                    COUT = 10mF
+                                                                   CNR/SS = 10nF
+
+                                             Time (10ms/div)                                                                           Time (10ms/div)
+
+
+
+
+                                Figure 21. Line Transient Response                                                     Figure 22. Line Transient Response
+
+                                                                    VOUT = 15V                                                                                VOUT = 15V
+                                                                      VIN = 18V                                                                                VIN = 18V
+                                                           IOUT = 1mA to 120mA                                                                      IOUT = 120mA to 1mA
+                                                                   COUT = 10mF                                                                               COUT = 10mF
+       100mA/div 50mV/div
+
+
+
+
+                                                                                              100mA/div 50mV/div
+
+
+
+
+                                                                  CNR/SS = 10nF                                                                            CNR/SS = 10nF
+                               VOUT                                                                                   VOUT
+
+
+
+                               IOUT                                                                                   IOUT
+
+
+
+
+                                             Time (100ms/div)                                                                         Time (100ms/div)
+
+
+
+
+                                Figure 23. Load Transient Response                                                     Figure 24. Load Transient Response
+
+
+
+
+10          Submit Documentation Feedback                                                                                Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                                         Product Folder Links: TPS7A49
+                                                                                                                                                                                      TPS7A49
+www.ti.com                                                                                                                                       SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+7 Parameter Measurement Information
+                                                   10
+         Output Spectral Noise Density (mV/ÖHz)
+
+
+
+                                                                                                      VOUT = 1.2V                                                 RMS NOISE
+                                                                                                          VIN = 3V                     IOUT           10Hz to 100kHz   100Hz to 100kHz
+                                                                                                       CIN = 2.2mF
+                                                                                                     CNR/SS = 10nF                     1mA                15.44               14.14
+                                                     1
+                                                                                                      COUT = 10mF                     150mA               17.27               16.46
+
+
+                                                                                                   IOUT = 150mA
+                                                   0.1
+
+
+
+                                                                                            IOUT = 1mA
+                                                  0.01
+                                                         10             100            1k          10k             100k
+                                                                                 Frequency (Hz)
+
+                                                                              Figure 25. Output Spectral Noise Density vs Output Current
+
+                                                   10
+      Output Spectral Noise Density (mV/ÖHz)
+
+
+
+
+                                                                                                       VOUT = 1.2V                                                RMS NOISE
+                                                                                                          VIN = 3V                    CNR/SS          10Hz to 100kHz   100Hz to 100kHz
+                                                                                                     IOUT = 150mA
+                                                                          CNR/SS = 0nF                                                 0nF                69.04               67.87
+                                                                                                       CIN = 2.2mF
+                                                    1
+                                                                                                      COUT = 10mF                     10nF                16.58               15.86
+
+
+
+
+                                                   0.1
+                                                          CNR/SS = 10nF
+
+
+
+                                                  0.01
+                                                         10             100            1k          10k             100k
+                                                                                 Frequency (Hz)
+
+                                                                                   Figure 26. Output Spectral Noise Density vs CNR/SS
+
+                                                   10
+         Output Spectral Noise Density (mV/ÖHz)
+
+
+
+
+                                                                                                          IOUT = 1mA                                              RMS NOISE
+                                                                                                          CIN = 2.2mF                VOUT(NOM)
+                                                                       VOUT(NOM) = 5V                                                                 10Hz to 100kHz   100Hz to 100kHz
+                                                                                                          CNR = 10nF
+                                                                                                         CBYP = 10nF                    5V                21.15               14.74
+                                                     1                                                   COUT = 10mF                   1.2V               15.44               14.14
+
+
+
+
+                                                   0.1
+                                                              VOUT(NOM) = 1.2V
+
+
+
+                                                  0.01
+                                                         10             100            1k          10k             100k
+                                                                                 Frequency (Hz)
+
+                                                                                 Figure 27. Output Spectral Noise Density vs VOUT(NOM)
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                                                                              Submit Documentation Feedback           11
+                                                                                                     Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                        www.ti.com
+
+
+8 Detailed Description
+
+8.1 Overview
+The TPS7A49 family of devices are wide VIN, low-noise, 150-mA linear regulators (LDOs). These devices feature
+an enable pin, programmable soft-start, current limiting, and thermal protection circuitry that allow the device to
+be used in a wide variety of applications. As bipolar-based devices, the TPS7A49 family are ideal for high-
+accuracy, high-precision applications at higher voltages.
+
+8.2 Functional Block Diagram
+
+                    IN                                                                                               OUT
+
+                                            UVLO                                      Pass
+                                                                                      Device
+
+                                            Current                    Thermal
+                                             Limit                    Shutdown
+
+
+
+                                                                                                                     FB
+
+                                                            Error
+                    EN         Enable
+                                                            Amp
+
+
+
+                NR/SS                   VREF
+
+
+
+
+                                        GND
+
+
+8.3 Feature Description
+8.3.1 Internal Current Limit
+The fixed internal current limit of the TPS7A49 family helps protect the regulator during fault conditions. The
+maximum amount of current the device can source is the current limit (309 mA, typical), and is largely
+independent of output voltage. For reliable operation, the device does not operate in current limit for extended
+periods of time.
+
+8.3.2 Programmable Soft-Start
+The NR capacitor also functions as a soft-start capacitor to slow down the rise time of the output. The rise time of
+the output when using an NR capacitor is governed by Equation 1. In Equation 1, tSS is the soft-start time in
+milliseconds, and CNR/SS is the capacitance at the NR pin in nanofarads.
+      tSS (ms) = 1.4 ´ CNR/SS (nF)                                                                                                        (1)
+
+8.3.3 Enable Pin Operation
+The TPS7A49 provides an enable feature (EN) that turns on the regulator when VEN > VEN(high) and disables the
+device when VEN < VEN(low).
+
+8.3.4 Thermal Protection
+Thermal protection disables the output when the junction temperature rises to approximately 170°C, allowing the
+device to cool. When the junction temperature cools to approximately 150°C, the output circuitry is enabled.
+Depending on power dissipation, thermal resistance, and ambient temperature, the thermal protection circuit can
+cycle on and off. This cycling limits the dissipation of the regulator, protecting it from damage as a result of
+overheating.
+
+
+
+
+12     Submit Documentation Feedback                                                     Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                      Product Folder Links: TPS7A49
+                                                                                                                               TPS7A49
+www.ti.com                                                                                      SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+Feature Description (continued)
+Any tendency to activate the thermal protection circuit indicates excessive power dissipation or an inadequate
+heatsink. For reliable operation, limit junction temperature to a maximum of 125°C. To estimate the margin of
+safety in a complete design (including heatsink), increase the ambient temperature until the thermal protection is
+triggered; use worst-case loads and signal conditions. For good reliability, trigger thermal protection at least 45°C
+above the maximum expected ambient condition of a particular application. This configuration produces a worst-
+case junction temperature of 125°C at the highest expected ambient temperature and worst-case load.
+The internal protection circuitry of the TPS7A49 is designed to protect against overload conditions. The
+protection circuitry is not intended to replace proper heatsinking. Continuously running the TPS7A49 into thermal
+shutdown degrades device reliability.
+
+8.4 Device Functional Modes
+8.4.1 Normal Operation
+The device regulates to the nominal output voltage under the following conditions:
+• The input voltage is at least as high as VIN(min).
+• The input voltage is greater than the nominal output voltage added to the dropout voltage.
+• The enable voltage has previously exceeded the enable rising threshold voltage and has not decreased
+   below the enable falling threshold.
+• The output current is less than the current limit.
+• The device junction temperature is less than the maximum specified junction temperature.
+
+8.4.2 Dropout Operation
+If the input voltage is lower than the nominal output voltage plus the specified dropout voltage, but all other
+conditions are met for normal operation, the device operates in dropout mode. In this mode of operation, the
+output voltage is the same as the input voltage minus the dropout voltage. The transient performance of the
+device is significantly degraded because the pass device (such as a bipolar junction transistor, or BJT) is in
+saturation and no longer controls the current through the LDO. Line or load transients in dropout can result in
+large output voltage deviations.
+
+8.4.3 Disabled
+The device is disabled under the following conditions:
+• The enable voltage is less than the enable falling threshold voltage or has not yet exceeded the enable rising
+   threshold.
+• The device junction temperature is greater than the thermal shutdown temperature.
+Table 1 lists the conditions that lead to the different modes of operation.
+
+                                            Table 1. Device Functional Mode Comparison
+                                                                                   PARAMETER
+          OPERATING MODE
+                                                              VIN                        VEN                  IOUT              TJ
+                                                   VIN > VOUT(nom) + VDO and
+Normal mode                                                                         VEN > VEN(high)        IOUT < ILIM      T J < 125°C
+                                                          VIN > VIN(min)
+Dropout mode                                    VIN(min) < VIN < VOUT(nom) + VDO    VEN > VEN(high)            —            TJ < 125°C
+Disabled mode
+                                                              —                     VEN < VEN(low)             —            TJ > 170°C
+(any true condition disables the device)
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                                 Submit Documentation Feedback       13
+                                                         Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                            www.ti.com
+
+
+9 Application and Implementation
+
+                                                        NOTE
+            Information in the following applications sections is not part of the TI component
+            specification, and TI does not warrant its accuracy or completeness. TI’s customers are
+            responsible for determining suitability of components for their purposes. Customers should
+            validate and test their design implementation to confirm system functionality.
+
+
+9.1 Application Information
+The TPS7A49 devices belongs to a family of linear regulators that use an innovative bipolar process to achieve
+ultralow-noise and very high PSRR levels at a wide input voltage range. These features, combined with a high
+thermal-performance HVSSOP-8 with a PowerPAD package make this device ideal for high-performance analog
+applications.
+
+9.1.1 Adjustable Operation
+The TPS7A4901 device has an output voltage range of VFB(nom) to 33 V. The nominal output voltage of the
+device is set by two external resistors; see Figure 29.
+R1 and R2 can be calculated for any output voltage range using the formula shown in Equation 2. To ensure
+stability under no-load conditions, this resistive network must provide a current greater than or equal to 5 μA.
+                 VOUT                 V
+      R1 = R2           - 1 , where FB(nom) > 5 mA
+               VFB(nom)                  R2                                                                      (2)
+If greater voltage accuracy is required, take into account the output voltage offset contributions resulting from the
+feedback pin current and use 0.1% tolerance resistors.
+
+9.1.2 Capacitor Recommendations
+Use low-equivalent series resistance (ESR) capacitors for the input, output, noise reduction, and bypass
+capacitors. Ceramic capacitors with X7R and X5R dielectrics are preferred. These dielectrics offer more stable
+characteristics. Ceramic X7R capacitors offer improved overtemperature performance, whereas ceramic X5R
+capacitors are more cost-effective and are available in higher values.
+High ESR capacitors can degrade PSRR. To ensure stability, maximum ESR must be less than 200 mΩ.
+
+9.1.3 Input and Output Capacitor Requirements
+The TPS7A49 family of positive, high-voltage linear regulators achieve stability with a minimum input and output
+capacitance of 2.2 μF; however, TI highly recommends using a 10-μF capacitor to maximize ac performance.
+Place the input and output capacitors as close to the pin as possible, on the same side as the device; do not use
+vias between the capacitor and the pin.
+
+9.1.4 Noise-Reduction and Feed-Forward Capacitor Requirements
+Although noise-reduction and feed-forward capacitors (CNR/SS and CFF, respectively) are not needed to achieve
+stability, TI highly recommends using 10-nF capacitors to minimize noise and maximize ac performance. CNR/SS
+is a noise-reduction capacitor because it filters out noise from the band gap. For more information on CFF, refer
+to application report, Pros and Cons of Using a Feedforward Capacitor with a Low-Dropout Regulator
+(SBVA042). This application report explains the advantages of using CFF (also known as CBYP), and the
+problems that can occur when using this capacitor.
+
+9.1.5 Maximum AC Performance
+To maximize noise and PSRR performance, TI recommends including 10 μF or higher input and output
+capacitors, and 10-nF noise-reduction and bypass capacitors; see Figure 29. The solution illustrated in Figure 29
+delivers minimum noise levels of 15.4 μVRMS and power-supply rejection levels above 52 dB from 10 Hz to
+400 kHz; see Figure 18 and Figure 25.
+
+
+
+14     Submit Documentation Feedback                                         Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                             Product Folder Links: TPS7A49
+                                                                                                                      TPS7A49
+www.ti.com                                                                               SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+Application Information (continued)
+9.1.6 Output Noise
+The TPS7A49 provides low output noise when a noise reduction capacitor (CNR/SS) is used.
+The noise-reduction capacitor serves as a filter for the internal reference. By using a 10-nF noise reduction
+capacitor, the output noise is reduced by approximately 75% (from 69 μVRMS to 17 μVRMS); see Figure 26.
+The low output voltage noise of the TPS7A49 makes the device an ideal solution for powering noise-sensitive
+circuitry.
+
+9.1.7 Post DC-DC Converter Filtering
+Most of the time, the voltage rails available in a system do not match the voltage requirements for the system.
+These rails must be stepped up or down, depending on specific voltage requirements.
+DC-DC converters are the preferred solution to step up or down a voltage rail when current consumption is not
+negligible. These converters offer high efficiency with minimum heat generation, but have one primary
+disadvantage: these converters introduce a high-frequency component (and the associated harmonics) in
+addition to the dc output signal.
+If not filtered properly, this high-frequency component degrades analog circuitry performance, reducing overall
+system accuracy and precision.
+The TPS7A49 offers a wide-bandwidth, very-high power-supply rejection ratio. This specification makes the
+device ideal for post dc-dc converter filtering, as shown in Figure 28. TI highly recommends using the maximum
+performance schematic illustrated in Figure 29. Also, verify that the fundamental frequency (and its first
+harmonic, if possible) is within the bandwidth of the regulator PSRR; see Figure 18.
+
+
+
+
+                                       +18V             IN   OUT
+                                                                   +15V
+                                                         TPS7A49
+
+                                                        EN   GND
+
+
+
+
+                                       -18V             IN   OUT
+                                                                   -15V
+                                                         TPS7A30
+
+                                                        EN   GND
+
+                                                                                   EVM
+
+
+               Figure 28. Post DC-DC Converter Regulation to High-Performance Analog Circuitry
+
+9.1.8 Power-Supply Rejection
+The 10-nF noise-reduction capacitor greatly improves the TPS7A49 power-supply rejection, achieving up to
+15 dB of additional power-supply rejection for frequencies between 110 Hz and 200 kHz.
+Additionally, ac performance can be maximized by adding a 10-nF bypass capacitor (CFF) from the FB pin to the
+OUT pin. This capacitor greatly improves power-supply rejection at lower frequencies for the band from 10 Hz to
+200 kHz; see Figure 18.
+The very high power-supply rejection of the TPS7A49 makes the device a good choice for powering high-
+performance analog circuitry, such as operational amplifiers, ADCs, DACS, and audio amplifiers.
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                      Submit Documentation Feedback       15
+                                                        Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                 www.ti.com
+
+
+Application Information (continued)
+9.1.9 Transient Response
+As with any regulator, increasing the size of the output capacitor reduces over- and undershoot magnitude, but
+increases the duration of the transient response.
+
+9.1.10 Audio Applications
+Audio applications are extremely sensitive to any distortion and noise in the audio band from 20 Hz to 20 kHz.
+This stringent requirement demands clean voltage rails to power critical high-performance audio systems.
+The very high power-supply rejection ratio (> 55 dB) and low noise at the audio band of the TPS7A49 maximize
+device performance for audio applications; see Figure 18.
+
+9.1.11 Power for Precision Analog
+One of the primary TPS7A49 applications is to provide ultralow-noise voltage rails to high-performance analog
+circuitry to maximize system accuracy and precision.
+The TPS7A49 family of positive high-voltage linear regulators, in conjunction with its negative counterpart (the
+TPS7A30xx family of negative high-voltage linear regulators), provides ultralow noise, and positive and negative
+voltage rails for high-performance analog circuitry (such as operational amplifiers, ADCs, DACs, and audio
+amplifiers).
+Because of the ultralow noise levels at high voltages, analog circuitry with high-voltage input supplies can be
+used. This characteristic allows for high-performance analog solutions to optimize the voltage range and
+maximize system accuracy.
+
+9.2 Typical Application
+
+                                  VIN                                                     VOUT
+                                                 IN               OUT
+                                     CIN                                  CFF     R1
+                                   10mF                                   10nF
+                                                 EN   TPS7A4901    FB                    COUT
+                                                                                  R2     10mF
+                                        CNR/SS   NR/SS            GND
+                                         10nF
+
+
+                          Figure 29. Adjustable Operation for Maximum AC Performance
+
+9.2.1 Design Requirements
+The maximum design goals are as follows:
+• VIN = 3 V
+• VOUT = 1.2 V
+• IOUT = 150 mA
+The design optimizes transient response and meets a start-up time of 14 ms with a start-up dominated by the
+soft-start feature. The input supply comes from a supply on the same printed circuit board (PCB). The design
+circuit is shown in Figure 29.
+The design space consists of CIN, COUT, CNR/SS, R1, and R2, at TA(max) = 75°C.
+
+9.2.2 Detailed Design Procedure
+The first step when designing with a linear regulator is to examine the maximum load current, along with the
+input and output voltage requirements, to determine if the device thermal and dropout voltage requirements can
+be met. At 150 mA, the input dropout voltage of the TPS7A49 family is a maximum of 600 mV over temperature;
+therefore, the dropout headroom of 1.8 V is sufficient for operation over both input and output voltage accuracy.
+Dropout headroom is calculated as VIN – VOUT – VDO(max), and for optimal performance must be at least 1 V.
+VDO(max) is the maximum dropout allowed, given worst-case load conditions.
+
+
+16     Submit Documentation Feedback                                              Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                  Product Folder Links: TPS7A49
+                                                                                                                     TPS7A49
+www.ti.com                                                                              SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+Typical Application (continued)
+The maximum power dissipated in the linear regulator is the maximum voltage dropped across the pass element
+from the input to the output, multiplied by the maximum load current. In this example, the maximum voltage drop
+across in the pass element is (3 V – 1.2 V), resulting in VIN – VOUT = 1.8 V. The power dissipated in the pass
+element is calculated by taking this voltage drop multiplied by the maximum load current. For this example, the
+maximum power dissipated in the linear regulator is 0.2724 W, and is calculated as Equation 3:
+       PD = (VIN – VOUT) (IMAX) + (VIN) (IQ)                                                                                 (3)
+When the power dissipated in the linear regulator is known, the corresponding junction temperature rise can be
+calculated. To calculate the junction temperature rise above ambient, the power dissipated must be multiplied by
+the junction-to-ambient thermal resistance. This calculation gives the worst-case junction temperature; good
+thermal design can significantly reduce this number. For thermal resistance information, refer to the Power
+Dissipation section. For this example, using the DGN package, the maximum junction temperature rise is
+calculated to be 17.3°C. The maximum junction temperature rise is calculated by adding the junction temperature
+rise to the maximum ambient temperature, which is 75°C for this example. For this example, calculate the
+maximum junction temperature to be 103.8°C. Keep in mind that the maximum junction temperate must be below
+92.3°C for reliable device operation. Additional ground planes, added thermal vias, and air flow all help to lower
+the maximum junction temperature.
+Use the following guidelines to select the values for the remaining components:
+To ensure stability under no-load conditions, the current through the resistor network must be greater than 5 µA,
+as shown in Equation 4:
+     VREF(max)
+               > 5mA ® R2 < 242.4 kW
+       R2                                                                                                      (4)
+Next, set the value of R2 to 100 kΩ for a standard 1% value resistor and use Equation 5 to calculate the value of
+R1.
+              æ V        ö        æ 1.2 V      ö
+      R1 = R2 ç OUT - 1÷ = 100 kW ç         - 1÷ = 1.265 kW
+              ç VFB(nom) ÷        è 1.185 V    ø
+              è          ø                                                                                                    (5)
+For R1, select a standard, 1%, 68.1-kΩ resistor.
+Use Equation 6 to calculate the start-up time, tSS.
+    tSS (ms) = 1.4 ´ CNR/SS = 14 ms
+
+       CSS = 10 nF                                                                                                            (6)
+For the soft-start to dominate the start-up conditions, place the start-up time as a result of the current limit at two
+decades below the soft-start time (at 140 µs). COUT must be at least 2.2 µF for stability, as shown in Equation 7
+and Equation 8:
+                        COUT
+      tSS(CL) = VOUT
+                       ICL(max)                                                                                      (7)
+
+                                ICL(max)            500 mA
+       COUT(max) = tSS(CL)               = 140 ms ´        = 35 mF
+                                 VOUT                 2V                                                                      (8)
+For CIN, assume that the 3-V supply has some inductance, and is placed several inches away from the PCB. For
+this case, select a 2.2-µF ceramic input capacitor to ensure that the input impedance is negligible to the LDO
+control loop and to keep the physical size and cost of the capacitor low; this component is a common-value
+capacitor.
+For better PSRR for this design, use a 10-µF input and output capacitor. To reduce the peaks from transients but
+slow down the recovery time, increase the output capacitor size or add additional output capacitors.
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                     Submit Documentation Feedback       17
+                                                        Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                                             www.ti.com
+
+
+Typical Application (continued)
+9.2.3 Application Curves
+
+
+                                      VEN                                                                                    VEN
+
+
+
+
+                                                                                              5V/div
+       5V/div
+       1V/div
+
+
+
+
+                                                                                              1V/div
+                                                                     VOUT = 1.2V                                                                             VOUT = 1.2V
+                                      VOUT                              VIN = 3V                                                    VOUT                        VIN = 3V
+                                                                   IOUT = 100mA                                                                            IOUT = 100mA
+                                                                    COUT = 10mF                                                                             COUT = 10mF
+                                                                    CNR/SS = 0nF                                                                           CNR/SS = 10nF
+
+
+                                             Time (50ms/div)                                                                           Time (5ms/div)
+                            Figure 30. Capacitor-Programmable Soft-Start                                           Figure 31. Capacitor-Programmable Soft-Start
+
+                                                                                                                                                              VOUT = 15V
+                                                                                                                                                         VIN = 33V to 18V
+                                                                                                                                                            IOUT = 100mA
+
+
+                                                                                              20mV/div 5V/div
+                                                                                                                             VIN                             COUT = 10mF
+                                                                                                                                                            CNR/SS = 10nF
+       20mV/div
+
+
+
+
+                                      VOUT
+
+                                                                                                                             VOUT
+                                                                     VOUT = 15V
+                                      VIN                       VIN = 18V to 33V
+       5V/div
+
+
+
+
+                                                                   IOUT = 100mA
+                                                                    COUT = 10mF
+                                                                   CNR/SS = 10nF
+
+                                             Time (10ms/div)                                                                           Time (10ms/div)
+                                Figure 32. Line Transient Response                                                     Figure 33. Line Transient Response
+
+                                                                    VOUT = 15V                                                                                VOUT = 15V
+                                                                      VIN = 18V                                                                                VIN = 18V
+                                                           IOUT = 1mA to 120mA                                                                      IOUT = 120mA to 1mA
+                                                                   COUT = 10mF                                                                               COUT = 10mF
+       100mA/div 50mV/div
+
+
+
+
+                                                                                              100mA/div 50mV/div
+
+
+
+
+                                                                  CNR/SS = 10nF                                                                            CNR/SS = 10nF
+                               VOUT                                                                                   VOUT
+
+
+
+                               IOUT                                                                                   IOUT
+
+
+
+
+                                             Time (100ms/div)                                                                         Time (100ms/div)
+                                Figure 34. Load Transient Response                                                     Figure 35. Load Transient Response
+
+
+
+
+18          Submit Documentation Feedback                                                                                Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                                         Product Folder Links: TPS7A49
+                                                                                                                     TPS7A49
+www.ti.com                                                                              SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+9.3 Do's and Don’ts
+Place at least one low-ESR, 2.2-µF capacitor as close as possible to both the IN and OUT pins of the regulator
+to the GND pin.
+Provide adequate thermal paths away from the device.
+Do not place the input or output capacitor more than 10 mm away from the regulator.
+Do not exceed the absolute maximum ratings.
+Do not float the enable (EN) pin.
+Do not resistively or inductively load the NR/SS pin.
+
+10 Power Supply Recommendations
+The input supply for the LDO must be within its recommended operating conditions (that is, between 3 V to 35
+V). The input voltage must provide adequate headroom in order for the device to have a regulated output. If the
+input supply is noisy, additional input capacitors with low ESR can help improve the output noise performance.
+The input and output supplies must also be bypassed with at least a 2.2-µF capacitor located near the input and
+output pins. No other components must be located between these capacitors and the pins.
+
+11 Layout
+
+11.1 Layout Guidelines
+Layout is a critical part of good power-supply design. There are several signal paths that conduct fast-changing
+currents or voltages that can interact with stray inductance or parasitic capacitance to generate noise or degrade
+the power-supply performance. To help eliminate these problems, bypass the IN pin to ground with a low-ESR
+ceramic bypass capacitor with an X5R or X7R dielectric.
+The GND pin must be tied directly to the PowerPAD under the device. Connect the PowerPAD to any internal
+PCB ground planes using multiple vias directly under the device.
+Equivalent series inductance (ESL) and equivalent series resistance (ESR) must be minimized to maximize
+performance and ensure stability. Every capacitor (CIN, COUT, CNR/SS, and CFF) must be placed as close as
+possible to the device and on the same side of the PCB as the regulator itself.
+Do not place any of the capacitors on the opposite side of the PCB from where the regulator is installed. The use
+of vias and long traces is strongly discouraged because these circuits can negatively affect system performance,
+and can even cause instability.
+
+11.1.1 Board Layout Recommendations to Improve PSRR and Noise Performance
+To improve ac performance (such as PSRR, output noise, and transient response), TI recommends that the
+board be designed with separate ground planes for VIN and VOUT, with each ground plane star-connected only at
+the GND pin of the device. In addition, the ground connection for the bypass capacitor must connect directly to
+the GND pin of the device.
+
+11.1.2 Power Dissipation
+The ability to remove heat from the die is different for each package type, presenting different considerations in
+the PCB layout. The PCB area around the device that is free of other components moves the heat from the
+device to the ambient air. Performance data for JEDEC low- and high-K boards are given in Thermal Information.
+Using heavier copper increases the effectiveness in removing heat from the device. The addition of plated
+through-holes to heat-dissipating layers also improves the heatsink effectiveness.
+Power dissipation depends on input voltage and load conditions. Power dissipation (PD) can be approximated by
+the product of the output current times the voltage drop across the output pass element (VIN to VOUT), as shown
+in Equation 9:
+     PD    VIN  VOUT u IOUT                                                                                 (9)
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                     Submit Documentation Feedback       19
+                                                        Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                                                          www.ti.com
+
+
+Layout Guidelines (continued)
+Figure 36 shows the maximum ambient temperature versus the power dissipation of the TPS7A49. Figure 36
+assumes the device is soldered on a JEDEC standard, high-K layout with no airflow over the board. Actual board
+thermal impedances vary widely. If the application requires high power dissipation, having a thorough
+understanding of the board temperature and thermal impedances is helpful to ensure the TPS7A49 does not
+operate above a junction temperature of 125°C.
+                                                                       130
+                                                                                                      TPS7A49 DGN, High-K Layout
+
+
+
+                                    Maximum Ambient Temperature (°C)
+                                                                       120                            TPS7A49 DRB, High-K Layout
+
+                                                                       110
+
+                                                                       100
+
+                                                                        90
+
+                                                                        80
+
+                                                                        70
+
+                                                                        60
+
+                                                                        50
+                                                                             0   0.2   0.4    0.6    0.8      1      1.2   1.4     1.6
+                                                                                             Power Dissipation (W)
+
+                    Figure 36. Maximum Ambient Temperature vs Device Power Dissipation
+
+Estimating the junction temperature can be done by using the thermal metrics ΨJT and ΨJB; see the Thermal
+Information table. These metrics are a more accurate representation of the heat transfer characteristics of the die
+and the package than RθJA. The junction temperature can be estimated with Equation 10.
+
+
+      YJT: TJ = TT + YJT · PD
+      YJB: TJ = TB + YJB · PD
+
+      where
+           •    PD is the power dissipation given by Equation 9,
+           •    TT is the temperature at the center-top of the device package, and
+           •    TB is the PCB temperature measured 1 mm away from the device package on the PCB surface.                                                                   (10)
+
+                                                   NOTE
+               Both TT and TB can be measured on actual application boards using a thermo-gun (an
+               infrared thermometer).
+
+For more information about measuring TT and TB, see the application note Using New Thermal Metrics
+(SBVA025), available for download at www.ti.com.
+
+
+
+
+20     Submit Documentation Feedback                                                                                       Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                                                   Product Folder Links: TPS7A49
+                                                                                                                               TPS7A49
+www.ti.com                                                                                        SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+11.2 Layout Example
+
+
+                                                                                        Input GND Plane
+                          VOUT
+                                                                                                                CIN
+
+
+
+
+                                                         OUT    1                       8    IN
+                                                 R1
+                                 COUT
+           Sense Line                                     FB    2       Thermal         7   DNC                       VIN
+
+                                                   R2     NC    3         Pad           6   NR/SS
+                                                                                                          CNR
+                                                         GND    4                       5   EN
+
+
+
+
+                                                                    Output GND Plane
+
+
+
+            NOTE: CIN and COUT are size 1206 capacitors and CNR, R1, and R2 are size 0402.
+
+                                                    Figure 37. PCB Layout Example
+
+
+11.3 Package Mounting
+Solder pad footprint recommendations for the TPS7A49 are available at the end of this product data sheet and at
+www.ti.com.
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                               Submit Documentation Feedback       21
+                                                        Product Folder Links: TPS7A49
+TPS7A49
+SBVS121E – AUGUST 2010 – REVISED MAY 2015                                                                                              www.ti.com
+
+
+12 Device and Documentation Support
+
+12.1 Device Support
+
+12.1.1 Development Support
+
+12.1.1.1 Evaluation Modules
+An evaluation module (EVM) is available to assist in the initial circuit performance evaluation using the TPS7A49.
+The TPS7A30-49EVM-567 evaluation module (and related user's guide) can be requested at the Texas
+Instruments website through the product folder or purchased directly from the TI eStore.
+
+12.1.1.2 Spice Models
+Computer simulation of circuit performance using SPICE is often useful when analyzing the performance of
+analog circuits and systems. A SPICE model for the TPS7A49 is available through the product folder under Tools
+& Software.
+
+12.1.2 Device Nomenclature
+
+                                                   Table 2. Device Nomenclature (1)
+            PRODUCT                                                                     VOUT
+                                    xx is the nominal output voltage. An 01 denotes an adjustable voltage version.
+          TPS7A49xxyyyz             yyy is the package designator.
+                                    z is the package quantity. R is for reel (3000 pieces), T is for tape (250 pieces).
+
+(1)   For the most current package and ordering information see the Package Option Addendum at the end of this document, or visit the
+      device product folder on www.ti.com.
+
+12.2 Documentation Support
+12.2.1 Related Documentation
+• Pros and Cons of Using a Feedforward Capacitor with a Low-Dropout Regulator, SBVA042
+• Using New Thermal Metrics, SBVA025
+• TPS7A30-49EVM-567 User's Guide, SLVU405
+
+12.3 Community Resources
+The following links connect to TI community resources. Linked contents are provided "AS IS" by the respective
+contributors. They do not constitute TI specifications and do not necessarily reflect TI's views; see TI's Terms of
+Use.
+TI E2E™ Online Community TI's Engineer-to-Engineer (E2E) Community. Created to foster collaboration
+           among engineers. At e2e.ti.com, you can ask questions, share knowledge, explore ideas and help
+           solve problems with fellow engineers.
+Design Support TI's Design Support Quickly find helpful E2E forums along with design support tools and
+           contact information for technical support.
+
+12.4 Trademarks
+PowerPAD, E2E are trademarks of Texas Instruments.
+All other trademarks are the property of their respective owners.
+12.5 Electrostatic Discharge Caution
+          These devices have limited built-in ESD protection. The leads should be shorted together or the device placed in conductive foam
+          during storage or handling to prevent electrostatic damage to the MOS gates.
+
+
+
+
+22       Submit Documentation Feedback                                                         Copyright © 2010–2015, Texas Instruments Incorporated
+
+                                                       Product Folder Links: TPS7A49
+                                                                                                                     TPS7A49
+www.ti.com                                                                              SBVS121E – AUGUST 2010 – REVISED MAY 2015
+
+
+12.6 Glossary
+SLYZ022 — TI Glossary.
+   This glossary lists and explains terms, acronyms, and definitions.
+
+13 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+Copyright © 2010–2015, Texas Instruments Incorporated                                     Submit Documentation Feedback       23
+                                                        Product Folder Links: TPS7A49
+                                                                                                                                                                     PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                   18-Sep-2026
+
+
+
+
+PACKAGING INFORMATION
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier       RoHS             Lead finish/               MSL rating/          Op temp (°C)               Part marking
+                                        (1)            (2)                                                            (3)            Ball material              Peak reflow                                           (6)
+                                                                                                                                          (4)                       (5)
+
+         TPS7A4901DGNR                Active      Production      HVSSOP (DGN) | 8       2500 | LARGE T&R            Yes          Call TI | Nipdauag    Level-2-260C-1 YEAR            -40 to 125                   PTJQ
+                                                                                                                                       | Nipdau
+        TPS7A4901DGNR.B               Active      Production      HVSSOP (DGN) | 8       2500 | LARGE T&R            Yes                Call TI         Level-2-260C-1 YEAR            -40 to 125                   PTJQ
+        TPS7A4901DGNRG4               Active      Production      HVSSOP (DGN) | 8       2500 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -40 to 125                   PTJQ
+       TPS7A4901DGNRG4.B              Active      Production      HVSSOP (DGN) | 8       2500 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -40 to 125                   PTJQ
+          TPS7A4901DGNT               Active      Production      HVSSOP (DGN) | 8        250 | SMALL T&R            Yes        NIPDAU | NIPDAUAG Level-2-260C-1 YEAR                  -40 to 125                   PTJQ
+         TPS7A4901DGNT.B              Active      Production      HVSSOP (DGN) | 8        250 | SMALL T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -40 to 125                   PTJQ
+          TPS7A4901DRBR               Active      Production        SON (DRB) | 8        3000 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   PTJQ
+         TPS7A4901DRBR.B              Active      Production        SON (DRB) | 8        3000 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   PTJQ
+        TPS7A4901DRBRG4               Active      Production        SON (DRB) | 8        3000 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   PTJQ
+       TPS7A4901DRBRG4.B              Active      Production        SON (DRB) | 8        3000 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   PTJQ
+          TPS7A4901DRBT               Active      Production        SON (DRB) | 8         250 | SMALL T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   PTJQ
+         TPS7A4901DRBT.B              Active      Production        SON (DRB) | 8         250 | SMALL T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   PTJQ
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+
+
+
+                                                                                                          Addendum-Page 1
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+    www.ti.com                                                                                                                                                                                                   18-Sep-2026
+
+
+
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                               PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                       24-Jul-2025
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                      TAPE DIMENSIONS
+                                                                                       K0       P1
+
+
+
+                                                                                                                      B0 W
+                                         Reel
+                                       Diameter
+                                                                                    Cavity           A0
+                                                                A0   Dimension designed to accommodate the component width
+                                                                B0   Dimension designed to accommodate the component length
+                                                                K0   Dimension designed to accommodate the component thickness
+                                                                W    Overall width of the carrier tape
+                                                                P1   Pitch between successive cavity centers
+
+
+                                        Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                     Sprocket Holes
+
+
+                                                  Q1       Q2          Q1    Q2
+
+                                                  Q3       Q4          Q3    Q4                  User Direction of Feed
+
+
+
+                                                            Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins              SPQ        Reel   Reel   A0                 B0         K0     P1     W     Pin1
+                               Type Drawing                              Diameter Width (mm)               (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                           (mm) W1 (mm)
+  TPS7A4901DGNRG4             HVSSOP     DGN           8        2500        330.0        12.4        5.3    3.4       1.4    8.0    12.0    Q1
+    TPS7A4901DRBR              SON       DRB           8        3000        330.0        12.4        3.3    3.3       1.1    8.0    12.0    Q2
+   TPS7A4901DRBRG4             SON       DRB           8        3000        330.0        12.4        3.3    3.3       1.1    8.0    12.0    Q2
+    TPS7A4901DRBT              SON       DRB           8         250        180.0        12.4        3.3    3.3       1.1    8.0    12.0    Q2
+
+
+
+
+                                                                       Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              24-Jul-2025
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+                      W
+
+
+
+
+                                                          L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+   TPS7A4901DGNRG4              HVSSOP            DGN           8           2500      353.0        353.0         32.0
+     TPS7A4901DRBR                SON             DRB           8           3000      335.0        335.0         25.0
+   TPS7A4901DRBRG4                SON             DRB           8           3000      335.0        335.0         25.0
+     TPS7A4901DRBT                SON             DRB           8           250       182.0        182.0         20.0
+
+
+
+
+                                                        Pack Materials-Page 2
+                                                                                                               PACKAGE OUTLINE
+DRB0008A                                                           SCALE 4.000
+                                                                                                           VSON - 1 mm max height
+                                                                                                               PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                      3.1                             B
+                                 A
+                                                      2.9
+
+
+
+
+             PIN 1 INDEX AREA
+                                                                                      3.1
+                                                                                      2.9
+
+
+
+
+                                                                                                  C
+                        1 MAX
+
+                                                                                                       SEATING PLANE
+                          0.05                                                                                                     DIM A
+                          0.00                                                                        0.08 C
+                                                                                                                             OPT 1     OPT 2
+                                                    1.5 0.1                                                                   (0.1)     (0.2)
+
+                                                                    4X (0.23)
+                      EXPOSED                                                                                                 (DIM A) TYP
+                   THERMAL PAD
+
+
+                                     4                                           5
+
+
+
+                           2X
+                          1.95                                                        1.75 0.1
+
+
+
+
+                                                                                 8
+                                     1
+                     6X 0.65
+                                                                                                 0.37
+                                                                                            8X
+                                                                                                 0.25
+                             PIN 1 ID                                                              0.1    C A B
+                          (OPTIONAL)
+                                           (0.65)                                                  0.05    C
+                                                                                          0.5
+                                                                                     8X
+                                                                                          0.3
+                                                                                                                              4218875/A 01/2018
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. The package thermal pad must be soldered to the printed circuit board for thermal and mechanical performance.
+
+
+
+
+                                                                  www.ti.com
+                                                                                       EXAMPLE BOARD LAYOUT
+DRB0008A                                                                                             VSON - 1 mm max height
+                                                                                                         PLASTIC SMALL OUTLINE - NO LEAD
+
+                                                                     (1.5)
+                                                                    (0.65)
+                                                                    SYMM
+
+                               8X (0.6)
+
+                                                                                                         (0.825)
+
+                             8X (0.31) 1                                                             8
+
+
+
+
+                                  SYMM
+                                                                                                                   (1.75)
+
+                                                                                                         (0.625)
+
+                             6X (0.65)
+                                          4
+                                                                                                     5
+
+                        (R0.05) TYP
+
+                              ( 0.2) VIA
+                              TYP                    (0.23)
+
+                                                                         (0.5)
+
+                                                                     (2.8)
+
+
+                                                      LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE:20X
+
+                                              0.07 MAX                                                    0.07 MIN
+                                              ALL AROUND                                                  ALL AROUND
+
+                                                        EXPOSED                                                             EXPOSED
+                                                        METAL                                                               METAL
+
+
+
+                 SOLDER MASK                        METAL                        METAL UNDER                        SOLDER MASK
+                 OPENING                                                         SOLDER MASK                        OPENING
+                                 NON SOLDER MASK
+                                                                                                  SOLDER MASK
+                                     DEFINED
+                                                                                                    DEFINED
+                                   (PREFERRED)
+
+                                                           SOLDER MASK DETAILS
+
+
+
+                                                                                                                               4218875/A 01/2018
+
+NOTES: (continued)
+
+4. This package is designed to be soldered to a thermal pad on the board. For more information, see Texas Instruments literature
+   number SLUA271 (www.ti.com/lit/slua271).
+5. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+   on this view. It is recommended that vias under paste be filled, plugged or tented.
+
+
+
+
+                                                                       www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DRB0008A                                                                                     VSON - 1 mm max height
+                                                                                               PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+                                                                 (0.65)
+
+                                              4X (0.23)
+                                                                 SYMM
+
+                                                                                         METAL
+                        8X (0.6)                                                         TYP
+                                                    4X
+                                                  (0.725)
+
+
+                     8X (0.31)     1                                                                  8
+
+
+
+
+                                                                                                                   (2.674)
+
+                          SYMM
+                                                                                                          (1.55)
+
+
+
+
+                      6X (0.65)
+
+                                   4
+                                                                                                     5
+
+
+                 (R0.05) TYP
+
+
+
+
+                                                                 (1.34)
+
+                                                                  (2.8)
+
+
+                                                    SOLDER PASTE EXAMPLE
+                                                  BASED ON 0.125 mm THICK STENCIL
+
+                                                           EXPOSED PAD
+                                               84% PRINTED SOLDER COVERAGE BY AREA
+                                                             SCALE:25X
+
+
+
+
+                                                                                                                      4218875/A 01/2018
+
+NOTES: (continued)
+
+6. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+
+
+
+
+                                                                 www.ti.com
+                                                                  GENERIC PACKAGE VIEW
+                                                                  TM
+DGN 8                                              PowerPAD            HVSSOP - 1.1 mm max height
+3 x 3, 0.65 mm pitch                                                                 SMALL OUTLINE PACKAGE
+
+
+
+
+               This image is a representation of the package family, actual package may vary.
+                             Refer to the product data sheet for package details.
+
+
+
+
+                                                                                                   4225482/B
+
+
+
+
+                                                    www.ti.com
+                                                                                                         PACKAGE OUTLINE
+                                                                                             TM
+DGN0008D                                                  SCALE 4.000
+                                                                          PowerPAD VSSOP - 1.1 mm max height
+                                                                                                                  SMALL OUTLINE PACKAGE
+
+
+
+                                                                                                                     C
+                                          5.05
+          A                                    TYP
+                                          4.75                                                                  0.1 C
+                                             PIN 1 INDEX AREA                                                                          SEATING
+                                                                                                                                       PLANE
+                                                                                          6X 0.65
+                                                                               8
+                1
+
+
+                                                                                             2X
+       3.1
+                                                                                            1.95
+       2.9
+      NOTE 3
+
+
+                4
+                                                                              5                  0.38
+                                                                                            8X
+                                                                                                 0.25
+                                           3.1                                                    0.13   C A B
+                     B
+                                           2.9
+                                          NOTE 4
+
+
+
+
+                                                                                          0.23
+                                                                                          0.13
+
+
+
+                                       SEE DETAIL A
+
+                                                                        EXPOSED THERMAL PAD
+
+
+                4
+                                                                               5
+
+                                                                                                     0.25
+                                                                                                     GAGE PLANE
+         1.89
+         1.63                                9                                                                                           1.1 MAX
+
+
+
+                                                                               8
+                1                                                                                         0.7                              0.15
+                                                                                   0 -8                   0.4                              0.05
+                                                                                                                     DETAIL A
+                                                                                                                          A 20
+
+
+
+
+                                            1.57
+                                                                                                                        TYPICAL
+                                            1.28
+
+                                                                                                                                 4225481/A 11/2019
+                                                                                                  PowerPAD is a trademark of Texas Instruments.
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+5. Reference JEDEC registration MO-187.
+
+
+
+
+                                                                        www.ti.com
+                                                                                            EXAMPLE BOARD LAYOUT
+                                                                                                 TM
+DGN0008D                                                                             PowerPAD VSSOP - 1.1 mm max height
+                                                                                                                      SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                     (2)
+                                                                   NOTE 9
+                             METAL COVERED
+                             BY SOLDER MASK                                  (1.57)
+                                                                             SYMM                SOLDER MASK
+                                                                                                 DEFINED PAD
+                                        8X (1.4)                                                                        (R0.05) TYP
+
+
+                                                                                                               8
+                 8X (0.45)       1
+
+                                                                                                                                   (3)
+                                                                                9                                     SYMM       NOTE 9
+
+                                                                                                                            (1.89)
+
+                        6X (0.65)                                                                                  (1.22)
+                                                                                                               5
+                                    4
+
+                         ( 0.2) TYP
+                                 VIA                                                    (0.55)                     SEE DETAILS
+
+                                                                             (4.4)
+
+                                                       LAND PATTERN EXAMPLE
+                                                           EXPOSED METAL SHOWN
+                                                                SCALE: 15X
+
+
+
+
+                   SOLDER MASK                                                          METAL UNDER                   SOLDER MASK
+                                                      METAL
+                       OPENING                                                          SOLDER MASK                   OPENING
+
+
+          EXPOSED METAL                                                                                                      EXPOSED METAL
+
+                                        0.05 MAX                                                         0.05 MIN
+                                        ALL AROUND                                                       ALL AROUND
+
+                                NON-SOLDER MASK                                                       SOLDER MASK
+                                    DEFINED                                                             DEFINED
+                                  (PREFERRED)
+                                                           SOLDER MASK DETAILS
+                                                                    15.000
+
+
+
+
+                                                                                                                               4225481/A 11/2019
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+8. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+   on this view. It is recommended that vias under paste be filled, plugged or tented.
+9. Size of metal pad may vary due to creepage requirement.
+
+
+
+
+                                                                               www.ti.com
+                                                                              EXAMPLE STENCIL DESIGN
+                                                                                     TM
+DGN0008D                                                            PowerPAD VSSOP - 1.1 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                 (1.57)
+                                                               BASED ON
+                                                              0.125 THICK
+                                                                STENCIL
+                                                                SYMM
+
+                                       8X (1.4)                                                             (R0.05) TYP
+
+                                                                                                     8
+                   8X (0.45)       1
+
+
+                                                                                                                    (1.89)
+                                                                                                         SYMM     BASED ON
+                                                                                                                 0.125 THICK
+                                                                                                                   STENCIL
+                       6X (0.65)
+
+                                   4                                                                 5
+
+
+                 METAL COVERED                                                                      SEE TABLE FOR
+                 BY SOLDER MASK                                                                     DIFFERENT OPENINGS
+                                                                 (4.4)                              FOR OTHER STENCIL
+                                                                                                    THICKNESSES
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                        EXPOSED PAD 9:
+                                            100% PRINTED SOLDER COVERAGE BY AREA
+                                                          SCALE: 15X
+
+
+
+
+                                                   STENCIL         SOLDER STENCIL
+                                                  THICKNESS           OPENING
+                                                      0.1              1.76 X 2.11
+                                                    0.125         1.57 X 1.89 (SHOWN)
+                                                     0.15              1.43 X 1.73
+                                                    0.175              1.33 X 1.60
+
+
+
+
+                                                                                                                  4225481/A 11/2019
+NOTES: (continued)
+
+10. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+11. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                                                                                         PACKAGE OUTLINE
+                                                                                         TM
+DGN0008G                                                 SCALE 4.000
+                                                                       PowerPAD                 HVSSOP - 1.1 mm max height
+                                                                                                                   SMALL OUTLINE PACKAGE
+
+
+
+                                                                                                                      C
+                                          5.05
+          A                                    TYP
+                                          4.75                                                                   0.1 C
+                                             PIN 1 INDEX AREA                                                                            SEATING
+                                                                                                                                         PLANE
+                                                                                         6X 0.65
+                                                                              8
+                1
+
+
+                                                                                              2X
+       3.1
+                                                                                              1.95
+       2.9
+      NOTE 3
+
+
+                4
+                                                                             5                  0.38
+                                                                                           8X
+                                                                                                0.25
+                                           3.1                                                   0.13     C A B
+                     B
+                                           2.9
+                                          NOTE 4
+
+
+
+
+                                                                                         0.23
+                                                                                         0.13
+
+
+
+                                       SEE DETAIL A
+
+                                                                       EXPOSED THERMAL PAD
+
+
+                4
+                                                                              5
+
+                                                                                                      0.25
+                                                                                                      GAGE PLANE
+         2.15
+         1.95                                9                                                                                             1.1 MAX
+
+
+
+                                                                              8
+                1                                                                                          0.7                               0.15
+                                                                                  0 -8                     0.4                               0.05
+                                                                                                                      DETAIL A
+                                                                                                                            A 20
+
+
+
+
+                                           1.846
+                                                                                                                          TYPICAL
+                                           1.646
+
+                                                                                                                                   4225480/C 11/2024
+                                                                                                   PowerPAD is a trademark of Texas Instruments.
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+5. Reference JEDEC registration MO-187.
+
+
+
+
+                                                                       www.ti.com
+                                                                                            EXAMPLE BOARD LAYOUT
+                                                                                                TM
+DGN0008G                                                                      PowerPAD                HVSSOP - 1.1 mm max height
+                                                                                                                          SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                     (2)
+                                                                   NOTE 9
+                             METAL COVERED
+                             BY SOLDER MASK                                  (1.57)
+                                                                             SYMM                    SOLDER MASK
+                                                                                                     DEFINED PAD
+                                        8X (1.4)                                                                            (R0.05) TYP
+
+
+                                                                                                                   8
+                 8X (0.45)       1
+
+                                                                                                                                       (3)
+                                                                                9                                         SYMM       NOTE 9
+
+                                                                                                                                (1.89)
+
+                        6X (0.65)                                                                                      (1.22)
+                                                                                                                   5
+                                    4
+
+                         ( 0.2) TYP
+                                 VIA                                                   (0.55)                          SEE DETAILS
+
+                                                                             (4.4)
+
+                                                       LAND PATTERN EXAMPLE
+                                                           EXPOSED METAL SHOWN
+                                                                SCALE: 15X
+
+
+
+
+                   SOLDER MASK                                                        METAL UNDER                         SOLDER MASK
+                                                      METAL
+                       OPENING                                                        SOLDER MASK                         OPENING
+
+
+          EXPOSED METAL                                                                                                          EXPOSED METAL
+
+                                        0.05 MAX                                                             0.05 MIN
+                                        ALL AROUND                                                           ALL AROUND
+
+                                NON-SOLDER MASK                                                          SOLDER MASK
+                                    DEFINED                                                                DEFINED
+                                  (PREFERRED)
+                                                           SOLDER MASK DETAILS
+                                                                    15.000
+
+
+
+
+                                                                                                                                   4225480/C 11/2024
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+8. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+   on this view. It is recommended that vias under paste be filled, plugged or tented.
+9. Size of metal pad may vary due to creepage requirement.
+
+
+
+
+                                                                               www.ti.com
+                                                                              EXAMPLE STENCIL DESIGN
+                                                                                  TM
+DGN0008G                                                         PowerPAD              HVSSOP - 1.1 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                 (1.57)
+                                                               BASED ON
+                                                              0.125 THICK
+                                                                STENCIL
+                                                                SYMM
+
+                                       8X (1.4)                                                             (R0.05) TYP
+
+                                                                                                     8
+                   8X (0.45)       1
+
+
+                                                                                                                    (1.89)
+                                                                                                         SYMM     BASED ON
+                                                                                                                 0.125 THICK
+                                                                                                                   STENCIL
+                       6X (0.65)
+
+                                   4                                                                 5
+
+
+                 METAL COVERED                                                                      SEE TABLE FOR
+                 BY SOLDER MASK                                                                     DIFFERENT OPENINGS
+                                                                 (4.4)                              FOR OTHER STENCIL
+                                                                                                    THICKNESSES
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                        EXPOSED PAD 9:
+                                            100% PRINTED SOLDER COVERAGE BY AREA
+                                                          SCALE: 15X
+
+
+
+
+                                                   STENCIL         SOLDER STENCIL
+                                                  THICKNESS           OPENING
+                                                      0.1              1.76 X 2.11
+                                                    0.125         1.57 X 1.89 (SHOWN)
+                                                     0.15              1.43 X 1.73
+                                                    0.175              1.33 X 1.60
+
+
+
+
+                                                                                                                  4225480/C 11/2024
+NOTES: (continued)
+
+10. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+11. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

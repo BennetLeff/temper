@@ -1,0 +1,18 @@
+[package]
+name = "temper-lcr"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "USB capture and fixture calibration for the Temper bench impedance meter"
+
+[workspace]
+
+[features]
+default = ["usb"]
+usb = ["dep:hidapi"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hidapi = { version = "2.6", optional = true }

@@ -1,0 +1,5377 @@
+{
+  "revision": "C",
+  "title": "Temper TIDA-060029 LCR bench instrument",
+  "date": "2026-10-20",
+  "board": {
+    "origin": [
+      50,
+      50
+    ],
+    "size": [
+      140,
+      100
+    ]
+  },
+  "pinouts": {
+    "RP2040": {
+      "1": [
+        "IOVDD",
+        "power_in"
+      ],
+      "2": [
+        "GPIO0",
+        "bidirectional"
+      ],
+      "3": [
+        "GPIO1",
+        "bidirectional"
+      ],
+      "4": [
+        "GPIO2",
+        "bidirectional"
+      ],
+      "5": [
+        "GPIO3",
+        "bidirectional"
+      ],
+      "6": [
+        "GPIO4",
+        "bidirectional"
+      ],
+      "7": [
+        "GPIO5",
+        "bidirectional"
+      ],
+      "8": [
+        "GPIO6",
+        "bidirectional"
+      ],
+      "9": [
+        "GPIO7",
+        "bidirectional"
+      ],
+      "10": [
+        "IOVDD",
+        "power_in"
+      ],
+      "11": [
+        "GPIO8",
+        "bidirectional"
+      ],
+      "12": [
+        "GPIO9",
+        "bidirectional"
+      ],
+      "13": [
+        "GPIO10",
+        "bidirectional"
+      ],
+      "14": [
+        "GPIO11",
+        "bidirectional"
+      ],
+      "15": [
+        "GPIO12",
+        "bidirectional"
+      ],
+      "16": [
+        "GPIO13",
+        "bidirectional"
+      ],
+      "17": [
+        "GPIO14",
+        "bidirectional"
+      ],
+      "18": [
+        "GPIO15",
+        "bidirectional"
+      ],
+      "19": [
+        "TESTEN",
+        "input"
+      ],
+      "20": [
+        "XIN",
+        "input"
+      ],
+      "21": [
+        "XOUT",
+        "output"
+      ],
+      "22": [
+        "IOVDD",
+        "power_in"
+      ],
+      "23": [
+        "DVDD",
+        "power_in"
+      ],
+      "24": [
+        "SWCLK",
+        "input"
+      ],
+      "25": [
+        "SWDIO",
+        "bidirectional"
+      ],
+      "26": [
+        "RUN",
+        "input"
+      ],
+      "27": [
+        "GPIO16",
+        "bidirectional"
+      ],
+      "28": [
+        "GPIO17",
+        "bidirectional"
+      ],
+      "29": [
+        "GPIO18",
+        "bidirectional"
+      ],
+      "30": [
+        "GPIO19",
+        "bidirectional"
+      ],
+      "31": [
+        "GPIO20",
+        "bidirectional"
+      ],
+      "32": [
+        "GPIO21",
+        "bidirectional"
+      ],
+      "33": [
+        "IOVDD",
+        "power_in"
+      ],
+      "34": [
+        "GPIO22",
+        "bidirectional"
+      ],
+      "35": [
+        "GPIO23",
+        "bidirectional"
+      ],
+      "36": [
+        "GPIO24",
+        "bidirectional"
+      ],
+      "37": [
+        "GPIO25",
+        "bidirectional"
+      ],
+      "38": [
+        "GPIO26",
+        "bidirectional"
+      ],
+      "39": [
+        "GPIO27",
+        "bidirectional"
+      ],
+      "40": [
+        "GPIO28",
+        "bidirectional"
+      ],
+      "41": [
+        "GPIO29",
+        "bidirectional"
+      ],
+      "42": [
+        "IOVDD",
+        "power_in"
+      ],
+      "43": [
+        "ADC_AVDD",
+        "power_in"
+      ],
+      "44": [
+        "VREG_VIN",
+        "power_in"
+      ],
+      "45": [
+        "VREG_VOUT",
+        "power_out"
+      ],
+      "46": [
+        "USB_DM",
+        "bidirectional"
+      ],
+      "47": [
+        "USB_DP",
+        "bidirectional"
+      ],
+      "48": [
+        "USB_VDD",
+        "power_in"
+      ],
+      "49": [
+        "IOVDD",
+        "power_in"
+      ],
+      "50": [
+        "DVDD",
+        "power_in"
+      ],
+      "51": [
+        "QSPI_SD3",
+        "bidirectional"
+      ],
+      "52": [
+        "QSPI_SCLK",
+        "output"
+      ],
+      "53": [
+        "QSPI_SD0",
+        "bidirectional"
+      ],
+      "54": [
+        "QSPI_SD2",
+        "bidirectional"
+      ],
+      "55": [
+        "QSPI_SD1",
+        "bidirectional"
+      ],
+      "56": [
+        "QSPI_SS",
+        "output"
+      ],
+      "57": [
+        "GND",
+        "power_in"
+      ]
+    },
+    "FLASH": {
+      "1": [
+        "CS",
+        "input"
+      ],
+      "2": [
+        "DO",
+        "bidirectional"
+      ],
+      "3": [
+        "WP",
+        "bidirectional"
+      ],
+      "4": [
+        "GND",
+        "power_in"
+      ],
+      "5": [
+        "DI",
+        "bidirectional"
+      ],
+      "6": [
+        "CLK",
+        "input"
+      ],
+      "7": [
+        "HOLD",
+        "bidirectional"
+      ],
+      "8": [
+        "VCC",
+        "power_in"
+      ]
+    },
+    "LDO": {
+      "1": [
+        "VIN",
+        "power_in"
+      ],
+      "2": [
+        "GND",
+        "power_in"
+      ],
+      "3": [
+        "EN",
+        "input"
+      ],
+      "4": [
+        "NC",
+        "no_connect"
+      ],
+      "5": [
+        "VOUT",
+        "power_out"
+      ]
+    },
+    "AD9833": {
+      "1": [
+        "COMP",
+        "passive"
+      ],
+      "2": [
+        "VDD",
+        "power_in"
+      ],
+      "3": [
+        "CAP/2.5V",
+        "passive"
+      ],
+      "4": [
+        "DGND",
+        "power_in"
+      ],
+      "5": [
+        "MCLK",
+        "input"
+      ],
+      "6": [
+        "SDATA",
+        "input"
+      ],
+      "7": [
+        "SCLK",
+        "input"
+      ],
+      "8": [
+        "FSYNC",
+        "input"
+      ],
+      "9": [
+        "AGND",
+        "power_in"
+      ],
+      "10": [
+        "VOUT",
+        "output"
+      ]
+    },
+    "OPA810": {
+      "1": [
+        "OUT",
+        "output"
+      ],
+      "2": [
+        "VS-",
+        "power_in"
+      ],
+      "3": [
+        "IN+",
+        "input"
+      ],
+      "4": [
+        "IN-",
+        "input"
+      ],
+      "5": [
+        "VS+",
+        "power_in"
+      ]
+    },
+    "OPA2810": {
+      "1": [
+        "OUT_A",
+        "output"
+      ],
+      "2": [
+        "IN-_A",
+        "input"
+      ],
+      "3": [
+        "IN+_A",
+        "input"
+      ],
+      "4": [
+        "VS-",
+        "power_in"
+      ],
+      "5": [
+        "IN+_B",
+        "input"
+      ],
+      "6": [
+        "IN-_B",
+        "input"
+      ],
+      "7": [
+        "OUT_B",
+        "output"
+      ],
+      "8": [
+        "VS+",
+        "power_in"
+      ]
+    },
+    "THS4551": {
+      "1": [
+        "FB-",
+        "output"
+      ],
+      "2": [
+        "IN+",
+        "input"
+      ],
+      "3": [
+        "IN-",
+        "input"
+      ],
+      "4": [
+        "FB+",
+        "output"
+      ],
+      "5": [
+        "VS+",
+        "power_in"
+      ],
+      "6": [
+        "VS+",
+        "power_in"
+      ],
+      "7": [
+        "VS+",
+        "power_in"
+      ],
+      "8": [
+        "VS+",
+        "power_in"
+      ],
+      "9": [
+        "VOCM",
+        "input"
+      ],
+      "10": [
+        "OUT+",
+        "output"
+      ],
+      "11": [
+        "OUT-",
+        "output"
+      ],
+      "12": [
+        "PD",
+        "input"
+      ],
+      "13": [
+        "VS-",
+        "power_in"
+      ],
+      "14": [
+        "VS-",
+        "power_in"
+      ],
+      "15": [
+        "VS-",
+        "power_in"
+      ],
+      "16": [
+        "VS-",
+        "power_in"
+      ],
+      "17": [
+        "EP",
+        "power_in"
+      ]
+    },
+    "ADS9224R": {
+      "1": [
+        "AINP_A",
+        "input"
+      ],
+      "2": [
+        "AINM_A",
+        "input"
+      ],
+      "3": [
+        "REFby2",
+        "output"
+      ],
+      "4": [
+        "GND",
+        "power_in"
+      ],
+      "5": [
+        "REFOUT",
+        "output"
+      ],
+      "6": [
+        "NC",
+        "no_connect"
+      ],
+      "7": [
+        "AINM_B",
+        "input"
+      ],
+      "8": [
+        "AINP_B",
+        "input"
+      ],
+      "9": [
+        "REFM_B",
+        "power_in"
+      ],
+      "10": [
+        "REFP_B",
+        "output"
+      ],
+      "11": [
+        "GND",
+        "power_in"
+      ],
+      "12": [
+        "AVDD",
+        "power_in"
+      ],
+      "13": [
+        "CONVST",
+        "input"
+      ],
+      "14": [
+        "CS",
+        "input"
+      ],
+      "15": [
+        "SDI",
+        "input"
+      ],
+      "16": [
+        "SCLK",
+        "input"
+      ],
+      "17": [
+        "SDO7",
+        "output"
+      ],
+      "18": [
+        "SDO6",
+        "output"
+      ],
+      "19": [
+        "SDO5",
+        "output"
+      ],
+      "20": [
+        "SDO4",
+        "output"
+      ],
+      "21": [
+        "SDO3",
+        "output"
+      ],
+      "22": [
+        "SDO2",
+        "output"
+      ],
+      "23": [
+        "SDO1",
+        "output"
+      ],
+      "24": [
+        "SDO0",
+        "output"
+      ],
+      "25": [
+        "READY",
+        "output"
+      ],
+      "26": [
+        "PD/RST",
+        "input"
+      ],
+      "27": [
+        "GND",
+        "power_in"
+      ],
+      "28": [
+        "DVDD",
+        "power_in"
+      ],
+      "29": [
+        "AVDD",
+        "power_in"
+      ],
+      "30": [
+        "GND",
+        "power_in"
+      ],
+      "31": [
+        "REFP_A",
+        "output"
+      ],
+      "32": [
+        "REFM_A",
+        "power_in"
+      ],
+      "33": [
+        "EP",
+        "power_in"
+      ]
+    },
+    "TPS7A": {
+      "1": [
+        "OUT",
+        "power_out"
+      ],
+      "2": [
+        "FB",
+        "input"
+      ],
+      "3": [
+        "NC",
+        "passive"
+      ],
+      "4": [
+        "GND",
+        "power_in"
+      ],
+      "5": [
+        "EN",
+        "input"
+      ],
+      "6": [
+        "NR/SS",
+        "passive"
+      ],
+      "7": [
+        "DNC",
+        "passive"
+      ],
+      "8": [
+        "IN",
+        "power_in"
+      ],
+      "9": [
+        "EP",
+        "power_in"
+      ]
+    },
+    "TPS65131": {
+      "1": [
+        "INP",
+        "passive"
+      ],
+      "2": [
+        "PGND",
+        "power_in"
+      ],
+      "3": [
+        "PGND",
+        "power_in"
+      ],
+      "4": [
+        "VIN",
+        "power_in"
+      ],
+      "5": [
+        "INN",
+        "power_in"
+      ],
+      "6": [
+        "INN",
+        "power_in"
+      ],
+      "7": [
+        "BSW",
+        "output"
+      ],
+      "8": [
+        "ENP",
+        "input"
+      ],
+      "9": [
+        "PSP",
+        "input"
+      ],
+      "10": [
+        "ENN",
+        "input"
+      ],
+      "11": [
+        "PSN",
+        "input"
+      ],
+      "12": [
+        "NC",
+        "no_connect"
+      ],
+      "13": [
+        "OUTN",
+        "passive"
+      ],
+      "14": [
+        "OUTN",
+        "passive"
+      ],
+      "15": [
+        "VNEG",
+        "input"
+      ],
+      "16": [
+        "FBN",
+        "input"
+      ],
+      "17": [
+        "VREF",
+        "output"
+      ],
+      "18": [
+        "CN",
+        "passive"
+      ],
+      "19": [
+        "AGND",
+        "power_in"
+      ],
+      "20": [
+        "NC",
+        "no_connect"
+      ],
+      "21": [
+        "CP",
+        "passive"
+      ],
+      "22": [
+        "FBP",
+        "input"
+      ],
+      "23": [
+        "VPOS",
+        "input"
+      ],
+      "24": [
+        "INP",
+        "passive"
+      ],
+      "25": [
+        "EP",
+        "power_in"
+      ]
+    },
+    "PMOS": {
+      "1": [
+        "G",
+        "passive"
+      ],
+      "2": [
+        "S",
+        "passive"
+      ],
+      "3": [
+        "D",
+        "passive"
+      ]
+    },
+    "DIODE": {
+      "1": [
+        "K",
+        "passive"
+      ],
+      "2": [
+        "A",
+        "passive"
+      ]
+    },
+    "L": {
+      "1": [
+        "1",
+        "passive"
+      ],
+      "2": [
+        "2",
+        "passive"
+      ]
+    },
+    "CRYSTAL": {
+      "1": [
+        "X1",
+        "passive"
+      ],
+      "2": [
+        "GND",
+        "passive"
+      ],
+      "3": [
+        "X2",
+        "passive"
+      ],
+      "4": [
+        "GND",
+        "passive"
+      ]
+    },
+    "SW": {
+      "1": [
+        "1",
+        "passive"
+      ],
+      "2": [
+        "2",
+        "passive"
+      ]
+    },
+    "LED": {
+      "1": [
+        "K",
+        "passive"
+      ],
+      "2": [
+        "A",
+        "passive"
+      ]
+    },
+    "USB": {
+      "A1": [
+        "GND",
+        "passive"
+      ],
+      "A4": [
+        "VBUS",
+        "passive"
+      ],
+      "A5": [
+        "CC1",
+        "passive"
+      ],
+      "A6": [
+        "D+",
+        "passive"
+      ],
+      "A7": [
+        "D-",
+        "passive"
+      ],
+      "A8": [
+        "SBU1",
+        "passive"
+      ],
+      "A9": [
+        "VBUS",
+        "passive"
+      ],
+      "A12": [
+        "GND",
+        "passive"
+      ],
+      "B1": [
+        "GND",
+        "passive"
+      ],
+      "B4": [
+        "VBUS",
+        "passive"
+      ],
+      "B5": [
+        "CC2",
+        "passive"
+      ],
+      "B6": [
+        "D+",
+        "passive"
+      ],
+      "B7": [
+        "D-",
+        "passive"
+      ],
+      "B8": [
+        "SBU2",
+        "passive"
+      ],
+      "B9": [
+        "VBUS",
+        "passive"
+      ],
+      "B12": [
+        "GND",
+        "passive"
+      ],
+      "SH": [
+        "SHIELD",
+        "passive"
+      ]
+    },
+    "USBESD": {
+      "1": [
+        "IO1",
+        "passive"
+      ],
+      "2": [
+        "GND",
+        "passive"
+      ],
+      "3": [
+        "IO2",
+        "passive"
+      ],
+      "4": [
+        "IO2",
+        "passive"
+      ],
+      "5": [
+        "VBUS",
+        "passive"
+      ],
+      "6": [
+        "IO1",
+        "passive"
+      ]
+    },
+    "JACK": {
+      "4": [
+        "TIP",
+        "passive"
+      ],
+      "3": [
+        "SLEEVE",
+        "passive"
+      ],
+      "2": [
+        "SW",
+        "passive"
+      ]
+    }
+  },
+  "parts": [
+    {
+      "ref": "U1",
+      "value": "RP2040",
+      "kind": "RP2040",
+      "footprint": "Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm",
+      "pins": {
+        "1": "3V3",
+        "2": null,
+        "3": null,
+        "4": "ADC_SDO_A",
+        "5": "ADC_SDO_B",
+        "6": "ADC_CS",
+        "7": "ADC_SCLK",
+        "8": "ADC_CONVST",
+        "9": "ADC_SDI",
+        "10": "3V3",
+        "11": "ADC_RESET",
+        "12": "DDS_FSYNC",
+        "13": "DDS_SCLK",
+        "14": "DDS_SDATA",
+        "15": "ADC_READY",
+        "16": "USB_SENSE",
+        "17": null,
+        "18": null,
+        "19": "GND",
+        "20": "XIN",
+        "21": "XOUT",
+        "22": "3V3",
+        "23": "1V1",
+        "24": "SWCLK",
+        "25": "SWDIO",
+        "26": "RUN",
+        "27": null,
+        "28": null,
+        "29": null,
+        "30": null,
+        "31": null,
+        "32": "DDS_CLK_RAW",
+        "33": "3V3",
+        "34": null,
+        "35": null,
+        "36": null,
+        "37": "STATUS",
+        "38": null,
+        "39": null,
+        "40": "UART_TX",
+        "41": "UART_RX",
+        "42": "3V3",
+        "43": "3V3",
+        "44": "3V3",
+        "45": "1V1",
+        "46": "USB_DM_MCU",
+        "47": "USB_DP_MCU",
+        "48": "3V3",
+        "49": "3V3",
+        "50": "1V1",
+        "51": "QSPI3",
+        "52": "QSPI_CLK",
+        "53": "QSPI0",
+        "54": "QSPI2",
+        "55": "QSPI1",
+        "56": "QSPI_CS",
+        "57": "GND"
+      },
+      "pcb": [
+        82,
+        87,
+        180
+      ],
+      "sheet": "digital",
+      "mpn": "RP2040",
+      "manufacturer": "Raspberry Pi",
+      "lcsc": "C2040",
+      "unit_usd": 1.0752,
+      "stock": 46129,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RP2040"
+    },
+    {
+      "ref": "U2",
+      "value": "W25Q16JVSSIQ",
+      "kind": "FLASH",
+      "footprint": "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
+      "pins": {
+        "1": "QSPI_CS",
+        "2": "QSPI1",
+        "3": "QSPI2",
+        "4": "GND",
+        "5": "QSPI0",
+        "6": "QSPI_CLK_FLASH",
+        "7": "QSPI3",
+        "8": "3V3"
+      },
+      "pcb": [
+        82,
+        102,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "W25Q16JVSSIQ",
+      "manufacturer": "Winbond Elec",
+      "lcsc": "C131025",
+      "unit_usd": 1.42,
+      "stock": 561,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "W25Q16JVSSIQ"
+    },
+    {
+      "ref": "U3",
+      "value": "3.3V AP2112K",
+      "kind": "LDO",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "pins": {
+        "1": "5V",
+        "2": "GND",
+        "3": "5V",
+        "4": null,
+        "5": "3V3"
+      },
+      "pcb": [
+        64,
+        100,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "AP2112K-3.3TRG1",
+      "manufacturer": "Diodes Incorporated",
+      "lcsc": "C51118",
+      "unit_usd": 0.1772,
+      "stock": 18175,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "AP2112K-3.3"
+    },
+    {
+      "ref": "U4",
+      "value": "AD9833BRMZ-REEL7",
+      "kind": "AD9833",
+      "footprint": "Package_SO:MSOP-10_3x3mm_P0.5mm",
+      "pins": {
+        "1": "DDS_COMP",
+        "2": "3V3_DDS",
+        "3": "DDS_CAP",
+        "4": "GND",
+        "5": "DDS_MCLK",
+        "6": "DDS_SDATA",
+        "7": "DDS_SCLK",
+        "8": "DDS_FSYNC",
+        "9": "GND",
+        "10": "DDS_OUT"
+      },
+      "pcb": [
+        109,
+        67,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "AD9833BRMZ-REEL7",
+      "manufacturer": "Analog Devices",
+      "lcsc": "C9652",
+      "unit_usd": 12.7715,
+      "stock": 1225,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "AD9833"
+    },
+    {
+      "ref": "U5",
+      "value": "OPA810IDBVR",
+      "kind": "OPA810",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "pins": {
+        "1": "EXCITE",
+        "2": "-12V",
+        "3": "SOURCE_AC",
+        "4": "SOURCE_FB",
+        "5": "12V"
+      },
+      "pcb": [
+        132,
+        68,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "OPA810IDBVR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C2833513",
+      "unit_usd": 3.0949,
+      "stock": 2856,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "OPA810"
+    },
+    {
+      "ref": "U6",
+      "value": "OPA2810IDGKR",
+      "kind": "OPA2810",
+      "footprint": "Package_SO:VSSOP-8_3x3mm_P0.65mm",
+      "pins": {
+        "1": "SOURCE_BUF",
+        "2": "SOURCE_BUF",
+        "3": "EXCITE",
+        "4": "-12V",
+        "5": "DUT_HI",
+        "6": "HIGH_BUF",
+        "7": "HIGH_BUF",
+        "8": "12V"
+      },
+      "pcb": [
+        168,
+        91,
+        180
+      ],
+      "sheet": "afe",
+      "mpn": "OPA2810IDGKR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C2864204",
+      "unit_usd": 5.09,
+      "stock": 251,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "OPA2810IDGKR"
+    },
+    {
+      "ref": "U7",
+      "value": "OPA2810IDGKR",
+      "kind": "OPA2810",
+      "footprint": "Package_SO:VSSOP-8_3x3mm_P0.65mm",
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "DUT_LO",
+        "3": "GND",
+        "4": "-12V",
+        "5": "DUT_LO",
+        "6": "LOW_BUF",
+        "7": "LOW_BUF",
+        "8": "12V"
+      },
+      "pcb": [
+        168,
+        108,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "OPA2810IDGKR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C2864204",
+      "unit_usd": 5.09,
+      "stock": 251,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "OPA2810IDGKR"
+    },
+    {
+      "ref": "U8",
+      "value": "THS4551IRGTR",
+      "kind": "THS4551",
+      "footprint": "Package_DFN_QFN:VQFN-16-1EP_3x3mm_P0.5mm_EP1.68x1.68mm",
+      "pins": {
+        "1": null,
+        "2": "A_INP",
+        "3": "A_INM",
+        "4": null,
+        "5": "5VA",
+        "6": "5VA",
+        "7": "5VA",
+        "8": "5VA",
+        "9": "ADC_CM",
+        "10": "A_OUTP",
+        "11": "A_OUTM",
+        "12": "3V3",
+        "13": "GND",
+        "14": "GND",
+        "15": "GND",
+        "16": "GND",
+        "17": "GND"
+      },
+      "pcb": [
+        156.5,
+        102,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "THS4551IRGTR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C2869590",
+      "unit_usd": 4.858,
+      "stock": 1256,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "THS4551IRGTR"
+    },
+    {
+      "ref": "U9",
+      "value": "THS4551IRGTR",
+      "kind": "THS4551",
+      "footprint": "Package_DFN_QFN:VQFN-16-1EP_3x3mm_P0.5mm_EP1.68x1.68mm",
+      "pins": {
+        "1": null,
+        "2": "B_INP",
+        "3": "B_INM",
+        "4": null,
+        "5": "5VA",
+        "6": "5VA",
+        "7": "5VA",
+        "8": "5VA",
+        "9": "ADC_CM",
+        "10": "B_OUTP",
+        "11": "B_OUTM",
+        "12": "3V3",
+        "13": "GND",
+        "14": "GND",
+        "15": "GND",
+        "16": "GND",
+        "17": "GND"
+      },
+      "pcb": [
+        156.5,
+        91,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "THS4551IRGTR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C2869590",
+      "unit_usd": 4.858,
+      "stock": 1256,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "THS4551IRGTR"
+    },
+    {
+      "ref": "U10",
+      "value": "ADS9224RIRHBR",
+      "kind": "ADS9224R",
+      "footprint": "Package_DFN_QFN:Texas_RHB0032E_VQFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm",
+      "pins": {
+        "1": "ADC_AP",
+        "2": "ADC_AM",
+        "3": "ADC_CM",
+        "4": "GND",
+        "5": "ADC_REFOUT",
+        "6": null,
+        "7": "ADC_BM",
+        "8": "ADC_BP",
+        "9": "GND",
+        "10": "ADC_REFB",
+        "11": "GND",
+        "12": "5VA",
+        "13": "ADC_CONVST",
+        "14": "ADC_CS",
+        "15": "ADC_SDI",
+        "16": "ADC_SCLK",
+        "17": null,
+        "18": null,
+        "19": null,
+        "20": "ADC_SDO_B",
+        "21": null,
+        "22": null,
+        "23": null,
+        "24": "ADC_SDO_A",
+        "25": "ADC_READY",
+        "26": "ADC_RESET",
+        "27": "GND",
+        "28": "3V3",
+        "29": "5VA",
+        "30": "GND",
+        "31": "ADC_REFA",
+        "32": "GND",
+        "33": "GND"
+      },
+      "pcb": [
+        140,
+        98,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "ADS9224RIRHBR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C2670866",
+      "unit_usd": 19.6605,
+      "stock": 996,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "ADS9224RIRHBR"
+    },
+    {
+      "ref": "U11",
+      "value": "TPS7A4901DGNR",
+      "kind": "TPS7A",
+      "footprint": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+      "pins": {
+        "1": "12V",
+        "2": "REGP_FB",
+        "3": null,
+        "4": "GND",
+        "5": "RAW_P",
+        "6": "REGP_NR",
+        "7": null,
+        "8": "RAW_P",
+        "9": "GND"
+      },
+      "pcb": [
+        110,
+        133,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "TPS7A4901DGNR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C16430",
+      "unit_usd": 1.4494,
+      "stock": 11091,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "TPS7A4901"
+    },
+    {
+      "ref": "U12",
+      "value": "TPS7A3001DGNR",
+      "kind": "TPS7A",
+      "footprint": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+      "pins": {
+        "1": "-12V",
+        "2": "REGN_FB",
+        "3": null,
+        "4": "GND",
+        "5": "RAW_N",
+        "6": "REGN_NR",
+        "7": null,
+        "8": "RAW_N",
+        "9": "GND"
+      },
+      "pcb": [
+        123,
+        133,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "TPS7A3001DGNR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C33835",
+      "unit_usd": 2.0197,
+      "stock": 9604,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "TPS7A3001"
+    },
+    {
+      "ref": "U13",
+      "value": "TPS65131RGER",
+      "kind": "TPS65131",
+      "footprint": "Package_DFN_QFN:VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm",
+      "pins": {
+        "1": "SW_P",
+        "2": "GND",
+        "3": "GND",
+        "4": "CONV_VIN",
+        "5": "5V",
+        "6": "5V",
+        "7": null,
+        "8": "3V3",
+        "9": "GND",
+        "10": "3V3",
+        "11": "GND",
+        "12": null,
+        "13": "SW_N",
+        "14": "SW_N",
+        "15": "RAW_N",
+        "16": "CONV_FBN",
+        "17": "CONV_REF",
+        "18": "CONV_CN",
+        "19": "GND",
+        "20": null,
+        "21": "CONV_CP",
+        "22": "CONV_FBP",
+        "23": "RAW_P",
+        "24": "SW_P",
+        "25": "GND"
+      },
+      "pcb": [
+        80,
+        130,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "TPS65131RGER",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C87663",
+      "unit_usd": 2.8743,
+      "stock": 982,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "TPS65131"
+    },
+    {
+      "ref": "Q1",
+      "value": "AO3401A",
+      "kind": "PMOS",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "pins": {
+        "1": "GND",
+        "2": "5V",
+        "3": "5VIN"
+      },
+      "pcb": [
+        69,
+        121,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "AO3401A",
+      "manufacturer": "Alpha & Omega Semicon",
+      "lcsc": "C15127",
+      "unit_usd": 0.1022,
+      "stock": 711122,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "AO3401A"
+    },
+    {
+      "ref": "D2",
+      "value": "SS14",
+      "kind": "DIODE",
+      "footprint": "Diode_SMD:D_SMA",
+      "pins": {
+        "1": "RAW_P",
+        "2": "SW_P"
+      },
+      "pcb": [
+        79,
+        123,
+        270
+      ],
+      "sheet": "power",
+      "mpn": "SS14",
+      "manufacturer": "MDD(Microdiode Semiconductor)",
+      "lcsc": "C2480",
+      "unit_usd": 0.0192,
+      "stock": 1333524,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "SS14"
+    },
+    {
+      "ref": "D3",
+      "value": "SS14",
+      "kind": "DIODE",
+      "footprint": "Diode_SMD:D_SMA",
+      "pins": {
+        "1": "SW_N",
+        "2": "RAW_N"
+      },
+      "pcb": [
+        87,
+        133,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "SS14",
+      "manufacturer": "MDD(Microdiode Semiconductor)",
+      "lcsc": "C2480",
+      "unit_usd": 0.0192,
+      "stock": 1333524,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "SS14"
+    },
+    {
+      "ref": "L1",
+      "value": "4.7uH 3.8A shielded",
+      "kind": "L",
+      "footprint": "Inductor_SMD:L_Changjiang_FNR5040S",
+      "pins": {
+        "1": "5V",
+        "2": "SW_P"
+      },
+      "pcb": [
+        73.8,
+        124,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "FNR5040S4R7MT",
+      "manufacturer": "cjiang (Changjiang Microelectronics Tech)",
+      "lcsc": "C167963",
+      "unit_usd": 0.0621,
+      "stock": 14126,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "4.7uH shielded inductor 3A"
+    },
+    {
+      "ref": "L2",
+      "value": "4.7uH 3.8A shielded",
+      "kind": "L",
+      "footprint": "Inductor_SMD:L_Changjiang_FNR5040S",
+      "pins": {
+        "1": "SW_N",
+        "2": "GND"
+      },
+      "pcb": [
+        85,
+        139,
+        270
+      ],
+      "sheet": "power",
+      "mpn": "FNR5040S4R7MT",
+      "manufacturer": "cjiang (Changjiang Microelectronics Tech)",
+      "lcsc": "C167963",
+      "unit_usd": 0.0621,
+      "stock": 14126,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "4.7uH shielded inductor 3A"
+    },
+    {
+      "ref": "FB1",
+      "value": "120R@100MHz 3A",
+      "kind": "L",
+      "footprint": "Inductor_SMD:L_0805_2012Metric",
+      "pins": {
+        "1": "5V",
+        "2": "5VA"
+      },
+      "pcb": [
+        108,
+        123,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "BLM21PG121SN1D",
+      "manufacturer": "Murata Electronics",
+      "lcsc": "C79382",
+      "unit_usd": 0.0406,
+      "stock": 138346,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "ferrite bead 120ohm 0805 1A"
+    },
+    {
+      "ref": "FB2",
+      "value": "120R@100MHz 3A",
+      "kind": "L",
+      "footprint": "Inductor_SMD:L_0805_2012Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "3V3_DDS"
+      },
+      "pcb": [
+        103,
+        58,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "BLM21PG121SN1D",
+      "manufacturer": "Murata Electronics",
+      "lcsc": "C79382",
+      "unit_usd": 0.0406,
+      "stock": 138346,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "ferrite bead 120ohm 0805 1A"
+    },
+    {
+      "ref": "Y1",
+      "value": "12MHz CL10pF",
+      "kind": "CRYSTAL",
+      "footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+      "pins": {
+        "1": "XIN",
+        "2": "GND",
+        "3": "XTAL_OUT",
+        "4": "GND"
+      },
+      "pcb": [
+        83,
+        76.5,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "ABM8-272-T3",
+      "manufacturer": "Abracon LLC",
+      "lcsc": "C20625731",
+      "unit_usd": 0.6471,
+      "stock": 5153,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "ABM8-272-T3"
+    },
+    {
+      "ref": "SW1",
+      "value": "BOOTSEL",
+      "kind": "SW",
+      "footprint": "Button_Switch_SMD:SW_SPST_B3U-1000P",
+      "pins": {
+        "1": "BOOTSEL",
+        "2": "GND"
+      },
+      "pcb": [
+        60,
+        87,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "B3U-1000P",
+      "manufacturer": "Omron Electronics",
+      "lcsc": "C231329",
+      "unit_usd": 0.1875,
+      "stock": 111594,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "B3U"
+    },
+    {
+      "ref": "SW2",
+      "value": "RESET",
+      "kind": "SW",
+      "footprint": "Button_Switch_SMD:SW_SPST_B3U-1000P",
+      "pins": {
+        "1": "RUN",
+        "2": "GND"
+      },
+      "pcb": [
+        60,
+        92,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "B3U-1000P",
+      "manufacturer": "Omron Electronics",
+      "lcsc": "C231329",
+      "unit_usd": 0.1875,
+      "stock": 111594,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "B3U"
+    },
+    {
+      "ref": "D4",
+      "value": "GREEN",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "LED_A"
+      },
+      "pcb": [
+        63,
+        59,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "PSC-1608U52GC-G4",
+      "manufacturer": "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))",
+      "lcsc": "C22371297",
+      "unit_usd": 0.0147,
+      "stock": 350515,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "LED green 0603"
+    },
+    {
+      "ref": "J1",
+      "value": "USB-C",
+      "kind": "USB",
+      "footprint": "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+      "mpn": "TYPE-C-31-M-12",
+      "manufacturer": "Korean Hroparts",
+      "lcsc": "C165948",
+      "unit_usd": 0.1867,
+      "pins": {
+        "A1": "GND",
+        "A4": "USB_VBUS",
+        "A5": "CC1",
+        "A6": "USB_DP",
+        "A7": "USB_DM",
+        "A8": null,
+        "A9": "USB_VBUS",
+        "A12": "GND",
+        "B1": "GND",
+        "B4": "USB_VBUS",
+        "B5": "CC2",
+        "B6": "USB_DP",
+        "B7": "USB_DM",
+        "B8": null,
+        "B9": "USB_VBUS",
+        "B12": "GND",
+        "SH": "GND"
+      },
+      "pcb": [
+        54,
+        77,
+        270
+      ],
+      "group": "USB",
+      "assembly": "SMT",
+      "sheet": "digital",
+      "library_type": "extended"
+    },
+    {
+      "ref": "D1",
+      "value": "USBLC6-2SC6",
+      "kind": "USBESD",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "mpn": "USBLC6-2SC6",
+      "manufacturer": "STMicroelectronics",
+      "lcsc": "C7519",
+      "unit_usd": 0.1776,
+      "pins": {
+        "1": "USB_DP",
+        "2": "GND",
+        "3": "USB_DM",
+        "4": "USB_DM",
+        "5": "USB_VBUS",
+        "6": "USB_DP"
+      },
+      "pcb": [
+        63,
+        77,
+        0
+      ],
+      "group": "USB",
+      "assembly": "SMT",
+      "sheet": "digital",
+      "library_type": "extended"
+    },
+    {
+      "ref": "J2",
+      "value": "5V 1A CENTER+",
+      "kind": "JACK",
+      "footprint": "Connector_BarrelJack:BarrelJack_Horizontal",
+      "pins": {
+        "4": "5VIN",
+        "3": "GND",
+        "2": null
+      },
+      "pcb": [
+        64,
+        125,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "DC-005 2.0",
+      "manufacturer": "BOOMELE(Boom Precision Elec)",
+      "lcsc": "C16214",
+      "unit_usd": 0.0564,
+      "stock": 60406,
+      "library_type": "extended",
+      "assembly": "Hand fit",
+      "source_query": "DC-005"
+    },
+    {
+      "ref": "J3",
+      "value": "DUT HI / LO",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "DUT_HI",
+        "2": "DUT_LO"
+      },
+      "pcb": [
+        176,
+        98,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "J4",
+      "value": "SWD CLK / DATA",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "SWCLK",
+        "2": "SWDIO"
+      },
+      "pcb": [
+        66,
+        108,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "digital"
+    },
+    {
+      "ref": "J5",
+      "value": "SWD GND / VTREF",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "GND",
+        "2": "3V3"
+      },
+      "pcb": [
+        66,
+        115,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "digital"
+    },
+    {
+      "ref": "J6",
+      "value": "UART TX / RX",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "UART_TX",
+        "2": "UART_RX"
+      },
+      "pcb": [
+        72,
+        108,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "digital"
+    },
+    {
+      "ref": "JP1",
+      "value": "RG 100R",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "SOURCE_BUF",
+        "2": "RG100"
+      },
+      "pcb": [
+        171,
+        78,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "JP2",
+      "value": "RG 5k",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "SOURCE_BUF",
+        "2": "RG5K"
+      },
+      "pcb": [
+        177,
+        78,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "JP3",
+      "value": "RG 100k",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "SOURCE_BUF",
+        "2": "RG100K"
+      },
+      "pcb": [
+        183,
+        78,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "JP4",
+      "value": "RF 100R",
+      "kind": "H",
+      "footprint": "LCR:PinHeader_1x02_P2.54mm_CompactCourtyard",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "RF100"
+      },
+      "pcb": [
+        159.6,
+        107.8,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "JP5",
+      "value": "RF 5k",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "RF5K"
+      },
+      "pcb": [
+        156,
+        124,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "JP6",
+      "value": "RF 100k",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "RF100K"
+      },
+      "pcb": [
+        156,
+        114,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "Hand fit",
+      "sheet": "afe"
+    },
+    {
+      "ref": "R1",
+      "value": "5.1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CC1",
+        "2": "GND"
+      },
+      "pcb": [
+        62,
+        67,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF5101T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23186",
+      "unit_usd": 0.0015,
+      "stock": 23040782,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "5.1kohm 0603"
+    },
+    {
+      "ref": "R2",
+      "value": "5.1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CC2",
+        "2": "GND"
+      },
+      "pcb": [
+        62,
+        70,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF5101T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23186",
+      "unit_usd": 0.0015,
+      "stock": 23040782,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "5.1kohm 0603"
+    },
+    {
+      "ref": "R3",
+      "value": "27R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "USB_DM",
+        "2": "USB_DM_MCU"
+      },
+      "pcb": [
+        84,
+        93,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF270JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25190",
+      "unit_usd": 0.0018,
+      "stock": 218753,
+      "library_type": "preferred",
+      "assembly": "SMT",
+      "source_query": "27ohm 0603"
+    },
+    {
+      "ref": "R4",
+      "value": "27R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "USB_DP",
+        "2": "USB_DP_MCU"
+      },
+      "pcb": [
+        86,
+        93,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF270JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25190",
+      "unit_usd": 0.0018,
+      "stock": 218753,
+      "library_type": "preferred",
+      "assembly": "SMT",
+      "source_query": "27ohm 0603"
+    },
+    {
+      "ref": "R5",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "USB_VBUS",
+        "2": "USB_SENSE"
+      },
+      "pcb": [
+        92,
+        79,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0031,
+      "stock": 18966769,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100kohm 0603"
+    },
+    {
+      "ref": "R6",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "USB_SENSE",
+        "2": "GND"
+      },
+      "pcb": [
+        92,
+        82,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0031,
+      "stock": 18966769,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100kohm 0603"
+    },
+    {
+      "ref": "R7",
+      "value": "10k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "QSPI_CS",
+        "2": "3V3"
+      },
+      "pcb": [
+        87,
+        106,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "stock": 38200936,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10kohm 0603"
+    },
+    {
+      "ref": "R8",
+      "value": "1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "QSPI_CS",
+        "2": "BOOTSEL"
+      },
+      "pcb": [
+        76,
+        107,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1001T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C21190",
+      "unit_usd": 0.003,
+      "stock": 22170854,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1kohm 0603"
+    },
+    {
+      "ref": "R9",
+      "value": "10k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RUN",
+        "2": "3V3"
+      },
+      "pcb": [
+        72,
+        95,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "stock": 38200936,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10kohm 0603"
+    },
+    {
+      "ref": "R10",
+      "value": "1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "XOUT",
+        "2": "XTAL_OUT"
+      },
+      "pcb": [
+        79,
+        76,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1001T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C21190",
+      "unit_usd": 0.003,
+      "stock": 22170854,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1kohm 0603"
+    },
+    {
+      "ref": "R11",
+      "value": "33R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DDS_CLK_RAW",
+        "2": "DDS_MCLK"
+      },
+      "pcb": [
+        86,
+        79,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF330JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23140",
+      "unit_usd": 0.0024,
+      "stock": 4833964,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "33ohm 0603"
+    },
+    {
+      "ref": "R12",
+      "value": "1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "STATUS",
+        "2": "LED_A"
+      },
+      "pcb": [
+        63,
+        62,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1001T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C21190",
+      "unit_usd": 0.003,
+      "stock": 22170854,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1kohm 0603"
+    },
+    {
+      "ref": "R13",
+      "value": "33R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "QSPI_CLK",
+        "2": "QSPI_CLK_FLASH"
+      },
+      "pcb": [
+        81.5,
+        97,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF330JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23140",
+      "unit_usd": 0.0024,
+      "stock": 4833964,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "33ohm 0603"
+    },
+    {
+      "ref": "R30",
+      "value": "330R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DDS_OUT",
+        "2": "LP1"
+      },
+      "pcb": [
+        115,
+        70,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "0603WAF3300T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23138",
+      "unit_usd": 0.002,
+      "stock": 4024216,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "330ohm 0603"
+    },
+    {
+      "ref": "R31",
+      "value": "330R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LP1",
+        "2": "LP2"
+      },
+      "pcb": [
+        120,
+        70,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "0603WAF3300T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23138",
+      "unit_usd": 0.002,
+      "stock": 4024216,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "330ohm 0603"
+    },
+    {
+      "ref": "R32",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "SOURCE_AC",
+        "2": "GND"
+      },
+      "pcb": [
+        126,
+        74,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0031,
+      "stock": 18966769,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100kohm 0603"
+    },
+    {
+      "ref": "R33",
+      "value": "5k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "EXCITE",
+        "2": "SOURCE_FB"
+      },
+      "pcb": [
+        133,
+        64,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "RT0603BRE075KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C862232",
+      "unit_usd": 0.0262,
+      "stock": 85568,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "5kohm 0.1% 0603"
+    },
+    {
+      "ref": "R34",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "SOURCE_FB",
+        "2": "GND"
+      },
+      "pcb": [
+        137,
+        65,
+        90
+      ],
+      "sheet": "source",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R40",
+      "value": "100R 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RG100",
+        "2": "DUT_HI"
+      },
+      "pcb": [
+        166,
+        85,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRD07100RL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C122970",
+      "unit_usd": 0.0319,
+      "stock": 427389,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "100ohm 0.1% 0603"
+    },
+    {
+      "ref": "R41",
+      "value": "5k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RG5K",
+        "2": "DUT_HI"
+      },
+      "pcb": [
+        164,
+        85,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRE075KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C862232",
+      "unit_usd": 0.0262,
+      "stock": 85568,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "5kohm 0.1% 0603"
+    },
+    {
+      "ref": "R42",
+      "value": "100k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RG100K",
+        "2": "DUT_HI"
+      },
+      "pcb": [
+        162,
+        85,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRD07100KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C122538",
+      "unit_usd": 0.0322,
+      "stock": 1366634,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "100kohm 0.1% 0603"
+    },
+    {
+      "ref": "R43",
+      "value": "100R 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "RF100"
+      },
+      "pcb": [
+        162.7,
+        111.8,
+        180
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRD07100RL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C122970",
+      "unit_usd": 0.0319,
+      "stock": 427389,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "100ohm 0.1% 0603"
+    },
+    {
+      "ref": "R44",
+      "value": "5k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "RF5K"
+      },
+      "pcb": [
+        162.7,
+        117.3,
+        180
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRE075KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C862232",
+      "unit_usd": 0.0262,
+      "stock": 85568,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "5kohm 0.1% 0603"
+    },
+    {
+      "ref": "R45",
+      "value": "100k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "RF100K"
+      },
+      "pcb": [
+        162.7,
+        113.7,
+        180
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRD07100KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C122538",
+      "unit_usd": 0.0322,
+      "stock": 1366634,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "100kohm 0.1% 0603"
+    },
+    {
+      "ref": "R80",
+      "value": "100R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "5V",
+        "2": "CONV_VIN"
+      },
+      "pcb": [
+        72,
+        134,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1000T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22775",
+      "unit_usd": 0.0026,
+      "stock": 10638927,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100ohm 0603"
+    },
+    {
+      "ref": "R81",
+      "value": "1.62M",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "CONV_FBP"
+      },
+      "pcb": [
+        84,
+        122.3,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "RC0603FR-071M62L",
+      "manufacturer": "YAGEO",
+      "lcsc": "C482643",
+      "unit_usd": 0.0018,
+      "stock": 2912,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RC0603FR-071M62L"
+    },
+    {
+      "ref": "R82",
+      "value": "150k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CONV_FBP",
+        "2": "GND"
+      },
+      "pcb": [
+        84.5,
+        125.5,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1503T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22807",
+      "unit_usd": 0.0017,
+      "stock": 1005853,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "150kohm 0603"
+    },
+    {
+      "ref": "R83",
+      "value": "1.78M",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "CONV_FBN"
+      },
+      "pcb": [
+        88,
+        127,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "RC0603FR-071M78L",
+      "manufacturer": "YAGEO",
+      "lcsc": "C482655",
+      "unit_usd": 0.0019,
+      "stock": 26,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RC0603FR-071M78L"
+    },
+    {
+      "ref": "R84",
+      "value": "150k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CONV_FBN",
+        "2": "CONV_REF"
+      },
+      "pcb": [
+        89,
+        125.5,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1503T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22807",
+      "unit_usd": 0.0017,
+      "stock": 1005853,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "150kohm 0603"
+    },
+    {
+      "ref": "R85",
+      "value": "91k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "REGP_FB"
+      },
+      "pcb": [
+        105,
+        132,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "RT0603BRD0791KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C326721",
+      "unit_usd": 0.0476,
+      "stock": 42594,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "91kohm 0.1% 0603"
+    },
+    {
+      "ref": "R86",
+      "value": "10k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "REGP_FB",
+        "2": "GND"
+      },
+      "pcb": [
+        105,
+        136,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "RT0603BRD0710KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C95204",
+      "unit_usd": 0.0329,
+      "stock": 1961493,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10kohm 0.1% 0603"
+    },
+    {
+      "ref": "R87",
+      "value": "91k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "REGN_DIV"
+      },
+      "pcb": [
+        118,
+        131,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "RT0603BRD0791KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C326721",
+      "unit_usd": 0.0476,
+      "stock": 42594,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "91kohm 0.1% 0603"
+    },
+    {
+      "ref": "R88",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "REGN_DIV",
+        "2": "REGN_FB"
+      },
+      "pcb": [
+        118,
+        134,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R89",
+      "value": "10k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "REGN_FB",
+        "2": "GND"
+      },
+      "pcb": [
+        118,
+        137,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "RT0603BRD0710KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C95204",
+      "unit_usd": 0.0329,
+      "stock": 1961493,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10kohm 0.1% 0603"
+    },
+    {
+      "ref": "R60",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "HIGH_BUF",
+        "2": "A_INP"
+      },
+      "pcb": [
+        160.6,
+        102.6,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R61",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LOW_BUF",
+        "2": "A_INM"
+      },
+      "pcb": [
+        160.6,
+        101.0,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R62",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "A_FBM",
+        "2": "A_INP"
+      },
+      "pcb": [
+        157.2,
+        105.7,
+        270
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R63",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "A_FBP",
+        "2": "A_INM"
+      },
+      "pcb": [
+        158,
+        98.3,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R64",
+      "value": "4.32R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "A_FBP",
+        "2": "ADC_AP"
+      },
+      "pcb": [
+        149.6,
+        101.75,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RC0603FR-074R32L",
+      "manufacturer": "YAGEO",
+      "lcsc": "C482855",
+      "unit_usd": 0.0066,
+      "stock": 4972,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RC0603FR-074R32L"
+    },
+    {
+      "ref": "R65",
+      "value": "4.32R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "A_FBM",
+        "2": "ADC_AM"
+      },
+      "pcb": [
+        149.6,
+        103.55,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RC0603FR-074R32L",
+      "manufacturer": "YAGEO",
+      "lcsc": "C482855",
+      "unit_usd": 0.0066,
+      "stock": 4972,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RC0603FR-074R32L"
+    },
+    {
+      "ref": "R66",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LOW_BUF",
+        "2": "B_INP"
+      },
+      "pcb": [
+        160.6,
+        91.8,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R67",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "B_INM"
+      },
+      "pcb": [
+        160.6,
+        90.2,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R68",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "B_FBM",
+        "2": "B_INP"
+      },
+      "pcb": [
+        158,
+        94.7,
+        270
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R69",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "B_FBP",
+        "2": "B_INM"
+      },
+      "pcb": [
+        158,
+        87.3,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": 1738744,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1kohm 0.1% 0603"
+    },
+    {
+      "ref": "R70",
+      "value": "4.32R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "B_FBP",
+        "2": "ADC_BP"
+      },
+      "pcb": [
+        149.6,
+        90.75,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RC0603FR-074R32L",
+      "manufacturer": "YAGEO",
+      "lcsc": "C482855",
+      "unit_usd": 0.0066,
+      "stock": 4972,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RC0603FR-074R32L"
+    },
+    {
+      "ref": "R71",
+      "value": "4.32R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "B_FBM",
+        "2": "ADC_BM"
+      },
+      "pcb": [
+        149.6,
+        92.55,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "RC0603FR-074R32L",
+      "manufacturer": "YAGEO",
+      "lcsc": "C482855",
+      "unit_usd": 0.0066,
+      "stock": 4972,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "RC0603FR-074R32L"
+    },
+    {
+      "ref": "C1",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        89,
+        91,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C2",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        89,
+        84,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C3",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        81,
+        81,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C4",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        76,
+        85,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C5",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        81,
+        93,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C6",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        89,
+        87.5,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C7",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        78,
+        96,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C8",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "1V1",
+        "2": "GND"
+      },
+      "pcb": [
+        77,
+        93,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C9",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "1V1",
+        "2": "GND"
+      },
+      "pcb": [
+        77,
+        81,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C10",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        90,
+        96,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C11",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        88.5,
+        101,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C12",
+      "value": "15pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "XIN",
+        "2": "GND"
+      },
+      "pcb": [
+        76.5,
+        78,
+        180
+      ],
+      "sheet": "digital",
+      "mpn": "CL10C150JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1644",
+      "unit_usd": 0.0111,
+      "stock": 925455,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "15pF C0G 0603"
+    },
+    {
+      "ref": "C13",
+      "value": "15pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "XTAL_OUT",
+        "2": "GND"
+      },
+      "pcb": [
+        83,
+        73,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CL10C150JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1644",
+      "unit_usd": 0.0111,
+      "stock": 925455,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "15pF C0G 0603"
+    },
+    {
+      "ref": "C14",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "RUN",
+        "2": "GND"
+      },
+      "pcb": [
+        72,
+        98,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C15",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "USB_VBUS",
+        "2": "GND"
+      },
+      "pcb": [
+        62,
+        82,
+        0
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C16",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "5V",
+        "2": "GND"
+      },
+      "pcb": [
+        60,
+        100,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C17",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        68,
+        99,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C18",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        70,
+        104,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C30",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "DDS_COMP",
+        "2": "3V3_DDS"
+      },
+      "pcb": [
+        105,
+        64,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C31",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "DDS_CAP",
+        "2": "GND"
+      },
+      "pcb": [
+        104,
+        69,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C32",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "3V3_DDS",
+        "2": "GND"
+      },
+      "pcb": [
+        107,
+        61,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C33",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "3V3_DDS",
+        "2": "GND"
+      },
+      "pcb": [
+        111,
+        60,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C34",
+      "value": "1nF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "LP1",
+        "2": "GND"
+      },
+      "pcb": [
+        117,
+        73,
+        90
+      ],
+      "sheet": "source",
+      "mpn": "CC0603JRNPO9BN102",
+      "manufacturer": "YAGEO",
+      "lcsc": "C106246",
+      "unit_usd": 0.0057,
+      "stock": 1560252,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1nF C0G 0603"
+    },
+    {
+      "ref": "C35",
+      "value": "1nF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "LP2",
+        "2": "GND"
+      },
+      "pcb": [
+        122,
+        73,
+        90
+      ],
+      "sheet": "source",
+      "mpn": "CC0603JRNPO9BN102",
+      "manufacturer": "YAGEO",
+      "lcsc": "C106246",
+      "unit_usd": 0.0057,
+      "stock": 1560252,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "1nF C0G 0603"
+    },
+    {
+      "ref": "C36",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "LP2",
+        "2": "SOURCE_AC"
+      },
+      "pcb": [
+        126,
+        70,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C37",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        137,
+        68,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C38",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        128.3,
+        68,
+        180
+      ],
+      "sheet": "source",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C39",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        139,
+        72,
+        90
+      ],
+      "sheet": "source",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C40",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        126,
+        78,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C42",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        164,
+        95.5,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C43",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        172,
+        86.5,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C44",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        161,
+        94,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C45",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        181,
+        89,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C46",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        172,
+        103.5,
+        270
+      ],
+      "sheet": "afe",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C47",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        166.5,
+        113,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C48",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        175,
+        107,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C49",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        166.5,
+        116,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C60",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        153.1,
+        98.5,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C61",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        148.8,
+        109,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C62",
+      "value": "330pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_AP",
+        "2": "GND"
+      },
+      "pcb": [
+        144.9,
+        101.5,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C331JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1664",
+      "unit_usd": 0.018,
+      "stock": 856621,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "330pF C0G 0603"
+    },
+    {
+      "ref": "C63",
+      "value": "330pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_AM",
+        "2": "GND"
+      },
+      "pcb": [
+        144.9,
+        99.5,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C331JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1664",
+      "unit_usd": 0.018,
+      "stock": 856621,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "330pF C0G 0603"
+    },
+    {
+      "ref": "C64",
+      "value": "3.3nF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_AP",
+        "2": "ADC_AM"
+      },
+      "pcb": [
+        147.3,
+        100.5,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "CC0603JRNPO9BN332",
+      "manufacturer": "YAGEO",
+      "lcsc": "C107048",
+      "unit_usd": 0.0175,
+      "stock": 561332,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "3.3nF C0G 0603"
+    },
+    {
+      "ref": "C66",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        153.1,
+        87.5,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C67",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        148.8,
+        85.5,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C68",
+      "value": "330pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_BP",
+        "2": "GND"
+      },
+      "pcb": [
+        144.9,
+        94.5,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C331JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1664",
+      "unit_usd": 0.018,
+      "stock": 856621,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "330pF C0G 0603"
+    },
+    {
+      "ref": "C69",
+      "value": "330pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_BM",
+        "2": "GND"
+      },
+      "pcb": [
+        144.9,
+        96.5,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C331JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1664",
+      "unit_usd": 0.018,
+      "stock": 856621,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "330pF C0G 0603"
+    },
+    {
+      "ref": "C70",
+      "value": "3.3nF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_BP",
+        "2": "ADC_BM"
+      },
+      "pcb": [
+        147.3,
+        95.5,
+        270
+      ],
+      "sheet": "adc",
+      "mpn": "CC0603JRNPO9BN332",
+      "manufacturer": "YAGEO",
+      "lcsc": "C107048",
+      "unit_usd": 0.0175,
+      "stock": 561332,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "3.3nF C0G 0603"
+    },
+    {
+      "ref": "C72",
+      "value": "22uF 25V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "ADC_REFA",
+        "2": "GND"
+      },
+      "pcb": [
+        141.5,
+        104.5,
+        270
+      ],
+      "sheet": "adc",
+      "mpn": "GRM32ER71E226KE15L",
+      "manufacturer": "Murata Electronics",
+      "lcsc": "C21397",
+      "unit_usd": 0.4151,
+      "stock": 75959,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "22uF 16V 1210"
+    },
+    {
+      "ref": "C73",
+      "value": "22uF 25V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "ADC_REFB",
+        "2": "GND"
+      },
+      "pcb": [
+        141.5,
+        91.5,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "GRM32ER71E226KE15L",
+      "manufacturer": "Murata Electronics",
+      "lcsc": "C21397",
+      "unit_usd": 0.4151,
+      "stock": 75959,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "22uF 16V 1210"
+    },
+    {
+      "ref": "C74",
+      "value": "1uF 50V X5R",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_CM",
+        "2": "GND"
+      },
+      "pcb": [
+        144.9,
+        98,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL10A105KB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C15849",
+      "unit_usd": 0.0153,
+      "stock": 14890903,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "C15849"
+    },
+    {
+      "ref": "C75",
+      "value": "1uF 50V X5R",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "ADC_REFOUT",
+        "2": "GND"
+      },
+      "pcb": [
+        148.1,
+        98,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL10A105KB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C15849",
+      "unit_usd": 0.0153,
+      "stock": 14890903,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "C15849"
+    },
+    {
+      "ref": "C76",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        137.5,
+        92.5,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C77",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        137.5,
+        103.5,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C78",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "GND"
+      },
+      "pcb": [
+        134,
+        102.5,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C79",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        134,
+        94,
+        0
+      ],
+      "sheet": "adc",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": 2191637,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1uF 50V 0805"
+    },
+    {
+      "ref": "C80",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "5V",
+        "2": "GND"
+      },
+      "pcb": [
+        70,
+        117,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C81",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "CONV_VIN",
+        "2": "GND"
+      },
+      "pcb": [
+        75,
+        134,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C82",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "5V",
+        "2": "GND"
+      },
+      "pcb": [
+        72.5,
+        130.5,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C83",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "5V",
+        "2": "GND"
+      },
+      "pcb": [
+        76,
+        130.5,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C84",
+      "value": "220nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "CONV_REF",
+        "2": "GND"
+      },
+      "pcb": [
+        85,
+        130.5,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB224",
+      "manufacturer": "YAGEO",
+      "lcsc": "C107083",
+      "unit_usd": 0.0152,
+      "stock": 359588,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "220nF 50V 0603"
+    },
+    {
+      "ref": "C85",
+      "value": "4.7nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "CONV_CN",
+        "2": "GND"
+      },
+      "pcb": [
+        84.8,
+        128.2,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603B472K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C53987",
+      "unit_usd": 0.0058,
+      "stock": 987812,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "4.7nF 50V 0603"
+    },
+    {
+      "ref": "C86",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "CONV_CP",
+        "2": "GND"
+      },
+      "pcb": [
+        82.5,
+        125.8,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C87",
+      "value": "4.3pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "CONV_FBP"
+      },
+      "pcb": [
+        86,
+        123,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CC0603CRNPO9BN4R3",
+      "manufacturer": "YAGEO",
+      "lcsc": "C519375",
+      "unit_usd": 0.0072,
+      "stock": 20276,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "4.3pF C0G 0603"
+    },
+    {
+      "ref": "C88",
+      "value": "4.3pF C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "CONV_FBN"
+      },
+      "pcb": [
+        88,
+        129,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "CC0603CRNPO9BN4R3",
+      "manufacturer": "YAGEO",
+      "lcsc": "C519375",
+      "unit_usd": 0.0072,
+      "stock": 20276,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "4.3pF C0G 0603"
+    },
+    {
+      "ref": "C89",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "GND"
+      },
+      "pcb": [
+        83.5,
+        118.8,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C90",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "GND"
+      },
+      "pcb": [
+        88.5,
+        119.5,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C91",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "GND"
+      },
+      "pcb": [
+        93,
+        133,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C92",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "GND"
+      },
+      "pcb": [
+        93,
+        137,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C93",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "REGP_NR",
+        "2": "GND"
+      },
+      "pcb": [
+        114,
+        135,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C94",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "GND"
+      },
+      "pcb": [
+        115,
+        125,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C95",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        105,
+        127,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C96",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "REGP_FB"
+      },
+      "pcb": [
+        106,
+        141,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C97",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "GND"
+      },
+      "pcb": [
+        114.5,
+        130,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C98",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "REGN_NR",
+        "2": "GND"
+      },
+      "pcb": [
+        127,
+        135,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C99",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "GND"
+      },
+      "pcb": [
+        129,
+        125,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C100",
+      "value": "10uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        122,
+        126,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "UMK325AB7106KM-P",
+      "manufacturer": "Taiyo Yuden",
+      "lcsc": "C337485",
+      "unit_usd": 0.3394,
+      "stock": 215697,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "10uF 50V 1210"
+    },
+    {
+      "ref": "C101",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "REGN_FB"
+      },
+      "pcb": [
+        119,
+        141,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C102",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "GND"
+      },
+      "pcb": [
+        127.5,
+        130,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C103",
+      "value": "22uF 25V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": {
+        "1": "5VA",
+        "2": "GND"
+      },
+      "pcb": [
+        110,
+        119,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "GRM32ER71E226KE15L",
+      "manufacturer": "Murata Electronics",
+      "lcsc": "C21397",
+      "unit_usd": 0.4151,
+      "stock": 75959,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "22uF 16V 1210"
+    },
+    {
+      "ref": "C50",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        164,
+        92,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C51",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        172,
+        90,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C52",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "12V",
+        "2": "GND"
+      },
+      "pcb": [
+        172,
+        107,
+        270
+      ],
+      "sheet": "afe",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C53",
+      "value": "10nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "-12V",
+        "2": "GND"
+      },
+      "pcb": [
+        166.5,
+        111,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "0603B103K500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C57112",
+      "unit_usd": 0.0101,
+      "stock": 5248851,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10nF 50V 0603"
+    },
+    {
+      "ref": "C104",
+      "value": "100pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        164.0,
+        107.35,
+        90
+      ],
+      "sheet": "afe",
+      "mpn": "CL10C101JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C14858",
+      "unit_usd": 0.0086,
+      "stock": 3894458,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100pF C0G 5% 50V 0603; live stock 2026-10-20"
+    },
+    {
+      "ref": "R90",
+      "value": "22R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "A_OUTP",
+        "2": "A_FBP"
+      },
+      "pcb": [
+        152.8,
+        101.75,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "0603WAF220JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23345",
+      "unit_usd": 0.0017,
+      "stock": 7483982,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "22 ohm 0603 1%"
+    },
+    {
+      "ref": "R91",
+      "value": "22R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "A_OUTM",
+        "2": "A_FBM"
+      },
+      "pcb": [
+        152.8,
+        103.55,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "0603WAF220JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23345",
+      "unit_usd": 0.0017,
+      "stock": 7483982,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "22 ohm 0603 1%"
+    },
+    {
+      "ref": "R92",
+      "value": "22R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "B_OUTP",
+        "2": "B_FBP"
+      },
+      "pcb": [
+        152.8,
+        90.75,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "0603WAF220JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23345",
+      "unit_usd": 0.0017,
+      "stock": 7483982,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "22 ohm 0603 1%"
+    },
+    {
+      "ref": "R93",
+      "value": "22R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "B_OUTM",
+        "2": "B_FBM"
+      },
+      "pcb": [
+        152.8,
+        92.55,
+        180
+      ],
+      "sheet": "adc",
+      "mpn": "0603WAF220JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23345",
+      "unit_usd": 0.0017,
+      "stock": 7483982,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "22 ohm 0603 1%"
+    },
+    {
+      "ref": "C106",
+      "value": "100pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "A_FBM",
+        "2": "A_INP"
+      },
+      "pcb": [
+        155.5,
+        105.7,
+        270
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C101JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C14858",
+      "unit_usd": 0.0086,
+      "stock": 3894458,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100pF C0G 5% 50V 0603; live stock 2026-10-20"
+    },
+    {
+      "ref": "C107",
+      "value": "100pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "A_FBP",
+        "2": "A_INM"
+      },
+      "pcb": [
+        156.2,
+        98.3,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C101JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C14858",
+      "unit_usd": 0.0086,
+      "stock": 3894458,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100pF C0G 5% 50V 0603; live stock 2026-10-20"
+    },
+    {
+      "ref": "C108",
+      "value": "100pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "B_FBM",
+        "2": "B_INP"
+      },
+      "pcb": [
+        156.2,
+        94.7,
+        270
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C101JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C14858",
+      "unit_usd": 0.0086,
+      "stock": 3894458,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100pF C0G 5% 50V 0603; live stock 2026-10-20"
+    },
+    {
+      "ref": "C109",
+      "value": "100pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "B_FBP",
+        "2": "B_INM"
+      },
+      "pcb": [
+        156.2,
+        87.3,
+        90
+      ],
+      "sheet": "adc",
+      "mpn": "CL10C101JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C14858",
+      "unit_usd": 0.0086,
+      "stock": 3894458,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100pF C0G 5% 50V 0603; live stock 2026-10-20"
+    }
+  ],
+  "power_flags": [
+    "GND",
+    "5VIN",
+    "5V",
+    "5VA",
+    "3V3_DDS",
+    "RAW_P",
+    "RAW_N",
+    "CONV_VIN"
+  ],
+  "stage53": {
+    "path": "worktrees/runs-native21/s53/c53int/section.kicad_pcb",
+    "sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27"
+  },
+  "frequency": {
+    "dds_clock_hz": 24000000,
+    "mcu_clock_hz": 120000000,
+    "adc_max_sample_hz": 1000000,
+    "min_hz": 100,
+    "max_hz": 100000
+  },
+  "ranges": [
+    {
+      "ohms": 100,
+      "rg": "R40",
+      "rf": "R43",
+      "jumpers": [
+        "JP1",
+        "JP4"
+      ],
+      "cf": 1e-10
+    },
+    {
+      "ohms": 5000,
+      "rg": "R41",
+      "rf": "R44",
+      "jumpers": [
+        "JP2",
+        "JP5"
+      ],
+      "cf": 1e-10
+    },
+    {
+      "ohms": 100000,
+      "rg": "R42",
+      "rf": "R45",
+      "jumpers": [
+        "JP3",
+        "JP6"
+      ],
+      "cf": 1e-10
+    }
+  ],
+  "notes": [
+    "One PCB; external regulated 5V 1A input and USB data; USB-ground referenced.",
+    "ADC A=HIGH_BUF-LOW_BUF; ADC B=LOW_BUF-TIA_OUT; Z=Zf*A/B.",
+    "Install exactly one matching pair of range jumpers with power removed.",
+    "OPA2810 analog architecture from TIDA-060029; no BUF634A; feedback closes at actual OPA2810 output.",
+    "Engineering prototype; no inherited 0.1% system accuracy. Isolated, discharged DUT only.",
+    "Revision C uses one local C104=100pF directly from TIA output to summing input on all ranges, bypassing the RF jumper. C41/C105 removed. Rev C-local100p firmware/calibration identity required; high-range feedback pole15.9kHz reduces sensitivity at100kHz.",
+    "Rev C FDA stability: ADS9224REVM SBAU315B feedback topology, 22R inside each feedback loop (EVM uses 10R), 1k || 100pF feedback and 4.32R outside. RGT optional FB pins intentionally NC; external feedback senses after 22R. REFby2 remains directly connected with C74 1uF, rather than EVM per-driver 100R/100nF VOCM branches."
+  ]
+}

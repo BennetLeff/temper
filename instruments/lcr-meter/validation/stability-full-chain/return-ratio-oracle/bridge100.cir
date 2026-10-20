@@ -1,0 +1,28 @@
+Independent bilateral bridge oracle
+.options reltol=1e-10 abstol=1e-14 vntol=1e-12
+R1 e 0 1k
+C1 e 0 1n
+R2 f 0 2k
+C2 f 0 2n
+Ebuffer buf 0 e 0 1
+Rfilter buf q 1k
+Cfilter q 0 10n
+Gforward f 0 q 0 0.01
+Greverse e 0 f 0 0.002
+Rbridge e f 100
+I1 0 e DC 0 AC 1
+I2 0 f DC 0 AC 0
+.control
+set klu
+set numdgt=17
+set wr_singlescale
+set wr_vecnames
+ac dec 160 1 1G
+wrdata bridge100_e.dat real(v(e)) imag(v(e)) real(v(f)) imag(v(f))
+alter I1 ac=0
+alter I2 ac=1
+ac dec 160 1 1G
+wrdata bridge100_f.dat real(v(e)) imag(v(e)) real(v(f)) imag(v(f))
+quit
+.endc
+.end

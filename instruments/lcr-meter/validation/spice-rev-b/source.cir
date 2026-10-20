@@ -1,0 +1,20 @@
+Source RC path only, 200ohm nominal DDS source and ideal gain6 readout
+V1 in0 0 DC 0 AC 1 PULSE(0 0.3 1m 10n 10n 2 4)
+Rout in0 in 200
+R30 in lp1 330
+C34 lp1 0 1n
+R31 lp1 lp2 330
+C35 lp2 0 1n
+C36 lp2 acin 1u
+R32 acin 0 100k
+Eread out 0 acin 0 6
+.control
+set wr_singlescale
+set wr_vecnames
+ac dec 100 0.1 100Meg
+wrdata source_ac.dat real(v(out)) imag(v(out))
+tran 0.0001 1.1
+wrdata source_settle.dat v(out)
+quit
+.endc
+.end

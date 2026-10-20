@@ -1,0 +1,3281 @@
+{
+  "retrieved": "2026-10-20",
+  "source": "PCBparts JLC catalog; price/stock not guaranteed quote",
+  "queries": [
+    {
+      "query": "AD8606ARZ",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C26360",
+            "model": "AD8606ARZ-REEL7",
+            "manufacturer": "Analog Devices",
+            "package": "SOIC-8",
+            "stock": 2822,
+            "price": 6.7825,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "Precision Op Amps",
+            "subcategory_id": 3086,
+            "mounting_type": "smd",
+            "description": "-40℃~+125℃ 0.5pA 1.2mA 100dB 10MHz 1pA 2 2.7V~5.5V 300uV 4.5uV/℃ 5V/us 80mA 8nV/√Hz@1kHz Built-in compensation Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Precision Op Amps ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+125℃",
+              "Vos - Input Offset Voltage": "300uV",
+              "Input Offset Current(Ios)": "0.5pA",
+              "Output Current": "80mA",
+              "Input Offset Voltage Drift(Vos TC)": "4.5uV/℃",
+              "Single Supply": "2.7V~5.5V",
+              "Slew Rate": "5V/us",
+              "Gain Bandwidth Product": "10MHz",
+              "Quiescent Current(Iq)": "1.2mA",
+              "Common Mode Rejection Ratio(CMRR)": "100dB",
+              "Rail to Rail": "Rail-to-Rail Input, Rail-to-Rail Output",
+              "Number of Channels": "2",
+              "Input Voltage Noise Density": "8nV/√Hz@1kHz",
+              "Features": "Built-in compensation",
+              "Ib - Input Bias Current": "1pA",
+              "Dual Supply": "-"
+            }
+          },
+          {
+            "lcsc": "C578773",
+            "model": "AD8606ARZ",
+            "manufacturer": "Analog Devices",
+            "package": "SOIC-8",
+            "stock": 302,
+            "price": 6.3923,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "Precision Op Amps",
+            "subcategory_id": 3086,
+            "mounting_type": "smd",
+            "description": "-40℃~+125℃ 0.5pA 1.2mA 100dB 10MHz 1pA 2 2.7V~5.5V 4.5uV/℃ 5V/us 80mA 80uV 8nV/√Hz@1kHz ESD protection、Built-in compensation、Overvoltage protection、Reverse-phase input protection Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Precision Op Amps ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+125℃",
+              "Vos - Input Offset Voltage": "80uV",
+              "Input Offset Current(Ios)": "0.5pA",
+              "Output Current": "80mA",
+              "Input Offset Voltage Drift(Vos TC)": "4.5uV/℃",
+              "Single Supply": "2.7V~5.5V",
+              "Slew Rate": "5V/us",
+              "Gain Bandwidth Product": "10MHz",
+              "Quiescent Current(Iq)": "1.2mA",
+              "Common Mode Rejection Ratio(CMRR)": "100dB",
+              "Rail to Rail": "Rail-to-Rail Input, Rail-to-Rail Output",
+              "Number of Channels": "2",
+              "Input Voltage Noise Density": "8nV/√Hz@1kHz",
+              "Features": "ESD protection、Built-in compensation、Overvoltage protection、Reverse-phase input protection",
+              "Ib - Input Bias Current": "1pA",
+              "Dual Supply": "-"
+            }
+          }
+        ],
+        "total": 2,
+        "page_info": {
+          "limit": 3,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "AD8606ARZ",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": "Analog Devices",
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 2
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "AD8606ARZ",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "AD8606ARZ"
+        }
+      }
+    },
+    {
+      "query": "MCP2221A",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C623181",
+            "model": "MCP2221AT-I/ML",
+            "manufacturer": "Microchip Tech",
+            "package": "QFN-16-EP(4x4)",
+            "stock": 321,
+            "price": 4.7563,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Interface",
+            "subcategory": "USB Converters",
+            "subcategory_id": 3069,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 13mA 3V~5.5V 46uA USB 2.0 USB to UART、USB to I2C QFN-16-EP(4x4) USB Converters ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Data Rate": "-",
+              "Number of Channels": "-",
+              "Applications Function": "USB to UART、USB to I2C",
+              "Voltage - Supply": "3V~5.5V",
+              "USB Protocol": "USB 2.0",
+              "Current - Supply": "13mA",
+              "Quiescent Supply Current": "46uA"
+            }
+          },
+          {
+            "lcsc": "C130462",
+            "model": "MCP2221A-I/ST",
+            "manufacturer": "Microchip Tech",
+            "package": "TSSOP-14",
+            "stock": 293,
+            "price": 4.5016,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Interface",
+            "subcategory": "USB Converters",
+            "subcategory_id": 3069,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 13mA 3V~5.5V 46uA USB 2.0 USB to UART、USB to I2C TSSOP-14 USB Converters ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Data Rate": "-",
+              "Number of Channels": "-",
+              "Applications Function": "USB to UART、USB to I2C",
+              "Voltage - Supply": "3V~5.5V",
+              "USB Protocol": "USB 2.0",
+              "Current - Supply": "13mA",
+              "Quiescent Supply Current": "46uA"
+            }
+          },
+          {
+            "lcsc": "C626750",
+            "model": "MCP2221AT-I/SL",
+            "manufacturer": "Microchip Tech",
+            "package": "SOIC-14",
+            "stock": 229,
+            "price": 4.4477,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Interface",
+            "subcategory": "USB Converters",
+            "subcategory_id": 3069,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 12Mbps 13mA 3V~5.5V 46uA USB 2.0 USB to UART、USB to I2C SOIC-14 USB Converters ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Data Rate": "12Mbps",
+              "Number of Channels": "-",
+              "Applications Function": "USB to UART、USB to I2C",
+              "Voltage - Supply": "3V~5.5V",
+              "USB Protocol": "USB 2.0",
+              "Current - Supply": "13mA",
+              "Quiescent Supply Current": "46uA"
+            }
+          },
+          {
+            "lcsc": "C637689",
+            "model": "MCP2221A-I/ML",
+            "manufacturer": "Microchip Tech",
+            "package": "QFN-16(4x4)",
+            "stock": 42,
+            "price": 4.562,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Interface",
+            "subcategory": "USB Converters",
+            "subcategory_id": 3069,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 13mA 3V~5.5V 460.8Kbps 46uA USB 2.0 USB to UART、USB to I2C QFN-16(4x4) USB Converters ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Data Rate": "460.8Kbps",
+              "Number of Channels": "-",
+              "Applications Function": "USB to UART、USB to I2C",
+              "Voltage - Supply": "3V~5.5V",
+              "USB Protocol": "USB 2.0",
+              "Current - Supply": "13mA",
+              "Quiescent Supply Current": "46uA"
+            }
+          },
+          {
+            "lcsc": "C636790",
+            "model": "MCP2221A-I/P",
+            "manufacturer": "Microchip Tech",
+            "package": "PDIP-14",
+            "stock": 29,
+            "price": 4.8134,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Interface",
+            "subcategory": "USB Converters",
+            "subcategory_id": 3069,
+            "mounting_type": "through_hole",
+            "description": "-40℃~+85℃ 13mA 3V~5.5V 46uA USB 2.0 USB to UART、USB to I2C PDIP-14 USB Converters ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Data Rate": "-",
+              "Number of Channels": "-",
+              "Applications Function": "USB to UART、USB to I2C",
+              "Voltage - Supply": "3V~5.5V",
+              "USB Protocol": "USB 2.0",
+              "Current - Supply": "13mA",
+              "Quiescent Supply Current": "46uA"
+            }
+          }
+        ],
+        "total": 5,
+        "page_info": {
+          "limit": 10,
+          "offset": 0,
+          "returned": 5
+        },
+        "filters_applied": {
+          "query": "MCP2221A",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 5
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "MCP2221A",
+          "detected": {
+            "model_number": "MCP2221A"
+          },
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "MCP2221A"
+        }
+      }
+    },
+    {
+      "query": "16MHz oscillator 3.3V",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C5189452",
+            "model": "OT2EL4C4JI-111OLP-16M",
+            "manufacturer": "YXC Crystal Oscillators",
+            "package": "SMD3225-4P",
+            "stock": 15538,
+            "price": 0.5062,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Crystals, Oscillators, Resonators",
+            "subcategory": "Crystal Oscillators",
+            "subcategory_id": 2942,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 1.8V~3.3V 16MHz CMOS ±10ppm ±20ppm SMD3225-4P Crystal Oscillators ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Normal temperature Frequency Tolerance": "±10ppm",
+              "Output Type": "CMOS",
+              "Voltage - Supply": "1.8V~3.3V",
+              "Frequency Stability": "±20ppm",
+              "Frequency": "16MHz"
+            }
+          },
+          {
+            "lcsc": "C725988",
+            "model": "OT322516MJBA4SL",
+            "manufacturer": "YXC Crystal Oscillators",
+            "package": "SMD3225-4P",
+            "stock": 5952,
+            "price": 0.6205,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Crystals, Oscillators, Resonators",
+            "subcategory": "Crystal Oscillators",
+            "subcategory_id": 2942,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 1.8V~3.3V 16MHz CMOS ±10ppm ±20ppm SMD3225-4P Crystal Oscillators ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Normal temperature Frequency Tolerance": "±10ppm",
+              "Output Type": "CMOS",
+              "Voltage - Supply": "1.8V~3.3V",
+              "Frequency Stability": "±20ppm",
+              "Frequency": "16MHz"
+            }
+          },
+          {
+            "lcsc": "C19725354",
+            "model": "3Y016000VP",
+            "manufacturer": "huaxindianzi",
+            "package": "SMD3225-4P",
+            "stock": 5922,
+            "price": 0.257,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Crystals, Oscillators, Resonators",
+            "subcategory": "Crystal Oscillators",
+            "subcategory_id": 2942,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 1.8V~3.3V 16MHz 7mA CMOS ±10ppm ±30ppm SMD3225-4P Crystal Oscillators ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Normal temperature Frequency Tolerance": "±10ppm",
+              "Output Type": "CMOS",
+              "Voltage - Supply": "1.8V~3.3V",
+              "Frequency Stability": "±30ppm",
+              "Frequency": "16MHz",
+              "Current - Supply": "7mA"
+            }
+          }
+        ],
+        "total": 90,
+        "page_info": {
+          "limit": 3,
+          "offset": 0,
+          "returned": 3
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2942,
+          "subcategory_name": "crystal oscillators",
+          "subcategory_resolved": "Crystal Oscillators",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Frequency",
+              "op": "=",
+              "value": "16MHz"
+            },
+            {
+              "name": "Supply Voltage",
+              "op": "=",
+              "value": "3.3V"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 97
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "16MHz oscillator 3.3V",
+          "detected": {
+            "component_type": "oscillator",
+            "subcategory": "crystal oscillators",
+            "values": [
+              {
+                "raw": "16MHz",
+                "type": "frequency",
+                "normalized": "16MHz"
+              },
+              {
+                "raw": "3.3V",
+                "type": "voltage",
+                "normalized": "3.3V"
+              }
+            ]
+          },
+          "subcategory": "crystal oscillators",
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Frequency",
+              "op": "=",
+              "value": "16MHz"
+            },
+            {
+              "name": "Supply Voltage",
+              "op": "=",
+              "value": "3.3V"
+            }
+          ],
+          "remaining_text": "",
+          "adjusted_filters": [
+            {
+              "filter": "Voltage Rating >= 3.3V",
+              "now": "Supply Voltage = 3.3V",
+              "reason": "few or none of these parts list Voltage Rating"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "TYPE-C-31-M-12",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C165948",
+            "model": "TYPE-C-31-M-12",
+            "manufacturer": "Korean Hroparts Elec",
+            "package": "SMD",
+            "stock": 351376,
+            "price": 0.1865,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Connectors",
+            "subcategory": "USB Connectors",
+            "subcategory_id": 2945,
+            "mounting_type": "smd",
+            "description": "-30℃~+80℃ 1 10,000 cycles 16P 20V 5A 7.35mm Female Surface Mount, Right Angle Type-C SMD USB Connectors ROHS",
+            "specs": {
+              "Operating Temperature": "-30℃~+80℃",
+              "Number of Ports": "1",
+              "Length": "7.35mm",
+              "Current Rating-Power": "5A",
+              "Voltage Rating": "20V",
+              "Connector Type": "Type-C",
+              "Number of Contacts": "16P",
+              "Gender": "Female",
+              "Connect-Disconnect Life": "10,000 cycles",
+              "Mounting Type": "Surface Mount, Right Angle",
+              "Protocol Standard": "-"
+            }
+          },
+          {
+            "lcsc": "C136423",
+            "model": "MC-311D",
+            "manufacturer": "SOFNG",
+            "package": "SMD",
+            "stock": 20995,
+            "price": 0.1548,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Connectors",
+            "subcategory": "USB Connectors",
+            "subcategory_id": 2945,
+            "mounting_type": "smd",
+            "description": "-35℃~+75℃ 1 12V 16P 5A 7.35mm 8,000 times、10000 times Black Female Surface Mount, Right Angle Type-C SMD USB Connectors ROHS",
+            "specs": {
+              "Operating Temperature": "-35℃~+75℃",
+              "Center Height": "-",
+              "Current Rating-Power": "5A",
+              "Voltage Rating": "12V",
+              "Gender": "Female",
+              "Mounting Type": "Surface Mount, Right Angle",
+              "Detection color": "Black",
+              "Number of Ports": "1",
+              "Length": "7.35mm",
+              "Connector Type": "Type-C",
+              "Supplementary Features": "-",
+              "Number of Contacts": "16P",
+              "Connect-Disconnect Life": "8,000 cycles、10000 times",
+              "Protocol Standard": "-"
+            }
+          }
+        ],
+        "total": 20,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "31 12",
+          "subcategory_id": 2945,
+          "subcategory_name": "usb connectors",
+          "subcategory_resolved": "USB Connectors",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Connector Type",
+              "op": "=",
+              "value": "Type-C"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 20
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TYPE-C-31-M-12",
+          "detected": {
+            "component_type": "type-c",
+            "subcategory": "usb connectors",
+            "semantic": [
+              "usb type-c (-> Connector Type=Type-C)"
+            ]
+          },
+          "subcategory": "usb connectors",
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Connector Type",
+              "op": "=",
+              "value": "Type-C"
+            }
+          ],
+          "remaining_text": "31 12"
+        }
+      }
+    },
+    {
+      "query": "20 ohm 0603 0.1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C136969",
+            "model": "RT0603BRD0720RL",
+            "manufacturer": "YAGEO",
+            "package": "0603",
+            "stock": 110319,
+            "price": 0.0487,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 20Ω 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "20Ω",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thin Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±0.1%",
+              "Temperature Coefficient": "±25ppm/℃"
+            }
+          }
+        ],
+        "total": 10,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "20Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "0.1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 10
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "20 ohm 0603 0.1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "20 ohm",
+                "type": "resistance",
+                "normalized": "20Ohm"
+              },
+              {
+                "raw": "0.1%",
+                "type": "tolerance",
+                "normalized": "0.1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "20Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "0.1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "200 ohm 0603 0.1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C861216",
+            "model": "RT0603BRD07200RL",
+            "manufacturer": "YAGEO",
+            "package": "0603",
+            "stock": 186239,
+            "price": 0.0436,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 200Ω 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "200Ω",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thin Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±0.1%",
+              "Temperature Coefficient": "±25ppm/℃"
+            }
+          }
+        ],
+        "total": 14,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "200Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "0.1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 14
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "200 ohm 0603 0.1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "200 ohm",
+                "type": "resistance",
+                "normalized": "200Ohm"
+              },
+              {
+                "raw": "0.1%",
+                "type": "tolerance",
+                "normalized": "0.1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "200Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "0.1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "RT0603BRD072KL",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C728588",
+            "model": "RT0603BRD072KL",
+            "manufacturer": "YAGEO",
+            "package": "0603",
+            "stock": 8632,
+            "price": 0.035,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 2kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "2kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thin Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±0.1%",
+              "Temperature Coefficient": "±25ppm/℃"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 3,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "RT0603BRD072KL",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "RT0603BRD072KL",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "RT0603BRD072KL"
+        }
+      }
+    },
+    {
+      "query": "20k ohm 0603 0.1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C3202456",
+            "model": "TR0603B20K0P0525Z",
+            "manufacturer": "Ever Ohms Tech",
+            "package": "0603",
+            "stock": 260,
+            "price": 0.0285,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 20kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "20kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thin Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±0.1%",
+              "Temperature Coefficient": "±25ppm/℃"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "ohm",
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "20kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "0.1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "20k ohm 0603 0.1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "20k",
+                "type": "resistance",
+                "normalized": "20kOhm"
+              },
+              {
+                "raw": "0.1%",
+                "type": "tolerance",
+                "normalized": "0.1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "20kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "0.1%"
+            }
+          ],
+          "remaining_text": "ohm"
+        }
+      }
+    },
+    {
+      "query": "100nF C0G",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C170182",
+            "model": "1206N104J500CT",
+            "manufacturer": "Walsin Tech Corp",
+            "package": "1206",
+            "stock": 168299,
+            "price": 0.162,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "100nF 50V NP0 ±5% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±5%",
+              "Capacitance": "100nF",
+              "Temperature Coefficient": "NP0"
+            }
+          },
+          {
+            "lcsc": "C97946",
+            "model": "GRM31C5C1H104JA01L",
+            "manufacturer": "Murata Electronics",
+            "package": "1206",
+            "stock": 87547,
+            "price": 0.3766,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "100nF 50V C0G ±5% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±5%",
+              "Capacitance": "100nF",
+              "Temperature Coefficient": "C0G"
+            }
+          },
+          {
+            "lcsc": "C405303",
+            "model": "GRM31C5C2A104JA01L",
+            "manufacturer": "Murata Electronics",
+            "package": "1206",
+            "stock": 15439,
+            "price": 0.4014,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "100V 100nF C0G ±5% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "100V",
+              "Tolerance": "±5%",
+              "Capacitance": "100nF",
+              "Temperature Coefficient": "C0G"
+            }
+          }
+        ],
+        "total": 41,
+        "page_info": {
+          "limit": 3,
+          "offset": 0,
+          "returned": 3
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "100nF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 41
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "100nF C0G",
+          "detected": {
+            "values": [
+              {
+                "raw": "100nF",
+                "type": "capacitance",
+                "normalized": "100nF"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt",
+            "semantic": [
+              "c0g",
+              "c0g",
+              "c0g"
+            ]
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "100nF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "10nF 0603 C0G",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C85973",
+            "model": "GRM1885C1H103JA01D",
+            "manufacturer": "Murata Electronics",
+            "package": "0603",
+            "stock": 295038,
+            "price": 0.0353,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "10nF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±5%",
+              "Capacitance": "10nF",
+              "Temperature Coefficient": "C0G"
+            }
+          }
+        ],
+        "total": 19,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "10nF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 19
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "10nF 0603 C0G",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "10nF",
+                "type": "capacitance",
+                "normalized": "10nF"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt",
+            "semantic": [
+              "c0g",
+              "c0g",
+              "c0g"
+            ]
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "10nF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "1nF 0603 C0G",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C106246",
+            "model": "CC0603JRNPO9BN102",
+            "manufacturer": "YAGEO",
+            "package": "0603",
+            "stock": 1588749,
+            "price": 0.0057,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "1nF 50V NP0 ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±5%",
+              "Capacitance": "1nF",
+              "Temperature Coefficient": "NP0"
+            }
+          }
+        ],
+        "total": 71,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "1nF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 71
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "1nF 0603 C0G",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "1nF",
+                "type": "capacitance",
+                "normalized": "1nF"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt",
+            "semantic": [
+              "c0g",
+              "c0g",
+              "c0g"
+            ]
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "1nF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "100pF 0603 C0G",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C14858",
+            "model": "CL10C101JB8NNNC",
+            "manufacturer": "Samsung Electro-Mechanics",
+            "package": "0603",
+            "stock": 3963003,
+            "price": 0.0086,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "100pF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±5%",
+              "Capacitance": "100pF",
+              "Temperature Coefficient": "C0G"
+            }
+          }
+        ],
+        "total": 94,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "100pF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 93
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "100pF 0603 C0G",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "100pF",
+                "type": "capacitance",
+                "normalized": "100pF"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt",
+            "semantic": [
+              "c0g",
+              "c0g",
+              "c0g"
+            ]
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "100pF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "1uF 0603 16V X7R",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C5199872",
+            "model": "CL10B105KB8NQNC",
+            "manufacturer": "Samsung Electro-Mechanics",
+            "package": "0603",
+            "stock": 2602163,
+            "price": 0.0258,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "1uF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±10%",
+              "Capacitance": "1uF",
+              "Temperature Coefficient": "X7R"
+            }
+          }
+        ],
+        "total": 105,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "1uF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "16V"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "X7R"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 105
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "1uF 0603 16V X7R",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "1uF",
+                "type": "capacitance",
+                "normalized": "1uF"
+              },
+              {
+                "raw": "16V",
+                "type": "voltage",
+                "normalized": "16V"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt",
+            "semantic": [
+              "x7r"
+            ]
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "1uF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "16V"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "X7R"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "4.7uF 0805 10V",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C1779",
+            "model": "CL21A475KAQNNNE",
+            "manufacturer": "Samsung Electro-Mechanics",
+            "package": "0805",
+            "stock": 2296132,
+            "price": 0.0384,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "25V 4.7uF X5R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "25V",
+              "Tolerance": "±10%",
+              "Capacitance": "4.7uF",
+              "Temperature Coefficient": "X5R"
+            }
+          }
+        ],
+        "total": 206,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "4.7uF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "10V"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0805",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 205
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "4.7uF 0805 10V",
+          "detected": {
+            "package": "0805",
+            "values": [
+              {
+                "raw": "4.7uF",
+                "type": "capacitance",
+                "normalized": "4.7uF"
+              },
+              {
+                "raw": "10V",
+                "type": "voltage",
+                "normalized": "10V"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt"
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0805",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "4.7uF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "10V"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "100nF 0603 50V",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C14663",
+            "model": "CC0603KRX7R9BB104",
+            "manufacturer": "YAGEO",
+            "package": "0603",
+            "stock": 39664609,
+            "price": 0.0108,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "100nF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±10%",
+              "Capacitance": "100nF",
+              "Temperature Coefficient": "X7R"
+            }
+          }
+        ],
+        "total": 159,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "100nF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "50V"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 158
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "100nF 0603 50V",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "100nF",
+                "type": "capacitance",
+                "normalized": "100nF"
+              },
+              {
+                "raw": "50V",
+                "type": "voltage",
+                "normalized": "50V"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt"
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "100nF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "50V"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "470nF 0603 16V",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C1623",
+            "model": "CL10B474KA8NNNC",
+            "manufacturer": "Samsung Electro-Mechanics",
+            "package": "0603",
+            "stock": 1294228,
+            "price": 0.0128,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "25V 470nF X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "25V",
+              "Tolerance": "±10%",
+              "Capacitance": "470nF",
+              "Temperature Coefficient": "X7R"
+            }
+          }
+        ],
+        "total": 107,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "470nF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "16V"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 106
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "470nF 0603 16V",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "470nF",
+                "type": "capacitance",
+                "normalized": "470nF"
+              },
+              {
+                "raw": "16V",
+                "type": "voltage",
+                "normalized": "16V"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt"
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "470nF"
+            },
+            {
+              "name": "Voltage Rating",
+              "op": ">=",
+              "value": "16V"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "22pF 0603 C0G",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C1653",
+            "model": "CL10C220JB8NNNC",
+            "manufacturer": "Samsung Electro-Mechanics",
+            "package": "0603",
+            "stock": 2118035,
+            "price": 0.006,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "22pF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {
+              "Voltage Rating": "50V",
+              "Tolerance": "±5%",
+              "Capacitance": "22pF",
+              "Temperature Coefficient": "C0G"
+            }
+          }
+        ],
+        "total": 70,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2929,
+          "subcategory_name": "multilayer ceramic capacitors mlcc - smd/smt",
+          "subcategory_resolved": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "22pF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 69
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "22pF 0603 C0G",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "22pF",
+                "type": "capacitance",
+                "normalized": "22pF"
+              }
+            ],
+            "subcategory_inferred": "multilayer ceramic capacitors mlcc - smd/smt",
+            "semantic": [
+              "c0g",
+              "c0g",
+              "c0g"
+            ]
+          },
+          "subcategory": "multilayer ceramic capacitors mlcc - smd/smt",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Capacitance",
+              "op": "=",
+              "value": "22pF"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "C0G"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "NP0"
+            },
+            {
+              "name": "Temperature Coefficient",
+              "op": "=",
+              "value": "COG"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "47k 0603 1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C25819",
+            "model": "0603WAF4702T5E",
+            "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+            "package": "0603",
+            "stock": 1828130,
+            "price": 0.0035,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 47kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "47kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thick Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±1%",
+              "Temperature Coefficient": "±100ppm/℃"
+            }
+          }
+        ],
+        "total": 47,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "47kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 46
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "47k 0603 1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "47k",
+                "type": "resistance",
+                "normalized": "47kOhm"
+              },
+              {
+                "raw": "1%",
+                "type": "tolerance",
+                "normalized": "1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "47kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "10k 0603 1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C25804",
+            "model": "0603WAF1002T5E",
+            "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+            "package": "0603",
+            "stock": 38947605,
+            "price": 0.0054,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 10kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "10kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thick Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±1%",
+              "Temperature Coefficient": "±100ppm/℃"
+            }
+          }
+        ],
+        "total": 81,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "10kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 80
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "10k 0603 1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "10k",
+                "type": "resistance",
+                "normalized": "10kOhm"
+              },
+              {
+                "raw": "1%",
+                "type": "tolerance",
+                "normalized": "1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "10kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "5.1k 0603 1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C23186",
+            "model": "0603WAF5101T5E",
+            "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+            "package": "0603",
+            "stock": 23270681,
+            "price": 0.0015,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 5.1kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "5.1kΩ",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thick Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±1%",
+              "Temperature Coefficient": "±100ppm/℃"
+            }
+          }
+        ],
+        "total": 60,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "5.1kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 59
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "5.1k 0603 1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "5.1k",
+                "type": "resistance",
+                "normalized": "5.1kOhm"
+              },
+              {
+                "raw": "1%",
+                "type": "tolerance",
+                "normalized": "1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "5.1kOhm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "10 ohm 0603 1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C22859",
+            "model": "0603WAF100JT5E",
+            "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+            "package": "0603",
+            "stock": 5930259,
+            "price": 0.0032,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 10Ω 75V Thick Film Resistor ±1% ±400ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "10Ω",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thick Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±1%",
+              "Temperature Coefficient": "±400ppm/℃"
+            }
+          }
+        ],
+        "total": 65,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "10Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 64
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "10 ohm 0603 1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "10 ohm",
+                "type": "resistance",
+                "normalized": "10Ohm"
+              },
+              {
+                "raw": "1%",
+                "type": "tolerance",
+                "normalized": "1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "10Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "33 ohm 0603 1%",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C23140",
+            "model": "0603WAF330JT5E",
+            "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+            "package": "0603",
+            "stock": 4864993,
+            "price": 0.0024,
+            "price_10": null,
+            "library_type": "basic",
+            "preferred": true,
+            "category": "Resistors",
+            "subcategory": "Chip Resistor - Surface Mount",
+            "subcategory_id": 2980,
+            "mounting_type": "smd",
+            "description": "-55℃~+155℃ 100mW 33Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+            "specs": {
+              "Resistance": "33Ω",
+              "Operating Temperature": "-55℃~+155℃",
+              "Power(Watts)": "100mW",
+              "Type": "Thick Film Resistor",
+              "Voltage-Supply(Max)": "75V",
+              "Tolerance": "±1%",
+              "Temperature Coefficient": "±100ppm/℃"
+            }
+          }
+        ],
+        "total": 52,
+        "page_info": {
+          "limit": 1,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": null,
+          "subcategory_id": 2980,
+          "subcategory_name": "chip resistor - surface mount",
+          "subcategory_resolved": "Chip Resistor - Surface Mount",
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "33Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": "0603",
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 1,
+          "preferred": 0,
+          "extended": 51
+        },
+        "no_fee_available": true,
+        "parsed": {
+          "original_query": "33 ohm 0603 1%",
+          "detected": {
+            "package": "0603",
+            "values": [
+              {
+                "raw": "33 ohm",
+                "type": "resistance",
+                "normalized": "33Ohm"
+              },
+              {
+                "raw": "1%",
+                "type": "tolerance",
+                "normalized": "1%"
+              }
+            ],
+            "subcategory_inferred": "chip resistor - surface mount"
+          },
+          "subcategory": "chip resistor - surface mount",
+          "package": "0603",
+          "mounting_type": null,
+          "spec_filters": [
+            {
+              "name": "Resistance",
+              "op": "=",
+              "value": "33Ohm"
+            },
+            {
+              "name": "Tolerance",
+              "op": "=",
+              "value": "1%"
+            }
+          ],
+          "remaining_text": ""
+        }
+      }
+    },
+    {
+      "query": "TSW-102-07-G-S",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C7402729",
+            "model": "TSW-102-07-G-S",
+            "manufacturer": "Samtec",
+            "package": "Plugin,P=2.54mm",
+            "stock": 3117,
+            "price": 0.3002,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Connectors",
+            "subcategory": "Pin Headers",
+            "subcategory_id": 3127,
+            "mounting_type": "through_hole",
+            "description": "-55℃~+125℃ 1 1x2P 2.54mm 2.54mm 2.54mm 2P 5.84mm Black Gold Phosphor bronze Pin Header Through Hole 插件,P=2.54mm Pin Headers ROHS",
+            "specs": {
+              "Operating Temperature": "-55℃~+125℃",
+              "Number of Rows": "1",
+              "Insulation Height": "2.54mm",
+              "Length of End Connection Pin": "2.54mm",
+              "Color": "Black",
+              "Row Spacing": "-",
+              "Mounting Type": "Through Hole",
+              "Contact Plating": "Gold",
+              "Number of Pins": "2P",
+              "Pitch": "2.54mm",
+              "Contact Material": "Phosphor bronze",
+              "Pin Structure": "1x2P",
+              "Length of Mating Pin": "5.84mm",
+              "Circluar Pins/Square Pins": "Square pin"
+            }
+          },
+          {
+            "lcsc": "C3331037",
+            "model": "TSW-102-07-F-S",
+            "manufacturer": "Samtec",
+            "package": "Plugin,P=2.54mm",
+            "stock": 2936,
+            "price": 0.1683,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Connectors",
+            "subcategory": "Pin Headers",
+            "subcategory_id": 3127,
+            "mounting_type": "through_hole",
+            "description": "-55℃~+125℃ 1 1x2P 2.54mm 2.54mm 2.54mm 2P 5.84mm Black Phosphor bronze Pin Header Through Hole Tin 插件,P=2.54mm Pin Headers ROHS",
+            "specs": {
+              "Operating Temperature": "-55℃~+125℃",
+              "Number of Rows": "1",
+              "Voltage Rating (Max)": "-",
+              "Insulation Height": "2.54mm",
+              "Length of End Connection Pin": "2.54mm",
+              "Color": "Black",
+              "Current Rating": "-",
+              "Row Spacing": "-",
+              "Mounting Type": "Through Hole",
+              "Contact Plating": "Tin",
+              "Number of Pins": "2P",
+              "Pitch": "2.54mm",
+              "Contact Material": "Phosphor bronze",
+              "Pin Structure": "1x2P",
+              "Length of Mating Pin": "5.84mm",
+              "Circluar Pins/Square Pins": "Square pin"
+            }
+          },
+          {
+            "lcsc": "C7365746",
+            "model": "TSW-102-07-L-S",
+            "manufacturer": "Samtec",
+            "package": "Plugin,P=2.54mm",
+            "stock": 1083,
+            "price": 0.2392,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Connectors",
+            "subcategory": "Pin Headers",
+            "subcategory_id": 3127,
+            "mounting_type": "through_hole",
+            "description": "-55℃~+125℃ 1 1x2P 2.54mm 2.54mm 2.54mm 2P 5.84mm Black Phosphor bronze Pin Header Through Hole Tin 插件,P=2.54mm Pin Headers ROHS",
+            "specs": {
+              "Operating Temperature": "-55℃~+125℃",
+              "Number of Rows": "1",
+              "Insulation Height": "2.54mm",
+              "Length of End Connection Pin": "2.54mm",
+              "Color": "Black",
+              "Row Spacing": "-",
+              "Mounting Type": "Through Hole",
+              "Contact Plating": "Tin",
+              "Number of Pins": "2P",
+              "Pitch": "2.54mm",
+              "Contact Material": "Phosphor bronze",
+              "Pin Structure": "1x2P",
+              "Length of Mating Pin": "5.84mm",
+              "Circluar Pins/Square Pins": "Square pin"
+            }
+          }
+        ],
+        "total": 6,
+        "page_info": {
+          "limit": 3,
+          "offset": 0,
+          "returned": 3
+        },
+        "filters_applied": {
+          "query": "TSW 102 07",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 6
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TSW-102-07-G-S",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "TSW 102 07"
+        }
+      }
+    },
+    {
+      "query": "C725988",
+      "result": {
+        "lcsc": "C725988",
+        "model": "OT322516MJBA4SL",
+        "manufacturer": "YXC Crystal Oscillators",
+        "package": "SMD3225-4P",
+        "stock": 5941,
+        "price": 0.621,
+        "price_10": 0.4952,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Crystals, Oscillators, Resonators",
+        "subcategory": "Crystal Oscillators",
+        "subcategory_id": 2942,
+        "mounting_type": "smd",
+        "specs": {
+          "Operating Temperature": "-40℃~+85℃",
+          "Normal temperature Frequency Tolerance": "±10ppm",
+          "Output Type": "CMOS",
+          "Voltage - Supply": "1.8V~3.3V",
+          "Frequency Stability": "±20ppm",
+          "Frequency": "16MHz"
+        },
+        "description": "-40℃~+85℃ 1.8V~3.3V 16MHz CMOS ±10ppm ±20ppm SMD3225-4P Crystal Oscillators ROHS",
+        "min_order": 1,
+        "reel_qty": 3000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407310922_YXC-Crystal-Oscillators-OT322516MJBA4SL_C725988.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/crystal-oscillators_yxc-crystal-oscillators-ot322516mjba4sl_C725988.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.621
+          },
+          {
+            "qty": "10+",
+            "price": 0.4952
+          },
+          {
+            "qty": "30+",
+            "price": 0.4412
+          },
+          {
+            "qty": "100+",
+            "price": 0.3726
+          },
+          {
+            "qty": "500+",
+            "price": 0.2925
+          },
+          {
+            "qty": "1000+",
+            "price": 0.2746
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Operating Temperature",
+            "value": "-40℃~+85℃"
+          },
+          {
+            "name": "Normal temperature Frequency Tolerance",
+            "value": "±10ppm"
+          },
+          {
+            "name": "Output Type",
+            "value": "CMOS"
+          },
+          {
+            "name": "Voltage - Supply",
+            "value": "1.8V~3.3V"
+          },
+          {
+            "name": "Frequency Stability",
+            "value": "±20ppm"
+          },
+          {
+            "name": "Frequency",
+            "value": "16MHz"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "c92f19d4e6774413b56c5bcfbf0d47d1",
+        "easyeda_footprint_uuid": "fde525906f004b04890fe3f9fe02cca8"
+      }
+    },
+    {
+      "query": "C165948",
+      "result": {
+        "lcsc": "C165948",
+        "model": "TYPE-C-31-M-12",
+        "manufacturer": "Korean Hroparts Elec",
+        "package": "SMD",
+        "stock": 344505,
+        "price": 0.1867,
+        "price_10": 0.1474,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Connectors",
+        "subcategory": "USB Connectors",
+        "subcategory_id": 2945,
+        "mounting_type": "smd",
+        "specs": {
+          "Operating Temperature": "-30℃~+80℃",
+          "Number of Ports": "1",
+          "Length": "7.35mm",
+          "Current Rating-Power": "5A",
+          "Voltage Rating": "20V",
+          "Connector Type": "Type-C",
+          "Number of Contacts": "16P",
+          "Gender": "Female",
+          "Connect-Disconnect Life": "10,000 cycles",
+          "Mounting Type": "Surface Mount, Right Angle",
+          "Protocol Standard": "-"
+        },
+        "description": "-30℃~+80℃ 1 10,000 cycles 16P 20V 5A 7.35mm Female Surface Mount, Right Angle Type-C SMD USB Connectors ROHS",
+        "min_order": 1,
+        "reel_qty": 1000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2205251630_Korean-Hroparts-Elec-TYPE-C-31-M-12_C165948.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/usb-connectors_korean-hroparts-elec-type-c-31-m-12_C165948.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.1867
+          },
+          {
+            "qty": "50+",
+            "price": 0.1474
+          },
+          {
+            "qty": "150+",
+            "price": 0.1282
+          },
+          {
+            "qty": "1000+",
+            "price": 0.104
+          },
+          {
+            "qty": "2000+",
+            "price": 0.0992
+          },
+          {
+            "qty": "5000+",
+            "price": 0.0965
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Operating Temperature",
+            "value": "-30℃~+80℃"
+          },
+          {
+            "name": "Number of Ports",
+            "value": "1"
+          },
+          {
+            "name": "Length",
+            "value": "7.35mm"
+          },
+          {
+            "name": "Current Rating-Power",
+            "value": "5A"
+          },
+          {
+            "name": "Voltage Rating",
+            "value": "20V"
+          },
+          {
+            "name": "Connector Type",
+            "value": "Type-C"
+          },
+          {
+            "name": "Number of Contacts",
+            "value": "16P"
+          },
+          {
+            "name": "Gender",
+            "value": "Female"
+          },
+          {
+            "name": "Connect-Disconnect Life",
+            "value": "10,000 cycles"
+          },
+          {
+            "name": "Mounting Type",
+            "value": "Surface Mount, Right Angle"
+          },
+          {
+            "name": "Protocol Standard",
+            "value": "-"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "df8405e2fa0e40a984c435ad4c8d5cf3",
+        "easyeda_footprint_uuid": "d556fcebb18d4647a249a7d49ea0c41d"
+      }
+    },
+    {
+      "query": "C51118",
+      "result": {
+        "lcsc": "C51118",
+        "model": "AP2112K-3.3TRG1",
+        "manufacturer": "Diodes Incorporated",
+        "package": "SOT-25-5",
+        "stock": 18165,
+        "price": 0.1772,
+        "price_10": 0.1406,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Power Management (PMIC)",
+        "subcategory": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "subcategory_id": 2956,
+        "mounting_type": "smd",
+        "specs": {
+          "Power Supply Rejection Ratio (PSRR)": "65dB@(1kHz)",
+          "Operating Temperature": "-40℃~+85℃@(Ta)",
+          "standby current": "55uA",
+          "Noise": "50uVrms",
+          "Voltage - Supply": "6V",
+          "Output Type": "Fixed",
+          "Output Current": "600mA",
+          "Output Configuration": "Positive",
+          "Features": "Over Current Protection、Short Circuit Protection、Thermal shutdown、Enable control、Output discharge",
+          "Voltage Dropout": "250mV@(600mA)",
+          "Output Voltage": "3.3V",
+          "Number of Outputs": "1"
+        },
+        "description": "-40℃~+85℃@(Ta) 1 250mV@(600mA) 3.3V 50uVrms 55uA 600mA 65dB@(1kHz) 6V Fixed Over Current Protection、Thermal Shutdown、Enable control Positive SOT-25-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "min_order": 1,
+        "reel_qty": 3000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Diodes-Incorporated-AP2112K-3-3TRG1_C51118.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_diodes-incorporated-ap2112k-3-3trg1_C51118.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.1772
+          },
+          {
+            "qty": "50+",
+            "price": 0.1406
+          },
+          {
+            "qty": "150+",
+            "price": 0.1226
+          },
+          {
+            "qty": "500+",
+            "price": 0.1066
+          },
+          {
+            "qty": "3000+",
+            "price": 0.0976
+          },
+          {
+            "qty": "6000+",
+            "price": 0.0948
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Power Supply Rejection Ratio (PSRR)",
+            "value": "65dB@(1kHz)"
+          },
+          {
+            "name": "Operating Temperature",
+            "value": "-40℃~+85℃@(Ta)"
+          },
+          {
+            "name": "standby current",
+            "value": "55uA"
+          },
+          {
+            "name": "Noise",
+            "value": "50uVrms"
+          },
+          {
+            "name": "Voltage - Supply",
+            "value": "6V"
+          },
+          {
+            "name": "Output Type",
+            "value": "Fixed"
+          },
+          {
+            "name": "Output Current",
+            "value": "600mA"
+          },
+          {
+            "name": "Output Configuration",
+            "value": "Positive"
+          },
+          {
+            "name": "Features",
+            "value": "Over Current Protection、Short Circuit Protection、Thermal shutdown、Enable control、Output discharge"
+          },
+          {
+            "name": "Voltage Dropout",
+            "value": "250mV@(600mA)"
+          },
+          {
+            "name": "Output Voltage",
+            "value": "3.3V"
+          },
+          {
+            "name": "Number of Outputs",
+            "value": "1"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "ed114c3e62d8498cbfcaae87b4acc871",
+        "easyeda_footprint_uuid": "7ec9305c6bfd40199d1dde43ba8e9df2"
+      }
+    },
+    {
+      "query": "C7519",
+      "result": {
+        "lcsc": "C7519",
+        "model": "USBLC6-2SC6",
+        "manufacturer": "STMicroelectronics",
+        "package": "SOT-23-6L",
+        "stock": 44204,
+        "price": 0.1776,
+        "price_10": 0.1367,
+        "library_type": "extended",
+        "preferred": false,
+        "category": "Circuit Protection",
+        "subcategory": "ESD and Surge Protection (TVS/ESD)",
+        "subcategory_id": 3035,
+        "mounting_type": "smd",
+        "specs": {
+          "Operating Temperature": "-40℃~+125℃@(Tj)",
+          "Type": "ESD",
+          "Junction Capacitance": "3.5pF",
+          "Number of Channels": "2",
+          "level of protection": "IEC 61000-4-2",
+          "Clamping Voltage": "17V",
+          "Polarity": "Unidirectional",
+          "Peak Pulse Current (Ipp)": "5A",
+          "Voltage - Breakdown": "6V",
+          "Reverse Stand-Off Voltage (Vrwm)": "5.25V",
+          "Reverse Leakage Current (Ir)": "150nA"
+        },
+        "description": "-40℃~+125℃ 150nA 17V 2 3.5pF 5.25V 5A 6V ESD IEC 61000-4-2 Unidirectional SOT-23-6L ESD and Surge Protection (TVS/ESD) ROHS",
+        "min_order": 1,
+        "reel_qty": 3000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121836_STMicroelectronics-USBLC6-2SC6_C7519.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/esd-and-surge-protection-tvs-esd_stmicroelectronics-usblc6-2sc6_C7519.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.1776
+          },
+          {
+            "qty": "50+",
+            "price": 0.1367
+          },
+          {
+            "qty": "150+",
+            "price": 0.1167
+          },
+          {
+            "qty": "500+",
+            "price": 0.0989
+          },
+          {
+            "qty": "3000+",
+            "price": 0.094
+          },
+          {
+            "qty": "6000+",
+            "price": 0.0911
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Operating Temperature",
+            "value": "-40℃~+125℃@(Tj)"
+          },
+          {
+            "name": "Type",
+            "value": "ESD"
+          },
+          {
+            "name": "Junction Capacitance",
+            "value": "3.5pF"
+          },
+          {
+            "name": "Number of Channels",
+            "value": "2"
+          },
+          {
+            "name": "level of protection",
+            "value": "IEC 61000-4-2"
+          },
+          {
+            "name": "Clamping Voltage",
+            "value": "17V"
+          },
+          {
+            "name": "Polarity",
+            "value": "Unidirectional"
+          },
+          {
+            "name": "Peak Pulse Current (Ipp)",
+            "value": "5A"
+          },
+          {
+            "name": "Voltage - Breakdown",
+            "value": "6V"
+          },
+          {
+            "name": "Reverse Stand-Off Voltage (Vrwm)",
+            "value": "5.25V"
+          },
+          {
+            "name": "Reverse Leakage Current (Ir)",
+            "value": "150nA"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "500a3f7114117ba365957f7c04b0814c",
+        "easyeda_footprint_uuid": "9a066f903e65476fa74739d5e9b0ceb9"
+      }
+    },
+    {
+      "query": "C22935",
+      "result": {
+        "lcsc": "C22935",
+        "model": "0603WAF1004T5E",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "package": "0603",
+        "stock": 5454974,
+        "price": 0.0021,
+        "price_10": 0.0016,
+        "library_type": "basic",
+        "preferred": false,
+        "category": "Resistors",
+        "subcategory": "Chip Resistor - Surface Mount",
+        "subcategory_id": 2980,
+        "mounting_type": "smd",
+        "specs": {
+          "Resistance": "1MΩ",
+          "Operating Temperature": "-55℃~+155℃",
+          "Power(Watts)": "100mW",
+          "Type": "Thick Film Resistor",
+          "Voltage-Supply(Max)": "75V",
+          "Tolerance": "±1%",
+          "Temperature Coefficient": "±100ppm/℃"
+        },
+        "description": "-55℃~+155℃ 100mW 1MΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+        "min_order": 1,
+        "reel_qty": 5000,
+        "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF1004T5E_C22935.pdf",
+        "lcsc_url": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_uni-royal-uniroyal-elec-0603waf1004t5e_C22935.html",
+        "prices": [
+          {
+            "qty": "1+",
+            "price": 0.0021
+          },
+          {
+            "qty": "1000+",
+            "price": 0.0016
+          },
+          {
+            "qty": "5000+",
+            "price": 0.0013
+          },
+          {
+            "qty": "10000+",
+            "price": 0.0012
+          },
+          {
+            "qty": "50000+",
+            "price": 0.001
+          },
+          {
+            "qty": "50200+",
+            "price": 0.001
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Resistance",
+            "value": "1MΩ"
+          },
+          {
+            "name": "Operating Temperature",
+            "value": "-55℃~+155℃"
+          },
+          {
+            "name": "Power(Watts)",
+            "value": "100mW"
+          },
+          {
+            "name": "Type",
+            "value": "Thick Film Resistor"
+          },
+          {
+            "name": "Voltage-Supply(Max)",
+            "value": "75V"
+          },
+          {
+            "name": "Tolerance",
+            "value": "±1%"
+          },
+          {
+            "name": "Temperature Coefficient",
+            "value": "±100ppm/℃"
+          }
+        ],
+        "has_easyeda_footprint": true,
+        "easyeda_symbol_uuid": "739ad43e70f87969aa0056ebc970a314",
+        "easyeda_footprint_uuid": "398691f1f785460098bbe5ee6590333c"
+      }
+    }
+  ]
+}

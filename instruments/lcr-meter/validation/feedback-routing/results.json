@@ -1,0 +1,17 @@
+{
+  "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+  "method": "Native KiCad segment graph, physical vias/PTH only; planar lengths exclude component conductors and vertical via length",
+  "paths": [
+    {"name":"local_cf_input","start":"U7.2","end":"C104.1","net":"DUT_LO","planar_mm":2.337500,"layer_transitions":0},
+    {"name":"local_cf_output","start":"C104.2","end":"U7.1","net":"TIA_OUT","planar_mm":2.110902,"layer_transitions":0},
+    {"name":"100r_input","start":"U7.2","end":"R43.1","net":"DUT_LO","planar_mm":6.487500,"layer_transitions":0},
+    {"name":"100r_rf_to_header","start":"R43.2","end":"JP4.2","net":"RF100","planar_mm":2.929891,"layer_transitions":0},
+    {"name":"100r_header_to_output","start":"JP4.1","end":"U7.1","net":"TIA_OUT","planar_mm":7.485902,"layer_transitions":0},
+    {"name":"5k_input","start":"U7.2","end":"R44.1","net":"DUT_LO","planar_mm":11.987500,"layer_transitions":0},
+    {"name":"5k_rf_to_header","start":"R44.2","end":"JP5.2","net":"RF5K","planar_mm":8.476808,"layer_transitions":0},
+    {"name":"5k_header_to_output","start":"JP5.1","end":"U7.1","net":"TIA_OUT","planar_mm":27.609008,"layer_transitions":0},
+    {"name":"100k_input","start":"U7.2","end":"R45.1","net":"DUT_LO","planar_mm":8.387500,"layer_transitions":0},
+    {"name":"100k_rf_to_header","start":"R45.2","end":"JP6.2","net":"RF100K","planar_mm":3.459264,"layer_transitions":0},
+    {"name":"100k_header_to_output","start":"JP6.1","end":"U7.1","net":"TIA_OUT","planar_mm":17.609008,"layer_transitions":0}
+  ]
+}

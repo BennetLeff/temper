@@ -1,0 +1,271 @@
+{
+  "board_sha256": "15546293b47b16b7edba8a79bdc3feafe582b2b85618be469d930ba27e1816d9",
+  "method": "pcbnew native pad positions and rectangular rule-area bounds; center coverage only, supplemented by actual Gerber review",
+  "opa_bypass_distances": [
+    {
+      "ic": "U6",
+      "pin": "8",
+      "capacitor": "C50",
+      "supply_pad_center_distance_mm": 2.05
+    },
+    {
+      "ic": "U6",
+      "pin": "4",
+      "capacitor": "C51",
+      "supply_pad_center_distance_mm": 2.031
+    },
+    {
+      "ic": "U7",
+      "pin": "8",
+      "capacitor": "C52",
+      "supply_pad_center_distance_mm": 2.05
+    },
+    {
+      "ic": "U7",
+      "pin": "4",
+      "capacitor": "C53",
+      "supply_pad_center_distance_mm": 2.0315
+    }
+  ],
+  "opa_signal_pin_plane_relief": [
+    {
+      "reference": "U6",
+      "pin": "1",
+      "relief": [
+        {
+          "name": "U6 source follower output relief",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "U6 source follower output relief",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "U6 source follower output relief",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "2",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "3",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "5",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "6",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "7",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "1",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "2",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "3",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "5",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "6",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "7",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    }
+  ],
+  "non_ground_tracks_on_ground_layer": 0,
+  "adc_reference_capacitor_distances": [
+    {
+      "adc_pin": "3",
+      "capacitor": "C74",
+      "pad_center_distance_mm": 1.8467
+    },
+    {
+      "adc_pin": "5",
+      "capacitor": "C75",
+      "pad_center_distance_mm": 4.8939
+    },
+    {
+      "adc_pin": "10",
+      "capacitor": "C73",
+      "pad_center_distance_mm": 2.5995
+    },
+    {
+      "adc_pin": "31",
+      "capacitor": "C72",
+      "pad_center_distance_mm": 2.5995
+    }
+  ]
+}

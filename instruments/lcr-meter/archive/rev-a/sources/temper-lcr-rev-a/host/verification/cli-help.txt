@@ -1,0 +1,15 @@
+temper-lcr — revision A prototype bench instrument
+
+list
+capture --unit UNIT --fixture FIXTURE --range r20 --start 35000 --stop 60000
+        --points 51 --out CAPTURE.json [--averages 4] [--settling 15] [--serial SERIAL]
+calibrate --open OPEN.json --a A.json --ra 10 --b B.json --rb 40 --out CAL.json
+convert --cal CAL.json --raw DUT.json --out DUT.csv
+
+Capture open, load A, load B, and DUT with identical settings and the same fixture.
+Standards are measured resistance in ohms; their HF parasitics remain an uncertainty.
+Range is an OPERATOR ASSERTION: this PCB cannot read the physical range jumper.
+Only connect isolated, fully discharged components. Neither DUT terminal is ground.
+No ADC clipping detector, guaranteed ESR floor, USB isolation or milliohm mode.
+1kHz r20 acquisition is experimental pending bench qualification.
+Output files are never overwritten. No custom MCU firmware is required.

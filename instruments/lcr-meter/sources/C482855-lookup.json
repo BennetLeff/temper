@@ -1,0 +1,88 @@
+{
+  "lcsc": "C482855",
+  "model": "RC0603FR-074R32L",
+  "manufacturer": "YAGEO",
+  "package": "0603",
+  "stock": 4972,
+  "price": 0.0066,
+  "price_10": 0.0052,
+  "library_type": "extended",
+  "preferred": false,
+  "category": "Resistors",
+  "subcategory": "Chip Resistor - Surface Mount",
+  "subcategory_id": 2980,
+  "mounting_type": "smd",
+  "specs": {
+    "Resistance": "4.32Ω",
+    "Operating Temperature": "-55℃~+155℃",
+    "Power(Watts)": "100mW",
+    "Type": "Thick Film Resistor",
+    "Voltage-Supply(Max)": "75V",
+    "Tolerance": "±1%",
+    "Temperature Coefficient": "±200ppm/℃"
+  },
+  "description": "-55℃~+155℃ 100mW 4.32Ω 75V Thick Film Resistor ±1% ±200ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+  "min_order": 1,
+  "reel_qty": 5000,
+  "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2007151220_YAGEO-RC0603FR-074R32L_C482855.pdf",
+  "lcsc_url": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_yageo-rc0603fr-074r32l_C482855.html",
+  "prices": [
+    {
+      "qty": "1+",
+      "price": 0.0066
+    },
+    {
+      "qty": "1000+",
+      "price": 0.0052
+    },
+    {
+      "qty": "5000+",
+      "price": 0.0044
+    },
+    {
+      "qty": "10000+",
+      "price": 0.0039
+    },
+    {
+      "qty": "50000+",
+      "price": 0.0035
+    },
+    {
+      "qty": "100000+",
+      "price": 0.0033
+    }
+  ],
+  "attributes": [
+    {
+      "name": "Resistance",
+      "value": "4.32Ω"
+    },
+    {
+      "name": "Operating Temperature",
+      "value": "-55℃~+155℃"
+    },
+    {
+      "name": "Power(Watts)",
+      "value": "100mW"
+    },
+    {
+      "name": "Type",
+      "value": "Thick Film Resistor"
+    },
+    {
+      "name": "Voltage-Supply(Max)",
+      "value": "75V"
+    },
+    {
+      "name": "Tolerance",
+      "value": "±1%"
+    },
+    {
+      "name": "Temperature Coefficient",
+      "value": "±200ppm/℃"
+    }
+  ],
+  "has_easyeda_footprint": true,
+  "easyeda_symbol_uuid": "ef70a227e83c49dbb941be99bbeb96fb",
+  "easyeda_footprint_uuid": "398691f1f785460098bbe5ee6590333c"
+}

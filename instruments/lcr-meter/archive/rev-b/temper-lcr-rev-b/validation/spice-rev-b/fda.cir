@@ -1,0 +1,31 @@
+Standalone THS4551 RGT gain1 and ADC RC load; ideal zero-ohm sources
+.include ../../sources/ti/models/ths4551.lib
+V5 vp 0 5
+Vcm cm 0 2.048
+Vin inp 0 DC 0 AC 1 PULSE(0 0.01 1u 10n 10n 4u 10u)
+Rin1 inp ip 1k
+Rin2 0 im 1k
+Rf1 om fbm 3.3
+Rf2 op fbp 3.3
+Rfb1 fbm ip 1k
+Rfb2 fbp im 1k
+X1 ip im op om cm vp 0 THS4551
+Ri1 op ap 4.02
+Ri2 om am 4.02
+Cf1 ap 0 330p
+Cf2 am 0 330p
+Cfd ap am 3.3n
+Cadc1 ap 0 16p
+Cadc2 am 0 16p
+.control
+set wr_singlescale
+set wr_vecnames
+ac dec 120 10 1G
+let diff=v(ap)-v(am)
+wrdata fda_ac.dat real(diff) imag(diff)
+tran 1n 4u
+let diff=v(ap)-v(am)
+wrdata fda_step.dat v(inp) diff
+quit
+.endc
+.end

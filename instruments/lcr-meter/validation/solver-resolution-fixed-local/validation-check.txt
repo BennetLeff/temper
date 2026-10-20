@@ -1,0 +1,51 @@
+warning: function `reorder` is never used
+  --> strict_order.rs:10:8
+   |
+10 | pub fn reorder(deck: &str, order: u64) -> String {
+   |        ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `find_order` is never used
+  --> strict_order.rs:77:8
+   |
+77 | pub fn find_order(tag: &str, deck: &str, max_orders: u64) -> Result<(u64, String), String> {
+   |        ^^^^^^^^^^
+
+warning: 2 warnings emitted
+
+PASS eight full-network pulse cases and three 21-point AC sweeps; finite/MID/DC/KCL/headroom/endtime guards applied
+warning: function `reorder` is never used
+  --> strict_order.rs:10:8
+   |
+10 | pub fn reorder(deck: &str, order: u64) -> String {
+   |        ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `find_order` is never used
+  --> strict_order.rs:77:8
+   |
+77 | pub fn find_order(tag: &str, deck: &str, max_orders: u64) -> Result<(u64, String), String> {
+   |        ^^^^^^^^^^
+
+warning: 2 warnings emitted
+
+PASS three matched100kHzsines and one10mVcommon-mode step; fullbias/finite/KCL/headroom/endtime guards; AC-to-transient amplitude consistency within1%
+warning: function `reorder` is never used
+  --> strict_order.rs:10:8
+   |
+10 | pub fn reorder(deck: &str, order: u64) -> String {
+   |        ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `find_order` is never used
+  --> strict_order.rs:77:8
+   |
+77 | pub fn find_order(tag: &str, deck: &str, max_orders: u64) -> Result<(u64, String), String> {
+   |        ^^^^^^^^^^
+
+warning: 2 warnings emitted
+
+PASS four stage53 load-equivalent OP/AC/sine cases, actualtargetfrequencies, fullbiasfinite/KCL/headroom/endtimeandAC/transient consistency

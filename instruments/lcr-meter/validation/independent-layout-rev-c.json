@@ -1,0 +1,525 @@
+{
+  "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+  "method": "pcbnew native pad positions and rectangular rule-area bounds; center coverage only, supplemented by actual Gerber review",
+  "opa_bypass_distances": [
+    {
+      "ic": "U6",
+      "pin": "8",
+      "capacitor": "C50",
+      "supply_pad_center_distance_mm": 2.05
+    },
+    {
+      "ic": "U6",
+      "pin": "4",
+      "capacitor": "C51",
+      "supply_pad_center_distance_mm": 2.031
+    },
+    {
+      "ic": "U7",
+      "pin": "8",
+      "capacitor": "C52",
+      "supply_pad_center_distance_mm": 2.05
+    },
+    {
+      "ic": "U7",
+      "pin": "4",
+      "capacitor": "C53",
+      "supply_pad_center_distance_mm": 2.0315
+    }
+  ],
+  "opa_signal_pin_plane_relief": [
+    {
+      "reference": "U6",
+      "pin": "1",
+      "relief": [
+        {
+          "name": "U6 source follower output relief",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "U6 source follower output relief",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "U6 source follower output relief",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "2",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "3",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "5",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "6",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U6",
+      "pin": "7",
+      "relief": [
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 high sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "1",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "2",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "3",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "5",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "6",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    },
+    {
+      "reference": "U7",
+      "pin": "7",
+      "relief": [
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "B.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In1.Cu"
+        },
+        {
+          "name": "OPA2810 TIA and low sense signal pins",
+          "layer": "In2.Cu"
+        }
+      ]
+    }
+  ],
+  "non_ground_tracks_on_ground_layer": 0,
+  "adc_reference_capacitor_distances": [
+    {
+      "adc_pin": "3",
+      "capacitor": "C74",
+      "pad_center_distance_mm": 1.8467
+    },
+    {
+      "adc_pin": "5",
+      "capacitor": "C75",
+      "pad_center_distance_mm": 4.8939
+    },
+    {
+      "adc_pin": "10",
+      "capacitor": "C73",
+      "pad_center_distance_mm": 2.5995
+    },
+    {
+      "adc_pin": "31",
+      "capacitor": "C72",
+      "pad_center_distance_mm": 2.5995
+    }
+  ],
+  "fda_input_pad_plane_relief": [
+    {
+      "reference": "U8",
+      "pin": "2",
+      "input_net": "A_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "U8",
+      "pin": "3",
+      "input_net": "A_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "U9",
+      "pin": "2",
+      "input_net": "B_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "U9",
+      "pin": "3",
+      "input_net": "B_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R60",
+      "pin": "2",
+      "input_net": "A_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R61",
+      "pin": "2",
+      "input_net": "A_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R62",
+      "pin": "2",
+      "input_net": "A_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R63",
+      "pin": "2",
+      "input_net": "A_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R66",
+      "pin": "2",
+      "input_net": "B_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R67",
+      "pin": "2",
+      "input_net": "B_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R68",
+      "pin": "2",
+      "input_net": "B_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "R69",
+      "pin": "2",
+      "input_net": "B_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "C106",
+      "pin": "2",
+      "input_net": "A_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "C107",
+      "pin": "2",
+      "input_net": "A_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "C108",
+      "pin": "2",
+      "input_net": "B_INP",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "reference": "C109",
+      "pin": "2",
+      "input_net": "B_INM",
+      "relieved_layers": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    }
+  ],
+  "local_C104_topology_and_relief": [
+    {
+      "pin": "1",
+      "net": "DUT_LO",
+      "plane_relief": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    },
+    {
+      "pin": "2",
+      "net": "TIA_OUT",
+      "plane_relief": [
+        "B.Cu",
+        "In1.Cu",
+        "In2.Cu"
+      ]
+    }
+  ],
+  "revision": "C",
+  "source_component_count": 175,
+  "physical_footprint_count": 179,
+  "all_board_pin_net_assignments_match_source": true,
+  "feedback_compensation_parallel_checks": [
+    {
+      "capacitor": "C106",
+      "resistor": "R62",
+      "parallel_endpoints": [
+        {
+          "pin": "1",
+          "net": "A_FBM",
+          "pad_center_separation_mm": 1.7007
+        },
+        {
+          "pin": "2",
+          "net": "A_INP",
+          "pad_center_separation_mm": 1.7007
+        }
+      ]
+    },
+    {
+      "capacitor": "C107",
+      "resistor": "R63",
+      "parallel_endpoints": [
+        {
+          "pin": "1",
+          "net": "A_FBP",
+          "pad_center_separation_mm": 1.8007
+        },
+        {
+          "pin": "2",
+          "net": "A_INM",
+          "pad_center_separation_mm": 1.8007
+        }
+      ]
+    },
+    {
+      "capacitor": "C108",
+      "resistor": "R68",
+      "parallel_endpoints": [
+        {
+          "pin": "1",
+          "net": "B_FBM",
+          "pad_center_separation_mm": 1.8007
+        },
+        {
+          "pin": "2",
+          "net": "B_INP",
+          "pad_center_separation_mm": 1.8007
+        }
+      ]
+    },
+    {
+      "capacitor": "C109",
+      "resistor": "R69",
+      "parallel_endpoints": [
+        {
+          "pin": "1",
+          "net": "B_FBP",
+          "pad_center_separation_mm": 1.8007
+        },
+        {
+          "pin": "2",
+          "net": "B_INM",
+          "pad_center_separation_mm": 1.8007
+        }
+      ]
+    }
+  ],
+  "source_design_sha256": "c7ff0ccbb0af7cfb080363cd82eea6495737b49e473b92b28e04b9dca23ded8b",
+  "routing_sha256": "b0087bafd23e00e47cb8d926dc26fc2e6219cb5346a8d4a47077a837db9cf737"
+}

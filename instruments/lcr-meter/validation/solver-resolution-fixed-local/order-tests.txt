@@ -1,0 +1,8 @@
+
+running 3 tests
+test tests::complete_true_final_operating_point_is_accepted ... ok
+test tests::false_transient_operating_point_is_rejected ... ok
+test tests::permutations_preserve_every_component_exactly ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

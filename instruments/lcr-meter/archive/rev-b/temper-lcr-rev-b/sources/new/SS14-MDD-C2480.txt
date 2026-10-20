@@ -1,0 +1,285 @@
+                                                                                        SS12 THRU SS1200
+                                                                           Reverse Voltage - 20 to 200 Volts               Forward Current - 1.0 Ampere
+
+
+                          SURFACE MOUNT SCHOTTKY BARRIER RECTIFIER
+
+Features
+                                                                                                                   DO-214AC/SMA
+   The plastic package carries Underwriters Laboratory
+      Flammability Classification 94V-0
+   For surface mounted applications
+   Metal silicon junction,majority carrier conduction                                      0.067 (1.70)
+                                                                                            0.051 (1.30)
+                                                                                                                                                                0.110(2.80)
+                                                                                                                                                                0.090(2.30)
+
+   Low power loss,high efficiency
+   Built-in strain relief,ideal for automated placement
+   High forward surge current capability                                                                                       0.177(4.50)
+                                                                                                                                0.150(3.80)
+
+   High temperature soldering guaranteed:                                                                                                                         0.012(0.305)
+                                                                                                                                                                   0.006(0.152)
+
+
+      250 °C/10 seconds at terminals
+                                                                                                    0.097(2.45)
+                                                                                                    0.073(1.85)
+
+
+
+
+Mechanical Data                                                                                0.061(1.55)                               0.008(0.20)
+                                                                                               0.029(0.75)
+                                                                                                                                         0.002(0.05)
+
+
+Ca s e : JEDEC DO-214AC/SMA molded plastic body                                                                                 0.209(5.30)
+
+
+Termina ls : Solderable per MIL-STD-750,Method 2026
+                                                                                                                                0.184(4.70)
+
+
+
+Po larity : Color band denotes cathode end Moun ting
+Po s ition : Any
+Weigh t : 0.002 ounce, 0.07 grams
+                                                                                                           Dimensions in inches and (millimeters)
+
+
+Maximum Ratings And Electrical Characteristics
+Ratings at 25 C ambient temperature unless otherwise specified.
+Single phase half-wave 60Hz,resistive or inductive load,for capacitive load current derate by 20%.
+
+  Parameter
+                                                             MDD    MDD      MDD     MDD          MDD             MDD       MDD                MDD        MDD
+                                                   SYMBOLS                                                                                                                  UNITS
+                                                             SS12   SS13     SS14    SS15         SS16            SS18     SS110              SS1150     SS1200
+  Marking Code
+ Maximum repetitive peak reverse voltage             VRRM    20      30       40      50           60             80        100                150           200                  V
+ Maximum RMS voltage                                 VRMS    14      21       28      35           42             56        70                 105           140                  V
+ Maximum DC blocking voltage                         VDC     20      30       40      50           60             80        100                150           200                  V
+
+ Maximum average forward rectified current           I(AV)                                                 1.0                                                                    A
+ Peak forward surge current
+ 8.3ms single half sine-wave                         IFSM                                                  25                                                                     A
+ superimposed onrated load (JEDEC Method)
+ Maximum instantaneous forward voltage at 1.0A        VF            0.55                   0.70                          0.85                          0.9                        V
+ Maximum DC reverse current   TA=25℃                                          0.3                                        0.2                           0.1
+ at rated DCblocking voltage  TA=100℃                 IR                                                                                                                          mA
+                                                                             10.0                                        5.0                           2.0
+ Typical junction capacitance (NOTE 1)               CJ             110                                                   80                                                      pF
+ Typical thermal resistance (NOTE 2)                 RθJA                                                  90.0                                                             ℃/W
+ Operating junction temperature range                 TJ                                        -55 to +150                                                                       ℃
+ Storage temperature range                           TSTG                                       -55 to +150                                                                       ℃
+
+Note:1.Measured at 1MHz and applied reverse voltage of 4.0V D.C.
+     2.P.C.B. mounted with 2.0”x2.0”(5.0x5.0cm) copper pad areas
+
+
+
+
+     http://www.microdiode.com                                                                       Rev:2025A5                                              Page :1
+                                                                                                                                                                             SS12 THRU SS1200
+                                                                                                                     Reverse Voltage - 20 to 200 Volts                                                        Forward Current - 1.0 Ampere
+
+
+Typical Characterisitics
+                                                   Fig.1 Forward Current Derating Curve                                                                                              Fig.2 Typical Reverse Characteristics
+
+
+                                     1.5                                                                                                                              10 4
+
+
+
+
+                                                                                                                                  Instaneous Reverse Current ( μA)
+                                                                                                                                                                                                        TJ=100°C
+    Average Forward Current(A)
+
+
+
+
+                                                                                                                                                                      10 3
+                                     1.0
+
+                                                                                                                                                                                                           TJ=75°C
+                                                                                                                                                                      10 2
+
+                                                                                                                                                                                                                           SS12~SS16
+                                     0.5
+                                                                                                                                                                                                                           SS18~SS1200
+                                                                                                                                                                      101
+                                                                                                                                                                                                      TJ=25°C
+                                               Single phase half-wave 60 Hz
+                                               resistive or inductive load
+                                     0.0                                                                                                                              10 0
+                                                        25        50           75         100     125         150
+                                                                                                                                                                             0         20             40             60             80      100
+
+                                                             Case Temperature(℃)                                                                                            Percent of Rated Peak Reverse Voltage（%）
+
+
+
+
+                                                         Fig.3 Typical Forward Characteristic                                                                                          Fig.4 Typical Junction Capacitance
+
+
+                                                                                                                                                                     500
+                                     20
+                                                                                                                                                                                                                                TJ=25°C
+                                     10
+                                                                                                                                                                     200
+Instaneous Forward Current (A)
+
+
+
+
+                                                                                                                         Junction Capacitance (pF)
+
+
+
+
+                                                                                                                                                                     100
+
+
+                                     1.0                                                                                                                              50
+                                                                                            SS12~SS14
+                                                                                            SS15~SS16
+                                                                                           SS18~SS110                                                                                 SS12~SS14
+                                                                                                                                                                      20
+                                                                                           SS1150~SS1200                                                                              SS15~SS1200
+
+
+                                     0.1                                                                                                                              10
+                                           0      0.2     0.4     0.6    0.8        1.0    1.2   1.4    1.6    1.8                                                           0.1                  1                       10                100
+
+                                                   Instaneous Forward Voltage (V)                                                                                                           Reverse Voltage (V)
+
+
+
+
+                                                        Fig.5 Maximum Non-Repetitive Peak                                                                                          Fig.6- Typical Transient Thermal Impedance
+                                                              Forward Surage Current
+
+                                     30                                                                                                                              100
+                                                                                                                        Transient Thermal Impedance（°C/W）
+
+
+
+
+                                     25
+ Peak Forward Surage Current (A)
+
+
+
+
+                                     20
+
+
+                                     15                                                                                                                               10
+
+
+                                     10
+
+
+                                     05
+                                               8.3 ms Single Half Sine Wave (JEDEC
+                                               Method)
+                                     00                                                                                                                                 1
+                                           1                              10                                   100                                                          0.01            0.1                 1              10           100
+                                                         Number of Cycles at 60Hz
+                                                                                                                                                                                        t, Pulse Duration（sec）
+
+
+
+                                           The curve above is for reference only.
+
+                                   http://www.microdiode.com                                                                                                                         Rev:2025A5                                           Page :2
+                                                                                                                SS12 THRU SS1200
+                                                                                              Reverse Voltage - 20 to 200 Volts             Forward Current - 1.0 Ampere
+
+Packing information                                                                                                                                                         unit:mm
+
+
+                                P0
+                                                                                                                 Item                 Symbol    Tolerance             SMA
+                                         P1                                                  D1
+                    d
+                                                                                                         Carrier width                 A            0.1                2.80
+    E
+                                                                                                         Carrier length                B            0.1                5.33
+F                                                                                       W1               Carrier depth                 C            0.1                2.36
+                                                        W                                                Sprocket hole                 d           0.05                1.50
+                                                    B
+                                                                                                         13" Reel outside diameter     D            2.0               330.00
+                                                                                                         13" Reel inner diameter       D1          min                 50.00
+                                                                                                         7" Reel outside diameter      D            2.0               178.00
+           A                         P                                                                   7" Reel inner diameter        D1          min                 62.00
+                                                                                                         Feed hole diameter            D2           0.5                13.00
+                                                                                                         Sprocket hole position        E            0.1                1.75
+                                                                                                         Punch hole position           F            0.1                5.50
+                                                                          D2                             Punch hole pitch              P            0.1                4.00
+T                                                                                                        Sprocket hole pitch           P0           0.1                4.00
+                                                                                                         Embossment center             P1           0.1                2.00
+                                                C
+                                                                                                         Overall tape thickness        T            0.1                0.28
+                                                                                                         Tape width                    W            0.3                12.00
+                                                                     D
+                                                                                                         Reel width                    W1           1.0                18.00
+
+
+                                                                                      Note:Devices are packed in accor dance with EIA standar RS-481-A and specifications listed above.
+
+
+
+
+Reel packing
+
+                                                                                        INNER            REEL            CARTON                               APPROX.
+                                                            COMPONENT
+         PACKAGE        REELSIZE                                                         BOX              DIA,            SIZE                              GROSS WEIGHT
+                                              REEL           SPACING     BOX                                                              CARTON
+                                                                                         (m/m)           (m/m)            (m/m)                                 (kg)
+                                              (pcs)            (m/m)     (pcs)                                                              (pcs)
+           SMA            13"                  5,000           4.0       10,000       340*350*40          330           370*370*370         80,000                11.0
+           SMA            13"                  7,500           4.0       15,000       340*350*40          330           370*370*370         120,000               14.5
+
+
+
+
+Suggested Pad Layout
+
+                                                                               Symbol              Unit (mm)                Unit (inch)
+                                                                                 A                   1.68                     0.066
+                                                                                  B                    1.52                   0.060
+                                                                                  C                    3.93                   0.154
+                                                                                  D                    2.41                   0.095
+                                                                                  E                    5.45                   0.215
+
+
+
+
+Important Notice and Disclaimer
+
+ Microdiode Semiconductor (Shenzhen) reserves the right to make changes to this document and its products and
+ specifications at any time without notice. Customers should obtain and confirm the latest product information and
+ specifications before final design,purchase or use.
+
+ Microdiode Semiconductor (Shenzhen) makes no warranty, representation or guarantee regarding the suitability of its products
+ for any particular purpose, not does Microdiode Semiconductor (Shenzhen) assume any liability for application assistance or
+ customer product design. Microdiode Semiconductor (Shenzhen) does not warrant or accept any liability with products which are
+ purchased or used for any unintended or unauthorized application.
+
+ No license is granted by implication or otherwise under any intellectual property rights of Microdiode Semiconductor (Shenzhen).
+
+ Microdiode Semiconductor (Shenzhen) products are not authorized for use as critical components in life support devices or
+ systems without express written approval of Microdiode Semiconductor (Shenzhen).
+
+
+
+
+        http://www.microdiode.com                                                                                         Rev:2025A3                                Page :3
+

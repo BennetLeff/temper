@@ -1,0 +1,44 @@
+TI RevB bounded AFE model; zero-DC incremental FDA input loading
+.include ../../sources/ti/models/opa2810_a.lib
+.include ../../sources/ti/models/opa810_a.lib
+.include ../../sources/ti/models/ths4551.lib
+.options reltol=0.0001
+Vp vp 0 12
+Vn vn 0 -12
+V5 v5 0 5
+Vcm cm 0 2.048
+Vdds dds0 0 DC 0 AC 0
+Rdds dds0 dds 200
+R30 dds lp1 330
+C34 lp1 0 1n
+R31 lp1 lp2 330
+C35 lp2 0 1n
+C36 lp2 acin 1u
+R32 acin 0 100k
+X5 acin srcfb excite vp vn OPA810
+R33 excite srcfb 5k
+R34 srcfb 0 1k
+X6A excite source source vp vn OPA2810
+RG source hi 100
+CDUT hi low 9u
+RF low tia 100
+CF low tia 0.000000000000000000000001
+X6B hi highbuf highbuf vp vn OPA2810
+X7B low lowbuf lowbuf vp vn OPA2810
+Vtest inv low DC 0 AC 1
+X7A 0 inv tia vp vn OPA2810
+Bacm acm 0 V=(V(highbuf)+V(lowbuf))/(2+2*1000/1003.3)
+Rai1 highbuf acm 1k
+Rai2 lowbuf acm 1k
+Bbcm bcm 0 V=(V(lowbuf)+V(tia))/(2+2*1000/1003.3)
+Rbi1 lowbuf bcm 1k
+Rbi2 tia bcm 1k
+.control
+set wr_singlescale
+set wr_vecnames
+ac dec 120 10 1G
+let loopgain = -v(low)/v(inv)
+wrdata loop_cap9u.dat real(loopgain) imag(loopgain)
+quit
+.endc
+.end

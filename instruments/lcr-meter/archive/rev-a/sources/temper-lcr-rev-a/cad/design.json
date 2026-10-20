@@ -1,0 +1,1440 @@
+{
+  "name": "temper-lcr",
+  "revision": "A",
+  "board_mm": [
+    80,
+    65
+  ],
+  "origin_mm": [
+    50,
+    50
+  ],
+  "parts": [
+    {
+      "ref": "U1",
+      "value": "MCP2221A",
+      "kind": "MCP2221A",
+      "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+      "mpn": "MCP2221A-I/ST",
+      "manufacturer": "Microchip Technology",
+      "lcsc": "C130462",
+      "unit_usd": 4.5016,
+      "pins": {
+        "1": "3V3D",
+        "2": null,
+        "3": null,
+        "4": "RESET",
+        "5": "3V3D",
+        "6": null,
+        "7": "ANALOG_EN",
+        "8": null,
+        "9": "SDA",
+        "10": "SCL",
+        "11": "3V3D",
+        "12": "USB_DN",
+        "13": "USB_DP",
+        "14": "GND"
+      },
+      "pcb": [
+        70,
+        63,
+        0
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "U2",
+      "value": "AD5933",
+      "kind": "AD5933",
+      "footprint": "Package_SO:SSOP-16_5.3x6.2mm_P0.65mm",
+      "mpn": "AD5933YRSZ-REEL7",
+      "manufacturer": "Analog Devices",
+      "lcsc": "C57767",
+      "unit_usd": 22.7657,
+      "pins": {
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": "ADC_FB",
+        "5": "ADC_IN",
+        "6": "DDS_OUT",
+        "7": null,
+        "8": "MCLK",
+        "9": "3V3A",
+        "10": "3V3A",
+        "11": "3V3A",
+        "12": "GND",
+        "13": "GND",
+        "14": "GND",
+        "15": "SDA",
+        "16": "SCL"
+      },
+      "pcb": [
+        90,
+        78,
+        0
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "U3",
+      "value": "AD8606",
+      "kind": "AD8606",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "mpn": "AD8606ARZ-REEL7",
+      "manufacturer": "Analog Devices",
+      "lcsc": "C26360",
+      "unit_usd": 6.7825,
+      "pins": {
+        "1": "DRIVE",
+        "2": "DRIVE",
+        "3": "DRIVE_BIAS",
+        "4": "GND",
+        "5": "TIA_BIAS",
+        "6": "DUT_LO",
+        "7": "TIA_OUT",
+        "8": "3V3A"
+      },
+      "pcb": [
+        109,
+        86,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "U4",
+      "value": "3.3V",
+      "kind": "LDO",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "AP2112K-3.3TRG1",
+      "manufacturer": "Diodes Incorporated",
+      "lcsc": "C51118",
+      "unit_usd": 0.1772,
+      "pins": {
+        "1": "VBUS",
+        "2": "GND",
+        "3": "VBUS",
+        "4": null,
+        "5": "3V3D"
+      },
+      "pcb": [
+        62,
+        72,
+        0
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "U5",
+      "value": "3.3V",
+      "kind": "LDO",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "mpn": "AP2112K-3.3TRG1",
+      "manufacturer": "Diodes Incorporated",
+      "lcsc": "C51118",
+      "unit_usd": 0.1772,
+      "pins": {
+        "1": "VBUS",
+        "2": "GND",
+        "3": "ANALOG_EN",
+        "4": null,
+        "5": "3V3A"
+      },
+      "pcb": [
+        78,
+        75,
+        0
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "D1",
+      "value": "USBLC6-2SC6",
+      "kind": "USBESD",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "mpn": "USBLC6-2SC6",
+      "manufacturer": "STMicroelectronics",
+      "lcsc": "C7519",
+      "unit_usd": 0.1776,
+      "pins": {
+        "1": "USB_DP",
+        "2": "GND",
+        "3": "USB_DN",
+        "4": "USB_DN",
+        "5": "VBUS",
+        "6": "USB_DP"
+      },
+      "pcb": [
+        61,
+        64,
+        0
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "Y1",
+      "value": "16MHz",
+      "kind": "XO",
+      "footprint": "LCR:Oscillator_3225",
+      "mpn": "OT322516MJBA4SL",
+      "manufacturer": "YXC",
+      "lcsc": "C725988",
+      "unit_usd": 0.621,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND",
+        "3": "CLK_RAW",
+        "4": "3V3A"
+      },
+      "pcb": [
+        87,
+        88,
+        0
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "J1",
+      "value": "USB-C",
+      "kind": "USB",
+      "footprint": "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+      "mpn": "TYPE-C-31-M-12",
+      "manufacturer": "Korean Hroparts",
+      "lcsc": "C165948",
+      "unit_usd": 0.1867,
+      "pins": {
+        "A1": "GND",
+        "A4": "VBUS",
+        "A5": "CC1",
+        "A6": "USB_DP",
+        "A7": "USB_DN",
+        "A8": null,
+        "A9": "VBUS",
+        "A12": "GND",
+        "B1": "GND",
+        "B4": "VBUS",
+        "B5": "CC2",
+        "B6": "USB_DP",
+        "B7": "USB_DN",
+        "B8": null,
+        "B9": "VBUS",
+        "B12": "GND",
+        "SH": "GND"
+      },
+      "pcb": [
+        60,
+        53.19,
+        180
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R1",
+      "value": "5.1kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF5101T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C23186",
+      "unit_usd": 0.0015,
+      "pins": {
+        "1": "CC1",
+        "2": "GND"
+      },
+      "pcb": [
+        69,
+        56,
+        0
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R2",
+      "value": "5.1kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF5101T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C23186",
+      "unit_usd": 0.0015,
+      "pins": {
+        "1": "CC2",
+        "2": "GND"
+      },
+      "pcb": [
+        54,
+        63,
+        0
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R3",
+      "value": "10kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "pins": {
+        "1": "RESET",
+        "2": "3V3D"
+      },
+      "pcb": [
+        63.5,
+        67,
+        180
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R4",
+      "value": "47kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF4702T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25819",
+      "unit_usd": 0.0035,
+      "pins": {
+        "1": "ANALOG_EN",
+        "2": "GND"
+      },
+      "pcb": [
+        76,
+        69,
+        90
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R5",
+      "value": "10kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "pins": {
+        "1": "SCL",
+        "2": "3V3A"
+      },
+      "pcb": [
+        79,
+        64,
+        90
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R6",
+      "value": "10kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "pins": {
+        "1": "SDA",
+        "2": "3V3A"
+      },
+      "pcb": [
+        82,
+        64,
+        90
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R7",
+      "value": "33R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF330JT5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C23140",
+      "unit_usd": 0.0024,
+      "pins": {
+        "1": "CLK_RAW",
+        "2": "MCLK"
+      },
+      "pcb": [
+        89,
+        85,
+        0
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R8",
+      "value": "47kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF4702T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25819",
+      "unit_usd": 0.0035,
+      "pins": {
+        "1": "3V3A",
+        "2": "DRIVE_BIAS"
+      },
+      "pcb": [
+        99,
+        86,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R9",
+      "value": "47kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF4702T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25819",
+      "unit_usd": 0.0035,
+      "pins": {
+        "1": "DRIVE_BIAS",
+        "2": "GND"
+      },
+      "pcb": [
+        99,
+        90,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R10",
+      "value": "47kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF4702T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25819",
+      "unit_usd": 0.0035,
+      "pins": {
+        "1": "3V3A",
+        "2": "TIA_BIAS"
+      },
+      "pcb": [
+        111,
+        94,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R11",
+      "value": "47kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF4702T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C25819",
+      "unit_usd": 0.0035,
+      "pins": {
+        "1": "TIA_BIAS",
+        "2": "GND"
+      },
+      "pcb": [
+        115,
+        94,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R12",
+      "value": "10R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF100JT5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C22859",
+      "unit_usd": 0.0032,
+      "pins": {
+        "1": "DRIVE",
+        "2": "DUT_HI"
+      },
+      "pcb": [
+        104,
+        81,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R13",
+      "value": "20kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "TR0603B20K0P0525Z",
+      "manufacturer": "Ever Ohms",
+      "lcsc": "C3202456",
+      "unit_usd": 0.0285,
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "ADC_IN"
+      },
+      "pcb": [
+        96,
+        77,
+        90
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R14",
+      "value": "20kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "TR0603B20K0P0525Z",
+      "manufacturer": "Ever Ohms",
+      "lcsc": "C3202456",
+      "unit_usd": 0.0285,
+      "pins": {
+        "1": "ADC_FB",
+        "2": "ADC_IN"
+      },
+      "pcb": [
+        84,
+        77,
+        90
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R15",
+      "value": "1MR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "0603WAF1004T5E",
+      "manufacturer": "UNI-ROYAL",
+      "lcsc": "C22935",
+      "unit_usd": 0.0021,
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "DUT_LO"
+      },
+      "pcb": [
+        118,
+        89,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C1",
+      "value": "1uF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10B105KB8NQNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C5199872",
+      "unit_usd": 0.0258,
+      "pins": {
+        "1": "VBUS",
+        "2": "GND"
+      },
+      "pcb": [
+        59,
+        72,
+        90
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C2",
+      "value": "4.7uF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "mpn": "CL21A475KAQNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1779",
+      "unit_usd": 0.0384,
+      "pins": {
+        "1": "3V3D",
+        "2": "GND"
+      },
+      "pcb": [
+        66,
+        72,
+        90
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C3",
+      "value": "1uF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10B105KB8NQNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C5199872",
+      "unit_usd": 0.0258,
+      "pins": {
+        "1": "VBUS",
+        "2": "GND"
+      },
+      "pcb": [
+        75,
+        75,
+        90
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C4",
+      "value": "4.7uF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "mpn": "CL21A475KAQNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1779",
+      "unit_usd": 0.0384,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND"
+      },
+      "pcb": [
+        82,
+        76,
+        90
+      ],
+      "group": "POWER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C5",
+      "value": "100nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0108,
+      "pins": {
+        "1": "3V3D",
+        "2": "GND"
+      },
+      "pcb": [
+        69,
+        59,
+        0
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C6",
+      "value": "470nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10B474KA8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1623",
+      "unit_usd": 0.0128,
+      "pins": {
+        "1": "3V3D",
+        "2": "GND"
+      },
+      "pcb": [
+        75,
+        62,
+        90
+      ],
+      "group": "USB",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C7",
+      "value": "100nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0108,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND"
+      },
+      "pcb": [
+        97,
+        79.5,
+        0
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C8",
+      "value": "100nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0108,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND"
+      },
+      "pcb": [
+        96,
+        82,
+        0
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C9",
+      "value": "100nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0108,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND"
+      },
+      "pcb": [
+        93,
+        85,
+        90
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C10",
+      "value": "100nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0108,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND"
+      },
+      "pcb": [
+        84,
+        90,
+        90
+      ],
+      "group": "CONVERTER",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C11",
+      "value": "1uF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10B105KB8NQNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C5199872",
+      "unit_usd": 0.0258,
+      "pins": {
+        "1": "DDS_OUT",
+        "2": "DRIVE_BIAS"
+      },
+      "pcb": [
+        99,
+        82,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C12",
+      "value": "1uF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10B105KB8NQNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C5199872",
+      "unit_usd": 0.0258,
+      "pins": {
+        "1": "TIA_BIAS",
+        "2": "GND"
+      },
+      "pcb": [
+        115,
+        92,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C13",
+      "value": "100nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0108,
+      "pins": {
+        "1": "3V3A",
+        "2": "GND"
+      },
+      "pcb": [
+        113,
+        82,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C14",
+      "value": "22pF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10C220JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1653",
+      "unit_usd": 0.006,
+      "pins": {
+        "1": "TIA_OUT",
+        "2": "DUT_LO"
+      },
+      "pcb": [
+        115,
+        89,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "R16",
+      "value": "20R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RT0603BRD0720RL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C136969",
+      "unit_usd": 0.0487,
+      "pins": {
+        "1": "FB0",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        102,
+        98,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C15",
+      "value": "100nF_C0G",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "mpn": "GRM31C5C1H104JA01L",
+      "manufacturer": "Murata",
+      "lcsc": "C97946",
+      "unit_usd": 0.3766,
+      "pins": {
+        "1": "FB0",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        105,
+        98.8,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "JP1",
+      "value": "20R range",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "DUT_LO",
+        "2": "FB0"
+      },
+      "pcb": [
+        102,
+        103,
+        0
+      ],
+      "group": "RANGES",
+      "assembly": "hand"
+    },
+    {
+      "ref": "R17",
+      "value": "200R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RT0603BRD07200RL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C861216",
+      "unit_usd": 0.0436,
+      "pins": {
+        "1": "FB1",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        108,
+        98,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C16",
+      "value": "10nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "GRM1885C1H103JA01D",
+      "manufacturer": "Murata",
+      "lcsc": "C85973",
+      "unit_usd": 0.0353,
+      "pins": {
+        "1": "FB1",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        110,
+        99,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "JP2",
+      "value": "200R range",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "DUT_LO",
+        "2": "FB1"
+      },
+      "pcb": [
+        108,
+        103,
+        0
+      ],
+      "group": "RANGES",
+      "assembly": "hand"
+    },
+    {
+      "ref": "R18",
+      "value": "2kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "RT0603BRD072KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C728588",
+      "unit_usd": 0.035,
+      "pins": {
+        "1": "FB2",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        114,
+        98,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C17",
+      "value": "1nF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CC0603JRNPO9BN102",
+      "manufacturer": "YAGEO",
+      "lcsc": "C106246",
+      "unit_usd": 0.0057,
+      "pins": {
+        "1": "FB2",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        116,
+        99,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "JP3",
+      "value": "2kR range",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "DUT_LO",
+        "2": "FB2"
+      },
+      "pcb": [
+        114,
+        103,
+        0
+      ],
+      "group": "RANGES",
+      "assembly": "hand"
+    },
+    {
+      "ref": "R19",
+      "value": "20kR",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "mpn": "TR0603B20K0P0525Z",
+      "manufacturer": "Ever Ohms",
+      "lcsc": "C3202456",
+      "unit_usd": 0.0285,
+      "pins": {
+        "1": "FB3",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        120,
+        98,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "C18",
+      "value": "100pF",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "mpn": "CL10C101JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C14858",
+      "unit_usd": 0.0086,
+      "pins": {
+        "1": "FB3",
+        "2": "TIA_OUT"
+      },
+      "pcb": [
+        122,
+        99,
+        90
+      ],
+      "group": "AFE",
+      "assembly": "SMT"
+    },
+    {
+      "ref": "JP4",
+      "value": "20kR range",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "DUT_LO",
+        "2": "FB3"
+      },
+      "pcb": [
+        120,
+        103,
+        0
+      ],
+      "group": "RANGES",
+      "assembly": "hand"
+    },
+    {
+      "ref": "J2",
+      "value": "DUT HI / LO",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "DUT_HI",
+        "2": "DUT_LO"
+      },
+      "pcb": [
+        120,
+        78,
+        0
+      ],
+      "group": "AFE",
+      "assembly": "hand"
+    },
+    {
+      "ref": "J3",
+      "value": "GND / 3V3A",
+      "kind": "H",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "mpn": "TSW-102-07-G-S",
+      "manufacturer": "Samtec",
+      "lcsc": "C7402729",
+      "unit_usd": 0.3002,
+      "pins": {
+        "1": "GND",
+        "2": "3V3A"
+      },
+      "pcb": [
+        79,
+        92,
+        0
+      ],
+      "group": "POWER",
+      "assembly": "hand"
+    }
+  ],
+  "pinouts": {
+    "AD5933": {
+      "1": [
+        "NC",
+        "no_connect"
+      ],
+      "2": [
+        "NC",
+        "no_connect"
+      ],
+      "3": [
+        "NC",
+        "no_connect"
+      ],
+      "4": [
+        "RFB",
+        "output"
+      ],
+      "5": [
+        "VIN",
+        "input"
+      ],
+      "6": [
+        "VOUT",
+        "output"
+      ],
+      "7": [
+        "NC",
+        "no_connect"
+      ],
+      "8": [
+        "MCLK",
+        "input"
+      ],
+      "9": [
+        "DVDD",
+        "power_in"
+      ],
+      "10": [
+        "AVDD1",
+        "power_in"
+      ],
+      "11": [
+        "AVDD2",
+        "power_in"
+      ],
+      "12": [
+        "DGND",
+        "power_in"
+      ],
+      "13": [
+        "AGND1",
+        "power_in"
+      ],
+      "14": [
+        "AGND2",
+        "power_in"
+      ],
+      "15": [
+        "SDA",
+        "bidirectional"
+      ],
+      "16": [
+        "SCL",
+        "input"
+      ]
+    },
+    "MCP2221A": {
+      "1": [
+        "VDD",
+        "power_in"
+      ],
+      "2": [
+        "GP0",
+        "bidirectional"
+      ],
+      "3": [
+        "GP1",
+        "bidirectional"
+      ],
+      "4": [
+        "~RST",
+        "input"
+      ],
+      "5": [
+        "URX",
+        "input"
+      ],
+      "6": [
+        "UTX",
+        "output"
+      ],
+      "7": [
+        "GP2_USBCFG",
+        "output"
+      ],
+      "8": [
+        "GP3",
+        "bidirectional"
+      ],
+      "9": [
+        "SDA",
+        "bidirectional"
+      ],
+      "10": [
+        "SCL",
+        "bidirectional"
+      ],
+      "11": [
+        "VUSB",
+        "power_in"
+      ],
+      "12": [
+        "D-",
+        "bidirectional"
+      ],
+      "13": [
+        "D+",
+        "bidirectional"
+      ],
+      "14": [
+        "VSS",
+        "power_in"
+      ]
+    },
+    "AD8606": {
+      "1": [
+        "OUT_A",
+        "output"
+      ],
+      "2": [
+        "IN-_A",
+        "input"
+      ],
+      "3": [
+        "IN+_A",
+        "input"
+      ],
+      "4": [
+        "V-",
+        "power_in"
+      ],
+      "5": [
+        "IN+_B",
+        "input"
+      ],
+      "6": [
+        "IN-_B",
+        "input"
+      ],
+      "7": [
+        "OUT_B",
+        "output"
+      ],
+      "8": [
+        "V+",
+        "power_in"
+      ]
+    },
+    "LDO": {
+      "1": [
+        "VIN",
+        "power_in"
+      ],
+      "2": [
+        "GND",
+        "power_in"
+      ],
+      "3": [
+        "EN",
+        "input"
+      ],
+      "4": [
+        "NC",
+        "no_connect"
+      ],
+      "5": [
+        "VOUT",
+        "power_out"
+      ]
+    },
+    "USBESD": {
+      "1": [
+        "IO1",
+        "passive"
+      ],
+      "2": [
+        "GND",
+        "passive"
+      ],
+      "3": [
+        "IO2",
+        "passive"
+      ],
+      "4": [
+        "IO2",
+        "passive"
+      ],
+      "5": [
+        "VBUS",
+        "passive"
+      ],
+      "6": [
+        "IO1",
+        "passive"
+      ]
+    },
+    "XO": {
+      "1": [
+        "EN",
+        "input"
+      ],
+      "2": [
+        "GND",
+        "power_in"
+      ],
+      "3": [
+        "OUT",
+        "output"
+      ],
+      "4": [
+        "VDD",
+        "power_in"
+      ]
+    },
+    "USB": {
+      "A1": [
+        "GND",
+        "passive"
+      ],
+      "A4": [
+        "VBUS",
+        "passive"
+      ],
+      "A5": [
+        "CC1",
+        "passive"
+      ],
+      "A6": [
+        "D+",
+        "passive"
+      ],
+      "A7": [
+        "D-",
+        "passive"
+      ],
+      "A8": [
+        "SBU1",
+        "passive"
+      ],
+      "A9": [
+        "VBUS",
+        "passive"
+      ],
+      "A12": [
+        "GND",
+        "passive"
+      ],
+      "B1": [
+        "GND",
+        "passive"
+      ],
+      "B4": [
+        "VBUS",
+        "passive"
+      ],
+      "B5": [
+        "CC2",
+        "passive"
+      ],
+      "B6": [
+        "D+",
+        "passive"
+      ],
+      "B7": [
+        "D-",
+        "passive"
+      ],
+      "B8": [
+        "SBU2",
+        "passive"
+      ],
+      "B9": [
+        "VBUS",
+        "passive"
+      ],
+      "B12": [
+        "GND",
+        "passive"
+      ],
+      "SH": [
+        "SHIELD",
+        "passive"
+      ]
+    }
+  }
+}

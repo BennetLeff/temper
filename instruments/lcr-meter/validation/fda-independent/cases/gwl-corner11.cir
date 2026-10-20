@@ -1,0 +1,38 @@
+Independent FDA internal control cut; gwl-corner11
+.include ../gwl-probe.lib
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7
+V5 vp 0 4.75
+Vcm cm 0 2.048
+Vin inp 0 0
+Rin1 inp ip 999
+Rin2 0 im 999
+Rout1 om fbm 22.22
+Rout2 op fbp 22.22
+Rfb1 fbm ip 1000.9999999999999
+Rfb2 fbp im 1000.9999999999999
+Cfb1 fbm ip 0.00000000010500000000000001
+Cfb2 fbp im 0.00000000010500000000000001
+X1 ip im op om cm vp 0 THS4551
+Riso1 fbp ap 4.3632
+Riso2 fbm am 4.3632
+Cflt1 ap 0 0.0000000003135
+Cflt2 am 0 0.0000000003135
+Cdiff ap am 0.000000003135
+Cadc1 ap 0 16p
+Cadc2 am 0 16p
+.control
+set klu
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+op
+print v(op) v(om)
+print v(x1.mid)
+ac dec 120 1 1G
+let returned=v(x1.inp)-v(x1.inn)
+let forward=v(x1.inp_probe)-v(x1.inn)
+let loop=-returned/forward
+wrdata gwl-corner11.dat real(loop) imag(loop)
+quit
+.endc
+.end

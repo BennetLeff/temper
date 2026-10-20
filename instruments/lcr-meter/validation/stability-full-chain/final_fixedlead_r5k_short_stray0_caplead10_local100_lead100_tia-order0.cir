@@ -1,0 +1,80 @@
+RevC final exact full chain; official models; real FDA bias and ADC RC loads
+.include ../../sources/ti/models/opa2810_a.lib
+.include ../../sources/ti/models/opa810_a.lib
+.include ../../sources/ti/models/ths4551.lib
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7 method=gear
+.include ../solver-resolution-rev-c-final/final-seed.inc
+.nodeset v(probe_f)=0.000100193
+Vp vp 0 12
+Vn vn 0 -12
+V5 v5 0 5
+Vcm cm 0 2.048
+Vdds dds0 0 DC 0.3 AC 0
+Rdds dds0 dds 200
+R30 dds lp1 330
+C34 lp1 0 1n
+R31 lp1 lp2 330
+C35 lp2 0 1n
+C36 lp2 acin 1u
+R32 acin 0 100k
+X5 acin srcfb excite vp vn OPA810
+R33 excite srcfb 5k
+R34 srcfb 0 1k
+X6A excite source source vp vn OPA2810
+RG source hi 5000
+RDUT hi low 0.01
+RF low rf_end 5000
+CF low rf_end 0.000000000000000000000001
+X6B hi highbuf highbuf vp vn OPA2810
+X7B low lowbuf lowbuf vp vn OPA2810
+X7A 0 probe_f tia vp vn OPA2810
+Rai1 highbuf aip 1k
+Rai2 lowbuf aim 1k
+Raf1 afbm aip 1k
+Raf2 afbp aim 1k
+Raint1 aom afbm 22
+Raint2 aop afbp 22
+Xa aip aim aop aom cm v5 0 THS4551
+Raiso1 afbp aadc_p 4.32
+Raiso2 afbm aadc_m 4.32
+Caflt1 aadc_p 0 330p
+Caflt2 aadc_m 0 330p
+Cadiff aadc_p aadc_m 3.3n
+Caadc1 aadc_p 0 16p
+Caadc2 aadc_m 0 16p
+Rbi1 lowbuf bip 1k
+Rbi2 tia bim 1k
+Rbf1 bfbm bip 1k
+Rbf2 bfbp bim 1k
+Rbint1 bom bfbm 22
+Rbint2 bop bfbp 22
+Xb bip bim bop bom cm v5 0 THS4551
+Rbiso1 bfbp badc_p 4.32
+Rbiso2 bfbm badc_m 4.32
+Cbflt1 badc_p 0 330p
+Cbflt2 badc_m 0 330p
+Cbdiff badc_p badc_m 3.3n
+Cbadc1 badc_p 0 16p
+Cbadc2 badc_m 0 16p
+Cfba1 afbm aip 100p
+Cfba2 afbp aim 100p
+Cfbb1 bfbm bip 100p
+Cfbb2 bfbp bim 100p
+Cstraylo low 0 0.000000000000000000000001
+Cstrayhi hi 0 0.000000000000000000000001
+Rbridge low probe_f 100
+Iinj 0 low DC 0 AC 1
+Iinj2 0 probe_f DC 0 AC 0
+Clocal low local_cf_out 0.0000000001
+Llocal local_cf_out tia 0.00000001
+Lfeedback rf_end tia 0.00000010000000000000001
+.control
+set klu
+optran 1 0 0 0 0 0
+set filetype=ascii
+set numdgt=17
+op
+write final_fixedlead_r5k_short_stray0_caplead10_local100_lead100_tia-order0.raw all
+quit
+.endc
+.end

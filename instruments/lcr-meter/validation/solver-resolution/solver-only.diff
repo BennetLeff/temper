@@ -1,0 +1,10 @@
+--- gear.cir	2026-10-20 14:54:19
++++ klu.cir	2026-10-20 14:54:19
+@@ -55,6 +55,7 @@
+ Cbadc1 badc_p 0 16p
+ Cbadc2 badc_m 0 16p
+ .control
++set klu
+ set wr_singlescale
+ set wr_vecnames
+ ac dec 120 10 1G

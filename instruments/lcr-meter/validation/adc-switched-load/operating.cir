@@ -1,0 +1,173 @@
+Standalone THS4551 + bounded ADS9224R switched-load stress
+.include ../../sources/ti/models/ths4551.lib
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7 method=trap
+V5 vp 0 5
+Vcm cm 0 2.048
+Vfull full 0 4.096
+Vin inp 0 SIN(0 1.8 100k)
+Vsample sample 0 PULSE(0 1 360n 0.2n 0.2n 639.8n 1u)
+Breset reset 0 V=1-V(sample)
+.model sw SW(Ron=0.01 Roff=1e12 Vt=0.5 Vh=0.01)
+Rreferencei1 inp referenceip 1k
+Rreferencei2 0 referenceim 1k
+Rreferencefb1 referenceom referencefbm 22
+Rreferencefb2 referenceop referencefbp 22
+Rreferencef1 referencefbm referenceip 1k
+Rreferencef2 referencefbp referenceim 1k
+Creferencef1 referencefbm referenceip 100p
+Creferencef2 referencefbp referenceim 100p
+Xreference referenceip referenceim referenceop referenceom cm vp 0 THS4551
+Rreferenceiso1 referencefbp referenceap 4.32
+Rreferenceiso2 referencefbm referenceam 4.32
+Creferenceflt1 referenceap 0 330p
+Creferenceflt2 referenceam 0 330p
+Creferencediff referenceap referenceam 3.3n
+Creferencehold1 referenceap 0 1p
+Creferencehold2 referenceam 0 1p
+Rreferencesam1 referenceap referencers1 120
+Rreferencesam2 referenceam referencers2 120
+Creferencesam1 referencesp 0 16p
+Creferencesam2 referencesm 0 16p
+Rreferencelink1 referencers1 referencesp 0.01
+Rreferencelink2 referencers2 referencesm 0.01
+Rcenteri1 inp centerip 1k
+Rcenteri2 0 centerim 1k
+Rcenterfb1 centerom centerfbm 22
+Rcenterfb2 centerop centerfbp 22
+Rcenterf1 centerfbm centerip 1k
+Rcenterf2 centerfbp centerim 1k
+Ccenterf1 centerfbm centerip 100p
+Ccenterf2 centerfbp centerim 100p
+Xcenter centerip centerim centerop centerom cm vp 0 THS4551
+Rcenteriso1 centerfbp centerap 4.32
+Rcenteriso2 centerfbm centeram 4.32
+Ccenterflt1 centerap 0 330p
+Ccenterflt2 centeram 0 330p
+Ccenterdiff centerap centeram 3.3n
+Ccenterhold1 centerap 0 1p
+Ccenterhold2 centeram 0 1p
+Rcentersam1 centerap centerrs1 120
+Rcentersam2 centeram centerrs2 120
+Ccentersam1 centersp 0 16p
+Ccentersam2 centersm 0 16p
+Scentersam1 centerrs1 centersp sample 0 sw
+Scentersam2 centerrs2 centersm sample 0 sw
+Scenterrst1 centersp cm reset 0 sw
+Scenterrst2 centersm cm reset 0 sw
+Rpositivei1 inp positiveip 1k
+Rpositivei2 0 positiveim 1k
+Rpositivefb1 positiveom positivefbm 22
+Rpositivefb2 positiveop positivefbp 22
+Rpositivef1 positivefbm positiveip 1k
+Rpositivef2 positivefbp positiveim 1k
+Cpositivef1 positivefbm positiveip 100p
+Cpositivef2 positivefbp positiveim 100p
+Xpositive positiveip positiveim positiveop positiveom cm vp 0 THS4551
+Rpositiveiso1 positivefbp positiveap 4.32
+Rpositiveiso2 positivefbm positiveam 4.32
+Cpositiveflt1 positiveap 0 330p
+Cpositiveflt2 positiveam 0 330p
+Cpositivediff positiveap positiveam 3.3n
+Cpositivehold1 positiveap 0 1p
+Cpositivehold2 positiveam 0 1p
+Rpositivesam1 positiveap positivers1 120
+Rpositivesam2 positiveam positivers2 120
+Cpositivesam1 positivesp 0 16p
+Cpositivesam2 positivesm 0 16p
+Spositivesam1 positivers1 positivesp sample 0 sw
+Spositivesam2 positivers2 positivesm sample 0 sw
+Spositiverst1 positivesp full reset 0 sw
+Spositiverst2 positivesm 0 reset 0 sw
+Rnegativei1 inp negativeip 1k
+Rnegativei2 0 negativeim 1k
+Rnegativefb1 negativeom negativefbm 22
+Rnegativefb2 negativeop negativefbp 22
+Rnegativef1 negativefbm negativeip 1k
+Rnegativef2 negativefbp negativeim 1k
+Cnegativef1 negativefbm negativeip 100p
+Cnegativef2 negativefbp negativeim 100p
+Xnegative negativeip negativeim negativeop negativeom cm vp 0 THS4551
+Rnegativeiso1 negativefbp negativeap 4.32
+Rnegativeiso2 negativefbm negativeam 4.32
+Cnegativeflt1 negativeap 0 330p
+Cnegativeflt2 negativeam 0 330p
+Cnegativediff negativeap negativeam 3.3n
+Cnegativehold1 negativeap 0 1p
+Cnegativehold2 negativeam 0 1p
+Rnegativesam1 negativeap negativers1 120
+Rnegativesam2 negativeam negativers2 120
+Cnegativesam1 negativesp 0 16p
+Cnegativesam2 negativesm 0 16p
+Snegativesam1 negativers1 negativesp sample 0 sw
+Snegativesam2 negativers2 negativesm sample 0 sw
+Snegativerst1 negativesp 0 reset 0 sw
+Snegativerst2 negativesm full reset 0 sw
+Rlowcmi1 inp lowcmip 1k
+Rlowcmi2 0 lowcmim 1k
+Rlowcmfb1 lowcmom lowcmfbm 22
+Rlowcmfb2 lowcmop lowcmfbp 22
+Rlowcmf1 lowcmfbm lowcmip 1k
+Rlowcmf2 lowcmfbp lowcmim 1k
+Clowcmf1 lowcmfbm lowcmip 100p
+Clowcmf2 lowcmfbp lowcmim 100p
+Xlowcm lowcmip lowcmim lowcmop lowcmom cm vp 0 THS4551
+Rlowcmiso1 lowcmfbp lowcmap 4.32
+Rlowcmiso2 lowcmfbm lowcmam 4.32
+Clowcmflt1 lowcmap 0 330p
+Clowcmflt2 lowcmam 0 330p
+Clowcmdiff lowcmap lowcmam 3.3n
+Clowcmhold1 lowcmap 0 1p
+Clowcmhold2 lowcmam 0 1p
+Rlowcmsam1 lowcmap lowcmrs1 120
+Rlowcmsam2 lowcmam lowcmrs2 120
+Clowcmsam1 lowcmsp 0 16p
+Clowcmsam2 lowcmsm 0 16p
+Slowcmsam1 lowcmrs1 lowcmsp sample 0 sw
+Slowcmsam2 lowcmrs2 lowcmsm sample 0 sw
+Slowcmrst1 lowcmsp 0 reset 0 sw
+Slowcmrst2 lowcmsm 0 reset 0 sw
+Rhighcmi1 inp highcmip 1k
+Rhighcmi2 0 highcmim 1k
+Rhighcmfb1 highcmom highcmfbm 22
+Rhighcmfb2 highcmop highcmfbp 22
+Rhighcmf1 highcmfbm highcmip 1k
+Rhighcmf2 highcmfbp highcmim 1k
+Chighcmf1 highcmfbm highcmip 100p
+Chighcmf2 highcmfbp highcmim 100p
+Xhighcm highcmip highcmim highcmop highcmom cm vp 0 THS4551
+Rhighcmiso1 highcmfbp highcmap 4.32
+Rhighcmiso2 highcmfbm highcmam 4.32
+Chighcmflt1 highcmap 0 330p
+Chighcmflt2 highcmam 0 330p
+Chighcmdiff highcmap highcmam 3.3n
+Chighcmhold1 highcmap 0 1p
+Chighcmhold2 highcmam 0 1p
+Rhighcmsam1 highcmap highcmrs1 120
+Rhighcmsam2 highcmam highcmrs2 120
+Chighcmsam1 highcmsp 0 16p
+Chighcmsam2 highcmsm 0 16p
+Shighcmsam1 highcmrs1 highcmsp sample 0 sw
+Shighcmsam2 highcmrs2 highcmsm sample 0 sw
+Shighcmrst1 highcmsp full reset 0 sw
+Shighcmrst2 highcmsm full reset 0 sw
+.control
+set klu
+set wr_singlescale
+set wr_vecnames
+set numdgt=17
+tran 0.5n 15u 0 0.5n
+let reference=v(referencesp)-v(referencesm)
+let center=v(centersp)-v(centersm)-reference
+let centercm=(v(centersp)+v(centersm)-v(referencesp)-v(referencesm))/2
+let positive=v(positivesp)-v(positivesm)-reference
+let positivecm=(v(positivesp)+v(positivesm)-v(referencesp)-v(referencesm))/2
+let negative=v(negativesp)-v(negativesm)-reference
+let negativecm=(v(negativesp)+v(negativesm)-v(referencesp)-v(referencesm))/2
+let lowcm=v(lowcmsp)-v(lowcmsm)-reference
+let lowcmcm=(v(lowcmsp)+v(lowcmsm)-v(referencesp)-v(referencesm))/2
+let highcm=v(highcmsp)-v(highcmsm)-reference
+let highcmcm=(v(highcmsp)+v(highcmsm)-v(referencesp)-v(referencesm))/2
+wrdata operating.dat v(sample) reference center positive negative lowcm highcm centercm positivecm negativecm lowcmcm highcmcm v(centerap) v(centeram) v(positiveap) v(positiveam) v(negativeap) v(negativeam) v(lowcmap) v(lowcmam) v(highcmap) v(highcmam) v(referenceap) v(referenceam)
+quit
+.endc
+.end

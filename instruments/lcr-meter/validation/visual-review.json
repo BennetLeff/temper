@@ -1,0 +1,48 @@
+{
+  "revision": "C",
+  "board_sha256": "5ec3e6e067f73a08efbb5d3a82cc95439b8d753906139bb5f17a92de7c31a9c0",
+  "review_date": "2026-10-20",
+  "method": "Changed native/export images individually opened and reviewed, including corrected AFE notes and both drill maps; unchanged schematic/outline previews retain their earlier visual review by matching SHA-256. Native geometry/netlist checks supplement this review.",
+  "images": {
+    "pcb-front.png": "e157eb4b6e1359aa012a128f58d5c5b5c4eab34287b6131f7eeaae373de96128",
+    "assembly-top.png": "9f2a867ce444ef43aed872a8748d0d8e5b0674676f7b569e2b738c9a23c8ee1c",
+    "schematic-page-1.png": "67148cdb416a1b7d9f394a1e767600884ae0139a9f97d0ef5baa1150e8e329e1",
+    "schematic-page-2.png": "0de28f1eed929581031bf7eeabf9b3f7fc112538e5843df179b47188757607b7",
+    "schematic-page-3.png": "0cf550ee1b45ac2565e1c777ee2b8ceee0629203b638f31f5831a4b346e8ae2e",
+    "schematic-page-4.png": "69aa7bafa1979b8a1267209dee070fdbdaaf61aefe802b52c851457a8bda6a1f",
+    "schematic-page-5.png": "9c810b7cd91573bc0bb1be325803d55efac2959c05ed0ebf298a16d9d07c1ae4",
+    "schematic-page-6.png": "3ebf914ddd7a0f7855425e8dd82fd3757437528da8cb0a6debd39e409819a7e3",
+    "gerber-top-copper.png": "7b61baa3a44bd3fb7b6e2464b9fc3b563511355aa4207255af8524f1f4c8a5b6",
+    "gerber-ground.png": "ecc8509ad5c492cce548f956a700847c677576b06f6ef89f647ced611489e906",
+    "gerber-inner-routing.png": "f8ce45e013dd152e4ba54dd6badd644210a563c9200e57af8ccb9b79ec94fce6",
+    "gerber-bottom-copper.png": "ac081710dc0cd4edafcd8b4e033a043035c3227cca166c04b3167338372d1b9c",
+    "gerber-top-mask.png": "a806f2a931dbc55b9e59328b1e415c2a318287ca075ea107930665bf188fb24c",
+    "gerber-bottom-mask.png": "8569c14698434eaced1bc9a0b41be276a750e8c0eb3f2bfa3323f5dfc6963fa0",
+    "gerber-top-paste.png": "a4c6fa8f86e0b98c2f7a7a57a0a7263f00ed2e31a133e5295ca83bb0798d5128",
+    "gerber-top-silk.png": "69ae5a3074e80cd409608e3a37805eefa79464366f2ead20a1e7dc56e682b92d",
+    "gerber-outline.png": "19e3a93daf5da4263c8708a17185259603b6e28ddf188b2e0355f37f7b94905c"
+  },
+  "drill_maps": {
+    "temper-lcr-PTH-drl_map.pdf": "de19f38ae38a7aa18f30200997d62cfe1ff679eb63a76c8f42d87a314888769a",
+    "temper-lcr-NPTH-drl_map.pdf": "d666dc90435773cb82f043135f75aa81583a8c6381b66bd3b85ce3d4a11f413c"
+  },
+  "findings": [
+    "Corrected AFE schematic explicitly connects one local100pF C104 across U7A; C41/C105 removed. Both FDA 22R/RF||100p/4.32R networks retained. All six pages remain within drawing bounds.",
+    "Ground plane continuous outside deliberate OPA and FDA signal-node relief; independent native positions verify twelve OPA and sixteen FDA input-pad centers relieved on In1/In2/B.",
+    "Top copper, inner routes, bottom copper, mask, paste, silkscreen and outline reviewed for this frozen Rev C board.",
+    "Compact RF100 header routing, short local C104 and relocated FDA feedback pair preserve intended plane relief; buried supply detours stay outside revised windows.",
+    "Top silk identifies Rev C, all RG/RF range pairs, power polarity, USB-ground reference and discharged-DUT interface. Bottom silkscreen intentionally empty.",
+    "QFN paste windows segmented; fifteen intended drill/SMT intersections require resin-filled copper-capped planarized POFV.",
+    "235 plated holes including seven routed slots; six non-plated holes including four 3.2mm mounting holes.",
+    "Assembly SVG contains all 175 electrical component references plus four mounting holes; detailed inspection uses the vector drawing.",
+    "Native graph measures local capacitor signal path4.448402mm, all F.Cu with no vias; this is geometry, not an inductance extraction."
+  ],
+  "unresolved": "Vendor DFM/placement preview and fabricated-board inspection, stability/accuracy measurements not performed.",
+  "unchanged_images_inherited_by_hash": [
+    "schematic-page-1.png",
+    "schematic-page-3.png",
+    "schematic-page-5.png",
+    "schematic-page-6.png",
+    "gerber-outline.png"
+  ]
+}

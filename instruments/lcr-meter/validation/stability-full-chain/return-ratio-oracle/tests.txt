@@ -1,0 +1,14 @@
+
+running 9 tests
+test tests::algebra_and_bridge_invariance ... ok
+test tests::finite_band_and_marginal_are_not_certificates ... ok
+test tests::not_deembedding_is_detected ... ok
+test tests::phase_branch_invariance ... ok
+test tests::stable_one_pole ... ok
+test tests::unstable_three_pole ... ok
+test tests::unstable_multiple_crossings ... ok
+test tests::stable_multiple_crossings_negative_upward_angle ... ok
+test tests::unstable_open_loop_stabilized_and_unknown_p ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

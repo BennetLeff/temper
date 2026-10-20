@@ -1,0 +1,88 @@
+{
+  "lcsc": "C23345",
+  "model": "0603WAF220JT5E",
+  "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+  "package": "0603",
+  "stock": 7483982,
+  "price": 0.0017,
+  "price_10": 0.0013,
+  "library_type": "basic",
+  "preferred": false,
+  "category": "Resistors",
+  "subcategory": "Chip Resistor - Surface Mount",
+  "subcategory_id": 2980,
+  "mounting_type": "smd",
+  "specs": {
+    "Resistance": "22Ω",
+    "Operating Temperature": "-55℃~+155℃",
+    "Power(Watts)": "100mW",
+    "Type": "Thick Film Resistor",
+    "Voltage-Supply(Max)": "75V",
+    "Tolerance": "±1%",
+    "Temperature Coefficient": "±100ppm/℃"
+  },
+  "description": "-55℃~+155℃ 100mW 22Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+  "min_order": 1,
+  "reel_qty": 5000,
+  "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010100_UNI-ROYAL-Uniroyal-Elec-0603WAF220JT5E_C23345.pdf",
+  "lcsc_url": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_uni-royal-uniroyal-elec-0603waf220jt5e_C23345.html",
+  "prices": [
+    {
+      "qty": "1+",
+      "price": 0.0017
+    },
+    {
+      "qty": "1000+",
+      "price": 0.0013
+    },
+    {
+      "qty": "5000+",
+      "price": 0.0012
+    },
+    {
+      "qty": "10000+",
+      "price": 0.001
+    },
+    {
+      "qty": "50000+",
+      "price": 0.001
+    },
+    {
+      "qty": "50200+",
+      "price": 0.001
+    }
+  ],
+  "attributes": [
+    {
+      "name": "Resistance",
+      "value": "22Ω"
+    },
+    {
+      "name": "Operating Temperature",
+      "value": "-55℃~+155℃"
+    },
+    {
+      "name": "Power(Watts)",
+      "value": "100mW"
+    },
+    {
+      "name": "Type",
+      "value": "Thick Film Resistor"
+    },
+    {
+      "name": "Voltage-Supply(Max)",
+      "value": "75V"
+    },
+    {
+      "name": "Tolerance",
+      "value": "±1%"
+    },
+    {
+      "name": "Temperature Coefficient",
+      "value": "±100ppm/℃"
+    }
+  ],
+  "has_easyeda_footprint": true,
+  "easyeda_symbol_uuid": "74fe16c006b24ea2d7bf8abb3b6bb847",
+  "easyeda_footprint_uuid": "398691f1f785460098bbe5ee6590333c"
+}

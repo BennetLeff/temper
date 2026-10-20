@@ -1,0 +1,29 @@
+; ADS9224R SPI-00-S-SDR, zone 1, 2 simultaneous data pins.
+; side bits [2:0] = CONVST, SCLK, CS on consecutive GPIO 6,5,4.
+; 120 cycles per valid sample at 120 MHz = 1 MSPS (integer divider scales).
+; READY is checked at cycle 44: 366.7 ns > 315 ns tDRDY + 16.7 ns synchronizer.
+; Capture on falling SCLK, as TI recommends for SCLK >= 30 MHz.
+; Data input synchronizers are bypassed; old data is sampled before the
+; same falling edge can propagate to ADC and launch the following bit.
+.program capture
+.side_set 3
+    pull block           side 0b001     ; OSR = sample count minus one
+.wrap_target
+    set y, 9             side 0b101 [3] ; 4 cycles; CONVST high 33.3 ns
+conversion_wait:
+    jmp y-- conversion_wait side 0b001 [3] ; 40 cycles, CONVST low
+    jmp pin ready        side 0b001     ; cycle 44
+    irq wait 4           side 0b001     ; late READY => fault, never jitter
+ready:
+    set x, 15            side 0b000 [3] ; CS low, 33.3 ns setup
+bits:
+    nop                  side 0b010 [1] ; clock high for 16.7 ns
+    in pins, 2           side 0b000     ; falling edge: sample A and B
+    jmp x-- bits         side 0b000     ; clock low total 16.7 ns
+    nop                  side 0b001 [3] ; finish frame / acquire next input
+    mov x, osr           side 0b001
+    jmp x-- more         side 0b001
+    irq wait 0           side 0b001     ; exact batch end; no extra conversions
+more:
+    mov osr, x           side 0b001
+.wrap

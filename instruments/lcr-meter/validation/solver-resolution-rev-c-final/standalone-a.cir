@@ -1,0 +1,33 @@
+Isolated FDA actual final topology to initialize coupled full circuit
+.include models/ths4551.lib
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7 method=gear
+V5 v5 0 5
+Vcm cm 0 2.048
+Vhigh highbuf 0 0.000654718577
+Vlow lowbuf 0 0.000201501531
+Vtia tia 0 0.000201501531
+Rai1 highbuf aip 1k
+Rai2 lowbuf aim 1k
+Raf1 afbm aip 1k
+Raf2 afbp aim 1k
+Raint1 aom afbm 22
+Raint2 aop afbp 22
+Xa aip aim aop aom cm v5 0 THS4551
+Raiso1 afbp aadc_p 4.32
+Raiso2 afbm aadc_m 4.32
+Caflt1 aadc_p 0 330p
+Caflt2 aadc_m 0 330p
+Cadiff aadc_p aadc_m 3.3n
+Caadc1 aadc_p 0 16p
+Caadc2 aadc_m 0 16p
+Cfba1 afbm aip 100p
+Cfba2 afbp aim 100p
+.control
+set klu
+set filetype=ascii
+op
+write standalone-a.raw all
+print v(xa.mid)
+quit
+.endc
+.end

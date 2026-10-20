@@ -1,0 +1,9 @@
+# Rev B analog simulations
+
+Run `./rerun.sh` from any working directory. Requires Rust and `/opt/homebrew/bin/ngspice`45.2. The script uses this directory's `.spiceinit` to select PSpice compatibility. It generates the bounded AFE and passive source decks, runs those plus the independent smoke/FDA cases, then regenerates `results.md` and `ac-response.svg`. The unmodified TI model libraries are two directories up under `sources/ti/models`.
+
+**Results are bounded nominal simulations, not physical measurements or full-chain stability proof.** Read `../../docs/analog-validation-rev-b.md` for the failed coupled-model analysis and approximations. The passing rerun deliberately excludes known failed operating-point attempts. They remain in `diagnostic`, `gear`, `merged`, `loose`, and `coupled-smoke` decks/logs as evidence. `full-attempt.rs` preserves the initial exact full-chain generator; it is expected to fail and must not be substituted for a passing qualification test.
+
+`source*`: nominal 200Ω DDS source, two330Ω/1nF stages,1µF/100k coupling and ideal gain 6 readout. `transfer_*`: official OPA2810/OPA810 models, actual low buffer and bounded incremental FDA resistive loads, with zero FDA-induced DC bias. `loop_*`: same approximation, with 0VDC/1VAC series injection at the TIA inverting input. `fda*`: independent official THS4551 model including 3.3Ω RGT feedback paths and ADC passive load; input sources ideal. The16pF ADC input capacitors are static, not a switched converter model.
+
+The numerical outputs use actual sweep frequency. Near35/60kHz grid points are not exactly the target frequencies. Model/manifest hashes are captured in `source-hashes.sha256`; geometry-only changes to design.json need not affect these transcribed circuits, but electrical changes require review and rerun.

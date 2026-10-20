@@ -1,0 +1,25 @@
+Independent manufacturer model nominal gain checks
+.include ../../sources/ti/models/opa2810_a.lib
+.include ../../sources/ti/models/opa810_a.lib
+.include ../../sources/ti/models/ths4551.lib
+Vp vp 0 12
+Vn vn 0 -12
+V5 v5 0 5
+Vcm cm 0 2.048
+Vi vi 0 AC 1
+X1 vi vo vo vp vn OPA2810
+Rl vo 0 1k
+X2 vi fb vo2 vp vn OPA810
+R2 vo2 fb 5k
+R3 fb 0 1k
+X3 aip aim aop aom cm v5 0 THS4551
+Rai vo aip 1k
+Rbi vo2 aim 1k
+Raf aom aip 1003.3
+Rbf aop aim 1003.3
+.control
+ac dec 10 1 100Meg
+print v(vo)[0] v(vo2)[0] v(aop)[0] v(aom)[0]
+quit
+.endc
+.end

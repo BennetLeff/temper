@@ -1,0 +1,15 @@
+Official model smoke test
+.include ../../sources/ti/models/opa2810_a.lib
+.include ../../sources/ti/models/opa810_a.lib
+.include ../../sources/ti/models/ths4551.lib
+Vp vp 0 12
+Vn vn 0 -12
+Vi vi 0 DC 0 AC 1
+X1 vi vo vo vp vn OPA2810
+Rl vo 0 1k
+.control
+ac dec 10 1 100Meg
+print v(vo)[0]
+quit
+.endc
+.end

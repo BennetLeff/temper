@@ -1,0 +1,1 @@
+The 75-case matrix here is complete for the historical22 Ω /100 pF /4.32 Ω FDA and remote100/10/5 pF TIA network. The optional100 µs extension was stopped and is not counted. This TIA arrangement was superseded by one local100 pF capacitor; current results are in `../solver-resolution-fixed-local/`.

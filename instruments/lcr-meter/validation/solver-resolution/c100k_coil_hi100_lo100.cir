@@ -1,0 +1,73 @@
+RevC exact full chain; official models; real FDA bias and ADC RC loads
+.include models/opa2810_a.lib
+.include models/opa810_a.lib
+.include models/ths4551.lib
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7 method=gear
+.include offset-nodeset.inc
+Vp vp 0 12
+Vn vn 0 -12
+V5 v5 0 5
+Vcm cm 0 2.048
+Vdds dds0 0 DC 0.3 AC 1 
+Rdds dds0 dds 200
+R30 dds lp1 330
+C34 lp1 0 1n
+R31 lp1 lp2 330
+C35 lp2 0 1n
+C36 lp2 acin 1u
+R32 acin 0 100k
+X5 acin srcfb excite vp vn OPA810
+R33 excite srcfb 5k
+R34 srcfb 0 1k
+X6A excite source source vp vn OPA2810
+RG source hi 100000
+RDUT hi coil 0.5
+LDUT coil low 50u
+RF low tia 100000
+CF low tia 5p
+X6B hi highbuf highbuf vp vn OPA2810
+X7B low lowbuf lowbuf vp vn OPA2810
+X7A 0 low tia vp vn OPA2810
+Rai1 highbuf aip 1k
+Rai2 lowbuf aim 1k
+Raf1 afbm aip 1k
+Raf2 afbp aim 1k
+Raint1 aom afbm 3.3
+Raint2 aop afbp 3.3
+Xa aip aim aop aom cm v5 0 THS4551
+Raiso1 aop aadc_p 4.02
+Raiso2 aom aadc_m 4.02
+Caflt1 aadc_p 0 330p
+Caflt2 aadc_m 0 330p
+Cadiff aadc_p aadc_m 3.3n
+Caadc1 aadc_p 0 16p
+Caadc2 aadc_m 0 16p
+Rbi1 lowbuf bip 1k
+Rbi2 tia bim 1k
+Rbf1 bfbm bip 1k
+Rbf2 bfbp bim 1k
+Rbint1 bom bfbm 3.3
+Rbint2 bop bfbp 3.3
+Xb bip bim bop bom cm v5 0 THS4551
+Rbiso1 bop badc_p 4.02
+Rbiso2 bom badc_m 4.02
+Cbflt1 badc_p 0 330p
+Cbflt2 badc_m 0 330p
+Cbdiff badc_p badc_m 3.3n
+Cbadc1 badc_p 0 16p
+Cbadc2 badc_m 0 16p
+Chi hi 0 0.0000000001
+Clo low 0 0.0000000001
+Itest hi low PULSE(0 1u 1u 1n 1n 10u 30u)
+.control
+set klu
+set wr_singlescale
+set wr_vecnames
+set filetype=ascii
+op
+write c100k_coil_hi100_lo100_op.raw all
+tran 1n 20u 0 1n
+wrdata c100k_coil_hi100_lo100_tran.dat v(hi) v(low) v(tia) v(highbuf) v(lowbuf) v(aadc_p) v(aadc_m) v(badc_p) v(badc_m)
+quit
+.endc
+.end

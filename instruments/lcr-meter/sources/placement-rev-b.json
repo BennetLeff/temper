@@ -1,0 +1,5615 @@
+{
+  "schema": "temper-lcr-placement-library-audit-v1",
+  "revision": "B",
+  "retrieved_date": "2026-10-20",
+  "design_parts_count": 167,
+  "method": "KiCad pcbnew native pads at angle0; EasyEDA exact LCSC product-linked package PAD records in0.254mm units. Match numberedpads, removecommontranslation, evaluate0/90/180/270CCW usingKiCadydown R(-angle). CPLangle=(nativeboardangle+offset)%360.",
+  "assembly_release_approved": false,
+  "final_vendor_preview_required": true,
+  "rotation_offsets_by_ref": {
+    "U1": 0,
+    "U2": 270,
+    "U3": 270,
+    "U4": 270,
+    "U5": 0,
+    "U6": 270,
+    "U7": 270,
+    "U8": 270,
+    "U9": 270,
+    "U10": 0,
+    "U11": 270,
+    "U12": 270,
+    "U13": 0,
+    "Q1": 180,
+    "D2": 0,
+    "D3": 0,
+    "L1": 0,
+    "L2": 0,
+    "FB1": 0,
+    "FB2": 0,
+    "Y1": 0,
+    "SW1": 0,
+    "SW2": 0,
+    "D4": 0,
+    "J1": 0,
+    "D1": 270,
+    "C18": 0,
+    "C80": 0,
+    "C82": 0,
+    "C89": 0,
+    "C90": 0,
+    "C91": 0,
+    "C92": 0,
+    "C94": 0,
+    "C95": 0,
+    "C99": 0,
+    "C100": 0,
+    "C72": 0,
+    "C73": 0,
+    "C103": 0
+  },
+  "parts": [
+    {
+      "lcsc": "C2040",
+      "mpn": "RP2040",
+      "references": [
+        "U1"
+      ],
+      "native_footprint": "Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm",
+      "source_url": "https://easyeda.com/api/products/C2040/components",
+      "source_sha256": "3c7c0022428c14fa8398b3b7d65f69d51efcbc9c1a41d6fb371b5053b68d38f6",
+      "catalog_model": "RP2040",
+      "library_owner": "LCSC",
+      "library_uuid": "39e1b05b30bd4c64a6c9a1b67d9eb207",
+      "library_title": "LQFN-56_L7.0-W7.0-P0.4-EP",
+      "library_origin": {
+        "x_mm": 1012.000008,
+        "y_mm": 765.3000949999999
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 57,
+      "pad_center_fit_rms_mm": 0.012390763172559494,
+      "pad_center_fit_max_mm": 0.012591288461824448,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.012390763172559494
+        },
+        {
+          "offset": 270,
+          "rms": 5.3143856174219435
+        },
+        {
+          "offset": 90,
+          "rms": 5.314385617421944
+        },
+        {
+          "offset": 180,
+          "rms": 7.51566600177991
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "57",
+          "x_mm": 1012.000008,
+          "y_mm": 765.3000949999999,
+          "width_mm": 3.0999938,
+          "height_mm": 3.0999938,
+          "rotation_deg": 0
+        },
+        {
+          "number": "56",
+          "x_mm": 1009.400064,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "55",
+          "x_mm": 1009.7998600000001,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "54",
+          "x_mm": 1010.19991,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "53",
+          "x_mm": 1010.59996,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "52",
+          "x_mm": 1011.00001,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "51",
+          "x_mm": 1011.4000599999999,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "50",
+          "x_mm": 1011.799856,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "49",
+          "x_mm": 1012.199906,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "48",
+          "x_mm": 1012.599956,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "47",
+          "x_mm": 1013.000006,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "46",
+          "x_mm": 1013.4000560000001,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "45",
+          "x_mm": 1013.7998520000001,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "44",
+          "x_mm": 1014.1999020000001,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "43",
+          "x_mm": 1014.5999519999999,
+          "y_mm": 761.8751589999999,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 270
+        },
+        {
+          "number": "42",
+          "x_mm": 1015.424944,
+          "y_mm": 762.700151,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "41",
+          "x_mm": 1015.424944,
+          "y_mm": 763.100201,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "40",
+          "x_mm": 1015.424944,
+          "y_mm": 763.500251,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "39",
+          "x_mm": 1015.424944,
+          "y_mm": 763.900301,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "38",
+          "x_mm": 1015.424944,
+          "y_mm": 764.300097,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "37",
+          "x_mm": 1015.424944,
+          "y_mm": 764.700147,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "36",
+          "x_mm": 1015.424944,
+          "y_mm": 765.100197,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "35",
+          "x_mm": 1015.424944,
+          "y_mm": 765.500247,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "34",
+          "x_mm": 1015.424944,
+          "y_mm": 765.900297,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "33",
+          "x_mm": 1015.424944,
+          "y_mm": 766.3000930000001,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "32",
+          "x_mm": 1015.424944,
+          "y_mm": 766.700143,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "31",
+          "x_mm": 1015.424944,
+          "y_mm": 767.100193,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "30",
+          "x_mm": 1015.424944,
+          "y_mm": 767.5002430000001,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "29",
+          "x_mm": 1015.424944,
+          "y_mm": 767.900293,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 180
+        },
+        {
+          "number": "28",
+          "x_mm": 1014.5999519999999,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "27",
+          "x_mm": 1014.1999020000001,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "26",
+          "x_mm": 1013.7998520000001,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "25",
+          "x_mm": 1013.4000560000001,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "24",
+          "x_mm": 1013.000006,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "23",
+          "x_mm": 1012.599956,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "22",
+          "x_mm": 1012.199906,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "21",
+          "x_mm": 1011.799856,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "20",
+          "x_mm": 1011.4000599999999,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "19",
+          "x_mm": 1011.00001,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "18",
+          "x_mm": 1010.59996,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "17",
+          "x_mm": 1010.19991,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "16",
+          "x_mm": 1009.7998600000001,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "15",
+          "x_mm": 1009.400064,
+          "y_mm": 768.725285,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 90
+        },
+        {
+          "number": "14",
+          "x_mm": 1008.575072,
+          "y_mm": 767.900293,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "13",
+          "x_mm": 1008.575072,
+          "y_mm": 767.5002430000001,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "12",
+          "x_mm": 1008.575072,
+          "y_mm": 767.100193,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "11",
+          "x_mm": 1008.575072,
+          "y_mm": 766.700143,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "10",
+          "x_mm": 1008.575072,
+          "y_mm": 766.3000930000001,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "9",
+          "x_mm": 1008.575072,
+          "y_mm": 765.900297,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1008.575072,
+          "y_mm": 765.500247,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1008.575072,
+          "y_mm": 765.100197,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1008.575072,
+          "y_mm": 764.700147,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1008.575072,
+          "y_mm": 764.300097,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1008.575072,
+          "y_mm": 763.900301,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1008.575072,
+          "y_mm": 763.500251,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1008.575072,
+          "y_mm": 763.100201,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1008.575072,
+          "y_mm": 762.700151,
+          "width_mm": 0.850011,
+          "height_mm": 0.1999996,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -0.8,
+          "y": -0.8,
+          "width": 1.29,
+          "height": 1.29,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -0.8,
+          "y": 0.8,
+          "width": 1.29,
+          "height": 1.29,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.8,
+          "y": -0.8,
+          "width": 1.29,
+          "height": 1.29,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.8,
+          "y": 0.8,
+          "width": 1.29,
+          "height": 1.29,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "1",
+          "x": -3.4375,
+          "y": -2.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -3.4375,
+          "y": -2.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -3.4375,
+          "y": -1.8,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -3.4375,
+          "y": -1.4,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": -3.4375,
+          "y": -1,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": -3.4375,
+          "y": -0.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": -3.4375,
+          "y": -0.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": -3.4375,
+          "y": 0.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": -3.4375,
+          "y": 0.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "10",
+          "x": -3.4375,
+          "y": 1,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "11",
+          "x": -3.4375,
+          "y": 1.4,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "12",
+          "x": -3.4375,
+          "y": 1.8,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "13",
+          "x": -3.4375,
+          "y": 2.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "14",
+          "x": -3.4375,
+          "y": 2.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "15",
+          "x": -2.6,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "16",
+          "x": -2.2,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "17",
+          "x": -1.8,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "18",
+          "x": -1.4,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "19",
+          "x": -1,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "20",
+          "x": -0.6,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "21",
+          "x": -0.2,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "22",
+          "x": 0.2,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "23",
+          "x": 0.6,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "24",
+          "x": 1,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "25",
+          "x": 1.4,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "26",
+          "x": 1.8,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "27",
+          "x": 2.2,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "28",
+          "x": 2.6,
+          "y": 3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "29",
+          "x": 3.4375,
+          "y": 2.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "30",
+          "x": 3.4375,
+          "y": 2.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "31",
+          "x": 3.4375,
+          "y": 1.8,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "32",
+          "x": 3.4375,
+          "y": 1.4,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "33",
+          "x": 3.4375,
+          "y": 1,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "34",
+          "x": 3.4375,
+          "y": 0.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "35",
+          "x": 3.4375,
+          "y": 0.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "36",
+          "x": 3.4375,
+          "y": -0.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "37",
+          "x": 3.4375,
+          "y": -0.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "38",
+          "x": 3.4375,
+          "y": -1,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "39",
+          "x": 3.4375,
+          "y": -1.4,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "40",
+          "x": 3.4375,
+          "y": -1.8,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "41",
+          "x": 3.4375,
+          "y": -2.2,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "42",
+          "x": 3.4375,
+          "y": -2.6,
+          "width": 0.875,
+          "height": 0.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "43",
+          "x": 2.6,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "44",
+          "x": 2.2,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "45",
+          "x": 1.8,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "46",
+          "x": 1.4,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "47",
+          "x": 1,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "48",
+          "x": 0.6,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "49",
+          "x": 0.2,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "50",
+          "x": -0.2,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "51",
+          "x": -0.6,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "52",
+          "x": -1,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "53",
+          "x": -1.4,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "54",
+          "x": -1.8,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "55",
+          "x": -2.2,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "56",
+          "x": -2.6,
+          "y": -3.4375,
+          "width": 0.2,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "57",
+          "x": 0,
+          "y": 0,
+          "width": 3.2,
+          "height": 3.2,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_recommended_land_pattern_matches",
+        "note": "Raspberry Pi RP2040 datasheet Figure167: 0.875\u00d70.20 mm peripheral pads, 0.40 mm pitch, 7.75 mm overall copper span, 6.00 mm inner span, 3.20\u00d73.20 mm central pad. Native centers \u00b13.4375 mm, length0.875 mm and EP3.20 mm reproduce these dimensions. 57 numbered pads and ordering previously verified against exact-LCSC library.",
+        "source_file": "sources/new/RP2040-datasheet.pdf",
+        "source_sha256": "be56fbb75ba0ae9e26558a73c93ac3e75c2ad4e6878d3b6703de2a76d886ea8c",
+        "page": "printed608, PDF609, Figure167"
+      },
+      "native_source_sha256": "2e70e6fb9394393594c10b827ee21a4b42ca52860a3bc8e079c4b8e24a75ccce"
+    },
+    {
+      "lcsc": "C131025",
+      "mpn": "W25Q16JVSSIQ",
+      "references": [
+        "U2"
+      ],
+      "native_footprint": "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
+      "source_url": "https://easyeda.com/api/products/C131025/components",
+      "source_sha256": "8c566e69d910a484deb1266bc211e8aa5792f0cd9c2795510d58b3f6d14e0080",
+      "catalog_model": "W25Q16JVSSIQTR",
+      "library_owner": "lcsc",
+      "library_uuid": "fdf2396de7694c3e8177c1c94fe2bbcd",
+      "library_title": "SOIC-8_L5.3-W5.3-P1.27-LS8.0-BL",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 8,
+      "pad_center_fit_rms_mm": 0.05740799999997526,
+      "pad_center_fit_max_mm": 0.0574080000000321,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.05740799999997526
+        },
+        {
+          "offset": 0,
+          "rms": 5.418851887481713
+        },
+        {
+          "offset": 180,
+          "rms": 5.418851887481713
+        },
+        {
+          "offset": 90,
+          "rms": 7.663198801966724
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1014.095,
+          "y_mm": 765.5300920000001,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1015.365,
+          "y_mm": 765.5300920000001,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1016.635,
+          "y_mm": 765.5300920000001,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1017.905,
+          "y_mm": 765.5300920000001,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1014.095,
+          "y_mm": 758.469908,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1015.365,
+          "y_mm": 758.469908,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1016.635,
+          "y_mm": 758.469908,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1017.905,
+          "y_mm": 758.469908,
+          "width_mm": 0.6299962,
+          "height_mm": 2.2500082,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -3.5875,
+          "y": -1.905,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -3.5875,
+          "y": -0.635,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -3.5875,
+          "y": 0.635,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -3.5875,
+          "y": 1.905,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 3.5875,
+          "y": 1.905,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": 3.5875,
+          "y": 0.635,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": 3.5875,
+          "y": -0.635,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": 3.5875,
+          "y": -1.905,
+          "width": 1.625,
+          "height": 0.65,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_package_and_lead_landing_verified",
+        "note": "Winbond W25Q16JV RevH section11.3, SS package: body5.18\u20135.38 mm, pitch1.27 mm, lead span7.70\u20138.10 mm, lead length0.50\u20130.80 mm, width0.35\u20130.48 mm. Native SOIC-8_5.3x5.3 has 1.625\u00d70.65 mm pads at row centers\u00b13.5875 mm: radial copper2.775\u20134.400 mm, covering manufacturer terminal reach3.05\u20134.05 mm; 0.65 mm pad width exceeds0.48 mm lead width. Correct208mil SS package, not150mil SN. No manufacturer PCB-land recommendation is given on this outline page.",
+        "source_file": "sources/new/W25Q16JV-C131025.pdf",
+        "source_sha256": "ebb56256faa029672fcc69dc4cc2f4e091f1a74f2719c2fb624df62bbc68fc79",
+        "page": "printed65, PDF66, section11.3"
+      },
+      "native_source_sha256": "cc86a7083c9df1c1bf808dfa469e913d446455fd7ab7a7941e18681b80e8b9b5"
+    },
+    {
+      "lcsc": "C51118",
+      "mpn": "AP2112K-3.3TRG1",
+      "references": [
+        "U3"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "source_url": "https://easyeda.com/api/products/C51118/components",
+      "source_sha256": "caaec2d8afec6832aec2a359e07ef158ee10d929568614ec5ecda3c39422795c",
+      "catalog_model": "AP2112K-3.3TRG1",
+      "library_owner": "lcsc",
+      "library_uuid": "7ec9305c6bfd40199d1dde43ba8e9df2",
+      "library_title": "SOT-25-5_L2.9-W1.6-P0.95-LS2.8-BL",
+      "library_origin": {
+        "x_mm": 1015.8732794,
+        "y_mm": 761.492
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 5,
+      "pad_center_fit_rms_mm": 0.15918974587475848,
+      "pad_center_fit_max_mm": 0.19496680134904665,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.15918974587475848
+        },
+        {
+          "offset": 0,
+          "rms": 2.0755356974023584
+        },
+        {
+          "offset": 180,
+          "rms": 2.0756247867067668
+        },
+        {
+          "offset": 90,
+          "rms": 2.9309939118311616
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "4",
+          "x_mm": 1016.82296,
+          "y_mm": 760.192028,
+          "width_mm": 0.6223000000000001,
+          "height_mm": 1.1049,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1014.9235480000001,
+          "y_mm": 760.192028,
+          "width_mm": 0.6223000000000001,
+          "height_mm": 1.1049,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1014.9235480000001,
+          "y_mm": 762.791972,
+          "width_mm": 0.6223000000000001,
+          "height_mm": 1.1049,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1015.872746,
+          "y_mm": 762.791972,
+          "width_mm": 0.6223000000000001,
+          "height_mm": 1.1049,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1016.82296,
+          "y_mm": 762.791972,
+          "width_mm": 0.6223000000000001,
+          "height_mm": 1.1049,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.1375,
+          "y": -0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -1.1375,
+          "y": 0,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -1.1375,
+          "y": 0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": 1.1375,
+          "y": 0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 1.1375,
+          "y": -0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "Diodes AP2112 DS39724 p14 suggests0.8\u00d70.55mm lands,2.4mm row centers,0.95mm pitch; native1.325\u00d70.6mm,2.275mm row centers,0.95mm pitch. Variant, not exact manufacturer land pattern."
+      },
+      "native_source_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    {
+      "lcsc": "C9652",
+      "mpn": "AD9833BRMZ-REEL7",
+      "references": [
+        "U4"
+      ],
+      "native_footprint": "Package_SO:MSOP-10_3x3mm_P0.5mm",
+      "source_url": "https://easyeda.com/api/products/C9652/components",
+      "source_sha256": "53d1ec90649b43cb538578d7a4f9748e2883c476fe02ed5265a85750d28a2cb3",
+      "catalog_model": "AD9833BRMZ",
+      "library_owner": "lcsc",
+      "library_uuid": "118a205096a1444195e08feff716c648",
+      "library_title": "MSOP-10_L3.0-W3.0-P0.50-LS5.0-BL",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 10,
+      "pad_center_fit_rms_mm": 0.009978194073033027,
+      "pad_center_fit_max_mm": 0.009978298644741982,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.009978194073033027
+        },
+        {
+          "offset": 0,
+          "rms": 3.1403829646010974
+        },
+        {
+          "offset": 180,
+          "rms": 3.140382964601098
+        },
+        {
+          "offset": 90,
+          "rms": 4.441160970327082
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1015.000002,
+          "y_mm": 764.109978,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1015.500128,
+          "y_mm": 764.109978,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1016,
+          "y_mm": 764.109978,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1016.500126,
+          "y_mm": 764.109978,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1016.999998,
+          "y_mm": 764.109978,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "10",
+          "x_mm": 1015.000002,
+          "y_mm": 759.890022,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "9",
+          "x_mm": 1015.500128,
+          "y_mm": 759.890022,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1016,
+          "y_mm": 759.890022,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1016.500126,
+          "y_mm": 759.890022,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1016.999998,
+          "y_mm": 759.890022,
+          "width_mm": 0.2800096,
+          "height_mm": 1.620012,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -2.1,
+          "y": -1,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -2.1,
+          "y": -0.5,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -2.1,
+          "y": 0,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -2.1,
+          "y": 0.5,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": -2.1,
+          "y": 1,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": 2.1,
+          "y": 1,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": 2.1,
+          "y": 0.5,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": 2.1,
+          "y": 0,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": 2.1,
+          "y": -0.5,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "10",
+          "x": 2.1,
+          "y": -1,
+          "width": 1.5,
+          "height": 0.35,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_package_compared",
+        "note": "ADI RevG Figure32 RM-10 is3\u00d73mm body,0.5mm pitch,4.65\u20135.15mm lead span; native MSOP10 matches package/pitch. API omits-REEL7;datasheet confirms sameRM-10 acrosspackingvariants."
+      },
+      "native_source_sha256": "c179dbee33613027667b07b4dba02648f193fc65f63616c9d73d6f1162c6bb9d"
+    },
+    {
+      "lcsc": "C2833513",
+      "mpn": "OPA810IDBVR",
+      "references": [
+        "U5"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "source_url": "https://easyeda.com/api/products/C2833513/components",
+      "source_sha256": "31926f02311c636d96ffda1722add4d8d997a9367690797465b077405f5f57e6",
+      "catalog_model": "OPA810IDBVR",
+      "library_owner": "lcsc",
+      "library_uuid": "03ef13f318724c0ca9ae900ab4eba29c",
+      "library_title": "SOT-23-5_L2.9-W1.6-P0.95-LS2.8-TL",
+      "library_origin": {
+        "x_mm": 1016.0909574,
+        "y_mm": 762.2180844000001
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 5,
+      "pad_center_fit_rms_mm": 0.15918940301623602,
+      "pad_center_fit_max_mm": 0.1949664041033923,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.15918940301623602
+        },
+        {
+          "offset": 90,
+          "rms": 2.0756732194719025
+        },
+        {
+          "offset": 270,
+          "rms": 2.0756732194719225
+        },
+        {
+          "offset": 180,
+          "rms": 2.931125613485905
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "5",
+          "x_mm": 1017.3909040000001,
+          "y_mm": 761.268226,
+          "width_mm": 1.0999978000000001,
+          "height_mm": 0.5999988,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1017.3909040000001,
+          "y_mm": 763.1681460000001,
+          "width_mm": 1.0999978000000001,
+          "height_mm": 0.5999988,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1014.7909599999999,
+          "y_mm": 761.268226,
+          "width_mm": 1.0999978000000001,
+          "height_mm": 0.5999988,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1014.7909599999999,
+          "y_mm": 763.1681460000001,
+          "width_mm": 1.0999978000000001,
+          "height_mm": 0.5999988,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1014.7909599999999,
+          "y_mm": 762.218186,
+          "width_mm": 1.0999978000000001,
+          "height_mm": 0.5999988,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.1375,
+          "y": -0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -1.1375,
+          "y": 0,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -1.1375,
+          "y": 0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": 1.1375,
+          "y": 0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 1.1375,
+          "y": -0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI DBV0005A recommends1.1\u00d70.6mm pads,2.6mm row centers,0.95mm pitch; native1.325\u00d70.6mm pads,2.275mm row centers,0.95mm pitch. Not exact TI land pattern."
+      },
+      "native_source_sha256": "455a3f7c3e5eb5b8847eaa5df23e18651e78ab9f75afd09a0883758a0d901761"
+    },
+    {
+      "lcsc": "C2864204",
+      "mpn": "OPA2810IDGKR",
+      "references": [
+        "U6",
+        "U7"
+      ],
+      "native_footprint": "Package_SO:VSSOP-8_3x3mm_P0.65mm",
+      "source_url": "https://easyeda.com/api/products/C2864204/components",
+      "source_sha256": "d115b5aa41bc11315937dc2487c422cfeb0c4422fc6797c5971050f2f0ff84c2",
+      "catalog_model": "OPA2810IDGKR",
+      "library_owner": "lcsc",
+      "library_uuid": "0c3987f2e74f405db3fd08870c0c94a7",
+      "library_title": "VSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 8,
+      "pad_center_fit_rms_mm": 0.0873940553512946,
+      "pad_center_fit_max_mm": 0.08739416437191337,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.0873940553512946
+        },
+        {
+          "offset": 0,
+          "rms": 3.218468726880939
+        },
+        {
+          "offset": 180,
+          "rms": 3.218468726880939
+        },
+        {
+          "offset": 90,
+          "rms": 4.550763031724513
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1015.024894,
+          "y_mm": 764.199894,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1015.6751340000001,
+          "y_mm": 764.199894,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1016.3251200000001,
+          "y_mm": 764.199894,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1016.975106,
+          "y_mm": 764.199894,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1015.024894,
+          "y_mm": 759.800106,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1015.6751340000001,
+          "y_mm": 759.800106,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1016.3251200000001,
+          "y_mm": 759.800106,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1016.975106,
+          "y_mm": 759.800106,
+          "width_mm": 0.3800094,
+          "height_mm": 1.4500098000000001,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -2.1125,
+          "y": -0.975,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -2.1125,
+          "y": -0.325,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -2.1125,
+          "y": 0.325,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -2.1125,
+          "y": 0.975,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 2.1125,
+          "y": 0.975,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": 2.1125,
+          "y": 0.325,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": 2.1125,
+          "y": -0.325,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": 2.1125,
+          "y": -0.975,
+          "width": 1.625,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI DGK0008A recommends1.4\u00d70.45mm pads,4.4mm row centers,0.65mm pitch; native1.625\u00d70.5mm,4.225mm centers,0.65mm pitch. Not exact TI land pattern."
+      },
+      "native_source_sha256": "0911222e671ec47304eb415d513b11545ee599b21052df7b00eb070f21d0911b"
+    },
+    {
+      "lcsc": "C2869590",
+      "mpn": "THS4551IRGTR",
+      "references": [
+        "U8",
+        "U9"
+      ],
+      "native_footprint": "Package_DFN_QFN:VQFN-16-1EP_3x3mm_P0.5mm_EP1.68x1.68mm",
+      "source_url": "https://easyeda.com/api/products/C2869590/components",
+      "source_sha256": "4d37778aa0332ee5cf788e6d9a3180850ccec082960d4cc243a218e8a5a2d052",
+      "catalog_model": "THS4551IRGTR",
+      "library_owner": "lcsc",
+      "library_uuid": "308b379299f24bf4ab8d4e81d677ec42",
+      "library_title": "QFN-16_L3.0-W3.0-P0.50-BL-EP1.7",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 17,
+      "pad_center_fit_rms_mm": 0.012043504121756355,
+      "pad_center_fit_max_mm": 0.012414164974103898,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.012043504121756355
+        },
+        {
+          "offset": 0,
+          "rms": 2.1401893619058265
+        },
+        {
+          "offset": 180,
+          "rms": 2.1401893619058265
+        },
+        {
+          "offset": 90,
+          "rms": 3.0266608603605074
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1015.249938,
+          "y_mm": 763.4500859999999,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1015.7500640000001,
+          "y_mm": 763.4500859999999,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1016.249936,
+          "y_mm": 763.4500859999999,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1016.750062,
+          "y_mm": 763.4500859999999,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1017.4500859999999,
+          "y_mm": 762.750062,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1017.4500859999999,
+          "y_mm": 762.249936,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1017.4500859999999,
+          "y_mm": 761.7500640000001,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1017.4500859999999,
+          "y_mm": 761.249938,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "9",
+          "x_mm": 1016.750062,
+          "y_mm": 760.5499140000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "10",
+          "x_mm": 1016.249936,
+          "y_mm": 760.5499140000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "11",
+          "x_mm": 1015.7500640000001,
+          "y_mm": 760.5499140000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "12",
+          "x_mm": 1015.249938,
+          "y_mm": 760.5499140000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.6649974000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "13",
+          "x_mm": 1014.5499140000001,
+          "y_mm": 761.249938,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "14",
+          "x_mm": 1014.5499140000001,
+          "y_mm": 761.7500640000001,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "15",
+          "x_mm": 1014.5499140000001,
+          "y_mm": 762.249936,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "16",
+          "x_mm": 1014.5499140000001,
+          "y_mm": 762.750062,
+          "width_mm": 0.6649974000000001,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "17",
+          "x_mm": 1016,
+          "y_mm": 762,
+          "width_mm": 1.6999966,
+          "height_mm": 1.6999966,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -0.42,
+          "y": -0.42,
+          "width": 0.68,
+          "height": 0.68,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -0.42,
+          "y": 0.42,
+          "width": 0.68,
+          "height": 0.68,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.42,
+          "y": -0.42,
+          "width": 0.68,
+          "height": 0.68,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.42,
+          "y": 0.42,
+          "width": 0.68,
+          "height": 0.68,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "1",
+          "x": -1.4625,
+          "y": -0.75,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -1.4625,
+          "y": -0.25,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -1.4625,
+          "y": 0.25,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -1.4625,
+          "y": 0.75,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": -0.75,
+          "y": 1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": -0.25,
+          "y": 1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": 0.25,
+          "y": 1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": 0.75,
+          "y": 1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": 1.4625,
+          "y": 0.75,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "10",
+          "x": 1.4625,
+          "y": 0.25,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "11",
+          "x": 1.4625,
+          "y": -0.25,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "12",
+          "x": 1.4625,
+          "y": -0.75,
+          "width": 0.825,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "13",
+          "x": 0.75,
+          "y": -1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "14",
+          "x": 0.25,
+          "y": -1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "15",
+          "x": -0.25,
+          "y": -1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "16",
+          "x": -0.75,
+          "y": -1.4625,
+          "width": 0.25,
+          "height": 0.825,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "17",
+          "x": 0,
+          "y": 0,
+          "width": 1.68,
+          "height": 1.68,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI RGT0016C recommends0.6\u00d70.24mm edge pads,2.8mm opposing row centers,1.68mm EP,0.5mm pitch. Native0.825\u00d70.25mm,2.925mm centers,1.68mm EP. EP/pitch match; edge-land geometry is IPC variant."
+      },
+      "native_source_sha256": "f68d777c2406c4c6178fdba99f3938a0ec0b5a827706f5c64a08157ce5117714"
+    },
+    {
+      "lcsc": "C2670866",
+      "mpn": "ADS9224RIRHBR",
+      "references": [
+        "U10"
+      ],
+      "native_footprint": "Package_DFN_QFN:Texas_RHB0032E_VQFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm",
+      "source_url": "https://easyeda.com/api/products/C2670866/components",
+      "source_sha256": "eccf116f1018c338c326bd86323004e1897d519b305c1eb45867c2cae64e1792",
+      "catalog_model": "ADS9224RIRHBR",
+      "library_owner": "lcsc",
+      "library_uuid": "079f5c3a24e14786bee8e1227122b0f2",
+      "library_title": "VQFN-32_L5.0-W5.0-P0.50-TL-EP3.5",
+      "library_origin": {
+        "x_mm": 1013.928122,
+        "y_mm": 760.436122
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 33,
+      "pad_center_fit_rms_mm": 0.03688232561380494,
+      "pad_center_fit_max_mm": 0.03752350639751424,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.03688232561380494
+        },
+        {
+          "offset": 90,
+          "rms": 3.7272578355420363
+        },
+        {
+          "offset": 270,
+          "rms": 3.7272578355420367
+        },
+        {
+          "offset": 180,
+          "rms": 5.271009546498311
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "32",
+          "x_mm": 1012.178062,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "31",
+          "x_mm": 1012.6779339999999,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "30",
+          "x_mm": 1013.17806,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "29",
+          "x_mm": 1013.677932,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "28",
+          "x_mm": 1014.1780580000001,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "27",
+          "x_mm": 1014.6779300000001,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "26",
+          "x_mm": 1015.1780560000001,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "25",
+          "x_mm": 1015.677928,
+          "y_mm": 758.036076,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "24",
+          "x_mm": 1016.328168,
+          "y_mm": 758.686316,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "23",
+          "x_mm": 1016.328168,
+          "y_mm": 759.186188,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "22",
+          "x_mm": 1016.328168,
+          "y_mm": 759.686314,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "21",
+          "x_mm": 1016.328168,
+          "y_mm": 760.186186,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "20",
+          "x_mm": 1016.328168,
+          "y_mm": 760.686312,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "19",
+          "x_mm": 1016.328168,
+          "y_mm": 761.1861839999999,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "18",
+          "x_mm": 1016.328168,
+          "y_mm": 761.6863099999999,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "17",
+          "x_mm": 1016.328168,
+          "y_mm": 762.186182,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "16",
+          "x_mm": 1015.677928,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "15",
+          "x_mm": 1015.1780560000001,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "14",
+          "x_mm": 1014.6779300000001,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "13",
+          "x_mm": 1014.1780580000001,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "12",
+          "x_mm": 1013.677932,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "11",
+          "x_mm": 1013.17806,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "10",
+          "x_mm": 1012.6779339999999,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "9",
+          "x_mm": 1012.178062,
+          "y_mm": 762.836168,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 762.186182,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 761.6863099999999,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 761.1861839999999,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 760.686312,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 760.186186,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 759.686314,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 759.186188,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1011.5280759999999,
+          "y_mm": 758.686316,
+          "width_mm": 0.7999984,
+          "height_mm": 0.2800096,
+          "rotation_deg": 0
+        },
+        {
+          "number": "33",
+          "x_mm": 1013.927868,
+          "y_mm": 760.436122,
+          "width_mm": 3.4500058000000005,
+          "height_mm": 3.4500058000000005,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -1.15,
+          "y": -1.15,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -1.15,
+          "y": 0,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -1.15,
+          "y": 1.15,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0,
+          "y": -1.15,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0,
+          "y": 0,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0,
+          "y": 1.15,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 1.15,
+          "y": -1.15,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 1.15,
+          "y": 0,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 1.15,
+          "y": 1.15,
+          "width": 0.93,
+          "height": 0.93,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "1",
+          "x": -2.4375,
+          "y": -1.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -2.4375,
+          "y": -1.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -2.4375,
+          "y": -0.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -2.4375,
+          "y": -0.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": -2.4375,
+          "y": 0.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": -2.4375,
+          "y": 0.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": -2.4375,
+          "y": 1.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": -2.4375,
+          "y": 1.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": -1.75,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "10",
+          "x": -1.25,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "11",
+          "x": -0.75,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "12",
+          "x": -0.25,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "13",
+          "x": 0.25,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "14",
+          "x": 0.75,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "15",
+          "x": 1.25,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "16",
+          "x": 1.75,
+          "y": 2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "17",
+          "x": 2.4375,
+          "y": 1.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "18",
+          "x": 2.4375,
+          "y": 1.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "19",
+          "x": 2.4375,
+          "y": 0.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "20",
+          "x": 2.4375,
+          "y": 0.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "21",
+          "x": 2.4375,
+          "y": -0.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "22",
+          "x": 2.4375,
+          "y": -0.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "23",
+          "x": 2.4375,
+          "y": -1.25,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "24",
+          "x": 2.4375,
+          "y": -1.75,
+          "width": 0.875,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "25",
+          "x": 1.75,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "26",
+          "x": 1.25,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "27",
+          "x": 0.75,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "28",
+          "x": 0.25,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "29",
+          "x": -0.25,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "30",
+          "x": -0.75,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "31",
+          "x": -1.25,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "32",
+          "x": -1.75,
+          "y": -2.4375,
+          "width": 0.25,
+          "height": 0.875,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "33",
+          "x": 0,
+          "y": 0,
+          "width": 3.45,
+          "height": 3.45,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI RHB0032E recommends0.6\u00d70.25mm edge pads,4.8mm opposing row centers,3.45mm EP,0.5mm pitch. Native0.875\u00d70.25mm,4.875mm centers,3.45mm EP. EP/pitch match; edge-land geometry is IPC variant."
+      },
+      "native_source_sha256": "5a78d3bbc5bf05fe113e1f21e415e0ab6a0f255f30e3b0d94d8d98e035081fdf"
+    },
+    {
+      "lcsc": "C16430",
+      "mpn": "TPS7A4901DGNR",
+      "references": [
+        "U11"
+      ],
+      "native_footprint": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+      "source_url": "https://easyeda.com/api/products/C16430/components",
+      "source_sha256": "f16cc7044287e6f7acf1481b93f45338d4ab25330c5c5a196eca14e568e4c274",
+      "catalog_model": "TPS7A4901DGNR",
+      "library_owner": "LCSC",
+      "library_uuid": "d60993d3f4f44abbb20dfdbf1e3d2178",
+      "library_title": "HVSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL-EP_DGN0008D",
+      "library_origin": {
+        "x_mm": 1014.857,
+        "y_mm": 764.413
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 9,
+      "pad_center_fit_rms_mm": 0.047136424579031576,
+      "pad_center_fit_max_mm": 0.04999574401243163,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.047136424579031576
+        },
+        {
+          "offset": 0,
+          "rms": 3.057794848555947
+        },
+        {
+          "offset": 180,
+          "rms": 3.057794848555947
+        },
+        {
+          "offset": 90,
+          "rms": 4.324118040616893
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "9",
+          "x_mm": 1014.857,
+          "y_mm": 764.413,
+          "width_mm": 1.8899886000000001,
+          "height_mm": 1.5699994,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1013.881894,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1014.53188,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1015.18212,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1015.832106,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1015.832106,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1015.18212,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1014.53188,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1013.881894,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -0.39,
+          "y": -0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -0.39,
+          "y": 0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.39,
+          "y": -0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.39,
+          "y": 0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "1",
+          "x": -2.15,
+          "y": -0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -2.15,
+          "y": -0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -2.15,
+          "y": 0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -2.15,
+          "y": 0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 2.15,
+          "y": 0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": 2.15,
+          "y": 0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": 2.15,
+          "y": -0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": 2.15,
+          "y": -0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": 0,
+          "y": 0,
+          "width": 1.57,
+          "height": 1.89,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI DGN0008G/D drawing land example has1.4\u00d70.45mm pads,4.4mm row centers,1.57\u00d71.89mm EP,0.65mm pitch. Native1.45\u00d70.5mm,4.3mm centers and matchingEP/pitch."
+      },
+      "native_source_sha256": "d407bce24b494711d4f7ec53ebfc189c6ac5dd588b2a887ed672ab6ce3b1a095"
+    },
+    {
+      "lcsc": "C33835",
+      "mpn": "TPS7A3001DGNR",
+      "references": [
+        "U12"
+      ],
+      "native_footprint": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+      "source_url": "https://easyeda.com/api/products/C33835/components",
+      "source_sha256": "0b70215a36706d0e1b7264f9e3334a80b5a151faf54309de41d8ed9bc2a3f0da",
+      "catalog_model": "TPS7A3001DGNR",
+      "library_owner": "LCSC",
+      "library_uuid": "d60993d3f4f44abbb20dfdbf1e3d2178",
+      "library_title": "HVSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL-EP_DGN0008D",
+      "library_origin": {
+        "x_mm": 1014.857,
+        "y_mm": 764.413
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 9,
+      "pad_center_fit_rms_mm": 0.047136424579031576,
+      "pad_center_fit_max_mm": 0.04999574401243163,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.047136424579031576
+        },
+        {
+          "offset": 0,
+          "rms": 3.057794848555947
+        },
+        {
+          "offset": 180,
+          "rms": 3.057794848555947
+        },
+        {
+          "offset": 90,
+          "rms": 4.324118040616893
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "9",
+          "x_mm": 1014.857,
+          "y_mm": 764.413,
+          "width_mm": 1.8899886000000001,
+          "height_mm": 1.5699994,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1013.881894,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "7",
+          "x_mm": 1014.53188,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1015.18212,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1015.832106,
+          "y_mm": 762.2130044,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1015.832106,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1015.18212,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1014.53188,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1013.881894,
+          "y_mm": 766.6129956,
+          "width_mm": 0.36400740000000004,
+          "height_mm": 1.3999972,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -0.39,
+          "y": -0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -0.39,
+          "y": 0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.39,
+          "y": -0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.39,
+          "y": 0.47,
+          "width": 0.63,
+          "height": 0.76,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "1",
+          "x": -2.15,
+          "y": -0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -2.15,
+          "y": -0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -2.15,
+          "y": 0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -2.15,
+          "y": 0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 2.15,
+          "y": 0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": 2.15,
+          "y": 0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": 2.15,
+          "y": -0.325,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": 2.15,
+          "y": -0.975,
+          "width": 1.45,
+          "height": 0.5,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": 0,
+          "y": 0,
+          "width": 1.57,
+          "height": 1.89,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI DGN0008D land example has1.4\u00d70.45mm pads,4.4mm row centers,1.57\u00d71.89mm EP,0.65mm pitch. Native1.45\u00d70.5mm,4.3mm centers and matchingEP/pitch."
+      },
+      "native_source_sha256": "d407bce24b494711d4f7ec53ebfc189c6ac5dd588b2a887ed672ab6ce3b1a095"
+    },
+    {
+      "lcsc": "C87663",
+      "mpn": "TPS65131RGER",
+      "references": [
+        "U13"
+      ],
+      "native_footprint": "Package_DFN_QFN:VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm",
+      "source_url": "https://easyeda.com/api/products/C87663/components",
+      "source_sha256": "d08533a51434a128c416d18fe599d9778302fcc84460d7411d696e57c8b5a094",
+      "catalog_model": "TPS65131RGER",
+      "library_owner": "lcsc",
+      "library_uuid": "c241c507d7e24fd18059d57a613adf22",
+      "library_title": "QFN-24_L4.0-W4.0-P0.50-TL-EP2.6",
+      "library_origin": {
+        "x_mm": 1016.3557270000001,
+        "y_mm": 762.806831
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 25,
+      "pad_center_fit_rms_mm": 0.012568511051618825,
+      "pad_center_fit_max_mm": 0.014394478725738707,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.012568511051618825
+        },
+        {
+          "offset": 90,
+          "rms": 3.005007497073862
+        },
+        {
+          "offset": 270,
+          "rms": 3.0054240947776605
+        },
+        {
+          "offset": 180,
+          "rms": 4.249998362290295
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1014.355858,
+          "y_mm": 761.557024,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "2",
+          "x_mm": 1014.355858,
+          "y_mm": 762.056896,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "3",
+          "x_mm": 1014.355858,
+          "y_mm": 762.5570220000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "4",
+          "x_mm": 1014.355858,
+          "y_mm": 763.056894,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "5",
+          "x_mm": 1014.355858,
+          "y_mm": 763.5570200000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "6",
+          "x_mm": 1014.355858,
+          "y_mm": 764.056892,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "7",
+          "x_mm": 1015.10592,
+          "y_mm": 764.806954,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "8",
+          "x_mm": 1015.605792,
+          "y_mm": 764.806954,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "9",
+          "x_mm": 1016.105918,
+          "y_mm": 764.806954,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "10",
+          "x_mm": 1016.6057900000001,
+          "y_mm": 764.806954,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "11",
+          "x_mm": 1017.105916,
+          "y_mm": 764.806954,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "12",
+          "x_mm": 1017.6057880000001,
+          "y_mm": 764.806954,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "13",
+          "x_mm": 1018.35585,
+          "y_mm": 764.056892,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "14",
+          "x_mm": 1018.35585,
+          "y_mm": 763.5570200000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "15",
+          "x_mm": 1018.35585,
+          "y_mm": 763.056894,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "16",
+          "x_mm": 1018.35585,
+          "y_mm": 762.5570220000001,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "17",
+          "x_mm": 1018.35585,
+          "y_mm": 762.056896,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "18",
+          "x_mm": 1018.35585,
+          "y_mm": 761.564898,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "19",
+          "x_mm": 1017.6057880000001,
+          "y_mm": 760.806962,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "20",
+          "x_mm": 1017.105916,
+          "y_mm": 760.806962,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "21",
+          "x_mm": 1016.6057900000001,
+          "y_mm": 760.806962,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "22",
+          "x_mm": 1016.105918,
+          "y_mm": 760.806962,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "23",
+          "x_mm": 1015.605792,
+          "y_mm": 760.806962,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "24",
+          "x_mm": 1015.10592,
+          "y_mm": 760.806962,
+          "width_mm": 0.2800096,
+          "height_mm": 0.7999984,
+          "rotation_deg": 0
+        },
+        {
+          "number": "25",
+          "x_mm": 1016.3556,
+          "y_mm": 762.8194040000001,
+          "width_mm": 2.6999945999999997,
+          "height_mm": 2.6999945999999997,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -0.82,
+          "y": -0.82,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -0.82,
+          "y": 0,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": -0.82,
+          "y": 0.82,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0,
+          "y": -0.82,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0,
+          "y": 0,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0,
+          "y": 0.82,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.82,
+          "y": -0.82,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.82,
+          "y": 0,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "",
+          "x": 0.82,
+          "y": 0.82,
+          "width": 0.66,
+          "height": 0.66,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "1",
+          "x": -1.9875,
+          "y": -1.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -1.9875,
+          "y": -0.75,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -1.9875,
+          "y": -0.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -1.9875,
+          "y": 0.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": -1.9875,
+          "y": 0.75,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": -1.9875,
+          "y": 1.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "7",
+          "x": -1.25,
+          "y": 1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "8",
+          "x": -0.75,
+          "y": 1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "9",
+          "x": -0.25,
+          "y": 1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "10",
+          "x": 0.25,
+          "y": 1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "11",
+          "x": 0.75,
+          "y": 1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "12",
+          "x": 1.25,
+          "y": 1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "13",
+          "x": 1.9875,
+          "y": 1.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "14",
+          "x": 1.9875,
+          "y": 0.75,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "15",
+          "x": 1.9875,
+          "y": 0.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "16",
+          "x": 1.9875,
+          "y": -0.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "17",
+          "x": 1.9875,
+          "y": -0.75,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "18",
+          "x": 1.9875,
+          "y": -1.25,
+          "width": 0.775,
+          "height": 0.25,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "19",
+          "x": 1.25,
+          "y": -1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "20",
+          "x": 0.75,
+          "y": -1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "21",
+          "x": 0.25,
+          "y": -1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "22",
+          "x": -0.25,
+          "y": -1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "23",
+          "x": -0.75,
+          "y": -1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "24",
+          "x": -1.25,
+          "y": -1.9875,
+          "width": 0.25,
+          "height": 0.775,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "25",
+          "x": 0,
+          "y": 0,
+          "width": 2.45,
+          "height": 2.45,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_ipc_land_pattern_variant",
+        "note": "TI RGE0024B recommends0.6\u00d70.25mm edge pads,3.8mm row centers,2.45mm EP,0.5mm pitch. Native0.775\u00d70.25mm,3.975mm row centers,2.45mm EP and0.5mm pitch."
+      },
+      "native_source_sha256": "77274bd7f585d2ca9b1585d34b07d79ced74696f1e6f5c70a83a43462c0f26f6"
+    },
+    {
+      "lcsc": "C15127",
+      "mpn": "AO3401A",
+      "references": [
+        "Q1"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23",
+      "source_url": "https://easyeda.com/api/products/C15127/components",
+      "source_sha256": "1c9d1a157ab53654e909bb586fc20b15e833b18887fe30d0abaf535f571d21f1",
+      "catalog_model": "AO3401A",
+      "library_owner": "lcsc",
+      "library_uuid": "2a819e02584e46aea9f04b619de61270",
+      "library_title": "SOT-23_L2.9-W1.3-P1.90-LS2.4-BR",
+      "library_origin": {
+        "x_mm": 100.399977,
+        "y_mm": 77.03566000000001
+      },
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 3,
+      "pad_center_fit_rms_mm": 0.20033278186279588,
+      "pad_center_fit_max_mm": 0.2833133333333251,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.20033278186279588
+        },
+        {
+          "offset": 90,
+          "rms": 1.777655072510469
+        },
+        {
+          "offset": 270,
+          "rms": 1.7776550725104725
+        },
+        {
+          "offset": 0,
+          "rms": 2.5059892039183898
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "2",
+          "x_mm": 101.549962,
+          "y_mm": 76.0857,
+          "width_mm": 0.9999979999999999,
+          "height_mm": 0.7999984,
+          "rotation_deg": 180
+        },
+        {
+          "number": "3",
+          "x_mm": 99.249992,
+          "y_mm": 77.03566000000001,
+          "width_mm": 0.9999979999999999,
+          "height_mm": 0.7999984,
+          "rotation_deg": 180
+        },
+        {
+          "number": "1",
+          "x_mm": 101.549962,
+          "y_mm": 77.98562,
+          "width_mm": 0.9999979999999999,
+          "height_mm": 0.7999984,
+          "rotation_deg": 180
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -0.9375,
+          "y": -0.95,
+          "width": 1.475,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -0.9375,
+          "y": 0.95,
+          "width": 1.475,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": 0.9375,
+          "y": 0,
+          "width": 1.475,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_package_compared_ipc_land_pattern_variant",
+        "note": "AOS PO-00001N confirms 2.9 mm body length, 2.6\u20133.0 mm lead span and 0.95 mm pitch. Native SOT23 preserves 1G/2S/3D and pitch; native lands differ from the manufacturer recommendation."
+      },
+      "native_source_sha256": "0d88c86c1b6d8c1aae4aa8c09386264c089d4451a128b6ccd63ed253f4300b15"
+    },
+    {
+      "lcsc": "C2480",
+      "mpn": "SS14",
+      "references": [
+        "D2",
+        "D3"
+      ],
+      "native_footprint": "Diode_SMD:D_SMA",
+      "source_url": "https://easyeda.com/api/products/C2480/components",
+      "source_sha256": "32d687c0018eec136d1fb529c8efd2c935ddae9b08d3b6d8a2794ab36688e6b8",
+      "catalog_model": "SS14",
+      "library_owner": "lcsc",
+      "library_uuid": "05db90dceeca4e36b8e885414389add8",
+      "library_title": "SMA_L4.2-W2.6-LS5.0-RD_1",
+      "library_origin": {
+        "x_mm": 1015.5174,
+        "y_mm": 762.635
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.03505599999999731,
+      "pad_center_fit_max_mm": 0.035056000000054155,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.03505599999999731
+        },
+        {
+          "offset": 90,
+          "rms": 2.8037483701530723
+        },
+        {
+          "offset": 270,
+          "rms": 2.8037483701530723
+        },
+        {
+          "offset": 180,
+          "rms": 3.9649440000000027
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "2",
+          "x_mm": 1017.482344,
+          "y_mm": 762.635,
+          "width_mm": 1.5199868,
+          "height_mm": 1.6800068000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1013.552456,
+          "y_mm": 762.635,
+          "width_mm": 1.5199868,
+          "height_mm": 1.6800068000000001,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -2,
+          "y": 0,
+          "width": 2.5,
+          "height": 1.8,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 2,
+          "y": 0,
+          "width": 2.5,
+          "height": 1.8,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_package_polarity_and_lead_landing_verified",
+        "note": "MDD SS12\u2013SS1200 sheet identifies SS14, SMA/DO-214AC, cathode band, body3.80\u20134.50\u00d72.30\u20132.80 mm, overall lead span4.70\u20135.30 mm, terminal length0.75\u20131.55 mm and width1.30\u20131.70 mm. Native D_SMA pads2.5\u00d71.8 mm at\u00b12 mm have radial extent0.75\u20133.25 mm, encompassing terminal envelope0.80\u20132.65 mm; pad width1.8 mm exceeds terminal maximum1.7 mm. Librarypad1K/pad2A agrees with native. Manufacturer provides package dimensions rather than a recommended PCB land.",
+        "source_file": "sources/new/SS14-MDD-C2480.pdf",
+        "source_sha256": "1c2e8ca38c0a1afef95e4e329afc215094264244d161999f40765f5ef79d5720",
+        "page": "PDF1"
+      },
+      "native_source_sha256": "f7cba3b52ed8b34dce89170722de58324eac04e9e61a095e0eab37b9ca93cb7f"
+    },
+    {
+      "lcsc": "C167963",
+      "mpn": "FNR5040S4R7MT",
+      "references": [
+        "L1",
+        "L2"
+      ],
+      "native_footprint": "Inductor_SMD:L_Changjiang_FNR5040S",
+      "source_url": "https://easyeda.com/api/products/C167963/components",
+      "source_sha256": "2ffacfd2048d5eca714add1c90283d4fb501219b7c4901c1851b1e9198a5f560",
+      "catalog_model": "FNR5040S4R7MT",
+      "library_owner": "lcsc",
+      "library_uuid": "d24a8e98c8834795924c5319389a2168",
+      "library_title": "IND-SMD_L5.0-W5.0_FNR50XXS",
+      "library_origin": {
+        "x_mm": 1011.842909,
+        "y_mm": 764.2860000000001
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.2999830000000201,
+      "pad_center_fit_max_mm": 0.2999830000000201,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.2999830000000201
+        },
+        {
+          "offset": 90,
+          "rms": 2.836358034573401
+        },
+        {
+          "offset": 270,
+          "rms": 2.836358034573401
+        },
+        {
+          "offset": 180,
+          "rms": 3.9999830000000203
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1009.6929259999999,
+          "y_mm": 764.2860000000001,
+          "width_mm": 1.7999964,
+          "height_mm": 4.1999916,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1013.992892,
+          "y_mm": 764.2860000000001,
+          "width_mm": 1.7999964,
+          "height_mm": 4.1999916,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.85,
+          "y": 0,
+          "width": 1.4,
+          "height": 4.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 1.85,
+          "y": 0,
+          "width": 1.4,
+          "height": 4.2,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_land_pattern_matches",
+        "note": "Cjiang FNR family p2: FNR5040S recommendedgap2.3mm,landwidth1.4mm,height4.2mm =>centers\u00b11.85mm. Native matches. EasyEDA larger1.8\u00d74.2mm lands at\u00b12.15mm are not the manufacturer pattern. Nonpolar180deg equivalent."
+      },
+      "native_source_sha256": "9eab056e105d3a2e7859ad710e27c6d7ecd0549a6762899067eb0974478893a0"
+    },
+    {
+      "lcsc": "C79382",
+      "mpn": "BLM21PG121SN1D",
+      "references": [
+        "FB1",
+        "FB2"
+      ],
+      "native_footprint": "Inductor_SMD:L_0805_2012Metric",
+      "source_url": "https://easyeda.com/api/products/C79382/components",
+      "source_sha256": "b430c0a00c3e1b6e4481c63b969da7e749e4851af41d9418f4ccc14d73f7e3d7",
+      "catalog_model": "BLM21PG121SN1D",
+      "library_owner": "lcsc",
+      "library_uuid": "bcc8ca20dcc84ccfa139b07aa569efaf",
+      "library_title": "L0805",
+      "library_origin": {
+        "x_mm": 1016.6007099999999,
+        "y_mm": 765.6101020000001
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.09628400000002557,
+      "pad_center_fit_max_mm": 0.09628400000008241,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.09628400000002557
+        },
+        {
+          "offset": 90,
+          "rms": 1.4361335622622118
+        },
+        {
+          "offset": 270,
+          "rms": 1.4361335622622118
+        },
+        {
+          "offset": 180,
+          "rms": 2.0287159999999744
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1015.634494,
+          "y_mm": 765.6101020000001,
+          "width_mm": 1.1325352,
+          "height_mm": 1.3770102,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1017.566926,
+          "y_mm": 765.6101020000001,
+          "width_mm": 1.1325352,
+          "height_mm": 1.3770102,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.0625,
+          "y": 0,
+          "width": 0.875,
+          "height": 1.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 1.0625,
+          "y": 0,
+          "width": 0.875,
+          "height": 1.2,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "nonpolar_axis_verified",
+        "note": "Exactpartlinked0805libraryhasleft/rightpadaxisat0degmatchingnative;180degelectricallyequivalent. Manufacturerterminaldimensionreviewnotpartofthiskeyedpartaudit."
+      },
+      "native_source_sha256": "22f5100d304229ddc07ba8218e3b631d6db4f8fe0b5c310b078c7e41ad56517d"
+    },
+    {
+      "lcsc": "C20625731",
+      "mpn": "ABM8-272-T3",
+      "references": [
+        "Y1"
+      ],
+      "native_footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+      "source_url": "https://easyeda.com/api/products/C20625731/components",
+      "source_sha256": "f22d584de5cc0a41a3eab04c4c70faefb531c90ce3793fc79790768198f47272",
+      "catalog_model": "ABM8-272-T3_C20625731",
+      "library_owner": "lcsc",
+      "library_uuid": "9e297fbdb6c24ee39419d7ac96617dbf",
+      "library_title": "CRYSTAL-SMD_4P-L3.2-W2.5-BL",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762.000127
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 4,
+      "pad_center_fit_rms_mm": 7.481310051883873e-05,
+      "pad_center_fit_max_mm": 7.481310051883873e-05,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 7.481310051883873e-05
+        },
+        {
+          "offset": 90,
+          "rms": 1.966006486662018
+        },
+        {
+          "offset": 270,
+          "rms": 1.966006486662018
+        },
+        {
+          "offset": 180,
+          "rms": 2.780353036144378
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1014.8999259999999,
+          "y_mm": 762.850138,
+          "width_mm": 1.3999972,
+          "height_mm": 1.1999976,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1017.1000740000001,
+          "y_mm": 762.850138,
+          "width_mm": 1.3999972,
+          "height_mm": 1.1999976,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1017.1000740000001,
+          "y_mm": 761.150116,
+          "width_mm": 1.3999972,
+          "height_mm": 1.1999976,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1014.8999259999999,
+          "y_mm": 761.150116,
+          "width_mm": 1.3999972,
+          "height_mm": 1.1999976,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.1,
+          "y": 0.85,
+          "width": 1.4,
+          "height": 1.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 1.1,
+          "y": 0.85,
+          "width": 1.4,
+          "height": 1.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": 1.1,
+          "y": -0.85,
+          "width": 1.4,
+          "height": 1.2,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": -1.1,
+          "y": -0.85,
+          "width": 1.4,
+          "height": 1.2,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_package_compared",
+        "note": "Abracon456603RevBmechanicaldrawing:3.2\u00d72.5mm body;topview1bottomleft,2bottomrightGND,3topright,4topleftGND. Native1.4\u00d71.2mm landscenters\u00b11.1/\u00b10.85mm matchlibrary. ManufacturerdrawinggivescontactgeometrynotarecommendedPCBland."
+      },
+      "native_source_sha256": "7648bca15399a8bd7856b5da6a1d2bc3a87049dc63958f8e8a3ab7409941a8e4"
+    },
+    {
+      "lcsc": "C231329",
+      "mpn": "B3U-1000P",
+      "references": [
+        "SW1",
+        "SW2"
+      ],
+      "native_footprint": "Button_Switch_SMD:SW_SPST_B3U-1000P",
+      "source_url": "https://easyeda.com/api/products/C231329/components",
+      "source_sha256": "aa529ab550cd062880dde71f690824f680ca0585d5c463f608795b4e550290b9",
+      "catalog_model": "B3U-1000P",
+      "library_owner": "LCSC",
+      "library_uuid": "ae8401fad3d345eb87e9bb360bc4f571",
+      "library_title": "KEY-SMD_B3U-1000PM",
+      "library_origin": {
+        "x_mm": 1017.171956,
+        "y_mm": 763.778
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 3.4000000368461514e-06,
+      "pad_center_fit_max_mm": 3.4000000368461514e-06,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 3.4000000368461514e-06
+        },
+        {
+          "offset": 90,
+          "rms": 2.4041606518723815
+        },
+        {
+          "offset": 270,
+          "rms": 2.4041606518723815
+        },
+        {
+          "offset": 180,
+          "rms": 3.3999965999999633
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "2",
+          "x_mm": 1018.8719526,
+          "y_mm": 763.778,
+          "width_mm": 0.7999984,
+          "height_mm": 1.6999966,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1015.4719594000001,
+          "y_mm": 763.778,
+          "width_mm": 0.7999984,
+          "height_mm": 1.6999966,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.7,
+          "y": 0,
+          "width": 0.9,
+          "height": 1.7,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 1.7,
+          "y": 0,
+          "width": 0.9,
+          "height": 1.7,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_land_pattern_variant",
+        "note": "OmronB3Up2 recommendsouterspan4.2mm,innergap2.6mm,height1.7mm =>0.8mm landscenters\u00b11.7mm. Native0.9\u00d71.7mm landscenters\u00b11.7mm;0.1mm widerlands. Nonpolar180deg equivalent."
+      },
+      "native_source_sha256": "d24fc396b98fa262d6010f2ad81156242d03adfd5f80dfb1eff19093e59bc2ea"
+    },
+    {
+      "lcsc": "C22371297",
+      "mpn": "PSC-1608U52GC-G4",
+      "references": [
+        "D4"
+      ],
+      "native_footprint": "LED_SMD:LED_0603_1608Metric",
+      "source_url": "https://easyeda.com/api/products/C22371297/components",
+      "source_sha256": "6b80a5c97619abb629975d7c9d28e8cbeefea51a68eb262f468e0bc0b090464b",
+      "catalog_model": "PSC-1608U52GC-G4",
+      "library_owner": "lcsc",
+      "library_uuid": "a79742a4decb4495a5ae45708846b7ba",
+      "library_title": "LED0603-RD_GREEN",
+      "library_origin": {
+        "x_mm": 1015.9899670000001,
+        "y_mm": 762.0065278000001
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.01244665682021568,
+      "pad_center_fit_max_mm": 0.012446656820285985,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.01244665682021568
+        },
+        {
+          "offset": 270,
+          "rms": 1.1197819516610965
+        },
+        {
+          "offset": 90,
+          "rms": 1.1245945799558432
+        },
+        {
+          "offset": 180,
+          "rms": 1.5869687045641427
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1015.190502,
+          "y_mm": 762.0099060000001,
+          "width_mm": 0.7999984,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        },
+        {
+          "number": "2",
+          "x_mm": 1016.789432,
+          "y_mm": 762.003048,
+          "width_mm": 0.7999984,
+          "height_mm": 0.7999984,
+          "rotation_deg": 90
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -0.7875,
+          "y": 0,
+          "width": 0.875,
+          "height": 0.95,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 0.7875,
+          "y": 0,
+          "width": 0.875,
+          "height": 0.95,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_land_pattern_variant",
+        "note": "HonglitronicB-24-A-0131A/0p2confirms1K/2A,1.6\u00d70.8mm body;recommended2.6mm outerspan,0.6mm innergap,1.1mm height =>1\u00d71.1mm landscenters\u00b10.8mm. Native0.875\u00d70.95mm landscenters\u00b10.7875mm;notexactmanufacturerland."
+      },
+      "native_source_sha256": "7931ed1efba34cb13c8d74a60eb1dca4b0be57d950c38e08c3e7f007db500a1c"
+    },
+    {
+      "lcsc": "C165948",
+      "mpn": "TYPE-C-31-M-12",
+      "references": [
+        "J1"
+      ],
+      "native_footprint": "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+      "source_url": "https://easyeda.com/api/products/C165948/components",
+      "source_sha256": "5d94ebf8943ed864c604933ea0535e798ffeb13ee8bd72755d29446e0936a61a",
+      "catalog_model": "TYPE-C-31-M-12",
+      "library_owner": "LCSC",
+      "library_uuid": "d556fcebb18d4647a249a7d49ea0c41d",
+      "library_title": "USB-C_SMD-TYPE-C-31-M-12_1",
+      "library_origin": {
+        "x_mm": 1016.1750059999999,
+        "y_mm": 761.344045
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 12,
+      "pad_center_fit_rms_mm": 0.0001442092422966725,
+      "pad_center_fit_max_mm": 0.0003411666668853286,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.0001442092422966725
+        },
+        {
+          "offset": 90,
+          "rms": 2.6614764268721993
+        },
+        {
+          "offset": 270,
+          "rms": 2.6614764268721993
+        },
+        {
+          "offset": 180,
+          "rms": 3.7638960560563457
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "B8",
+          "x_mm": 1014.424946,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "A5",
+          "x_mm": 1014.925072,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "B7",
+          "x_mm": 1015.424944,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "A6",
+          "x_mm": 1015.92507,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "A7",
+          "x_mm": 1016.424942,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "B6",
+          "x_mm": 1016.925068,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "A8",
+          "x_mm": 1017.424686,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "B5",
+          "x_mm": 1017.925066,
+          "y_mm": 758.869958,
+          "width_mm": 0.2999994,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "A1B12",
+          "x_mm": 1012.975114,
+          "y_mm": 758.869958,
+          "width_mm": 0.5999734,
+          "height_mm": 1.3001752,
+          "rotation_deg": 0
+        },
+        {
+          "number": "B1A12",
+          "x_mm": 1019.3751520000001,
+          "y_mm": 758.869958,
+          "width_mm": 0.6000242,
+          "height_mm": 1.2999720000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "B4A9",
+          "x_mm": 1018.5753060000001,
+          "y_mm": 758.869958,
+          "width_mm": 0.6000242,
+          "height_mm": 1.2999720000000001,
+          "rotation_deg": 0
+        },
+        {
+          "number": "A4B9",
+          "x_mm": 1013.77496,
+          "y_mm": 758.869958,
+          "width_mm": 0.5999734,
+          "height_mm": 1.2999974,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1020.500118,
+          "y_mm": 763.818132,
+          "width_mm": 1.1999976,
+          "height_mm": 1.7999964,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1020.500118,
+          "y_mm": 759.638308,
+          "width_mm": 1.1999976,
+          "height_mm": 1.9999959999999999,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1011.8498940000001,
+          "y_mm": 759.638308,
+          "width_mm": 1.1999976,
+          "height_mm": 1.9999959999999999,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1011.8498940000001,
+          "y_mm": 763.818132,
+          "width_mm": 1.1999976,
+          "height_mm": 1.7999964,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "",
+          "x": -2.89,
+          "y": -2.6,
+          "width": 0.6,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 3
+        },
+        {
+          "number": "",
+          "x": 2.89,
+          "y": -2.6,
+          "width": 0.6,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 3
+        },
+        {
+          "number": "A1",
+          "x": -3.2,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A4",
+          "x": -2.4,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A5",
+          "x": -1.25,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A6",
+          "x": -0.25,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A7",
+          "x": 0.25,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A8",
+          "x": 1.25,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A9",
+          "x": 2.4,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "A12",
+          "x": 3.2,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B1",
+          "x": 3.2,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B4",
+          "x": 2.4,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B5",
+          "x": 1.75,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B6",
+          "x": 0.75,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B7",
+          "x": -0.75,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B8",
+          "x": -1.75,
+          "y": -3.67,
+          "width": 0.3,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B9",
+          "x": -2.4,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "B12",
+          "x": -3.2,
+          "y": -3.67,
+          "width": 0.6,
+          "height": 1.14,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "SH",
+          "x": -4.325,
+          "y": -3.1,
+          "width": 1,
+          "height": 2.1,
+          "rotation": 0,
+          "attribute": 0
+        },
+        {
+          "number": "SH",
+          "x": -4.325,
+          "y": 1.08,
+          "width": 1,
+          "height": 1.8,
+          "rotation": 0,
+          "attribute": 0
+        },
+        {
+          "number": "SH",
+          "x": 4.325,
+          "y": -3.1,
+          "width": 1,
+          "height": 2.1,
+          "rotation": 0,
+          "attribute": 0
+        },
+        {
+          "number": "SH",
+          "x": 4.325,
+          "y": 1.08,
+          "width": 1,
+          "height": 1.8,
+          "rotation": 0,
+          "attribute": 0
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "project_manufacturer_adapted_pattern_compared",
+        "note": "Actual project-local HROfootprint includes2020drawingcorrections inbuild_cad.py. Twelve uniquecontactpositionsmatchEasyEDAtowithin0.0003mmaftertranslation;0degoffset. Headeroriginisnotmechanicalcenter:do notapplyautomaticXYtranslation. Reviewbody/shell/PCBedgeinJLCpreview."
+      },
+      "native_source_sha256": "79fa3df0c4783feed3645103826bdb50cd56cda72495ca2b98692d44600aa0f5"
+    },
+    {
+      "lcsc": "C7519",
+      "mpn": "USBLC6-2SC6",
+      "references": [
+        "D1"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "source_url": "https://easyeda.com/api/products/C7519/components",
+      "source_sha256": "edec3078dcd0fa74189abc6b00967ff354e332a1ec735f665729828ac760cfca",
+      "catalog_model": "USBLC6-2SC6",
+      "library_owner": "lcsc",
+      "library_uuid": "9a066f903e65476fa74739d5e9b0ceb9",
+      "library_title": "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 6,
+      "pad_center_fit_rms_mm": 0.011596045992766032,
+      "pad_center_fit_max_mm": 0.011596068989087667,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.011596045992766032
+        },
+        {
+          "offset": 0,
+          "rms": 1.9538706546107907
+        },
+        {
+          "offset": 180,
+          "rms": 1.9538706546107907
+        },
+        {
+          "offset": 90,
+          "rms": 2.763166046696385
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "1",
+          "x_mm": 1015.0500400000001,
+          "y_mm": 763.149096,
+          "width_mm": 0.532003,
+          "height_mm": 1.0720070000000002,
+          "rotation_deg": 0
+        },
+        {
+          "number": "2",
+          "x_mm": 1016,
+          "y_mm": 763.149096,
+          "width_mm": 0.532003,
+          "height_mm": 1.0720070000000002,
+          "rotation_deg": 0
+        },
+        {
+          "number": "3",
+          "x_mm": 1016.9499599999999,
+          "y_mm": 763.149096,
+          "width_mm": 0.532003,
+          "height_mm": 1.0720070000000002,
+          "rotation_deg": 0
+        },
+        {
+          "number": "4",
+          "x_mm": 1016.9499599999999,
+          "y_mm": 760.850904,
+          "width_mm": 0.532003,
+          "height_mm": 1.0720070000000002,
+          "rotation_deg": 0
+        },
+        {
+          "number": "5",
+          "x_mm": 1016,
+          "y_mm": 760.850904,
+          "width_mm": 0.532003,
+          "height_mm": 1.0720070000000002,
+          "rotation_deg": 0
+        },
+        {
+          "number": "6",
+          "x_mm": 1015.0500400000001,
+          "y_mm": 760.850904,
+          "width_mm": 0.532003,
+          "height_mm": 1.0720070000000002,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.1375,
+          "y": -0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": -1.1375,
+          "y": 0,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "3",
+          "x": -1.1375,
+          "y": 0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "4",
+          "x": 1.1375,
+          "y": 0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "5",
+          "x": 1.1375,
+          "y": 0,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "6",
+          "x": 1.1375,
+          "y": -0.95,
+          "width": 1.325,
+          "height": 0.6,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "manufacturer_compared_land_pattern_variant",
+        "note": "STDS4260Rev7pp12\u201313confirmsSOT23-6L0.95mmpitch;recommended1.2\u00d70.6mmlandswith2.3mmrowcenters. Native1.325\u00d70.6mmlandsat2.275mmcenters. Samepinorder;notexactmanufacturerland."
+      },
+      "native_source_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca"
+    },
+    {
+      "lcsc": "C337485",
+      "mpn": "UMK325AB7106KM-P",
+      "references": [
+        "C18",
+        "C80",
+        "C82",
+        "C89",
+        "C90",
+        "C91",
+        "C92",
+        "C94",
+        "C95",
+        "C99",
+        "C100"
+      ],
+      "native_footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "source_url": "https://easyeda.com/api/products/C337485/components",
+      "source_sha256": "e2c9ca6eb294cb5dad0002e7af12ac570cd05fc49847392dd6295c811656d238",
+      "catalog_model": "UMK325AB7106KM-P",
+      "library_owner": "lcsc",
+      "library_uuid": "2ff699914e4849dc8fa1384e78f43943",
+      "library_title": "C1210",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.04239600000007604,
+      "pad_center_fit_max_mm": 0.04239600000007604,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.04239600000007604
+        },
+        {
+          "offset": 90,
+          "rms": 2.1161558592920873
+        },
+        {
+          "offset": 270,
+          "rms": 2.1161558592920873
+        },
+        {
+          "offset": 180,
+          "rms": 2.992396000000076
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "2",
+          "x_mm": 1017.5173960000001,
+          "y_mm": 762,
+          "width_mm": 1.6349980000000002,
+          "height_mm": 2.6999945999999997,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1014.4826039999999,
+          "y_mm": 762,
+          "width_mm": 1.6349980000000002,
+          "height_mm": 2.6999945999999997,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.475,
+          "y": 0,
+          "width": 1.15,
+          "height": 2.7,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 1.475,
+          "y": 0,
+          "width": 1.15,
+          "height": 2.7,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "nonpolar_axis_verified",
+        "note": "Exactpartlinked1210libraryhasleft/rightpadaxisat0degmatchingnative;180degelectricallyequivalent. Manufacturerterminaldimensionreviewnotpartofthiskeyedpartaudit."
+      },
+      "native_source_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f"
+    },
+    {
+      "lcsc": "C21397",
+      "mpn": "GRM32ER71E226KE15L",
+      "references": [
+        "C72",
+        "C73",
+        "C103"
+      ],
+      "native_footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "source_url": "https://easyeda.com/api/products/C21397/components",
+      "source_sha256": "911fbd53882c4d9c988177bff01382874600a80606404eba045774c9e32add9d",
+      "catalog_model": "GRM32ER71E226KE15L",
+      "library_owner": "lcsc",
+      "library_uuid": "2ff699914e4849dc8fa1384e78f43943",
+      "library_title": "C1210",
+      "library_origin": {
+        "x_mm": 1016,
+        "y_mm": 762
+      },
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.04239600000007604,
+      "pad_center_fit_max_mm": 0.04239600000007604,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.04239600000007604
+        },
+        {
+          "offset": 90,
+          "rms": 2.1161558592920873
+        },
+        {
+          "offset": 270,
+          "rms": 2.1161558592920873
+        },
+        {
+          "offset": 180,
+          "rms": 2.992396000000076
+        }
+      ],
+      "easyeda_pads": [
+        {
+          "number": "2",
+          "x_mm": 1017.5173960000001,
+          "y_mm": 762,
+          "width_mm": 1.6349980000000002,
+          "height_mm": 2.6999945999999997,
+          "rotation_deg": 0
+        },
+        {
+          "number": "1",
+          "x_mm": 1014.4826039999999,
+          "y_mm": 762,
+          "width_mm": 1.6349980000000002,
+          "height_mm": 2.6999945999999997,
+          "rotation_deg": 0
+        }
+      ],
+      "native_pads": [
+        {
+          "number": "1",
+          "x": -1.475,
+          "y": 0,
+          "width": 1.15,
+          "height": 2.7,
+          "rotation": 0,
+          "attribute": 1
+        },
+        {
+          "number": "2",
+          "x": 1.475,
+          "y": 0,
+          "width": 1.15,
+          "height": 2.7,
+          "rotation": 0,
+          "attribute": 1
+        }
+      ],
+      "status": "numbered_pad_orientation_verified",
+      "dimension_review": {
+        "status": "nonpolar_axis_verified",
+        "note": "Exactpartlinked1210libraryhasleft/rightpadaxisat0degmatchingnative;180degelectricallyequivalent. Manufacturerterminaldimensionreviewnotpartofthiskeyedpartaudit."
+      },
+      "native_source_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f"
+    }
+  ],
+  "unresolved_primary_mechanical_reviews": [],
+  "nonkeyed_passives": "0603R/C and0805C retain nativeaxis using previously archived standardlibraryevidence; exactMPN-specific feederposes for every passive were not independently retrieved. Added1210caps and0805ferrites verifiedhere. No genericpackagefamily offsets used for keyedSMT.",
+  "procurement_recommendations": [
+    {
+      "references": [
+        "U2"
+      ],
+      "lcsc": "C131025",
+      "recommended_mpn": "W25Q16JVSSIQ",
+      "evidence": "LCSC current product page title and JSON-LD mpn both W25Q16JVSSIQ; package SOIC-8-208mil. EasyEDA title W25Q16JVSSIQTR is a library naming/packing suffix, not an instruction to change the catalog MPN.",
+      "url": "https://www.lcsc.com/product-detail/C131025.html",
+      "saved_source": "sources/new/C131025-lcsc-product.html",
+      "source_sha256": "3c333d32951ddb466f71f6cf8b2e0984154df7c89add1f35e9bc596908aab5a8"
+    },
+    {
+      "references": [
+        "U4"
+      ],
+      "lcsc": "C9652",
+      "recommended_mpn": "AD9833BRMZ-REEL7",
+      "evidence": "LCSC current title and JSON-LD mpn both AD9833BRMZ-REEL7. EasyEDA title AD9833BRMZ omits packing suffix. ADI RevG ordering table confirms RM-10 for both. Keep exact LCSC MPN including-REEL7.",
+      "url": "https://www.lcsc.com/product-detail/C9652.html",
+      "saved_source": "sources/new/C9652-lcsc-product.html",
+      "source_sha256": "5ec82c7f79592b4359d76461f05a0c520becf5b44e40a1d8faddfeefc48112d1"
+    }
+  ],
+  "hand_fit_mechanical_checks": [
+    {
+      "reference": "J2",
+      "lcsc": "C16214",
+      "mpn": "DC-005 2.0",
+      "native_footprint": "Connector_BarrelJack:BarrelJack_Horizontal",
+      "status": "corrected_in_revision_b_native_generator",
+      "manufacturer_source": "sources/new/DC005-C16214.pdf",
+      "source_sha256": "d6fb3665fa03322b327404c3aea8b6655bc03ac6bb802ac4cf8e54e60749fc18",
+      "manufacturer_drawing": "DC-005 2.0, 2018-08-14, top-view PCB layout",
+      "manufacturer_to_native_pin_map": {
+        "2": {
+          "native": "2",
+          "function": "switched sleeve; unconnected"
+        },
+        "3": {
+          "native": "3",
+          "function": "sleeve GND"
+        },
+        "4": {
+          "native": "4",
+          "function": "center tip +5VIN"
+        }
+      },
+      "native_pads_mm": [
+        {
+          "number": "1",
+          "x": 0,
+          "y": 0,
+          "drill_x": 1,
+          "drill_y": 3
+        },
+        {
+          "number": "2",
+          "x": -6,
+          "y": 0,
+          "drill_x": 1,
+          "drill_y": 3
+        },
+        {
+          "number": "3",
+          "x": -3,
+          "y": 4.7,
+          "drill_x": 3,
+          "drill_y": 1
+        }
+      ],
+      "required_centers_mm": [
+        {
+          "number": "1",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "number": "2",
+          "x": -6.3,
+          "y": 0
+        },
+        {
+          "number": "3",
+          "x": -3,
+          "y": 4.6
+        }
+      ],
+      "manufacturer_slots_mm": {
+        "1": [
+          1,
+          3
+        ],
+        "2": [
+          1,
+          3
+        ],
+        "3": [
+          3,
+          0.8
+        ]
+      },
+      "recommended_board_slots_mm": {
+        "1": [
+          1,
+          3
+        ],
+        "2": [
+          1,
+          3
+        ],
+        "3": [
+          3,
+          1
+        ]
+      },
+      "slot_note": "The existing1 mm short dimension on nativepad3 exceeds manufacturer0.8 mm and is deliberately retained for insertion clearance; keep adequate annular ring. Main issue is center positions, not this0.2 mm oversize.",
+      "manufacturer_body_mm": {
+        "front_x": -13.8,
+        "rear_x": 0.4,
+        "min_y": -4.5,
+        "max_y": 4.5,
+        "height": 11
+      },
+      "native_body_mm": {
+        "front_x": -13.7,
+        "rear_x": 0.8,
+        "min_y": -4.5,
+        "max_y": 4.5
+      },
+      "placement_at_review": {
+        "x": 64,
+        "y": 125,
+        "rotation": 0
+      },
+      "front_edge_at_review_x_mm": 50.2,
+      "board_left_x_mm": 50,
+      "front_inset_mm": 0.2,
+      "required_change": "Move native pad2 from(-6,0)to(-6.3,0),pad3 from(-3,4.7)to(-3,4.6);update Fab outlinefront/rear to-13.8/+0.4 mm and body shoulder to-10.5 mm. Keep native pin1=tip,pin2=sleeve,pin3=NC. At x64,y125 mouthis0.2 mm insidePCBedge; intentional bench-access placement is possible but an enclosure must expose the full14.2\u00d79\u00d711 mm body.",
+      "final_pads_mm": [
+        {
+          "number": "4",
+          "x": 0,
+          "y": 0,
+          "drill_x": 1,
+          "drill_y": 3
+        },
+        {
+          "number": "3",
+          "x": -6.3,
+          "y": 0,
+          "drill_x": 1,
+          "drill_y": 3
+        },
+        {
+          "number": "2",
+          "x": -3,
+          "y": 4.6,
+          "drill_x": 3,
+          "drill_y": 1
+        }
+      ],
+      "resolution": "build_cad.py corrects slot centers, renumbers pads to manufacturer2/3/4 and corrects F.Fab front/rear/shoulder to-13.8/+0.4/-10.5mm. Generic source observations above retained as audit history."
+    }
+  ],
+  "concrete_remaining_cad_findings": [],
+  "original_review_part_identity_sha256": "e384d8bf67f67df8feb1602987a7a4d5273c84af1a54a5683053b1ec120fa1cd",
+  "current_component_identity_sha256": "fe2593f8fa1a5358e96f36f161c5f1aee8521f0f685297693d3c8fd9ab30a203",
+  "current_component_identity_method": "SHA256 of JSON sorted by ref; fields ref,mpn,lcsc,footprint; sort_keys true and compact separators",
+  "post_audit_component_changes": [
+    {
+      "refs": [
+        "C74",
+        "C75"
+      ],
+      "mpn": "CL10A105KB8NNNC",
+      "lcsc": "C15849",
+      "change": "1uF50V0603 replaces0805 to shorten ADC REFby2/REFOUT paths. Nonpolar standard0603axis retained; catalog-c15849.json source."
+    }
+  ]
+}

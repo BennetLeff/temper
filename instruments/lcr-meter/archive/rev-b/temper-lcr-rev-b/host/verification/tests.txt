@@ -1,0 +1,35 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (/private/tmp/temper-lcr-revb-host-target/debug/deps/temper_lcr-46a91a926dd4b5f5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/private/tmp/temper-lcr-revb-host-target/debug/deps/temper_lcr-3121f22764910926)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (/private/tmp/temper-lcr-revb-host-target/debug/deps/cli-61f13f58e407fe77)
+
+running 10 tests
+test bilinear_fixture_recovers_complex_dut ... ok
+test clock_and_frequency_bounds ... ok
+test signed_wire_order_and_crc ... ok
+test firmware_host_clock_contract ... ok
+test parallel_feedback_capacitance ... ok
+test noise_records_cannot_be_impedance ... ok
+test corruption_and_weak_signal_rejected ... ok
+test noncoherent_capacitor_and_inductor ... ok
+test full_calibration_and_identity_checks ... ok
+test cli_produces_correct_negative_reactance ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+   Doc-tests temper_lcr
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

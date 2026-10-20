@@ -1,0 +1,11 @@
+{
+  "source_deck": "validation/stability-full-chain/final_fixed_r5k_matched_stray0_corner0_caplead5_local100_lead100_tia.cir",
+  "source_sha256": "511edc5b5e2785f735b2a17fd93d7c26dcdf0643fa145443a79f5cde6ed3edb1",
+  "independent_deck_sha256": "700f2500f27c0643ddb07d9ae19d5eb14a334b9535c24fb05841e843d1ed6804",
+  "only_deck_changes": "output filenames; no component, connectivity, solver or initial-guess changes",
+  "phase_margin_deg": 58.659088,
+  "crossing_hz": 58574380,
+  "min_sampled_return_difference": 0.71055097,
+  "frequency_rows": 1081,
+  "true_dc_assertions_pass": true
+}

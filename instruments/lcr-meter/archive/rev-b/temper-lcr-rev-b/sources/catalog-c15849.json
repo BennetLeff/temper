@@ -1,0 +1,119 @@
+{
+  "results": [
+    {
+      "lcsc": "C15849",
+      "model": "CL10A105KB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "package": "0603",
+      "stock": 14890903,
+      "price": 0.0153,
+      "price_10": null,
+      "library_type": "basic",
+      "preferred": true,
+      "category": "Capacitors",
+      "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+      "subcategory_id": 2929,
+      "mounting_type": "smd",
+      "description": "1uF 50V X5R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+      "specs": {
+        "Voltage Rating": "50V",
+        "Tolerance": "±10%",
+        "Capacitance": "1uF",
+        "Temperature Coefficient": "X5R"
+      }
+    },
+    {
+      "lcsc": "C158498",
+      "model": "RTT01470JTH",
+      "manufacturer": "RALEC",
+      "package": "0201",
+      "stock": 1779,
+      "price": 0.0013,
+      "price_10": null,
+      "library_type": "extended",
+      "preferred": false,
+      "category": "Resistors",
+      "subcategory": "Chip Resistor - Surface Mount",
+      "subcategory_id": 2980,
+      "mounting_type": "smd",
+      "description": "-55℃~+125℃ 25V 47Ω 50mW Thick Film Resistor ±200ppm/℃ ±5% 0201 Chip Resistor - Surface Mount ROHS",
+      "specs": {
+        "Resistance": "47Ω",
+        "Operating Temperature": "-55℃~+125℃",
+        "Power(Watts)": "50mW",
+        "Type": "Thick Film Resistor",
+        "Voltage-Supply(Max)": "25V",
+        "Tolerance": "±5%",
+        "Temperature Coefficient": "±200ppm/℃"
+      }
+    },
+    {
+      "lcsc": "C1584973",
+      "model": "35ZLG470MEFC10X20",
+      "manufacturer": "Rubycon",
+      "package": "Plugin,D10xL20mm",
+      "stock": 1000,
+      "price": 0.2724,
+      "price_10": null,
+      "library_type": "extended",
+      "preferred": false,
+      "category": "Capacitors",
+      "subcategory": "Aluminum Electrolytic Capacitors - Leaded",
+      "subcategory_id": 2931,
+      "mounting_type": "through_hole",
+      "description": "-40℃~+105℃ 1.199A@120Hz 10mm 14mΩ 20mm 35V 4000hrs@105℃ 470uF 5mm ±20% Plugin,D10xL20mm Aluminum Electrolytic Capacitors - Leaded ROHS",
+      "specs": {
+        "Operating Temperature": "-40℃~+105℃",
+        "Lifetime": "4000hrs@105℃",
+        "Equivalent Series Resistance(ESR)": "14mΩ",
+        "Pin Spacing": "5mm",
+        "Voltage Rating": "35V",
+        "Height - Seated (Max)": "20mm",
+        "Tolerance": "±20%",
+        "Polarity type": "Polarized",
+        "Capacitance": "470uF",
+        "Ripple Current": "1.199A@120Hz",
+        "Diameter": "10mm"
+      }
+    }
+  ],
+  "total": 10,
+  "page_info": {
+    "limit": 3,
+    "offset": 0,
+    "returned": 3
+  },
+  "filters_applied": {
+    "query": "C15849",
+    "subcategory_id": null,
+    "subcategory_name": null,
+    "subcategory_resolved": null,
+    "subcategory_ids": null,
+    "category_id": null,
+    "category_name": null,
+    "category_resolved": null,
+    "spec_filters": [],
+    "library_type": null,
+    "prefer_no_fee": true,
+    "min_stock": 10,
+    "package": null,
+    "packages": null,
+    "manufacturer": null,
+    "match_all_terms": true
+  },
+  "library_type_counts": {
+    "basic": 1,
+    "preferred": 0,
+    "extended": 9
+  },
+  "no_fee_available": true,
+  "parsed": {
+    "original_query": "C15849",
+    "detected": {},
+    "subcategory": null,
+    "package": null,
+    "mounting_type": null,
+    "spec_filters": [],
+    "remaining_text": "C15849"
+  }
+}
