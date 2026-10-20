@@ -1,0 +1,3 @@
+PASS: GND track 1.875 mm from TIP_P fails the explicit 10 mm air-clearance rule (ordinary 0.2 mm clearance alone would pass).
+PASS: removing the C1 routed slot fails the explicit 4 mm segment creepage rule.
+Known-bad fixtures live only in ignored build/drc-oracle; canonical board unchanged.

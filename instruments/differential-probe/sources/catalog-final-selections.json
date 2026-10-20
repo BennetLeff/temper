@@ -1,0 +1,214 @@
+{
+  "checked": "2026-10-20",
+  "records": [
+    {
+      "query": "TLV1704AIPWR",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C181596",
+            "model": "TLV1704AIPWR",
+            "manufacturer": "Texas Instruments",
+            "package": "TSSOP-14",
+            "stock": 578,
+            "price": 1.5883,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "Comparators",
+            "subcategory_id": 3030,
+            "mounting_type": "smd",
+            "description": "-18V~-1.1V、1.1V~18V -40℃~+125℃ 0.5nA 2.2V~36V 20uV/℃ 300uV 365ns 36V 55uA 560ns 5nA Four channels Open Collector Rail-to-Rail Input TSSOP-14 Comparators ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+125℃",
+              "Vos - Input Offset Voltage": "300uV",
+              "Output Type": "Open Collector",
+              "Input Offset Current(Ios)": "0.5nA",
+              "Input Offset Voltage Drift(Vos TC)": "20uV/℃",
+              "Single Supply": "2.2V~36V",
+              "Input Hysteresis Voltage (Vhys)": "-",
+              "Response Time (tr)": "365ns",
+              "Common Mode Rejection Ratio(CMRR)": "-",
+              "Rail to Rail": "Rail-to-rail input",
+              "Number of Channels": "Four channels",
+              "Maximum Power Supply Range (Vdd-Vss)": "36V",
+              "Quiescent Current": "55uA",
+              "Features": "-",
+              "Ib - Input Bias Current": "5nA",
+              "Propagation Delay Time": "560ns",
+              "Output Mode": "-",
+              "Dual Supply": "-18V~-1.1V、1.1V~18V"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "TLV1704AIPWR",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TLV1704AIPWR",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "TLV1704AIPWR"
+        }
+      }
+    },
+    {
+      "query": "TLV1702AIDGKR",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C2870937",
+            "model": "TLV1702AIDGKR",
+            "manufacturer": "Texas Instruments",
+            "package": "VSSOP-8",
+            "stock": 3337,
+            "price": 1.085,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Amplifiers/Comparators",
+            "subcategory": "Comparators",
+            "subcategory_id": 3030,
+            "mounting_type": "smd",
+            "description": "-18V~-1.1V、1.1V~18V -40℃~+125℃ 0.37us 0.5nA 2 2.2V~36V 20uV/℃ 3.5mV 36V 55uA 560ns 5nA Open Collector Rail-to-Rail Input VSSOP-8 Comparators ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+125℃",
+              "Vos - Input Offset Voltage": "3.5mV",
+              "Output Type": "Open Collector",
+              "Input Offset Current(Ios)": "0.5nA",
+              "Input Offset Voltage Drift(Vos TC)": "20uV/℃",
+              "Single Supply": "2.2V~36V",
+              "Input Hysteresis Voltage (Vhys)": "-",
+              "Response Time (tr)": "0.37us",
+              "Common Mode Rejection Ratio(CMRR)": "-",
+              "Rail to Rail": "Rail-to-rail input",
+              "Number of Channels": "2",
+              "Maximum Power Supply Range (Vdd-Vss)": "36V",
+              "Quiescent Current": "55uA",
+              "Features": "-",
+              "Ib - Input Bias Current": "5nA",
+              "Propagation Delay Time": "560ns",
+              "Output Mode": "-",
+              "Dual Supply": "-18V~-1.1V、1.1V~18V"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "TLV1702AIDGKR",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TLV1702AIDGKR",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "TLV1702AIDGKR"
+        }
+      }
+    },
+    {
+      "query": "RT0805BRD0797R6L",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "RT0805BRD0797R6L",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "RT0805BRD0797R6L",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "RT0805BRD0797R6L"
+        }
+      }
+    }
+  ]
+}

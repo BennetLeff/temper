@@ -1,0 +1,20 @@
+PASS: 130 exact-MPN components; 125 board footprints; 5 offboard components.
+PASS: 339 pins, 75 independent connectivity groups agree with KiCad export.
+PASS: critical package pin mappings and power polarity assertions.
+
+Ideal circuit calculations (not measurements):
+Rbottom = 5002.501251 ohm; nominal trim = 12.501251 ohm.
+Cbottom TOTAL incl parasitics = 13.1934 nF; input series C = 6.6 pF.
+Divider crossover = 2411.44 Hz.
+Output RC pole = 4.941472 MHz.
+DC trim at all 0.1% upper-string / 0.01% bottom-resistor corners: 7.000 to 18.003 ohm (50-ohm pot, min end-to-end 45 ohm).
+RC filter at 35 kHz: gain 0.999975, phase -0.4058 deg.
+RC filter at 60 kHz: gain 0.999926, phase -0.6957 deg.
+Gain 2: input/output ratio 1000:1, initial 1500 Vpk -> 1.500 Vpk output.
+Gain 10: input/output ratio 200:1, initial 300 Vpk -> 1.500 Vpk output.
+At 3000 V DC per tip: total dissipation 0.900 W/leg; 0.0899 W per 1-Mohm resistor; ~300 V/resistor and ~600 V/segment capacitor.
+At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.
+At 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitance adds to this.
+Nominal rails +4.8000 / -4.8068 V. Input comparator threshold +/-1.5973 V. Output comparator threshold +/-2.9970 V raw.
+
+Not established by these checks: CMRR, amplitude/phase accuracy, 5 MHz system bandwidth, input-to-earth capacitance, overload recovery, unpowered input survival, transient withstand, creepage or clearance. PCB, fixed shield and fixture must be qualified together.

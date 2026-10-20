@@ -1,0 +1,6 @@
+PASS: 138 physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.
+PASS: 343 unique physical pin mappings match the schematic and explicit offboard landings; duplicate switch pads checked individually.
+PASS: 30 paired footprints / 68 pad pairs translate exactly 70 mm; identical pad dimensions and orientation.
+PASS: 12 paired divider/tap/input nets have identical native track/via geometry after that translation.
+PASS: all 20 elevated ladder nodes routed only on F.Cu, without vias.
+These checks do not establish capacitance matching, CMRR, stability or an insulation rating.

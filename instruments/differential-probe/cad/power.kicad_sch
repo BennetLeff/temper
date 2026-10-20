@@ -1,0 +1,2122 @@
+(kicad_sch (version 20250114) (generator "temper_probe") (uuid eef9d135-8ae7-44e6-8325-503a0f1f101d) (paper "A3") (title_block (title "Differential probe / battery supply and references") (date "2026-10-20") (rev "A prototype") (company "Temper / instruments") (comment 1 "Voltage ratings are qualification targets; not CAT rated")) (lib_symbols (symbol "Probe:ADA4817" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -12.7 0) (effects (font (size 1.27 1.27)) )) (property "Value" "ADA4817" (at 0 12.7 0) (effects (font (size 1.27 1.27)) )) (symbol "ADA4817_0_1" (polyline (pts (xy -7.62 10.16) (xy 7.62 0) (xy -7.62 -10.16) (xy -7.62 10.16)) (stroke (width .254) (type default)) (fill (type background)))) (symbol "ADA4817_1_1" (pin input line (at -10.16 3.81 0) (length 2.54) (name "+IN" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -10.16 -3.81 0) (length 2.54) (name "-IN" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin output line (at 10.16 0 180) (length 2.54) (name "OUT" (effects (font (size 0.9 0.9)) )) (number "6" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 10.16 -7.62 180) (length 2.54) (name "FB" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 12.7 270) (length 2.54) (name "+VS" (effects (font (size 0.9 0.9)) )) (number "7" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -12.7 90) (length 2.54) (name "-VS" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -5.08 12.7 270) (length 2.54) (name "PD" (effects (font (size 0.9 0.9)) )) (number "8" (effects (font (size 0.9 0.9)) )))
+(pin no_connect line (at 5.08 -12.7 90) (length 2.54) (name "NIC" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at -5.08 -12.7 90) (length 2.54) (name "EP" (effects (font (size 0.9 0.9)) )) (number "9" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:ADP7142" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -11.43 0) (effects (font (size 1.27 1.27)) )) (property "Value" "ADP7142" (at 0 11.43 0) (effects (font (size 1.27 1.27)) )) (symbol "ADP7142_0_1" (rectangle (start -10.16 8.89) (end 10.16 -8.89) (stroke (width .254) (type default)) (fill (type background)))) (symbol "ADP7142_1_1" (pin power_in line (at -12.7 5.08 0) (length 2.54) (name "VIN" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -12.7 -3.81 0) (length 2.54) (name "EN" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin power_out line (at 12.7 5.08 180) (length 2.54) (name "VOUT" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin input line (at 12.7 -3.81 180) (length 2.54) (name "ADJ" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -11.43 90) (length 2.54) (name "GND" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:ADP7182" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -11.43 0) (effects (font (size 1.27 1.27)) )) (property "Value" "ADP7182" (at 0 11.43 0) (effects (font (size 1.27 1.27)) )) (symbol "ADP7182_0_1" (rectangle (start -10.16 8.89) (end 10.16 -8.89) (stroke (width .254) (type default)) (fill (type background)))) (symbol "ADP7182_1_1" (pin power_in line (at -12.7 5.08 0) (length 2.54) (name "VIN" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -12.7 -3.81 0) (length 2.54) (name "EN" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin power_out line (at 12.7 5.08 180) (length 2.54) (name "VOUT" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin input line (at 12.7 -3.81 180) (length 2.54) (name "ADJ" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -11.43 90) (length 2.54) (name "GND" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:BATTERY" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -8.89 0) (effects (font (size 1.27 1.27)) )) (property "Value" "BATTERY" (at 0 8.89 0) (effects (font (size 1.27 1.27)) )) (symbol "BATTERY_0_1" (rectangle (start -5.08 6.35) (end 5.08 -6.35) (stroke (width .254) (type default)) (fill (type background)))) (symbol "BATTERY_1_1" (pin passive line (at -7.62 3.81 0) (length 2.54) (name "1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at -7.62 -3.81 0) (length 2.54) (name "2" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:BAV199" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -8.89 0) (effects (font (size 1.27 1.27)) )) (property "Value" "BAV199" (at 0 8.89 0) (effects (font (size 1.27 1.27)) )) (symbol "BAV199_0_1" (rectangle (start -6.35 6.35) (end 6.35 -6.35) (stroke (width .254) (type default)) (fill (type background)))) (symbol "BAV199_1_1" (pin passive line (at -8.89 -3.81 0) (length 2.54) (name "A1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at -8.89 3.81 0) (length 2.54) (name "K2" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 8.89 0 180) (length 2.54) (name "K1/A2" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:BNC" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -8.89 0) (effects (font (size 1.27 1.27)) )) (property "Value" "BNC" (at 0 8.89 0) (effects (font (size 1.27 1.27)) )) (symbol "BNC_0_1" (rectangle (start -5.08 6.35) (end 5.08 -6.35) (stroke (width .254) (type default)) (fill (type background)))) (symbol "BNC_1_1" (pin passive line (at -7.62 3.81 0) (length 2.54) (name "1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at -7.62 -3.81 0) (length 2.54) (name "2" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:BUTTON" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -8.89 0) (effects (font (size 1.27 1.27)) )) (property "Value" "BUTTON" (at 0 8.89 0) (effects (font (size 1.27 1.27)) )) (symbol "BUTTON_0_1" (rectangle (start -5.08 6.35) (end 5.08 -6.35) (stroke (width .254) (type default)) (fill (type background)))) (symbol "BUTTON_1_1" (pin passive line (at -7.62 3.81 0) (length 2.54) (name "1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at -7.62 -3.81 0) (length 2.54) (name "2" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:C"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "C"
+			(at 0.635 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "C"
+			(at 0.635 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0.9652 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "C_0_1"
+			(polyline
+				(pts
+					(xy -2.032 0.762) (xy 2.032 0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.032 -0.762) (xy 2.032 -0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "C_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 2.794)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:CD4013" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -27.94 0) (effects (font (size 1.27 1.27)) )) (property "Value" "CD4013" (at 0 27.94 0) (effects (font (size 1.27 1.27)) )) (symbol "CD4013_0_1" (rectangle (start -12.7 25.4) (end 12.7 -25.4) (stroke (width .254) (type default)) (fill (type background)))) (symbol "CD4013_1_1" (pin input line (at -15.24 15.24 0) (length 2.54) (name "SET1" (effects (font (size 0.9 0.9)) )) (number "6" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 10.16 0) (length 2.54) (name "RESET1" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 5.08 0) (length 2.54) (name "D1" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 0 0) (length 2.54) (name "CLK1" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -5.08 0) (length 2.54) (name "SET2" (effects (font (size 0.9 0.9)) )) (number "8" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -10.16 0) (length 2.54) (name "RESET2" (effects (font (size 0.9 0.9)) )) (number "10" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -15.24 0) (length 2.54) (name "D2" (effects (font (size 0.9 0.9)) )) (number "9" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -20.32 0) (length 2.54) (name "CLK2" (effects (font (size 0.9 0.9)) )) (number "11" (effects (font (size 0.9 0.9)) )))
+(pin output line (at 15.24 15.24 180) (length 2.54) (name "Q1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin output line (at 15.24 10.16 180) (length 2.54) (name "/Q1" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin output line (at 15.24 0 180) (length 2.54) (name "Q2" (effects (font (size 0.9 0.9)) )) (number "13" (effects (font (size 0.9 0.9)) )))
+(pin output line (at 15.24 -5.08 180) (length 2.54) (name "/Q2" (effects (font (size 0.9 0.9)) )) (number "12" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 27.94 270) (length 2.54) (name "VDD" (effects (font (size 0.9 0.9)) )) (number "14" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -27.94 90) (length 2.54) (name "VSS" (effects (font (size 0.9 0.9)) )) (number "7" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:D"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "D"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D"
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "D_0_1"
+			(polyline
+				(pts
+					(xy -1.27 1.27) (xy -1.27 -1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 0) (xy -1.27 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "D_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 2.54)
+				(name "K"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 3.81 0 180)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:DPDT" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -13.97 0) (effects (font (size 1.27 1.27)) )) (property "Value" "DPDT" (at 0 13.97 0) (effects (font (size 1.27 1.27)) )) (symbol "DPDT_0_1" (rectangle (start -7.62 11.43) (end 7.62 -11.43) (stroke (width .254) (type default)) (fill (type background)))) (symbol "DPDT_1_1" (pin passive line (at -10.16 5.08 0) (length 2.54) (name "COM1" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at -10.16 -5.08 0) (length 2.54) (name "COM2" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 10.16 8.89 180) (length 2.54) (name "A1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 10.16 2.54 180) (length 2.54) (name "B1" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 10.16 -2.54 180) (length 2.54) (name "A2" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 10.16 -8.89 180) (length 2.54) (name "B2" (effects (font (size 0.9 0.9)) )) (number "6" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:D_Schottky"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "D"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D_Schottky"
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Schottky diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "diode Schottky"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "D_Schottky_0_1"
+			(polyline
+				(pts
+					(xy -1.905 0.635) (xy -1.905 1.27) (xy -1.27 1.27) (xy -1.27 -1.27) (xy -0.635 -1.27) (xy -0.635 -0.635)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 0) (xy -1.27 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "D_Schottky_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 2.54)
+				(name "K"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 3.81 0 180)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:GND"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#PWR"
+			(at 0 -6.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 0 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "GND_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "GND_1_1"
+			(pin power_in line
+				(at 0 0 270)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:LED"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 1.016)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "D"
+			(at 0 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED"
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "LED diode"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "LED_0_1"
+			(polyline
+				(pts
+					(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 0) (xy 1.27 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 -1.27) (xy -1.27 1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "LED_1_1"
+			(pin passive line
+				(at -3.81 0 0)
+				(length 2.54)
+				(name "K"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 3.81 0 180)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:OPA810" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -12.7 0) (effects (font (size 1.27 1.27)) )) (property "Value" "OPA810" (at 0 12.7 0) (effects (font (size 1.27 1.27)) )) (symbol "OPA810_0_1" (polyline (pts (xy -7.62 10.16) (xy 7.62 0) (xy -7.62 -10.16) (xy -7.62 10.16)) (stroke (width .254) (type default)) (fill (type background)))) (symbol "OPA810_1_1" (pin input line (at -10.16 3.81 0) (length 2.54) (name "+IN" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -10.16 -3.81 0) (length 2.54) (name "-IN" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin output line (at 10.16 0 180) (length 2.54) (name "OUT" (effects (font (size 0.9 0.9)) )) (number "6" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 12.7 270) (length 2.54) (name "V+" (effects (font (size 0.9 0.9)) )) (number "7" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -12.7 90) (length 2.54) (name "V-" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin no_connect line (at -5.08 -12.7 90) (length 2.54) (name "NC" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin no_connect line (at 5.08 -12.7 90) (length 2.54) (name "NC" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin no_connect line (at 10.16 -7.62 180) (length 2.54) (name "NC" (effects (font (size 0.9 0.9)) )) (number "8" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:PAD" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -8.89 0) (effects (font (size 1.27 1.27)) )) (property "Value" "PAD" (at 0 8.89 0) (effects (font (size 1.27 1.27)) )) (symbol "PAD_0_1" (rectangle (start -5.08 6.35) (end 5.08 -6.35) (stroke (width .254) (type default)) (fill (type background)))) (symbol "PAD_1_1" (pin passive line (at -7.62 3.81 0) (length 2.54) (name "1" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:PNP" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -7.62 0) (effects (font (size 1.27 1.27)) )) (property "Value" "PNP" (at 0 7.62 0) (effects (font (size 1.27 1.27)) )) (symbol "PNP_0_1" (rectangle (start -5.08 5.08) (end 5.08 -5.08) (stroke (width .254) (type default)) (fill (type background)))) (symbol "PNP_1_1" (pin input line (at -7.62 0 0) (length 2.54) (name "B" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 5.08 7.62 270) (length 2.54) (name "E" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 5.08 -7.62 90) (length 2.54) (name "C" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:PWR_FLAG"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#FLG"
+			(at 0 1.905 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 0 3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "flag power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "PWR_FLAG_0_0"
+			(pin power_out line
+				(at 0 0 90)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(symbol "PWR_FLAG_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 1.27) (xy -1.016 1.905) (xy 0 2.54) (xy 1.016 1.905) (xy 0 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:PWR_GND"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#PWR"
+			(at 0 -6.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 0 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "PWR_GND_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "PWR_GND_1_1"
+			(pin power_in line
+				(at 0 0 270)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:PWR__4V8"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#PWR"
+			(at 0 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-4V8"
+			(at 0 3.556 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "PWR__4V8_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 1.27) (xy -0.762 1.27) (xy 0 2.54) (xy 0.762 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "PWR__4V8_1_1"
+			(pin power_in line
+				(at 0 0 90)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:PWR__BAT"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#PWR"
+			(at 0 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "-BAT"
+			(at 0 3.556 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "PWR__BAT_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 1.27) (xy -0.762 1.27) (xy 0 2.54) (xy 0.762 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "PWR__BAT_1_1"
+			(pin power_in line
+				(at 0 0 90)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:R_Small_US"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0.254)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "R"
+			(at 0.762 0.508 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "R_Small_US"
+			(at 0.762 -1.016 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor, small US symbol"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "r resistor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "R_Small_US_1_1"
+			(polyline
+				(pts
+					(xy 0 1.524) (xy 1.016 1.143) (xy 0 0.762) (xy -1.016 0.381) (xy 0 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 0) (xy 1.016 -0.381) (xy 0 -0.762) (xy -1.016 -1.143) (xy 0 -1.524)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at 0 2.54 270)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -2.54 90)
+				(length 1.016)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:TL431" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -8.89 0) (effects (font (size 1.27 1.27)) )) (property "Value" "TL431" (at 0 8.89 0) (effects (font (size 1.27 1.27)) )) (symbol "TL431_0_1" (rectangle (start -6.35 6.35) (end 6.35 -6.35) (stroke (width .254) (type default)) (fill (type background)))) (symbol "TL431_1_1" (pin passive line (at 0 8.89 270) (length 2.54) (name "K" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -8.89 0 0) (length 2.54) (name "REF" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 0 -8.89 90) (length 2.54) (name "A" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:TLV1702" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -15.24 0) (effects (font (size 1.27 1.27)) )) (property "Value" "TLV1702" (at 0 15.24 0) (effects (font (size 1.27 1.27)) )) (symbol "TLV1702_0_1" (rectangle (start -12.7 12.7) (end 12.7 -12.7) (stroke (width .254) (type default)) (fill (type background)))) (symbol "TLV1702_1_1" (pin input line (at -15.24 6.35 0) (length 2.54) (name "1IN+" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 2.54 0) (length 2.54) (name "1IN-" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -3.81 0) (length 2.54) (name "2IN+" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -7.62 0) (length 2.54) (name "2IN-" (effects (font (size 0.9 0.9)) )) (number "6" (effects (font (size 0.9 0.9)) )))
+(pin open_collector line (at 15.24 5.08 180) (length 2.54) (name "1OUT" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin open_collector line (at 15.24 -5.08 180) (length 2.54) (name "2OUT" (effects (font (size 0.9 0.9)) )) (number "7" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 15.24 270) (length 2.54) (name "V+" (effects (font (size 0.9 0.9)) )) (number "8" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -15.24 90) (length 2.54) (name "V-" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:TLV1704" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -22.86 0) (effects (font (size 1.27 1.27)) )) (property "Value" "TLV1704" (at 0 22.86 0) (effects (font (size 1.27 1.27)) )) (symbol "TLV1704_0_1" (rectangle (start -12.7 20.32) (end 12.7 -20.32) (stroke (width .254) (type default)) (fill (type background)))) (symbol "TLV1704_1_1" (pin power_in line (at 0 22.86 270) (length 2.54) (name "V+" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))
+(pin power_in line (at 0 -22.86 90) (length 2.54) (name "V-" (effects (font (size 0.9 0.9)) )) (number "12" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 15.24 0) (length 2.54) (name "1IN+" (effects (font (size 0.9 0.9)) )) (number "5" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 11.43 0) (length 2.54) (name "1IN-" (effects (font (size 0.9 0.9)) )) (number "4" (effects (font (size 0.9 0.9)) )))
+(pin open_collector line (at 15.24 13.97 180) (length 2.54) (name "1OUT" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 5.08 0) (length 2.54) (name "2IN+" (effects (font (size 0.9 0.9)) )) (number "7" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 1.27 0) (length 2.54) (name "2IN-" (effects (font (size 0.9 0.9)) )) (number "6" (effects (font (size 0.9 0.9)) )))
+(pin open_collector line (at 15.24 3.81 180) (length 2.54) (name "2OUT" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -5.08 0) (length 2.54) (name "3IN+" (effects (font (size 0.9 0.9)) )) (number "9" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -8.89 0) (length 2.54) (name "3IN-" (effects (font (size 0.9 0.9)) )) (number "8" (effects (font (size 0.9 0.9)) )))
+(pin open_collector line (at 15.24 -6.35 180) (length 2.54) (name "3OUT" (effects (font (size 0.9 0.9)) )) (number "14" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -15.24 0) (length 2.54) (name "4IN+" (effects (font (size 0.9 0.9)) )) (number "11" (effects (font (size 0.9 0.9)) )))
+(pin input line (at -15.24 -19.05 0) (length 2.54) (name "4IN-" (effects (font (size 0.9 0.9)) )) (number "10" (effects (font (size 0.9 0.9)) )))
+(pin open_collector line (at 15.24 -16.51 180) (length 2.54) (name "4OUT" (effects (font (size 0.9 0.9)) )) (number "13" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:TRIM" (pin_names (offset .508)) (in_bom yes) (on_board yes) (property "Reference" "U" (at 0 -7.62 0) (effects (font (size 1.27 1.27)) )) (property "Value" "TRIM" (at 0 7.62 0) (effects (font (size 1.27 1.27)) )) (symbol "TRIM_0_1" (rectangle (start -5.08 5.08) (end 5.08 -5.08) (stroke (width .254) (type default)) (fill (type background)))) (symbol "TRIM_1_1" (pin passive line (at 0 7.62 270) (length 2.54) (name "CCW" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 7.62 0 180) (length 2.54) (name "WIPER" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.9 0.9)) )))
+(pin passive line (at 0 -7.62 90) (length 2.54) (name "CW" (effects (font (size 0.9 0.9)) )) (number "3" (effects (font (size 0.9 0.9)) )))))
+(symbol "Probe:VDD"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#PWR"
+			(at 0 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VDD"
+			(at 0 3.556 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "VDD_0_1"
+			(polyline
+				(pts
+					(xy -0.762 1.27) (xy 0 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 2.54) (xy 0.762 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "VDD_1_1"
+			(pin power_in line
+				(at 0 0 90)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "Probe:VSS"
+		(power global)
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "#PWR"
+			(at 0 -3.81 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VSS"
+			(at 0 3.556 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "VSS_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 1.27) (xy -0.762 1.27) (xy 0 2.54) (xy 0.762 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "VSS_1_1"
+			(pin power_in line
+				(at 0 0 90)
+				(length 0)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)) (text "BATTERY POWER  /  scope shield defines circuit ground" (at 15.24 12.7 0) (effects (font (size 2.5 2.5)) (justify left top)) (uuid 9db4c180-d2c2-44a9-82e5-60f915674e06))
+(rectangle (start 12.7 27.94) (end 246.38 157.48) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid 9db4c080-d2c2-42f6-82e5-e0f915682786))
+(text "TWO 9 V BATTERIES / +/-4.8 V LOW-NOISE RAILS" (at 16.51 31.75 0) (effects (font (size 1.8 1.8)) (justify left top)) (uuid 9db4cb80-d2c3-45a7-82e8-60f9156c6706))
+(symbol (lib_id "Probe:BATTERY") (at 35.56 57.15 0) (unit 1) (in_bom yes) (on_board no) (dnp no) (uuid 1600ff19-b0ba-4b16-8b2e-08f5eebe1c8a) (property "Reference" "BT1" (at 25.4 44.45 0) (effects (font (size 1.27 1.27)) ))(property "Value" "9 V battery clip" (at 25.4 46.99 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "" (at 35.56 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.keyelco.com/product.cfm/product_id/911" (at 35.56 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "235" (at 35.56 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Keystone Electronics" (at 35.56 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 35.56 57.15 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "BT1") (unit 1)))))
+(wire (pts (xy 27.94 53.34) (xy 21.59 53.34)) (stroke (width 0) (type default)) (uuid 9db4ca80-d2c3-43f4-82e8-e0f9156d4086))
+(global_label "BAT_P" (shape bidirectional) (at 21.59 53.34 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 9daa5180-d2b9-41d4-8664-60f6eb06db04) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 21.59 53.34 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 27.94 60.96) (xy 21.59 60.96)) (stroke (width 0) (type default)) (uuid 9daa5280-d2b9-4387-8664-e0f6eb07b484))
+(symbol (lib_id "Probe:PWR_GND") (at 21.59 60.96 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9daa5380-d2b9-453a-8663-60f6eb052804) (property "Reference" "#PWR462" (at 21.59 60.96 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 21.59 66.04 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR462") (unit 1)))))
+(symbol (lib_id "Probe:BATTERY") (at 35.56 115.57000000000001 0) (unit 1) (in_bom yes) (on_board no) (dnp no) (uuid 1600fe19-b0ba-4963-8b2c-88f5eebb900a) (property "Reference" "BT2" (at 25.4 102.87 0) (effects (font (size 1.27 1.27)) ))(property "Value" "9 V battery clip" (at 25.4 105.41 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "" (at 35.56 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.keyelco.com/product.cfm/product_id/911" (at 35.56 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "235" (at 35.56 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Keystone Electronics" (at 35.56 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 35.56 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "BT2") (unit 1)))))
+(wire (pts (xy 27.94 111.76) (xy 21.59 111.76)) (stroke (width 0) (type default)) (uuid 9daa5480-d2b9-46ed-8663-e0f6eb060184))
+(symbol (lib_id "Probe:PWR_GND") (at 21.59 111.76 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9daa4d80-d2b9-4b08-8666-60f6eb0a4104) (property "Reference" "#PWR464" (at 21.59 111.76 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 21.59 116.84 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR464") (unit 1)))))
+(wire (pts (xy 27.94 119.38) (xy 21.59 119.38)) (stroke (width 0) (type default)) (uuid 9daa4e80-d2b9-4cbb-8666-e0f6eb0b1a84))
+(global_label "BAT_N" (shape bidirectional) (at 21.59 119.38 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 9daa4f80-d2b9-4e6e-8665-60f6eb088e04) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 21.59 119.38 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:DPDT") (at 72.39 90.17 0) (unit 1) (in_bom yes) (on_board no) (dnp no) (uuid 9806fd19-fa66-4b87-87af-f5f5446e6b32) (property "Reference" "SW2" (at 62.230000000000004 72.39 0) (effects (font (size 1.27 1.27)) ))(property "Value" "POWER / DPDT / 5 A" (at 62.230000000000004 74.93 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "" (at 72.39 90.17 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.ckswitches.com/media/1422/7000.pdf" (at 72.39 90.17 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "7201SYZQE" (at 72.39 90.17 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "C&K" (at 72.39 90.17 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 72.39 90.17 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "SW2") (unit 1)))))
+(wire (pts (xy 62.230000000000004 85.09) (xy 55.88 85.09)) (stroke (width 0) (type default)) (uuid 9daa5080-d2b9-4021-8665-e0f6eb096784))
+(global_label "BAT_P" (shape bidirectional) (at 55.88 85.09 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 9daa4980-d2b9-443c-8668-60f6eb0da704) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 55.88 85.09 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 62.230000000000004 95.25) (xy 55.88 95.25)) (stroke (width 0) (type default)) (uuid 9daa4a80-d2b9-45ef-8668-e0f6eb0e8084))
+(global_label "BAT_N" (shape bidirectional) (at 55.88 95.25 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 9dadd780-d2bc-4b5d-8fe4-60f7a3d11b05) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 55.88 95.25 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 82.55 81.28) (xy 88.9 81.28)) (stroke (width 0) (type default)) (uuid 9dadd680-d2bc-49aa-8fe4-e0f7a3d1f485))
+(global_label "SW_P" (shape bidirectional) (at 88.9 81.28 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 9dadd580-d2bc-47f7-8fe3-60f7a3cf6805) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 88.9 81.28 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 82.55 92.71000000000001) (xy 88.9 92.71000000000001)) (stroke (width 0) (type default)) (uuid 9dadd480-d2bc-4644-8fe3-e0f7a3d04185))
+(global_label "SW_N" (shape bidirectional) (at 88.9 92.71000000000001 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 9dadd380-d2bc-4491-8fe6-60f7a3d48105) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 88.9 92.71000000000001 0) (effects (font (size 1.27 1.27)) hide)))
+(no_connect (at 82.55 87.63) (uuid 9dadd280-d2bc-42de-8fe6-e0f7a3d55a85))
+(no_connect (at 82.55 99.06) (uuid 9dadd180-d2bc-412b-8fe5-60f7a3d2ce05))
+(symbol (lib_id "Probe:D_Schottky") (at 109.22 57.15 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 08fe8407-b598-4f85-8f36-c0ff3d6ecc4d) (property "Reference" "D4" (at 109.22 50.8 0) (effects (font (size 1.27 1.27)) ))(property "Value" "SS14" (at 109.22 53.34 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Diode_SMD:D_SMA" (at 109.22 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds23001.pdf" (at 109.22 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "SS14" (at 109.22 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Diodes Incorporated" (at 109.22 57.15 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 109.22 57.15 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "D4") (unit 1)))))
+(wire (pts (xy 105.41 57.15) (xy 99.06 57.15)) (stroke (width 0) (type default)) (uuid 9dadd080-d2bc-4f78-8fe5-e0f7a3d3a785))
+(symbol (lib_id "Probe:PWR__BAT") (at 99.06 57.15 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dadcf80-d2bc-4dc5-8fe8-60f7a3d7e705) (property "Reference" "#PWR478" (at 99.06 57.15 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+BAT" (at 99.06 52.07 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR478") (unit 1)))))
+(wire (pts (xy 113.03 57.15) (xy 119.38 57.15)) (stroke (width 0) (type default)) (uuid 9dadce80-d2bc-4c12-8fe8-e0f7a3d8c085))
+(global_label "SW_P" (shape bidirectional) (at 119.38 57.15 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 9dbed580-d2cb-4b2a-8364-60f579725b02) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 119.38 57.15 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:D_Schottky") (at 109.22 118.11 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 08fe8307-b598-4dd2-8f37-40ff3d6fa5cd) (property "Reference" "D5" (at 109.22 111.76 0) (effects (font (size 1.27 1.27)) ))(property "Value" "SS14" (at 109.22 114.3 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Diode_SMD:D_SMA" (at 109.22 118.11 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds23001.pdf" (at 109.22 118.11 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "SS14" (at 109.22 118.11 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Diodes Incorporated" (at 109.22 118.11 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 109.22 118.11 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "D5") (unit 1)))))
+(wire (pts (xy 105.41 118.11) (xy 99.06 118.11)) (stroke (width 0) (type default)) (uuid 9dbed680-d2cb-4cdd-8364-e0f579733482))
+(global_label "SW_N" (shape bidirectional) (at 99.06 118.11 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 9dbed380-d2cb-47c4-8363-60f57970a802) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 99.06 118.11 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 113.03 118.11) (xy 119.38 118.11)) (stroke (width 0) (type default)) (uuid 9dbed480-d2cb-4977-8363-e0f579718182))
+(symbol (lib_id "Probe:PWR__BAT") (at 119.38 118.11 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dbed180-d2cb-445e-8366-60f57975c102) (property "Reference" "#PWR484" (at 119.38 118.11 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-BAT" (at 119.38 123.19 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR484") (unit 1)))))
+(symbol (lib_id "Probe:ADP7142") (at 166.37 59.69 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 09318207-b5c4-45b8-80b4-c10b82d9a65b) (property "Reference" "U8" (at 156.21 44.45 0) (effects (font (size 1.27 1.27)) ))(property "Value" "ADP7142AUJZ-R7" (at 156.21 46.99 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-5" (at 166.37 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7142.pdf" (at 166.37 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "ADP7142AUJZ-R7" (at 166.37 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Analog Devices" (at 166.37 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "C514356" (at 166.37 59.69 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "U8") (unit 1)))))
+(wire (pts (xy 153.67000000000002 54.61) (xy 147.32 54.61)) (stroke (width 0) (type default)) (uuid 9dbed280-d2cb-4611-8366-e0f579769a82))
+(symbol (lib_id "Probe:PWR__BAT") (at 147.32 54.61 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dbecf80-d2cb-40f8-8365-60f579740e02) (property "Reference" "#PWR486" (at 147.32 54.61 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+BAT" (at 147.32 49.53 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR486") (unit 1)))))
+(wire (pts (xy 153.67000000000002 63.5) (xy 147.32 63.5)) (stroke (width 0) (type default)) (uuid 9dbed080-d2cb-42ab-8365-e0f57974e782))
+(symbol (lib_id "Probe:PWR__BAT") (at 147.32 63.5 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dbecd80-d2cb-4d92-8368-60f579792702) (property "Reference" "#PWR488" (at 147.32 63.5 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+BAT" (at 147.32 58.42 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR488") (unit 1)))))
+(wire (pts (xy 179.07 54.61) (xy 185.42000000000002 54.61)) (stroke (width 0) (type default)) (uuid 9dbece80-d2cb-4f45-8368-e0f5797a0082))
+(symbol (lib_id "Probe:PWR__4V8") (at 185.42000000000002 54.61 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dc23b80-d2ce-4e53-8ce4-60f6323c9b03) (property "Reference" "#PWR490" (at 185.42000000000002 54.61 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 185.42000000000002 49.53 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR490") (unit 1)))))
+(wire (pts (xy 179.07 63.5) (xy 185.42000000000002 63.5)) (stroke (width 0) (type default)) (uuid 9dc23a80-d2ce-4ca0-8ce4-e0f6323d7483))
+(global_label "ADJ_0" (shape bidirectional) (at 185.42000000000002 63.5 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 9dc23d80-d2ce-41b9-8ce3-60f6323ae803) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 185.42000000000002 63.5 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 166.37 71.12) (xy 166.37 77.47)) (stroke (width 0) (type default)) (uuid 9dc23c80-d2ce-4006-8ce3-e0f6323bc183))
+(symbol (lib_id "Probe:PWR_GND") (at 166.37 77.47 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dc23f80-d2ce-451f-8ce6-60f632400103) (property "Reference" "#PWR494" (at 166.37 77.47 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 166.37 82.55 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR494") (unit 1)))))
+(symbol (lib_id "Probe:C") (at 132.08 83.82000000000001 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0c95ee19-ab2d-4eaa-87ae-25b2a2a4036a) (property "Reference" "C71" (at 140.97 82.55 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 uF / 25 V" (at 140.97 85.09 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_1210_3225Metric" (at 132.08 83.82000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C1210C106K3RACTU" (at 132.08 83.82000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C1210C106K3RACTU" (at 132.08 83.82000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 132.08 83.82000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 132.08 83.82000000000001 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C71") (unit 1)))))
+(wire (pts (xy 132.08 80.01) (xy 132.08 73.66)) (stroke (width 0) (type default)) (uuid 9dc23e80-d2ce-436c-8ce6-e0f63240da83))
+(symbol (lib_id "Probe:PWR__BAT") (at 132.08 73.66 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dc24180-d2ce-4885-8ce5-60f6323e4e03) (property "Reference" "#PWR496" (at 132.08 73.66 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+BAT" (at 132.08 68.58 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR496") (unit 1)))))
+(wire (pts (xy 132.08 87.63) (xy 132.08 93.98)) (stroke (width 0) (type default)) (uuid 9dc24080-d2ce-46d2-8ce5-e0f6323f2783))
+(symbol (lib_id "Probe:PWR_GND") (at 132.08 93.98 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 9dc24380-d2ce-4beb-8ce8-60f632436703) (property "Reference" "#PWR498" (at 132.08 93.98 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 132.08 99.06 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR498") (unit 1)))))
+(symbol (lib_id "Probe:C") (at 227.33 59.69 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0c95ed19-ab2d-4cf7-87ad-a5b2a2a329ea) (property "Reference" "C72" (at 236.22 58.42 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 uF / 25 V" (at 236.22 60.96 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_1210_3225Metric" (at 227.33 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C1210C106K3RACTU" (at 227.33 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C1210C106K3RACTU" (at 227.33 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 227.33 59.69 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 227.33 59.69 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C72") (unit 1)))))
+(wire (pts (xy 227.33 55.88) (xy 227.33 49.53)) (stroke (width 0) (type default)) (uuid 9dc24280-d2ce-4a38-8ce8-e0f632444083))
+(symbol (lib_id "Probe:PWR__4V8") (at 227.33 49.53 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6ba0080-d7f8-4c0d-8f63-43fb6a6381da) (property "Reference" "#PWR500" (at 227.33 49.53 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 227.33 44.45 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR500") (unit 1)))))
+(wire (pts (xy 227.33 63.5) (xy 227.33 69.85)) (stroke (width 0) (type default)) (uuid a6b9ff80-d7f8-4a5a-8f62-c3fb6a62a85a))
+(symbol (lib_id "Probe:PWR_GND") (at 227.33 69.85 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b9fe80-d7f8-48a7-8f64-43fb6a6534da) (property "Reference" "#PWR502" (at 227.33 69.85 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 227.33 74.93 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR502") (unit 1)))))
+(symbol (lib_id "Probe:R_Small_US") (at 198.12 78.74 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9719-fdeb-4d92-852e-d8ab15add1ab) (property "Reference" "R81" (at 207.01 77.47 0) (effects (font (size 1.27 1.27)) ))(property "Value" "30 kR" (at 207.01 80.01 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 198.12 78.74 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 198.12 78.74 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0730KL" (at 198.12 78.74 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 198.12 78.74 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 198.12 78.74 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R81") (unit 1)))))
+(wire (pts (xy 198.12 76.2) (xy 198.12 69.85)) (stroke (width 0) (type default)) (uuid a6b9fd80-d7f8-46f4-8f63-c3fb6a645b5a))
+(symbol (lib_id "Probe:PWR__4V8") (at 198.12 69.85 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b9fc80-d7f8-4541-8f65-43fb6a66e7da) (property "Reference" "#PWR504" (at 198.12 69.85 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 198.12 64.77 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR504") (unit 1)))))
+(wire (pts (xy 198.12 81.28) (xy 198.12 87.63)) (stroke (width 0) (type default)) (uuid a6b9fb80-d7f8-438e-8f64-c3fb6a660e5a))
+(global_label "ADJ_0" (shape bidirectional) (at 198.12 87.63 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6b9fa80-d7f8-41db-8f66-43fb6a689ada) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 198.12 87.63 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 223.52 88.9 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9619-fdeb-4bdf-852f-58ab15aeab2b) (property "Reference" "R82" (at 232.41 87.63 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 232.41 90.17 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 223.52 88.9 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 223.52 88.9 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 223.52 88.9 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 223.52 88.9 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 223.52 88.9 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R82") (unit 1)))))
+(wire (pts (xy 223.52 86.36) (xy 223.52 80.01)) (stroke (width 0) (type default)) (uuid a6b9f980-d7f8-4028-8f65-c3fb6a67c15a))
+(global_label "ADJ_0" (shape bidirectional) (at 223.52 80.01 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6b9f880-d7f8-4e75-8f67-43fb6a6a4dda) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 223.52 80.01 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 223.52 91.44) (xy 223.52 97.79)) (stroke (width 0) (type default)) (uuid a6b9f780-d7f8-4cc2-8f66-c3fb6a69745a))
+(symbol (lib_id "Probe:PWR_GND") (at 223.52 97.79 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b67a80-d7f5-4284-88e3-43fc232dc1da) (property "Reference" "#PWR510" (at 223.52 97.79 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 223.52 102.87 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR510") (unit 1)))))
+(symbol (lib_id "Probe:ADP7182") (at 166.37 114.3 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 09318307-b5c4-476b-80b5-410b82da7fdb) (property "Reference" "U9" (at 156.21 99.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "ADP7182AUJZ-R7" (at 156.21 101.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-5" (at 166.37 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7182.pdf" (at 166.37 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "ADP7182AUJZ-R7" (at 166.37 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Analog Devices" (at 166.37 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "C514358" (at 166.37 114.3 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "U9") (unit 1)))))
+(wire (pts (xy 153.67000000000002 109.22) (xy 147.32 109.22)) (stroke (width 0) (type default)) (uuid a6b67b80-d7f5-4437-88e2-c3fc232ce85a))
+(symbol (lib_id "Probe:PWR__BAT") (at 147.32 109.22 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b67c80-d7f5-45ea-88e4-43fc232f74da) (property "Reference" "#PWR512" (at 147.32 109.22 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-BAT" (at 147.32 114.3 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR512") (unit 1)))))
+(wire (pts (xy 153.67000000000002 118.11) (xy 147.32 118.11)) (stroke (width 0) (type default)) (uuid a6b67d80-d7f5-479d-88e3-c3fc232e9b5a))
+(symbol (lib_id "Probe:PWR__BAT") (at 147.32 118.11 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b67680-d7f5-4bb8-88e5-43fc233127da) (property "Reference" "#PWR514" (at 147.32 118.11 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-BAT" (at 147.32 123.19 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR514") (unit 1)))))
+(wire (pts (xy 179.07 109.22) (xy 185.42000000000002 109.22)) (stroke (width 0) (type default)) (uuid a6b67780-d7f5-4d6b-88e4-c3fc23304e5a))
+(symbol (lib_id "Probe:PWR__4V8") (at 185.42000000000002 109.22 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b67880-d7f5-4f1e-88e6-43fc2332dada) (property "Reference" "#PWR516" (at 185.42000000000002 109.22 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 185.42000000000002 114.3 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR516") (unit 1)))))
+(wire (pts (xy 179.07 118.11) (xy 185.42000000000002 118.11)) (stroke (width 0) (type default)) (uuid a6b67980-d7f5-40d1-88e5-c3fc2332015a))
+(global_label "ADJ_1" (shape bidirectional) (at 185.42000000000002 118.11 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6b67280-d7f5-44ec-88e7-43fc23348dda) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 185.42000000000002 118.11 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 166.37 125.73) (xy 166.37 132.08)) (stroke (width 0) (type default)) (uuid a6b67380-d7f5-469f-88e6-c3fc2333b45a))
+(symbol (lib_id "Probe:PWR_GND") (at 166.37 132.08 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6c06c80-d7fe-4f3f-8c63-43f9f8cf01d8) (property "Reference" "#PWR520" (at 166.37 132.08 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 166.37 137.16 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR520") (unit 1)))))
+(symbol (lib_id "Probe:C") (at 132.08 138.43 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0c95ec19-ab2d-4b44-87ad-25b2a2a2506a) (property "Reference" "C73" (at 140.97 137.16 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 uF / 25 V" (at 140.97 139.7 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_1210_3225Metric" (at 132.08 138.43 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C1210C106K3RACTU" (at 132.08 138.43 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C1210C106K3RACTU" (at 132.08 138.43 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 132.08 138.43 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 132.08 138.43 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C73") (unit 1)))))
+(wire (pts (xy 132.08 134.62) (xy 132.08 128.27)) (stroke (width 0) (type default)) (uuid a6c06b80-d7fe-4d8c-8c62-c3f9f8ce2858))
+(wire (pts (xy 132.08 128.27) (xy 121.92 128.27)) (stroke (width 0) (type default)) (uuid a6c06e80-d7fe-42a5-8c64-43f9f8d0b4d8))
+(symbol (lib_id "Probe:PWR__BAT") (at 121.92 128.27 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6c06d80-d7fe-40f2-8c63-c3f9f8cfdb58) (property "Reference" "#PWR523" (at 121.92 128.27 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-BAT" (at 121.92 133.35 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR523") (unit 1)))))
+(wire (pts (xy 132.08 142.24) (xy 132.08 148.59)) (stroke (width 0) (type default)) (uuid a6c06880-d7fe-4873-8c65-43f9f8d267d8))
+(symbol (lib_id "Probe:PWR_GND") (at 132.08 148.59 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6c06780-d7fe-46c0-8c64-c3f9f8d18e58) (property "Reference" "#PWR525" (at 132.08 148.59 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 132.08 153.67000000000002 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR525") (unit 1)))))
+(symbol (lib_id "Probe:C") (at 227.33 114.3 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0c95eb19-ab2d-4991-87b0-a5b2a2a842ea) (property "Reference" "C74" (at 236.22 113.03 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 uF / 25 V" (at 236.22 115.57000000000001 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_1210_3225Metric" (at 227.33 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C1210C106K3RACTU" (at 227.33 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C1210C106K3RACTU" (at 227.33 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 227.33 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 227.33 114.3 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C74") (unit 1)))))
+(wire (pts (xy 227.33 110.49) (xy 227.33 104.14)) (stroke (width 0) (type default)) (uuid a6c06a80-d7fe-4bd9-8c66-43f9f8d41ad8))
+(wire (pts (xy 227.33 104.14) (xy 217.17000000000002 104.14)) (stroke (width 0) (type default)) (uuid a6c06980-d7fe-4a26-8c65-c3f9f8d34158))
+(symbol (lib_id "Probe:PWR__4V8") (at 217.17000000000002 104.14 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6c07480-d7fe-4cd7-8c67-43f9f8d5cdd8) (property "Reference" "#PWR528" (at 217.17000000000002 104.14 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 217.17000000000002 109.22 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR528") (unit 1)))))
+(wire (pts (xy 227.33 118.11) (xy 227.33 124.46000000000001)) (stroke (width 0) (type default)) (uuid a6c07380-d7fe-4b24-8c66-c3f9f8d4f458))
+(symbol (lib_id "Probe:PWR_GND") (at 227.33 124.46000000000001 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6bd6680-d7fb-4f36-85e3-43fab19941d9) (property "Reference" "#PWR530" (at 227.33 124.46000000000001 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 227.33 129.54 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR530") (unit 1)))))
+(symbol (lib_id "Probe:R_Small_US") (at 198.12 133.35 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9519-fdeb-4a2c-852f-d8ab15af84ab) (property "Reference" "R83" (at 207.01 132.08 0) (effects (font (size 1.27 1.27)) ))(property "Value" "29.4 kR" (at 207.01 134.62 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 198.12 133.35 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 198.12 133.35 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0729K4L" (at 198.12 133.35 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 198.12 133.35 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 198.12 133.35 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R83") (unit 1)))))
+(wire (pts (xy 198.12 130.81) (xy 198.12 124.46000000000001)) (stroke (width 0) (type default)) (uuid a6bd6780-d7fb-40e9-85e2-c3fab1986859))
+(wire (pts (xy 198.12 124.46000000000001) (xy 187.96 124.46000000000001)) (stroke (width 0) (type default)) (uuid a6bd6480-d7fb-4bd0-85e4-43fab19af4d9))
+(symbol (lib_id "Probe:PWR__4V8") (at 187.96 124.46000000000001 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6bd6580-d7fb-4d83-85e3-c3fab19a1b59) (property "Reference" "#PWR533" (at 187.96 124.46000000000001 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 187.96 129.54 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR533") (unit 1)))))
+(wire (pts (xy 198.12 135.89000000000001) (xy 198.12 142.24)) (stroke (width 0) (type default)) (uuid a6bd6a80-d7fb-4602-85e5-43fab19ca7d9))
+(global_label "ADJ_1" (shape bidirectional) (at 198.12 142.24 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6bd6b80-d7fb-47b5-85e4-c3fab19bce59) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 198.12 142.24 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 223.52 143.51 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9419-fdeb-4879-8530-58ab15b05e2b) (property "Reference" "R84" (at 232.41 142.24 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 232.41 144.78 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 223.52 143.51 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 223.52 143.51 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 223.52 143.51 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 223.52 143.51 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 223.52 143.51 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R84") (unit 1)))))
+(wire (pts (xy 223.52 140.97) (xy 223.52 134.62)) (stroke (width 0) (type default)) (uuid a6bd6880-d7fb-429c-85e6-43fab19e5ad9))
+(global_label "ADJ_1" (shape bidirectional) (at 223.52 134.62 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6bd6980-d7fb-444f-85e5-c3fab19d8159) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 223.52 134.62 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 223.52 146.05) (xy 223.52 152.4)) (stroke (width 0) (type default)) (uuid a6bd6e80-d7fb-4cce-85e7-43fab1a00dd9))
+(symbol (lib_id "Probe:PWR_GND") (at 223.52 152.4 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6bd6f80-d7fb-4e81-85e6-c3fab19f3459) (property "Reference" "#PWR539" (at 223.52 152.4 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 223.52 157.48 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR539") (unit 1)))))
+(rectangle (start 254 27.94) (end 403.86 157.48) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid a6ac6880-d7ed-4f69-8963-43f8873a81d6))
+(text "SHUNT CLAMPS / COMPARATOR THRESHOLDS" (at 257.81 31.75 0) (effects (font (size 1.8 1.8)) (justify left top)) (uuid a6ac6780-d7ed-4db6-8962-c3f88739a856))
+(symbol (lib_id "Probe:TL431") (at 287.02 72.39 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 632df119-dc37-4cb9-8ab8-c7b26a0028c6) (property "Reference" "U10" (at 302.26 62.230000000000004 0) (effects (font (size 1.27 1.27)) ))(property "Value" "TL431BIDBZR" (at 302.26 64.77 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Package_TO_SOT_SMD:SOT-23" (at 287.02 72.39 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tl431.pdf" (at 287.02 72.39 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "TL431BIDBZR" (at 287.02 72.39 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Texas Instruments" (at 287.02 72.39 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "C41283" (at 287.02 72.39 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "U10") (unit 1)))))
+(wire (pts (xy 287.02 63.5) (xy 287.02 57.15)) (stroke (width 0) (type default)) (uuid a6ac6680-d7ed-4c03-8964-43f8873c34d6))
+(global_label "REF_P" (shape bidirectional) (at 287.02 57.15 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6ac6580-d7ed-4a50-8963-c3f8873b5b56) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 287.02 57.15 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 278.13 72.39) (xy 271.78000000000003 72.39)) (stroke (width 0) (type default)) (uuid a6ac6c80-d7ed-4635-8965-43f8873de7d6))
+(global_label "REF_P" (shape bidirectional) (at 271.78000000000003 72.39 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid a6ac6b80-d7ed-4482-8964-c3f8873d0e56) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 271.78000000000003 72.39 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 287.02 81.28) (xy 287.02 87.63)) (stroke (width 0) (type default)) (uuid a6ac6a80-d7ed-42cf-8966-43f8873f9ad6))
+(symbol (lib_id "Probe:PWR_GND") (at 287.02 87.63 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6ac6980-d7ed-411c-8965-c3f8873ec156) (property "Reference" "#PWR547" (at 287.02 87.63 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 287.02 92.71000000000001 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR547") (unit 1)))))
+(symbol (lib_id "Probe:R_Small_US") (at 265.43 52.07 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9319-fdeb-46c6-8530-d8ab15b137ab) (property "Reference" "R85" (at 274.32 50.8 0) (effects (font (size 1.27 1.27)) ))(property "Value" "1 kR" (at 274.32 53.34 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 265.43 52.07 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 265.43 52.07 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD071KL" (at 265.43 52.07 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 265.43 52.07 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 265.43 52.07 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R85") (unit 1)))))
+(wire (pts (xy 265.43 49.53) (xy 265.43 43.18)) (stroke (width 0) (type default)) (uuid a6ac7080-d7ed-4d01-8967-43f887414dd6))
+(symbol (lib_id "Probe:PWR__4V8") (at 265.43 43.18 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6ac6f80-d7ed-4b4e-8966-c3f887407456) (property "Reference" "#PWR549" (at 265.43 43.18 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 265.43 38.1 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR549") (unit 1)))))
+(wire (pts (xy 265.43 54.61) (xy 265.43 60.96)) (stroke (width 0) (type default)) (uuid a6a8e280-d7ea-45e0-82e3-43f94004c1d7))
+(global_label "REF_P" (shape bidirectional) (at 265.43 60.96 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6a8e380-d7ea-4793-82e2-c3f94003e857) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 265.43 60.96 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 336.55 50.8 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9119-fdeb-4360-8531-d8ab15b2eaab) (property "Reference" "R87" (at 345.44 49.53 0) (effects (font (size 1.27 1.27)) ))(property "Value" "5.62 kR" (at 345.44 52.07 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 336.55 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 336.55 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD075K62L" (at 336.55 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 336.55 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 336.55 50.8 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R87") (unit 1)))))
+(wire (pts (xy 336.55 48.26) (xy 336.55 41.910000000000004)) (stroke (width 0) (type default)) (uuid a6a8e480-d7ea-4946-82e4-43f9400674d7))
+(global_label "REF_P" (shape bidirectional) (at 336.55 41.910000000000004 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6a8e580-d7ea-4af9-82e3-c3f940059b57) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 336.55 41.910000000000004 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 336.55 53.34) (xy 336.55 59.69)) (stroke (width 0) (type default)) (uuid a6a8e680-d7ea-4cac-82e5-43f9400827d7))
+(global_label "LIM_P" (shape bidirectional) (at 336.55 59.69 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6a8e780-d7ea-4e5f-82e4-c3f940074e57) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 336.55 59.69 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 336.55 73.66 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0ea019-fdeb-4cdd-8532-58ab15b3c42b) (property "Reference" "R88" (at 345.44 72.39 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 345.44 74.93 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 336.55 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 336.55 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 336.55 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 336.55 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 336.55 73.66 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R88") (unit 1)))))
+(wire (pts (xy 336.55 71.12) (xy 336.55 64.77)) (stroke (width 0) (type default)) (uuid a6a8e880-d7ea-4012-82e6-43f94009dad7))
+(global_label "LIM_P" (shape bidirectional) (at 336.55 64.77 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6a8e980-d7ea-41c5-82e5-c3f940090157) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 336.55 64.77 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 336.55 76.2) (xy 336.55 82.55)) (stroke (width 0) (type default)) (uuid a6a8ea80-d7ea-4378-82e7-43f9400b8dd7))
+(symbol (lib_id "Probe:PWR_GND") (at 336.55 82.55 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6a8eb80-d7ea-452b-82e6-c3f9400ab457) (property "Reference" "#PWR559" (at 336.55 82.55 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 336.55 87.63 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR559") (unit 1)))))
+(symbol (lib_id "Probe:R_Small_US") (at 374.65 50.8 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9f19-fdeb-4b2a-8532-d8ab15b49dab) (property "Reference" "R89" (at 383.54 49.53 0) (effects (font (size 1.27 1.27)) ))(property "Value" "6.65 kR" (at 383.54 52.07 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 374.65 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 374.65 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD076K65L" (at 374.65 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 374.65 50.8 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 374.65 50.8 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R89") (unit 1)))))
+(wire (pts (xy 374.65 48.26) (xy 374.65 41.910000000000004)) (stroke (width 0) (type default)) (uuid a6b2f480-d7f2-48fb-8663-43f715a601d5))
+(global_label "REF_P" (shape bidirectional) (at 374.65 41.910000000000004 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6b2f380-d7f2-4748-8662-c3f715a52855) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 374.65 41.910000000000004 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 374.65 53.34) (xy 374.65 59.69)) (stroke (width 0) (type default)) (uuid a6b2f680-d7f2-4c61-8664-43f715a7b4d5))
+(global_label "OUT_LIM_P" (shape bidirectional) (at 374.65 59.69 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6b2f580-d7f2-4aae-8663-c3f715a6db55) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 374.65 59.69 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 374.65 73.66 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b1219-fde8-45bc-8eae-58abce77382c) (property "Reference" "R90" (at 383.54 72.39 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 383.54 74.93 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 374.65 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 374.65 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 374.65 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 374.65 73.66 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 374.65 73.66 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R90") (unit 1)))))
+(wire (pts (xy 374.65 71.12) (xy 374.65 64.77)) (stroke (width 0) (type default)) (uuid a6b2f880-d7f2-4fc7-8665-43f715a967d5))
+(global_label "OUT_LIM_P" (shape bidirectional) (at 374.65 64.77 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6b2f780-d7f2-4e14-8664-c3f715a88e55) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 374.65 64.77 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 374.65 76.2) (xy 374.65 82.55)) (stroke (width 0) (type default)) (uuid a6b2fa80-d7f2-432d-8666-43f715ab1ad5))
+(symbol (lib_id "Probe:PWR_GND") (at 374.65 82.55 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6b2f980-d7f2-417a-8665-c3f715aa4155) (property "Reference" "#PWR567" (at 374.65 82.55 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 374.65 87.63 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR567") (unit 1)))))
+(symbol (lib_id "Probe:TL431") (at 287.02 135.89000000000001 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 632df019-dc37-4b06-8ab8-47b269ff4f46) (property "Reference" "U11" (at 302.26 125.73 0) (effects (font (size 1.27 1.27)) ))(property "Value" "TL431BIDBZR" (at 302.26 128.27 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Package_TO_SOT_SMD:SOT-23" (at 287.02 135.89000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tl431.pdf" (at 287.02 135.89000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "TL431BIDBZR" (at 287.02 135.89000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Texas Instruments" (at 287.02 135.89000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "C41283" (at 287.02 135.89000000000001 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "U11") (unit 1)))))
+(wire (pts (xy 287.02 127) (xy 287.02 120.65)) (stroke (width 0) (type default)) (uuid a6b2ec80-d7f2-4b63-8667-43f715accdd5))
+(wire (pts (xy 287.02 120.65) (xy 276.86 120.65)) (stroke (width 0) (type default)) (uuid a6b2eb80-d7f2-49b0-8666-c3f715abf455))
+(symbol (lib_id "Probe:PWR_GND") (at 276.86 120.65 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6af6e80-d7ef-4f72-8fe3-43f7ce7041d5) (property "Reference" "#PWR570" (at 276.86 120.65 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 276.86 125.73 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR570") (unit 1)))))
+(wire (pts (xy 278.13 135.89000000000001) (xy 271.78000000000003 135.89000000000001)) (stroke (width 0) (type default)) (uuid a6af6f80-d7ef-4125-8fe2-c3f7ce6f6855))
+(symbol (lib_id "Probe:PWR_GND") (at 271.78000000000003 135.89000000000001 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6af6c80-d7ef-4c0c-8fe4-43f7ce71f4d5) (property "Reference" "#PWR572" (at 271.78000000000003 135.89000000000001 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 271.78000000000003 140.97 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR572") (unit 1)))))
+(wire (pts (xy 287.02 144.78) (xy 287.02 151.13)) (stroke (width 0) (type default)) (uuid a6af6d80-d7ef-4dbf-8fe3-c3f7ce711b55))
+(global_label "REF_N" (shape bidirectional) (at 287.02 151.13 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6af6a80-d7ef-48a6-8fe5-43f7ce73a7d5) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 287.02 151.13 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 265.43 115.57000000000001 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0e9219-fdeb-4513-8531-58ab15b2112b) (property "Reference" "R86" (at 274.32 114.3 0) (effects (font (size 1.27 1.27)) ))(property "Value" "1 kR" (at 274.32 116.84 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 265.43 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 265.43 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD071KL" (at 265.43 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 265.43 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 265.43 115.57000000000001 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R86") (unit 1)))))
+(wire (pts (xy 265.43 113.03) (xy 265.43 106.68)) (stroke (width 0) (type default)) (uuid a6af6b80-d7ef-4a59-8fe4-c3f7ce72ce55))
+(wire (pts (xy 265.43 106.68) (xy 255.27 106.68)) (stroke (width 0) (type default)) (uuid a6af6880-d7ef-4540-8fe6-43f7ce755ad5))
+(symbol (lib_id "Probe:PWR__4V8") (at 255.27 106.68 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6af6980-d7ef-46f3-8fe5-c3f7ce748155) (property "Reference" "#PWR577" (at 255.27 106.68 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 255.27 111.76 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR577") (unit 1)))))
+(wire (pts (xy 265.43 118.11) (xy 265.43 124.46000000000001)) (stroke (width 0) (type default)) (uuid a6af7680-d7ef-4d0a-8fe7-43f7ce770dd5))
+(global_label "REF_N" (shape bidirectional) (at 265.43 124.46000000000001 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6af7780-d7ef-4ebd-8fe6-c3f7ce763455) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 265.43 124.46000000000001 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 336.55 114.3 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b1319-fde8-476f-8eae-d8abce7811ac) (property "Reference" "R91" (at 345.44 113.03 0) (effects (font (size 1.27 1.27)) ))(property "Value" "5.62 kR" (at 345.44 115.57000000000001 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 336.55 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 336.55 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD075K62L" (at 336.55 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 336.55 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 336.55 114.3 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R91") (unit 1)))))
+(wire (pts (xy 336.55 111.76) (xy 336.55 105.41)) (stroke (width 0) (type default)) (uuid a6d4f080-d80f-4895-8363-43f5a41181d3))
+(global_label "REF_N" (shape bidirectional) (at 336.55 105.41 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6d4ef80-d80f-46e2-8362-c3f5a410a853) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 336.55 105.41 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 336.55 116.84) (xy 336.55 123.19)) (stroke (width 0) (type default)) (uuid a6d4ee80-d80f-452f-8364-43f5a41334d3))
+(global_label "LIM_N" (shape bidirectional) (at 336.55 123.19 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6d4ed80-d80f-437c-8363-c3f5a4125b53) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 336.55 123.19 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 336.55 137.16 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b1419-fde8-4922-8eaf-58abce78eb2c) (property "Reference" "R92" (at 345.44 135.89000000000001 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 345.44 138.43 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 336.55 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 336.55 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 336.55 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 336.55 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 336.55 137.16 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R92") (unit 1)))))
+(wire (pts (xy 336.55 134.62) (xy 336.55 128.27)) (stroke (width 0) (type default)) (uuid a6d4ec80-d80f-41c9-8365-43f5a414e7d3))
+(global_label "LIM_N" (shape bidirectional) (at 336.55 128.27 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6d4eb80-d80f-4016-8364-c3f5a4140e53) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 336.55 128.27 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 336.55 139.7) (xy 336.55 146.05)) (stroke (width 0) (type default)) (uuid a6d4ea80-d80f-4e63-8366-43f5a4169ad3))
+(symbol (lib_id "Probe:PWR_GND") (at 336.55 146.05 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6d4e980-d80f-4cb0-8365-c3f5a415c153) (property "Reference" "#PWR587" (at 336.55 146.05 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 336.55 151.13 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR587") (unit 1)))))
+(symbol (lib_id "Probe:R_Small_US") (at 374.65 114.3 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b1519-fde8-4ad5-8eaf-d8abce79c4ac) (property "Reference" "R93" (at 383.54 113.03 0) (effects (font (size 1.27 1.27)) ))(property "Value" "6.65 kR" (at 383.54 115.57000000000001 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 374.65 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 374.65 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD076K65L" (at 374.65 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 374.65 114.3 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 374.65 114.3 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R93") (unit 1)))))
+(wire (pts (xy 374.65 111.76) (xy 374.65 105.41)) (stroke (width 0) (type default)) (uuid a6d4f880-d80f-462d-8367-43f5a4184dd3))
+(global_label "REF_N" (shape bidirectional) (at 374.65 105.41 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6d4f780-d80f-447a-8366-c3f5a4177453) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 374.65 105.41 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 374.65 116.84) (xy 374.65 123.19)) (stroke (width 0) (type default)) (uuid a6d16a80-d80c-4f0c-8ce3-43f65cdbc1d4))
+(global_label "OUT_LIM_N" (shape bidirectional) (at 374.65 123.19 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6d16b80-d80c-40bf-8ce2-c3f65cdae854) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 374.65 123.19 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 374.65 137.16 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b0e19-fde8-4ef0-8eb0-58abce7a9e2c) (property "Reference" "R94" (at 383.54 135.89000000000001 0) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 383.54 138.43 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 374.65 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 374.65 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 374.65 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 374.65 137.16 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 374.65 137.16 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R94") (unit 1)))))
+(wire (pts (xy 374.65 134.62) (xy 374.65 128.27)) (stroke (width 0) (type default)) (uuid a6d16c80-d80c-4272-8ce4-43f65cdd74d4))
+(global_label "OUT_LIM_N" (shape bidirectional) (at 374.65 128.27 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid a6d16d80-d80c-4425-8ce3-c3f65cdc9b54) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 374.65 128.27 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 374.65 139.7) (xy 374.65 146.05)) (stroke (width 0) (type default)) (uuid a6d16680-d80c-4840-8ce5-43f65cdf27d4))
+(symbol (lib_id "Probe:PWR_GND") (at 374.65 146.05 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid a6d16780-d80c-49f3-8ce4-c3f65cde4e54) (property "Reference" "#PWR595" (at 374.65 146.05 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 374.65 151.13 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR595") (unit 1)))))
+(rectangle (start 12.7 165.1) (end 246.38 265.43) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid a6d16880-d80c-4ba6-8ce6-43f65ce0dad4))
+(text "LOCAL DECOUPLING / RAIL REVERSAL DIODES" (at 16.51 168.91 0) (effects (font (size 1.8 1.8)) (justify left top)) (uuid a6d16980-d80c-4d59-8ce5-c3f65ce00154))
+(text "U1" (at 31.75 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid a6d17280-d80c-4ca4-8ce7-43f65ce28dd4))
+(symbol (lib_id "Probe:C") (at 29.21 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6ee19-ab3c-41dd-852e-25ad951c4364) (property "Reference" "C81" (at 38.1 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 38.1 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 29.21 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 29.21 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 29.21 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 29.21 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 29.21 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C81") (unit 1)))))
+(wire (pts (xy 29.21 190.5) (xy 29.21 182.88)) (stroke (width 0) (type default)) (uuid a6d17380-d80c-4e57-8ce6-c3f65ce1b454))
+(wire (pts (xy 29.21 198.12) (xy 29.21 210.82)) (stroke (width 0) (type default)) (uuid 8be3ef80-c887-4f6c-8f62-26fb9502a82a))
+(symbol (lib_id "Probe:C") (at 29.21 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6eb19-ab3c-4cc4-852d-a5ad951b69e4) (property "Reference" "C82" (at 38.1 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 38.1 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 29.21 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 29.21 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 29.21 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 29.21 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 29.21 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C82") (unit 1)))))
+(wire (pts (xy 29.21 223.52) (xy 29.21 210.82)) (stroke (width 0) (type default)) (uuid 8be3f080-c887-411f-8f62-a6fb950381aa))
+(wire (pts (xy 29.21 231.14000000000001) (xy 29.21 241.3)) (stroke (width 0) (type default)) (uuid 8be3f180-c887-42d2-8f63-26fb95045b2a))
+(text "U2" (at 60.96 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 8be3f280-c887-4485-8f63-a6fb950534aa))
+(symbol (lib_id "Probe:C") (at 58.42 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6ec19-ab3c-4e77-852d-25ad951a9064) (property "Reference" "C83" (at 67.31 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 67.31 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 58.42 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 58.42 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 58.42 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 58.42 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 58.42 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C83") (unit 1)))))
+(wire (pts (xy 58.42 190.5) (xy 58.42 182.88)) (stroke (width 0) (type default)) (uuid 8be3eb80-c887-48a0-8f64-26fb95060e2a))
+(wire (pts (xy 58.42 198.12) (xy 58.42 210.82)) (stroke (width 0) (type default)) (uuid 8be3ec80-c887-4a53-8f64-a6fb9506e7aa))
+(symbol (lib_id "Probe:C") (at 58.42 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6e919-ab3c-495e-8530-a5ad952082e4) (property "Reference" "C84" (at 67.31 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 67.31 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 58.42 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 58.42 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 58.42 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 58.42 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 58.42 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C84") (unit 1)))))
+(wire (pts (xy 58.42 223.52) (xy 58.42 210.82)) (stroke (width 0) (type default)) (uuid 8be3ed80-c887-4c06-8f65-26fb9507c12a))
+(wire (pts (xy 58.42 231.14000000000001) (xy 58.42 241.3)) (stroke (width 0) (type default)) (uuid 8be3ee80-c887-4db9-8f65-a6fb95089aaa))
+(wire (pts (xy 29.21 182.88) (xy 58.42 182.88)) (stroke (width 0) (type default)) (uuid 8be3f780-c887-4d04-8f66-26fb9509742a))
+(junction (at 58.42 182.88) (diameter 0) (color 0 0 0 0) (uuid 8be3f880-c887-4eb7-8f66-a6fb950a4daa))
+(wire (pts (xy 29.21 210.82) (xy 58.42 210.82)) (stroke (width 0) (type default)) (uuid 8be77580-c88b-48f5-88e2-26fc4dcce82b))
+(junction (at 58.42 210.82) (diameter 0) (color 0 0 0 0) (uuid 8be77480-c88b-4742-88e2-a6fc4dcdc1ab))
+(wire (pts (xy 29.21 241.3) (xy 58.42 241.3)) (stroke (width 0) (type default)) (uuid 8be77380-c88b-458f-88e3-26fc4dce9b2b))
+(junction (at 58.42 241.3) (diameter 0) (color 0 0 0 0) (uuid 8be77280-c88b-43dc-88e3-a6fc4dcf74ab))
+(text "U3" (at 90.17 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 8be77180-c88b-4229-88e4-26fc4dd04e2b))
+(symbol (lib_id "Probe:C") (at 87.63 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6ea19-ab3c-4b11-8530-25ad951fa964) (property "Reference" "C85" (at 96.52 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 96.52 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 87.63 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 87.63 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 87.63 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 87.63 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 87.63 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C85") (unit 1)))))
+(wire (pts (xy 87.63 190.5) (xy 87.63 182.88)) (stroke (width 0) (type default)) (uuid 8be77080-c88b-4076-88e4-a6fc4dd127ab))
+(wire (pts (xy 87.63 198.12) (xy 87.63 210.82)) (stroke (width 0) (type default)) (uuid 8be76f80-c88a-4ec3-88e5-26fc4dd2012b))
+(symbol (lib_id "Probe:C") (at 87.63 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6e719-ab3c-45f8-852f-a5ad951ecfe4) (property "Reference" "C86" (at 96.52 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 96.52 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 87.63 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 87.63 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 87.63 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 87.63 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 87.63 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C86") (unit 1)))))
+(wire (pts (xy 87.63 223.52) (xy 87.63 210.82)) (stroke (width 0) (type default)) (uuid 8be76e80-c88a-4d10-88e5-a6fc4dd2daab))
+(wire (pts (xy 87.63 231.14000000000001) (xy 87.63 241.3)) (stroke (width 0) (type default)) (uuid 8be77d80-c88b-468d-88e6-26fc4dd3b42b))
+(wire (pts (xy 58.42 182.88) (xy 87.63 182.88)) (stroke (width 0) (type default)) (uuid 8be77c80-c88b-44da-88e6-a6fc4dd48dab))
+(junction (at 87.63 182.88) (diameter 0) (color 0 0 0 0) (uuid 8bea7b80-c88d-48fe-8c62-26fa236e2829))
+(wire (pts (xy 58.42 210.82) (xy 87.63 210.82)) (stroke (width 0) (type default)) (uuid 8bea7c80-c88d-4ab1-8c62-a6fa236f01a9))
+(junction (at 87.63 210.82) (diameter 0) (color 0 0 0 0) (uuid 8bea7980-c88d-4598-8c63-26fa236fdb29))
+(wire (pts (xy 58.42 241.3) (xy 87.63 241.3)) (stroke (width 0) (type default)) (uuid 8bea7a80-c88d-474b-8c63-a6fa2370b4a9))
+(junction (at 87.63 241.3) (diameter 0) (color 0 0 0 0) (uuid 8bea7f80-c88d-4fca-8c64-26fa23718e29))
+(text "U4" (at 119.38 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 8bea8080-c88d-417d-8c64-a6fa237267a9))
+(symbol (lib_id "Probe:C") (at 116.84 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6e819-ab3c-47ab-852f-25ad951df664) (property "Reference" "C87" (at 125.73 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 125.73 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 116.84 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 116.84 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 116.84 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 116.84 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 116.84 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C87") (unit 1)))))
+(wire (pts (xy 116.84 190.5) (xy 116.84 182.88)) (stroke (width 0) (type default)) (uuid 8bea7d80-c88d-4c64-8c65-26fa23734129))
+(wire (pts (xy 116.84 198.12) (xy 116.84 210.82)) (stroke (width 0) (type default)) (uuid 8bea7e80-c88d-4e17-8c65-a6fa23741aa9))
+(symbol (lib_id "Probe:C") (at 116.84 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6e519-ab3c-4292-8532-a5ad9523e8e4) (property "Reference" "C88" (at 125.73 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 125.73 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 116.84 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 116.84 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 116.84 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 116.84 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 116.84 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C88") (unit 1)))))
+(wire (pts (xy 116.84 223.52) (xy 116.84 210.82)) (stroke (width 0) (type default)) (uuid 8bea7380-c88d-4b66-8c66-26fa2374f429))
+(wire (pts (xy 116.84 231.14000000000001) (xy 116.84 241.3)) (stroke (width 0) (type default)) (uuid 8bea7480-c88d-4d19-8c66-a6fa2375cda9))
+(wire (pts (xy 87.63 182.88) (xy 116.84 182.88)) (stroke (width 0) (type default)) (uuid 8bee0180-c890-4287-85e2-26fadc386829))
+(junction (at 116.84 182.88) (diameter 0) (color 0 0 0 0) (uuid 8bee0080-c890-40d4-85e2-a6fadc3941a9))
+(wire (pts (xy 87.63 210.82) (xy 116.84 210.82)) (stroke (width 0) (type default)) (uuid 8bee0380-c890-45ed-85e3-26fadc3a1b29))
+(junction (at 116.84 210.82) (diameter 0) (color 0 0 0 0) (uuid 8bee0280-c890-443a-85e3-a6fadc3af4a9))
+(wire (pts (xy 87.63 241.3) (xy 116.84 241.3)) (stroke (width 0) (type default)) (uuid 8bedfd80-c890-4bbb-85e4-26fadc3bce29))
+(junction (at 116.84 241.3) (diameter 0) (color 0 0 0 0) (uuid 8bedfc80-c890-4a08-85e4-a6fadc3ca7a9))
+(text "U5" (at 148.59 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 8bedff80-c890-4f21-85e5-26fadc3d8129))
+(symbol (lib_id "Probe:C") (at 146.05 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0ca6e619-ab3c-4445-8532-25ad95230f64) (property "Reference" "C89" (at 154.94 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 154.94 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 146.05 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 146.05 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 146.05 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 146.05 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 146.05 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C89") (unit 1)))))
+(wire (pts (xy 146.05 190.5) (xy 146.05 182.88)) (stroke (width 0) (type default)) (uuid 8bedfe80-c890-4d6e-85e5-a6fadc3e5aa9))
+(wire (pts (xy 146.05 198.12) (xy 146.05 210.82)) (stroke (width 0) (type default)) (uuid 8bedf980-c890-44ef-85e6-26fadc3f3429))
+(symbol (lib_id "Probe:C") (at 146.05 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0caa5319-ab3f-4353-8eae-a5ae4de75ce5) (property "Reference" "C90" (at 154.94 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 154.94 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 146.05 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 146.05 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 146.05 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 146.05 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 146.05 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C90") (unit 1)))))
+(wire (pts (xy 146.05 223.52) (xy 146.05 210.82)) (stroke (width 0) (type default)) (uuid 8bedf880-c890-433c-85e6-a6fadc400da9))
+(wire (pts (xy 146.05 231.14000000000001) (xy 146.05 241.3)) (stroke (width 0) (type default)) (uuid 8bd67780-c87c-4928-8962-26f8b1d9a827))
+(wire (pts (xy 116.84 182.88) (xy 146.05 182.88)) (stroke (width 0) (type default)) (uuid 8bd67880-c87c-4adb-8962-a6f8b1da81a7))
+(junction (at 146.05 182.88) (diameter 0) (color 0 0 0 0) (uuid 8bd67980-c87c-4c8e-8963-26f8b1db5b27))
+(wire (pts (xy 116.84 210.82) (xy 146.05 210.82)) (stroke (width 0) (type default)) (uuid 8bd67a80-c87c-4e41-8963-a6f8b1dc34a7))
+(junction (at 146.05 210.82) (diameter 0) (color 0 0 0 0) (uuid 8bd67b80-c87c-4ff4-8964-26f8b1dd0e27))
+(wire (pts (xy 116.84 241.3) (xy 146.05 241.3)) (stroke (width 0) (type default)) (uuid 8bd67c80-c87c-41a7-8964-a6f8b1dde7a7))
+(junction (at 146.05 241.3) (diameter 0) (color 0 0 0 0) (uuid 8bd67d80-c87c-435a-8965-26f8b1dec127))
+(text "U6" (at 177.8 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 8bd67e80-c87c-450d-8965-a6f8b1df9aa7))
+(symbol (lib_id "Probe:C") (at 175.26 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0caa5219-ab3f-41a0-8eae-25ae4de68365) (property "Reference" "C91" (at 184.15 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 184.15 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 175.26 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 175.26 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 175.26 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 175.26 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 175.26 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C91") (unit 1)))))
+(wire (pts (xy 175.26 190.5) (xy 175.26 182.88)) (stroke (width 0) (type default)) (uuid 8bd66f80-c87c-4b90-8966-26f8b1e07427))
+(wire (pts (xy 175.26 198.12) (xy 175.26 210.82)) (stroke (width 0) (type default)) (uuid 8bd67080-c87c-4d43-8966-a6f8b1e14da7))
+(symbol (lib_id "Probe:C") (at 175.26 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0caa5519-ab3f-46b9-8ead-a5ae4de5a9e5) (property "Reference" "C92" (at 184.15 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 184.15 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 175.26 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 175.26 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 175.26 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 175.26 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 175.26 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C92") (unit 1)))))
+(wire (pts (xy 175.26 223.52) (xy 175.26 210.82)) (stroke (width 0) (type default)) (uuid 8bd97d80-c87e-4931-82e2-26f96aa3e828))
+(wire (pts (xy 175.26 231.14000000000001) (xy 175.26 241.3)) (stroke (width 0) (type default)) (uuid 8bd97c80-c87e-477e-82e2-a6f96aa4c1a8))
+(wire (pts (xy 146.05 182.88) (xy 175.26 182.88)) (stroke (width 0) (type default)) (uuid 8bd97b80-c87e-45cb-82e3-26f96aa59b28))
+(junction (at 175.26 182.88) (diameter 0) (color 0 0 0 0) (uuid 8bd97a80-c87e-4418-82e3-a6f96aa674a8))
+(wire (pts (xy 146.05 210.82) (xy 175.26 210.82)) (stroke (width 0) (type default)) (uuid 8bd98180-c87e-4ffd-82e4-26f96aa74e28))
+(junction (at 175.26 210.82) (diameter 0) (color 0 0 0 0) (uuid 8bd98080-c87e-4e4a-82e4-a6f96aa827a8))
+(wire (pts (xy 146.05 241.3) (xy 175.26 241.3)) (stroke (width 0) (type default)) (uuid 8bd97f80-c87e-4c97-82e5-26f96aa90128))
+(junction (at 175.26 241.3) (diameter 0) (color 0 0 0 0) (uuid 8bd97e80-c87e-4ae4-82e5-a6f96aa9daa8))
+(text "U7" (at 207.01 180.34 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 8bd97580-c87e-4b99-82e6-26f96aaab428))
+(symbol (lib_id "Probe:C") (at 204.47 194.31 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0caa5419-ab3f-4506-8ead-25ae4de4d065) (property "Reference" "C93" (at 213.36 193.04 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 213.36 195.58 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 204.47 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 204.47 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 204.47 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 204.47 194.31 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 204.47 194.31 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C93") (unit 1)))))
+(wire (pts (xy 204.47 190.5) (xy 204.47 182.88)) (stroke (width 0) (type default)) (uuid 8bd97480-c87e-49e6-82e6-a6f96aab8da8))
+(wire (pts (xy 204.47 198.12) (xy 204.47 210.82)) (stroke (width 0) (type default)) (uuid 8bdd0380-c881-42ba-8662-26f740452825))
+(symbol (lib_id "Probe:C") (at 204.47 227.33 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0caa5719-ab3f-4a1f-8eb0-a5ae4deac2e5) (property "Reference" "C94" (at 213.36 226.06 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 213.36 228.6 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 204.47 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 204.47 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 204.47 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 204.47 227.33 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 204.47 227.33 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C94") (unit 1)))))
+(wire (pts (xy 204.47 223.52) (xy 204.47 210.82)) (stroke (width 0) (type default)) (uuid 8bdd0480-c881-446d-8662-a6f7404601a5))
+(wire (pts (xy 204.47 231.14000000000001) (xy 204.47 241.3)) (stroke (width 0) (type default)) (uuid 8bdd0180-c881-4f54-8663-26f74046db25))
+(wire (pts (xy 175.26 182.88) (xy 204.47 182.88)) (stroke (width 0) (type default)) (uuid 8bdd0280-c881-4107-8663-a6f74047b4a5))
+(wire (pts (xy 175.26 210.82) (xy 204.47 210.82)) (stroke (width 0) (type default)) (uuid 8bdcff80-c881-4bee-8664-26f740488e25))
+(wire (pts (xy 175.26 241.3) (xy 204.47 241.3)) (stroke (width 0) (type default)) (uuid 8bdd0080-c881-4da1-8664-a6f7404967a5))
+(symbol (lib_id "Probe:PWR__4V8") (at 29.21 182.88 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bdcfd80-c881-4888-8665-26f7404a4125) (property "Reference" "#PWR666" (at 29.21 182.88 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 29.21 177.8 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR666") (unit 1)))))
+(symbol (lib_id "Probe:PWR__4V8") (at 29.21 241.3 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bdcfe80-c881-4a3b-8665-a6f7404b1aa5) (property "Reference" "#PWR667" (at 29.21 241.3 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 29.21 246.38 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR667") (unit 1)))))
+(wire (pts (xy 29.21 210.82) (xy 20.32 210.82)) (stroke (width 0) (type default)) (uuid 8bdcfb80-c881-4522-8666-26f7404bf425))
+(symbol (lib_id "Probe:PWR_GND") (at 20.32 210.82 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bdcfc80-c881-46d5-8666-a6f7404ccda5) (property "Reference" "#PWR669" (at 20.32 210.82 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 20.32 215.9 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR669") (unit 1)))))
+(symbol (lib_id "Probe:D_Schottky") (at 63.5 255.27 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 08fe8207-b598-4c1f-8f37-c0ff3d707f4d) (property "Reference" "D6" (at 63.5 248.92000000000002 0) (effects (font (size 1.27 1.27)) ))(property "Value" "SS14" (at 63.5 251.46 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Diode_SMD:D_SMA" (at 63.5 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds23001.pdf" (at 63.5 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "SS14" (at 63.5 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Diodes Incorporated" (at 63.5 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 63.5 255.27 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "D6") (unit 1)))))
+(wire (pts (xy 59.69 255.27) (xy 53.34 255.27)) (stroke (width 0) (type default)) (uuid 8be06980-c884-45e3-8fe2-26f7f90f6826))
+(symbol (lib_id "Probe:PWR__4V8") (at 53.34 255.27 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8be06880-c884-4430-8fe2-a6f7f91041a6) (property "Reference" "#PWR671" (at 53.34 255.27 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 53.34 250.19 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR671") (unit 1)))))
+(wire (pts (xy 67.31 255.27) (xy 73.66 255.27)) (stroke (width 0) (type default)) (uuid 8be06b80-c884-4949-8fe3-26f7f9111b26))
+(symbol (lib_id "Probe:PWR_GND") (at 73.66 255.27 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8be06a80-c884-4796-8fe3-a6f7f911f4a6) (property "Reference" "#PWR673" (at 73.66 255.27 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 73.66 260.35 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR673") (unit 1)))))
+(symbol (lib_id "Probe:D_Schottky") (at 158.75 255.27 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 08fe8107-b598-4a6c-8f38-40ff3d7158cd) (property "Reference" "D7" (at 158.75 248.92000000000002 0) (effects (font (size 1.27 1.27)) ))(property "Value" "SS14" (at 158.75 251.46 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Diode_SMD:D_SMA" (at 158.75 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds23001.pdf" (at 158.75 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "SS14" (at 158.75 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Diodes Incorporated" (at 158.75 255.27 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 158.75 255.27 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "D7") (unit 1)))))
+(wire (pts (xy 154.94 255.27) (xy 148.59 255.27)) (stroke (width 0) (type default)) (uuid 8be06d80-c884-4caf-8fe4-26f7f912ce26))
+(symbol (lib_id "Probe:PWR_GND") (at 148.59 255.27 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8be06c80-c884-4afc-8fe4-a6f7f913a7a6) (property "Reference" "#PWR675" (at 148.59 255.27 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 148.59 260.35 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR675") (unit 1)))))
+(wire (pts (xy 162.56 255.27) (xy 168.91 255.27)) (stroke (width 0) (type default)) (uuid 8be06f80-c884-4015-8fe5-26f7f9148126))
+(symbol (lib_id "Probe:PWR__4V8") (at 168.91 255.27 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8be06e80-c884-4e62-8fe5-a6f7f9155aa6) (property "Reference" "#PWR677" (at 168.91 255.27 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 168.91 260.35 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR677") (unit 1)))))
+(rectangle (start 254 165.1) (end 403.86 248.92000000000002) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid 8be07180-c884-437b-8fe6-26f7f9163426))
+(text "RESET / STATUS / POWER VALIDATION" (at 257.81 168.91 0) (effects (font (size 1.8 1.8)) (justify left top)) (uuid 8be07080-c884-41c8-8fe6-a6f7f9170da6))
+(symbol (lib_id "Probe:BUTTON") (at 279.4 195.58 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9806fc19-fa66-49d4-87b0-75f5446f44b2) (property "Reference" "SW3" (at 288.29 182.88 0) (effects (font (size 1.27 1.27)) ))(property "Value" "RESET / NO" (at 288.29 185.42000000000002 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92" (at 279.4 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.ckswitches.com/media/1471/pts645.pdf" (at 279.4 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "PTS645SL43SMTR92 LFS" (at 279.4 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "C&K" (at 279.4 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 279.4 195.58 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "SW3") (unit 1)))))
+(wire (pts (xy 271.78000000000003 191.77) (xy 265.43 191.77)) (stroke (width 0) (type default)) (uuid 8bc87f80-c870-4964-8362-26f5ceb0a823))
+(symbol (lib_id "Probe:PWR__4V8") (at 265.43 191.77 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bc88080-c870-4b17-8362-a6f5ceb181a3) (property "Reference" "#PWR681" (at 265.43 191.77 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 265.43 186.69 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR681") (unit 1)))))
+(wire (pts (xy 271.78000000000003 199.39000000000001) (xy 265.43 199.39000000000001)) (stroke (width 0) (type default)) (uuid 8bc88180-c870-4cca-8363-26f5ceb25b23))
+(global_label "RESET" (shape bidirectional) (at 265.43 199.39000000000001 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 8bc88280-c870-4e7d-8363-a6f5ceb334a3) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 265.43 199.39000000000001 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:R_Small_US") (at 317.5 195.58 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b0f19-fde8-40a3-8eb0-d8abce7b77ac) (property "Reference" "R95" (at 326.39 194.31 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 kR" (at 326.39 196.85 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 317.5 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 317.5 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD07100KL" (at 317.5 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 317.5 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 317.5 195.58 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R95") (unit 1)))))
+(wire (pts (xy 317.5 193.04) (xy 317.5 186.69)) (stroke (width 0) (type default)) (uuid 8bc87b80-c870-4298-8364-26f5ceb40e23))
+(global_label "RESET" (shape bidirectional) (at 317.5 186.69 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 8bc87c80-c870-444b-8364-a6f5ceb4e7a3) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 317.5 186.69 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 317.5 198.12) (xy 317.5 204.47)) (stroke (width 0) (type default)) (uuid 8bc87d80-c870-45fe-8365-26f5ceb5c123))
+(symbol (lib_id "Probe:PWR__4V8") (at 317.5 204.47 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bc87e80-c870-47b1-8365-a6f5ceb69aa3) (property "Reference" "#PWR687" (at 317.5 204.47 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 317.5 209.55 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR687") (unit 1)))))
+(symbol (lib_id "Probe:C") (at 351.79 195.58 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 0caa5619-ab3f-486c-8eb0-25ae4de9e965) (property "Reference" "C95" (at 360.68 194.31 0) (effects (font (size 1.27 1.27)) ))(property "Value" "100 nF / 50 V" (at 360.68 196.85 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 351.79 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://search.kemet.com/download/specsheet/C0805C104K5RACTU" (at 351.79 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "C0805C104K5RACTU" (at 351.79 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "KEMET" (at 351.79 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 351.79 195.58 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "C95") (unit 1)))))
+(wire (pts (xy 351.79 191.77) (xy 351.79 185.42000000000002)) (stroke (width 0) (type default)) (uuid 8bc87780-c870-4bcc-8366-26f5ceb77423))
+(symbol (lib_id "Probe:PWR__4V8") (at 351.79 185.42000000000002 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bc87880-c870-4d7f-8366-a6f5ceb84da3) (property "Reference" "#PWR689" (at 351.79 185.42000000000002 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+4V8" (at 351.79 180.34 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR689") (unit 1)))))
+(wire (pts (xy 351.79 199.39000000000001) (xy 351.79 205.74)) (stroke (width 0) (type default)) (uuid 8bcc0580-c873-42ed-8ce2-26f6877ae824))
+(global_label "RESET" (shape bidirectional) (at 351.79 205.74 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 8bcc0480-c873-413a-8ce2-a6f6877bc1a4) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 351.79 205.74 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:D") (at 386.08 195.58 90) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 08fe8807-b598-4651-8f34-c0ff3d6b664d) (property "Reference" "D8" (at 386.08 189.23 90) (effects (font (size 1.27 1.27)) ))(property "Value" "1N4148W,115" (at 386.08 191.77 90) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Diode_SMD:D_SOD-123" (at 386.08 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf" (at 386.08 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "1N4148W,115" (at 386.08 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Nexperia" (at 386.08 195.58 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 386.08 195.58 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "D8") (unit 1)))))
+(wire (pts (xy 386.08 199.39000000000001) (xy 386.08 205.74)) (stroke (width 0) (type default)) (uuid 8bcc0380-c873-4f87-8ce3-26f6877c9b24))
+(global_label "RESET" (shape bidirectional) (at 386.08 205.74 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 8bcc0280-c873-4dd4-8ce3-a6f6877d74a4) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 386.08 205.74 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 386.08 191.77) (xy 386.08 185.42000000000002)) (stroke (width 0) (type default)) (uuid 8bcc0180-c873-4c21-8ce4-26f6877e4e24))
+(wire (pts (xy 386.08 185.42000000000002) (xy 375.92 185.42000000000002)) (stroke (width 0) (type default)) (uuid 8bcc0080-c873-4a6e-8ce4-a6f6877f27a4))
+(symbol (lib_id "Probe:PWR__4V8") (at 375.92 185.42000000000002 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 8bcbff80-c873-48bb-8ce5-26f687800124) (property "Reference" "#PWR696" (at 375.92 185.42000000000002 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 375.92 190.5 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR696") (unit 1)))))
+(symbol (lib_id "Probe:R_Small_US") (at 278.13 222.25 90) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 9f0b1019-fde8-4256-8eb1-58abce7c512c) (property "Reference" "R96" (at 278.13 215.9 90) (effects (font (size 1.27 1.27)) ))(property "Value" "10 kR" (at 278.13 218.44 90) (effects (font (size 1.27 1.27)) ))(property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 278.13 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805" (at 278.13 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "RT0805BRD0710KL" (at 278.13 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Yageo" (at 278.13 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" " " (at 278.13 222.25 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "R96") (unit 1)))))
+(wire (pts (xy 275.59000000000003 222.25) (xy 269.24 222.25)) (stroke (width 0) (type default)) (uuid 8bcbfe80-c873-4708-8ce5-a6f68780daa4))
+(global_label "OV_LED" (shape bidirectional) (at 269.24 222.25 180) (effects (font (size 1.27 1.27)) (justify right)) (uuid 8bcbfd80-c873-4555-8ce6-26f68781b424) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 269.24 222.25 0) (effects (font (size 1.27 1.27)) hide)))
+(wire (pts (xy 280.67 222.25) (xy 287.02 222.25)) (stroke (width 0) (type default)) (uuid 8bcbfc80-c873-43a2-8ce6-a6f687828da4))
+(global_label "LED_A" (shape bidirectional) (at 287.02 222.25 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 94fa2a80-cdcc-4337-8f31-09fbbf503efb) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 287.02 222.25 0) (effects (font (size 1.27 1.27)) hide)))
+(symbol (lib_id "Probe:LED") (at 336.55 222.25 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid 08fe8707-b598-449e-8f35-40ff3d6c3fcd) (property "Reference" "D9" (at 336.55 215.9 0) (effects (font (size 1.27 1.27)) ))(property "Value" "RED / OVERLOAD" (at 336.55 218.44 0) (effects (font (size 1.27 1.27)) ))(property "Footprint" "LED_SMD:LED_0805_2012Metric" (at 336.55 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "Datasheet" "https://optoelectronics.liteon.com/upload/download/DS22-2000-073/LTST-C170KRKT.pdf" (at 336.55 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "MPN" "LTST-C170KRKT" (at 336.55 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "Manufacturer" "Lite-On" (at 336.55 222.25 0) (effects (font (size 1.27 1.27)) hide))(property "LCSC" "" (at 336.55 222.25 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "D9") (unit 1)))))
+(wire (pts (xy 332.74 222.25) (xy 326.39 222.25)) (stroke (width 0) (type default)) (uuid 94fa2980-cdcc-4184-8f30-89fbbf4f657b))
+(symbol (lib_id "Probe:PWR__4V8") (at 326.39 222.25 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 94fa2c80-cdcc-469d-8f30-09fbbf4e8bfb) (property "Reference" "#PWR702" (at 326.39 222.25 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-4V8" (at 326.39 227.33 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR702") (unit 1)))))
+(wire (pts (xy 340.36 222.25) (xy 346.71 222.25)) (stroke (width 0) (type default)) (uuid 94fa2b80-cdcc-44ea-8f2f-89fbbf4db27b))
+(global_label "LED_A" (shape bidirectional) (at 346.71 222.25 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid 94fa2680-cdcc-4c6b-8f2f-09fbbf4cd8fb) (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 346.71 222.25 0) (effects (font (size 1.27 1.27)) hide)))
+(text "Two 9 V alkaline batteries; center tap = GND.\nVerify rails, reset, then connect DUT.\nNo charging / USB connection during measurement." (at 260.35 233.68 0) (effects (font (size 1.27 1.27)) (justify left top)) (uuid 94fa2580-cdcc-4ab8-8f2e-89fbbf4bff7b))
+(symbol (lib_id "Probe:PWR_FLAG") (at 92.71000000000001 45.72 0) (unit 1) (in_bom no) (on_board no) (uuid 94fa2880-cdcc-4fd1-8f2e-09fbbf4b25fb) (property "Reference" "#FLG1" (at 92.71000000000001 45.72 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "PWR_FLAG" (at 92.71000000000001 41.910000000000004 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#FLG1") (unit 1)))))(wire (pts (xy 92.71000000000001 45.72) (xy 92.71000000000001 48.26)) (stroke (width 0) (type default)) (uuid 94fa2780-cdcc-4e1e-8f2d-89fbbf4a4c7b))
+(symbol (lib_id "Probe:PWR__BAT") (at 92.71000000000001 48.26 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 94fa2280-cdcc-459f-8f2d-09fbbf4972fb) (property "Reference" "#PWR708" (at 92.71000000000001 48.26 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "+BAT" (at 92.71000000000001 43.18 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR708") (unit 1)))))
+(symbol (lib_id "Probe:PWR_FLAG") (at 92.71000000000001 142.24 0) (unit 1) (in_bom no) (on_board no) (uuid 94fa2180-cdcc-43ec-8f2c-89fbbf48997b) (property "Reference" "#FLG2" (at 92.71000000000001 142.24 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "PWR_FLAG" (at 92.71000000000001 138.43 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#FLG2") (unit 1)))))(wire (pts (xy 92.71000000000001 142.24) (xy 92.71000000000001 144.78)) (stroke (width 0) (type default)) (uuid 94f6a480-cdc9-49ae-88b1-09fc781a7efc))
+(symbol (lib_id "Probe:PWR__BAT") (at 92.71000000000001 144.78 180) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 94f6a580-cdc9-4b61-88b0-89fc7819a57c) (property "Reference" "#PWR711" (at 92.71000000000001 144.78 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "-BAT" (at 92.71000000000001 149.86 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR711") (unit 1)))))
+(symbol (lib_id "Probe:PWR_FLAG") (at 45.72 88.9 0) (unit 1) (in_bom no) (on_board no) (uuid 94f6a280-cdc9-4648-88b0-09fc7818cbfc) (property "Reference" "#FLG3" (at 45.72 88.9 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "PWR_FLAG" (at 45.72 85.09 0) (effects (font (size 1.27 1.27)) hide)) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#FLG3") (unit 1)))))(wire (pts (xy 45.72 88.9) (xy 45.72 91.44)) (stroke (width 0) (type default)) (uuid 94f6a380-cdc9-47fb-88af-89fc7817f27c))
+(symbol (lib_id "Probe:PWR_GND") (at 45.72 91.44 0) (unit 1) (in_bom no) (on_board no) (dnp no) (uuid 94f6a880-cdc9-407a-88af-09fc781718fc) (property "Reference" "#PWR714" (at 45.72 91.44 0) (effects (font (size 1.27 1.27)) hide)) (property "Value" "GND" (at 45.72 96.52 0) (effects (font (size 1.27 1.27)) )) (instances (project "differential-probe" (path "/a354fd1f-f0c4-47c5-80d5-54a0987d010b/5c01f14f-ba52-4cee-88b9-93f7d8629945" (reference "#PWR714") (unit 1)))))
+ (embedded_fonts no))

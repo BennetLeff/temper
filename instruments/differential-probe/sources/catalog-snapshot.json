@@ -1,0 +1,492 @@
+{
+  "checked": "2026-10-20",
+  "note": "PCBParts cached JLC catalog, not a reservation or live stock check. Main HV parts are sourced separately.",
+  "records": [
+    {
+      "query": "TLV1704IPWR",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "TLV1704IPWR",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TLV1704IPWR",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "TLV1704IPWR"
+        }
+      }
+    },
+    {
+      "query": "TLV1702IDGKR",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "TLV1702IDGKR",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TLV1702IDGKR",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "TLV1702IDGKR"
+        }
+      }
+    },
+    {
+      "query": "CD4013BM96",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C13527",
+            "model": "CD4013BM96",
+            "manufacturer": "Texas Instruments",
+            "package": "SOIC-14",
+            "stock": 91810,
+            "price": 0.2504,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Logic",
+            "subcategory": "Flip Flops",
+            "subcategory_id": 2163,
+            "mounting_type": "smd",
+            "description": "-55℃~+125℃ 1 10ns 2 24MHz 2ns 3V~18V 4000B Series 4uA 5pF 6.8mA 6.8mA 90ns@15V,50pF Asynchronous Complementary D-Type Rising Edge Set and Reset SOIC-14 Flip Flops ROHS",
+            "specs": {
+              "Operating Temperature": "-55℃~+125℃",
+              "Clock Frequency": "24MHz",
+              "Propagation Delay": "90ns@15V,50pF",
+              "Synchronous/Asynchronous": "Asynchronous",
+              "Number of Bits per Element": "1",
+              "Output Type": "Complementary",
+              "Trigger Type": "Rising Edge",
+              "Current - Output High(IOH)": "6.8mA",
+              "Setup Time": "10ns",
+              "Series": "4000B Series",
+              "Function": "Set and Reset",
+              "Type": "D-Type",
+              "Voltage - Supply": "3V~18V",
+              "Quiescent Current": "4uA",
+              "Number of Elements": "2",
+              "Hold Time": "2ns",
+              "Input Capacitance": "5pF",
+              "Current - Output Low(IOL)": "6.8mA"
+            }
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "CD4013BM96",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "CD4013BM96",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "CD4013BM96"
+        }
+      }
+    },
+    {
+      "query": "TL431BIDBZR",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C41283",
+            "model": "TL431BIDBZR",
+            "manufacturer": "Texas Instruments",
+            "package": "SOT-23-3",
+            "stock": 168644,
+            "price": 0.071,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Power Management (PMIC)",
+            "subcategory": "Voltage Reference",
+            "subcategory_id": 3007,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃ 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel ±0.5% SOT-23-3 Voltage Reference ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Noise - 1/10Hz to 10Hz": "-",
+              "Voltage - Supply": "2.5V~36V",
+              "Output Type": "Adjustable",
+              "Output Current": "100mA",
+              "Tolerance": "±0.5%",
+              "Minimum Cathode Current for Regulation": "700uA",
+              "Quiescent Current": "-",
+              "Features": "-",
+              "Temperature Coefficient": "-",
+              "Output Voltage": "2.495V~36V",
+              "Reference Type": "Parallel",
+              "Noise - 10Hz to 10kHz": "-"
+            }
+          },
+          {
+            "lcsc": "C78609",
+            "model": "TL431BIDBZR,215",
+            "manufacturer": "Nexperia",
+            "package": "SOT-23",
+            "stock": 8233,
+            "price": 0.2318,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Power Management (PMIC)",
+            "subcategory": "Voltage Reference",
+            "subcategory_id": 3007,
+            "mounting_type": "smd",
+            "description": "-40℃~+85℃@(Ta) 100mA 2.495V~36V 2.495V~36V 400uA Adjustable Parallel ±0.5% SOT-23 Voltage Reference ROHS",
+            "specs": {
+              "Operating Temperature": "-40℃~+85℃",
+              "Noise - 1/10Hz to 10Hz": "-",
+              "Voltage - Supply": "2.495V~36V",
+              "Output Type": "Adjustable",
+              "Output Current": "100mA",
+              "Tolerance": "±0.5%",
+              "Minimum Cathode Current for Regulation": "400uA",
+              "Quiescent Current": "-",
+              "Features": "-",
+              "Temperature Coefficient": "-",
+              "Output Voltage": "2.495V~36V",
+              "Reference Type": "Parallel",
+              "Noise - 10Hz to 10kHz": "-"
+            }
+          }
+        ],
+        "total": 6,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "TL431BIDBZR",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 6
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "TL431BIDBZR",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "TL431BIDBZR"
+        }
+      }
+    },
+    {
+      "query": "BAV199,215",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C145516",
+            "model": "BAV199LT1G",
+            "manufacturer": "onsemi",
+            "package": "SOT-23",
+            "stock": 417962,
+            "price": 0.0308,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Diodes",
+            "subcategory": "Diodes - General Purpose",
+            "subcategory_id": 2946,
+            "mounting_type": "smd",
+            "description": "-65℃~+150℃ 1 Pair Series Connection 1.25V@150mA 215mA 2A 5uA@70V 70V SOT-23 Diodes - General Purpose ROHS",
+            "specs": {
+              "Voltage - Forward(Vf@If)": "1.25V@150mA",
+              "Non-Repetitive Peak Forward Surge Current": "2A",
+              "Voltage - DC Reverse(Vr)": "70V",
+              "Operating Junction Temperature Range": "-65℃~+150℃",
+              "Diode Configuration": "1 Pair Series Connection",
+              "Current - Rectified": "215mA",
+              "Reverse Leakage Current (Ir)": "5nA@70V"
+            }
+          },
+          {
+            "lcsc": "C40919",
+            "model": "BAV199,215",
+            "manufacturer": "Nexperia",
+            "package": "SOT-23",
+            "stock": 115576,
+            "price": 0.0378,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Diodes",
+            "subcategory": "Diodes - General Purpose",
+            "subcategory_id": 2946,
+            "mounting_type": "smd",
+            "description": "1 Pair Series Connection 1.25V@150mA 160mA 4A 5nA@75V 85V SOT-23 Diodes - General Purpose ROHS",
+            "specs": {
+              "Voltage - Forward(Vf@If)": "1.25V@150mA",
+              "Non-Repetitive Peak Forward Surge Current": "4A",
+              "Voltage - DC Reverse(Vr)": "85V",
+              "Operating Junction Temperature Range": "-",
+              "Diode Configuration": "1 Pair Series Connection",
+              "Current - Rectified": "160mA",
+              "Reverse Leakage Current (Ir)": "5nA@75V"
+            }
+          }
+        ],
+        "total": 39,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 2
+        },
+        "filters_applied": {
+          "query": "BAV199",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 39
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "BAV199,215",
+          "detected": {
+            "model_number": "BAV199"
+          },
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "BAV199"
+        }
+      }
+    },
+    {
+      "query": "C0805C100J5GACTU",
+      "result": {
+        "results": [
+          {
+            "lcsc": "C7471456",
+            "model": "C0805C100J5GACTU",
+            "manufacturer": "KEMET",
+            "package": "0805",
+            "stock": 634,
+            "price": 0.0255,
+            "price_10": null,
+            "library_type": "extended",
+            "preferred": false,
+            "category": "Capacitors",
+            "subcategory": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "subcategory_id": 2929,
+            "mounting_type": "smd",
+            "description": "0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+            "specs": {}
+          }
+        ],
+        "total": 1,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 1
+        },
+        "filters_applied": {
+          "query": "C0805C100J5GACTU",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 1
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "C0805C100J5GACTU",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "C0805C100J5GACTU"
+        }
+      }
+    },
+    {
+      "query": "RT0805BRD0796R5L",
+      "result": {
+        "results": [],
+        "total": 0,
+        "page_info": {
+          "limit": 2,
+          "offset": 0,
+          "returned": 0
+        },
+        "filters_applied": {
+          "query": "RT0805BRD0796R5L",
+          "subcategory_id": null,
+          "subcategory_name": null,
+          "subcategory_resolved": null,
+          "subcategory_ids": null,
+          "category_id": null,
+          "category_name": null,
+          "category_resolved": null,
+          "spec_filters": [],
+          "library_type": null,
+          "prefer_no_fee": true,
+          "min_stock": 10,
+          "package": null,
+          "packages": null,
+          "manufacturer": null,
+          "match_all_terms": true
+        },
+        "library_type_counts": {
+          "basic": 0,
+          "preferred": 0,
+          "extended": 0
+        },
+        "no_fee_available": false,
+        "parsed": {
+          "original_query": "RT0805BRD0796R5L",
+          "detected": {},
+          "subcategory": null,
+          "package": null,
+          "mounting_type": null,
+          "spec_filters": [],
+          "remaining_text": "RT0805BRD0796R5L"
+        }
+      }
+    }
+  ]
+}
