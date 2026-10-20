@@ -540,6 +540,7 @@ Tracking: SR3 in MAIN is untracked. A newer tracked copy is on `origin/main` (PR
 | CMP-25 | Wave-spring floating-part creepage | Production | OPEN | see SNS-17 | none (audit 5: placeholder, no evidence yet) | — | external | — | — |
 | CMP-26 | Touch-current limit class | Production | OPEN | none | OI/CERTIFIER-PACKET.md:26 {M} | Portable 0.5 mA or stationary 0.75 mA | external | CMP-01 | docs/REGULATORY_COMPLIANCE.md:126 says "< 0.75 mA (Class I)" |
 | CMP-27 | Surge test levels | Production | OPEN | see PWR-57 | none (audit 5: placeholder, no evidence yet) | — | external | — | — |
+| CMP-28 | UL 858 clause 60A cooking-oil ignition test (induction units), effective 2 Aug 2026 | Production | OPEN | none | ASKS-AND-HEDGES.md §1 (Intertek Standards Update Notice 2024-05-22); repo search finds no mention | Applies to units rated 350 W or more (not non-circular induction units); 15 min, cast iron pan at the coil centre; 60A.8.4 evaluates an integral closed-loop temperature limiter with that pan. Test text 60A.3 not read [VEN, secondary source] | external (certifier) | CMP-01 | Fry hold 230 °C and runaway trip ~308 °C vs oil ignition not analysed |
 
 ## 10. Supply chain and production
 
