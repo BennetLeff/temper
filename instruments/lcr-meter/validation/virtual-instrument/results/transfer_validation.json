@@ -1,0 +1,204 @@
+{
+ "stage100n": {
+  "frequency_hz": 50000.0,
+  "spice_order": 0,
+  "op_check": "true OP: xa.MID 2.499998751 xb.MID 2.499998751 acin -2.000e-7",
+  "spice_A_peak_v": 0.5036277349069902,
+  "spice_B_peak_v": 1.5821872350547934,
+  "model_vs_spice_A_rel": 3.580111347587308e-05,
+  "model_vs_spice_B_rel": 3.5994935415660154e-05,
+  "uncal_z_spice": [
+   -0.028479070801336083,
+   -31.830938645690438
+  ],
+  "uncal_z_model": [
+   -0.02847494139500322,
+   -31.830943382845067
+  ],
+  "true_z": [
+   0.0,
+   -31.830988618379074
+  ],
+  "transient": {
+   "case": "stage100n",
+   "hz": "50000",
+   "a_peak_v": "0.5036198158301356",
+   "b_peak_v": "1.5821675683313183",
+   "uncalibrated_fit_re_ohm": "-0.02847831072448679",
+   "uncalibrated_fit_im_ohm": "-31.830833794439208",
+   "a_residual_fraction": "0.00000002125775280404786",
+   "b_residual_fraction": "0.000000009893760541158653",
+   "adc_min_v": "1.1793137189553091",
+   "adc_max_v": "2.8906882003666485",
+   "tiaout_min_ma": "-18.02579302012389",
+   "tiaout_max_ma": "17.389536910355076",
+   "max_kcl_a": "0.0000000000010594825797932694"
+  },
+  "transient_A_peak_rel_diff": 1.5724315457266158e-05,
+  "transient_B_peak_rel_diff": 1.2430240556415839e-05,
+  "ac_vs_transient_uncal_z_abs_diff_ohm": 0.00010485400612889382,
+  "ac_vs_transient_uncal_z_rel_diff": 3.294100457469487e-06
+ },
+ "stage500n": {
+  "frequency_hz": 50000.0,
+  "spice_order": 0,
+  "op_check": "true OP: xa.MID 2.499998751 xb.MID 2.499998751 acin -2.000e-7",
+  "spice_A_peak_v": 0.10547447310045313,
+  "spice_B_peak_v": 1.6567920836698107,
+  "model_vs_spice_A_rel": 3.581396854908926e-05,
+  "model_vs_spice_B_rel": 3.6007713681240464e-05,
+  "uncal_z_spice": [
+   -0.005673966642270155,
+   -6.366152503740532
+  ],
+  "uncal_z_model": [
+   -0.005673138259738208,
+   -6.366153449165093
+  ],
+  "true_z": [
+   0.0,
+   -6.366197723675815
+  ],
+  "transient": {
+   "case": "stage500n",
+   "hz": "50000",
+   "a_peak_v": "0.10547270685475697",
+   "b_peak_v": "1.6567708607967035",
+   "uncalibrated_fit_re_ohm": "-0.0056641955886251654",
+   "uncalibrated_fit_im_ohm": "-6.366127454290924",
+   "a_residual_fraction": "0.0000042577808644708505",
+   "b_residual_fraction": "0.00000027663792238202144",
+   "adc_min_v": "1.1646774832871167",
+   "adc_max_v": "2.9056485433617976",
+   "tiaout_min_ma": "-18.827975160347926",
+   "tiaout_max_ma": "17.708098582514737",
+   "max_kcl_a": "0.0000000000010594825797932694"
+  },
+  "transient_A_peak_rel_diff": 1.6745997602818363e-05,
+  "transient_B_peak_rel_diff": 1.2809781732237013e-05,
+  "ac_vs_transient_uncal_z_abs_diff_ohm": 2.6887700069674484e-05,
+  "ac_vs_transient_uncal_z_rel_diff": 4.223554997931295e-06
+ },
+ "stage9u": {
+  "frequency_hz": 1000.0,
+  "spice_order": 0,
+  "op_check": "true OP: xa.MID 2.499998751 xb.MID 2.499998751 acin -2.000e-7",
+  "spice_A_peak_v": 0.31075992048791873,
+  "spice_B_peak_v": 1.7573031582841965,
+  "model_vs_spice_A_rel": 1.5285156382334504e-07,
+  "model_vs_spice_B_rel": 1.5380643556531073e-07,
+  "uncal_z_spice": [
+   -0.00028836031410208704,
+   -17.68391061998712
+  ],
+  "uncal_z_model": [
+   -0.0002883433536791184,
+   -17.68391061795997
+  ],
+  "true_z": [
+   0.0,
+   -17.683882565766147
+  ],
+  "transient": {
+   "case": "stage9u",
+   "hz": "1000",
+   "a_peak_v": "0.3107544937893266",
+   "b_peak_v": "1.7572783753002386",
+   "uncalibrated_fit_re_ohm": "-0.0005558872090059767",
+   "uncalibrated_fit_im_ohm": "-17.683851197980694",
+   "a_residual_fraction": "0.00006545642987706544",
+   "b_residual_fraction": "0.000005819932711629821",
+   "adc_min_v": "1.088290208569398",
+   "adc_max_v": "2.98401212159198",
+   "tiaout_min_ma": "-19.899205438296907",
+   "tiaout_max_ma": "19.362131322507157",
+   "max_kcl_a": "0.0000000000010594825797932694"
+  },
+  "transient_A_peak_rel_diff": 1.7462977046411865e-05,
+  "transient_B_peak_rel_diff": 1.4103049525981959e-05,
+  "ac_vs_transient_uncal_z_abs_diff_ohm": 0.0002740467375187452,
+  "ac_vs_transient_uncal_z_rel_diff": 1.5497005392956468e-05
+ },
+ "stagecoil": {
+  "frequency_hz": 50000.0,
+  "spice_order": 0,
+  "op_check": "true OP: xa.MID 2.499998751 xb.MID 2.499998751 acin -2.000e-7",
+  "spice_A_peak_v": 0.25645932907792734,
+  "spice_B_peak_v": 1.6318307473383336,
+  "model_vs_spice_A_rel": 3.5823075706326054e-05,
+  "model_vs_spice_B_rel": 3.601695850205627e-05,
+  "uncal_z_spice": [
+   0.514097615896898,
+   15.707561232658161
+  ],
+  "uncal_z_model": [
+   0.5140956575398498,
+   15.707563639184626
+  ],
+  "true_z": [
+   0.5,
+   15.707963267948966
+  ],
+  "transient": {
+   "case": "stagecoil",
+   "hz": "50000",
+   "a_peak_v": "0.25645688759566576",
+   "b_peak_v": "1.6318098444793352",
+   "uncalibrated_fit_re_ohm": "0.5140976736134868",
+   "uncalibrated_fit_im_ohm": "15.707612956708978",
+   "a_residual_fraction": "0.00000000026931876101680387",
+   "b_residual_fraction": "0.000000007699170461395396",
+   "adc_min_v": "1.197619974623071",
+   "adc_max_v": "2.850176103930277",
+   "tiaout_min_ma": "-18.614598180501666",
+   "tiaout_max_ma": "16.52899032139028",
+   "max_kcl_a": "0.0000000000010184429254794791"
+  },
+  "transient_A_peak_rel_diff": 9.520049488509486e-06,
+  "transient_B_peak_rel_diff": 1.2809616922737632e-05,
+  "ac_vs_transient_uncal_z_abs_diff_ohm": 5.1724083018348375e-05,
+  "ac_vs_transient_uncal_z_rel_diff": 3.2911685536184803e-06
+ },
+ "coil_nopan_40k": {
+  "frequency_hz": 40000.0,
+  "spice_order": 0,
+  "op_check": "true OP: xa.MID 2.499998751 xb.MID 2.499998751 acin -2.000e-7",
+  "spice_A_peak_v": 0.27926439439393735,
+  "spice_B_peak_v": 1.6754805659344838,
+  "model_vs_spice_A_rel": 2.7642844624710034e-05,
+  "model_vs_spice_B_rel": 2.778660078087955e-05,
+  "uncal_z_spice": [
+   0.20505155277098921,
+   16.666405108097198
+  ],
+  "uncal_z_model": [
+   0.2050497858774492,
+   16.66640676254065
+  ],
+  "true_z": [
+   0.193080851293996,
+   16.666496822911476
+  ]
+ },
+ "tank_offgrid": {
+  "frequency_hz": 34730.0,
+  "spice_order": 0,
+  "op_check": "true OP: xa.MID 2.499998751 xb.MID 2.499998751 acin -2.000e-7",
+  "spice_A_peak_v": 0.04034243463164997,
+  "spice_B_peak_v": 1.6809029939205833,
+  "model_vs_spice_A_rel": 2.4672827775785787e-06,
+  "model_vs_spice_B_rel": 2.480026309104803e-06,
+  "uncal_z_spice": [
+   2.4000254888331884,
+   -0.008248976892448617
+  ],
+  "uncal_z_model": [
+   2.400025507619705,
+   -0.008248952460786099
+  ],
+  "true_z": [
+   2.4,
+   -0.006787071833070257
+  ]
+ }
+}

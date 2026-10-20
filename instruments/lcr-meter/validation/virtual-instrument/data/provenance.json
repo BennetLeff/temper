@@ -1,0 +1,12 @@
+{
+ "python": "3.12.12",
+ "numpy": "2.4.6",
+ "ngspice": "** ngspice-45.2 : Circuit level simulation program",
+ "models": {
+  "opa2810_a.lib": "b451809e282c4ce4010fbcfe1faa5541b7d1fdbe066c95547d5effc225256754",
+  "opa810_a.lib": "5d50aba881078eb8ed3c47933df4a94d4a64d0cfb7ff67301ad6ef41efe982a2",
+  "ths4551.lib": "0a8c0db4398d7849ef46ba831bac4bc5f09352c9ead3a7be6a3a7e36d5a21527"
+ },
+ "host_commit": "ff1ffb45b9b2c43c2fa760b5fe062ac5a93cfa4c",
+ "host_binary_sha256": "3082a703de63e3e8e485b683542864be54f8b484a3df3b5f5db575710c4ecfd3"
+}
