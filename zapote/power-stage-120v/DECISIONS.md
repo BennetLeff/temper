@@ -272,7 +272,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
   - the sink is set back **8.0 mm** (world Y ≈ 244), with a **7.8 mm 6061/6082 aluminium spreader bar** whose lowest edge is ≥ 8.0 mm above the board top;
   - **2.00 mm AlN tiles** (≥ 150 W/mK, Kyocera AN216A class; lapped, flatness ≤ 0.03 mm; two tiles, Q5–Q6 and Q3–Q2–BR1) overhang the tab metal by 6.5 mm and count as reinforced by thickness. A 5 mm relief groove in the bar sits under the tile joint;
   - **non-conductive** metal-oxide-filled thermal compound on both faces (candidate DOWSIL TC-5622, held until a dielectric figure is confirmed);
-  - a 0.5 mm GAP PAD HC 3.0 behind BR1;
+  - a 0.5 mm GAP PAD HC 3.0 behind BR1 (superseded: 1.0 mm grade, items below);
   - a **stainless comb-spring clamp** screwed to the bar ≥ 14 mm above any tab metal, pressing 60–80 N per device through a 3 mm FR-4/G-10 strip. No screw goes through a TO-247 hole and no metal touches a package.
   - The enclosure moves the inlet hood, plenum, end cap and seals with the sink; its screen found no conflict.
 - **Thermal:** 0.40–0.63 °C/W per FET against D-36's 0.7 budget; the bar adds ≈ 0.016 °C/W. The new HOT→PE paths measure 8.0–10.4 mm.
@@ -298,7 +298,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 **Decision:**
 - **Tiles:** the two shared 2.0 mm AlN tiles (A: Q5+Q6; B: Q3+Q2+BR1), **cut from stock lapped 2.032 mm AlN plate** (Valley Design AlN-110, or Almath SUB1141142ALN 114 × 114 × 2 mm; 3 B + 2 A tiles per plate, 4 plates for 7 stacks). The 2-tile split is kept, because a 3-tile split's groove would take 1.1 mm of contact under Q2's tab.
 - **Compound:** Electrolube HTCP20S (2.5 W/mK, 42 kV/mm, 10¹⁴ Ω·cm, metal-oxide filler) replaces the TC-5622 candidate, which publishes no dielectric data.
-- **Gap pad:** GAP PAD HC 3.0 sheet GPHC3.0-0.020-02-0816, cut 32 × 22 mm.
+- **Gap pad:** GAP PAD HC 3.0 sheet GPHC3.0-0.020-02-0816, cut 32 × 22 mm (0.020" grade superseded: BR1 uses the 1.0 mm / 0.040" grade, do not order this part number).
 - **Clamp and strip:** a custom 1.4310 comb spring to the §5.2 spec, and G-10 strips (CTI/RTI to be confirmed by UL card).
 - **Estimate:** ≈ $350 per stack, ≈ $2.5k for 7.
 - **Longest lead:** the AlN tiles (RFQ, cut and lap, 3–6 weeks); the RFQ text is ready (§1.2). The tiles gate powered tests on the real sink, not the PCB order.

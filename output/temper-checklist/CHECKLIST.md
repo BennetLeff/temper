@@ -104,7 +104,7 @@ By phase: Prototype 84, Production 81, Both 213, one superseded.
 
 | ID | Item | Phase | Status | Decision made | Evidence | Justification / why | Owner | Blocked by | Notes and risks |
 |---|---|---|---|---|---|---|---|---|---|
-| PWR-01 | Board of record | Both | DONE (candidate, not released) | [DEC] item 75: s53, SHA-256 82af7bd9…, copper key b7a0bc5790b9; 290 × 190 mm L outline, 4 layers | PS/DECISIONS.md:2972 {T}; NAT/fab/FAB-NOTE.md:3-24 {T} | — | — | — | PS/OPEN-ITEMS.md:3 still says s51; PS/README.md:3 says 240 × 160 (**contradictions**) |
+| PWR-01 | Board of record | Both | OPEN (audit 3: candidate selected, not released) | [DEC] item 75: s53, SHA-256 82af7bd9…, copper key b7a0bc5790b9; 290 × 190 mm L outline, 4 layers | PS/DECISIONS.md:2972 {T}; NAT/fab/FAB-NOTE.md:3-24 {T} | — | — | — | PS/OPEN-ITEMS.md:3 still says s51; PS/README.md:3 says 240 × 160 (**contradictions**) |
 | PWR-02 | Reproducibility of the routed board | Both | IN PROGRESS | [DEC] the .kicad_pcb/STEP live outside git and are regenerated from copper.json by chain.sh | NAT/review-packet-s53/README.md §2-3 {U}; PS/native-21/section.kicad_pcb {U} | A board of record should be re-creatable byte for byte | Claude+owner (commit) | — | Thermal results move 0.1 K between builds of the same copper (PS/DECISIONS.md:2998) |
 | PWR-03 | Stackup | Both | DONE | [DEC] JLC041622-7628, 1.6 mm, 2 oz outer and inner (61 µm finished inner), 0.5 mm core [VEN JLC stackup API] | PS/FAB-JLCPCB.md:12-14 {T}; PS/native-21/stackup.json {T} | — | — | — | PS/stackup.json:20,33 (old) says Nan Ya NP-155F (**stale file**) |
 | PWR-04 | Finish, vias, DFM | Both | DONE | [DEC] ENIG; 0.3 mm vias epoxy-filled and capped; JLC DFM PASS | NAT/fab/FAB-NOTE.md {T} | — | — | — | Via counts in FAB-NOTE (765/750/859/876) are stale against the s53 census (777 vias, 99 plated pads) |
@@ -228,7 +228,7 @@ By phase: Prototype 84, Production 81, Both 213, one superseded.
 | PWR-77 | Bench DC landing point | Prototype | OPEN | none | PS/ASSEMBLY.md:66 {T} (BR1.1/BR1.4); CAND/bench-sink-r1/README.md Q9 {T} (C6.1/C6.3); NAT/BRING-UP.md {T} ("B19 leads") | Must be one answer before first power | Claude | — | **Contradiction** (3 versions) |
 | PWR-78 | Bench equipment (order gate 10) | Prototype | OWNER-ONLY | none | NAT/PROTOTYPE-LOT.md:161 {T} | — | owner | — | No LISN or spectrum analyser is on the list (TST-13) |
 | PWR-79 | Power order gates | Prototype | BLOCKED | [PLAN] gates 3 (laminate), 4 (Global Sourcing, consigned FETs, pre-orders), 4a (preheater), 5 (inlet module or EMI deviation), 6 (31 CPL rows), 7 (bank re-read), 10 (equipment), 11 (owner spend approval) | NAT/PROTOTYPE-LOT.md:133-163 {T} | — | owner | PWR-06, PWR-72, PWR-13 | Gate 8 (J13 merge) text says "not done on any controller branch", but DECISIONS 79 says it landed (**contradiction**, CTL-30) |
-| PWR-80 | Independent design review | Both | DONE (desk) | [DEC] item 79 | NAT/INDEPENDENT-REVIEW-2026-10-18.md {T}; PS/DECISIONS.md:3052 {T} | No BLOCKER on PERMIT, gate drive or barrier; 2 MAJOR and 4 MINOR handled | — | — | AI review, not a licensed reviewer |
+| PWR-80 | Independent design review | Both | IN PROGRESS (audit 3: desk review, 2 MAJOR findings open) | [DEC] item 79 | NAT/INDEPENDENT-REVIEW-2026-10-18.md {T}; PS/DECISIONS.md:3052 {T} | No BLOCKER on PERMIT, gate drive or barrier; 2 MAJOR and 4 MINOR handled | — | — | AI review, not a licensed reviewer |
 | PWR-81 | External PCB-designer review packet | Both | OWNER-ONLY | none | NAT/review-packet-s53/README.md {U} | A human professional review before production | owner | — | Untracked; c54 lanes were still running when it was written |
 | PWR-82 | Place the JLC PCBA order (10–20 boards) | Prototype | OWNER-ONLY (prepared, not ordered) | [DEC] owner 2026-10-16: lot of 10–20 | NAT/PROTOTYPE-LOT.md:1, 13-24 {T}; OI/order/ORDER-PACKAGE.md {T} | — | owner | PWR-79 | — |
 | PWR-83 | Stale power-stage README and side docs | Both | OPEN | — | PS/README.md:3, 9, 80-135 {T}; PS/FAULT-INTERFACE.md:3; PS/DC-LINK-CLAMP.md; PS/PROTOTYPE-POWER-LOOP.md; PS/ASSEMBLY.md:12-28, 81-83 | They describe UCC21550, ISO7710, PS1, MDA-25-R, CT 1:100, 39 kΩ, 0.54 µF, 240 × 160 mm and THR 74650074 | Claude | — | An auditor or vendor reading the README gets the wrong board |
@@ -244,7 +244,7 @@ By phase: Prototype 84, Production 81, Both 213, one superseded.
 | CTL-05 | JLC order | Prototype | OWNER-ONLY (prepared, not ordered) | [DEC] ordering is the owner's | CJ/ORDER.md:28 {CJ}; CJ/evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md:3 {CJ} | Draft project "controller-gerbers" holds the uploaded Gerbers, BOM and CPL; not in the cart, not paid | owner | CTL-09, CTL-10, CTL-12 | — |
 | CTL-06 | PCBA service level | Prototype | DONE | [DEC] Standard PCBA, not Economic | PREVIEW-2026-10-19.md:5-6 {CJ}; CJ/ORDER.md:5, 63 {CJ} [VEN viewer] | 83 extended part types (Economic allows 80); U4 ESP32-S3 is "Standard only" | — | — | — |
 | CTL-07 | Upload integrity | Prototype | DONE | [CODE] sha256 match: BOM 259acf19…, CPL 2327ec70…, zip 53f5addd… | CJ/ORDER.md:24-25, 41-44 {CJ} | — | — | — | BOM 89 lines; CPL 288 placements (279 SMD, 9 THT), all top side |
-| CTL-08 | CPL rotation, ICs | Prototype | DONE (vendor viewer) | [DEC] geometry offsets applied (29 rotations); pin 1 confirmed on 16 parts; polarity on C9, D7, D9, U7 | PREVIEW-2026-10-19.md:14-31 {CJ}; CJ/DECISIONS.md:727-728 {CJ} | As first uploaded, U11/U12/U16/Q1 were 180° wrong and U3 90° | — | — | CJ/fab/fab-notes.md:14-15 and LAYOUT.md:255 still say KiCad rotations are used as-is (**stale**) |
+| CTL-08 | CPL rotation, ICs | Prototype | IN PROGRESS (audit 3: pin 1 checked on 16 parts; J1/J2/J3/J4/J7, D1-D6, C1 unchecked) | [DEC] geometry offsets applied (29 rotations); pin 1 confirmed on 16 parts; polarity on C9, D7, D9, U7 | PREVIEW-2026-10-19.md:14-31 {CJ}; CJ/DECISIONS.md:727-728 {CJ} | As first uploaded, U11/U12/U16/Q1 were 180° wrong and U3 90° | — | — | CJ/fab/fab-notes.md:14-15 and LAYOUT.md:255 still say KiCad rotations are used as-is (**stale**) |
 | CTL-09 | CPL check of the THT connectors J1, J2, J3, J4, J7 | Prototype | OWNER-ONLY | none | PREVIEW-2026-10-19.md:23-26, 34 {CJ} | Body and keying against the silk; the viewer shows no pin-1 mark | owner (JLC viewer) | — | **Not done.** J4 was not re-checked after the revert (the browser extension disconnected) |
 | CTL-10 | CPL check of D1–D6 (ESD5Z3.3, C61148) and C1 | Prototype | OWNER-ONLY | none | PREVIEW-2026-10-19.md:34 {CJ}; CJ/fab/cpl-jlcpcb.csv {CJ} | Argued from D7/C9 [ASM], but D7 is a different LCSC code (C82044), and D1–D6 sit at mixed rotations (D1/D6 270°, D2–D5 90°) | owner (JLC viewer) | — | **Not done** |
 | CTL-11 | Order-day checks | Prototype | OWNER-ONLY | [DEC] U4 must appear as an SMT placement; reject any JLC "similar part" substitution (especially R39 and the 0.1 % thin-film parts) | CJ/ORDER.md:116-117 {CJ} | — | owner | — | — |
@@ -368,7 +368,7 @@ Tracking: SR3 in MAIN is untracked. A newer tracked copy is on `origin/main` (PR
 |---|---|---|---|---|---|---|---|---|---|
 | UI-01 | Display part | Both | IN PROGRESS | [DEC] Newhaven NHD-3.12-25664UCW2 OLED, 256 × 64, SSD1322, 4-wire SPI | UIB/README.md:4 {CJ}; CJ/DECISIONS.md:22-24 (C3) {CJ}; R43/BOM.csv:109 {U\*} | **Selection rationale is thin:** "Retain … for the display mockup" (PSI/docs/research/mit-product-design/readiness/manufacturing/material-selection.md:26 {T}); C3 explains only the SPI choice. **No comparison on lifetime/burn-in, readability, temperature, cost or second source was found** | owner (Claude can write the trade study) | — | Single-source module |
 | UI-02 | OLED temperature | Both | OPEN | none | FF4 = PSI/output/temper-flush-front-r4/front-panel-engineering-plan.md:57-59 {T}; OC/SPEC.md:58 {U\*}; OC/DELEGATION.md:89 {U\*} [DS+SIM] | Rated −40…85 °C; module target 65 °C "proposed, not achieved"; fascia OLED zone 44–69 °C expected, **116–176 °C with a pan pushed to the front edge** | bench | — | A pan at the front edge can overheat the display |
-| UI-03 | OLED lifetime / burn-in | Production | OPEN | none: **not found** | — | Static UI on an OLED | Claude | — | Gap |
+| UI-03 | OLED lifetime / burn-in | Production | OPEN | none: **not found** | none (audit 5: placeholder, no evidence yet) | Static UI on an OLED | Claude | — | Gap |
 | UI-04 | OLED socket height | Prototype | OPEN | none | OC/DELEGATION.md:73 {U\*}; UIB/bom/ui-parts.csv (J3 PM254V-11-20-H85, C46595982) {CJ}; UIB/DECISIONS.md U30 (E2) {CJ} | The only LCSC 1 × 20 socket is 8.5 mm tall against a modelled 3.0 mm gap | owner | ENC-03 | "The main open mechanical item" |
 | UI-05 | OLED supply and 3V3 budget | Both | IN PROGRESS (desk pass; bench missing) | [DEC] U3/U29: the module makes its own 12 V from 3V3 | UIB/DECISIONS.md U3, U29 {CJ} [SIM] | 385.3 mA total at maxima; 74.7 mA of headroom on the non-OLED allocation | bench | — | OLED margins 0.40 V low / 0.13 V high |
 | UI-06 | SSD1322 init sequence | Prototype | OPEN | — | FW/build-evidence/esp-idf/PLATFORM.md:215-217 {T} | Needs a bench check | bench | — | — |
@@ -431,7 +431,7 @@ Tracking: SR3 in MAIN is untracked. A newer tracked copy is on `origin/main` (PR
 | ENC-32 | PS3 part in the enclosure | Both | OPEN | — | R43/BOM.csv:206 {U\*} (IRM-60-15ST) vs PS/DECISIONS.md:1504 {T} (MPM-65-15ST) | — | Claude | — | **Contradiction** (CTL-29) |
 | ENC-33 | Enclosure quote package | Both | OWNER-ONLY (prepared, not sent) | — | R43/design/r43/DECISIONS.md:85 {U\*} | — | owner | — | The R14, R22 and R33 packages were never sent either |
 | ENC-34 | Enclosure cost BOM | Production | OPEN | none | R43/design/r43/HANDOFF.md:102 {U\*} | Lives only in a claude.ai artifact (T3BemZGn4BHjMzvSk4wyau), "estimates until quotes arrive" | Claude | — | No repo file |
-| ENC-35 | R4 flush front | — | DONE (superseded concept) | [DEC] `PROTOTYPE_NOMINAL_FIT_ONLY` | PSI/output/temper-flush-front-r4/CURRENT.json:3 {T} | — | — | — | — |
+| ENC-35 | R4 flush front | — | SUPERSEDED (audit 3: not an achievement) | [DEC] `PROTOTYPE_NOMINAL_FIT_ONLY` | PSI/output/temper-flush-front-r4/CURRENT.json:3 {T} | — | — | — | — |
 | ENC-36 | Minor BOM inconsistencies | Both | OPEN | — | R43/BOM.csv:122 (79 coil jets) vs design/r34/DECISIONS.md:49 (87); BOM.csv:132 (custom A-286 wave spring) vs r39/DECISIONS.md:23 (standard Smalley Inconel X-750) | — | Claude | — | — |
 | ENC-37 | Enclosure thermal soak | Both | OPEN | [PLAN] | PS/OPEN-ITEMS.md:63 (B10 list) {T} | — | bench | — | — |
 
@@ -464,9 +464,9 @@ Tracking: SR3 in MAIN is untracked. A newer tracked copy is on `origin/main` (PR
 | FW-23 | RTD calibration (offset / Callendar–Van Dusen trim) | Both | OPEN | none: **not found** | no row in COMMISSIONING.md:457-490 | — | Claude | — | Gap |
 | FW-24 | Coil calibration and tank sweep | Prototype | OPEN | [PLAN] measure the coil's L, Q and DCR before use; re-run the tank sweep on it | NAT/PROTOTYPE-LOT.md:161-162 {T}; PS/DECISIONS.md:3056+ {T} | — | bench | COIL-26 | — |
 | FW-25 | Hardware binding off by default | Both | DONE | [CODE] CONFIG_TEMPER_POWER_HW_BINDING=n; mode INHIBITED; PERMIT never asserted | COMMISSIONING.md:116-117; Kconfig:3-9 {T} | Safe default | — | — | — |
-| FW-26 | ESP-IDF target build | Both | DONE (committed log) | [CODE] strict v5.3.6 build passes (f0cbab2f0) | FW/build-evidence/esp-idf/README.md:17-47; bin-size.txt {T} | Built outside the repo | Claude | — | Bin size 412,960 (bin-size.txt) vs 410,000 (README). Kconfig:7-8 says "never compiled" (**contradiction**) |
+| FW-26 | ESP-IDF target build | Both | IN PROGRESS (audit 3: build log predates the J13 ESP-IDF edits; no CI job builds them) | [CODE] strict v5.3.6 build passes (f0cbab2f0) | FW/build-evidence/esp-idf/README.md:17-47; bin-size.txt {T} | Built outside the repo | Claude | — | Bin size 412,960 (bin-size.txt) vs 410,000 (README). Kconfig:7-8 says "never compiled" (**contradiction**) |
 | FW-27 | Open build warnings | Both | OPEN | — | FW/build-evidence/esp-idf/README.md:60-71 {T} | pll_control capture callbacks unwired; `estimation_complete` unused at state_handlers.c:282 ("possible logic gap"); deprecated ADC_ATTEN_DB_11 | Claude | — | — |
-| FW-28 | Host tests | Both | DONE (committed evidence, not re-run) | [CODE] 29/29 ctest targets (2026-10-12): state_machine_tests 75, sil_fault_tests 23, max31865 20, platform_logic 17 | FW/build-evidence/esp-idf/ctest-summary.txt {T}; FW/test/CMakeLists.txt (31 targets) | — | — | — | FW/README.md:254-255 says "37 unit / 30 integration" (**stale**) |
+| FW-28 | Host tests | Both | IN PROGRESS (audit 3: committed 2026-10-12 results, not re-run, predate J13 edits) | [CODE] 29/29 ctest targets (2026-10-12): state_machine_tests 75, sil_fault_tests 23, max31865 20, platform_logic 17 | FW/build-evidence/esp-idf/ctest-summary.txt {T}; FW/test/CMakeLists.txt (31 targets) | — | — | — | FW/README.md:254-255 says "37 unit / 30 integration" (**stale**) |
 | FW-29 | CI test coverage | Both | OPEN | — | .github/workflows/firmware-tests.yml:147, 192, 220 {T} | CI runs only controller_pins / thermal_mgmt / ntc_guard / coil_guard, state_machine / fault_list, and sil_fault_tests. **Not run:** n21_binding, tank_freq, blower_aux, platform_logic, max31865, safety, pan_detection, integration, pid, pll, rms | Claude | — | — |
 | FW-30 | ESP-IDF build in CI | Both | OPEN | — | .github/workflows/release-artifacts.yml:3-18 {T} (runs only on a published release) | PS/DECISIONS.md:3051 says "the CI IDF build is the proof" | Claude | — | **Contradiction** |
 | FW-31 | Code coverage figure | Production | OPEN | none: not found | FW/README.md:116 {T} (only FMEA chain rows: 36.9 %, 13.8 % as built) | — | Claude | — | — |
@@ -498,11 +498,11 @@ Tracking: SR3 in MAIN is untracked. A newer tracked copy is on `origin/main` (PR
 | TST-14 | Hipot / dielectric | Both | OPEN | [PLAN] type 3000 Vac 60 s; routine 2000 Vac 1 s; PD not assessed | PS/DECISIONS.md:280 {T}; NAT/fab/FAB-NOTE.md:34 {T} | Gates mains-connected operation | bench/external | — | — |
 | TST-15 | Touch current | Both | OPEN | [PLAN] at first article | NAT/PROTOTYPE-LOT.md:194 {T} | Limit class 0.5 vs 0.75 mA open (CMP-26) | bench | — | — |
 | TST-16 | Earth continuity | Both | OPEN | [PLAN] E1 ≤ 0.1 Ω at 25 A for 120 s; EM8 ≤ 2.5 mΩ per bond | R43/design/r32/BENCH-PLAN.md:42-43, 94 {U\*} | — | bench | — | — |
-| TST-17 | Burn-in | Production | OPEN | none: **not found** | — | — | Claude (plan) | — | — |
+| TST-17 | Burn-in | Production | OPEN | none: **not found** | none (audit 5: placeholder, no evidence yet) | — | Claude (plan) | — | — |
 | TST-18 | End-of-line test content | Production | OPEN | [PLAN] only B8 (force MON_GOOD_HA then MON_GOOD_HB low; BIAS_GOOD must drop) plus EOL pads | PS/OPEN-ITEMS.md:65 (B8) {T}; OI/CERTIFIER-PACKET.md:58 (#27) {M} | — | Claude+external | — | Certifier acceptance asked |
 | TST-19 | End-of-line fixture | Production | OPEN | none: **not found** | zapote/fixtures holds only validator JSON | Bed of nails, functional coil/sensor test, hipot station | Claude (spec) | — | — |
-| TST-20 | Coil M1–M7 | Prototype | OPEN | see COIL-26 | — | — | bench | — | — |
-| TST-21 | Sensor bench (τ63 survey; T1–T3; PCB items; T5 durability) | Prototype | OPEN | see SNS-19/22/23 | — | — | bench | — | — |
+| TST-20 | Coil M1–M7 | Prototype | OPEN | see COIL-26 | none (audit 5: placeholder, no evidence yet) | — | bench | — | — |
+| TST-21 | Sensor bench (τ63 survey; T1–T3; PCB items; T5 durability) | Prototype | OPEN | see SNS-19/22/23 | none (audit 5: placeholder, no evidence yet) | — | bench | — | — |
 | TST-22 | Enclosure bench plan | Both | OPEN | [PLAN] G1 drop, G2 adhesion, A5 noise, E3, M11 feet drop, span sag | R43/design/r32/BENCH-PLAN.md {U\*} | — | bench | — | — |
 | TST-23 | UI bench | Both | OPEN | [PLAN] MISO eye; stray-field jitter; tact force; buzzer SPL; tab temperature | UIB/DECISIONS.md U32.3 {CJ} | — | bench | — | — |
 | TST-24 | Firmware hardware-in-the-loop | Both | OPEN | none | COMMISSIONING.md (commissioning record) {T} | — | Claude+bench | — | — |
@@ -537,9 +537,9 @@ Tracking: SR3 in MAIN is untracked. A newer tracked copy is on `origin/main` (PR
 | CMP-22 | User manual and safety instructions | Production | OPEN | none | PSI/docs/REGULATORY_COMPLIANCE.md:86-104 {T} (requirements list only) | — | Claude (draft) | CMP-01 | Must cover the aluminium-pan restriction (COIL-31) and the hot-surface warning |
 | CMP-23 | Patent review | Production | OWNER-ONLY | [DEC] engineer's claim chart, "not legal advice and not a freedom-to-operate opinion"; C1 chosen | SR3/PATENTS.md:3-7, 18, 26-48, 158-172 {OM} | Breville US11378463B2 (active to 2038-11-14) vs C0; Impulse US12712433B1 is mined in MAIN/output/temper-coil-driver-r1 {U\*} | external (counsel) | — | Counsel actions 1–5 not engaged. **Not legal advice** |
 | CMP-24 | Patent-driven design rules | Both | DONE | [DEC] "at most one under-cap sensor feeds hardware"; "Never add plunger position sensors" | SR3/PATENTS.md:75, 84-85 {OM} | — | — | — | — |
-| CMP-25 | Wave-spring floating-part creepage | Production | OPEN | see SNS-17 | — | — | external | — | — |
+| CMP-25 | Wave-spring floating-part creepage | Production | OPEN | see SNS-17 | none (audit 5: placeholder, no evidence yet) | — | external | — | — |
 | CMP-26 | Touch-current limit class | Production | OPEN | none | OI/CERTIFIER-PACKET.md:26 {M} | Portable 0.5 mA or stationary 0.75 mA | external | CMP-01 | docs/REGULATORY_COMPLIANCE.md:126 says "< 0.75 mA (Class I)" |
-| CMP-27 | Surge test levels | Production | OPEN | see PWR-57 | — | — | external | — | — |
+| CMP-27 | Surge test levels | Production | OPEN | see PWR-57 | none (audit 5: placeholder, no evidence yet) | — | external | — | — |
 
 ## 10. Supply chain and production
 
@@ -624,6 +624,16 @@ The ordered list of what unblocks what. Items in parallel share a number.
 9. **Enclosure fit** (only needed for an enclosed prototype).
    - The owner declares R43 final → R44 controls (UI-20) → glass RFQ (ENC-06) → UI board layout (UI-16).
 
+**(a2) Added by audit pass 5 (2026-10-20)**
+- Decide the inlet EMI module (ENC-31, PWR-72): it gates the power order (PWR-79).
+- Settle the coil lug (COIL-23, PWR-70) before winding is finished; the leads are terminated last and the part is blocked on supply.
+- Choose which firmware line wins (DOC-02) before any firmware row is worked.
+- Resolve the J4 mating side (CTL-20, contradiction C19) before the enclosure cutout.
+- Add an ESP-IDF build to PR CI, or run and record one (FW-30, contradiction C15).
+- Decide what the RCA 12A3 coil is for (COIL-33), and what first heating uses as a sensor (not stated in the repo).
+- Display and fascia temperature (UI-02, UI-21) for any enclosed first-power run.
+- Ask the certifier (CMP-05) before the prototype order; its answers can force a re-layout.
+
 **(b) Production run** (after (a))
 
 10. **Certifier engagement** (CMP-05). The answers fix the architecture:
@@ -691,6 +701,8 @@ The ordered list of what unblocks what. Items in parallel share a number.
 25. What is the unit cost, and what does the prototype campaign cost in total? (SUP-12, SUP-13)
 
 ## Contradiction register (claims that disagree; both sides cited)
+
+> **Audit status (2026-10-20):** 30 of 35 entries have been looked at (C1, C11, C30, C34 and C35 are not settled). Verdicts are in `AUDIT-1`, `AUDIT-2`, `AUDIT-4` and `AUDIT-6-CONTRADICTIONS.md`. Stale documentation (C3, C6, C7, C9, C12, C13, C16, C21, C23, C24, C26, C27, C28, C29, C31, C33) has been corrected in the power-stage worktree except for the frozen R43 files and the untracked sensor-r3 files. Real engineering gaps: C2, C4/C5, C15.
 
 | # | Topic | Claim A | Claim B |
 |---|---|---|---|
