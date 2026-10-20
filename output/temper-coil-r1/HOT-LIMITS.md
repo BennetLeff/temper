@@ -36,7 +36,7 @@ with 230 °C glass 113–131 °C; 28 A at the 0.23 Ω target 137–168 °C. Hot 
 - A CAD preview with the assumed dimensions marked is in `cad/lug_mock.py` (`cad/out/lug_50840_mock.step`, `renders/lug_50840_mock*.png`).
 - **RS PRO DRNB** uninsulated M4 ring, brazed seam, 150 °C ([RS](https://uk.rs-online.com/web/p/products/8092228)), but its wire range is 0.5–1.5 mm², too small for this Litz.
 - **Bare lug plus heat-shrink:** every dual-wall adhesive-lined polyolefin tubing found is rated 110–135 °C continuous, so none covers 150 °C. A fluoropolymer or silicone sleeve was not found in this search.
-- **Stud size is unresolved in the repo:** the R43 BOM says "M4 ... (power-stage M6 as amended)" for the J2/J5 coil lugs. Confirm the stud before choosing a lug.
+- **Stud size is M4, not unresolved (corrected 2026-10-19):** the "M6" in the R43 BOM is review item M6 (coil-stud spacing, `zapote/power-stage-120v/DECISIONS.md` line 242), not a thread. The J2/J5 terminal is Würth 7466004R, M4. Still open: DECISIONS line 245 requires insulated M4 lugs, while this study specifies non-insulated ones.
 
 ## Reading
 - Sustained heating uses route A: G11 former, class-155 stock Litz (class 200 for the qualification coil), silicone bonding. The 130 °C winding limit stands.
