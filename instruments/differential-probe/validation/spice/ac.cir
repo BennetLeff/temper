@@ -1,12 +1,14 @@
-Rev B OPA810 vendor macromodel AC comparison
+Rev C vendor macromodel AC comparison: divider, OPA2810 buffers, both ranges
 .include sources/opa810_a.lib
+.include sources/opa2810_a.lib
 .include validation/spice/probe_lv.inc
 VP VP 0 4.8
 VN VN 0 -4.8068
-VBP BP 0 DC 0 AC .5
-VBN BN 0 DC 0 AC .5 180
-XW BP BN OUT_W RAW_W FINE_W SEL_W VP VN PROBE_LV FINE_RANGE=0 BRANCH=1
-XF BP BN OUT_F RAW_F FINE_F SEL_F VP VN PROBE_LV FINE_RANGE=1 BRANCH=1
+* 1 V differential at the tips (+/-0.5 V); outputs are ~1/1000 and ~1/200.
+VTP TP 0 DC 0 AC .5
+VTN TN 0 DC 0 AC .5 180
+XW TP TN OUT_W RAW_W FINE_W SEL_W VP VN PROBE_LV FINE_RANGE=0 BRANCH=1
+XF TP TN OUT_F RAW_F FINE_F SEL_F VP VN PROBE_LV FINE_RANGE=1 BRANCH=1
 .control
 set wr_singlescale
 set wr_vecnames

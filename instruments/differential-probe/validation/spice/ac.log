@@ -4,7 +4,7 @@ Note: Dynamic gmin stepping completed
 Note: Compatibility modes selected: ps
 
 
-Circuit: rev b opa810 vendor macromodel ac comparison
+Circuit: rev c vendor macromodel ac comparison: divider, opa2810 buffers, both ranges
 
 Reducing trtol to 1 for xspice 'A' devices
 Doing analysis at TEMP = 27.000000 and TNOM = 27.000000

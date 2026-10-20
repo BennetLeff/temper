@@ -1,13 +1,14 @@
-Rev B wide path with saturating fine branch versus disconnected fine input
+Rev C wide path with saturating fine branch versus disconnected fine input
 .include sources/opa810_a.lib
+.include sources/opa2810_a.lib
 .include validation/spice/probe_lv.inc
 VP VP 0 4.8
 VN VN 0 -4.8068
-* 0.75V differential at buffered inputs represents 1500V differential probe input.
-VBP BP 0 SIN(0 .375 60k)
-VBN BN 0 SIN(0 .375 60k 0 0 180)
-XON BP BN OUT_ON RAW_ON FINE_ON SEL_ON VP VN PROBE_LV FINE_RANGE=0 BRANCH=1
-XOFF BP BN OUT_OFF RAW_OFF FINE_OFF SEL_OFF VP VN PROBE_LV FINE_RANGE=0 BRANCH=0
+* 1500 Vpk differential at 60 kHz: tips +/-750 Vpk in antiphase.
+VTP TP 0 SIN(0 750 60k)
+VTN TN 0 SIN(0 750 60k 0 0 180)
+XON TP TN OUT_ON RAW_ON FINE_ON SEL_ON VP VN PROBE_LV FINE_RANGE=0 BRANCH=1
+XOFF TP TN OUT_OFF RAW_OFF FINE_OFF SEL_OFF VP VN PROBE_LV FINE_RANGE=0 BRANCH=0
 .control
 set wr_singlescale
 set wr_vecnames
