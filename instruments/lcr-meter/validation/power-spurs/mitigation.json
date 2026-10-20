@@ -1,0 +1,490 @@
+{
+ "current": [
+  {
+   "hz": 1000.0,
+   "divider": 20,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 327.68,
+   "board_1khz_comb_worst": 0.9999527610514448,
+   "board_at": [
+    1,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.9999989371971186,
+   "sof_at": [
+    1,
+    1.9999999999999944e-05
+   ],
+   "sof_worst_150ppm": 0.9999989372431297,
+   "dds_lowest_collision_k": 49
+  },
+  {
+   "hz": 35000.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 0.9999983896306437,
+   "board_at": [
+    35,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.9999983896306438,
+   "sof_at": [
+    35,
+    0.0
+   ],
+   "sof_worst_150ppm": 0.9999983896306427,
+   "dds_lowest_collision_k": 99
+  },
+  {
+   "hz": 40000.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 0.9999975261797316,
+   "board_at": [
+    40,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.9999975261797315,
+   "sof_at": [
+    40,
+    0.0
+   ],
+   "sof_worst_150ppm": 0.9999975261797319,
+   "dds_lowest_collision_k": 24
+  },
+  {
+   "hz": 50000.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 0.9999972880314335,
+   "board_at": [
+    50,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.9999972880314337,
+   "sof_at": [
+    50,
+    0.0
+   ],
+   "sof_worst_150ppm": 0.9999972880314317,
+   "dds_lowest_collision_k": 9
+  },
+  {
+   "hz": 60000.0,
+   "divider": 1,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 16.384,
+   "board_1khz_comb_worst": 0.9999998084215597,
+   "board_at": [
+    60,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.9999998084215598,
+   "sof_at": [
+    60,
+    0.0
+   ],
+   "sof_worst_150ppm": 0.9999998083171284,
+   "dds_lowest_collision_k": 49
+  }
+ ],
+ "shift": [
+  {
+   "hz": 1500.0,
+   "divider": 20,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 327.68,
+   "board_1khz_comb_worst": 0.0011939240468534635,
+   "board_at": [
+    1,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.0029358437148033355,
+   "sof_at": [
+    251,
+    0.0004900000000000001
+   ],
+   "sof_worst_150ppm": 0.0024839052905138736,
+   "dds_lowest_collision_k": 99
+  },
+  {
+   "hz": 35500.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 0.0182255912428285,
+   "board_at": [
+    35,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.01930755206359882,
+   "sof_at": [
+    35,
+    -9.000000000000002e-05
+   ],
+   "sof_worst_150ppm": 0.019307552063598323,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 40500.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 0.018259985151765936,
+   "board_at": [
+    41,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.019393605508957554,
+   "sof_at": [
+    41,
+    7.999999999999999e-05
+   ],
+   "sof_worst_150ppm": 0.019393605508957513,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 50500.0,
+   "divider": 1,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 16.384,
+   "board_1khz_comb_worst": 0.02223621200159468,
+   "board_at": [
+    50,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.03762782272434377,
+   "sof_at": [
+    50,
+    -0.0003600000000000001
+   ],
+   "sof_worst_150ppm": 0.03219976275404001,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 60500.0,
+   "divider": 1,
+   "count": 16384,
+   "window": "none",
+   "record_ms": 16.384,
+   "board_1khz_comb_worst": 0.022189236885209837,
+   "board_at": [
+    61,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.03820477136221665,
+   "sof_at": [
+    61,
+    -0.0005600000000000001
+   ],
+   "sof_worst_150ppm": 0.03363969042793034,
+   "dds_lowest_collision_k": null
+  }
+ ],
+ "shift+T": [
+  {
+   "hz": 1500.0,
+   "divider": 20,
+   "count": 16000,
+   "window": "none",
+   "record_ms": 320.0,
+   "board_1khz_comb_worst": 4.638602196039255e-05,
+   "board_at": [
+    1,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.0032448699829835037,
+   "sof_at": [
+    299,
+    -0.0005600000000000001
+   ],
+   "sof_worst_150ppm": 0.0025347674216334042,
+   "dds_lowest_collision_k": 99
+  },
+  {
+   "hz": 35500.0,
+   "divider": 2,
+   "count": 16000,
+   "window": "none",
+   "record_ms": 32.0,
+   "board_1khz_comb_worst": 3.986601894646842e-05,
+   "board_at": [
+    35,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.02068524896666518,
+   "sof_at": [
+    35,
+    0.00045
+   ],
+   "sof_worst_150ppm": 0.010498269139336337,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 40500.0,
+   "divider": 2,
+   "count": 16000,
+   "window": "none",
+   "record_ms": 32.0,
+   "board_1khz_comb_worst": 3.0234653039281436e-05,
+   "board_at": [
+    40,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.020666853974806238,
+   "sof_at": [
+    40,
+    0.0004000000000000001
+   ],
+   "sof_worst_150ppm": 0.011773746866338853,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 50500.0,
+   "divider": 1,
+   "count": 16000,
+   "window": "none",
+   "record_ms": 16.0,
+   "board_1khz_comb_worst": 1.1022618151995998e-05,
+   "board_at": [
+    50,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.04201363290501318,
+   "sof_at": [
+    51,
+    -0.0005600000000000001
+   ],
+   "sof_worst_150ppm": 0.015242874560082303,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 60500.0,
+   "divider": 1,
+   "count": 16000,
+   "window": "none",
+   "record_ms": 16.0,
+   "board_1khz_comb_worst": 8.140754077983617e-06,
+   "board_at": [
+    60,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.04264435868277198,
+   "sof_at": [
+    61,
+    -0.0005300000000000001
+   ],
+   "sof_worst_150ppm": 0.01805781390297884,
+   "dds_lowest_collision_k": null
+  }
+ ],
+ "shift+Hann": [
+  {
+   "hz": 1500.0,
+   "divider": 20,
+   "count": 16384,
+   "window": "hann",
+   "record_ms": 327.68,
+   "board_1khz_comb_worst": 3.6457464960572336e-08,
+   "board_at": [
+    1,
+    0.0
+   ],
+   "sof_worst_560ppm": 1.8724978080902288e-07,
+   "sof_at": [
+    252,
+    -0.00055
+   ],
+   "sof_worst_150ppm": 9.209616036669612e-08,
+   "dds_lowest_collision_k": 99
+  },
+  {
+   "hz": 35500.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "hann",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 6.791971254958772e-05,
+   "board_at": [
+    35,
+    0.0
+   ],
+   "sof_worst_560ppm": 7.123551642726324e-05,
+   "sof_at": [
+    36,
+    7.999999999999999e-05
+   ],
+   "sof_worst_150ppm": 7.123551602393593e-05,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 40500.0,
+   "divider": 2,
+   "count": 16384,
+   "window": "hann",
+   "record_ms": 32.768,
+   "board_1khz_comb_worst": 6.790900953667062e-05,
+   "board_at": [
+    40,
+    0.0
+   ],
+   "sof_worst_560ppm": 7.668309798474645e-05,
+   "sof_at": [
+    41,
+    -0.0005600000000000001
+   ],
+   "sof_worst_150ppm": 7.123505860253293e-05,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 50500.0,
+   "divider": 1,
+   "count": 16384,
+   "window": "hann",
+   "record_ms": 16.384,
+   "board_1khz_comb_worst": 0.00033354394415553544,
+   "board_at": [
+    50,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.0005356660085991144,
+   "sof_at": [
+    51,
+    -0.0005600000000000001
+   ],
+   "sof_worst_150ppm": 0.0004713465633762692,
+   "dds_lowest_collision_k": null
+  },
+  {
+   "hz": 60500.0,
+   "divider": 1,
+   "count": 16384,
+   "window": "hann",
+   "record_ms": 16.384,
+   "board_1khz_comb_worst": 0.0003335111696240637,
+   "board_at": [
+    61,
+    0.0
+   ],
+   "sof_worst_560ppm": 0.0006663312624242293,
+   "sof_at": [
+    61,
+    -0.0005600000000000001
+   ],
+   "sof_worst_150ppm": 0.0004891693364877733,
+   "dds_lowest_collision_k": null
+  }
+ ],
+ "divider_study": {
+  "frequencies_with_k_le_20": 175,
+  "fixed_to_k_ge_50": 61,
+  "fixed_to_k_gt_200": 50,
+  "worst_after": 9,
+  "examples": [
+   {
+    "hz": 2381,
+    "host_divider": 20,
+    "host_k": 20,
+    "best_divider": 1,
+    "best_k": 201
+   },
+   {
+    "hz": 2500,
+    "host_divider": 20,
+    "host_k": 19,
+    "best_divider": 1,
+    "best_k": 201
+   },
+   {
+    "hz": 2941,
+    "host_divider": 20,
+    "host_k": 16,
+    "best_divider": 1,
+    "best_k": 201
+   },
+   {
+    "hz": 3125,
+    "host_divider": 20,
+    "host_k": 15,
+    "best_divider": 1,
+    "best_k": 201
+   },
+   {
+    "hz": 3846,
+    "host_divider": 20,
+    "host_k": 12,
+    "best_divider": 1,
+    "best_k": 201
+   },
+   {
+    "hz": 4762,
+    "host_divider": 20,
+    "host_k": 20,
+    "best_divider": 1,
+    "best_k": 201
+   },
+   {
+    "hz": 5000,
+    "host_divider": 20,
+    "host_k": 9,
+    "best_divider": 1,
+    "best_k": 199
+   },
+   {
+    "hz": 10000,
+    "host_divider": 10,
+    "host_k": 9,
+    "best_divider": 1,
+    "best_k": 99
+   },
+   {
+    "hz": 50000,
+    "host_divider": 2,
+    "host_k": 9,
+    "best_divider": 1,
+    "best_k": 19
+   },
+   {
+    "hz": 100000,
+    "host_divider": 1,
+    "host_k": 9,
+    "best_divider": 1,
+    "best_k": 9
+   }
+  ]
+ },
+ "temper_grid_best_divider": {
+  "1000": [
+   1,
+   201
+  ],
+  "35000": [
+   1,
+   199
+  ],
+  "40000": [
+   1,
+   24
+  ],
+  "50000": [
+   1,
+   19
+  ],
+  "60000": [
+   1,
+   49
+  ]
+ }
+}

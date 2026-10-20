@@ -1,0 +1,5980 @@
+{
+ "assumptions": {
+  "record": 16384,
+  "near_bins": 5,
+  "fsw_band_hz": [
+   1250000.0,
+   1500000.0
+  ],
+  "sof_relative_tolerance": 0.0005600000000000001,
+  "harmonics": {
+   "switcher": 40,
+   "comb": 300,
+   "dds": 200
+  }
+ },
+ "coherent_clocks_alias_to_dc": true,
+ "frequencies": [
+  {
+   "requested_hz": 1000.0,
+   "word": 11185,
+   "f_dds_hz": 1000.0169277191162,
+   "divider": 20,
+   "fs_hz": 50000.0,
+   "record_s": 0.32768,
+   "bin_hz": 3.0517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999974,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x1",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x49",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x49",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x51",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x51",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x99",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x99",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x101",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x101",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x149",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x149",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x151",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x151",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x199",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x199",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x201",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x201",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x249",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x249",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x251",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x251",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x299",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 1000.0169277191162,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x299",
+     "distance_bins": 0.005546875,
+     "worst_fit_response": 0.9999527610514436,
+     "worst_alias_hz": 1000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.27734375,
+     "worst_fit_response": 0.8784406694949738,
+     "worst_alias_hz": 999.1705417633057,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.27734375,
+     "worst_fit_response": 0.8782309814171106,
+     "worst_alias_hz": 1000.8633136749268,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.5546875,
+     "worst_fit_response": 0.5659251503791681,
+     "worst_alias_hz": 998.3241558074951,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.5546875,
+     "worst_fit_response": 0.5655484836599391,
+     "worst_alias_hz": 1001.7096996307373,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.83203125,
+     "worst_fit_response": 0.19320985167749896,
+     "worst_alias_hz": 997.4777698516846,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.83203125,
+     "worst_fit_response": 0.19301643464778515,
+     "worst_alias_hz": 1002.5560855865479,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 1.109375,
+     "worst_fit_response": 0.09697685081357653,
+     "worst_alias_hz": 996.631383895874,
+     "reach": "near"
+    }
+   ],
+   "dds_collision_order": 49
+  },
+  {
+   "requested_hz": 35000.0,
+   "word": 391468,
+   "f_dds_hz": 34999.966621398926,
+   "divider": 2,
+   "fs_hz": 500000.0,
+   "record_s": 0.032768,
+   "bin_hz": 30.517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999949,
+     "worst_alias_hz": 34999.966621398926,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x35",
+     "distance_bins": 0.00109375,
+     "worst_fit_response": 0.9999983896306427,
+     "worst_alias_hz": 35000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.980476522717825,
+     "worst_alias_hz": 35003.30448150635,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804688109966727,
+     "worst_alias_hz": 34996.628761291504,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9232060235548657,
+     "worst_alias_hz": 35006.64234161377,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 99
+  },
+  {
+   "requested_hz": 40000.0,
+   "word": 447392,
+   "f_dds_hz": 39999.961853027344,
+   "divider": 2,
+   "fs_hz": 500000.0,
+   "record_s": 0.032768,
+   "bin_hz": 30.517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999999,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999994,
+     "worst_alias_hz": 39999.961853027344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x40",
+     "distance_bins": 0.00125,
+     "worst_fit_response": 0.9999975261797319,
+     "worst_alias_hz": 40000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 24",
+     "distance_bins": 0.03125,
+     "worst_fit_response": 0.9983964152631278,
+     "worst_alias_hz": 40000.91552734375,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 26",
+     "distance_bins": 0.03125,
+     "worst_fit_response": 0.9983972079928838,
+     "worst_alias_hz": 39999.00817871094,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.0625,
+     "worst_fit_response": 0.9935900792837035,
+     "worst_alias_hz": 40001.869201660156,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.0625,
+     "worst_fit_response": 0.9935932515171945,
+     "worst_alias_hz": 39998.05450439453,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 74",
+     "distance_bins": 0.09375,
+     "worst_fit_response": 0.9856087559951969,
+     "worst_alias_hz": 40002.82287597656,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 76",
+     "distance_bins": 0.09375,
+     "worst_fit_response": 0.9856158668969479,
+     "worst_alias_hz": 39997.100830078125,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.125,
+     "worst_fit_response": 0.9744985218800842,
+     "worst_alias_hz": 40003.77655029297,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.125,
+     "worst_fit_response": 0.9745110850678194,
+     "worst_alias_hz": 39996.14715576172,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 124",
+     "distance_bins": 0.15625,
+     "worst_fit_response": 0.960323449257881,
+     "worst_alias_hz": 40004.730224609375,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 126",
+     "distance_bins": 0.15625,
+     "worst_fit_response": 0.9603429151487639,
+     "worst_alias_hz": 39995.19348144531,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.1875,
+     "worst_fit_response": 0.9431655168895717,
+     "worst_alias_hz": 40005.68389892578,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.1875,
+     "worst_fit_response": 0.943192904849963,
+     "worst_alias_hz": 39994.239807128906,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 174",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231283062842882,
+     "worst_alias_hz": 40006.63757324219,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 176",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231595808149791,
+     "worst_alias_hz": 39993.2861328125,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.25,
+     "worst_fit_response": 0.9003229129211264,
+     "worst_alias_hz": 40007.591247558594,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 24
+  },
+  {
+   "requested_hz": 50000.0,
+   "word": 559241,
+   "f_dds_hz": 50000.04172325134,
+   "divider": 2,
+   "fs_hz": 500000.0,
+   "record_s": 0.032768,
+   "bin_hz": 30.517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999996,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x50",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999984,
+     "worst_alias_hz": 50000.04172325134,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x50",
+     "distance_bins": 0.0013671875,
+     "worst_fit_response": 0.9999972880314317,
+     "worst_alias_hz": 50000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 9",
+     "distance_bins": 0.013671875,
+     "worst_fit_response": 0.9996961504849476,
+     "worst_alias_hz": 49999.624490737915,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 11",
+     "distance_bins": 0.013671875,
+     "worst_fit_response": 0.999696224044243,
+     "worst_alias_hz": 50000.45895576477,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 19",
+     "distance_bins": 0.02734375,
+     "worst_fit_response": 0.9987776745925747,
+     "worst_alias_hz": 49999.20725822449,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 21",
+     "distance_bins": 0.02734375,
+     "worst_fit_response": 0.9987779697305084,
+     "worst_alias_hz": 50000.8761882782,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 29",
+     "distance_bins": 0.041015625,
+     "worst_fit_response": 0.9972455862389052,
+     "worst_alias_hz": 49998.79002571106,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 31",
+     "distance_bins": 0.041015625,
+     "worst_fit_response": 0.9972462504882019,
+     "worst_alias_hz": 50001.293420791626,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 39",
+     "distance_bins": 0.0546875,
+     "worst_fit_response": 0.9951015782503241,
+     "worst_alias_hz": 49998.37279319763,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 41",
+     "distance_bins": 0.0546875,
+     "worst_fit_response": 0.9951027583247327,
+     "worst_alias_hz": 50001.710653305054,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.068359375,
+     "worst_fit_response": 0.99234802015235,
+     "worst_alias_hz": 49997.955560684204,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.068359375,
+     "worst_fit_response": 0.9923498616215076,
+     "worst_alias_hz": 50002.12788581848,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 59",
+     "distance_bins": 0.08203125,
+     "worst_fit_response": 0.9889879550468418,
+     "worst_alias_hz": 49997.53832817078,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 61",
+     "distance_bins": 0.08203125,
+     "worst_fit_response": 0.9889906020245384,
+     "worst_alias_hz": 50002.54511833191,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 69",
+     "distance_bins": 0.095703125,
+     "worst_fit_response": 0.9850250956170863,
+     "worst_alias_hz": 49997.12109565735,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 71",
+     "distance_bins": 0.095703125,
+     "worst_fit_response": 0.985028690420334,
+     "worst_alias_hz": 50002.96235084534,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 79",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804638192292281,
+     "worst_alias_hz": 49996.70386314392,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 81",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804685020792631,
+     "worst_alias_hz": 50003.379583358765,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 89",
+     "distance_bins": 0.123046875,
+     "worst_fit_response": 0.9753091621796787,
+     "worst_alias_hz": 49996.28663063049,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 91",
+     "distance_bins": 0.123046875,
+     "worst_fit_response": 0.9753150708851275,
+     "worst_alias_hz": 50003.79681587219,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.13671875,
+     "worst_fit_response": 0.9695668130647739,
+     "worst_alias_hz": 49995.869398117065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.13671875,
+     "worst_fit_response": 0.9695740827114364,
+     "worst_alias_hz": 50004.21404838562,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 109",
+     "distance_bins": 0.150390625,
+     "worst_fit_response": 0.9632431053037952,
+     "worst_alias_hz": 49995.45216560364,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 111",
+     "distance_bins": 0.150390625,
+     "worst_fit_response": 0.9632518679555472,
+     "worst_alias_hz": 50004.63128089905,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 119",
+     "distance_bins": 0.1640625,
+     "worst_fit_response": 0.9563450088061186,
+     "worst_alias_hz": 49995.03493309021,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 121",
+     "distance_bins": 0.1640625,
+     "worst_fit_response": 0.9563553932090325,
+     "worst_alias_hz": 50005.048513412476,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 129",
+     "distance_bins": 0.177734375,
+     "worst_fit_response": 0.9488801208171483,
+     "worst_alias_hz": 49994.61770057678,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 131",
+     "distance_bins": 0.177734375,
+     "worst_fit_response": 0.9488922521085663,
+     "worst_alias_hz": 50005.4657459259,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 139",
+     "distance_bins": 0.19140625,
+     "worst_fit_response": 0.9408566559297219,
+     "worst_alias_hz": 49994.200468063354,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 141",
+     "distance_bins": 0.19140625,
+     "worst_fit_response": 0.9408706553531998,
+     "worst_alias_hz": 50005.88297843933,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.205078125,
+     "worst_fit_response": 0.9322834352990946,
+     "worst_alias_hz": 49993.78323554993,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.205078125,
+     "worst_fit_response": 0.932299419935215,
+     "worst_alias_hz": 50006.30021095276,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 159",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231698750614866,
+     "worst_alias_hz": 49993.3660030365,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 161",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231879575604858,
+     "worst_alias_hz": 50006.71744346619,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 169",
+     "distance_bins": 0.232421875,
+     "worst_fit_response": 0.9135259739894528,
+     "worst_alias_hz": 49992.94877052307,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 171",
+     "distance_bins": 0.232421875,
+     "worst_fit_response": 0.9135462623090206,
+     "worst_alias_hz": 50007.134675979614,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 179",
+     "distance_bins": 0.24609375,
+     "worst_fit_response": 0.9033623003722377,
+     "worst_alias_hz": 49992.53153800964,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 181",
+     "distance_bins": 0.24609375,
+     "worst_fit_response": 0.9033848975354944,
+     "worst_alias_hz": 50007.55190849304,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 189",
+     "distance_bins": 0.259765625,
+     "worst_fit_response": 0.8926899781756906,
+     "worst_alias_hz": 49992.114305496216,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 191",
+     "distance_bins": 0.259765625,
+     "worst_fit_response": 0.8927149820266099,
+     "worst_alias_hz": 50007.96914100647,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.2734375,
+     "worst_fit_response": 0.8815206724723457,
+     "worst_alias_hz": 49991.69707298279,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 9
+  },
+  {
+   "requested_hz": 60000.0,
+   "word": 671089,
+   "f_dds_hz": 60000.03218650818,
+   "divider": 1,
+   "fs_hz": 1000000.0,
+   "record_s": 0.016384,
+   "bin_hz": 61.03515625,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x60",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367133,
+     "worst_alias_hz": 60000.03218650818,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x60",
+     "distance_bins": 0.00052734375,
+     "worst_fit_response": 0.9999998083171284,
+     "worst_alias_hz": 60000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.0263671875,
+     "worst_fit_response": 0.9988701587650206,
+     "worst_alias_hz": 59998.42286109924,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.0263671875,
+     "worst_fit_response": 0.9988699641951033,
+     "worst_alias_hz": 60001.641511917114,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.052734375,
+     "worst_fit_response": 0.9954586955621448,
+     "worst_alias_hz": 59996.81353569031,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.052734375,
+     "worst_fit_response": 0.9954579255242754,
+     "worst_alias_hz": 60003.25083732605,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.0791015625,
+     "worst_fit_response": 0.9897796076432691,
+     "worst_alias_hz": 59995.20421028137,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.0791015625,
+     "worst_fit_response": 0.9897778859731852,
+     "worst_alias_hz": 60004.860162734985,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.10546875,
+     "worst_fit_response": 0.9818562085949225,
+     "worst_alias_hz": 59993.59488487244,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 49
+  },
+  {
+   "requested_hz": 100.0,
+   "word": 1118,
+   "f_dds_hz": 99.95698928833008,
+   "divider": 20,
+   "fs_hz": 50000.0,
+   "record_s": 0.32768,
+   "bin_hz": 3.0517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x200",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x250",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x300",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367124,
+     "worst_alias_hz": 99.95698928833008,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": null
+  },
+  {
+   "requested_hz": 5000.0,
+   "word": 55924,
+   "f_dds_hz": 4999.995231628418,
+   "divider": 20,
+   "fs_hz": 50000.0,
+   "record_s": 0.32768,
+   "bin_hz": 3.0517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367137,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x5",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x45",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x45",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x55",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x55",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x95",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x95",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x105",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x105",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x145",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x145",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x155",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x155",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x195",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x195",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x205",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x205",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x245",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x245",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x255",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x255",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x295",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 4999.995231628418,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x295",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 5000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 9",
+     "distance_bins": 0.015625,
+     "worst_fit_response": 0.999602595785581,
+     "worst_alias_hz": 5000.042915344238,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 11",
+     "distance_bins": 0.015625,
+     "worst_fit_response": 0.9996024971608067,
+     "worst_alias_hz": 4999.947547912598,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 19",
+     "distance_bins": 0.03125,
+     "worst_fit_response": 0.998402767614028,
+     "worst_alias_hz": 5000.090599060059,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 21",
+     "distance_bins": 0.03125,
+     "worst_fit_response": 0.9984023721584473,
+     "worst_alias_hz": 4999.899864196777,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 29",
+     "distance_bins": 0.046875,
+     "worst_fit_response": 0.9964022455344566,
+     "worst_alias_hz": 5000.138282775879,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 31",
+     "distance_bins": 0.046875,
+     "worst_fit_response": 0.9964013558850653,
+     "worst_alias_hz": 4999.852180480957,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 39",
+     "distance_bins": 0.0625,
+     "worst_fit_response": 0.9936039162323853,
+     "worst_alias_hz": 5000.185966491699,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 41",
+     "distance_bins": 0.0625,
+     "worst_fit_response": 0.9936023364578896,
+     "worst_alias_hz": 4999.804496765137,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.078125,
+     "worst_fit_response": 0.9900118180823232,
+     "worst_alias_hz": 5000.2336502075195,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.078125,
+     "worst_fit_response": 0.9900093542442566,
+     "worst_alias_hz": 4999.756813049316,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 59",
+     "distance_bins": 0.09375,
+     "worst_fit_response": 0.985631134192004,
+     "worst_alias_hz": 5000.28133392334,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 61",
+     "distance_bins": 0.09375,
+     "worst_fit_response": 0.9856275949166781,
+     "worst_alias_hz": 4999.709129333496,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 69",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804681835090521,
+     "worst_alias_hz": 5000.32901763916,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 71",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804633805335108,
+     "worst_alias_hz": 4999.661445617676,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 79",
+     "distance_bins": 0.125,
+     "worst_fit_response": 0.9745304099635856,
+     "worst_alias_hz": 5000.3767013549805,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 81",
+     "distance_bins": 0.125,
+     "worst_fit_response": 0.9745241586873085,
+     "worst_alias_hz": 4999.6137619018555,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 89",
+     "distance_bins": 0.140625,
+     "worst_fit_response": 0.9678263696747625,
+     "worst_alias_hz": 5000.424385070801,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 91",
+     "distance_bins": 0.140625,
+     "worst_fit_response": 0.9678184896920637,
+     "worst_alias_hz": 4999.566078186035,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.15625,
+     "worst_fit_response": 0.9603657162590565,
+     "worst_alias_hz": 5000.472068786621,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.15625,
+     "worst_fit_response": 0.960356031891844,
+     "worst_alias_hz": 4999.518394470215,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 109",
+     "distance_bins": 0.171875,
+     "worst_fit_response": 0.9521591842566826,
+     "worst_alias_hz": 5000.519752502441,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 111",
+     "distance_bins": 0.171875,
+     "worst_fit_response": 0.9521475250689893,
+     "worst_alias_hz": 4999.4707107543945,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 119",
+     "distance_bins": 0.1875,
+     "worst_fit_response": 0.9432185707143177,
+     "worst_alias_hz": 5000.567436218262,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 121",
+     "distance_bins": 0.1875,
+     "worst_fit_response": 0.9432047720111091,
+     "worst_alias_hz": 4999.423027038574,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 129",
+     "distance_bins": 0.203125,
+     "worst_fit_response": 0.9335567149438686,
+     "worst_alias_hz": 5000.615119934082,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 131",
+     "distance_bins": 0.203125,
+     "worst_fit_response": 0.9335406182552566,
+     "worst_alias_hz": 4999.375343322754,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 139",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231874765183556,
+     "worst_alias_hz": 5000.662803649902,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 141",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231689300778442,
+     "worst_alias_hz": 4999.327659606934,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.234375,
+     "worst_fit_response": 0.912125711526425,
+     "worst_alias_hz": 5000.710487365723,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.234375,
+     "worst_fit_response": 0.9121045707139458,
+     "worst_alias_hz": 4999.279975891113,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 159",
+     "distance_bins": 0.25,
+     "worst_fit_response": 0.9003872471364582,
+     "worst_alias_hz": 5000.758171081543,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 161",
+     "distance_bins": 0.25,
+     "worst_fit_response": 0.9003633749208895,
+     "worst_alias_hz": 4999.232292175293,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 169",
+     "distance_bins": 0.265625,
+     "worst_fit_response": 0.8879888545219002,
+     "worst_alias_hz": 5000.805854797363,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 171",
+     "distance_bins": 0.265625,
+     "worst_fit_response": 0.8879621218725071,
+     "worst_alias_hz": 4999.184608459473,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 179",
+     "distance_bins": 0.28125,
+     "worst_fit_response": 0.8749482201911193,
+     "worst_alias_hz": 5000.853538513184,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 181",
+     "distance_bins": 0.28125,
+     "worst_fit_response": 0.8749185064697477,
+     "worst_alias_hz": 4999.136924743652,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 189",
+     "distance_bins": 0.296875,
+     "worst_fit_response": 0.8612839157785649,
+     "worst_alias_hz": 5000.901222229004,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 191",
+     "distance_bins": 0.296875,
+     "worst_fit_response": 0.8612511091153505,
+     "worst_alias_hz": 4999.089241027832,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.3125,
+     "worst_fit_response": 0.8470153663560692,
+     "worst_alias_hz": 5000.948905944824,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 9
+  },
+  {
+   "requested_hz": 10000.0,
+   "word": 111848,
+   "f_dds_hz": 9999.990463256836,
+   "divider": 10,
+   "fs_hz": 100000.0,
+   "record_s": 0.16384,
+   "bin_hz": 6.103515625,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000105367137,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x10",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 10000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x90",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x90",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 10000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x110",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x110",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 10000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x190",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x190",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 10000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x210",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x210",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 10000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x290",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 9999.990463256836,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x290",
+     "distance_bins": 0.0015625,
+     "worst_fit_response": 0.9999963940755874,
+     "worst_alias_hz": 10000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 9",
+     "distance_bins": 0.015625,
+     "worst_fit_response": 0.999602595785581,
+     "worst_alias_hz": 10000.085830688477,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 11",
+     "distance_bins": 0.015625,
+     "worst_fit_response": 0.9996024971608067,
+     "worst_alias_hz": 9999.895095825195,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 19",
+     "distance_bins": 0.03125,
+     "worst_fit_response": 0.998402767614028,
+     "worst_alias_hz": 10000.181198120117,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 21",
+     "distance_bins": 0.03125,
+     "worst_fit_response": 0.9984023721584473,
+     "worst_alias_hz": 9999.799728393555,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 29",
+     "distance_bins": 0.046875,
+     "worst_fit_response": 0.9964022455344566,
+     "worst_alias_hz": 10000.276565551758,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 31",
+     "distance_bins": 0.046875,
+     "worst_fit_response": 0.9964013558850653,
+     "worst_alias_hz": 9999.704360961914,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 39",
+     "distance_bins": 0.0625,
+     "worst_fit_response": 0.9936039162323853,
+     "worst_alias_hz": 10000.371932983398,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 41",
+     "distance_bins": 0.0625,
+     "worst_fit_response": 0.9936023364578896,
+     "worst_alias_hz": 9999.608993530273,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.078125,
+     "worst_fit_response": 0.9900118180823232,
+     "worst_alias_hz": 10000.467300415039,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.078125,
+     "worst_fit_response": 0.9900093542442566,
+     "worst_alias_hz": 9999.513626098633,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 59",
+     "distance_bins": 0.09375,
+     "worst_fit_response": 0.985631134192004,
+     "worst_alias_hz": 10000.56266784668,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 61",
+     "distance_bins": 0.09375,
+     "worst_fit_response": 0.9856275949166781,
+     "worst_alias_hz": 9999.418258666992,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 69",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804681835090521,
+     "worst_alias_hz": 10000.65803527832,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 71",
+     "distance_bins": 0.109375,
+     "worst_fit_response": 0.9804633805335108,
+     "worst_alias_hz": 9999.322891235352,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 79",
+     "distance_bins": 0.125,
+     "worst_fit_response": 0.9745304099635856,
+     "worst_alias_hz": 10000.753402709961,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 81",
+     "distance_bins": 0.125,
+     "worst_fit_response": 0.9745241586873085,
+     "worst_alias_hz": 9999.227523803711,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 89",
+     "distance_bins": 0.140625,
+     "worst_fit_response": 0.9678263696747625,
+     "worst_alias_hz": 10000.848770141602,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 91",
+     "distance_bins": 0.140625,
+     "worst_fit_response": 0.9678184896920637,
+     "worst_alias_hz": 9999.13215637207,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.15625,
+     "worst_fit_response": 0.9603657162590565,
+     "worst_alias_hz": 10000.944137573242,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.15625,
+     "worst_fit_response": 0.960356031891844,
+     "worst_alias_hz": 9999.03678894043,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 109",
+     "distance_bins": 0.171875,
+     "worst_fit_response": 0.9521591842566826,
+     "worst_alias_hz": 10001.039505004883,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 111",
+     "distance_bins": 0.171875,
+     "worst_fit_response": 0.9521475250689893,
+     "worst_alias_hz": 9998.941421508789,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 119",
+     "distance_bins": 0.1875,
+     "worst_fit_response": 0.9432185707143177,
+     "worst_alias_hz": 10001.134872436523,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 121",
+     "distance_bins": 0.1875,
+     "worst_fit_response": 0.9432047720111091,
+     "worst_alias_hz": 9998.846054077148,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 129",
+     "distance_bins": 0.203125,
+     "worst_fit_response": 0.9335567149438686,
+     "worst_alias_hz": 10001.230239868164,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 131",
+     "distance_bins": 0.203125,
+     "worst_fit_response": 0.9335406182552566,
+     "worst_alias_hz": 9998.750686645508,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 139",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231874765183556,
+     "worst_alias_hz": 10001.325607299805,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 141",
+     "distance_bins": 0.21875,
+     "worst_fit_response": 0.9231689300778442,
+     "worst_alias_hz": 9998.655319213867,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.234375,
+     "worst_fit_response": 0.912125711526425,
+     "worst_alias_hz": 10001.420974731445,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.234375,
+     "worst_fit_response": 0.9121045707139458,
+     "worst_alias_hz": 9998.559951782227,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 159",
+     "distance_bins": 0.25,
+     "worst_fit_response": 0.9003872471364582,
+     "worst_alias_hz": 10001.516342163086,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 161",
+     "distance_bins": 0.25,
+     "worst_fit_response": 0.9003633749208895,
+     "worst_alias_hz": 9998.464584350586,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 169",
+     "distance_bins": 0.265625,
+     "worst_fit_response": 0.8879888545219002,
+     "worst_alias_hz": 10001.611709594727,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 171",
+     "distance_bins": 0.265625,
+     "worst_fit_response": 0.8879621218725071,
+     "worst_alias_hz": 9998.369216918945,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 179",
+     "distance_bins": 0.28125,
+     "worst_fit_response": 0.8749482201911193,
+     "worst_alias_hz": 10001.707077026367,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 181",
+     "distance_bins": 0.28125,
+     "worst_fit_response": 0.8749185064697477,
+     "worst_alias_hz": 9998.273849487305,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 189",
+     "distance_bins": 0.296875,
+     "worst_fit_response": 0.8612839157785649,
+     "worst_alias_hz": 10001.802444458008,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 191",
+     "distance_bins": 0.296875,
+     "worst_fit_response": 0.8612511091153505,
+     "worst_alias_hz": 9998.178482055664,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.3125,
+     "worst_fit_response": 0.8470153663560692,
+     "worst_alias_hz": 10001.897811889648,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 9
+  },
+  {
+   "requested_hz": 100000.0,
+   "word": 1118481,
+   "f_dds_hz": 99999.99403953552,
+   "divider": 1,
+   "fs_hz": 1000000.0,
+   "record_s": 0.016384,
+   "bin_hz": 61.03515625,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "USB SOF x100",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0000000000000016,
+     "worst_alias_hz": 99999.99403953552,
+     "reach": "main lobe"
+    },
+    {
+     "source": "board-clock 1 kHz comb x100",
+     "distance_bins": 9.765625e-05,
+     "worst_fit_response": 1.0000000101203117,
+     "worst_alias_hz": 100000.0,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 9",
+     "distance_bins": 0.0009765625,
+     "worst_fit_response": 0.99999868902331,
+     "worst_alias_hz": 100000.0536441803,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 11",
+     "distance_bins": 0.0009765625,
+     "worst_fit_response": 0.9999986888467736,
+     "worst_alias_hz": 99999.93443489075,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 19",
+     "distance_bins": 0.001953125,
+     "worst_fit_response": 0.9999942410811977,
+     "worst_alias_hz": 100000.11324882507,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 21",
+     "distance_bins": 0.001953125,
+     "worst_fit_response": 0.9999942397047137,
+     "worst_alias_hz": 99999.87483024597,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 29",
+     "distance_bins": 0.0029296875,
+     "worst_fit_response": 0.9999866561303661,
+     "worst_alias_hz": 100000.17285346985,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 31",
+     "distance_bins": 0.0029296875,
+     "worst_fit_response": 0.9999866528359054,
+     "worst_alias_hz": 99999.8152256012,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 39",
+     "distance_bins": 0.00390625,
+     "worst_fit_response": 0.9999759341096409,
+     "worst_alias_hz": 100000.23245811462,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 41",
+     "distance_bins": 0.00390625,
+     "worst_fit_response": 0.9999759281247441,
+     "worst_alias_hz": 99999.75562095642,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 49",
+     "distance_bins": 0.0048828125,
+     "worst_fit_response": 0.99996207515838,
+     "worst_alias_hz": 100000.2920627594,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 51",
+     "distance_bins": 0.0048828125,
+     "worst_fit_response": 0.9999620657647781,
+     "worst_alias_hz": 99999.69601631165,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 59",
+     "distance_bins": 0.005859375,
+     "worst_fit_response": 0.999945079347631,
+     "worst_alias_hz": 100000.35166740417,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 61",
+     "distance_bins": 0.005859375,
+     "worst_fit_response": 0.9999450657909081,
+     "worst_alias_hz": 99999.63641166687,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 69",
+     "distance_bins": 0.0068359375,
+     "worst_fit_response": 0.9999249467340284,
+     "worst_alias_hz": 100000.41127204895,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 71",
+     "distance_bins": 0.0068359375,
+     "worst_fit_response": 0.9999249282282681,
+     "worst_alias_hz": 99999.5768070221,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 79",
+     "distance_bins": 0.0078125,
+     "worst_fit_response": 0.999901677440279,
+     "worst_alias_hz": 100000.47087669373,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 81",
+     "distance_bins": 0.0078125,
+     "worst_fit_response": 0.9999016532785623,
+     "worst_alias_hz": 99999.51720237732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 89",
+     "distance_bins": 0.0087890625,
+     "worst_fit_response": 0.9998752716638613,
+     "worst_alias_hz": 100000.5304813385,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 91",
+     "distance_bins": 0.0087890625,
+     "worst_fit_response": 0.9998752409911775,
+     "worst_alias_hz": 99999.45759773254,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.009765625,
+     "worst_fit_response": 0.9998457294878804,
+     "worst_alias_hz": 100000.59008598328,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.009765625,
+     "worst_fit_response": 0.9998456915865682,
+     "worst_alias_hz": 99999.39799308777,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 109",
+     "distance_bins": 0.0107421875,
+     "worst_fit_response": 0.9998130510872192,
+     "worst_alias_hz": 100000.64969062805,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 111",
+     "distance_bins": 0.0107421875,
+     "worst_fit_response": 0.9998130051894154,
+     "worst_alias_hz": 99999.338388443,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 119",
+     "distance_bins": 0.01171875,
+     "worst_fit_response": 0.9997772366708157,
+     "worst_alias_hz": 100000.70929527283,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 121",
+     "distance_bins": 0.01171875,
+     "worst_fit_response": 0.9997771819888555,
+     "worst_alias_hz": 99999.27878379822,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 129",
+     "distance_bins": 0.0126953125,
+     "worst_fit_response": 0.999738286401398,
+     "worst_alias_hz": 100000.7688999176,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 131",
+     "distance_bins": 0.0126953125,
+     "worst_fit_response": 0.9997382222122572,
+     "worst_alias_hz": 99999.21917915344,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 139",
+     "distance_bins": 0.013671875,
+     "worst_fit_response": 0.9996962005366339,
+     "worst_alias_hz": 100000.82850456238,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 141",
+     "distance_bins": 0.013671875,
+     "worst_fit_response": 0.9996961260362626,
+     "worst_alias_hz": 99999.15957450867,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 149",
+     "distance_bins": 0.0146484375,
+     "worst_fit_response": 0.9996509792930064,
+     "worst_alias_hz": 100000.88810920715,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 151",
+     "distance_bins": 0.0146484375,
+     "worst_fit_response": 0.9996508937219913,
+     "worst_alias_hz": 99999.09996986389,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 159",
+     "distance_bins": 0.015625,
+     "worst_fit_response": 0.9996026229109819,
+     "worst_alias_hz": 100000.94771385193,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 161",
+     "distance_bins": 0.015625,
+     "worst_fit_response": 0.9996025255296378,
+     "worst_alias_hz": 99999.04036521912,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 169",
+     "distance_bins": 0.0166015625,
+     "worst_fit_response": 0.9995511316938928,
+     "worst_alias_hz": 100001.0073184967,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 171",
+     "distance_bins": 0.0166015625,
+     "worst_fit_response": 0.9995510217142031,
+     "worst_alias_hz": 99998.98076057434,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 179",
+     "distance_bins": 0.017578125,
+     "worst_fit_response": 0.9994965059183889,
+     "worst_alias_hz": 100001.06692314148,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 181",
+     "distance_bins": 0.017578125,
+     "worst_fit_response": 0.999496382577357,
+     "worst_alias_hz": 99998.92115592957,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 189",
+     "distance_bins": 0.0185546875,
+     "worst_fit_response": 0.9994387458882461,
+     "worst_alias_hz": 100001.12652778625,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 191",
+     "distance_bins": 0.0185546875,
+     "worst_fit_response": 0.9994386084224454,
+     "worst_alias_hz": 99998.86155128479,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 0.01953125,
+     "worst_fit_response": 0.9993778519186546,
+     "worst_alias_hz": 100001.18613243103,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": 9
+  },
+  {
+   "requested_hz": 1500.0,
+   "word": 16777,
+   "f_dds_hz": 1499.9806880950928,
+   "divider": 20,
+   "fs_hz": 50000.0,
+   "record_s": 0.32768,
+   "bin_hz": 3.0517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 1499.9806880950928,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 99",
+     "distance_bins": 0.6328125,
+     "worst_fit_response": 0.460127341479352,
+     "worst_alias_hz": 1501.9118785858154,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 101",
+     "distance_bins": 0.6328125,
+     "worst_fit_response": 0.46017678311097276,
+     "worst_alias_hz": 1498.0494976043701,
+     "reach": "main lobe"
+    },
+    {
+     "source": "DDS harmonic 199",
+     "distance_bins": 1.265625,
+     "worst_fit_response": 0.18660593785329752,
+     "worst_alias_hz": 1503.843069076538,
+     "reach": "near"
+    }
+   ],
+   "dds_collision_order": 99
+  },
+  {
+   "requested_hz": 35500.0,
+   "word": 397061,
+   "f_dds_hz": 35500.019788742065,
+   "divider": 2,
+   "fs_hz": 500000.0,
+   "record_s": 0.032768,
+   "bin_hz": 30.517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 35500.019788742065,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": null
+  },
+  {
+   "requested_hz": 40500.0,
+   "word": 452985,
+   "f_dds_hz": 40500.01502037048,
+   "divider": 2,
+   "fs_hz": 500000.0,
+   "record_s": 0.032768,
+   "bin_hz": 30.517578125,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x1",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999997,
+     "worst_alias_hz": 40500.01502037048,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": null
+  },
+  {
+   "requested_hz": 50500.0,
+   "word": 564833,
+   "f_dds_hz": 50500.00548362732,
+   "divider": 1,
+   "fs_hz": 1000000.0,
+   "record_s": 0.016384,
+   "bin_hz": 61.03515625,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 0.9999999999999998,
+     "worst_alias_hz": 50500.00548362732,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": null
+  },
+  {
+   "requested_hz": 60500.0,
+   "word": 676681,
+   "f_dds_hz": 60499.995946884155,
+   "divider": 1,
+   "fs_hz": 1000000.0,
+   "record_s": 0.016384,
+   "bin_hz": 61.03515625,
+   "hits": [
+    {
+     "source": "TPS65131 fsw x2",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x3",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x4",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x5",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x6",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x7",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x8",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x9",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x10",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x11",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x12",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x13",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x14",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x15",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x16",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x17",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x18",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x19",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x20",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x21",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x22",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x23",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x24",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x25",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x26",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x27",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x28",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x29",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x30",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x31",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x32",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x33",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x34",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x35",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x36",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x37",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x38",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x39",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    },
+    {
+     "source": "TPS65131 fsw x40",
+     "distance_bins": 0.0,
+     "worst_fit_response": 1.0,
+     "worst_alias_hz": 60499.995946884155,
+     "reach": "main lobe"
+    }
+   ],
+   "dds_collision_order": null
+  }
+ ],
+ "sweep_1hz": {
+  "frequencies": 99901,
+  "dds_harmonic_le_10_in_main_lobe": 60,
+  "dds_harmonic_le_20_in_main_lobe": 175,
+  "dds_harmonic_le_50_in_main_lobe": 390,
+  "comb_1khz_le_300_in_main_lobe": 8411,
+  "comb_direct_in_main_lobe": 7929,
+  "lowest_order_examples": [
+   {
+    "k": 3,
+    "count": 0,
+    "examples_hz": []
+   },
+   {
+    "k": 5,
+    "count": 0,
+    "examples_hz": []
+   },
+   {
+    "k": 7,
+    "count": 0,
+    "examples_hz": []
+   },
+   {
+    "k": 9,
+    "count": 28,
+    "examples_hz": [
+     5000,
+     5263,
+     5882,
+     6250,
+     7692,
+     8333,
+     10000,
+     11111
+    ]
+   },
+   {
+    "k": 11,
+    "count": 21,
+    "examples_hz": [
+     16667,
+     20833,
+     20834,
+     27777,
+     27778,
+     27779,
+     41665,
+     41666
+    ]
+   }
+  ]
+ }
+}
