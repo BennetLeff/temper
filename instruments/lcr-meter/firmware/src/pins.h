@@ -20,4 +20,4 @@
 #define DDS_CLOCK_HZ 24000000u
 #define SYSTEM_CLOCK_HZ 120000000u
 #define CAPTURE_CYCLES 120u
-#define MAX_SAMPLES 32768u
+#define MAX_SAMPLES 16384u /* output samples; each holds two int32 boxcar sums */

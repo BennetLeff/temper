@@ -20,11 +20,12 @@ fn main() {
         .unwrap()
         .parse()
         .unwrap();
-    for count in [1, 2, 256, 16384, 32768] {
+    // 327680 = 20 x 16384: the longest protocol-2 capture (decimation 20).
+    for count in [1, 2, 256, 16384, 32768, 327680] {
         simulate(&words, wrap, count, true);
     }
     simulate(&words, wrap, 256, false);
-    println!("PASS: assembled PIO exact counts 1/2/256/16384/32768; 120 cycles/frame; 16 edges; dual-lane bit order; CS setup/hold; late READY fault");
+    println!("PASS: assembled PIO exact counts 1/2/256/16384/32768/327680; 120 cycles/frame; 16 edges; dual-lane bit order; CS setup/hold; late READY fault");
 }
 fn simulate(program: &[u16], wrap: usize, count: u32, ready: bool) {
     let (mut pc, mut cycle, mut x, mut y, mut osr, mut isr, mut bits) =

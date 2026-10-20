@@ -1,5 +1,8 @@
 //! POSIX serial transport for macOS and Linux USB CDC ports.
-use crate::{crc32, frequency_hz, Record, Result, Setup, DEFAULT_COUNT, HARDWARE_REVISION};
+use crate::{
+    crc32, decode_payload, frequency_hz, payload_len, Record, Result, Setup, DEFAULT_COUNT,
+    HARDWARE_REVISION, MAX_COUNT, PROTOCOL_VERSION,
+};
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
@@ -14,12 +17,15 @@ fn ioerr(e: std::io::Error) -> String {
 }
 fn identity(line: &str, range: u32, fixture: &str) -> Result<Setup> {
     let words: Vec<_> = line.split_whitespace().collect();
+    if words.len() == 9 && words[0] == "INFO" && words[1] == "1" {
+        return Err(format!("device firmware speaks protocol 1 (undersampled packed 16-bit samples); flash protocol-{PROTOCOL_VERSION} boxcar firmware: {line}"));
+    }
     if words.len() != 9
         || words[0] != "INFO"
-        || words[1] != "1"
+        || words[1] != PROTOCOL_VERSION.to_string()
         || words[2] != HARDWARE_REVISION
         || words[6] != "120"
-        || words[7] != "32768"
+        || words[7] != MAX_COUNT.to_string()
         || !["PASS", "FAIL"].contains(&words[8])
     {
         return Err(format!("unexpected device identity: {line}"));
@@ -144,26 +150,26 @@ impl Device {
         }
         Ok(())
     }
-    pub fn capture(&mut self, word: u32, divider: u32, source_enabled: bool) -> Result<Record> {
+    pub fn capture(&mut self, word: u32, decimation: u32, source_enabled: bool) -> Result<Record> {
         if !frequency_hz(word).is_finite() {
             return Err("bad frequency word".into());
         }
         let command = if source_enabled { "CAPTURE" } else { "NOISE" };
         let response = if source_enabled { "DATA" } else { "NOISE" };
-        self.command(&format!("{command} {word} {divider} {DEFAULT_COUNT}"))?;
+        self.command(&format!("{command} {word} {decimation} {DEFAULT_COUNT}"))?;
         let line = self.line()?;
         let fields: Vec<_> = line.split_whitespace().collect();
         if fields.len() != 6
             || fields[0] != response
-            || fields[1] != "1"
+            || fields[1] != PROTOCOL_VERSION.to_string()
             || fields[2] != word.to_string()
-            || fields[3] != divider.to_string()
+            || fields[3] != decimation.to_string()
             || fields[4] != DEFAULT_COUNT.to_string()
         {
             return Err(format!("capture failed: {line}"));
         }
         let checksum: u32 = fields[5].parse().map_err(|_| "bad CRC header")?;
-        let mut bytes = vec![0u8; DEFAULT_COUNT * 4];
+        let mut bytes = vec![0u8; payload_len(DEFAULT_COUNT)];
         let mut offset = 0;
         let started = Instant::now();
         while offset < bytes.len() {
@@ -180,15 +186,15 @@ impl Device {
         if crc32(&bytes) != checksum {
             return Err("USB payload CRC mismatch".into());
         }
-        let packed_samples = bytes
-            .chunks_exact(4)
-            .map(|b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]))
-            .collect();
+        let (raw_min, raw_max, sums) = decode_payload(&bytes)?;
         let record = Record {
+            protocol: PROTOCOL_VERSION,
             source_enabled,
             tuning_word: word,
-            sample_divider: divider,
-            packed_samples,
+            decimation,
+            raw_min,
+            raw_max,
+            sums,
             transport_crc32: checksum,
         };
         record.validate()?;
@@ -206,7 +212,7 @@ mod tests {
     use super::identity;
     #[test]
     fn only_fixed_local_compensation_identity_is_accepted() {
-        let line = "INFO 1 C-local100p device 120000000 24000000 120 32768 PASS";
+        let line = "INFO 2 C-local100p device 120000000 24000000 120 16384 PASS";
         assert!(identity(line, 100, "fixture").is_ok());
         for old in ["A", "B", "C"] {
             assert!(identity(
@@ -218,5 +224,15 @@ mod tests {
         }
         assert!(identity(&line.replace("PASS", "FAIL"), 100, "fixture").is_ok());
         assert!(identity(&line.replace("PASS", "UNKNOWN"), 100, "fixture").is_err());
+    }
+    #[test]
+    fn protocol_one_firmware_is_rejected_by_name() {
+        let v1 = "INFO 1 C-local100p device 120000000 24000000 120 32768 PASS";
+        let error = identity(v1, 100, "fixture").unwrap_err();
+        assert!(error.contains("protocol 1"), "{error}");
+        // A v2 banner with the old v1 record limit is not accepted either.
+        let mixed = "INFO 2 C-local100p device 120000000 24000000 120 32768 PASS";
+        assert!(identity(mixed, 100, "fixture").is_err());
+        assert!(identity(&v1.replace("INFO 1", "INFO 3"), 100, "fixture").is_err());
     }
 }

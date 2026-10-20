@@ -1,7 +1,7 @@
 //! Acquisition and three-standard fixture correction for the TIDA-based Rev C.
 //! Digital tests do not establish the accuracy of an unbuilt analog instrument.
 use serde::{Deserialize, Serialize};
-use std::f64::consts::TAU;
+use std::f64::consts::{PI, TAU};
 use std::ops::{Add, Div, Mul, Sub};
 pub mod transport;
 pub type Result<T> = std::result::Result<T, String>;
@@ -55,11 +55,22 @@ impl Div for Complex {
 }
 
 pub const DDS_CLOCK_HZ: f64 = 24_000_000.0;
-pub const SAMPLE_BASE_HZ: f64 = 1_000_000.0;
+/// The ADC always converts at this rate. The firmware boxcar-sums `decimation`
+/// consecutive conversions per channel into each output sample.
+pub const CONVERSION_RATE_HZ: f64 = 1_000_000.0;
+/// Output samples per capture requested by this host.
 pub const DEFAULT_COUNT: usize = 16_384;
+/// Firmware limit on output samples (`MAX_SAMPLES` in firmware/src/pins.h).
+pub const MAX_COUNT: usize = 16_384;
+/// Firmware limit on conversions per output sample (`BOXCAR_MAX_DECIMATION`).
+pub const MAX_DECIMATION: u32 = 20;
+/// USB wire protocol. Version 1 (undersampled packed 16-bit pairs) is rejected.
+pub const PROTOCOL_VERSION: u32 = 2;
+/// A single conversion with |code| at or above this is treated as clipping.
+pub const CLIP_CODE: i32 = 32_700;
 pub const HARDWARE_REVISION: &str = "C-local100p";
-pub const CALIBRATION_SCHEMA_VERSION: u32 = 3;
-pub const CALIBRATION_MODEL: &str = "bilinear-short-two-resistors-v3-local100p";
+pub const CALIBRATION_SCHEMA_VERSION: u32 = 4;
+pub const CALIBRATION_MODEL: &str = "bilinear-short-two-resistors-v4-local100p-boxcar";
 /// One local 100 pF capacitor remains connected for every range. Calibrate parasitics.
 pub const FEEDBACK_CAPACITORS_PF: [(u32, f64); 3] = [(100, 100.0), (5000, 100.0), (100000, 100.0)];
 
@@ -79,11 +90,27 @@ pub fn frequency_word(hz: f64) -> Result<u32> {
 pub fn frequency_hz(word: u32) -> f64 {
     f64::from(word) * DDS_CLOCK_HZ / 268_435_456.0
 }
-pub fn divider_for(hz: f64) -> u32 {
-    // Enough cycles at 100 Hz and >= 10 samples/cycle elsewhere.
-    (SAMPLE_BASE_HZ / (hz * 10.0).max(50_000.0))
+/// Boxcar decimation N: enough cycles at 100 Hz and >= 10 output samples/cycle
+/// elsewhere. The output rate is 1 MSPS / N; the ADC itself always runs at 1 MSPS.
+pub fn decimation_for(hz: f64) -> u32 {
+    (CONVERSION_RATE_HZ / (hz * 10.0).max(50_000.0))
         .floor()
-        .clamp(1.0, 20.0) as u32
+        .clamp(1.0, f64::from(MAX_DECIMATION)) as u32
+}
+/// Output sample rate after summing `decimation` conversions.
+pub fn output_rate_hz(decimation: u32) -> f64 {
+    CONVERSION_RATE_HZ / f64::from(decimation)
+}
+/// Amplitude response of an N-conversion boxcar at `hz`, referenced to the
+/// window centre so that it is real: sin(pi f N / fs) / (N sin(pi f / fs)).
+/// Identical on both channels, so it cancels in the A/B impedance ratio.
+pub fn boxcar_gain(hz: f64, decimation: u32) -> f64 {
+    let x = PI * hz / CONVERSION_RATE_HZ;
+    let n = f64::from(decimation);
+    if x.sin().abs() < 1e-15 {
+        return 1.0;
+    }
+    (n * x).sin() / (n * x.sin())
 }
 pub fn feedback(range: u32, hz: f64) -> Result<Complex> {
     if !hz.is_finite() || hz <= 0.0 {
@@ -92,6 +119,9 @@ pub fn feedback(range: u32, hz: f64) -> Result<Complex> {
     let cap = feedback_capacitance_pf(range)? * 1e-12;
     Ok(Complex::new(1.0, 0.0) / Complex::new(1.0 / f64::from(range), TAU * hz * cap))
 }
+/// Splits one raw PIO word (bits B15,A15,...,B0,A0) into [A, B]. Protocol 2
+/// firmware performs this on the device; the host keeps it as the reference
+/// for tests that mirror the firmware's deinterleave and boxcar.
 pub fn decode_word(packed: u32) -> [i16; 2] {
     let mut words = [0u16; 2];
     for bit in 0..16 {
@@ -110,6 +140,76 @@ pub fn crc32(bytes: &[u8]) -> u32 {
         }
     }
     !crc
+}
+/// Bytes before the sums: A min, A max, B min, B max as little-endian i16.
+pub const PAYLOAD_HEADER_BYTES: usize = 8;
+/// Protocol-2 binary payload length for `count` output samples.
+pub fn payload_len(count: usize) -> usize {
+    PAYLOAD_HEADER_BYTES + 8 * count
+}
+/// Protocol-2 payload: [A min, A max, B min, B max] as i16, then per output
+/// sample [A sum, B sum] as i32, all little-endian. The CRC covers all of it.
+pub fn encode_payload(raw_min: [i16; 2], raw_max: [i16; 2], sums: &[[i32; 2]]) -> Vec<u8> {
+    let mut bytes = Vec::with_capacity(payload_len(sums.len()));
+    for value in [raw_min[0], raw_max[0], raw_min[1], raw_max[1]] {
+        bytes.extend_from_slice(&value.to_le_bytes());
+    }
+    for pair in sums {
+        bytes.extend_from_slice(&pair[0].to_le_bytes());
+        bytes.extend_from_slice(&pair[1].to_le_bytes());
+    }
+    bytes
+}
+/// Decoded protocol-2 payload: (raw_min, raw_max, sums).
+pub type Payload = ([i16; 2], [i16; 2], Vec<[i32; 2]>);
+/// Inverse of [`encode_payload`].
+pub fn decode_payload(bytes: &[u8]) -> Result<Payload> {
+    if bytes.len() < PAYLOAD_HEADER_BYTES || (bytes.len() - PAYLOAD_HEADER_BYTES) % 8 != 0 {
+        return Err("protocol-2 payload length is not 8 + 8 x count bytes".into());
+    }
+    let i16_at = |i: usize| i16::from_le_bytes([bytes[i], bytes[i + 1]]);
+    let sums = bytes[PAYLOAD_HEADER_BYTES..]
+        .chunks_exact(8)
+        .map(|c| {
+            [
+                i32::from_le_bytes([c[0], c[1], c[2], c[3]]),
+                i32::from_le_bytes([c[4], c[5], c[6], c[7]]),
+            ]
+        })
+        .collect();
+    Ok(([i16_at(0), i16_at(4)], [i16_at(2), i16_at(6)], sums))
+}
+/// Version-checked capture loader: protocol-1 records fail with an explicit message.
+pub fn parse_sweep(text: &str) -> Result<Sweep> {
+    let value: serde_json::Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
+    let records = value
+        .get("records")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("capture file has no records array")?;
+    for record in records {
+        let protocol = record.get("protocol").and_then(serde_json::Value::as_u64);
+        if protocol != Some(u64::from(PROTOCOL_VERSION)) {
+            if record.get("packed_samples").is_some() || record.get("sample_divider").is_some() {
+                return Err("capture file is protocol 1 (undersampled packed 16-bit samples); this host needs protocol-2 boxcar-decimated captures: flash protocol-2 firmware and recapture".into());
+            }
+            return Err(format!(
+                "capture record protocol {protocol:?} is unsupported; this host needs protocol {PROTOCOL_VERSION}"
+            ));
+        }
+    }
+    serde_json::from_value(value).map_err(|e| e.to_string())
+}
+/// Version-checked calibration loader: schema 3 and older fail with an explicit message.
+pub fn parse_calibration(text: &str) -> Result<Calibration> {
+    let value: serde_json::Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
+    let schema = value
+        .get("schema_version")
+        .and_then(serde_json::Value::as_u64)
+        .unwrap_or(0);
+    if schema != u64::from(CALIBRATION_SCHEMA_VERSION) {
+        return Err(format!("calibration schema {schema} is not {CALIBRATION_SCHEMA_VERSION}: it predates protocol-2 boxcar captures or belongs to another revision; recalibrate with fresh standards"));
+    }
+    serde_json::from_value(value).map_err(|e| e.to_string())
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Setup {
@@ -136,34 +236,81 @@ impl Setup {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Record {
+    /// Wire protocol of the producing firmware; must equal [`PROTOCOL_VERSION`].
+    #[serde(default)]
+    pub protocol: u32,
     /// False only for an explicitly requested source-off diagnostic.
     pub source_enabled: bool,
     pub tuning_word: u32,
-    pub sample_divider: u32,
-    /// Interleaved B15,A15,...,B0,A0; exact words received over USB.
-    pub packed_samples: Vec<u32>,
+    /// Consecutive 1 MSPS conversions summed into each output sample (1..20).
+    pub decimation: u32,
+    /// Most negative single conversion on [A, B] over the whole capture.
+    pub raw_min: [i16; 2],
+    /// Most positive single conversion on [A, B] over the whole capture.
+    pub raw_max: [i16; 2],
+    /// Per output sample, [sum of A, sum of B] over `decimation` conversions.
+    pub sums: Vec<[i32; 2]>,
+    /// CRC32 of the protocol-2 payload (extremes header and sums) as received.
     pub transport_crc32: u32,
 }
 impl Record {
+    pub fn payload(&self) -> Vec<u8> {
+        encode_payload(self.raw_min, self.raw_max, &self.sums)
+    }
+    pub fn output_rate_hz(&self) -> f64 {
+        output_rate_hz(self.decimation)
+    }
+    /// Output samples in single-conversion codes: sum / decimation.
+    pub fn means(&self, channel: usize) -> Vec<f64> {
+        let n = f64::from(self.decimation);
+        self.sums
+            .iter()
+            .map(|s| f64::from(s[channel]) / n)
+            .collect()
+    }
+    /// True when any single conversion on the channel reached |code| >= 32700.
+    pub fn clipped(&self, channel: usize) -> bool {
+        i32::from(self.raw_min[channel]) <= -CLIP_CODE
+            || i32::from(self.raw_max[channel]) >= CLIP_CODE
+    }
     pub fn validate(&self) -> Result<()> {
+        if self.protocol != PROTOCOL_VERSION {
+            return Err(format!(
+                "capture record protocol {} is not {PROTOCOL_VERSION}; recapture with protocol-2 firmware",
+                self.protocol
+            ));
+        }
         let f = frequency_hz(self.tuning_word);
-        if !(1..=20).contains(&self.sample_divider)
-            || !(256..=32768).contains(&self.packed_samples.len())
+        if !(1..=MAX_DECIMATION).contains(&self.decimation)
+            || !(256..=MAX_COUNT).contains(&self.sums.len())
             || !(99.9..=100000.1).contains(&f)
         {
-            return Err("invalid capture length, clock divider, or DDS frequency".into());
+            return Err("invalid capture length, boxcar decimation, or DDS frequency".into());
         }
-        let rate = SAMPLE_BASE_HZ / f64::from(self.sample_divider);
-        if rate / f < 8.0 || self.packed_samples.len() as f64 * f / rate < 10.0 {
-            return Err("record requires >=8 samples/cycle and >=10 cycles".into());
+        let rate = self.output_rate_hz();
+        if rate / f < 8.0 || self.sums.len() as f64 * f / rate < 10.0 {
+            return Err("record requires >=8 output samples/cycle and >=10 cycles".into());
         }
-        let bytes: Vec<u8> = self
-            .packed_samples
-            .iter()
-            .flat_map(|v| v.to_le_bytes())
-            .collect();
-        if crc32(&bytes) != self.transport_crc32 {
+        if crc32(&self.payload()) != self.transport_crc32 {
             return Err("capture CRC mismatch".into());
+        }
+        // Every sum of N conversions lies within N x [min, max] of those conversions.
+        let n = i64::from(self.decimation);
+        for channel in 0..2 {
+            let (lo, hi) = (
+                i64::from(self.raw_min[channel]),
+                i64::from(self.raw_max[channel]),
+            );
+            if lo > hi
+                || self
+                    .sums
+                    .iter()
+                    .any(|s| !(n * lo..=n * hi).contains(&i64::from(s[channel])))
+            {
+                return Err(
+                    "boxcar sums are inconsistent with the reported conversion extremes".into(),
+                );
+            }
         }
         Ok(())
     }
@@ -175,10 +322,18 @@ pub struct Sweep {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Fit {
+    /// Tone phasor in single-conversion codes, divided by the boxcar gain.
     pub phasor_codes: Complex,
     pub dc_codes: f64,
+    /// RMS fit residual of the decimated samples, in single-conversion codes.
     pub residual_rms_codes: f64,
-    pub clipped_samples: usize,
+    /// Boxcar amplitude response at the fitted frequency (1 for decimation 1).
+    pub boxcar_gain: f64,
+    /// Single-conversion extremes reported by the firmware for this channel.
+    pub raw_min_code: i16,
+    pub raw_max_code: i16,
+    /// Any single conversion reached |code| >= 32700.
+    pub clipped: bool,
 }
 impl Fit {
     pub fn valid_signal(&self) -> bool {
@@ -212,41 +367,66 @@ fn solve_real(mut a: [[f64; 4]; 3]) -> Result<[f64; 3]> {
     }
     Ok([a[0][3], a[1][3], a[2][3]])
 }
-/// Least-squares DC + cosine + sine fit; valid for non-integer cycle counts.
-/// The cosine phasor convention is a - j*b for a*cos(wt)+b*sin(wt).
-pub fn fit(samples: &[i16], hz: f64, rate: f64) -> Result<Fit> {
-    if samples.len() < 16 || !hz.is_finite() || !rate.is_finite() || hz <= 0.0 || hz >= rate / 2.0 {
+/// Effective time of output sample k: the centre of its boxcar window,
+/// (k N + (N - 1) / 2) / 1 MHz, measured from the first conversion.
+pub fn output_time_s(k: usize, decimation: u32) -> f64 {
+    let n = f64::from(decimation);
+    (k as f64 * n + (n - 1.0) / 2.0) / CONVERSION_RATE_HZ
+}
+/// Least-squares DC + cosine + sine fit to boxcar means (sum / N); valid for
+/// non-integer cycle counts. Each output is timed at its window centre, which
+/// makes the boxcar response real; the phasor is then divided by that gain so
+/// it is in input-referred single-conversion codes. The cosine phasor
+/// convention is a - j*b for a*cos(wt)+b*sin(wt). Clip fields are left clear;
+/// [`fit_channel`] fills them from the record.
+pub fn fit(means: &[f64], hz: f64, decimation: u32) -> Result<Fit> {
+    if means.len() < 16
+        || !hz.is_finite()
+        || hz <= 0.0
+        || !(1..=MAX_DECIMATION).contains(&decimation)
+        || hz >= output_rate_hz(decimation) / 2.0
+    {
         return Err("invalid sine-fit input".into());
     }
+    let angle = |k: usize| TAU * hz * output_time_s(k, decimation);
     let mut matrix = [[0.0; 4]; 3];
-    for (i, &sample) in samples.iter().enumerate() {
-        let angle = TAU * hz * i as f64 / rate;
-        let basis = [1.0, angle.cos(), angle.sin()];
+    for (k, &sample) in means.iter().enumerate() {
+        let basis = [1.0, angle(k).cos(), angle(k).sin()];
         for row in 0..3 {
             for col in 0..3 {
                 matrix[row][col] += basis[row] * basis[col];
             }
-            matrix[row][3] += basis[row] * f64::from(sample);
+            matrix[row][3] += basis[row] * sample;
         }
     }
     let [dc, c, s] = solve_real(matrix)?;
-    let sum_sq = samples
+    let sum_sq = means
         .iter()
         .enumerate()
-        .map(|(i, &y)| {
-            let angle = TAU * hz * i as f64 / rate;
-            (f64::from(y) - dc - c * angle.cos() - s * angle.sin()).powi(2)
-        })
+        .map(|(k, &y)| (y - dc - c * angle(k).cos() - s * angle(k).sin()).powi(2))
         .sum::<f64>();
+    let gain = boxcar_gain(hz, decimation);
     Ok(Fit {
-        phasor_codes: Complex::new(c, -s),
+        phasor_codes: Complex::new(c / gain, -s / gain),
         dc_codes: dc,
-        residual_rms_codes: (sum_sq / samples.len() as f64).sqrt(),
-        clipped_samples: samples
-            .iter()
-            .filter(|&&x| i32::from(x).abs() >= 32700)
-            .count(),
+        residual_rms_codes: (sum_sq / means.len() as f64).sqrt(),
+        boxcar_gain: gain,
+        raw_min_code: 0,
+        raw_max_code: 0,
+        clipped: false,
     })
+}
+/// Fit one channel of a validated record at its DDS frequency, with clip flags.
+pub fn fit_channel(record: &Record, channel: usize) -> Result<Fit> {
+    let mut fitted = fit(
+        &record.means(channel),
+        frequency_hz(record.tuning_word),
+        record.decimation,
+    )?;
+    fitted.raw_min_code = record.raw_min[channel];
+    fitted.raw_max_code = record.raw_max[channel];
+    fitted.clipped = record.clipped(channel);
+    Ok(fitted)
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Measurement {
@@ -271,16 +451,8 @@ pub fn analyze(record: &Record, range: u32) -> Result<Measurement> {
         return Err("source-off record cannot produce impedance".into());
     }
     let hz = frequency_hz(record.tuning_word);
-    let rate = SAMPLE_BASE_HZ / f64::from(record.sample_divider);
-    let decoded: Vec<[i16; 2]> = record
-        .packed_samples
-        .iter()
-        .map(|&v| decode_word(v))
-        .collect();
-    let a: Vec<i16> = decoded.iter().map(|v| v[0]).collect();
-    let b: Vec<i16> = decoded.iter().map(|v| v[1]).collect();
-    let voltage = fit(&a, hz, rate)?;
-    let current = fit(&b, hz, rate)?;
+    let voltage = fit_channel(record, 0)?;
+    let current = fit_channel(record, 1)?;
     if current.phasor_codes.abs() < 1e-9 {
         return Err("no current signal; open DUT or wrong range".into());
     }
@@ -289,7 +461,7 @@ pub fn analyze(record: &Record, range: u32) -> Result<Measurement> {
         return Err("non-finite impedance".into());
     }
     let mut issues = Vec::new();
-    if voltage.clipped_samples > 0 || current.clipped_samples > 0 {
+    if voltage.clipped || current.clipped {
         issues.push("ADC clipping".into());
     }
     if !current.valid_signal() {
@@ -341,7 +513,7 @@ fn derived(m: &mut Measurement) {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CalibrationPoint {
     pub tuning_word: u32,
-    pub sample_divider: u32,
+    pub decimation: u32,
     pub sample_count: usize,
     pub a: Complex,
     pub b: Complex,
@@ -400,8 +572,8 @@ fn compatible(a: &Sweep, b: &Sweep) -> Result<()> {
     }
     for (a, b) in a.records.iter().zip(&b.records) {
         if a.tuning_word != b.tuning_word
-            || a.sample_divider != b.sample_divider
-            || a.packed_samples.len() != b.packed_samples.len()
+            || a.decimation != b.decimation
+            || a.sums.len() != b.sums.len()
         {
             return Err("frequency, sample rate or record length differ".into());
         }
@@ -424,8 +596,8 @@ pub fn calibrate(
         let m2 = analyze(r2, short.setup.range_ohm)?;
         // Short intentionally has near-zero voltage. Current and clipping still matter.
         if !ms.current.valid_signal()
-            || ms.voltage.clipped_samples > 0
-            || ms.current.clipped_samples > 0
+            || ms.voltage.clipped
+            || ms.current.clipped
             || !m1.valid
             || !m2.valid
         {
@@ -442,8 +614,8 @@ pub fn calibrate(
         )?;
         points.push(CalibrationPoint {
             tuning_word: s.tuning_word,
-            sample_divider: s.sample_divider,
-            sample_count: s.packed_samples.len(),
+            decimation: s.decimation,
+            sample_count: s.sums.len(),
             a,
             b,
             c,
@@ -478,8 +650,8 @@ pub fn correct(
         .iter()
         .find(|p| {
             p.tuning_word == record.tuning_word
-                && p.sample_divider == record.sample_divider
-                && p.sample_count == record.packed_samples.len()
+                && p.decimation == record.decimation
+                && p.sample_count == record.sums.len()
         })
         .ok_or("no calibration at this exact frequency and acquisition setting")?;
     let denominator = p.a - m.raw_impedance_ohm * p.c;
@@ -502,43 +674,44 @@ pub fn correct(
 #[derive(Debug, Serialize)]
 pub struct Noise {
     pub frequency_hz: f64,
+    /// Conversions averaged per output sample; RMS values describe the averages.
+    pub decimation: u32,
+    /// DC-removed RMS of the N-conversion averages, in single-conversion codes.
     pub rms_codes: [f64; 2],
     pub rms_volts: [f64; 2],
+    /// Input-referred fitted tone amplitude (boxcar gain removed).
     pub tone_peak_codes: [f64; 2],
-    pub clipped_samples: [usize; 2],
+    pub raw_min_code: [i16; 2],
+    pub raw_max_code: [i16; 2],
+    pub clipped: [bool; 2],
 }
 pub fn noise(record: &Record) -> Result<Noise> {
     record.validate()?;
     if record.source_enabled {
         return Err("noise analysis requires a source-off record".into());
     }
-    let hz = frequency_hz(record.tuning_word);
-    let rate = SAMPLE_BASE_HZ / f64::from(record.sample_divider);
-    let decoded: Vec<_> = record
-        .packed_samples
-        .iter()
-        .map(|&v| decode_word(v))
-        .collect();
     let mut result = Noise {
-        frequency_hz: hz,
+        frequency_hz: frequency_hz(record.tuning_word),
+        decimation: record.decimation,
         rms_codes: [0.0; 2],
         rms_volts: [0.0; 2],
         tone_peak_codes: [0.0; 2],
-        clipped_samples: [0; 2],
+        raw_min_code: record.raw_min,
+        raw_max_code: record.raw_max,
+        clipped: [record.clipped(0), record.clipped(1)],
     };
     for channel in 0..2 {
-        let samples: Vec<_> = decoded.iter().map(|v| v[channel]).collect();
-        let fitted = fit(&samples, hz, rate)?;
-        let rms = (samples
+        let means = record.means(channel);
+        let fitted = fit_channel(record, channel)?;
+        let rms = (means
             .iter()
-            .map(|&v| (f64::from(v) - fitted.dc_codes).powi(2))
+            .map(|&v| (v - fitted.dc_codes).powi(2))
             .sum::<f64>()
-            / samples.len() as f64)
+            / means.len() as f64)
             .sqrt();
         result.rms_codes[channel] = rms;
         result.rms_volts[channel] = rms * 4.096 / 32768.0;
         result.tone_peak_codes[channel] = fitted.phasor_codes.abs();
-        result.clipped_samples[channel] = fitted.clipped_samples;
     }
     Ok(result)
 }

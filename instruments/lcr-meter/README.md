@@ -14,7 +14,7 @@ The board requires **filled, copper-capped, planarized via-in-pad fabrication**.
 
 ## Circuit and operation
 
-AD9833 sine generator → two-stage RC reconstruction → AC coupling and OPA810 gain 6 → retained TIDA-060029 analog core → two THS4551 differential drivers → ADS9224R simultaneous 16-bit ADC → RP2040 USB CDC. The 24 MHz DDS clock derives from the MCU; acquisition uses two serial data lanes at 1 MSPS. The Rust host fits both waveforms at the actual DDS frequency, applies complex feedback impedance and fixture calibration, and reports complex impedance and equivalent series L/C/R.
+AD9833 sine generator → two-stage RC reconstruction → AC coupling and OPA810 gain 6 → retained TIDA-060029 analog core → two THS4551 differential drivers → ADS9224R simultaneous 16-bit ADC → RP2040 USB CDC. The 24 MHz DDS clock derives from the MCU; acquisition uses two serial data lanes at 1 MSPS, and the firmware boxcar-sums 1–20 consecutive conversions per output sample at low frequencies instead of undersampling. The Rust host fits both waveforms at the actual DDS frequency, applies complex feedback impedance and fixture calibration, and reports complex impedance and equivalent series L/C/R.
 
 A regulated **5 V ±5%, 1 A, center-positive external supply** powers the board. USB carries data and ground. A forced-PWM TPS65131 and low-noise positive/negative postregulators supply approximately ±12 V. The instrument is ground referenced; it has no mains isolation. Neither DUT terminal should be connected to an external powered circuit.
 

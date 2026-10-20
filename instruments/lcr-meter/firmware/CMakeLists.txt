@@ -6,12 +6,13 @@ include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 project(temper_lcr_rev_c C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 pico_sdk_init()
-add_executable(temper_lcr src/main.c)
+add_executable(temper_lcr src/main.c src/boxcar.c)
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/capture.pio)
 target_include_directories(temper_lcr PRIVATE src)
 target_link_libraries(temper_lcr pico_stdlib pico_unique_id hardware_pio hardware_dma hardware_clocks)
 target_compile_options(temper_lcr PRIVATE -Wall -Wextra -Werror)
 target_compile_definitions(temper_lcr PRIVATE
+    BOXCAR_IN_RAM=1
     PICO_DEFAULT_UART_TX_PIN=28
     PICO_DEFAULT_UART_RX_PIN=29
     PICO_STDIO_USB_DEVICE_SELF_POWERED=1

@@ -1,0 +1,3 @@
+overrun trials: 228 clean (bit-exact), 172 reported overrun
+golden payload: decimation 7, count 300, seed 0x12345678, CRC32 0x2b378b6f
+PASS: deinterleave (corners + 200000 random words); boxcar sums/extremes for decimation 1..20 through a 64-word ring; single-conversion clip extremes; overrun detector soundness (400 randomized producer schedules) and forced overrun; golden payload CRC

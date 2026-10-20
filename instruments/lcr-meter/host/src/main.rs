@@ -1,14 +1,19 @@
-use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::{env, fs, process};
 use temper_lcr::transport::Device;
 use temper_lcr::{
-    analyze, calibrate, correct, divider_for, frequency_word, Calibration, Result, Sweep,
+    analyze, calibrate, correct, decimation_for, frequency_word, parse_calibration, parse_sweep,
+    Calibration, Result, Sweep,
 };
 
-fn read<T: DeserializeOwned>(path: &str) -> Result<T> {
-    serde_json::from_str(&fs::read_to_string(path).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())
+fn text(path: &str) -> Result<String> {
+    fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))
+}
+fn sweep(path: &str) -> Result<Sweep> {
+    parse_sweep(&text(path)?).map_err(|e| format!("{path}: {e}"))
+}
+fn calibration(path: &str) -> Result<Calibration> {
+    parse_calibration(&text(path)?).map_err(|e| format!("{path}: {e}"))
 }
 fn write<T: Serialize>(path: &str, value: &T) -> Result<()> {
     fs::write(
@@ -36,27 +41,28 @@ fn run(a: &[String]) -> Result<()> {
             for f in a[5].split(',') {
                 let hz:f64=number(f)?;
                 let word=frequency_word(hz)?;
-                let record=d.capture(word,divider_for(hz),a[1]=="capture")?;
+                let decimation=decimation_for(hz);
+                let record=d.capture(word,decimation,a[1]=="capture")?;
                 if a[1]=="noise" {
                     println!("{}",serde_json::to_string(&temper_lcr::noise(&record)?).map_err(|e|e.to_string())?);
                 }
-                eprintln!("captured {hz} Hz: {} simultaneous sample pairs",record.packed_samples.len());
+                eprintln!("captured {hz} Hz: {} output samples per channel, each the sum of {decimation} consecutive 1 MSPS conversions",record.sums.len());
                 records.push(record);
             }
             write(&a[6],&Sweep{setup:d.setup.clone(),records})?;
         }
         Some("calibrate") if a.len()==8 => {
-            let short:Sweep=read(&a[2])?;
-            let one:Sweep=read(&a[3])?;
-            let two:Sweep=read(&a[5])?;
+            let short=sweep(&a[2])?;
+            let one=sweep(&a[3])?;
+            let two=sweep(&a[5])?;
             let cal=calibrate(&short,&one,number(&a[4])?,&two,number(&a[6])?)?;
             write(&a[7],&cal)?;
             println!("Saved {} frequency-specific calibration points.",cal.points.len());
         }
         Some("analyze") if a.len()==3 || a.len()==4 => {
-            let sweep:Sweep=read(&a[2])?;
+            let sweep=sweep(&a[2])?;
             sweep.setup.validate()?;
-            let cal:Option<Calibration>=if a.len()==4{Some(read(&a[3])?)}else{None};
+            let cal:Option<Calibration>=if a.len()==4{Some(calibration(&a[3])?)}else{None};
             let mut values=Vec::new();
             for r in &sweep.records {
                 let mut m=analyze(r,sweep.setup.range_ohm)?;
@@ -67,8 +73,8 @@ fn run(a: &[String]) -> Result<()> {
             if values.iter().any(|m|!m.valid){return Err("one or more measurements failed signal-quality checks".into());}
         }
         Some("validate") if a.len()==6 => {
-            let sweep:Sweep=read(&a[2])?;
-            let cal:Calibration=read(&a[3])?;
+            let sweep=sweep(&a[2])?;
+            let cal=calibration(&a[3])?;
             let resistance:f64=number(&a[4])?;
             let tolerance:f64=number(&a[5])?;
             if !resistance.is_finite() || resistance<=0.0 || !tolerance.is_finite() || tolerance<=0.0 {

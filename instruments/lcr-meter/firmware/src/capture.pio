@@ -1,6 +1,7 @@
 ; ADS9224R SPI-00-S-SDR, zone 1, 2 simultaneous data pins.
 ; side bits [2:0] = CONVST, SCLK, CS on consecutive GPIO 6,5,4.
-; 120 cycles per valid sample at 120 MHz = 1 MSPS (integer divider scales).
+; 120 cycles per conversion at 120 MHz = 1 MSPS; clock divider is always 1.
+; Decimation is a CPU boxcar sum of consecutive conversions (src/boxcar.c).
 ; READY is checked at cycle 44: 366.7 ns > 315 ns tDRDY + 16.7 ns synchronizer.
 ; Capture on falling SCLK, as TI recommends for SCLK >= 30 MHz.
 ; Data input synchronizers are bypassed; old data is sampled before the

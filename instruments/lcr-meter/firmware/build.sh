@@ -9,6 +9,10 @@ BUILD=${TEMPER_LCR_BUILD_DIR:-/private/tmp/temper-lcr-revc-build}
 mkdir -p "$BUILD" "$ROOT/bin" "$ROOT/verification"
 cmake -S "$ROOT" -B "$BUILD" -DPICO_BOARD=pico -DPICO_NO_PICOTOOL=1 -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD" -j 6
+# Boxcar/deinterleave/overrun logic, compiled for and run on the build host.
+${CC:-cc} -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I"$ROOT/src" \
+    "$ROOT/test/test_boxcar.c" "$ROOT/src/boxcar.c" -o "$BUILD/test_boxcar"
+"$BUILD/test_boxcar" > "$ROOT/verification/boxcar-test.txt"
 rustc --edition=2021 -O "$ROOT/tools/bin_to_uf2.rs" -o "$BUILD/bin_to_uf2"
 rustc --edition=2021 -O "$ROOT/tools/verify_pio.rs" -o "$BUILD/verify_pio"
 "$BUILD/bin_to_uf2" "$BUILD/temper_lcr.bin" "$ROOT/bin/temper-lcr-rev-c.uf2" > "$ROOT/verification/uf2.txt"
@@ -16,4 +20,7 @@ cp "$BUILD/temper_lcr.elf" "$ROOT/bin/temper-lcr-rev-c.elf"
 cp "$BUILD/capture.pio.h" "$ROOT/verification/capture.pio.h"
 "$BUILD/verify_pio" "$BUILD/capture.pio.h" > "$ROOT/verification/pio.txt"
 "$PICO_TOOLCHAIN_PATH/bin/arm-none-eabi-size" "$BUILD/temper_lcr.elf" > "$ROOT/verification/size.txt"
-(cd "$ROOT" && shasum -a 256 CMakeLists.txt build.sh README.md src/* tools/* bin/* > verification/SHA256SUMS)
+rustc --edition=2021 -O "$ROOT/tools/hot_loop_bound.rs" -o "$BUILD/hot_loop_bound"
+"$PICO_TOOLCHAIN_PATH/bin/arm-none-eabi-objdump" -d --no-show-raw-insn "$BUILD/temper_lcr.elf" > "$BUILD/disassembly.txt"
+"$BUILD/hot_loop_bound" "$BUILD/disassembly.txt" > "$ROOT/verification/hot-loop.txt"
+(cd "$ROOT" && shasum -a 256 CMakeLists.txt build.sh README.md src/* test/* tools/* bin/* > verification/SHA256SUMS)

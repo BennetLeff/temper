@@ -10,9 +10,16 @@
 #include "hardware/pio.h"
 #include "tusb.h"
 #include "pins.h"
+#include "boxcar.h"
 #include "capture.pio.h"
 
-static uint32_t samples[MAX_SAMPLES];
+/* Protocol 2 payload: 8-byte extremes header, then int32 A,B sums per output. */
+static uint32_t payload[2u + 2u * MAX_SAMPLES];
+/* DMA write ring for raw packed conversions; size and alignment are equal so
+   the DMA write-address ring wrap works. 4096 words = 4.096 ms at 1 MSPS. */
+#define RING_WORDS 4096u
+#define RING_SIZE_BITS 14u
+static uint32_t ring[RING_WORDS] __attribute__((aligned(RING_WORDS * 4u)));
 static PIO adc_pio = pio0;
 static uint adc_sm, adc_offset;
 static int adc_dma;
@@ -70,12 +77,6 @@ static void dds_start(uint32_t word) {
     dds_word(0xc000u); /* phase register zero */
     dds_word(0x2000u); /* sine, DAC enabled, phase accumulator running */
 }
-static uint16_t channel_bits(uint32_t packed, uint channel) {
-    uint16_t result = 0;
-    for (uint bit = 0; bit < 16; ++bit)
-        result |= ((packed >> (2u * bit + channel)) & 1u) << bit;
-    return result;
-}
 static uint32_t crc32(const void *buffer, size_t length) {
     const uint8_t *p = buffer;
     uint32_t crc = UINT32_MAX;
@@ -86,7 +87,17 @@ static uint32_t crc32(const void *buffer, size_t length) {
     }
     return ~crc;
 }
-static bool capture(uint divider, uint count) {
+typedef enum { CAPTURE_OK, CAPTURE_TIMING, CAPTURE_OVERRUN } capture_result;
+/* TRANS_COUNT counts down as DMA issues transfers; context is the total. */
+static uint32_t dma_issued(const void *total) {
+    return *(const uint32_t *)total - dma_channel_hw_addr(adc_dma)->transfer_count;
+}
+/* The ADC always converts at 1 MSPS (PIO clock divider 1, 120 cycles/frame).
+   The CPU boxcar-sums `decimation` consecutive conversions per channel into
+   one output sample while DMA fills the ring; any lapped ring slot, READY
+   fault, FIFO stall, DMA incompletion or timeout invalidates the capture. */
+static capture_result capture(uint decimation, uint count, boxcar_t *box) {
+    const uint32_t total = (uint32_t)decimation * count;
     adc_idle();
     dma_channel_abort(adc_dma);
     pio_sm_clear_fifos(adc_pio, adc_sm);
@@ -100,54 +111,69 @@ static bool capture(uint divider, uint count) {
     sm_config_set_jmp_pin(&config, PIN_ADC_READY);
     sm_config_set_sideset_pins(&config, PIN_ADC_CS);
     sm_config_set_in_shift(&config, false, true, 32);
-    sm_config_set_clkdiv_int_frac(&config, divider, 0);
+    sm_config_set_clkdiv_int_frac(&config, 1, 0);
     pio_sm_init(adc_pio, adc_sm, adc_offset, &config);
-    pio_sm_put(adc_pio, adc_sm, count - 1u);
+    pio_sm_put(adc_pio, adc_sm, total - 1u);
     pio_sm_set_consecutive_pindirs(adc_pio, adc_sm, PIN_ADC_A, 2, false);
     pio_sm_set_consecutive_pindirs(adc_pio, adc_sm, PIN_ADC_CS, 3, true);
     adc_pio->input_sync_bypass |= (1u << PIN_ADC_A) | (1u << PIN_ADC_B);
+    boxcar_init(box, (int32_t *)&payload[2], decimation, count);
     dma_channel_config dma = dma_channel_get_default_config(adc_dma);
     channel_config_set_transfer_data_size(&dma, DMA_SIZE_32);
     channel_config_set_read_increment(&dma, false);
     channel_config_set_write_increment(&dma, true);
+    channel_config_set_ring(&dma, true, RING_SIZE_BITS);
     channel_config_set_dreq(&dma, pio_get_dreq(adc_pio, adc_sm, false));
-    dma_channel_configure(adc_dma, &dma, samples, &adc_pio->rxf[adc_sm], count, true);
+    dma_channel_configure(adc_dma, &dma, ring, &adc_pio->rxf[adc_sm], total, true);
     pio_sm_set_enabled(adc_pio, adc_sm, true);
-    absolute_time_t deadline = make_timeout_time_ms(100u + (count * divider) / 1000u);
-    bool failed = false;
-    while (!pio_interrupt_get(adc_pio, 0)) {
-        if (pio_interrupt_get(adc_pio, 4) || time_reached(deadline)) {
-            failed = true;
-            break;
-        }
+    absolute_time_t deadline = make_timeout_time_ms(100u + total / 1000u);
+    capture_result result = CAPTURE_OK;
+    uint32_t consumed = 0;
+    while (result == CAPTURE_OK && consumed < total) {
+        bool dma_done = !dma_channel_is_busy(adc_dma);
+        if (!boxcar_drain(box, ring, RING_WORDS, &consumed, dma_done, dma_issued, &total))
+            result = CAPTURE_OVERRUN;
+        else if (dma_done && consumed < total)
+            result = CAPTURE_TIMING; /* DMA idle with conversions missing */
+        if (pio_interrupt_get(adc_pio, 4) || time_reached(deadline)) result = CAPTURE_TIMING;
+    }
+    /* The final word reaches DMA a few PIO cycles before IRQ0 is raised. */
+    while (result == CAPTURE_OK && !pio_interrupt_get(adc_pio, 0)) {
+        if (pio_interrupt_get(adc_pio, 4) || time_reached(deadline)) result = CAPTURE_TIMING;
         tight_loop_contents();
     }
-    /* A FIFO stall would corrupt the sample timebase. PIO stops after exactly
-       count frames, so a sticky stall cannot be an after-capture false alarm. */
-    if ((adc_pio->fdebug & (1u << (PIO_FDEBUG_RXSTALL_LSB + adc_sm))) ||
-        dma_channel_is_busy(adc_dma))
-        failed = true;
+    /* PIO must have finished its exact count. A FIFO stall would corrupt the
+       timebase; PIO stops after exactly total frames, so a sticky stall cannot
+       be an after-capture false alarm. */
+    if (result == CAPTURE_OK &&
+        ((adc_pio->fdebug & (1u << (PIO_FDEBUG_RXSTALL_LSB + adc_sm))) ||
+         dma_channel_is_busy(adc_dma) || box->written != count))
+        result = CAPTURE_TIMING;
     adc_idle();
     dma_channel_abort(adc_dma);
-    return !failed;
+    boxcar_extremes(box, payload);
+    return result;
 }
 static bool adc_selftest(void) {
     adc_command(0x1502u); /* OUTPUT_DATA_WORD_CFG: fixed A55A on both ADCs */
-    if (!capture(1, 256)) {
+    boxcar_t box;
+    if (capture(1, 256, &box) != CAPTURE_OK) {
         adc_command(0x1500u);
         return false;
     }
-    bool pass = true;
-    for (uint i = 0; i < 256; ++i)
-        if (channel_bits(samples[i], 0) != 0xa55au ||
-            channel_bits(samples[i], 1) != 0xa55au)
-            pass = false;
+    /* Same deinterleave/accumulate path as measurements, with decimation 1. */
+    const int32_t pattern = (int16_t)0xa55au;
+    const int32_t *sums = (const int32_t *)&payload[2];
+    bool pass = box.min_a == pattern && box.max_a == pattern &&
+                box.min_b == pattern && box.max_b == pattern;
+    for (uint i = 0; i < 2u * 256u; ++i)
+        if (sums[i] != pattern) pass = false;
     adc_command(0x1500u);
     return pass;
 }
 static void process_command(const char *line) {
     if (!strcmp(line, "INFO")) {
-        printf("INFO 1 %s %s %u %u %u %u %s\n", HARDWARE_REVISION, unit_id, SYSTEM_CLOCK_HZ,
+        printf("INFO 2 %s %s %u %u %u %u %s\n", HARDWARE_REVISION, unit_id, SYSTEM_CLOCK_HZ,
                DDS_CLOCK_HZ, CAPTURE_CYCLES, MAX_SAMPLES, adc_ok ? "PASS" : "FAIL");
         return;
     }
@@ -163,20 +189,21 @@ static void process_command(const char *line) {
         return;
     }
     uint32_t word = 0;
-    uint divider = 0, count = 0;
+    uint decimation = 0, count = 0;
     char trailing;
     bool source_off = !strncmp(line, "NOISE ", 6);
     const char *arguments = source_off ? line + 6 :
         (!strncmp(line, "CAPTURE ", 8) ? line + 8 : "");
-    if (sscanf(arguments, "%" SCNu32 " %u %u %c", &word, &divider, &count, &trailing) != 3) {
+    if (sscanf(arguments, "%" SCNu32 " %u %u %c", &word, &decimation, &count, &trailing) != 3) {
         puts("ERR command");
         return;
     }
-    /* 100 Hz <= frequency <= 100 kHz; integer divider 1..20.
-       At least 8 samples/cycle, and >= 10 cycles in the capture. */
+    /* 100 Hz <= frequency <= 100 kHz; boxcar decimation 1..20 at 1 MSPS.
+       At least 8 output samples/cycle, and >= 10 cycles in the capture. */
     double frequency = (double)word * DDS_CLOCK_HZ / 268435456.0;
-    double rate = divider ? 1000000.0 / divider : 0.0;
-    if (!adc_ok || !gpio_get(PIN_USB_VBUS) || word == 0 || divider == 0 || divider > 20 ||
+    double rate = decimation ? 1000000.0 / decimation : 0.0;
+    if (!adc_ok || !gpio_get(PIN_USB_VBUS) || word == 0 || decimation == 0 ||
+        decimation > BOXCAR_MAX_DECIMATION ||
         count < 256 || count > MAX_SAMPLES || frequency < 99.9 || frequency > 100000.1 ||
         rate < 8.0 * frequency || (double)count * frequency / rate < 10.0) {
         puts("ERR limits_or_selftest");
@@ -189,18 +216,20 @@ static void process_command(const char *line) {
     uint settle_ms = (uint)(20000.0 / frequency) + 1u;
     if (settle_ms < 1000) settle_ms = 1000;
     sleep_ms(settle_ms);
-    bool success = capture(divider, count);
+    boxcar_t box;
+    capture_result result = capture(decimation, count, &box);
     dds_off();
     gpio_put(PIN_LED, false);
-    if (!success) {
+    if (result != CAPTURE_OK) {
         adc_ok = false;
-        puts("ERR acquisition_timing");
+        puts(result == CAPTURE_OVERRUN ? "ERR acquisition_overrun" : "ERR acquisition_timing");
         return;
     }
-    uint32_t crc = crc32(samples, count * sizeof(samples[0]));
-    printf("%s 1 %" PRIu32 " %u %u %" PRIu32 "\n",
-           source_off ? "NOISE" : "DATA", word, divider, count, crc);
-    stdio_put_string((const char *)samples, (int)(count * sizeof(samples[0])), false, false);
+    size_t bytes = (2u + 2u * count) * sizeof(payload[0]);
+    uint32_t crc = crc32(payload, bytes);
+    printf("%s 2 %" PRIu32 " %u %u %" PRIu32 "\n",
+           source_off ? "NOISE" : "DATA", word, decimation, count, crc);
+    stdio_put_string((const char *)payload, (int)bytes, false, false);
     puts("\nEND");
     stdio_flush();
 }
