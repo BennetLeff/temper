@@ -421,17 +421,31 @@
     },
     {
      "parameter": "Irms max 35-100 kHz, Th <= 70 C",
-     "datasheet_limit": 1.5,
+     "datasheet_limit": 1.973,
      "unit": "A",
-     "basis": "Maximum current vs frequency, sinusoidal, Th <= 70 C, 22.5 mm lead spacing: the two upper traces read about 1.5-1.6 A and 1.9-2.0 A over 35-100 kHz and the leader lines do not attribute the 1 uF trace unambiguously, so the lower (1.5 A) is taken (c54 reading of the repo copy, 2026-10-18)",
-     "source": "KEMET F3095_R46_X2_310_110C (2026-05-13) p.8, Lead Spacing 22.5 mm graph"
+     "basis": "Maximum current vs frequency, sinusoidal, Th <= 70 C, 22.5 mm lead spacing: the 1 uF trace (top, dotted), minimum over 35-90 kHz. The leader lines are ambiguous; the traces are not: below the knee each is the voltage limit 2 pi f C V, and only the order 0.15 / 0.33 / 0.47 / 0.68 / 1 uF from the bottom gives one test voltage for all five (246-249 V, spread 0.9%; the next best order 71%). The c54 desk's 1.5 A was the 0.68 uF trace. One trace covers both 1 uF bodies (N1 11 x 20 mm, fitted; N2 10 x 18.5 mm)",
+     "source": "KEMET F3095_R46_X2_310_110C (2026-05-13) p.8, Lead Spacing 22.5 mm graph; digitised in validation-results/11-candidates/c55-findings/results/r46-irms.md:11"
     },
     {
-     "parameter": "Irms max 35-100 kHz, Th 92.4 C",
-     "datasheet_limit": 0.995,
+     "parameter": "Irms max 35-100 kHz, Th 92.1 C",
+     "datasheet_limit": 1.32,
      "unit": "A",
-     "basis": "1.5 A x sqrt(dTlim(Th) / 20 K): the p.6 'Maximum Irms vs Th' curve equals sqrt(dTlim / 20 K) of the p.6 'Maximum overtemperature dTlim vs Th' line (20 K up to 70 C, 0 at 110 C; 78 % at 85 C, 50 % at 100 C on both); at Th 92.4 C (the L1 body beside C1 / C2 at the release case, used as Th) dTlim = 8.8 K",
-     "source": "KEMET F3095_R46_X2_310_110C p.6 (Maximum Irms vs Th; Maximum Overtemperature dTlim vs Th); p.8"
+     "basis": "1.973 A x sqrt(dTlim(Th) / 20 K), dTlim 20 K to 70 C falling linearly to 0 at 110 C (p.6, both p.6 curves); Th 92.1 C is the B3 L1 body at the release case (stress 'C2 Th bound, release')",
+     "source": "KEMET F3095_R46_X2_310_110C p.6 (Maximum Irms vs Th; Maximum Overtemperature dTlim vs Th; Th definition); p.8"
+    },
+    {
+     "parameter": "Irms max 35-100 kHz, Th 90.1 C",
+     "datasheet_limit": 1.392,
+     "unit": "A",
+     "basis": "as above at Th 90.1 C, the B3 L1 body at c28_h10",
+     "source": "KEMET F3095_R46_X2_310_110C p.6 (Maximum Irms vs Th; Maximum Overtemperature dTlim vs Th; Th definition); p.8"
+    },
+    {
+     "parameter": "Th max for the release ripple",
+     "datasheet_limit": 96.3,
+     "unit": "C",
+     "basis": "the Th at which the p.6 derating of the 1.973 A rating meets the release stress 1.153 A: 110 - 40 (I / 1.973)^2",
+     "source": "KEMET F3095_R46_X2_310_110C p.6 (Maximum Irms vs Th; Maximum Overtemperature dTlim vs Th; Th definition); p.8"
     }
    ],
    "stresses": [
@@ -490,6 +504,23 @@
       "validation-results/11-candidates/c54-ledger-desk/results/cx_current.md:8",
       "validation-results/11-candidates/c54-ledger-desk/results/cx_current.md:6"
      ]
+    },
+    {
+     "parameter": "C2 Th bound, release (L1 body)",
+     "worst_case_value": 92.1,
+     "unit": "C",
+     "condition": "KEMET p.6 defines Th as the hotter of the air around the capacitor and its hottest contact point. Bound: the B3 L1 body beside C1 / C2 (the air heated by L1 cannot be hotter than L1). C2's own pad copper is 58.2 C and the bay 61.0 C at the release case",
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c17.5_h10",
+        "item": "L1: B82726 climatic"
+       },
+       "est_c": 92.1
+      },
+      "validation-results/11-candidates/c55-findings/results/c2-ripple.md:7"
+     ]
     }
    ],
    "derating_rule": "AC voltage <= 50 % of the X2 rating for the continuous line; any surge the lab can apply <= the X2 2.5 kV impulse qualification; repetitive dV/dt <= 50 % of the row figure.",
@@ -522,22 +553,22 @@
      "ratio": 0.0004
     },
     {
-     "id": "C2 ripple, release, Th <= 70 C",
-     "rating": "Irms max 35-100 kHz, Th <= 70 C",
+     "id": "C2 ripple, release, Th 92.1 C",
+     "rating": "Irms max 35-100 kHz, Th 92.1 C",
      "stress": "C2 ripple current, release (line-cycle RMS)",
      "max_ratio": 1.0,
-     "severity": "gap",
-     "rule": "1.153 A <= 1.5 A holds only while C2's Th <= 70 C (not evidenced); model estimate",
-     "ratio": 0.7687
+     "severity": "violation",
+     "rule": "1.153 A <= 1.32 A at the L1-body Th bound (c55)",
+     "ratio": 0.8735
     },
     {
-     "id": "C2 ripple, release, Th 92.4 C",
-     "rating": "Irms max 35-100 kHz, Th 92.4 C",
-     "stress": "C2 ripple current, release (line-cycle RMS)",
+     "id": "C2 Th, release",
+     "rating": "Th max for the release ripple",
+     "stress": "C2 Th bound, release (L1 body)",
      "max_ratio": 1.0,
-     "severity": "gap",
-     "rule": "1.153 A <= 0.995 A at the L1-body Th: fails; the release case needs Th <= 86.4 C",
-     "ratio": 1.1588
+     "severity": "violation",
+     "rule": "92.1 C <= 96.3 C (keyed to margins.json: a re-solve that heats L1 re-opens this check)",
+     "ratio": 0.9564
     },
     {
      "id": "C2 ripple, c28, Th <= 70 C",
@@ -545,17 +576,26 @@
      "stress": "C2 ripple current, c28 (line-cycle RMS)",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow / ceiling route: 1.743 A > 1.5 A at any Th",
-     "ratio": 1.1622
+     "rule": "1.743 A <= 1.973 A holds while Th <= 70 C (C2 pad 63.6 C / bay 55.0 C; the air beside L1 is not evidenced)",
+     "ratio": 0.8836
     },
     {
-     "id": "C1 ripple with module, Th 92.4 C",
-     "rating": "Irms max 35-100 kHz, Th 92.4 C",
+     "id": "C2 ripple, c28, Th 90.1 C",
+     "rating": "Irms max 35-100 kHz, Th 90.1 C",
+     "stress": "C2 ripple current, c28 (line-cycle RMS)",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "airflow / ceiling route: 1.743 A > 1.392 A at the L1-body bound; needs Th <= 78.8 C",
+     "ratio": 1.2524
+    },
+    {
+     "id": "C1 ripple with module, Th 92.1 C",
+     "rating": "Irms max 35-100 kHz, Th 92.1 C",
      "stress": "C1 ripple current with the inlet module (line-cycle RMS)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "0.153 A <= 0.995 A",
-     "ratio": 0.154
+     "rule": "0.153 A <= 1.32 A",
+     "ratio": 0.1161
     }
    ],
    "layout_guidance": [
@@ -565,11 +605,11 @@
     }
    ],
    "gaps": [
-    "bench: C1 / C2 body temperature next to L1 / BR1 is not evidenced: B3 has no C1 / C2 row; its L1 body is 92.4 C at the release case (c17.5_h10, bay 61 C) and 87.8 / 90.4 C at c22 / c28 (bay 55 C), validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows 'L1: B82726 climatic' (keyed); limit 110 C, and the ripple rating above derates from 70 C. Closing test: thermocouple on C1 / C2 at the release ceiling.",
-    "bench: C2 ripple current and Th. scripts/cx_current.py is a linear crest-condition estimate that reads high (bridge always conducting, no trace inductance between C2 and the DC link): 1.15 A line-cycle RMS at the release trip against 1.5 A x sqrt((110 - Th) / 40 K) (KEMET p.6 / p.8), i.e. it needs Th <= 86.4 C. Closing test: current probe on a C2 lead plus a thermocouple on C2's leads / body at the release ceiling and at every commissioned ladder step; pass if the measured RMS <= 1.5 A x sqrt((110 - Th) / 40) at the measured Th.",
-    "owner (28 A route): C2's modelled ripple at 28 A (1.74 A line-cycle RMS) is above the 22.5 mm 1 uF rating (1.5 A at Th <= 70 C) at any Th. Before a ladder step above the release ceiling is commissioned: measure it (bench gap above), or fit a higher-current X2 / a 27.5 mm part (p.8: >= 2 A) or add series impedance between C2 and BR1 (layout change)."
+    "bench: C1 / C2 body temperature next to L1 / BR1 is not evidenced. B3 gives C2's pad copper (58.2 C release, 63.6 C c28; validation-results/11-candidates/c55-findings/results/c2-ripple.md:7) and the L1 body that bounds the air beside it (92.1 / 90.1 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows 'L1: B82726 climatic', keyed); limit 110 C. Closing test: thermocouple on C1 / C2 body and leads at the release ceiling.",
+    "bench: C2 ripple current. validation-results/11-candidates/c55-findings/scripts/c2_ripple.py on c54-ledger-desk/scripts/cx_current.py (a linear crest-condition estimate that reads high: bridge always conducting, no trace inductance between C2 and the DC link): 1.15 A line-cycle RMS at the release trip, within 1.973 A x sqrt((110 - Th) / 40) (KEMET p.6 / p.8, 1 uF trace) up to Th 96.3 C, above the 92.1 C L1-body bound. Closing test: current probe on a C2 lead plus a thermocouple at the release ceiling and at every commissioned ladder step; pass if the measured RMS <= 1.973 A x sqrt((110 - Th) / 40) at the measured Th.",
+    "owner (28 A route): C2's modelled ripple at 28 A (1.74 A line-cycle RMS) needs Th <= 78.8 C; the L1-body bound at c28 is 90.1 C (1.25 of the derated rating there), C2's own pad / bay basis 0.88. Before a ladder step above the release ceiling is commissioned: measure C2's current and Th (bench gap above), or fit a 27.5 mm part (p.8) or add series impedance between C2 and BR1 (layout change)."
    ],
-   "finding": "c54 (2026-10-18), model estimate, not a VIOLATION by the ledger rules (model stress, Th not evidenced): C2's 35-90 kHz ripple current is 1.15 A line-cycle RMS at the release ceiling and 1.74 A at 28 A (results/cx_current.md). KEMET's 22.5 mm limit is >= 1.5 A at Th <= 70 C (p.8, lower candidate trace), derated by sqrt(dTlim / 20 K) above 70 C (p.6): the release case passes only while C2's Th (ambient or hottest lead track) stays at or below 86.4 C, and the 28 A case exceeds the rating at any Th. Beside L1 (92.4 C body at the release case) the release case reads 1.16 of the rating.",
+   "finding": "c55 (2026-10-20), resolves the c54 finding at the release case: the c54 desk rated C2 on the 0.68 uF trace (1.5 A); the 1 uF trace reads 1.973 A at 35-90 kHz (validation-results/11-candidates/c55-findings/results/r46-irms.md:11), so the modelled 1.15 A release ripple holds up to Th 96.3 C, above the 92.1 C L1-body bound (0.87 of the derated rating; validation-results/11-candidates/c55-findings/results/c2-ripple.md:10). The 28 A case needs Th <= 78.8 C and stays with the airflow route. The stress is a model estimate (bench gap).",
    "notes": "Batch A 2026-10-15: surge and approval gaps closed (E97797 / V4413 from the maker's sheet). The old 'bleed is UNAUDITED' gap is closed by the R1/R2 ledger entry (0.854 s discharge check). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): X2 ripple-current ratings (KEMET p.6 / p.8), stresses from scripts/cx_current.py, checks and finding; desk gap -> bench + owner; L1-body citation refreshed to s52."
   },
   "1206W4F1003T5E": {

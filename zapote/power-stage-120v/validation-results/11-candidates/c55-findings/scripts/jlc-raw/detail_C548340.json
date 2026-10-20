@@ -1,0 +1,276 @@
+{
+ "code": 200,
+ "data": {
+  "componentCode": "C548340",
+  "componentBrandEn": "Nexperia",
+  "componentModelEn": "74LVC1G332GV,125",
+  "componentImageUrl": null,
+  "productBigImageAccessId": null,
+  "productBigImageAccessIdUrl": null,
+  "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2007030110_Nexperia-74LVC1G332GV-125_C548340.pdf",
+  "dataManualFileAccessId": "8588913657728413696",
+  "dataManualFileAccessIdUrl": null,
+  "dataManualOfficialLink": "",
+  "componentName": "Nexperia 74LVC1G332GV,125",
+  "minImage": null,
+  "minImageAccessId": null,
+  "minImageAccessIdUrl": null,
+  "imageList": null,
+  "manufacturerBlackFlag": null,
+  "componentNameEn": "Nexperia 74LVC1G332GV,125",
+  "componentSpecificationEn": "SC-74",
+  "describe": "-40\u2103~+125\u2103 1 1.65V~5.5V 1.7V~2V 3.5ns@5V,50pF 32mA 32mA 4uA 700mV~800mV 74LVC Series OR Gate SC-74 Logic Gates ROHS",
+  "attributes": [
+   {
+    "attribute_name_en": "Output Logic Level - Low",
+    "component_code": "C548340",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Operating Temperature",
+    "component_code": "C548340",
+    "attribute_value_name": "-40\u2103~+125\u2103"
+   },
+   {
+    "attribute_name_en": "Propagation Delay",
+    "component_code": "C548340",
+    "attribute_value_name": "3.5ns@5V,50pF"
+   },
+   {
+    "attribute_name_en": "Output Logic Level - High",
+    "component_code": "C548340",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Logic Type",
+    "component_code": "C548340",
+    "attribute_value_name": "OR Gate"
+   },
+   {
+    "attribute_name_en": "Current - Output High(IOH)",
+    "component_code": "C548340",
+    "attribute_value_name": "32mA"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - Low",
+    "component_code": "C548340",
+    "attribute_value_name": "700mV~800mV"
+   },
+   {
+    "attribute_name_en": "Input type",
+    "component_code": "C548340",
+    "attribute_value_name": "Schmitt trigger"
+   },
+   {
+    "attribute_name_en": "Series",
+    "component_code": "C548340",
+    "attribute_value_name": "74LVC Series"
+   },
+   {
+    "attribute_name_en": "Input Logic Level - High",
+    "component_code": "C548340",
+    "attribute_value_name": "1.7V~2V"
+   },
+   {
+    "attribute_name_en": "Voltage - Supply",
+    "component_code": "C548340",
+    "attribute_value_name": "1.65V~5.5V"
+   },
+   {
+    "attribute_name_en": "Number of Gates",
+    "component_code": "C548340",
+    "attribute_value_name": "1"
+   },
+   {
+    "attribute_name_en": "Quiescent Current",
+    "component_code": "C548340",
+    "attribute_value_name": "4uA"
+   },
+   {
+    "attribute_name_en": "Features",
+    "component_code": "C548340",
+    "attribute_value_name": "Overvoltage-tolerant input\u3001Local shutdown mode"
+   },
+   {
+    "attribute_name_en": "Inputs per Gates",
+    "component_code": "C548340",
+    "attribute_value_name": "3"
+   },
+   {
+    "attribute_name_en": "output type",
+    "component_code": "C548340",
+    "attribute_value_name": "-"
+   },
+   {
+    "attribute_name_en": "Current - Output Low(IOL)",
+    "component_code": "C548340",
+    "attribute_value_name": "32mA"
+   }
+  ],
+  "rankScore": null,
+  "firstSortName": "Logic",
+  "secondSortName": "Logic Gates",
+  "componentBrandHigh": null,
+  "remarkHigh": null,
+  "componentModelHigh": null,
+  "componentCodeHigh": null,
+  "componentSpecificationHigh": null,
+  "rohsFlag": 1,
+  "assemblyComponentFlag": false,
+  "rohsFileName": null,
+  "rohsFileId": null,
+  "reachFileName": null,
+  "reachFileId": null,
+  "lcscComponentId": 569408,
+  "componentDesignator": "U",
+  "componentSource": "shop",
+  "stockCount": 1112,
+  "overseasStockCount": 1112,
+  "prices": [
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C548340",
+    "startNumber": 1,
+    "endNumber": 49,
+    "productPrice": 0.1774,
+    "erpComponentPriceKeyId": 140970135,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C548340",
+    "startNumber": 50,
+    "endNumber": 149,
+    "productPrice": 0.1396,
+    "erpComponentPriceKeyId": 140970138,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C548340",
+    "startNumber": 150,
+    "endNumber": 499,
+    "productPrice": 0.1233,
+    "erpComponentPriceKeyId": 140970137,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C548340",
+    "startNumber": 500,
+    "endNumber": 2999,
+    "productPrice": 0.103,
+    "erpComponentPriceKeyId": 140970136,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C548340",
+    "startNumber": 3000,
+    "endNumber": 5999,
+    "productPrice": 0.094,
+    "erpComponentPriceKeyId": 140970134,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   },
+   {
+    "componentPriceKeyId": null,
+    "componentPriceAccessId": null,
+    "lcscComponentId": null,
+    "componentCode": "C548340",
+    "startNumber": 6000,
+    "endNumber": -1,
+    "productPrice": 0.0886,
+    "erpComponentPriceKeyId": 140970139,
+    "createTime": null,
+    "updateTime": null,
+    "deleted": false,
+    "lcscPriceRangeCoefficient": 1
+   }
+  ],
+  "buyPrices": null,
+  "jlcPrices": null,
+  "encapsulationUnit": "PCS",
+  "encapsulationNumber": 3000,
+  "componentTypeEn": null,
+  "xrayFlag": false,
+  "componentLibraryType": "expand",
+  "leastNumber": 5,
+  "leastNumberPrice": 0.1335,
+  "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gates_nexperia_74lvc1g332gv,125_C548340.html/?href=jlc-SMT/?href=jlc-SMT",
+  "erpComponentName": "\u53553\u8f93\u5165\u6216\u95e8",
+  "lossNumber": 4,
+  "secondTypeNameEn": "Logic Gates",
+  "firstTypeNameEn": "Logic",
+  "secondTypeNameId": 2168,
+  "firstTypeNameId": 19,
+  "warehouseCode": "sz",
+  "warehouseName": "\u6df1\u5733",
+  "canPresaleNumber": 1101,
+  "minPresaleNumber": 0,
+  "theRatio": null,
+  "componentStatus": "yes",
+  "assemblyMode": "smtWeld",
+  "assemblyModeBatch": "smtWeld",
+  "assemblyProcess": "SMT",
+  "minPurchaseNum": 1,
+  "initialPrice": 0.1774,
+  "minPresalePrice": null,
+  "componentPresaleType": null,
+  "preMinPurchaseNum": 65,
+  "providerInfos": null,
+  "componentProductType": 0,
+  "isBuyComponent": "1",
+  "noBuyReason": null,
+  "replaceUrlSuffix": null,
+  "componentAlternativesCode": null,
+  "alternativesLcscComponentId": null,
+  "leastPatchNumber": 5,
+  "fixtureFlag": false,
+  "fullReelPrice": null,
+  "recentBuyNum": null,
+  "recentBuyUnitPrice": null,
+  "buyCustomerCode": null,
+  "eccnCode": "EAR99",
+  "allowPostFlag": true,
+  "overseasComponentCatalogBizKey": 385244375326277672,
+  "overseasComponentBrandBizKey": "385285308906737665",
+  "catalogBlackFlag": null,
+  "shopShowPriceFlag": true,
+  "shopShowForeignPriceFlag": true,
+  "shopRealPriceFlag": true,
+  "needAuditFlag": false,
+  "specialComponentFee": 0.0,
+  "orderInstructionEnglish": "",
+  "moistureSensitivityLevelEn": "MSL 1",
+  "hotFlag": null,
+  "storyGoods": false,
+  "matchedPartDetail": "Nexperia-40\u2103~+125\u2103 1 1.65V~5.5V 1.7V~2V 3.5ns@5V,50pF 32mA 32mA 4uA 700mV~800mV 74LVC Series OR Gate SC-74 Logic Gates ROHS"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-20T21:59:54Z"
+}

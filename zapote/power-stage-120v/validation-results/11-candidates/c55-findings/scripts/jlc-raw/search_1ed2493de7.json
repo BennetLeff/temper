@@ -1,0 +1,1260 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 6,
+   "list": [
+    {
+     "componentId": 566963,
+     "componentLibraryType": "expand",
+     "stockCount": 100,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "74AUP1G332GM,115",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_nexperia-74aup1g332gm-115_C545833.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3857
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3759
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3693
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.3628
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.3628
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.3628
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3715
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3558
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.3495
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3621
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.3495
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.3495
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "8a5c5fc4ea64473f9dd1615c34608d41",
+     "canPresaleNumber": 100,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-74AUP1G332GM115/C545833",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 1.98,
+     "preMinPurchaseNum": 25,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3857,
+     "componentCode": "C545833",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "74AUP1G332GM,115",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8770485837836496896",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407241033_Nexperia-74AUP1G332GM-115_C545833.pdf",
+     "dataManualFileAccessId": "8588913963925188608",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia 74AUP1G332GM,115",
+     "minImage": "",
+     "minImageAccessId": "8770485838981947392",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "XSON-6(1x1.5)",
+     "describe": "-40\u2103~+125\u2103 1 1.6V~2V 4mA 4mA 500nA 700mV~900mV 74AUP Series 800mV~3.6V OR Gate XSON-6(1x1.5) Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "5.5ns@3.6V,30pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "OR Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "700mV~900mV"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "\u65bd\u5bc6\u7279\u89e6\u53d1\u5668"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74AUP Series"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.6V~2V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "800mV~3.6V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "500nA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage-tolerant input\u3001Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "3"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74AUP1G332</span>GM,115",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 566966,
+     "componentLibraryType": "expand",
+     "stockCount": 8,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "\u4f4e\u529f\u8017\u4e09\u8f93\u5165\u6216\u95e8",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_nexperia-74aup1g332gs-132_C545836.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2909
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2844
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2795
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.2762
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.2762
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.2762
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2692
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.2661
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2802
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.2661
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2739
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.2661
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "8a5c5fc4ea64473f9dd1615c34608d41",
+     "canPresaleNumber": 8,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-74AUP1G332GS132/C545836",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 1.333,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2909,
+     "componentCode": "C545836",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "74AUP1G332GS,132",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_Nexperia-74AUP1G332GS-132_C545836.pdf",
+     "dataManualFileAccessId": "8588913238968426496",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia 74AUP1G332GS,132",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "XSON-6(1x1)",
+     "describe": "-40\u2103~+125\u2103 1 1.6V\u30012V 2.05V\u30012.6V\u30012.72V 3 310mV\u3001440mV\u3001500mV 4mA 4mA 700mV\u3001900mV 74AUP 800mV~3.6V 900nA OR Gate XSON-6(1x1) Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "310mV\u3001440mV\u3001500mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "5.5ns@3.0V,30pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "2.05V\u30012.6V\u30012.72V"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "OR Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "700mV\u3001900mV"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74AUP"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.6V\u30012V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "800mV~3.6V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "900nA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage-tolerant input\u3001Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "3"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74AUP1G332</span>GS,132",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 566967,
+     "componentLibraryType": "expand",
+     "stockCount": 6,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "\u4f4e\u529f\u8017\u4e09\u8f93\u5165\u6216\u95e8",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/logic-gates_nexperia-74aup1g332gw-125_C545837.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4135
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4037
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3971
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.3906
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.3906
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.3906
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3983
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3825
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.3762
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3888
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.3762
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.3762
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "8a5c5fc4ea64473f9dd1615c34608d41",
+     "canPresaleNumber": 4,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-74AUP1G332GW125/C545837",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.985,
+     "preMinPurchaseNum": 23,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4135,
+     "componentCode": "C545837",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "74AUP1G332GW,125",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407241033_Nexperia-74AUP1G332GW-125_C545837.pdf",
+     "dataManualFileAccessId": "8588913333932339200",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia 74AUP1G332GW,125",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TSSOP-6-1.3mm",
+     "describe": "-40\u2103~+125\u2103 1 1.4uA 3 4mA 4mA 500mV 6.7ns@3.3V,30pF 74AUP 800mV~3.6V OR Gate TSSOP-6-1.3mm Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "500mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "6.7ns@3.3V,30pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "OR Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74AUP"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "800mV~3.6V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "1.4uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage-tolerant input\u3001Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "3"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74AUP1G332</span>GW,125",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 566962,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "74AUP1G332GF,132",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gates_nexperia_74aup1g332gf,132_C545832.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5458
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4314
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3808
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3203
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2925
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2762
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2818
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3086
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5258
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3668
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4156
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2661
+      }
+     ],
+     "firstSortAccessId": "4f1daf13964c440f895f56f72c7fe247",
+     "secondSortAccessId": "f10c695166f84c9589091db5816b9dfd",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-74AUP1G332GF132/C545832",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 1.39089,
+     "preMinPurchaseNum": 21,
+     "minPurchaseNum": 21,
+     "initialPrice": 0.4314,
+     "componentCode": "C545832",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "74AUP1G332GF,132",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2007021613_Nexperia-74AUP1G332GF-132_C545832.pdf",
+     "dataManualFileAccessId": "8588913775798341632",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia 74AUP1G332GF,132",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "XSON-6(1x1)",
+     "describe": "-40\u2103~+125\u2103 1 1.32V\u30011.9V\u30012.05V\u30012.6V\u30012.72V 1.6V\u30012V 100mV\u3001310mV\u3001440mV 2.9ns@3V,5pF 3 4mA 4mA 500nA 700mV\u3001900mV 74AUP 800mV~3.6V Local shutdown mode OR Gate XSON-6(1x1) Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "100mV\u3001310mV\u3001440mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "2.9ns@3V,5pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "1.32V\u30011.9V\u30012.05V\u30012.6V\u30012.72V"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "OR Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "700mV\u3001900mV"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74AUP"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.6V\u30012V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "800mV~3.6V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "500nA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "3"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74AUP1G332</span>GF,132",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 566964,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "74AUP1G332GM,132",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gates_nexperia_74aup1g332gm,132_C545834.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1893
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1496
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.1324
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1112
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1017
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.096
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.1275
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1441
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0924
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.098
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1823
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1071
+      }
+     ],
+     "firstSortAccessId": "4f1daf13964c440f895f56f72c7fe247",
+     "secondSortAccessId": "f10c695166f84c9589091db5816b9dfd",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-74AUP1G332GM132/C545834",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 1.53038,
+     "preMinPurchaseNum": 69,
+     "minPurchaseNum": 69,
+     "initialPrice": 0.1324,
+     "componentCode": "C545834",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "74AUP1G332GM,132",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2007021613_Nexperia-74AUP1G332GM-132_C545834.pdf",
+     "dataManualFileAccessId": "8588913455574732800",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia 74AUP1G332GM,132",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "XSON-6(1x1.5)",
+     "describe": "-40\u2103~+125\u2103 1 1.6V~2V 4mA 4mA 500nA 700mV~900mV 74AUP Series 800mV~3.6V OR Gate XSON-6(1x1.5) Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "100mV\u3001310mV\u3001440mV"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "17.9ns@1.1V,30pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "1.11V\u30011.32V\u30011.9V\u30012.05V\u30012.6V\u30012.72V"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "OR Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "700mV~900mV"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74AUP Series"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.6V~2V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "800mV~3.6V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "500nA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage-tolerant input\u3001Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "3"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74AUP1G332</span>GM,132",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 566965,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Logic Gates",
+     "erpComponentName": "74AUP1G332GN,132",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/gates_nexperia_74aup1g332gn,132_C545835.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1432
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1138
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0989
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.088
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0791
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0746
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0953
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0718
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1379
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0847
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1096
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0762
+      }
+     ],
+     "firstSortAccessId": "4f1daf13964c440f895f56f72c7fe247",
+     "secondSortAccessId": "f10c695166f84c9589091db5816b9dfd",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-74AUP1G332GN132/C545835",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 1.4175,
+     "preMinPurchaseNum": 92,
+     "minPurchaseNum": 92,
+     "initialPrice": 0.0989,
+     "componentCode": "C545835",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "74AUP1G332GN,132",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2007021613_Nexperia-74AUP1G332GN-132_C545835.pdf",
+     "dataManualFileAccessId": "8588913653848006656",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia 74AUP1G332GN,132",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "XSON-6(0.9x1)",
+     "describe": "-40\u2103~+125\u2103 1 1.6V~2V 4mA 4mA 5.5ns@3.3V,30pF 500nA 700mV~900mV 74AUP Series 800mV~3.6V OR Gate Overvoltage-tolerant input\u3001Local shutdown mode XSON-6(0.9x1) Logic Gates ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Output Logic Level - Low",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "5.5ns@3.3V,30pF"
+      },
+      {
+       "attribute_name_en": "Output Logic Level - High",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Logic Type",
+       "attribute_value_name": "OR Gate"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "4mA"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - Low",
+       "attribute_value_name": "700mV~900mV"
+      },
+      {
+       "attribute_name_en": "Input type",
+       "attribute_value_name": "Schmitt trigger"
+      },
+      {
+       "attribute_name_en": "Series",
+       "attribute_value_name": "74AUP Series"
+      },
+      {
+       "attribute_name_en": "Input Logic Level - High",
+       "attribute_value_name": "1.6V~2V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "800mV~3.6V"
+      },
+      {
+       "attribute_name_en": "Number of Gates",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "500nA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Overvoltage-tolerant input\u3001Local shutdown mode"
+      },
+      {
+       "attribute_name_en": "Inputs per Gates",
+       "attribute_value_name": "3"
+      },
+      {
+       "attribute_name_en": "output type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "4mA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Logic Gates",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>74AUP1G332</span>GN,132",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "74AUP1G332"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-20T21:59:44Z"
+}
