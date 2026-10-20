@@ -21,7 +21,7 @@ The board SHA-256 is `b0c15add2b69967cee0593962e1b3b22795725ed36ccbfc408b05c3fb4
 
 Uploaded ZIP parsed as 240 × 84 mm, four layers. Configured five PCBs, Standard top-side assembly, two populated, ENIG, and explicit layer sequence F.Cu / In1.Cu / In2.Cu / B.Cu. Production-file and parts-placement confirmation were enabled with automatic confirmation disabled. JLC added two 5 mm assembly rails and displayed 240 × 94 mm for the panel envelope. Require the production drawing to preserve the original finished outline and slots.
 
-The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. Login is required to continue; BOM/CPL matching and checkout remain unfinished. Review assembly terms and the complete order total before purchase.
+The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. Sign-in returned to the quote page and cleared its settings; the same settings and Gerber upload were restored. JLC blocks continuation until its Assembly Service Terms and Conditions are accepted. User confirmation for that acceptance is pending; BOM/CPL matching and checkout remain unfinished. Review the complete order total before purchase.
 
 Saved assembly remark:
 
