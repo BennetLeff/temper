@@ -1,0 +1,207 @@
+{
+ "r43": "temper-manufacturing-r43",
+ "sequence": [
+  {
+   "title": "Tiles A and B lowered onto the FET / BR1 tab faces (held by hand or tape)",
+   "parts": [
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B"
+   ],
+   "direction": "+Z",
+   "travel_mm": 60,
+   "blocked": []
+  },
+  {
+   "title": "BR1 gap pad lowered",
+   "parts": [
+    "electronics_sink_BR1_gap_pad"
+   ],
+   "direction": "+Z",
+   "travel_mm": 40,
+   "blocked": []
+  },
+  {
+   "title": "FR-4 pressure strip lowered behind the FET bodies",
+   "parts": [
+    "electronics_sink_FR4_pressure_strip"
+   ],
+   "direction": "+Z",
+   "travel_mm": 60,
+   "blocked": []
+  },
+  {
+   "title": "Spreader bar with the sink envelope (one PE metal subassembly), brought up to the tiles from the sink side",
+   "parts": [
+    "electronics_sink_spreader_bar",
+    "electronics_native21_sink_ENVELOPE"
+   ],
+   "direction": "+Y",
+   "travel_mm": 80,
+   "blocked": []
+  },
+  {
+   "title": "Clamp comb lowered over the strip and the bar",
+   "parts": [
+    "electronics_sink_clamp_comb"
+   ],
+   "direction": "+Z",
+   "travel_mm": 60,
+   "blocked": []
+  },
+  {
+   "title": "Bar bond screws M4 driven along +Y from the board side, above the comb (they lie along Y; from above they hit the sink)",
+   "parts": [
+    "electronics_sink_bar_bond_screws_M4"
+   ],
+   "direction": "-Y",
+   "travel_mm": 60,
+   "blocked": []
+  }
+ ],
+ "controls": {
+  "tile_from_board_side_blocked": true,
+  "strip_from_tile_side_blocked": true,
+  "tile_from_above_clear": true
+ },
+ "explore": {
+  "electronics_sink_AlN_tile_A": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE"
+   ],
+   "directions": {
+    "+X": "blocked from 30.0 mm by electronics_native21_components_ENVELOPE",
+    "-X": "clear",
+    "+Y": "clear",
+    "-Y": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "+Z": "clear",
+    "-Z": "blocked from 30.0 mm by electronics_native21_board"
+   }
+  },
+  "electronics_sink_AlN_tile_B": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE"
+   ],
+   "directions": {
+    "+X": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "-X": "blocked from 65.0 mm by electronics_native21_components_ENVELOPE",
+    "+Y": "clear",
+    "-Y": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "+Z": "clear",
+    "-Z": "blocked from 30.0 mm by electronics_native21_board"
+   }
+  },
+  "electronics_sink_BR1_gap_pad": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE",
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B"
+   ],
+   "directions": {
+    "+X": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "-X": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "+Y": "blocked from 2.0 mm by electronics_sink_AlN_tile_B",
+    "-Y": "blocked from 35.0 mm by electronics_native21_components_ENVELOPE",
+    "+Z": "clear",
+    "-Z": "blocked from 20.0 mm by electronics_native21_board"
+   }
+  },
+  "electronics_sink_FR4_pressure_strip": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE",
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B",
+    "electronics_sink_BR1_gap_pad"
+   ],
+   "directions": {
+    "+X": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "-X": "blocked from 30.0 mm by electronics_native21_components_ENVELOPE",
+    "+Y": "blocked from 9.0 mm by electronics_native21_components_ENVELOPE",
+    "-Y": "blocked from 25.0 mm by electronics_native21_components_ENVELOPE",
+    "+Z": "clear",
+    "-Z": "blocked from 20.0 mm by electronics_native21_board"
+   }
+  },
+  "electronics_sink_spreader_bar": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE",
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B",
+    "electronics_sink_BR1_gap_pad",
+    "electronics_sink_FR4_pressure_strip"
+   ],
+   "directions": {
+    "+X": "clear",
+    "-X": "clear",
+    "+Y": "clear",
+    "-Y": "blocked from 40.0 mm by electronics_native21_components_ENVELOPE",
+    "+Z": "clear",
+    "-Z": "clear"
+   }
+  },
+  "electronics_native21_sink_ENVELOPE": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE",
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B",
+    "electronics_sink_BR1_gap_pad",
+    "electronics_sink_FR4_pressure_strip"
+   ],
+   "directions": {
+    "+X": "clear",
+    "-X": "clear",
+    "+Y": "clear",
+    "-Y": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "+Z": "clear",
+    "-Z": "clear"
+   }
+  },
+  "electronics_sink_clamp_comb": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE",
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B",
+    "electronics_sink_BR1_gap_pad",
+    "electronics_sink_FR4_pressure_strip",
+    "electronics_sink_spreader_bar",
+    "electronics_native21_sink_ENVELOPE"
+   ],
+   "directions": {
+    "+X": "blocked from 80.0 mm by electronics_native21_components_ENVELOPE",
+    "-X": "clear",
+    "+Y": "blocked from 65.0 mm by electronics_native21_sink_ENVELOPE",
+    "-Y": "clear",
+    "+Z": "clear",
+    "-Z": "blocked from 45.0 mm by electronics_native21_board"
+   }
+  },
+  "electronics_sink_bar_bond_screws_M4": {
+   "installed_before": [
+    "electronics_native21_board",
+    "electronics_native21_components_ENVELOPE",
+    "electronics_sink_AlN_tile_A",
+    "electronics_sink_AlN_tile_B",
+    "electronics_sink_BR1_gap_pad",
+    "electronics_sink_FR4_pressure_strip",
+    "electronics_sink_spreader_bar",
+    "electronics_native21_sink_ENVELOPE",
+    "electronics_sink_clamp_comb"
+   ],
+   "directions": {
+    "+X": "blocked from 80.0 mm by electronics_native21_sink_ENVELOPE",
+    "-X": "blocked from 80.0 mm by electronics_native21_sink_ENVELOPE",
+    "+Y": "blocked from 55.0 mm by electronics_native21_sink_ENVELOPE",
+    "-Y": "clear",
+    "+Z": "blocked from 6.0 mm by electronics_native21_sink_ENVELOPE",
+    "-Z": "blocked from 60.0 mm by electronics_native21_sink_ENVELOPE"
+   }
+  }
+ },
+ "status": "CLEAR"
+}

@@ -56,7 +56,7 @@ spec and the test, not a purchase-order line.
 
 ### 1b. Mechanical rows (DRAFT, enclosure R33, 2026-10-10)
 
-> **Electrical rows 1–7 are stale for native-21.** They are the retired half-bridge's numbers: 88 µH, R_ac ≤ 0.40 Ω, class 180 °C. The power-stage session owns the update: 70 µH design / 66.3 µH installed, R_ac ≤ 0.25 Ω at 100 °C, Litz class ≥ 200 °C. Do not send this document to a supplier until that update and these rows are both in.
+> **Electrical rows are stale for native-21 unless updated; rows 1 and 7 are updated (70 µH, 76 A), the others were not re-audited.** They are the retired half-bridge's numbers: 88 µH, R_ac ≤ 0.40 Ω, class 180 °C. The power-stage session owns the update: 70 µH design / 66.3 µH installed, R_ac ≤ 0.25 Ω at 100 °C, Litz class ≥ 200 °C. Do not send this document to a supplier until that update and these rows are both in.
 
 | # | Parameter | Requirement | How it is verified |
 |---|---|---|---|

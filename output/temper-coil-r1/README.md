@@ -250,7 +250,7 @@ These are recommendations only; nothing on the board or in the firmware was edit
   - report no-pan;
   - re-probe periodically.
 
-**Spec** (`docs/hardware/TANK_COIL_SPECIFICATION.md`). The version read is the main checkout's uncommitted working tree, sha256 637a7603…, read 2026-10-18; this branch's committed copy is the stale 88 µH version.
+**Spec** (`docs/hardware/TANK_COIL_SPECIFICATION.md`). The version read is the main checkout's uncommitted working tree, sha256 637a7603…, read 2026-10-18; this branch's committed copy now carries the coil corrections (dd8e7962d, 93b9ea185); the uncommitted main-checkout copy may differ.
 
 **S1, row 1.** Alternate B is "about 21 turns" in the spec. It is **20.75 turns** on R43's bands with these bars; 70 µH is 19.1. R43's drawn 21.93 turns give 87.7 µH.
 

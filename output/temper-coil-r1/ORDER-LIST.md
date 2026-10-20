@@ -14,7 +14,7 @@ Per coil: 9.27 m of winding, plus 0.4 m of leads, plus 0.73 m for the spare turn
 | Do not use | NEWT NELC270/40SPSN | earlier read | 0.08 mm strands, polyurethane strand insulation, nylon serve: too little copper, too low a class | — | — |
 | Qualification coil (spec row 8/11) | **270 × 0.10 mm, type 2, class-200 enamel, Nomex or PTFE serve, ~Ø2.4**. Custom from RM Cybernetics (earlier read: ~6 weeks, MOQ £1000), [New England Wire](https://www.newenglandwire.com/product/custom-litz-wire-options) (RFQ) or Elektrisola (RFQ) | no stock found | 83.2 / 86.6 / 109.6 | 40 m | 4–8 weeks *est.*, after RFQ |
 
-The temperature class of the stock wire is the open item. Solderable polyurethane enamel is typically class 155 and polyester silk around 130–155, but neither page states it. Until a datasheet says otherwise, run class-155 limits: winding ≤ 130 °C (README D4).
+The RM Cybernetics datasheet (read 2026-10-19, text extracted from the PDF) lists **thermal class 155** for the 12 A, 1000 × 0.05 mm, OD 2.55 mm wire (class 130 only for the 3 A, 75 × 0.1 wire). Stock for that size is still unconfirmed. The Elecify class is still unstated. Run class-155 limits: winding ≤ 130 °C (README D4). Hot limits of the other housing materials are in [HOT-LIMITS.md](HOT-LIMITS.md).
 
 ## 2. Ferrite (10 bars per coil; 30 bought = 2 coils + 10 spare)
 

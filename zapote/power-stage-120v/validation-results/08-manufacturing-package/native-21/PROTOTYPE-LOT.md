@@ -112,7 +112,7 @@ apply when shipping to the US; shipping not priced). JLC's own BOM-review page t
 - The saving against JLC's $20.64 is about $37 per board at 80 parts (4 x ($20.64 - $11.42)).
 
 Every other line is covered by JLC stock at 20 boards (CSV). **Fixings:** M3 nylon (UL94 V-0) screws, washers and standoffs for
-H2–H7, the whole chain insulating (BRINGUP-PROBES.md, FAB-NOTE); one metal M3 for H1 (chassis / PE).
+H2–H7 (R43 numbering; the board uses H1 and H3–H8 and H2, H9, H10 stay empty, DECISIONS 76), the whole chain insulating (BRINGUP-PROBES.md, FAB-NOTE); one metal M3 for H1 (chassis / PE).
 
 ## Bank variant and commissioning rule
 
@@ -154,7 +154,7 @@ pre-compliance decides; fitting the 2203 (12.37 dB) is the fallback.
    preheated board). The alternative is to order the bank line Do Not Place and fit it after S25 (`c53-astra-results/bank-s25/`
    protocol).
 8. **Controller side: not an order gate (DECISIONS 76); it gates powering the board together with the controller.** The J13 merge and
-   the J4.1 drop (`c23-supply-topology/CONTROLLER-REQUEST.md`) are not done on any controller branch. A stage-38+ board does not
+   the J4.1 drop (`c23-supply-topology/CONTROLLER-REQUEST.md`) landed on controller branch `controller-j13-merge` (C49, DECISIONS 79, 2026-10-18); they are not on any other controller branch. A stage-38+ board does not
    power that controller (benign), so bring-up runs the power board on bench supplies with no controller until they land.
 9. Firmware: the controller image must ship the **17.5 A tank ceiling** (DECISIONS 61, which supersedes 56's 18 A; `TEMPER_POWER_TANK_CEILING_DA=175`, the Kconfig default, verified 2026-10-17) and the RMS-increment aux allowance
    (B11). The ladder above 17.5 A follows COMMISSIONING.md and the bank-variant rule above.

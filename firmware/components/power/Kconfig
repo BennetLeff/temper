@@ -4,8 +4,9 @@ config TEMPER_POWER_HW_BINDING
     bool "Build the native-21 hardware binding (integrated SELV controller)"
     default n
     help
-        Compiles n21_hw_esp32.c and starts it from app_main. Off by default: the source has not yet
-        been compiled against ESP-IDF or run on hardware (see COMMISSIONING.md). With this off the
+        Compiles n21_hw_esp32.c and starts it from app_main. Off by default: the source has not been run on
+        hardware, and compiled clean against ESP-IDF only before the J13 edits of 2026-10-18 (see
+        build-evidence/esp-idf/README.md) (see COMMISSIONING.md). With this off the
         power service stays unbound and inhibited, as before.
 
 choice TEMPER_POWER_MODE

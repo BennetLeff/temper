@@ -18,6 +18,7 @@ The firmware is organized around a central state machine (`main/state_machine.c`
 | `NO_PAN` | Pan removed pause (3s window to replace) |
 | `COOLDOWN` | Active cooling after stop |
 | `FAULT` | Safety lockout (requires reset) |
+| `RUNAWAY_FAULT` | Runaway-comparator lockout (`main/state_machine.h`) |
 
 ### Components
 

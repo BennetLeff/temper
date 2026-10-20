@@ -1,5 +1,7 @@
 # power-stage-120v: full-bridge induction power stage
 
+> **Stale header (audit 2026-10-20):** the status and design text below predate the s53 board. Current: board s53, 290 × 190 mm, 2EDR8259X drivers, CA-IS3720HW isolators, PS1 deleted, KLDR025.TXP fuse, CT 1:200. See DECISIONS.md items 75 and later.
+
 Status: **source compiled and audited; 240 × 160 mm four-layer placement
 generated; native-06 routed and checked for renewed D4 review; physical NOT RUN.**
 Design basis and justification: `docs/hardware/power-section-120v/` (POWER-SECTION.md,
