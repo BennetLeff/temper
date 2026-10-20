@@ -73,3 +73,20 @@ A6 and A1 (the new test and the standard), because they shape everything. A9 and
 - Branch `fw/c49-plus-main-sensors` (82e4674f7): origin/main's sensor component on C49; host suite 21/21. C45 heatsink gain (0.855072) is already in `hs_ntc.h`.
 - **ESP-IDF v5.3.6 build now passes** on local branch `fw/c49-idf-build` (910261002, on top of the overlay): `idf.py build` exits 0, binary 0x4e8f0 bytes (85 % of the app partition free), host suite 21/21, evidence in `firmware/build-evidence/esp-idf-c49/` on that branch. It took main's c775e925f (partitions.csv, `fatfs`, `temper_hal` requires) and main's `board_peripherals.c`, adapted because C49 has no `pan_control.c`. A first attempt at cherry-picking main's c7044f37d conflicted widely and was not needed.
 - **Caveat that matters:** `board_peripherals.c` is fail-safe stubs. Display, buzzer, fan, buttons, bus current and every power-on self-test are `TODO(hardware)`; the unit sits in FAULT with the coil off until real drivers exist. The build proves the code links for the S3, not that the cooker runs. Not flashed.
+
+## 7. Oil-ignition margin, first pass from public data (2026-10-20)
+Not an evaluation against 60A.3, whose text I have not read. Numbers are for canola oil unless stated.
+
+| Quantity | °C | Source |
+|---|---|---|
+| Smoke point (canola) | 220–230 | [Wikipedia, smoke point](https://en.wikipedia.org/wiki/Smoke_point) |
+| Flash point (canola) | 327 | [Wikipedia, flash point](https://en.wikipedia.org/wiki/Flash_point) |
+| Flame (fire) point (canola) | 379 | [UMD, Auto-Ignition of Cooking Oils](https://drum.lib.umd.edu/items/97dbb870-b9cb-40be-8074-d437cf448062) |
+| Auto-ignition: vegetable / canola / olive | 406 / 424 / 435 | same UMD study |
+| Dry cast-iron-pan average limit, 30 min at highest power (NIST note on UL 858 for **coil** units; not confirmed for induction) | 385 | [NIST TN 1986](https://nvlpubs.nist.gov/nistpubs/TechnicalNotes/NIST.TN.1986.pdf) |
+
+Against the design: the fry hold (230 °C) sits at the smoke point and 97 K under the flash point. The runaway trip (about 308 °C) is only about 19 K under canola's flash point and 77 K under the 385 °C dry-pan limit.
+
+Reading, with low confidence: the fry hold is probably not the problem, but 230 °C is a smoke-point temperature, so expect visible smoke in any test. The runaway trip is the number to examine, for three reasons. (1) The sensor reads the pan or glass, not the oil, and the oil film in a thin-oil test (CPSC staff discussed 1/8 inch for coil units) can run hotter than the pan reading when the pan is hot-spotted. (2) 19 K below flash point leaves little for sensor error and overshoot after the trip. (3) The test is a hold of 15 minutes at the unit's maximum power, so whether the limiter acts before ignition depends on trip latency, thermal lag of the sensor (the sensor contact h_c is still unmeasured, SNS rows) and the pan.
+
+What would settle it: the 60A.3 text (Q2 in `CERTIFIER-EMAILS-A1-A6.md`), then a bench run with a cast-iron pan, thin canola film and the real sensor (adds a TST row).
