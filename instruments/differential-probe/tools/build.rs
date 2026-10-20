@@ -424,7 +424,7 @@ impl Design {
                     body+=&format!("(sheet (at {} {}) (size {} {}) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid {}) {} {} (instances (project \"differential-probe\" (path {} (page {})))))\n",x*G,182.*G,45.*G,10.*G,id(&format!("sheet{j}")),prop("Sheetname",names[j],(x,180.),false),prop("Sheetfile",&format!("{}.kicad_sch",names[j]),(x,194.),false),q(&format!("/{}",id("root"))),q(&(j+1).to_string()));
                 }
             }
-            fs::write(format!("cad/{}.kicad_sch",names[s]),format!("(kicad_sch (version 20250114) (generator \"temper_probe\") (uuid {}) (paper \"A3\") (title_block (title {}) (date \"2026-10-20\") (rev \"A prototype\") (company \"Temper / instruments\") (comment 1 \"Voltage ratings are qualification targets; not CAT rated\")) (lib_symbols {syms}) {body} (embedded_fonts no))\n",id(if s==0 {"root"} else {names[s]}),q(titles[s]))).unwrap();
+            fs::write(format!("cad/{}.kicad_sch",names[s]),format!("(kicad_sch (version 20250114) (generator \"temper_probe\") (uuid {}) (paper \"A3\") (title_block (title {}) (date \"2026-10-20\") (rev \"B prototype\") (company \"Temper / instruments\") (comment 1 \"Voltage ratings are qualification targets; not CAT rated\")) (lib_symbols {syms}) {body} (embedded_fonts no))\n",id(if s==0 {"root"} else {names[s]}),q(titles[s]))).unwrap();
         }
         let local = syms.replace("(symbol \"Probe:", "(symbol \"");
         fs::write(
@@ -481,6 +481,23 @@ impl Design {
             .replacen("\"C_1812_4532Metric\"", "\"C_1812_HV_Slot\"", 1)
             .replace("(layer \"F.SilkS\")", "(layer \"F.Fab\")");
         fs::write("cad/Probe.pretty/C_1812_HV_Slot.kicad_mod", cap).unwrap();
+        let trim_fp = r#"(footprint "GKG60015_TopAdjust" (version 20241229) (generator "temper_probe") (layer "F.Cu")
+(descr "EW Electronics GKG60015; 6mm body, 5mm pitch, top adjust. Project pin1 STATOR right, pin2 ROTOR left. Drawing April2026.")
+(attr through_hole)
+(property "Reference" "CT" (at 0 -4.5) (layer "F.SilkS") (effects (font (size .8 .8) (thickness .12))))
+(property "Value" "GKG60015" (at 0 4.5) (layer "F.Fab") (effects (font (size .8 .8) (thickness .12))))
+(fp_circle (center 0 0) (end 3.1 0) (stroke (width .1) (type default)) (fill none) (layer "F.Fab"))
+(fp_circle (center 0 0) (end 1.25 0) (stroke (width .1) (type default)) (fill none) (layer "F.Fab"))
+(fp_rect (start -3.75 -3.5) (end 3.75 3.5) (stroke (width .05) (type default)) (fill none) (layer "F.CrtYd"))
+(fp_line (start -1.5 -3.2) (end 1.5 -3.2) (stroke (width .12) (type default)) (layer "F.SilkS"))
+(fp_line (start -1.5 3.2) (end 1.5 3.2) (stroke (width .12) (type default)) (layer "F.SilkS"))
+(pad "1" thru_hole circle (at 2.5 0) (size 2 2) (drill 1.2) (layers "*.Cu" "*.Mask"))
+(pad "2" thru_hole circle (at -2.5 0) (size 2 2) (drill 1.2) (layers "*.Cu" "*.Mask"))
+(model "${KIPRJMOD}/Probe.3dshapes/GKG60015.wrl" (offset (xyz 0 0 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0))))
+"#;
+        fs::write("cad/Probe.pretty/GKG60015_TopAdjust.kicad_mod", trim_fp).unwrap();
+        fs::create_dir_all("cad/Probe.3dshapes").unwrap();
+        fs::write("cad/Probe.3dshapes/GKG60015.wrl", trimmer_model()).unwrap();
         let mut pins = "symbol\tpin\tname\telectrical_type\n".to_string();
         for (k, s) in &self.syms {
             for p in &s.pins {
@@ -528,6 +545,45 @@ fn c(v: &str, code: &str) -> Part {
         "",
     )
 }
+fn trimmer_model() -> String {
+    // KiCad's VRML importer needs meshes rather than Cylinder primitives.
+    // Models use 2.54 mm units. This is only the 6.2 mm maximum body envelope.
+    let mut model =
+        "#VRML V2.0 utf8\n# GKG60015 low-fidelity envelope; units 2.54mm.\n".to_string();
+    let count = 32;
+    for (radius, bottom, top, color) in [
+        (3.1, 0., 4.5, ".35 .18 .07"),
+        (1.25, 4.5, 5., ".65 .65 .65"),
+    ] {
+        model += &format!("Shape {{ appearance Appearance {{ material Material {{ diffuseColor {color} }} }} geometry IndexedFaceSet {{ solid TRUE coord Coordinate {{ point [\n");
+        for z in [bottom, top] {
+            for i in 0..count {
+                let angle = i as f64 * 2. * std::f64::consts::PI / count as f64;
+                model += &format!(
+                    "{:.6} {:.6} {:.6},\n",
+                    radius * angle.cos() / 2.54,
+                    radius * angle.sin() / 2.54,
+                    z / 2.54
+                );
+            }
+        }
+        model += "] } coordIndex [\n";
+        for i in 0..count {
+            let j = (i + 1) % count;
+            model += &format!("{i}, {j}, {}, {}, -1,\n", j + count, i + count);
+        }
+        for i in (0..count).rev() {
+            model += &format!("{i}, ");
+        }
+        model += "-1,\n";
+        for i in count..count * 2 {
+            model += &format!("{i}, ");
+        }
+        model += "-1\n] } }\n";
+    }
+    model += "Shape { appearance Appearance { material Material { diffuseColor .05 .05 .05 } } geometry IndexedFaceSet { solid FALSE coord Coordinate { point [-.433071 -.118110 1.969291, .433071 -.118110 1.969291, .433071 .118110 1.969291, -.433071 .118110 1.969291] } coordIndex [0,1,2,3,-1] } }\n";
+    model
+}
 fn main() {
     assert!(
         Path::new("evidence").is_dir(),
@@ -550,6 +606,15 @@ fn main() {
         (
             "Device",
             "C",
+            vec![
+                pin("1", "", "passive", 0., 3., 270),
+                pin("2", "", "passive", 0., -3., 90),
+            ],
+            3.,
+        ),
+        (
+            "Device",
+            "C_Trim",
             vec![
                 pin("1", "", "passive", 0., 3., 270),
                 pin("2", "", "passive", 0., -3., 90),
@@ -846,6 +911,14 @@ fn main() {
         "https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf",
         "C207502",
     );
+    let opa = part(
+        "OPA810IDR",
+        "OPA810IDR",
+        "Texas Instruments",
+        "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "https://www.ti.com/lit/ds/symlink/opa810.pdf",
+        "C1852077",
+    );
     let clamp = part(
         "BAV199,215",
         "BAV199,215",
@@ -1005,7 +1078,7 @@ fn main() {
         0,
         (10., 162.),
         (178., 215.),
-        "AC COMPENSATION  /  C0G selection pads; trim with shield fitted",
+        "AC COMPENSATION / coarse C0G bank + accessible fine trim",
     );
     let c10 = part(
         "10 nF / 1%",
@@ -1023,7 +1096,7 @@ fn main() {
             c("2.2 nF", "222"),
             c("680 pF", "681"),
             c("220 pF", "221"),
-            c("82 pF", "820"),
+            c("47 pF", "470"),
             c("10 pF", "100"),
             c("1 pF", "010"),
         ];
@@ -1045,7 +1118,25 @@ fn main() {
             }
         }
     }
-    d.text(0,(185.,164.),"Starting Csum = 13.193 nF per leg. Select on the bench.\nDo not assume nominal values deliver 60 dB CMRR.\nLocal decoupling for U1/U2 is on the power sheet.\nTIP_P / TIP_N: captive HV leads, no SMA inputs.",1.27);
+    let ac_trim = part(
+        "12-60 pF / set ~35 pF", "GKG60015", "EW Electronics",
+        "Probe:GKG60015_TopAdjust",
+        "https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/8929/Gkgxxx15%20Specs%20and%20Kit-April%202026.pdf", "",
+    );
+    for (refdes, y, tap) in [("CT1", 171., "TAP_P"), ("CT2", 207., "TAP_N")] {
+        d.two(
+            0,
+            refdes,
+            "C_Trim",
+            &ac_trim,
+            (208., y),
+            0,
+            tap,
+            "GND",
+            false,
+        );
+    }
+    d.text(0,(230.,165.),"Coarse Csum = 13.158 nF per leg.\nCT1/2: rotor to GND; nominal 35.4 pF.\nAdjust through shield tool holes.\nSelect coarse bank after assembly.\nTIP_P / TIP_N: captive HV leads.",1.27);
     // Sheet 2: subtraction, bandwidth limit, output clamp, latched overrange.
     d.text(
         1,
@@ -1057,27 +1148,22 @@ fn main() {
         1,
         (10., 22.),
         (195., 106.),
-        "PRECISION DIFFERENCE AMPLIFIER  /  G = 2 or 10",
+        "FIXED x2 SUBTRACTOR / FIXED x5 GAIN / OUTPUT SELECTION",
     );
-    d.place(1, "U3", "ADA4817", &ada, (130., 63.), 0, false, true);
-    for (p, n) in [
-        ("3", "SUM_P"),
-        ("2", "SUM_N"),
-        ("6", "RAW_OUT"),
-        ("1", "RAW_OUT"),
-        ("8", "+4V8"),
-        ("9", "GND"),
-    ] {
-        d.link("U3", p, n)
+    d.place(1, "U3", "OPA810", &opa, (82., 56.), 0, false, true);
+    for (p, n) in [("3", "SUM_P"), ("2", "SUM_N"), ("6", "RAW_OUT")] {
+        d.link("U3", p, n);
     }
     d.amp_power("U3");
-    d.nc("U3", "5");
+    for p in ["1", "5", "8"] {
+        d.nc("U3", p);
+    }
     d.two(
         1,
         "R61",
         "R_Small_US",
         &rp,
-        (75., 43.),
+        (30., 43.),
         90,
         "BUF_P",
         "SUM_P",
@@ -1088,69 +1174,118 @@ fn main() {
         "R62",
         "R_Small_US",
         &rp,
-        (75., 63.),
+        (30., 64.),
         90,
         "BUF_N",
         "SUM_N",
         false,
     );
-    d.place(1, "SW1", "DPDT", &switch, (40., 84.), 0, false, false);
-    for (p, n) in [
-        ("2", "SUM_P"),
-        ("5", "SUM_N"),
-        ("1", "GP2"),
-        ("3", "GP10"),
-        ("4", "GN2"),
-        ("6", "GN10"),
-    ] {
-        d.link("SW1", p, n)
-    }
     for (ra, rb, y, a, b, mid) in [
-        ("R63", "R64", 80., "GP2", "GND", "GP2_M"),
-        ("R65", "R66", 96., "GN2", "RAW_OUT", "GN2_M"),
+        ("R63", "R64", 83., "SUM_P", "GND", "GP2_M"),
+        ("R65", "R66", 99., "SUM_N", "RAW_OUT", "GN2_M"),
     ] {
-        d.place(1, ra, "R_Small_US", &rp, (85., y), 90, false, true);
-        d.place(1, rb, "R_Small_US", &rp, (107., y), 90, false, true);
+        d.place(1, ra, "R_Small_US", &rp, (42., y), 90, false, true);
+        d.place(1, rb, "R_Small_US", &rp, (64., y), 90, false, true);
         d.link(ra, "1", a);
         d.link(rb, "2", b);
         d.tag(ra, "2", mid);
         d.tag(rb, "1", mid);
-        d.wire(1, (87., y), (105., y));
+        d.wire(1, (44., y), (62., y));
     }
-    for (rr, xy, a, b) in [
-        ("R67", (161., 80.), "GP10", "GND"),
-        ("R68", (161., 96.), "GN10", "RAW_OUT"),
-    ] {
-        d.two(1, rr, "R_Small_US", &rf, xy, 90, a, b, false)
+    d.place(1, "U12", "OPA810", &opa, (156., 56.), 0, false, true);
+    d.amp_power("U12");
+    for (p, n) in [("3", "GAIN5_IN"), ("2", "GAIN5_FB"), ("6", "FINE_OUT")] {
+        d.link("U12", p, n);
+    }
+    for p in ["1", "5", "8"] {
+        d.nc("U12", p);
     }
     d.two(
         1,
-        "C62",
-        "C",
-        &c("1 pF / DNP", "010"),
-        (165., 43.),
+        "R100",
+        "R_Small_US",
+        &r("49.9 R", "49R9"),
+        (118., 40.),
         90,
-        "SUM_N",
         "RAW_OUT",
-        true,
+        "GAIN5_IN",
+        false,
+    );
+    d.place(1, "R67", "R_Small_US", &rp, (102., 98.), 0, false, true);
+    d.tag("R67", "1", "GAIN5_FB");
+    d.link("R67", "2", "GND");
+    d.wire(1, (102., 96.), (102., 90.));
+    d.wire(1, (102., 90.), (114., 90.));
+    d.label_dir(1, (102., 90.), "GAIN5_FB", 180);
+    for (i, refdes) in ["R68", "R97", "R98", "R99"].iter().enumerate() {
+        let left = if i == 0 {
+            "GAIN5_FB".to_string()
+        } else {
+            format!("GAIN5_F{i}")
+        };
+        let right = if i == 3 {
+            "FINE_OUT".to_string()
+        } else {
+            format!("GAIN5_F{}", i + 1)
+        };
+        let x = 116. + i as f64 * 23.;
+        d.place(1, refdes, "R_Small_US", &rp, (x, 90.), 90, false, true);
+        d.tag(refdes, "1", &left);
+        if i == 3 {
+            d.link(refdes, "2", &right);
+        } else {
+            d.tag(refdes, "2", &right);
+        }
+        if i < 3 {
+            d.wire(1, (x + 2., 90.), (x + 21., 90.));
+        }
+    }
+    d.two(
+        1,
+        "R101",
+        "R_Small_US",
+        &r("49.9 R", "49R9"),
+        (86., 30.),
+        90,
+        "RAW_OUT",
+        "WIDE_SEL",
+        false,
     );
     d.two(
         1,
-        "C63",
-        "C",
-        &c("1 pF / DNP", "010"),
-        (165., 59.),
+        "R102",
+        "R_Small_US",
+        &r("49.9 R", "49R9"),
+        (155., 30.),
         90,
-        "SUM_P",
-        "GND",
-        true,
+        "FINE_OUT",
+        "FINE_SEL",
+        false,
     );
-    d.text(1,(15.,32.),"SW1: 2-1 / 5-4 = x2; 2-3 / 5-6 = x10.\nChange range with inputs de-energized. Keep switch at U3.",1.27);
+    d.place(1, "SW1", "DPDT", &switch, (230., 83.), 0, false, false);
+    for (p, n) in [("1", "WIDE_SEL"), ("2", "SELECTED"), ("3", "FINE_SEL")] {
+        d.link("SW1", p, n);
+    }
+    for p in ["4", "5", "6"] {
+        d.nc("SW1", p);
+    }
+    d.two(
+        1,
+        "R103",
+        "R_Small_US",
+        &r("1 MR", "1M"),
+        (280., 97.),
+        0,
+        "SELECTED",
+        "GND",
+        false,
+    );
+    d.text(1,(15.,16.),"SW1 pin 2 selects 1 = 1000:1, 3 = 200:1. No switched feedback. Verify BBM contacts; allow settling during changes.",1.27);
     d.block(
         1,
         (200., 22.),
         (318., 106.),
-        "5 MHz POLE / COAX DRIVER / OUTPUT CLAMP",
+        "SHARED FILTER / COAX DRIVER / OUTPUT CLAMP",
     );
     d.two(
         1,
@@ -1164,7 +1299,7 @@ fn main() {
         ),
         (219., 44.),
         90,
-        "RAW_OUT",
+        "SELECTED",
         "FILTER",
         false,
     );
@@ -1172,20 +1307,12 @@ fn main() {
         1,
         "C61",
         "C",
-        &c("330 pF", "331"),
+        &c("180 pF", "181"),
         (231., 61.),
         0,
         "FILTER",
         "GND",
         false,
-    );
-    let opa = part(
-        "OPA810IDR",
-        "OPA810IDR",
-        "Texas Instruments",
-        "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
-        "https://www.ti.com/lit/ds/symlink/opa810.pdf",
-        "C1852077",
     );
     d.place(1, "U4", "OPA810", &opa, (266., 47.), 0, false, true);
     d.amp_power("U4");
@@ -1229,7 +1356,7 @@ fn main() {
         1,
         (10., 112.),
         (194., 209.),
-        "OVERLOAD DETECTION  /  either input exceeds +/-1.60 V or raw output +/-3.0 V",
+        "OPERATING-LIMIT WARNING / tips ~1406 V; selected signal ~1.266 V",
     );
     let quad = part(
         "TLV1704AIPWR",
@@ -1286,7 +1413,7 @@ fn main() {
         &r("10 kR", "10K"),
         (110., 187.),
         90,
-        "RAW_OUT",
+        "SELECTED",
         "OUT_HALF",
         false,
     );
@@ -1301,7 +1428,7 @@ fn main() {
         "GND",
         false,
     );
-    d.text(1,(18.,194.),"TLV170x: 560 ns typical delay. Indicator is not a fast peak detector.\nOUT clamp is downstream of U3: amplifier recovery still needs qualification.",1.27);
+    d.text(1,(18.,194.),"TLV170x: 560 ns typical delay. Indicator is not a fast peak detector.\nUnused x5 stage may saturate in 1000:1 range; selected signal alone drives output warning.",1.27);
     d.block(1, (200., 112.), (318., 196.), "LATCHED OVERLOAD / RESET");
     d.two(
         1,
@@ -1585,11 +1712,11 @@ fn main() {
             false,
         );
         for (j, (lim, rt, code)) in [
-            (if i == 0 { "LIM_P" } else { "LIM_N" }, "5.62 kR", "5K62"),
+            (if i == 0 { "LIM_P" } else { "LIM_N" }, "25.5 kR", "25K5"),
             (
                 if i == 0 { "OUT_LIM_P" } else { "OUT_LIM_N" },
-                "6.65 kR",
-                "6K65",
+                "29.4 kR",
+                "29K4",
             ),
         ]
         .iter()
@@ -1651,6 +1778,8 @@ fn main() {
             }
         }
     }
+    d.two(2, "C96", "C", &dec, (177., 153.), 0, "+4V8", "GND", false);
+    d.two(2, "C97", "C", &dec, (177., 179.), 0, "GND", "-4V8", false);
     d.power(2, (23., 144.), "+4V8");
     d.power(2, (23., 190.), "-4V8");
     d.wire(2, (23., 166.), (16., 166.));

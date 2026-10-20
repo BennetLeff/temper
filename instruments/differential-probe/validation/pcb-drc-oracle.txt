@@ -1,3 +1,5 @@
 PASS: GND track 1.875 mm from TIP_P fails the explicit 10 mm air-clearance rule (ordinary 0.2 mm clearance alone would pass).
 PASS: removing the C1 routed slot fails the explicit 4 mm segment creepage rule.
+PASS: isolated opposing TIP pads with 20.5 mm edge spacing pass the revised 10/20 mm rules; the old 40 mm surface rule would reject this fixture.
+PASS: isolated opposing TIP pads with 8 mm edge spacing fail both revised air and surface rules.
 Known-bad fixtures live only in ignored build/drc-oracle; canonical board unchanged.

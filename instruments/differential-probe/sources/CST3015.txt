@@ -1,0 +1,113 @@
+                Web               Sample              Tools &              Support
+                page              & buy               software             & FAQ                                                             Document 1608-1
+
+
+
+
+                  Current Sense Transformers CST3015
+Halogen                                                                                     • Designed for up to 1 MHz and above
+ Free                                                                                       • Sensed current is 80 A and higher
+                                                                                            • Very low primary DC resistance
+                                                                                            • 5000 Vrms, one minute isolation (hipot) between windings.
+                                                                                            • Designed to meet reinforced insulation, at least 8 mm creep-
+AEC                                                                                           age/clearance
+Q200 +125°C                                                                                 • AEC-Q200 qualified
+                                                                                            Core material Ferrite
+                                                                                            Environment RoHS compliant, halogen free
+                                                                                            Terminations RoHS compliant tin-silver-copper over copper
+                                                                                            (pins 1 – 2); RoHS compliant tin-silver-copper over matte tin over
+                                                                                            nickel over phos bronze (pins 3 – 4)
+                                                                                            Weight 16.6 – 16.9 g
+                                                                                            Ambient temperature –40°C to +125°C
+                                                                                            Maximum part temperature +165°C (ambient + temp rise)
+                                                                                            Storage temperature Component: –40°C to +165°C.
+                                                                                            Tape and reel packaging: –40°C to +80°C
+                                                                                            Resistance to soldering heat Max three 40 second reflows at
+                                                                                            +260°C, parts cooled to room temperature between cycles
+                                                                                            Moisture Sensitivity Level (MSL) 1 (unlimited floor life at <30°C /
+                                                                                            85% relative humidity)
+                                                                                            PCB washing Tested to MIL-STD-202 Method 215 plus an additional
+                                                                                            aqueous wash. See Doc787_PCB_Washing.pdf.
+
+                                        Turns        Inductance2	   DCR (Ohms)                 Frequency         Volt-time          Sensed                 Terminating
+                                         (N)          nom ±25%      Pri     Sec                  range3          product4          current Iin5           resistance RT6
+              Part number1             pri : sec        (mH)       max     max                    (kHz)          (V-µsec)              (A)                   (Ohms)
+              CST3015-050ED             1:50             0.80     0.0001    0.44              1.57 - >1000          319                 80                       0.5
+              CST3015-100ED             1:100            3.20     0.0001    1.54              0.78 - >1000          638                 88                       1
+              CST3015-200ED             1:200           12.80     0.0001    5.94              0.39 - >1000         1276                 87                       2
+              CST3015-300ED             1:300           28.80     0.0001   13.78              0.26 - >1000         1914                 84                       3
+              CST3015-400ED             1:400           51.20     0.0001   24.41              0.20 - >1000         2553                 83                       4
+
+              1. Termination: E = RoHS compliant tin-silver-copper over copper
+                                (pins 1 – 2); RoHS compliant tin-silver-copper over matte   Typical Circuits
+                                tin over nickel over phos bronze (pins 3 – 4)
+                  Packaging: D = 13″ machine-ready reel. EIA-481 embossed plastic
+                  		 tape (90 parts per full reel). Quantities less than full reel
+                  		 available: in tape (not machine ready) or with leader
+                  		 and trailer ($25 charge).
+              2. Inductance measured between secondary pins at 1 kHz, 0.1 Vrms.
+              3. For specific questions regarding frequency range, please contact us at
+                 cst@coilcraft.com.
+              4. Volt-time product is for the secondary, between pin 4 and 3.
+              5. DC current through the primary, with simultaneous secondary DC
+                 current determined by the turns ratio, causes a 40°C rise at 25°C
+                 ambient. Higher current causes a greater temperature rise. See
+                 Temperature Rise vs Current curve.
+                 This information is for reference only and does not represent absolute
+                 maximum ratings.
+              6. Terminating resistance (RT) value is based on 1 Volt output with
+                 100 Amps flowing through the primary. Varying terminating resistance
+                 increases or decreases output Voltage/Ampere according to the
+                 following equation: RT (Ohms) = Vout × Nsec / Iin.
+              7. Electrical specifications at 25°C.
+              Refer to Doc 362 “Soldering Surface Mount Components” before soldering.
+
+
+
+
+                                                                    Specificationssales@coilcraft.com
+                                                            US +1-847-639-6400     subject to change without notice.       Document 1608-1             Revised 09/08/25
+                                                                    Please check our
+                                                            UK +44-1236-730595         website for latest information.
+                                                                                   sales@coilcraft-europe.com                                             © Coilcraft Inc. 2025
+                                                            Taiwan +886-2-2264 3646 sales@coilcraft.com.tw                   This product may not be used in medical or high
+                                                                                                                              risk applications without prior Coilcraft approval.
+                                                            China +86-21-6218 8074 sales@coilcraft.com.cn                       Specification subject to change without notice.
+                                                            Singapore + 65-6484 8412 sales@coilcraft.com.sg                        Please check web site for latest information.
+                                                                                                                     Document 1608-2
+
+
+
+
+              CST3015 Series Current Sense Transformers
+              Temperature Rise vs Current                              Dimensions
+
+Halogen
+ Free
+
+
+
+AEC
+Q200 +125°C
+
+
+
+
+                                                                                                                                                inches
+                                                                                                                        Dimensions are in
+                                                                                                                                                  mm
+
+
+                                                                       Packaging 90/13″ reel; Plastic tape: 56 mm wide, 0.5 mm thick,
+                                                                       36 mm pocket spacing, 16 mm pocket depth
+
+
+
+
+                                            US +1-847-639-6400 sales@coilcraft.com                  Document 1608-2            Revised 09/08/25
+                                            UK +44-1236-730595 sales@coilcraft-europe.com                                         © Coilcraft Inc. 2025
+                                            Taiwan +886-2-2264 3646 sales@coilcraft.com.tw           This product may not be used in medical or high
+                                                                                                      risk applications without prior Coilcraft approval.
+                                            China +86-21-6218 8074 sales@coilcraft.com.cn               Specification subject to change without notice.
+                                            Singapore + 65-6484 8412 sales@coilcraft.com.sg                Please check web site for latest information.
+

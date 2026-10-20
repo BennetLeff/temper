@@ -129,12 +129,13 @@ fn main() {
     ] {
         pairs.push((a.into(), b.into()));
     }
+    pairs.push(("CT1".into(), "CT2".into()));
     let mut matched_pads = 0;
     for (a, b) in &pairs {
         for p in pad_rows.iter().filter(|p| &p[0] == a && !p[1].is_empty()) {
             let q = pads[&format!("{}.{}", b, p[1])];
             assert_eq!(nm(&p[3]), nm(&q[3]), "x symmetry {a} {b}");
-            assert_eq!(nm(&p[4]) + 70_000_000, nm(&q[4]), "y symmetry {a} {b}");
+            assert_eq!(nm(&p[4]) + 35_000_000, nm(&q[4]), "y symmetry {a} {b}");
             for k in 5..=8 {
                 assert_eq!(p[k], q[k], "pad geometry symmetry {a} {b}");
             }
@@ -163,7 +164,7 @@ fn main() {
         let na = &pads[&a][2];
         let nb = &pads[&b][2];
         let sa = shape(na, 0);
-        let sb = shape(nb, 70_000_000);
+        let sb = shape(nb, 35_000_000);
         assert!(!sa.is_empty(), "missing track geometry {na}");
         assert_eq!(sa, sb, "divider track symmetry {na} vs {nb}");
         matched_nets += 1;
@@ -177,7 +178,87 @@ fn main() {
             }
         }
     }
-    let report=format!("PASS: {} physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.\nPASS: {} unique physical pin mappings match the schematic and explicit offboard landings; duplicate switch pads checked individually.\nPASS: {} paired footprints / {matched_pads} pad pairs translate exactly 70 mm; identical pad dimensions and orientation.\nPASS: {matched_nets} paired divider/tap/input nets have identical native track/via geometry after that translation.\nPASS: all 20 elevated ladder nodes routed only on F.Cu, without vias.\nThese checks do not establish capacitance matching, CMRR, stability or an insulation rating.\n",fps.len(),pads.len(),pairs.len());
+    // Extract the wanted path from the native F.Cu graph, independently of
+    // the hand-authored waypoint lists. Comparator islands are on other layers.
+    let wanted_length = |source: &str, target: &str| -> f64 {
+        let net = &pads[source][2];
+        let start = (nm(&pads[source][3]), nm(&pads[source][4]));
+        let end = (nm(&pads[target][3]), nm(&pads[target][4]));
+        let mut graph: BTreeMap<(i64, i64), Vec<((i64, i64), f64)>> = BTreeMap::new();
+        for t in tracks
+            .iter()
+            .filter(|t| t[0] == "track" && t[1] == *net && t[2] == "F.Cu")
+        {
+            let a = (nm(&t[4]), nm(&t[5]));
+            let b = (nm(&t[6]), nm(&t[7]));
+            let length = ((a.0 - b.0) as f64).hypot((a.1 - b.1) as f64) / 1e6;
+            graph.entry(a).or_default().push((b, length));
+            graph.entry(b).or_default().push((a, length));
+        }
+        let mut distance = BTreeMap::from([(start, 0.0_f64)]);
+        let mut visited = BTreeSet::new();
+        loop {
+            let (&point, &length) = distance
+                .iter()
+                .filter(|(p, _)| !visited.contains(*p))
+                .min_by(|a, b| a.1.total_cmp(b.1))
+                .expect("wanted F.Cu path disconnected");
+            if point == end {
+                break length;
+            }
+            visited.insert(point);
+            for &(next, edge) in graph.get(&point).expect("wanted path node absent") {
+                let candidate = length + edge;
+                distance
+                    .entry(next)
+                    .and_modify(|d| *d = d.min(candidate))
+                    .or_insert(candidate);
+            }
+        }
+    };
+    let p_length = wanted_length("U1.6", "R61.1");
+    let n_length = wanted_length("U2.6", "R62.1");
+    assert!(
+        (p_length - n_length).abs() < 0.001,
+        "wanted feed length mismatch: {p_length}/{n_length} mm"
+    );
+    // Independently maximize each linear voltage difference at the vertices of
+    // |VP|<=3kV, |VN|<=3kV, |VP-VN|<=3kV. The extrema are exact integer volts.
+    let vertices = [
+        (-3000i32, -3000i32),
+        (-3000, 0),
+        (0, 3000),
+        (3000, 3000),
+        (3000, 0),
+        (0, -3000),
+    ];
+    for a in 0..=10i32 {
+        for b in 0..=10i32 {
+            let cross = vertices
+                .iter()
+                .map(|&(p, n)| (a * p / 10 - b * n / 10).abs())
+                .max()
+                .unwrap();
+            assert_eq!(
+                cross,
+                300 * a.max(b),
+                "opposite-leg voltage envelope ranks {a}/{b}"
+            );
+            let same = vertices
+                .iter()
+                .map(|&(p, _)| ((a - b) * p / 10).abs())
+                .max()
+                .unwrap();
+            assert_eq!(
+                same,
+                300 * (a - b).abs(),
+                "same-leg voltage envelope ranks {a}/{b}"
+            );
+        }
+    }
+    let rules = fs::read_to_string("cad/differential-probe.kicad_dru").unwrap();
+    assert!(rules.contains("(rule \"TIP_P to TIP_N\" (condition \"A.NetName == 'TIP_P' && B.NetName == 'TIP_N'\") (constraint clearance (min 10mm)) (constraint creepage (min 20mm)))"),"opposing-tip DRC rule must encode the approved 3kV differential envelope");
+    let report=format!("PASS: {} physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.\nPASS: {} unique physical pin mappings match the schematic and explicit offboard landings; duplicate switch pads checked individually.\nPASS: {} paired footprints / {matched_pads} pad pairs translate exactly 35 mm; identical pad dimensions and orientation.\nPASS: {matched_nets} paired divider/tap/input nets have identical native track/via geometry after that translation.\nPASS: all 20 elevated ladder nodes routed only on F.Cu, without vias.\nPASS: wanted U1-to-R61 and U2-to-R62 feeds use F.Cu throughout; native shortest-path lengths {p_length:.3} / {n_length:.3} mm agree within 0.001 mm.\nPASS: all rank-pair voltage bounds agree with independent maximization over the six allowed input-envelope vertices; opposing-tip DRC is 10 mm air / 20 mm surface.\nThese checks do not establish capacitance matching, CMRR, stability or an insulation rating.\n",fps.len(),pads.len(),pairs.len());
     print!("{report}");
     fs::write("validation/pcb-checks.txt", report).unwrap();
 }

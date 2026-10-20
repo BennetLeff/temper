@@ -1,0 +1,73 @@
+--- a/zapote/power-stage-120v/validation-plan/BENCH-SWITCHING.md
++++ b/zapote/power-stage-120v/validation-plan/BENCH-SWITCHING.md
+@@ -3,6 +3,36 @@
+ **Status:** procedure for review only; no board has been powered or qualified by this document. Evidence class: **physical-test requirement**, with exact structural circuit mapping from native-17. This is not a fabrication, mains, or powered-operation release. The independent R5-D1 copper extraction and R5-D2 board-inductance waveforms are pending; no model/bench agreement or switching-stress pass can be claimed yet.
+ 
+ **Identity:** Temper commit `91888bb29e318eef09c0a292245de88b9016d250`; `native-17/section.kicad_pcb` SHA-256 `16e8b70bb7f2bc9020ea574022c13661cd09640ca3a52db1ff43f9f6db976162`. Recheck the hash, assembly revision, parts, and fixture before use. The component identities below come from `frozen/default.csv`; connections were checked against `frozen/default.net` and the native-17 board. The source dossier, including manufacturer PDF revisions and hashes, is [bench-plan/sources/README.md](../validation-results/01-switching-parasitics/round5/bench-plan/sources/README.md).
++
++## Stage-53 applicability correction (2026-10-20)
++
++The procedure and native-17 identity below remain historical. Do not apply its
++1:100 / 1.5 Ω CT arithmetic to stage 53. The inspected stage-53 board
++`worktrees/runs-native21/s53/c53int/section.kicad_pcb` has SHA-256
++`82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`:
++T1 Value/MPN are CST3015-200ED (1:200), and R39 is RC1206FR-073RL (3 Ω).
++The footprint description and provisional STEP filename still mention -100ED;
++those metadata are not the electrical part identity.
++
++Coilcraft CST3015 document 1608-1, revised 2025-09-08, lists 5.94 Ω maximum
++secondary DCR, 12.8 mH nominal secondary inductance (±25%) and 1276 V·µs for
++-200ED. Its 87 A listing describes the specified 40°C temperature-rise test,
++not an absolute saturation-current boundary. For the stage-53 CT, use the
++estimated induced secondary voltage `I/200 × (3 + 5.94) Ω` and integrate the
++entire actual shot. At 37 A, ideal 50 V linear ramps consume approximately
++61.2 / 153.0 / 611.9 V·µs for 100 / 250 / 1000 µH; each 10 µs at constant
++37 A adds approximately 16.54 V·µs. Half of 1276 is 638 V·µs, but that is a
++comparison with the historical half-rating convention, not a newly approved
++pulse limit or permission to reuse the native-17 fixture on stage 53.
++
++The rough RL reset estimate `12.8 mH / 8.94 Ω = 1.43 ms` uses nominal L
++and maximum DCR; it is not a worst-case reset-time bound. Re-establish reset
++with the assembled secondary, including capacitor/clamp dynamics and initial
++flux, rather than carrying forward a fixed 10 ms wait. Preserve the original
++native-13 model and native-17 calculation below when reproducing their results.
++A stage-53 test needs its own fixture mapping, model, pulse budget and evidence.
++
++Source: https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf
+ 
+ ## Circuit and fixture
+ 
+--- a/zapote/power-stage-120v/validation-plan/05-resonant-tank-envelope.md
++++ b/zapote/power-stage-120v/validation-plan/05-resonant-tank-envelope.md
+@@ -8,6 +8,31 @@
+ > detector, BAS116H clamps and a 100 Ω / 1 kΩ permit/DIS network. Use
+ > [SIMULATION-RUNBOOK.md](SIMULATION-RUNBOOK.md) and `sim-kit/` for the
+ > procedure; this document keeps the goals and pass criteria.
++
++> **Stage-53 applicability correction, 2026-10-20:** the native-13 goals,
++> component values and models below are historical. They are not a stage-53
++> component audit. The inspected stage-53 board
++> `worktrees/runs-native21/s53/c53int/section.kicad_pcb`, SHA-256
++> `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`,
++> has T1 = CST3015-200ED (1:200) and R39 = 3 Ω. Its bank is five 100 nF
++> capacitors (0.5 µF), so the old capacitor/bleeder identities also require a
++> fresh board-specific mapping before reuse.
++>
++> Coilcraft document 1608-1 (2025-09-08) lists -200ED secondary DCR ≤5.94 Ω,
++> inductance 12.8 mH nominal ±25%, and volt-time product 1276 V·µs. The 87 A
++> sensed-current entry is a specified thermal-rise reference, not a hard peak
++> saturation limit. For a symmetric sinusoid, the approximate positive-half-cycle
++> core-excitation budget including winding loss is
++> `Ipk × (3 + 5.94) / (200 × π × f)` V·s: 35.77 V·µs at 88 A / 35 kHz,
++> 51.22 V·µs at 126 A / 35 kHz, and 29.88 V·µs at 126 A / 60 kHz (2.80%,
++> 4.01%, and 2.34% of 1276). These are calculations, not saturation tests;
++> asymmetric excitation, DC bias/reset, fault duration and winding temperature
++> require separate checks. The historical 88 A peak gate below is a project
++> screening criterion for that plan, not a manufacturer absolute maximum.
++>
++> Preserve the original 1:100 simulation when reproducing native-13 results;
++> use a separate stage-53 model with verified physical values for stage-53 claims.
++> Source: https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf
+ 
+ ## Goal
+ 

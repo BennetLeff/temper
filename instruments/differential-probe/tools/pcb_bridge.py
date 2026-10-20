@@ -148,9 +148,28 @@ def apply() -> None:
 def mutant(kind: str, target: str) -> None:
     """Known-bad native fixtures prove the custom spacing checks are active."""
     board = k.LoadBoard(str(BOARD))
-    if kind == 'clearance':
+    if kind in ('opposing-pass', 'opposing-fail'):
+        board = k.BOARD()
+        separation = 21.5 if kind == 'opposing-pass' else 9.0
+        for reference, net_name, x in [('ORACLE_P', 'TIP_P', 10.),
+                                       ('ORACLE_N', 'TIP_N', 10. + separation)]:
+            net = k.NETINFO_ITEM(board, net_name); board.Add(net)
+            fp = k.FOOTPRINT(board); fp.SetReference(reference)
+            fp.Reference().SetVisible(False); fp.Value().SetVisible(False)
+            fp.SetAttributes(k.FP_BOARD_ONLY | k.FP_EXCLUDE_FROM_BOM | k.FP_EXCLUDE_FROM_POS_FILES)
+            fp.SetPosition(vec(x, 10.))
+            pad = k.PAD(fp); pad.SetNumber('1'); pad.SetAttribute(k.PAD_ATTRIB_SMD)
+            pad.SetShape(k.PAD_SHAPE_CIRCLE); pad.SetSize(vec(1., 1.))
+            layers = k.LSET(); layers.AddLayer(k.F_Cu); layers.AddLayer(k.F_Mask)
+            pad.SetLayerSet(layers); pad.SetPosition(vec(x, 10.)); pad.SetNet(net)
+            fp.Add(pad); board.Add(fp)
+        for a, b in [((0,0),(100,0)),((100,0),(100,40)),((100,40),(0,40)),((0,40),(0,0))]:
+            edge=k.PCB_SHAPE(board); edge.SetShape(k.SHAPE_T_SEGMENT)
+            edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
+            edge.SetLayer(k.Edge_Cuts); board.Add(edge)
+    elif kind == 'clearance':
         track = k.PCB_TRACK(board)
-        track.SetStart(vec(16, 24)); track.SetEnd(vec(16, 26))
+        track.SetStart(vec(16, 19)); track.SetEnd(vec(16, 21))
         track.SetWidth(k.FromMM(.25)); track.SetLayer(k.F_Cu)
         track.SetNet(board.FindNet('GND')); board.Add(track)
     elif kind == 'slot':
@@ -159,7 +178,7 @@ def mutant(kind: str, target: str) -> None:
             if item.GetLayer() != k.Edge_Cuts:
                 continue
             points = (item.GetStart(), item.GetEnd())
-            if all(38 <= k.ToMM(p.x) <= 40 and 28 <= k.ToMM(p.y) <= 38 for p in points):
+            if all(38 <= k.ToMM(p.x) <= 40 and 23 <= k.ToMM(p.y) <= 33 for p in points):
                 board.Remove(item); removed += 1
         assert removed == 4, f'Expected four C1 slot edges, got {removed}'
     else:

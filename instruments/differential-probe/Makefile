@@ -1,10 +1,14 @@
 SHELL := /bin/sh
 KICAD ?= kicad-cli
 RUSTC ?= rustc
+NGSPICE ?= ngspice
 KICAD_PYTHON ?= /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3
 
-.PHONY: all generate export check pcb pcb-generate pcb-check pcb-export pcb-oracle
-all: generate export check
+.PHONY: all generate export check pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
+all:
+	$(MAKE) generate
+	$(MAKE) export
+	$(MAKE) check
 
 generate:
 	$(RUSTC) --edition 2021 tools/build.rs -o /tmp/temper-differential-probe-build
@@ -50,3 +54,11 @@ pcb-export:
 
 pcb-oracle:
 	KICAD='$(KICAD)' KICAD_PYTHON='$(KICAD_PYTHON)' sh tools/check_drc_rules.sh
+
+# Optional nominal low-voltage model checks; these do not qualify the hardware.
+simulate:
+	shasum -a 256 -c validation/spice/sha256.txt
+	$(NGSPICE) -n -D ngbehavior=ps -b validation/spice/ac.cir > validation/spice/ac.log 2>&1
+	$(NGSPICE) -n -D ngbehavior=ps -b validation/spice/unused-fine-saturation.cir > validation/spice/unused-fine-saturation.log 2>&1
+	$(RUSTC) --edition 2021 tools/check_spice.rs -o /tmp/temper-probe-spice-check
+	/tmp/temper-probe-spice-check

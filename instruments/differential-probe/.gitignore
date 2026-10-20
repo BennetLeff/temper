@@ -4,3 +4,5 @@
 *.lck
 ~*.lck
 __pycache__/
+!sources/opa810_a.lib
+!validation/spice/*.log

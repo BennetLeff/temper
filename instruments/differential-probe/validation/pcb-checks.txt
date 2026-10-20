@@ -1,6 +1,8 @@
-PASS: 138 physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.
-PASS: 343 unique physical pin mappings match the schematic and explicit offboard landings; duplicate switch pads checked individually.
-PASS: 30 paired footprints / 68 pad pairs translate exactly 70 mm; identical pad dimensions and orientation.
+PASS: 148 physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.
+PASS: 365 unique physical pin mappings match the schematic and explicit offboard landings; duplicate switch pads checked individually.
+PASS: 31 paired footprints / 70 pad pairs translate exactly 35 mm; identical pad dimensions and orientation.
 PASS: 12 paired divider/tap/input nets have identical native track/via geometry after that translation.
 PASS: all 20 elevated ladder nodes routed only on F.Cu, without vias.
+PASS: wanted U1-to-R61 and U2-to-R62 feeds use F.Cu throughout; native shortest-path lengths 53.135 / 53.135 mm agree within 0.001 mm.
+PASS: all rank-pair voltage bounds agree with independent maximization over the six allowed input-envelope vertices; opposing-tip DRC is 10 mm air / 20 mm surface.
 These checks do not establish capacitance matching, CMRR, stability or an insulation rating.

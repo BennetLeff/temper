@@ -9,3 +9,11 @@ The PDF/text pairs here preserve the accessible TI data sheets and the KEMET 33 
 The authoritative selections are the schematic MPN fields, exported to `../bom.csv`. LCSC identifiers are provided where cross-checked, but this is not a JLC assembly release. Main selected catalog matches include ADA4817 C207502, OPA810 C1852077, TLV1704 C181596, TLV1702 C2870937, CD4013 C13527, TL431 C41283, BAV199 C40919, and the two LDOs C514356/C514358. Recheck exact MPN, package, tolerance and current stock before ordering.
 
 Do not substitute a part based on a matching family name alone. The board-level source check verifies pad numbers, not authorized substitutes. The high-voltage resistor tolerance and the TI TL431 DBZ pinout are particularly consequential.
+
+## Rev B additions
+
+`GKG60015-EW-2026.pdf` is the April 2026 EW Electronics drawing for the selected 12–60 pF top-adjust trimmer. `GKG-trimmers.pdf` and its text extract provide the legacy family detail used to cross-check terminal geometry and rotor connection. The local footprint pin numbers are explicitly assigned in the circuit record; inspect the received part against that drawing.
+
+`CST3015.pdf` and its text extract preserve Coilcraft document 1608 for the stage-53 CT correction. The [calculation record](../docs/stage53-ct-correction.md) includes the document identity, verified board hash and limits of the sinusoidal and DC-pulse calculations.
+
+`OPA810-model.zip` and `opa810_a.lib` archive TI’s unmodified OPA810 Rev A PSpice model (2020-06-11), retrieved from [TI SBOMB73](https://www.ti.com/lit/zip/sbomb73). Model and fixture hashes are in `../validation/spice/sha256.txt`; the limitations, including clipping slightly beyond ideal rails, are documented in the [circuit record](../docs/circuit-revb.md).

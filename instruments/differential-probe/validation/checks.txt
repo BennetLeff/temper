@@ -1,20 +1,27 @@
-PASS: 130 exact-MPN components; 125 board footprints; 5 offboard components.
-PASS: 339 pins, 75 independent connectivity groups agree with KiCad export.
+PASS: 140 exact-MPN components; 135 board footprints; 5 offboard components.
+PASS: 364 pins, 88 independent connectivity groups agree with KiCad export.
 PASS: critical package pin mappings and power polarity assertions.
 
 Ideal circuit calculations (not measurements):
 Rbottom = 5002.501251 ohm; nominal trim = 12.501251 ohm.
 Cbottom TOTAL incl parasitics = 13.1934 nF; input series C = 6.6 pF.
 Divider crossover = 2411.44 Hz.
-Output RC pole = 4.941472 MHz.
+Shared filter pole including 49.9-ohm selector source resistance and loading = 5.999689 MHz.
 DC trim at all 0.1% upper-string / 0.01% bottom-resistor corners: 7.000 to 18.003 ohm (50-ohm pot, min end-to-end 45 ohm).
-RC filter at 35 kHz: gain 0.999975, phase -0.4058 deg.
-RC filter at 60 kHz: gain 0.999926, phase -0.6957 deg.
-Gain 2: input/output ratio 1000:1, initial 1500 Vpk -> 1.500 Vpk output.
-Gain 10: input/output ratio 200:1, initial 300 Vpk -> 1.500 Vpk output.
+RC filter at 35 kHz: gain 0.999983, phase -0.3342 deg.
+RC filter at 60 kHz: gain 0.999950, phase -0.5730 deg.
+Coarse low-leg C = 13.158 nF, fine trimmer 12-60 pF; ideal nominal trim = 35.400 pF before assembly strays.
+Selected-path DC insertion factor = 0.99746156, load = 19607.843 ohm; shared RC source R = 147.3733 ohm.
+Gain 2: nominal probe ratio 1000:1 before insertion loss; loaded DC estimate 1002.595:1; initial 1500 Vpk -> 1.4961 Vpk output.
+Gain 2: illustrative first-order cascaded -3dB bandwidth 5.648 MHz; NOT an IC macromodel result or qualification.
+Gain 10: nominal probe ratio 200:1 before insertion loss; loaded DC estimate 200.519:1; initial 300 Vpk -> 1.4961 Vpk output.
+Gain 10: illustrative first-order cascaded -3dB bandwidth 4.998 MHz; NOT an IC macromodel result or qualification.
+Bandwidth estimate uses U3 noise gain 3 / 70 MHz GBW, U12 gain 5 / 70 MHz GBW, U4 140 MHz unity bandwidth, and C61 only; real amplifier poles, parasitics, scope cable/load and source impedance must be simulated/measured.
 At 3000 V DC per tip: total dissipation 0.900 W/leg; 0.0899 W per 1-Mohm resistor; ~300 V/resistor and ~600 V/segment capacitor.
 At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.
 At 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitance adds to this.
-Nominal rails +4.8000 / -4.8068 V. Input comparator threshold +/-1.5973 V. Output comparator threshold +/-2.9970 V raw.
+Nominal rails +4.8000 / -4.8068 V. Input warning +/-0.702817 V buffered = 1405.63 V/tip. Selected-output warning +/-1.266497 V = 1266.50 V differential on wide / 253.30 V on fine.
+Conditional late-trip budget (-25..85C): tip < 1490.74 V; selected comparator < 1.311893 V, corresponding to < 1364.18 V wide / 294.26 V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine.
+Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits, regulator/reference rails valid, and no clamp-induced reference disturbance; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.
 
 Not established by these checks: CMRR, amplitude/phase accuracy, 5 MHz system bandwidth, input-to-earth capacitance, overload recovery, unpowered input survival, transient withstand, creepage or clearance. PCB, fixed shield and fixture must be qualified together.

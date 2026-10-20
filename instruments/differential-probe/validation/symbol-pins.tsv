@@ -43,6 +43,8 @@ CD4013	13	Q2	output
 CD4013	12	/Q2	output
 CD4013	14	VDD	power_in
 CD4013	7	VSS	power_in
+C_Trim	1		passive
+C_Trim	2		passive
 D	1	K	passive
 D	2	A	passive
 DPDT	2	COM1	passive

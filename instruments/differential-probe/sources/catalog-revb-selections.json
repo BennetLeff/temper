@@ -1,0 +1,15 @@
+{
+  "checked_date": "2026-10-20",
+  "catalog_scope": "PCBParts cached JLC catalog, not live stock promise",
+  "matches": [
+    {"mpn":"C0805C181J5GACTU","manufacturer":"KEMET","lcsc":"C2168941","description":"180pF 50V C0G ±5% 0805","cached_stock":412},
+    {"mpn":"RT0805BRD0725K5L","manufacturer":"YAGEO","lcsc":"C865332","description":"25.5kΩ 0.1% 25ppm/°C 0805 thin film","cached_stock":147}
+  ],
+  "trimmer": {
+    "mpn":"GKG60015","manufacturer":"EW Electronics","digikey":"2447-GKG60015-ND",
+    "range_pf":[12,60],"voltage_vdc":100,"adjustment":"top","status":"active",
+    "catalog_url":"https://www.digikey.com/en/products/detail/ew-electronics/GKG60015/11689267",
+    "primary_drawing":"GKG60015-EW-2026.pdf","primary_drawing_date":"April 2026",
+    "note":"Manufacturer image-only PDF inspected visually; primary source also supplies rotor/stator functions. Exact 5–60pF was not assumed."
+  }
+}

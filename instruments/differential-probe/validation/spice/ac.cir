@@ -1,0 +1,21 @@
+Rev B OPA810 vendor macromodel AC comparison
+.include sources/opa810_a.lib
+.include validation/spice/probe_lv.inc
+VP VP 0 4.8
+VN VN 0 -4.8068
+VBP BP 0 DC 0 AC .5
+VBN BN 0 DC 0 AC .5 180
+XW BP BN OUT_W RAW_W FINE_W SEL_W VP VN PROBE_LV FINE_RANGE=0 BRANCH=1
+XF BP BN OUT_F RAW_F FINE_F SEL_F VP VN PROBE_LV FINE_RANGE=1 BRANCH=1
+.control
+set wr_singlescale
+set wr_vecnames
+ac dec 120 10 100Meg
+let wide_mag=mag(v(OUT_W))
+let fine_mag=mag(v(OUT_F))
+let wide_phase=180/PI*vp(OUT_W)
+let fine_phase=180/PI*vp(OUT_F)
+wrdata validation/spice/ac.tsv wide_mag fine_mag wide_phase fine_phase
+quit
+.endc
+.end

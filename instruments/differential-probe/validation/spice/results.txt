@@ -1,0 +1,18 @@
+TI OPA810 Rev A vendor macromodel; ngspice 45.2 PSpice compatibility.
+Nominal low-voltage signal path only. Supplies +4.8000 / -4.8068 V.
+Ideal BUF_P/BUF_N sources; fixed switch positions; 1M scope plus lumped120pF cable/input.
+
+1000:1: LF gain from buffered differential input 1.99483104; normalized -3dB bandwidth 5.5481 MHz.
+  35000 Hz: relative amplitude -0.000164 dB, phase -0.535623 deg.
+  60000 Hz: relative amplitude -0.000480 dB, phase -0.918203 deg.
+  5000000 Hz: relative amplitude -2.561274 dB, phase -68.114675 deg.
+200:1: LF gain from buffered differential input 9.97420722; normalized -3dB bandwidth 5.0916 MHz.
+  35000 Hz: relative amplitude -0.000184 dB, phase -0.676190 deg.
+  60000 Hz: relative amplitude -0.000536 dB, phase -1.159176 deg.
+  5000000 Hz: relative amplitude -2.923229 dB, phase -87.746023 deg.
+
+60kHz, 1500Vpk differential equivalent, wide range: fine-stage model spans -4.914236 to 4.924808 V.
+Max wide-output difference with fine branch connected versus disconnected (20..60us): 8.546 nV.
+The fine-stage model clip levels extend about 0.12V outside the ideal supply rails; they are not physical clip-voltage predictions.
+This comparison supports only nominal branch isolation within the vendor model. It excludes real supply coupling, layout/lead parasitics, HV divider/buffer transfer, temperature/tolerances, switch transitions/bounce and clamp references.
+No bench stability, CMRR, bandwidth, clip level or recovery rating is established.
