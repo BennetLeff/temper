@@ -1,7 +1,7 @@
 * Rev C signal path. Values/reference numbers mirror the KiCad netlist.
 * Each leg: ideal lumped 2000:1 compensated divider (5 x 2 MR || 33 pF over
 * 5.0025 kR || 13.1934 nF), R12/R32 220 R, OPA2810 unity buffer (U1A/U1B).
-* U3A x2 subtractor and U3B output driver are OPA2810 channels; U12 is OPA810.
+* U3 channel 2 (U3B) is the x2 subtractor, channel 1 (U3A) the output driver; U12 is OPA810.
 * TI's OPA2810 model is one channel per instance: no inter-channel coupling.
 .subckt PROBE_LV TP TN OUT RAW FINE SELECTED VP VN params: FINE_RANGE=0 BRANCH=1
 RTOPP TP TAP_P 10Meg
@@ -20,7 +20,7 @@ R61 BUF_P SUM_P 499
 R62 BUF_N SUM_N 499
 R63 SUM_P 0 1k
 R65 SUM_N RAW 1k
-XU3A SUM_P SUM_N RAW VP VN OPA2810
+XU3B SUM_P SUM_N RAW VP VN OPA2810
 R100 RAW GAIN5_IN {49.9+(1-BRANCH)*1e12}
 RTEST_BLEED GAIN5_IN 0 {BRANCH*1e12+(1-BRANCH)*1e6}
 R67 GAIN5_FB 0 499
@@ -36,7 +36,7 @@ R71 SELECTED OUT_HALF 10k
 R72 OUT_HALF 0 10k
 R69 SELECTED FILTER 97.6
 C61 FILTER 0 180p
-XU3B FILTER DRIVE DRIVE VP VN OPA2810
+XU3A FILTER DRIVE DRIVE VP VN OPA2810
 R70 DRIVE OUT 49.9
 R_SCOPE OUT 0 1Meg
 * Representative 1m coax + scope input capacitance, lumped; not a transmission line.

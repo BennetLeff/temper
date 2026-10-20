@@ -450,6 +450,8 @@ impl Design {
             "Button_Switch_SMD",
             "LED_SMD",
             "MountingHole",
+            "Connector_Coaxial",
+            "Battery",
         ] {
             table+=&format!("(lib (name {0}) (type \"KiCad\") (uri \"${{KICAD10_FOOTPRINT_DIR}}/{lib}.pretty\") (options \"\") (descr \"KiCad 10 standard library\"))",q(lib));
         }
@@ -477,6 +479,9 @@ impl Design {
 (model "${KIPRJMOD}/Probe.3dshapes/GKG60015.wrl" (offset (xyz 0 0 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0))))
 "#;
         fs::write("cad/Probe.pretty/GKG60015_TopAdjust.kicad_mod", trim_fp).unwrap();
+        for (name, fp) in edge_parts::footprints() {
+            fs::write(format!("cad/Probe.pretty/{name}.kicad_mod"), fp).unwrap();
+        }
         fs::create_dir_all("cad/Probe.3dshapes").unwrap();
         fs::write("cad/Probe.3dshapes/GKG60015.wrl", trimmer_model()).unwrap();
         let mut pins = "symbol\tpin\tname\telectrical_type\n".to_string();
@@ -745,6 +750,20 @@ fn main() {
             false,
         ),
     );
+    d.syms.insert(
+        "SPDT".into(),
+        custom(
+            "SPDT",
+            vec![
+                pin("2", "COM", "passive", -8., 0., 0),
+                pin("1", "A", "passive", 8., 3., 180),
+                pin("3", "B", "passive", 8., -3., 180),
+            ],
+            6.,
+            5.,
+            false,
+        ),
+    );
     for (k, vin, gnd) in [("ADP7142", "1", "2"), ("ADP7182", "2", "1")] {
         d.syms.insert(
             k.into(),
@@ -1008,6 +1027,10 @@ fn main() {
             d.wire(0, (x + 21., y + 12.), (x + 36., y + 12.));
             d.wire(0, (x + 36., y + 12.), (x + 36., y));
             d.dot(0, (x + 36., y));
+            if i < 4 {
+                // Named section nodes: readable DRC rule names and symmetry checks.
+                d.label(0, (x + 36., y + 6.), &b);
+            }
         }
         d.wire(0, (20., y), (22., y));
         d.label(0, (202., y), &format!("TAP_{suffix}"));
@@ -1023,6 +1046,7 @@ fn main() {
         d.tag(&vr, "2", "GND");
         d.tag(&vr, "3", "GND");
         d.wire(0, (212., y + 14.), (212., y + 20.));
+        d.label(0, (212., y + 17.), &format!("TRIM_{suffix}"));
         d.wire(0, (218., y + 26.), (224., y + 26.));
         d.wire(0, (224., y + 26.), (224., y + 34.));
         d.wire(0, (212., y + 32.), (212., y + 34.));
@@ -1132,10 +1156,12 @@ fn main() {
         (195., 106.),
         "FIXED x2 SUBTRACTOR / FIXED x5 GAIN / OUTPUT SELECTION",
     );
-    // U3 is one OPA2810: channel 1 is the fixed x2 subtractor, channel 2 the
-    // output driver. The possibly saturated x5 stage stays in its own OPA810.
+    // U3 is one OPA2810: channel 2 is the fixed x2 subtractor, channel 1 the
+    // output driver (this pin assignment lets both buffer feeds reach the
+    // subtractor without crossing). The possibly saturated x5 stage stays in
+    // its own OPA810.
     d.place(1, "U3", "OPA2810", &opa2, (82., 60.), 0, false, true);
-    for (p, n) in [("3", "SUM_P"), ("2", "SUM_N"), ("1", "RAW_OUT")] {
+    for (p, n) in [("5", "SUM_P"), ("6", "SUM_N"), ("7", "RAW_OUT")] {
         d.link("U3", p, n);
     }
     d.dual_power("U3");
@@ -1226,6 +1252,7 @@ fn main() {
         "FINE_SEL",
         false,
     );
+    let switch = edge_parts::range_switch();
     d.place(1, "SW1", "SPDT", &switch, (230., 83.), 0, false, true);
     for (p, n) in [("1", "WIDE_SEL"), ("2", "SELECTED"), ("3", "FINE_SEL")] {
         d.link("SW1", p, n);
@@ -1246,7 +1273,7 @@ fn main() {
         1,
         (200., 22.),
         (318., 106.),
-        "SHARED FILTER / COAX DRIVER (U3 ch 2) / OUTPUT CLAMP",
+        "SHARED FILTER / COAX DRIVER (U3 ch 1) / OUTPUT CLAMP",
     );
     d.two(
         1,
@@ -1275,9 +1302,9 @@ fn main() {
         "GND",
         false,
     );
-    d.link("U3", "5", "FILTER");
-    d.link("U3", "6", "DRIVE");
-    d.link("U3", "7", "DRIVE");
+    d.link("U3", "3", "FILTER");
+    d.link("U3", "2", "DRIVE");
+    d.link("U3", "1", "DRIVE");
     d.two(
         1,
         "R70",
@@ -1293,15 +1320,8 @@ fn main() {
     for (p, n) in [("1", "-4V8"), ("2", "+4V8"), ("3", "OUT")] {
         d.link("D3", p, n)
     }
-    let bnc = part(
-        "BNC / panel / 50 R",
-        "31-221-RFX",
-        "Amphenol RF",
-        "",
-        "https://www.amphenolrf.com/31-221-rfx.html",
-        "",
-    );
-    d.place(1, "J3", "BNC", &bnc, (306., 86.), 0, false, false);
+    let bnc = edge_parts::bnc();
+    d.place(1, "J3", "BNC", &bnc, (306., 86.), 0, false, true);
     d.link("J3", "1", "OUT");
     d.link("J3", "2", "GND");
     d.block(
@@ -1478,31 +1498,17 @@ fn main() {
         (194., 124.),
         "TWO 9 V BATTERIES / +/-4.8 V LOW-NOISE RAILS",
     );
-    let bat = part(
-        "9 V battery clip",
-        "235",
-        "Keystone Electronics",
-        "",
-        "https://www.keyelco.com/product.cfm/product_id/911",
-        "",
-    );
+    let bat = edge_parts::battery_holder();
     for (rr, xy, a, b) in [
         ("BT1", (28., 45.), "BAT_P", "GND"),
         ("BT2", (28., 91.), "GND", "BAT_N"),
     ] {
-        d.place(2, rr, "BATTERY", &bat, xy, 0, false, false);
+        d.place(2, rr, "BATTERY", &bat, xy, 0, false, true);
         d.link(rr, "1", a);
         d.link(rr, "2", b)
     }
-    let power_switch = part(
-        "POWER / DPDT / 5 A",
-        "7201SYZQE",
-        "C&K",
-        "",
-        "https://www.ckswitches.com/media/1422/7000.pdf",
-        "",
-    );
-    d.place(2, "SW2", "DPDT", &power_switch, (57., 71.), 0, false, false);
+    let power_switch = edge_parts::power_switch();
+    d.place(2, "SW2", "DPDT", &power_switch, (57., 71.), 0, false, true);
     for (p, n) in [("2", "BAT_P"), ("5", "BAT_N"), ("1", "SW_P"), ("4", "SW_N")] {
         d.link("SW2", p, n)
     }
@@ -1806,4 +1812,56 @@ fn main() {
         d.net(2, (xy.0, xy.1 + 2.), net);
     }
     d.finish();
+}
+
+/// PCB-mount board-edge parts (Rev C): hand-soldered through-hole.
+mod edge_parts {
+    use super::{part, Part};
+    pub fn bnc() -> Part {
+        part(
+            "BNC / PCB right-angle / 50 R",
+            "1-1478035-0",
+            "TE Connectivity",
+            "Connector_Coaxial:BNC_TEConnectivity_1478035_Horizontal",
+            "https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Customer+Drawing%7F1478035%7FB1%7Fpdf%7FEnglish%7FENG_CD_1478035_B1.pdf%7F1-1478035-0",
+            "",
+        )
+    }
+    pub fn range_switch() -> Part {
+        part("SPDT / ON-ON / gold", "TBD", "C&K", "Probe:Toggle_SPDT_RightAngle", "", "")
+    }
+    pub fn power_switch() -> Part {
+        part("POWER / DPDT / ON-ON", "TBD", "C&K", "Probe:Toggle_DPDT_RightAngle", "", "")
+    }
+    pub fn battery_holder() -> Part {
+        part(
+            "9 V PCB holder",
+            "BA9VPC",
+            "MPD (Memory Protection Devices)",
+            "Battery:BatteryHolder_MPD_BA9VPC_1xPP3",
+            "http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf",
+            "",
+        )
+    }
+    fn tht(name: &str, descr: &str, pads: &[(&str, f64, f64)], drill: f64, ring: f64, crt: (f64, f64, f64, f64)) -> String {
+        let mut s = format!("(footprint \"{name}\" (version 20241229) (generator \"temper_probe\") (layer \"F.Cu\") (descr \"{descr}\") (attr through_hole) (property \"Reference\" \"SW\" (at 0 -3) (layer \"F.SilkS\") (effects (font (size .8 .8) (thickness .12)))) (property \"Value\" \"{name}\" (at 0 3) (layer \"F.Fab\") (effects (font (size .8 .8) (thickness .12))))");
+        s += &format!("(fp_rect (start {} {}) (end {} {}) (stroke (width .05) (type default)) (fill none) (layer \"F.CrtYd\"))", crt.0, crt.1, crt.2, crt.3);
+        s += &format!("(fp_rect (start {} {}) (end {} {}) (stroke (width .1) (type default)) (fill none) (layer \"F.Fab\"))", crt.0 + 0.25, crt.1 + 0.25, crt.2 - 0.25, crt.3 - 0.25);
+        for (n, x, y) in pads {
+            s += &format!("(pad \"{n}\" thru_hole circle (at {x} {y}) (size {ring} {ring}) (drill {drill}) (layers \"*.Cu\" \"*.Mask\"))");
+        }
+        s + ")\n"
+    }
+    pub fn footprints() -> Vec<(&'static str, String)> {
+        vec![
+            (
+                "Toggle_SPDT_RightAngle",
+                tht("Toggle_SPDT_RightAngle", "Placeholder right-angle SPDT toggle", &[("1", 0., -4.7), ("2", 0., 0.), ("3", 0., 4.7)], 1.3, 2.2, (-3., -7.5, 13., 7.5)),
+            ),
+            (
+                "Toggle_DPDT_RightAngle",
+                tht("Toggle_DPDT_RightAngle", "Placeholder right-angle DPDT toggle", &[("1", 0., -4.7), ("2", 0., 0.), ("3", 0., 4.7), ("4", -4.7, -4.7), ("5", -4.7, 0.), ("6", -4.7, 4.7)], 1.3, 2.2, (-7.5, -7.5, 13., 7.5)),
+            ),
+        ]
+    }
 }

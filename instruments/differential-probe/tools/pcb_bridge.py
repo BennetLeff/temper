@@ -57,7 +57,7 @@ def seed() -> None:
     labels = {a[0]: (a[1], a[2]) for a in (line.split('\t') for line in
               (ROOT / 'layout/references.tsv').read_text().splitlines()[1:])}
     for line in (ROOT / 'layout/placement.tsv').read_text().splitlines()[1:]:
-        ref, x, y, angle, override = line.split('\t')
+        ref, x, y, angle, override, side = line.split('\t')
         node = components.get(ref)
         library_id = override or node.findtext('footprint')
         lib, name = library_id.split(':')
@@ -80,7 +80,7 @@ def seed() -> None:
         fp.Reference().SetTextSize(vec(.8, .8))
         fp.Reference().SetTextThickness(k.FromMM(.12))
         fp.Reference().SetTextAngle(k.EDA_ANGLE(0, k.DEGREES_T))
-        fp.Reference().SetLayer(k.F_SilkS)
+        fp.Reference().SetLayer(k.F_SilkS if side == 'F' else k.B_SilkS)
         fp.Reference().SetPosition(vec(*labels[ref]))
         fp.Value().SetVisible(False)
         for pad in fp.Pads():
@@ -89,6 +89,11 @@ def seed() -> None:
             if name_net:
                 pad.SetNet(nets[name_net])
         board.Add(fp)
+        if side == 'B':
+            # Flip onto B.Cu (mirror about the footprint's horizontal axis);
+            # the footprint must belong to the board first.
+            fp.SetLayerAndFlip(k.B_Cu)
+            fp.Reference().SetLayer(k.B_SilkS)
     save(board)
     export_pads(board)
     print(f'Seeded {len(list(board.GetFootprints()))} footprints')
@@ -168,8 +173,9 @@ def mutant(kind: str, target: str) -> None:
             edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
             edge.SetLayer(k.Edge_Cuts); board.Add(edge)
     elif kind == 'clearance':
+        # GND track 6 mm from the TIP_P landing copper (10 mm rule).
         track = k.PCB_TRACK(board)
-        track.SetStart(vec(16, 19)); track.SetEnd(vec(16, 21))
+        track.SetStart(vec(16, 26)); track.SetEnd(vec(16, 28))
         track.SetWidth(k.FromMM(.25)); track.SetLayer(k.F_Cu)
         track.SetNet(board.FindNet('GND')); board.Add(track)
     elif kind == 'slot':
@@ -178,9 +184,25 @@ def mutant(kind: str, target: str) -> None:
             if item.GetLayer() != k.Edge_Cuts:
                 continue
             points = (item.GetStart(), item.GetEnd())
-            if all(38 <= k.ToMM(p.x) <= 40 and 23 <= k.ToMM(p.y) <= 33 for p in points):
+            if all(33 <= k.ToMM(p.x) <= 35 and 15 <= k.ToMM(p.y) <= 25 for p in points):
                 board.Remove(item); removed += 1
         assert removed == 4, f'Expected four C1 slot edges, got {removed}'
+    elif kind in ('interleg-none', 'interleg-short'):
+        # Remove, or shorten to x = 40 mm, the long slot on the y = 35 mm axis.
+        removed = 0
+        for item in list(board.GetDrawings()):
+            if item.GetLayer() != k.Edge_Cuts:
+                continue
+            points = (item.GetStart(), item.GetEnd())
+            if all(33.5 <= k.ToMM(p.y) <= 36.5 and k.ToMM(p.x) < 60 for p in points):
+                board.Remove(item); removed += 1
+        assert removed == 4, f'Expected four inter-leg slot edges, got {removed}'
+        if kind == 'interleg-short':
+            pts = [(12, 34.2), (40, 34.2), (40, 35.8), (12, 35.8), (12, 34.2)]
+            for a, b in zip(pts, pts[1:]):
+                edge = k.PCB_SHAPE(board); edge.SetShape(k.SHAPE_T_SEGMENT)
+                edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
+                edge.SetLayer(k.Edge_Cuts); board.Add(edge)
     else:
         raise ValueError(kind)
     k.SaveBoard(target, board)

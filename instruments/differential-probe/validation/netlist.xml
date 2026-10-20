@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>/Users/bennet/Desktop/temper/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T15:20:14</date>
+    <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
+    <date>2026-10-20T17:17:09</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Differential probe / compensated inputs</title>
         <company>Temper / instruments</company>
-        <rev>B prototype</rev>
+        <rev>C prototype</rev>
         <date>2026-10-20</date>
         <source>differential-probe.kicad_sch</source>
         <comment number="1" value="Voltage ratings are qualification targets; not CAT rated"/>
@@ -26,7 +26,7 @@
       <title_block>
         <title>Differential probe / gain, output and overload</title>
         <company>Temper / instruments</company>
-        <rev>B prototype</rev>
+        <rev>C prototype</rev>
         <date>2026-10-20</date>
         <source>signal.kicad_sch</source>
         <comment number="1" value="Voltage ratings are qualification targets; not CAT rated"/>
@@ -42,9 +42,9 @@
     </sheet>
     <sheet number="3" name="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/">
       <title_block>
-        <title>Differential probe / battery supply and references</title>
+        <title>Differential probe / battery supply and thresholds</title>
         <company>Temper / instruments</company>
-        <rev>B prototype</rev>
+        <rev>C prototype</rev>
         <date>2026-10-20</date>
         <source>power.kicad_sch</source>
         <comment number="1" value="Voltage ratings are qualification targets; not CAT rated"/>
@@ -402,19 +402,19 @@
       </units>
     </comp>
     <comp ref="C42">
-      <value>2.2 nF</value>
+      <value>SOT 3.0 nF / 1%</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C222J5GACTU</datasheet>
+      <datasheet>https://search.kemet.com/download/specsheet/C0805C302F5GACTU</datasheet>
       <fields>
-        <field name="MPN">C0805C222J5GACTU</field>
+        <field name="MPN">C0805C302F5GACTU</field>
         <field name="Manufacturer">KEMET</field>
         <field name="LCSC"/>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C222J5GACTU</field>
+        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C302F5GACTU</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C222J5GACTU"/>
+      <property name="MPN" value="C0805C302F5GACTU"/>
       <property name="Manufacturer" value="KEMET"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -433,19 +433,19 @@
       </units>
     </comp>
     <comp ref="C43">
-      <value>680 pF</value>
+      <value>SOT 160 pF / 1%</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C681J5GACTU</datasheet>
+      <datasheet>https://search.kemet.com/download/specsheet/C0805C161F5GACTU</datasheet>
       <fields>
-        <field name="MPN">C0805C681J5GACTU</field>
+        <field name="MPN">C0805C161F5GACTU</field>
         <field name="Manufacturer">KEMET</field>
         <field name="LCSC"/>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C681J5GACTU</field>
+        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C161F5GACTU</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C681J5GACTU"/>
+      <property name="MPN" value="C0805C161F5GACTU"/>
       <property name="Manufacturer" value="KEMET"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -454,130 +454,6 @@
       <property name="ki_fp_filters" value="C_*"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>0c995419-ab30-41d3-8b2d-25b078439068</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C44">
-      <value>220 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C221J5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C221J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C221J5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C221J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c995919-ab30-4a52-8b30-a5b0784982e8</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C45">
-      <value>47 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C470J5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C470J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C470J5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C470J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c995a19-ab30-4c05-8b30-25b07848a968</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C46">
-      <value>10 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C100J5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C100J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C100J5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C100J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c995719-ab30-46ec-8b2f-a5b07847cfe8</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C47">
-      <value>1 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C109C5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C109C5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C109C5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C109C5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c995819-ab30-489f-8b2f-25b07846f668</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -619,19 +495,19 @@
       </units>
     </comp>
     <comp ref="C52">
-      <value>2.2 nF</value>
+      <value>SOT 3.0 nF / 1%</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C222J5GACTU</datasheet>
+      <datasheet>https://search.kemet.com/download/specsheet/C0805C302F5GACTU</datasheet>
       <fields>
-        <field name="MPN">C0805C222J5GACTU</field>
+        <field name="MPN">C0805C302F5GACTU</field>
         <field name="Manufacturer">KEMET</field>
         <field name="LCSC"/>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C222J5GACTU</field>
+        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C302F5GACTU</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C222J5GACTU"/>
+      <property name="MPN" value="C0805C302F5GACTU"/>
       <property name="Manufacturer" value="KEMET"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -650,19 +526,19 @@
       </units>
     </comp>
     <comp ref="C53">
-      <value>680 pF</value>
+      <value>SOT 160 pF / 1%</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C681J5GACTU</datasheet>
+      <datasheet>https://search.kemet.com/download/specsheet/C0805C161F5GACTU</datasheet>
       <fields>
-        <field name="MPN">C0805C681J5GACTU</field>
+        <field name="MPN">C0805C161F5GACTU</field>
         <field name="Manufacturer">KEMET</field>
         <field name="LCSC"/>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C681J5GACTU</field>
+        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C161F5GACTU</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C681J5GACTU"/>
+      <property name="MPN" value="C0805C161F5GACTU"/>
       <property name="Manufacturer" value="KEMET"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -680,132 +556,8 @@
         </unit>
       </units>
     </comp>
-    <comp ref="C54">
-      <value>220 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C221J5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C221J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C221J5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C221J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c9cd719-ab33-4643-84b0-a5b13113c2e8</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C55">
-      <value>47 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C470J5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C470J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C470J5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C470J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c9cd619-ab33-4490-84b0-25b13112e968</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C56">
-      <value>10 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C100J5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C100J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C100J5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C100J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c9cd919-ab33-49a9-84af-a5b131120fe8</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C57">
-      <value>1 pF</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C109C5GACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C109C5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C109C5GACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C109C5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>0c9cd819-ab33-47f6-84af-25b131113668</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
     <comp ref="CT1">
-      <value>12-60 pF / set ~35 pF</value>
+      <value>12-60 pF / set ~33 pF</value>
       <footprint>Probe:GKG60015_TopAdjust</footprint>
       <datasheet>https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/8929/Gkgxxx15%20Specs%20and%20Kit-April%202026.pdf</datasheet>
       <fields>
@@ -835,7 +587,7 @@
       </units>
     </comp>
     <comp ref="CT2">
-      <value>12-60 pF / set ~35 pF</value>
+      <value>12-60 pF / set ~33 pF</value>
       <footprint>Probe:GKG60015_TopAdjust</footprint>
       <datasheet>https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/8929/Gkgxxx15%20Specs%20and%20Kit-April%202026.pdf</datasheet>
       <fields>
@@ -925,19 +677,19 @@
       </units>
     </comp>
     <comp ref="R1">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -956,19 +708,19 @@
       </units>
     </comp>
     <comp ref="R2">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -987,19 +739,19 @@
       </units>
     </comp>
     <comp ref="R3">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1018,19 +770,19 @@
       </units>
     </comp>
     <comp ref="R4">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1049,19 +801,19 @@
       </units>
     </comp>
     <comp ref="R5">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1070,161 +822,6 @@
       <property name="ki_fp_filters" value="R_*"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>0948ff07-b5d7-4900-8037-410f1ed125e0</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R6">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>09490207-b5d7-4e19-8037-c10f1ed1ff60</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R7">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>09490107-b5d7-4c66-8038-410f1ed2d8e0</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R8">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>09490c07-b5d7-4f17-8034-c10f1ecce660</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R9">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>09490b07-b5d7-4d64-8035-410f1ecdbfe0</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R10">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>9ef02219-fdd1-4934-8aae-58b194c93832</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -1270,7 +867,7 @@
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07220L</field>
+        <field name="MPN">RT0805BRD07220RL</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -1278,7 +875,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07220L"/>
+      <property name="MPN" value="RT0805BRD07220RL"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1297,19 +894,19 @@
       </units>
     </comp>
     <comp ref="R21">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1328,19 +925,19 @@
       </units>
     </comp>
     <comp ref="R22">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1359,19 +956,19 @@
       </units>
     </comp>
     <comp ref="R23">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1390,19 +987,19 @@
       </units>
     </comp>
     <comp ref="R24">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1421,19 +1018,19 @@
       </units>
     </comp>
     <comp ref="R25">
-      <value>1 MR / 0.1%</value>
+      <value>2 MR / 0.1%</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
+      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
+        <field name="MPN">HVCB2512BDE2M00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
+        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
+      <property name="MPN" value="HVCB2512BDE2M00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1442,161 +1039,6 @@
       <property name="ki_fp_filters" value="R_*"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>9efa0f19-fdd9-4d70-8430-d8b24d97b7b3</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R26">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>9efa1219-fdd9-4289-8431-58b24d989133</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R27">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>9efa1119-fdd9-40d6-8431-d8b24d996ab3</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R28">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>9efa1c19-fdd9-4387-8432-58b24d9a4433</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R29">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>9efa1b19-fdd9-41d4-8432-d8b24d9b1db3</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R30">
-      <value>1 MR / 0.1%</value>
-      <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-HVCB.pdf</datasheet>
-      <fields>
-        <field name="MPN">HVCB2512BDE1M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-HVCB.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE1M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>9ef68e19-fdd6-4c66-8dae-58b3065db834</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -1642,7 +1084,7 @@
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07220L</field>
+        <field name="MPN">RT0805BRD07220RL</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -1650,7 +1092,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07220L"/>
+      <property name="MPN" value="RT0805BRD07220RL"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1729,21 +1171,21 @@
       </units>
     </comp>
     <comp ref="U1">
-      <value>ADA4817-1ARDZ-R7</value>
-      <footprint>Probe:ADA4817_RD-8-4</footprint>
-      <datasheet>https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf</datasheet>
+      <value>OPA2810IDR</value>
+      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/opa2810.pdf</datasheet>
       <fields>
-        <field name="MPN">ADA4817-1ARDZ-R7</field>
-        <field name="Manufacturer">Analog Devices</field>
-        <field name="LCSC">C207502</field>
-        <field name="Footprint">Probe:ADA4817_RD-8-4</field>
-        <field name="Datasheet">https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf</field>
+        <field name="MPN">OPA2810IDR</field>
+        <field name="Manufacturer">Texas Instruments</field>
+        <field name="LCSC">C1849413</field>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/opa2810.pdf</field>
         <field name="Description"/>
       </fields>
-      <libsource lib="Probe" part="ADA4817" description=""/>
-      <property name="MPN" value="ADA4817-1ARDZ-R7"/>
-      <property name="Manufacturer" value="Analog Devices"/>
-      <property name="LCSC" value="C207502"/>
+      <libsource lib="Probe" part="OPA2810" description=""/>
+      <property name="MPN" value="OPA2810IDR"/>
+      <property name="Manufacturer" value="Texas Instruments"/>
+      <property name="LCSC" value="C1849413"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -1753,49 +1195,12 @@
           <pins>
             <pin num="3"/>
             <pin num="2"/>
-            <pin num="8"/>
-            <pin num="9"/>
-            <pin num="7"/>
-            <pin num="4"/>
             <pin num="5"/>
             <pin num="6"/>
-            <pin num="1"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="U2">
-      <value>ADA4817-1ARDZ-R7</value>
-      <footprint>Probe:ADA4817_RD-8-4</footprint>
-      <datasheet>https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf</datasheet>
-      <fields>
-        <field name="MPN">ADA4817-1ARDZ-R7</field>
-        <field name="Manufacturer">Analog Devices</field>
-        <field name="LCSC">C207502</field>
-        <field name="Footprint">Probe:ADA4817_RD-8-4</field>
-        <field name="Datasheet">https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="ADA4817" description=""/>
-      <property name="MPN" value="ADA4817-1ARDZ-R7"/>
-      <property name="Manufacturer" value="Analog Devices"/>
-      <property name="LCSC" value="C207502"/>
-      <property name="Sheetname" value="differential-probe"/>
-      <property name="Sheetfile" value="differential-probe.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>09317c07-b5c4-4b86-80b9-c10b82e2255b</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="3"/>
-            <pin num="2"/>
             <pin num="8"/>
-            <pin num="9"/>
-            <pin num="7"/>
             <pin num="4"/>
-            <pin num="5"/>
-            <pin num="6"/>
             <pin num="1"/>
+            <pin num="7"/>
           </pins>
         </unit>
       </units>
@@ -1862,23 +1267,23 @@
       </units>
     </comp>
     <comp ref="J3">
-      <value>BNC / panel / 50 R</value>
-      <datasheet>https://www.amphenolrf.com/31-221-rfx.html</datasheet>
+      <value>BNC / PCB right-angle / 50 R</value>
+      <footprint>Connector_Coaxial:BNC_TEConnectivity_1478035_Horizontal</footprint>
+      <datasheet>https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer+Drawing%7F1478035%7FB1%7Fpdf%7FEnglish%7FENG_CD_1478035_B1.pdf%7F1-1478035-0</datasheet>
       <fields>
-        <field name="MPN">31-221-RFX</field>
-        <field name="Manufacturer">Amphenol RF</field>
+        <field name="MPN">1-1478035-0</field>
+        <field name="Manufacturer">TE Connectivity</field>
         <field name="LCSC"/>
-        <field name="Footprint"/>
-        <field name="Datasheet">https://www.amphenolrf.com/31-221-rfx.html</field>
+        <field name="Footprint">Connector_Coaxial:BNC_TEConnectivity_1478035_Horizontal</field>
+        <field name="Datasheet">https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer+Drawing%7F1478035%7FB1%7Fpdf%7FEnglish%7FENG_CD_1478035_B1.pdf%7F1-1478035-0</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BNC" description=""/>
-      <property name="MPN" value="31-221-RFX"/>
-      <property name="Manufacturer" value="Amphenol RF"/>
+      <property name="MPN" value="1-1478035-0"/>
+      <property name="Manufacturer" value="TE Connectivity"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="exclude_from_board"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
       <tstamps>092e1507-b5c1-46aa-843a-410958843ed9</tstamps>
       <units>
@@ -1983,11 +1388,11 @@
       </units>
     </comp>
     <comp ref="R63">
-      <value>499 R / 0.01%</value>
+      <value>1.00 kR / 0.01%</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
       <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
+        <field name="MPN">RNCF0603TKY1K00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
@@ -1995,7 +1400,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
+      <property name="MPN" value="RNCF0603TKY1K00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
@@ -2013,43 +1418,12 @@
         </unit>
       </units>
     </comp>
-    <comp ref="R64">
-      <value>499 R / 0.01%</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
-      <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="signal"/>
-      <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
-      <tstamps>9eeca019-fdce-4677-8e30-58af6a6dde30</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
     <comp ref="R65">
-      <value>499 R / 0.01%</value>
+      <value>1.00 kR / 0.01%</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
       <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
+        <field name="MPN">RNCF0603TKY1K00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
@@ -2057,7 +1431,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
+      <property name="MPN" value="RNCF0603TKY1K00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
@@ -2066,37 +1440,6 @@
       <property name="ki_fp_filters" value="R_*"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
       <tstamps>9eec9f19-fdce-44c4-8e30-d8af6a6eb7b0</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R66">
-      <value>499 R / 0.01%</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
-      <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="signal"/>
-      <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
-      <tstamps>9eeca219-fdce-49dd-8e31-58af6a6f9130</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -2138,11 +1481,11 @@
       </units>
     </comp>
     <comp ref="R68">
-      <value>499 R / 0.01%</value>
+      <value>2.00 kR / 0.01%</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
       <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
+        <field name="MPN">RNCF0603TKY2K00</field>
         <field name="Manufacturer">Stackpole</field>
         <field name="LCSC"/>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
@@ -2150,7 +1493,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
+      <property name="MPN" value="RNCF0603TKY2K00"/>
       <property name="Manufacturer" value="Stackpole"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
@@ -2385,99 +1728,6 @@
         </unit>
       </units>
     </comp>
-    <comp ref="R97">
-      <value>499 R / 0.01%</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
-      <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="signal"/>
-      <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
-      <tstamps>9f0b1119-fde8-4409-8eb1-d8abce7d2aac</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R98">
-      <value>499 R / 0.01%</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
-      <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="signal"/>
-      <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
-      <tstamps>9f0b1a19-fde8-4354-8eb2-58abce7e042c</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R99">
-      <value>499 R / 0.01%</value>
-      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
-      <fields>
-        <field name="MPN">RNCF0603TKY499R</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY499R"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="signal"/>
-      <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
-      <tstamps>9f0b1b19-fde8-4507-8eb2-d8abce7eddac</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
     <comp ref="R100">
       <value>49.9 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
@@ -2603,54 +1853,50 @@
       </units>
     </comp>
     <comp ref="SW1">
-      <value>DPDT / ON-ON</value>
-      <datasheet>https://www.ckswitches.com/media/1422/7000.pdf</datasheet>
+      <value>SPDT / ON-ON / gold</value>
+      <footprint>Probe:Toggle_SPDT_RightAngle</footprint>
       <fields>
-        <field name="MPN">7201SYZBE</field>
+        <field name="MPN">TBD</field>
         <field name="Manufacturer">C&amp;K</field>
         <field name="LCSC"/>
-        <field name="Footprint"/>
-        <field name="Datasheet">https://www.ckswitches.com/media/1422/7000.pdf</field>
+        <field name="Footprint">Probe:Toggle_SPDT_RightAngle</field>
+        <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
-      <libsource lib="Probe" part="DPDT" description=""/>
-      <property name="MPN" value="7201SYZBE"/>
+      <libsource lib="Probe" part="SPDT" description=""/>
+      <property name="MPN" value="TBD"/>
       <property name="Manufacturer" value="C&amp;K"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
-      <property name="exclude_from_board"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
       <tstamps>9806fe19-fa66-4d3a-87af-75f5446d91b2</tstamps>
       <units>
         <unit name="A">
           <pins>
             <pin num="2"/>
-            <pin num="5"/>
             <pin num="1"/>
             <pin num="3"/>
-            <pin num="4"/>
-            <pin num="6"/>
           </pins>
         </unit>
       </units>
     </comp>
     <comp ref="U3">
-      <value>OPA810IDR</value>
+      <value>OPA2810IDR</value>
       <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
-      <datasheet>https://www.ti.com/lit/ds/symlink/opa810.pdf</datasheet>
+      <datasheet>https://www.ti.com/lit/ds/symlink/opa2810.pdf</datasheet>
       <fields>
-        <field name="MPN">OPA810IDR</field>
+        <field name="MPN">OPA2810IDR</field>
         <field name="Manufacturer">Texas Instruments</field>
-        <field name="LCSC">C1852077</field>
+        <field name="LCSC">C1849413</field>
         <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
-        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/opa810.pdf</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/opa2810.pdf</field>
         <field name="Description"/>
       </fields>
-      <libsource lib="Probe" part="OPA810" description=""/>
-      <property name="MPN" value="OPA810IDR"/>
+      <libsource lib="Probe" part="OPA2810" description=""/>
+      <property name="MPN" value="OPA2810IDR"/>
       <property name="Manufacturer" value="Texas Instruments"/>
-      <property name="LCSC" value="C1852077"/>
+      <property name="LCSC" value="C1849413"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
@@ -2660,47 +1906,12 @@
           <pins>
             <pin num="3"/>
             <pin num="2"/>
-            <pin num="1"/>
-            <pin num="7"/>
-            <pin num="4"/>
             <pin num="5"/>
             <pin num="6"/>
             <pin num="8"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="U4">
-      <value>OPA810IDR</value>
-      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
-      <datasheet>https://www.ti.com/lit/ds/symlink/opa810.pdf</datasheet>
-      <fields>
-        <field name="MPN">OPA810IDR</field>
-        <field name="Manufacturer">Texas Instruments</field>
-        <field name="LCSC">C1852077</field>
-        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
-        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/opa810.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="OPA810" description=""/>
-      <property name="MPN" value="OPA810IDR"/>
-      <property name="Manufacturer" value="Texas Instruments"/>
-      <property name="LCSC" value="C1852077"/>
-      <property name="Sheetname" value="signal"/>
-      <property name="Sheetfile" value="signal.kicad_sch"/>
-      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
-      <tstamps>09317e07-b5c4-4eec-80b6-c10b82dd0c5b</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="3"/>
-            <pin num="2"/>
+            <pin num="4"/>
             <pin num="1"/>
             <pin num="7"/>
-            <pin num="4"/>
-            <pin num="5"/>
-            <pin num="6"/>
-            <pin num="8"/>
           </pins>
         </unit>
       </units>
@@ -2858,23 +2069,23 @@
       </units>
     </comp>
     <comp ref="BT1">
-      <value>9 V battery clip</value>
-      <datasheet>https://www.keyelco.com/product.cfm/product_id/911</datasheet>
+      <value>9 V PCB holder</value>
+      <footprint>Battery:BatteryHolder_MPD_BA9VPC_1xPP3</footprint>
+      <datasheet>http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</datasheet>
       <fields>
-        <field name="MPN">235</field>
-        <field name="Manufacturer">Keystone Electronics</field>
+        <field name="MPN">BA9VPC</field>
+        <field name="Manufacturer">MPD (Memory Protection Devices)</field>
         <field name="LCSC"/>
-        <field name="Footprint"/>
-        <field name="Datasheet">https://www.keyelco.com/product.cfm/product_id/911</field>
+        <field name="Footprint">Battery:BatteryHolder_MPD_BA9VPC_1xPP3</field>
+        <field name="Datasheet">http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BATTERY" description=""/>
-      <property name="MPN" value="235"/>
-      <property name="Manufacturer" value="Keystone Electronics"/>
+      <property name="MPN" value="BA9VPC"/>
+      <property name="Manufacturer" value="MPD (Memory Protection Devices)"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="exclude_from_board"/>
       <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
       <tstamps>1600ff19-b0ba-4b16-8b2e-08f5eebe1c8a</tstamps>
       <units>
@@ -2887,23 +2098,23 @@
       </units>
     </comp>
     <comp ref="BT2">
-      <value>9 V battery clip</value>
-      <datasheet>https://www.keyelco.com/product.cfm/product_id/911</datasheet>
+      <value>9 V PCB holder</value>
+      <footprint>Battery:BatteryHolder_MPD_BA9VPC_1xPP3</footprint>
+      <datasheet>http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</datasheet>
       <fields>
-        <field name="MPN">235</field>
-        <field name="Manufacturer">Keystone Electronics</field>
+        <field name="MPN">BA9VPC</field>
+        <field name="Manufacturer">MPD (Memory Protection Devices)</field>
         <field name="LCSC"/>
-        <field name="Footprint"/>
-        <field name="Datasheet">https://www.keyelco.com/product.cfm/product_id/911</field>
+        <field name="Footprint">Battery:BatteryHolder_MPD_BA9VPC_1xPP3</field>
+        <field name="Datasheet">http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BATTERY" description=""/>
-      <property name="MPN" value="235"/>
-      <property name="Manufacturer" value="Keystone Electronics"/>
+      <property name="MPN" value="BA9VPC"/>
+      <property name="Manufacturer" value="MPD (Memory Protection Devices)"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="exclude_from_board"/>
       <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
       <tstamps>1600fe19-b0ba-4963-8b2c-88f5eebb900a</tstamps>
       <units>
@@ -3411,68 +2622,6 @@
         </unit>
       </units>
     </comp>
-    <comp ref="C93">
-      <value>100 nF / 50 V</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>0caa5419-ab3f-4506-8ead-25ae4de4d065</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C94">
-      <value>100 nF / 50 V</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>0caa5719-ab3f-4a1f-8eb0-a5ae4deac2e5</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
     <comp ref="C95">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
@@ -3504,84 +2653,22 @@
         </unit>
       </units>
     </comp>
-    <comp ref="C96">
-      <value>100 nF / 50 V</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>0caa5919-ab3f-4d85-8eaf-a5ae4de90fe5</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="C97">
-      <value>100 nF / 50 V</value>
-      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
-      <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="cap capacitor"/>
-      <property name="ki_fp_filters" value="C_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>0caa5819-ab3f-4bd2-8eaf-25ae4de83665</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
     <comp ref="D4">
       <value>SS14</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C2480.html</datasheet>
       <fields>
         <field name="MPN">SS14</field>
-        <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="Manufacturer">MDD (Microdiode Semiconductor)</field>
+        <field name="LCSC">C2480</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C2480.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
       <property name="MPN" value="SS14"/>
-      <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="Manufacturer" value="MDD (Microdiode Semiconductor)"/>
+      <property name="LCSC" value="C2480"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3600,19 +2687,19 @@
     <comp ref="D5">
       <value>SS14</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C2480.html</datasheet>
       <fields>
         <field name="MPN">SS14</field>
-        <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="Manufacturer">MDD (Microdiode Semiconductor)</field>
+        <field name="LCSC">C2480</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C2480.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
       <property name="MPN" value="SS14"/>
-      <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="Manufacturer" value="MDD (Microdiode Semiconductor)"/>
+      <property name="LCSC" value="C2480"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3631,19 +2718,19 @@
     <comp ref="D6">
       <value>SS14</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C2480.html</datasheet>
       <fields>
         <field name="MPN">SS14</field>
-        <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="Manufacturer">MDD (Microdiode Semiconductor)</field>
+        <field name="LCSC">C2480</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C2480.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
       <property name="MPN" value="SS14"/>
-      <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="Manufacturer" value="MDD (Microdiode Semiconductor)"/>
+      <property name="LCSC" value="C2480"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3662,19 +2749,19 @@
     <comp ref="D7">
       <value>SS14</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C2480.html</datasheet>
       <fields>
         <field name="MPN">SS14</field>
-        <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="Manufacturer">MDD (Microdiode Semiconductor)</field>
+        <field name="LCSC">C2480</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C2480.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
       <property name="MPN" value="SS14"/>
-      <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="Manufacturer" value="MDD (Microdiode Semiconductor)"/>
+      <property name="LCSC" value="C2480"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3691,21 +2778,21 @@
       </units>
     </comp>
     <comp ref="D8">
-      <value>1N4148W,115</value>
+      <value>1N4148W-E3-18</value>
       <footprint>Diode_SMD:D_SOD-123</footprint>
-      <datasheet>https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf</datasheet>
+      <datasheet>https://www.vishay.com/docs/85748/1n4148w.pdf</datasheet>
       <fields>
-        <field name="MPN">1N4148W,115</field>
-        <field name="Manufacturer">Nexperia</field>
-        <field name="LCSC"/>
+        <field name="MPN">1N4148W-E3-18</field>
+        <field name="Manufacturer">Vishay</field>
+        <field name="LCSC">C191428</field>
         <field name="Footprint">Diode_SMD:D_SOD-123</field>
-        <field name="Datasheet">https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf</field>
+        <field name="Datasheet">https://www.vishay.com/docs/85748/1n4148w.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D" description="Diode"/>
-      <property name="MPN" value="1N4148W,115"/>
-      <property name="Manufacturer" value="Nexperia"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="1N4148W-E3-18"/>
+      <property name="Manufacturer" value="Vishay"/>
+      <property name="LCSC" value="C191428"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode"/>
@@ -3876,74 +2963,12 @@
         </unit>
       </units>
     </comp>
-    <comp ref="R85">
-      <value>1 kR</value>
-      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
-      <fields>
-        <field name="MPN">RT0805BRD071KL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
-        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD071KL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>9f0e9319-fdeb-46c6-8530-d8ab15b137ab</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R86">
-      <value>1 kR</value>
-      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
-      <fields>
-        <field name="MPN">RT0805BRD071KL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
-        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD071KL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>9f0e9219-fdeb-4513-8531-58ab15b2112b</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
     <comp ref="R87">
-      <value>25.5 kR</value>
+      <value>66.5 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0725K5L</field>
+        <field name="MPN">RT0805BRD0766K5L</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -3951,7 +2976,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0725K5L"/>
+      <property name="MPN" value="RT0805BRD0766K5L"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="power"/>
@@ -3970,11 +2995,11 @@
       </units>
     </comp>
     <comp ref="R88">
-      <value>10 kR</value>
+      <value>1 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0710KL</field>
+        <field name="MPN">RT0805BRD071KL</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -3982,7 +3007,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0710KL"/>
+      <property name="MPN" value="RT0805BRD071KL"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="power"/>
@@ -4001,37 +3026,6 @@
       </units>
     </comp>
     <comp ref="R89">
-      <value>29.4 kR</value>
-      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
-      <fields>
-        <field name="MPN">RT0805BRD0729K4L</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
-        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0729K4L"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>9f0e9f19-fdeb-4b2a-8532-d8ab15b49dab</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R90">
       <value>10 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
@@ -4052,7 +3046,7 @@
       <property name="ki_keywords" value="r resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
       <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>9f0b1219-fde8-45bc-8eae-58abce77382c</tstamps>
+      <tstamps>9f0e9f19-fdeb-4b2a-8532-d8ab15b49dab</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -4063,11 +3057,11 @@
       </units>
     </comp>
     <comp ref="R91">
-      <value>25.5 kR</value>
+      <value>66.5 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0725K5L</field>
+        <field name="MPN">RT0805BRD0766K5L</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -4075,7 +3069,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0725K5L"/>
+      <property name="MPN" value="RT0805BRD0766K5L"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="power"/>
@@ -4094,11 +3088,11 @@
       </units>
     </comp>
     <comp ref="R92">
-      <value>10 kR</value>
+      <value>1 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0710KL</field>
+        <field name="MPN">RT0805BRD071KL</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -4106,7 +3100,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0710KL"/>
+      <property name="MPN" value="RT0805BRD071KL"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="power"/>
@@ -4125,37 +3119,6 @@
       </units>
     </comp>
     <comp ref="R93">
-      <value>29.4 kR</value>
-      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
-      <fields>
-        <field name="MPN">RT0805BRD0729K4L</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
-        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0729K4L"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="ki_keywords" value="r resistor"/>
-      <property name="ki_fp_filters" value="R_*"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>9f0b1519-fde8-4ad5-8eaf-d8abce79c4ac</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="1"/>
-            <pin num="2"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="R94">
       <value>10 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
@@ -4176,7 +3139,7 @@
       <property name="ki_keywords" value="r resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
       <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>9f0b0e19-fde8-4ef0-8eb0-58abce7a9e2c</tstamps>
+      <tstamps>9f0b1519-fde8-4ad5-8eaf-d8abce79c4ac</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -4249,23 +3212,22 @@
       </units>
     </comp>
     <comp ref="SW2">
-      <value>POWER / DPDT / 5 A</value>
-      <datasheet>https://www.ckswitches.com/media/1422/7000.pdf</datasheet>
+      <value>POWER / DPDT / ON-ON</value>
+      <footprint>Probe:Toggle_DPDT_RightAngle</footprint>
       <fields>
-        <field name="MPN">7201SYZQE</field>
+        <field name="MPN">TBD</field>
         <field name="Manufacturer">C&amp;K</field>
         <field name="LCSC"/>
-        <field name="Footprint"/>
-        <field name="Datasheet">https://www.ckswitches.com/media/1422/7000.pdf</field>
+        <field name="Footprint">Probe:Toggle_DPDT_RightAngle</field>
+        <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="DPDT" description=""/>
-      <property name="MPN" value="7201SYZQE"/>
+      <property name="MPN" value="TBD"/>
       <property name="Manufacturer" value="C&amp;K"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
-      <property name="exclude_from_board"/>
       <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
       <tstamps>9806fd19-fa66-4b87-87af-f5f5446e6b32</tstamps>
       <units>
@@ -4374,88 +3336,8 @@
         </unit>
       </units>
     </comp>
-    <comp ref="U10">
-      <value>TL431BIDBZR</value>
-      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
-      <datasheet>https://www.ti.com/lit/ds/symlink/tl431.pdf</datasheet>
-      <fields>
-        <field name="MPN">TL431BIDBZR</field>
-        <field name="Manufacturer">Texas Instruments</field>
-        <field name="LCSC">C41283</field>
-        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
-        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/tl431.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="TL431" description=""/>
-      <property name="MPN" value="TL431BIDBZR"/>
-      <property name="Manufacturer" value="Texas Instruments"/>
-      <property name="LCSC" value="C41283"/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>632df119-dc37-4cb9-8ab8-c7b26a0028c6</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="2"/>
-            <pin num="1"/>
-            <pin num="3"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
-    <comp ref="U11">
-      <value>TL431BIDBZR</value>
-      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
-      <datasheet>https://www.ti.com/lit/ds/symlink/tl431.pdf</datasheet>
-      <fields>
-        <field name="MPN">TL431BIDBZR</field>
-        <field name="Manufacturer">Texas Instruments</field>
-        <field name="LCSC">C41283</field>
-        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
-        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/tl431.pdf</field>
-        <field name="Description"/>
-      </fields>
-      <libsource lib="Probe" part="TL431" description=""/>
-      <property name="MPN" value="TL431BIDBZR"/>
-      <property name="Manufacturer" value="Texas Instruments"/>
-      <property name="LCSC" value="C41283"/>
-      <property name="Sheetname" value="power"/>
-      <property name="Sheetfile" value="power.kicad_sch"/>
-      <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>
-      <tstamps>632df019-dc37-4b06-8ab8-47b269ff4f46</tstamps>
-      <units>
-        <unit name="A">
-          <pins>
-            <pin num="2"/>
-            <pin num="1"/>
-            <pin num="3"/>
-          </pins>
-        </unit>
-      </units>
-    </comp>
   </components>
   <libparts>
-    <libpart lib="Probe" part="ADA4817">
-      <fields>
-        <field name="Reference">U</field>
-        <field name="Value">ADA4817</field>
-        <field name="Footprint"/>
-        <field name="Datasheet"/>
-        <field name="Description"/>
-      </fields>
-      <pins>
-        <pin num="1" name="FB" type="passive"/>
-        <pin num="2" name="-IN" type="input"/>
-        <pin num="3" name="+IN" type="input"/>
-        <pin num="4" name="-VS" type="power_in"/>
-        <pin num="5" name="NIC" type="no_connect"/>
-        <pin num="6" name="OUT" type="output"/>
-        <pin num="7" name="+VS" type="power_in"/>
-        <pin num="8" name="PD" type="input"/>
-        <pin num="9" name="EP" type="passive"/>
-      </pins>
-    </libpart>
     <libpart lib="Probe" part="ADP7142">
       <fields>
         <field name="Reference">U</field>
@@ -4676,6 +3558,25 @@
         <pin num="2" name="A" type="passive"/>
       </pins>
     </libpart>
+    <libpart lib="Probe" part="OPA2810">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">OPA2810</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="OUT1" type="output"/>
+        <pin num="2" name="-IN1" type="input"/>
+        <pin num="3" name="+IN1" type="input"/>
+        <pin num="4" name="V-" type="power_in"/>
+        <pin num="5" name="+IN2" type="input"/>
+        <pin num="6" name="-IN2" type="input"/>
+        <pin num="7" name="OUT2" type="output"/>
+        <pin num="8" name="V+" type="power_in"/>
+      </pins>
+    </libpart>
     <libpart lib="Probe" part="OPA810">
       <fields>
         <field name="Reference">U</field>
@@ -4726,18 +3627,18 @@
         <pin num="2" name="" type="passive"/>
       </pins>
     </libpart>
-    <libpart lib="Probe" part="TL431">
+    <libpart lib="Probe" part="SPDT">
       <fields>
         <field name="Reference">U</field>
-        <field name="Value">TL431</field>
+        <field name="Value">SPDT</field>
         <field name="Footprint"/>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <pins>
-        <pin num="1" name="K" type="passive"/>
-        <pin num="2" name="REF" type="input"/>
-        <pin num="3" name="A" type="passive"/>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="COM" type="passive"/>
+        <pin num="3" name="B" type="passive"/>
       </pins>
     </libpart>
     <libpart lib="Probe" part="TLV1702">
@@ -4813,22 +3714,19 @@
       <node ref="C87" pin="1" pintype="passive"/>
       <node ref="C89" pin="1" pintype="passive"/>
       <node ref="C91" pin="1" pintype="passive"/>
-      <node ref="C93" pin="1" pintype="passive"/>
       <node ref="C95" pin="1" pintype="passive"/>
-      <node ref="C96" pin="1" pintype="passive"/>
+      <node ref="D1" pin="2" pinfunction="K2_2" pintype="passive"/>
+      <node ref="D2" pin="2" pinfunction="K2_2" pintype="passive"/>
+      <node ref="D3" pin="2" pinfunction="K2_2" pintype="passive"/>
       <node ref="D6" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="Q1" pin="2" pinfunction="E_2" pintype="passive"/>
       <node ref="R73" pin="1" pintype="passive"/>
       <node ref="R81" pin="1" pintype="passive"/>
-      <node ref="R85" pin="1" pintype="passive"/>
+      <node ref="R87" pin="1" pintype="passive"/>
       <node ref="SW3" pin="1" pinfunction="1_1" pintype="passive"/>
-      <node ref="U1" pin="7" pinfunction="+VS_7" pintype="power_in"/>
-      <node ref="U1" pin="8" pinfunction="PD_8" pintype="input"/>
+      <node ref="U1" pin="8" pinfunction="V+_8" pintype="power_in"/>
       <node ref="U12" pin="7" pinfunction="V+_7" pintype="power_in"/>
-      <node ref="U2" pin="7" pinfunction="+VS_7" pintype="power_in"/>
-      <node ref="U2" pin="8" pinfunction="PD_8" pintype="input"/>
-      <node ref="U3" pin="7" pinfunction="V+_7" pintype="power_in"/>
-      <node ref="U4" pin="7" pinfunction="V+_7" pintype="power_in"/>
+      <node ref="U3" pin="8" pinfunction="V+_8" pintype="power_in"/>
       <node ref="U5" pin="3" pinfunction="V+_3" pintype="power_in"/>
       <node ref="U6" pin="8" pinfunction="V+_8" pintype="power_in"/>
       <node ref="U7" pin="10" pinfunction="RESET2_10" pintype="input"/>
@@ -4849,20 +3747,19 @@
       <node ref="C88" pin="2" pintype="passive"/>
       <node ref="C90" pin="2" pintype="passive"/>
       <node ref="C92" pin="2" pintype="passive"/>
-      <node ref="C94" pin="2" pintype="passive"/>
-      <node ref="C97" pin="2" pintype="passive"/>
+      <node ref="D1" pin="1" pinfunction="A1_1" pintype="passive"/>
+      <node ref="D2" pin="1" pinfunction="A1_1" pintype="passive"/>
+      <node ref="D3" pin="1" pinfunction="A1_1" pintype="passive"/>
       <node ref="D7" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="D8" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="D9" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="R75" pin="2" pintype="passive"/>
       <node ref="R83" pin="1" pintype="passive"/>
-      <node ref="R86" pin="1" pintype="passive"/>
+      <node ref="R91" pin="1" pintype="passive"/>
       <node ref="R95" pin="2" pintype="passive"/>
-      <node ref="U1" pin="4" pinfunction="-VS_4" pintype="power_in"/>
+      <node ref="U1" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U12" pin="4" pinfunction="V-_4" pintype="power_in"/>
-      <node ref="U2" pin="4" pinfunction="-VS_4" pintype="power_in"/>
       <node ref="U3" pin="4" pinfunction="V-_4" pintype="power_in"/>
-      <node ref="U4" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U5" pin="12" pinfunction="V-_12" pintype="power_in"/>
       <node ref="U6" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U7" pin="11" pinfunction="CLK2_11" pintype="input"/>
@@ -4899,38 +3796,36 @@
     </net>
     <net code="9" name="BUF_N" class="Default">
       <node ref="R62" pin="1" pintype="passive"/>
-      <node ref="U2" pin="1" pinfunction="FB_1" pintype="passive"/>
-      <node ref="U2" pin="2" pinfunction="-IN_2" pintype="input"/>
-      <node ref="U2" pin="6" pinfunction="OUT_6" pintype="output"/>
+      <node ref="U1" pin="6" pinfunction="-IN2_6" pintype="input"/>
+      <node ref="U1" pin="7" pinfunction="OUT2_7" pintype="output"/>
       <node ref="U5" pin="11" pinfunction="4IN+_11" pintype="input"/>
       <node ref="U5" pin="8" pinfunction="3IN-_8" pintype="input"/>
     </net>
     <net code="10" name="BUF_P" class="Default">
       <node ref="R61" pin="1" pintype="passive"/>
-      <node ref="U1" pin="1" pinfunction="FB_1" pintype="passive"/>
-      <node ref="U1" pin="2" pinfunction="-IN_2" pintype="input"/>
-      <node ref="U1" pin="6" pinfunction="OUT_6" pintype="output"/>
+      <node ref="U1" pin="1" pinfunction="OUT1_1" pintype="output"/>
+      <node ref="U1" pin="2" pinfunction="-IN1_2" pintype="input"/>
       <node ref="U5" pin="4" pinfunction="1IN-_4" pintype="input"/>
       <node ref="U5" pin="7" pinfunction="2IN+_7" pintype="input"/>
     </net>
     <net code="11" name="DRIVE" class="Default">
       <node ref="R70" pin="1" pintype="passive"/>
-      <node ref="U4" pin="2" pinfunction="-IN_2" pintype="input"/>
-      <node ref="U4" pin="6" pinfunction="OUT_6" pintype="output"/>
+      <node ref="U3" pin="1" pinfunction="OUT1_1" pintype="output"/>
+      <node ref="U3" pin="2" pinfunction="-IN1_2" pintype="input"/>
     </net>
     <net code="12" name="FILTER" class="Default">
       <node ref="C61" pin="1" pintype="passive"/>
       <node ref="R69" pin="2" pintype="passive"/>
-      <node ref="U4" pin="3" pinfunction="+IN_3" pintype="input"/>
+      <node ref="U3" pin="3" pinfunction="+IN1_3" pintype="input"/>
     </net>
     <net code="13" name="FINE_OUT" class="Default">
       <node ref="R102" pin="1" pintype="passive"/>
-      <node ref="R99" pin="2" pintype="passive"/>
+      <node ref="R68" pin="2" pintype="passive"/>
       <node ref="U12" pin="6" pinfunction="OUT_6" pintype="output"/>
     </net>
     <net code="14" name="FINE_SEL" class="Default">
       <node ref="R102" pin="2" pintype="passive"/>
-      <node ref="SW1" pin="3" pinfunction="B1_3" pintype="passive"/>
+      <node ref="SW1" pin="3" pinfunction="B_3" pintype="passive"/>
     </net>
     <net code="15" name="GAIN5_FB" class="Default">
       <node ref="R67" pin="1" pintype="passive"/>
@@ -4947,17 +3842,9 @@
       <node ref="C41" pin="2" pintype="passive"/>
       <node ref="C42" pin="2" pintype="passive"/>
       <node ref="C43" pin="2" pintype="passive"/>
-      <node ref="C44" pin="2" pintype="passive"/>
-      <node ref="C45" pin="2" pintype="passive"/>
-      <node ref="C46" pin="2" pintype="passive"/>
-      <node ref="C47" pin="2" pintype="passive"/>
       <node ref="C51" pin="2" pintype="passive"/>
       <node ref="C52" pin="2" pintype="passive"/>
       <node ref="C53" pin="2" pintype="passive"/>
-      <node ref="C54" pin="2" pintype="passive"/>
-      <node ref="C55" pin="2" pintype="passive"/>
-      <node ref="C56" pin="2" pintype="passive"/>
-      <node ref="C57" pin="2" pintype="passive"/>
       <node ref="C61" pin="2" pintype="passive"/>
       <node ref="C71" pin="2" pintype="passive"/>
       <node ref="C72" pin="2" pintype="passive"/>
@@ -4975,46 +3862,35 @@
       <node ref="C90" pin="1" pintype="passive"/>
       <node ref="C91" pin="2" pintype="passive"/>
       <node ref="C92" pin="1" pintype="passive"/>
-      <node ref="C93" pin="2" pintype="passive"/>
-      <node ref="C94" pin="1" pintype="passive"/>
-      <node ref="C96" pin="2" pintype="passive"/>
-      <node ref="C97" pin="1" pintype="passive"/>
       <node ref="CT1" pin="2" pintype="passive"/>
       <node ref="CT2" pin="2" pintype="passive"/>
       <node ref="D6" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="D7" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="J3" pin="2" pinfunction="2_2" pintype="passive"/>
       <node ref="R103" pin="2" pintype="passive"/>
-      <node ref="R64" pin="2" pintype="passive"/>
+      <node ref="R63" pin="2" pintype="passive"/>
       <node ref="R67" pin="2" pintype="passive"/>
       <node ref="R72" pin="2" pintype="passive"/>
       <node ref="R82" pin="2" pintype="passive"/>
       <node ref="R84" pin="2" pintype="passive"/>
-      <node ref="R88" pin="2" pintype="passive"/>
-      <node ref="R90" pin="2" pintype="passive"/>
-      <node ref="R92" pin="2" pintype="passive"/>
-      <node ref="R94" pin="2" pintype="passive"/>
+      <node ref="R89" pin="2" pintype="passive"/>
+      <node ref="R93" pin="2" pintype="passive"/>
       <node ref="RV1" pin="2" pinfunction="WIPER_2" pintype="passive"/>
       <node ref="RV1" pin="3" pinfunction="CW_3" pintype="passive"/>
       <node ref="RV2" pin="2" pinfunction="WIPER_2" pintype="passive"/>
       <node ref="RV2" pin="3" pinfunction="CW_3" pintype="passive"/>
-      <node ref="U1" pin="9" pinfunction="EP_9" pintype="passive"/>
-      <node ref="U10" pin="3" pinfunction="A_3" pintype="passive"/>
-      <node ref="U11" pin="1" pinfunction="K_1" pintype="passive"/>
-      <node ref="U11" pin="2" pinfunction="REF_2" pintype="input"/>
-      <node ref="U2" pin="9" pinfunction="EP_9" pintype="passive"/>
       <node ref="U8" pin="2" pinfunction="GND_2" pintype="power_in"/>
       <node ref="U9" pin="1" pinfunction="GND_1" pintype="power_in"/>
     </net>
     <net code="18" name="IN_N" class="Default">
       <node ref="D2" pin="3" pinfunction="K1/A2_3" pintype="passive"/>
       <node ref="R32" pin="2" pintype="passive"/>
-      <node ref="U2" pin="3" pinfunction="+IN_3" pintype="input"/>
+      <node ref="U1" pin="5" pinfunction="+IN2_5" pintype="input"/>
     </net>
     <net code="19" name="IN_P" class="Default">
       <node ref="D1" pin="3" pinfunction="K1/A2_3" pintype="passive"/>
       <node ref="R12" pin="2" pintype="passive"/>
-      <node ref="U1" pin="3" pinfunction="+IN_3" pintype="input"/>
+      <node ref="U1" pin="3" pinfunction="+IN1_3" pintype="input"/>
     </net>
     <net code="20" name="LED_A" class="Default">
       <node ref="D9" pin="2" pinfunction="A_2" pintype="passive"/>
@@ -5032,148 +3908,56 @@
       <node ref="U5" pin="5" pinfunction="1IN+_5" pintype="input"/>
       <node ref="U5" pin="9" pinfunction="3IN+_9" pintype="input"/>
     </net>
-    <net code="23" name="Net-(C1-Pad2)" class="Default">
-      <node ref="C1" pin="2" pintype="passive"/>
-      <node ref="C2" pin="1" pintype="passive"/>
-      <node ref="R2" pin="2" pintype="passive"/>
-      <node ref="R3" pin="1" pintype="passive"/>
-    </net>
-    <net code="24" name="Net-(C2-Pad2)" class="Default">
-      <node ref="C2" pin="2" pintype="passive"/>
-      <node ref="C3" pin="1" pintype="passive"/>
-      <node ref="R4" pin="2" pintype="passive"/>
-      <node ref="R5" pin="1" pintype="passive"/>
-    </net>
-    <net code="25" name="Net-(C3-Pad2)" class="Default">
-      <node ref="C3" pin="2" pintype="passive"/>
-      <node ref="C4" pin="1" pintype="passive"/>
-      <node ref="R6" pin="2" pintype="passive"/>
-      <node ref="R7" pin="1" pintype="passive"/>
-    </net>
-    <net code="26" name="Net-(C4-Pad2)" class="Default">
-      <node ref="C4" pin="2" pintype="passive"/>
-      <node ref="C5" pin="1" pintype="passive"/>
-      <node ref="R8" pin="2" pintype="passive"/>
-      <node ref="R9" pin="1" pintype="passive"/>
-    </net>
-    <net code="27" name="Net-(C21-Pad2)" class="Default">
+    <net code="23" name="N_SEG1" class="Default">
       <node ref="C21" pin="2" pintype="passive"/>
       <node ref="C22" pin="1" pintype="passive"/>
-      <node ref="R22" pin="2" pintype="passive"/>
-      <node ref="R23" pin="1" pintype="passive"/>
-    </net>
-    <net code="28" name="Net-(C22-Pad2)" class="Default">
-      <node ref="C22" pin="2" pintype="passive"/>
-      <node ref="C23" pin="1" pintype="passive"/>
-      <node ref="R24" pin="2" pintype="passive"/>
-      <node ref="R25" pin="1" pintype="passive"/>
-    </net>
-    <net code="29" name="Net-(C23-Pad2)" class="Default">
-      <node ref="C23" pin="2" pintype="passive"/>
-      <node ref="C24" pin="1" pintype="passive"/>
-      <node ref="R26" pin="2" pintype="passive"/>
-      <node ref="R27" pin="1" pintype="passive"/>
-    </net>
-    <net code="30" name="Net-(C24-Pad2)" class="Default">
-      <node ref="C24" pin="2" pintype="passive"/>
-      <node ref="C25" pin="1" pintype="passive"/>
-      <node ref="R28" pin="2" pintype="passive"/>
-      <node ref="R29" pin="1" pintype="passive"/>
-    </net>
-    <net code="31" name="Net-(R1-Pad2)" class="Default">
-      <node ref="R1" pin="2" pintype="passive"/>
-      <node ref="R2" pin="1" pintype="passive"/>
-    </net>
-    <net code="32" name="Net-(R3-Pad2)" class="Default">
-      <node ref="R3" pin="2" pintype="passive"/>
-      <node ref="R4" pin="1" pintype="passive"/>
-    </net>
-    <net code="33" name="Net-(R5-Pad2)" class="Default">
-      <node ref="R5" pin="2" pintype="passive"/>
-      <node ref="R6" pin="1" pintype="passive"/>
-    </net>
-    <net code="34" name="Net-(R7-Pad2)" class="Default">
-      <node ref="R7" pin="2" pintype="passive"/>
-      <node ref="R8" pin="1" pintype="passive"/>
-    </net>
-    <net code="35" name="Net-(R10-Pad1)" class="Default">
-      <node ref="R10" pin="1" pintype="passive"/>
-      <node ref="R9" pin="2" pintype="passive"/>
-    </net>
-    <net code="36" name="Net-(R21-Pad2)" class="Default">
       <node ref="R21" pin="2" pintype="passive"/>
       <node ref="R22" pin="1" pintype="passive"/>
     </net>
-    <net code="37" name="Net-(R23-Pad2)" class="Default">
+    <net code="24" name="N_SEG2" class="Default">
+      <node ref="C22" pin="2" pintype="passive"/>
+      <node ref="C23" pin="1" pintype="passive"/>
+      <node ref="R22" pin="2" pintype="passive"/>
+      <node ref="R23" pin="1" pintype="passive"/>
+    </net>
+    <net code="25" name="N_SEG3" class="Default">
+      <node ref="C23" pin="2" pintype="passive"/>
+      <node ref="C24" pin="1" pintype="passive"/>
       <node ref="R23" pin="2" pintype="passive"/>
       <node ref="R24" pin="1" pintype="passive"/>
     </net>
-    <net code="38" name="Net-(R25-Pad2)" class="Default">
-      <node ref="R25" pin="2" pintype="passive"/>
-      <node ref="R26" pin="1" pintype="passive"/>
+    <net code="26" name="N_SEG4" class="Default">
+      <node ref="C24" pin="2" pintype="passive"/>
+      <node ref="C25" pin="1" pintype="passive"/>
+      <node ref="R24" pin="2" pintype="passive"/>
+      <node ref="R25" pin="1" pintype="passive"/>
     </net>
-    <net code="39" name="Net-(R27-Pad2)" class="Default">
-      <node ref="R27" pin="2" pintype="passive"/>
-      <node ref="R28" pin="1" pintype="passive"/>
-    </net>
-    <net code="40" name="Net-(R29-Pad2)" class="Default">
-      <node ref="R29" pin="2" pintype="passive"/>
-      <node ref="R30" pin="1" pintype="passive"/>
-    </net>
-    <net code="41" name="Net-(R63-Pad2)" class="Default">
-      <node ref="R63" pin="2" pintype="passive"/>
-      <node ref="R64" pin="1" pintype="passive"/>
-    </net>
-    <net code="42" name="Net-(R65-Pad2)" class="Default">
-      <node ref="R65" pin="2" pintype="passive"/>
-      <node ref="R66" pin="1" pintype="passive"/>
-    </net>
-    <net code="43" name="Net-(R68-Pad2)" class="Default">
-      <node ref="R68" pin="2" pintype="passive"/>
-      <node ref="R97" pin="1" pintype="passive"/>
-    </net>
-    <net code="44" name="Net-(R97-Pad2)" class="Default">
-      <node ref="R97" pin="2" pintype="passive"/>
-      <node ref="R98" pin="1" pintype="passive"/>
-    </net>
-    <net code="45" name="Net-(R98-Pad2)" class="Default">
-      <node ref="R98" pin="2" pintype="passive"/>
-      <node ref="R99" pin="1" pintype="passive"/>
-    </net>
-    <net code="46" name="Net-(RV1-CCW)" class="Default">
-      <node ref="R11" pin="2" pintype="passive"/>
-      <node ref="RV1" pin="1" pinfunction="CCW_1" pintype="passive"/>
-    </net>
-    <net code="47" name="Net-(RV2-CCW)" class="Default">
-      <node ref="R31" pin="2" pintype="passive"/>
-      <node ref="RV2" pin="1" pinfunction="CCW_1" pintype="passive"/>
-    </net>
-    <net code="48" name="OUT" class="Default">
+    <net code="27" name="OUT" class="Default">
       <node ref="D3" pin="3" pinfunction="K1/A2_3" pintype="passive"/>
       <node ref="J3" pin="1" pinfunction="1_1" pintype="passive"/>
       <node ref="R70" pin="2" pintype="passive"/>
     </net>
-    <net code="49" name="OUT_HALF" class="Default">
+    <net code="28" name="OUT_HALF" class="Default">
       <node ref="R71" pin="2" pintype="passive"/>
       <node ref="R72" pin="1" pintype="passive"/>
       <node ref="U6" pin="2" pinfunction="1IN-_2" pintype="input"/>
       <node ref="U6" pin="5" pinfunction="2IN+_5" pintype="input"/>
     </net>
-    <net code="50" name="OUT_LIM_N" class="Default">
-      <node ref="R93" pin="2" pintype="passive"/>
-      <node ref="R94" pin="1" pintype="passive"/>
+    <net code="29" name="OUT_LIM_N" class="Default">
+      <node ref="R92" pin="2" pintype="passive"/>
+      <node ref="R93" pin="1" pintype="passive"/>
       <node ref="U6" pin="6" pinfunction="2IN-_6" pintype="input"/>
     </net>
-    <net code="51" name="OUT_LIM_P" class="Default">
-      <node ref="R89" pin="2" pintype="passive"/>
-      <node ref="R90" pin="1" pintype="passive"/>
+    <net code="30" name="OUT_LIM_P" class="Default">
+      <node ref="R88" pin="2" pintype="passive"/>
+      <node ref="R89" pin="1" pintype="passive"/>
       <node ref="U6" pin="3" pinfunction="1IN+_3" pintype="input"/>
     </net>
-    <net code="52" name="OV_LED" class="Default">
+    <net code="31" name="OV_LED" class="Default">
       <node ref="R96" pin="1" pintype="passive"/>
       <node ref="U7" pin="1" pinfunction="Q1_1" pintype="output"/>
     </net>
-    <net code="53" name="OV_N" class="Default">
+    <net code="32" name="OV_N" class="Default">
       <node ref="R73" pin="2" pintype="passive"/>
       <node ref="R74" pin="1" pintype="passive"/>
       <node ref="U5" pin="1" pinfunction="2OUT_1" pintype="open_collector"/>
@@ -5183,166 +3967,138 @@
       <node ref="U6" pin="1" pinfunction="1OUT_1" pintype="open_collector"/>
       <node ref="U6" pin="7" pinfunction="2OUT_7" pintype="open_collector"/>
     </net>
-    <net code="54" name="Q_BASE" class="Default">
+    <net code="33" name="P_SEG1" class="Default">
+      <node ref="C1" pin="2" pintype="passive"/>
+      <node ref="C2" pin="1" pintype="passive"/>
+      <node ref="R1" pin="2" pintype="passive"/>
+      <node ref="R2" pin="1" pintype="passive"/>
+    </net>
+    <net code="34" name="P_SEG2" class="Default">
+      <node ref="C2" pin="2" pintype="passive"/>
+      <node ref="C3" pin="1" pintype="passive"/>
+      <node ref="R2" pin="2" pintype="passive"/>
+      <node ref="R3" pin="1" pintype="passive"/>
+    </net>
+    <net code="35" name="P_SEG3" class="Default">
+      <node ref="C3" pin="2" pintype="passive"/>
+      <node ref="C4" pin="1" pintype="passive"/>
+      <node ref="R3" pin="2" pintype="passive"/>
+      <node ref="R4" pin="1" pintype="passive"/>
+    </net>
+    <net code="36" name="P_SEG4" class="Default">
+      <node ref="C4" pin="2" pintype="passive"/>
+      <node ref="C5" pin="1" pintype="passive"/>
+      <node ref="R4" pin="2" pintype="passive"/>
+      <node ref="R5" pin="1" pintype="passive"/>
+    </net>
+    <net code="37" name="Q_BASE" class="Default">
       <node ref="Q1" pin="1" pinfunction="B_1" pintype="input"/>
       <node ref="R74" pin="2" pintype="passive"/>
     </net>
-    <net code="55" name="RAW_OUT" class="Default">
+    <net code="38" name="RAW_OUT" class="Default">
       <node ref="R100" pin="1" pintype="passive"/>
       <node ref="R101" pin="1" pintype="passive"/>
-      <node ref="R66" pin="2" pintype="passive"/>
-      <node ref="U3" pin="6" pinfunction="OUT_6" pintype="output"/>
+      <node ref="R65" pin="2" pintype="passive"/>
+      <node ref="U3" pin="7" pinfunction="OUT2_7" pintype="output"/>
     </net>
-    <net code="56" name="REF_N" class="Default">
-      <node ref="D1" pin="1" pinfunction="A1_1" pintype="passive"/>
-      <node ref="D2" pin="1" pinfunction="A1_1" pintype="passive"/>
-      <node ref="D3" pin="1" pinfunction="A1_1" pintype="passive"/>
-      <node ref="R86" pin="2" pintype="passive"/>
-      <node ref="R91" pin="1" pintype="passive"/>
-      <node ref="R93" pin="1" pintype="passive"/>
-      <node ref="U11" pin="3" pinfunction="A_3" pintype="passive"/>
-    </net>
-    <net code="57" name="REF_P" class="Default">
-      <node ref="D1" pin="2" pinfunction="K2_2" pintype="passive"/>
-      <node ref="D2" pin="2" pinfunction="K2_2" pintype="passive"/>
-      <node ref="D3" pin="2" pinfunction="K2_2" pintype="passive"/>
-      <node ref="R85" pin="2" pintype="passive"/>
-      <node ref="R87" pin="1" pintype="passive"/>
-      <node ref="R89" pin="1" pintype="passive"/>
-      <node ref="U10" pin="1" pinfunction="K_1" pintype="passive"/>
-      <node ref="U10" pin="2" pinfunction="REF_2" pintype="input"/>
-    </net>
-    <net code="58" name="RESET" class="Default">
+    <net code="39" name="RESET" class="Default">
       <node ref="C95" pin="2" pintype="passive"/>
       <node ref="D8" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="R95" pin="1" pintype="passive"/>
       <node ref="SW3" pin="2" pinfunction="2_2" pintype="passive"/>
       <node ref="U7" pin="4" pinfunction="RESET1_4" pintype="input"/>
     </net>
-    <net code="59" name="SELECTED" class="Default">
+    <net code="40" name="SELECTED" class="Default">
       <node ref="R103" pin="1" pintype="passive"/>
       <node ref="R69" pin="1" pintype="passive"/>
       <node ref="R71" pin="1" pintype="passive"/>
-      <node ref="SW1" pin="2" pinfunction="COM1_2" pintype="passive"/>
+      <node ref="SW1" pin="2" pinfunction="COM_2" pintype="passive"/>
     </net>
-    <net code="60" name="SET" class="Default">
+    <net code="41" name="SET" class="Default">
       <node ref="Q1" pin="3" pinfunction="C_3" pintype="passive"/>
       <node ref="R75" pin="1" pintype="passive"/>
       <node ref="U7" pin="6" pinfunction="SET1_6" pintype="input"/>
     </net>
-    <net code="61" name="SUM_N" class="Default">
+    <net code="42" name="SUM_N" class="Default">
       <node ref="R62" pin="2" pintype="passive"/>
       <node ref="R65" pin="1" pintype="passive"/>
-      <node ref="U3" pin="2" pinfunction="-IN_2" pintype="input"/>
+      <node ref="U3" pin="6" pinfunction="-IN2_6" pintype="input"/>
     </net>
-    <net code="62" name="SUM_P" class="Default">
+    <net code="43" name="SUM_P" class="Default">
       <node ref="R61" pin="2" pintype="passive"/>
       <node ref="R63" pin="1" pintype="passive"/>
-      <node ref="U3" pin="3" pinfunction="+IN_3" pintype="input"/>
+      <node ref="U3" pin="5" pinfunction="+IN2_5" pintype="input"/>
     </net>
-    <net code="63" name="SW_N" class="Default">
+    <net code="44" name="SW_N" class="Default">
       <node ref="D5" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="SW2" pin="4" pinfunction="A2_4" pintype="passive"/>
     </net>
-    <net code="64" name="SW_P" class="Default">
+    <net code="45" name="SW_P" class="Default">
       <node ref="D4" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="SW2" pin="1" pinfunction="A1_1" pintype="passive"/>
     </net>
-    <net code="65" name="TAP_N" class="Default">
+    <net code="46" name="TAP_N" class="Default">
       <node ref="C25" pin="2" pintype="passive"/>
       <node ref="C51" pin="1" pintype="passive"/>
       <node ref="C52" pin="1" pintype="passive"/>
       <node ref="C53" pin="1" pintype="passive"/>
-      <node ref="C54" pin="1" pintype="passive"/>
-      <node ref="C55" pin="1" pintype="passive"/>
-      <node ref="C56" pin="1" pintype="passive"/>
-      <node ref="C57" pin="1" pintype="passive"/>
       <node ref="CT2" pin="1" pintype="passive"/>
-      <node ref="R30" pin="2" pintype="passive"/>
+      <node ref="R25" pin="2" pintype="passive"/>
       <node ref="R31" pin="1" pintype="passive"/>
       <node ref="R32" pin="1" pintype="passive"/>
     </net>
-    <net code="66" name="TAP_P" class="Default">
+    <net code="47" name="TAP_P" class="Default">
       <node ref="C41" pin="1" pintype="passive"/>
       <node ref="C42" pin="1" pintype="passive"/>
       <node ref="C43" pin="1" pintype="passive"/>
-      <node ref="C44" pin="1" pintype="passive"/>
-      <node ref="C45" pin="1" pintype="passive"/>
-      <node ref="C46" pin="1" pintype="passive"/>
-      <node ref="C47" pin="1" pintype="passive"/>
       <node ref="C5" pin="2" pintype="passive"/>
       <node ref="CT1" pin="1" pintype="passive"/>
-      <node ref="R10" pin="2" pintype="passive"/>
       <node ref="R11" pin="1" pintype="passive"/>
       <node ref="R12" pin="1" pintype="passive"/>
+      <node ref="R5" pin="2" pintype="passive"/>
     </net>
-    <net code="67" name="TIP_N" class="Default">
+    <net code="48" name="TIP_N" class="Default">
       <node ref="C21" pin="1" pintype="passive"/>
       <node ref="R21" pin="1" pintype="passive"/>
     </net>
-    <net code="68" name="TIP_P" class="Default">
+    <net code="49" name="TIP_P" class="Default">
       <node ref="C1" pin="1" pintype="passive"/>
       <node ref="R1" pin="1" pintype="passive"/>
     </net>
-    <net code="69" name="WIDE_SEL" class="Default">
+    <net code="50" name="TRIM_N" class="Default">
+      <node ref="R31" pin="2" pintype="passive"/>
+      <node ref="RV2" pin="1" pinfunction="CCW_1" pintype="passive"/>
+    </net>
+    <net code="51" name="TRIM_P" class="Default">
+      <node ref="R11" pin="2" pintype="passive"/>
+      <node ref="RV1" pin="1" pinfunction="CCW_1" pintype="passive"/>
+    </net>
+    <net code="52" name="WIDE_SEL" class="Default">
       <node ref="R101" pin="2" pintype="passive"/>
-      <node ref="SW1" pin="1" pinfunction="A1_1" pintype="passive"/>
+      <node ref="SW1" pin="1" pinfunction="A_1" pintype="passive"/>
     </net>
-    <net code="70" name="unconnected-(SW1-A2-Pad4)" class="Default">
-      <node ref="SW1" pin="4" pinfunction="A2_4" pintype="passive+no_connect"/>
-    </net>
-    <net code="71" name="unconnected-(SW1-B2-Pad6)" class="Default">
-      <node ref="SW1" pin="6" pinfunction="B2_6" pintype="passive+no_connect"/>
-    </net>
-    <net code="72" name="unconnected-(SW1-COM2-Pad5)" class="Default">
-      <node ref="SW1" pin="5" pinfunction="COM2_5" pintype="passive+no_connect"/>
-    </net>
-    <net code="73" name="unconnected-(SW2-B1-Pad3)" class="Default">
+    <net code="53" name="unconnected-(SW2-B1-Pad3)" class="Default">
       <node ref="SW2" pin="3" pinfunction="B1_3" pintype="passive+no_connect"/>
     </net>
-    <net code="74" name="unconnected-(SW2-B2-Pad6)" class="Default">
+    <net code="54" name="unconnected-(SW2-B2-Pad6)" class="Default">
       <node ref="SW2" pin="6" pinfunction="B2_6" pintype="passive+no_connect"/>
     </net>
-    <net code="75" name="unconnected-(U1-NIC-Pad5)" class="Default">
-      <node ref="U1" pin="5" pinfunction="NIC_5" pintype="no_connect"/>
-    </net>
-    <net code="76" name="unconnected-(U2-NIC-Pad5)" class="Default">
-      <node ref="U2" pin="5" pinfunction="NIC_5" pintype="no_connect"/>
-    </net>
-    <net code="77" name="unconnected-(U3-NC-Pad1)" class="Default">
-      <node ref="U3" pin="1" pinfunction="NC_1" pintype="no_connect"/>
-    </net>
-    <net code="78" name="unconnected-(U3-NC-Pad5)" class="Default">
-      <node ref="U3" pin="5" pinfunction="NC_5" pintype="no_connect"/>
-    </net>
-    <net code="79" name="unconnected-(U3-NC-Pad8)" class="Default">
-      <node ref="U3" pin="8" pinfunction="NC_8" pintype="no_connect"/>
-    </net>
-    <net code="80" name="unconnected-(U4-NC-Pad1)" class="Default">
-      <node ref="U4" pin="1" pinfunction="NC_1" pintype="no_connect"/>
-    </net>
-    <net code="81" name="unconnected-(U4-NC-Pad5)" class="Default">
-      <node ref="U4" pin="5" pinfunction="NC_5" pintype="no_connect"/>
-    </net>
-    <net code="82" name="unconnected-(U4-NC-Pad8)" class="Default">
-      <node ref="U4" pin="8" pinfunction="NC_8" pintype="no_connect"/>
-    </net>
-    <net code="83" name="unconnected-(U7-/Q1-Pad2)" class="Default">
+    <net code="55" name="unconnected-(U7-/Q1-Pad2)" class="Default">
       <node ref="U7" pin="2" pinfunction="/Q1_2" pintype="output+no_connect"/>
     </net>
-    <net code="84" name="unconnected-(U7-/Q2-Pad12)" class="Default">
+    <net code="56" name="unconnected-(U7-/Q2-Pad12)" class="Default">
       <node ref="U7" pin="12" pinfunction="/Q2_12" pintype="output+no_connect"/>
     </net>
-    <net code="85" name="unconnected-(U7-Q2-Pad13)" class="Default">
+    <net code="57" name="unconnected-(U7-Q2-Pad13)" class="Default">
       <node ref="U7" pin="13" pinfunction="Q2_13" pintype="output+no_connect"/>
     </net>
-    <net code="86" name="unconnected-(U12-NC-Pad1)" class="Default">
+    <net code="58" name="unconnected-(U12-NC-Pad1)" class="Default">
       <node ref="U12" pin="1" pinfunction="NC_1" pintype="no_connect"/>
     </net>
-    <net code="87" name="unconnected-(U12-NC-Pad5)" class="Default">
+    <net code="59" name="unconnected-(U12-NC-Pad5)" class="Default">
       <node ref="U12" pin="5" pinfunction="NC_5" pintype="no_connect"/>
     </net>
-    <net code="88" name="unconnected-(U12-NC-Pad8)" class="Default">
+    <net code="60" name="unconnected-(U12-NC-Pad8)" class="Default">
       <node ref="U12" pin="8" pinfunction="NC_8" pintype="no_connect"/>
     </net>
   </nets>

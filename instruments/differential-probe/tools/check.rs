@@ -107,12 +107,12 @@ fn main() {
         (
             "U3",
             [
-                ("1", "RAW_OUT"),
-                ("2", "SUM_N"),
-                ("3", "SUM_P"),
-                ("5", "FILTER"),
-                ("6", "DRIVE"),
-                ("7", "DRIVE"),
+                ("1", "DRIVE"),
+                ("2", "DRIVE"),
+                ("3", "FILTER"),
+                ("5", "SUM_P"),
+                ("6", "SUM_N"),
+                ("7", "RAW_OUT"),
             ],
         ),
     ] {
@@ -160,11 +160,8 @@ fn main() {
         assert_eq!(
             by_pin[&format!("{refdes}.{pin}")],
             net,
-            "Rev B topology {refdes}.{pin}"
+            "Rev C topology {refdes}.{pin}"
         );
-    }
-    for pin in ["4", "5", "6"] {
-        assert_eq!(by_pin[&format!("SW1.{pin}")], format!("NC:SW1.{pin}"));
     }
     for n in ["SUM_P", "SUM_N", "GAIN5_IN", "GAIN5_FB"] {
         assert!(
@@ -193,14 +190,8 @@ fn main() {
         assert!(!mpn.trim().is_empty(), "missing MPN {r}");
         mpns.insert(r.to_string(), mpn.to_string());
         let fp = body(component, "footprint");
-        if fp.is_empty() {
-            assert!(
-                ["BT1", "BT2", "SW1", "SW2", "J3"].contains(&r),
-                "unexpected offboard part {r}"
-            );
-            audit += &format!("{r}\t{mpn}\tOFFBOARD\tsee drawing / wiring notes\n");
-            continue;
-        }
+        // Rev C mounts the BNC, both switches and both battery holders on the PCB.
+        assert!(!fp.is_empty(), "unexpected offboard part {r}");
         let (lib, name) = fp.split_once(':').unwrap();
         let path = if lib == "Probe" {
             format!("cad/Probe.pretty/{name}.kicad_mod")
@@ -227,7 +218,7 @@ fn main() {
         );
     }
     fs::write("validation/footprint-audit.tsv", audit).unwrap();
-    let mut report=format!("PASS: {count} exact-MPN components; {footprints} board footprints; 5 offboard components.\nPASS: {} pins, {} independent connectivity groups agree with KiCad export.\nPASS: critical package pin mappings and power polarity assertions.\n",observed.len(),intended.len());
+    let mut report=format!("PASS: {count} exact-MPN components; {footprints} board footprints; no offboard (hand-wired) components.\nPASS: {} pins, {} independent connectivity groups agree with KiCad export.\nPASS: critical package pin mappings and power polarity assertions.\n",observed.len(),intended.len());
     let top = 10e6f64;
     let bottom = top / 1999.;
     let tau = 2e6 * 33e-12;
@@ -344,9 +335,19 @@ fn main() {
         worst1 = worst1.min(m);
         x += 0.5;
     }
+    // Overlap between the coverage windows of consecutive select-on-test values.
+    let overlap = |set: &[f64], lo: f64, hi: f64| {
+        set.windows(2)
+            .map(|w| (w[0] * (1. - tol) + hi) - (w[1] * (1. + tol) + lo))
+            .fold(f64::INFINITY, f64::min)
+    };
+    let overlap2 = overlap(&s2, trim_lo, trim_hi);
+    let overlap1 = overlap(&s1, trim_lo, stage2_hi);
+    assert!(overlap1 > 0. && overlap2 > 0.);
+    let _ = (worst1, worst2);
     let nominal_trim = c_nominal - fixed - 3000. - 160.;
     assert!((trim_lo..trim_hi).contains(&(nominal_trim - parasitic.0)));
-    report+=&format!("Low-leg C requirement: {need_lo:.1}..{need_hi:.1} pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on {c_nominal:.1} pF), less {:.0}..{:.0} pF tap parasitics.\nCompensation coverage PASS: fixed 10 nF +/-1 %, S1 E24 1.8-3.9 nF +/-1 %, S2 E24 0-360 pF +/-1 %, trimmer {trim_lo:.0}-{trim_hi:.0} pF. Stage-1 residual {x1_lo:.1}..{x1_hi:.1} pF covered with >= {worst1:.1} pF margin; stage-2 residual {trim_lo:.0}..{stage2_hi:.1} pF covered with >= {worst2:.2} pF margin at worst-case part tolerance. Nominal 10 nF + 3.0 nF + 160 pF leaves {nominal_trim:.1} pF for trimmer plus parasitics.\n",parasitic.0,parasitic.1);
+    report+=&format!("Low-leg C requirement: {need_lo:.1}..{need_hi:.1} pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on {c_nominal:.1} pF), less {:.0}..{:.0} pF tap parasitics.\nCompensation coverage PASS: fixed 10 nF +/-1 %, S1 E24 1.8-3.9 nF +/-1 %, S2 E24 0-360 pF +/-1 %, trimmer {trim_lo:.0}-{trim_hi:.0} pF. Stage-1 residual {x1_lo:.1}..{x1_hi:.1} pF and stage-2 residual {trim_lo:.0}..{stage2_hi:.1} pF swept without a gap at worst-case part tolerance; adjacent select steps overlap by >= {overlap1:.1} pF (S1) and >= {overlap2:.1} pF (S2), which bounds the allowable measurement error when choosing a value. Nominal 10 nF + 3.0 nF + 160 pF leaves {nominal_trim:.1} pF for trimmer plus parasitics.\n",parasitic.0,parasitic.1);
     report+=&format!("Selected-path DC insertion factor = {selection_gain:.8}, load = {load:.3} ohm; shared RC source R = {source_r:.4} ohm.\n");
     let mag = |f: f64, fine: bool| {
         let mut value = 1. / (1. + (f / cutoff).powi(2)).sqrt();
@@ -373,7 +374,7 @@ fn main() {
         report+=&format!("Gain {g:.6}: loaded DC estimate {:.3}:1; initial {range:.0} Vpk -> {:.4} Vpk output.\n",2000./total_gain,range/2000.*total_gain);
         report+=&format!("Gain {g:.6}: illustrative first-order cascaded -3dB bandwidth {:.3} MHz; NOT an IC macromodel result or qualification.\n",(lo+hi)/2e6);
     }
-    report+="Bandwidth estimate uses U3A noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3B 140 MHz unity bandwidth, and C61 only; see validation/spice for the vendor-model result.\n";
+    report+="Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and C61 only; see validation/spice for the vendor-model result.\n";
     let body = 2e6;
     let i_dc = 3000. / (top + bottom);
     report+=&format!("At 3000 V DC per tip: total dissipation {:.3} W/leg; {:.4} W and {:.0} V per 2-Mohm body (five per leg); section capacitor ~600 V.\n",3000f64.powi(2)/(top+bottom),i_dc*i_dc*body,i_dc*body);
@@ -425,9 +426,9 @@ fn main() {
     report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {wide_late:.2} V wide / {fine_late:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine. Earliest possible trip (gain <=102%): {tip_early:.0} V/tip, {:.0} V wide / {:.0} V fine.\n",(sel_early-wide_offset).max(0.)/1.02*1000.,(sel_early-fine_offset).max(0.)/1.02*200.);
     report+="Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits and both rails inside their regulated range; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.\n";
     // Clamp current returned into the LDO outputs must stay below their own load.
-    // OPA2810 2x2 channels + OPA810: 3.0 mA/channel minimum assumed (3.6 typ);
+    // OPA2810 2x2 channels + OPA810: 2.9 mA/channel minimum, -40..125C (3.6 typ);
     // ladder, ADJ divider and latch pull-ups add ~0.2 mA per rail.
-    let rail_load_min = 5. * 3.0e-3 + 0.2e-3;
+    let rail_load_min = 5. * 2.9e-3 + 0.2e-3;
     let clamp_worst = 5.28e-3 * 2f64.sqrt(); // one tap, open bottom bank, 3 kVpk 60 kHz
     assert!(clamp_worst < rail_load_min);
     report+=&format!("Clamp return: single fault (one bottom bank open, 3 kVpk at 60 kHz) injects <= {:.1} mA peak into a rail whose minimum load is ~{:.1} mA, so neither LDO output is back-driven. Normal in-range inputs (|tap| <= 1.5 V) never forward-bias the rail clamps.\n",clamp_worst*1e3,rail_load_min*1e3);

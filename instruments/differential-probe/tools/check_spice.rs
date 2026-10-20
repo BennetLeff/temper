@@ -22,7 +22,7 @@ fn interpolate(data: &[Vec<f64>], col: usize, f: f64) -> f64 {
 }
 fn main() -> Result<()> {
     let ac = rows("validation/spice/ac.tsv")?;
-    let mut report="TI OPA2810 Rev A (U1A/U1B buffers, U3A subtractor, U3B driver) and OPA810 Rev A (U12) vendor macromodels; ngspice 45.2 PSpice compatibility.\nIdeal lumped 2000:1 compensated dividers and R12/R32 included; supplies +4.8000 / -4.8068 V; fixed switch positions; 1M scope plus lumped 120pF cable/input.\nGains are output per volt of tip differential input.\n\n".to_string();
+    let mut report="TI OPA2810 Rev A (U1A/U1B buffers, U3B subtractor, U3A driver) and OPA810 Rev A (U12) vendor macromodels; ngspice 45.2 PSpice compatibility.\nIdeal lumped 2000:1 compensated dividers and R12/R32 included; supplies +4.8000 / -4.8068 V; fixed switch positions; 1M scope plus lumped 120pF cable/input.\nGains are output per volt of tip differential input.\n\n".to_string();
     for (col, label, expected) in [(1, "1000:1", 9.99412e-4), (2, "200:1", 5.00510e-3)] {
         let gain = ac[0][col];
         assert!(

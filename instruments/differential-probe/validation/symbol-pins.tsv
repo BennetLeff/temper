@@ -1,13 +1,4 @@
 symbol	pin	name	electrical_type
-ADA4817	3	+IN	input
-ADA4817	2	-IN	input
-ADA4817	6	OUT	output
-ADA4817	1	FB	passive
-ADA4817	7	+VS	power_in
-ADA4817	4	-VS	power_in
-ADA4817	8	PD	input
-ADA4817	5	NIC	no_connect
-ADA4817	9	EP	passive
 ADP7142	1	VIN	power_in
 ADP7142	3	EN	input
 ADP7142	5	VOUT	power_out
@@ -58,6 +49,14 @@ D_Schottky	2	A	passive
 GND	1	GND	power_in
 LED	1	K	passive
 LED	2	A	passive
+OPA2810	3	+IN1	input
+OPA2810	2	-IN1	input
+OPA2810	1	OUT1	output
+OPA2810	5	+IN2	input
+OPA2810	6	-IN2	input
+OPA2810	7	OUT2	output
+OPA2810	8	V+	power_in
+OPA2810	4	V-	power_in
 OPA810	3	+IN	input
 OPA810	2	-IN	input
 OPA810	6	OUT	output
@@ -76,9 +75,9 @@ PWR__4V8	1	VSS	power_in
 PWR__BAT	1	VSS	power_in
 R_Small_US	1		passive
 R_Small_US	2		passive
-TL431	1	K	passive
-TL431	2	REF	input
-TL431	3	A	passive
+SPDT	2	COM	passive
+SPDT	1	A	passive
+SPDT	3	B	passive
 TLV1702	3	1IN+	input
 TLV1702	2	1IN-	input
 TLV1702	5	2IN+	input
