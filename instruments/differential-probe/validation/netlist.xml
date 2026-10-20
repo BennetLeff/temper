@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T15:20:14</date>
+    <date>2026-10-20T16:41:46</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -1270,7 +1270,7 @@
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07220L</field>
+        <field name="MPN">RT0805BRD07220RL</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -1278,7 +1278,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07220L"/>
+      <property name="MPN" value="RT0805BRD07220RL"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="differential-probe"/>
@@ -1642,7 +1642,7 @@
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
       <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07220L</field>
+        <field name="MPN">RT0805BRD07220RL</field>
         <field name="Manufacturer">Yageo</field>
         <field name="LCSC"> </field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
@@ -1650,7 +1650,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07220L"/>
+      <property name="MPN" value="RT0805BRD07220RL"/>
       <property name="Manufacturer" value="Yageo"/>
       <property name="LCSC" value=" "/>
       <property name="Sheetname" value="differential-probe"/>
@@ -3567,21 +3567,21 @@
       </units>
     </comp>
     <comp ref="D4">
-      <value>SS14</value>
+      <value>B140</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.diodes.com/datasheet/download/B140.pdf</datasheet>
       <fields>
-        <field name="MPN">SS14</field>
+        <field name="MPN">B140-13-F</field>
         <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="LCSC">C15759</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.diodes.com/datasheet/download/B140.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
-      <property name="MPN" value="SS14"/>
+      <property name="MPN" value="B140-13-F"/>
       <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="LCSC" value="C15759"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3598,21 +3598,21 @@
       </units>
     </comp>
     <comp ref="D5">
-      <value>SS14</value>
+      <value>B140</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.diodes.com/datasheet/download/B140.pdf</datasheet>
       <fields>
-        <field name="MPN">SS14</field>
+        <field name="MPN">B140-13-F</field>
         <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="LCSC">C15759</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.diodes.com/datasheet/download/B140.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
-      <property name="MPN" value="SS14"/>
+      <property name="MPN" value="B140-13-F"/>
       <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="LCSC" value="C15759"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3629,21 +3629,21 @@
       </units>
     </comp>
     <comp ref="D6">
-      <value>SS14</value>
+      <value>B140</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.diodes.com/datasheet/download/B140.pdf</datasheet>
       <fields>
-        <field name="MPN">SS14</field>
+        <field name="MPN">B140-13-F</field>
         <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="LCSC">C15759</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.diodes.com/datasheet/download/B140.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
-      <property name="MPN" value="SS14"/>
+      <property name="MPN" value="B140-13-F"/>
       <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="LCSC" value="C15759"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3660,21 +3660,21 @@
       </units>
     </comp>
     <comp ref="D7">
-      <value>SS14</value>
+      <value>B140</value>
       <footprint>Diode_SMD:D_SMA</footprint>
-      <datasheet>https://www.diodes.com/assets/Datasheets/ds23001.pdf</datasheet>
+      <datasheet>https://www.diodes.com/datasheet/download/B140.pdf</datasheet>
       <fields>
-        <field name="MPN">SS14</field>
+        <field name="MPN">B140-13-F</field>
         <field name="Manufacturer">Diodes Incorporated</field>
-        <field name="LCSC"/>
+        <field name="LCSC">C15759</field>
         <field name="Footprint">Diode_SMD:D_SMA</field>
-        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds23001.pdf</field>
+        <field name="Datasheet">https://www.diodes.com/datasheet/download/B140.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D_Schottky" description="Schottky diode"/>
-      <property name="MPN" value="SS14"/>
+      <property name="MPN" value="B140-13-F"/>
       <property name="Manufacturer" value="Diodes Incorporated"/>
-      <property name="LCSC" value=""/>
+      <property name="LCSC" value="C15759"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode Schottky"/>
@@ -3691,21 +3691,21 @@
       </units>
     </comp>
     <comp ref="D8">
-      <value>1N4148W,115</value>
+      <value>1N4148W</value>
       <footprint>Diode_SMD:D_SOD-123</footprint>
-      <datasheet>https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf</datasheet>
+      <datasheet>https://www.diodes.com/datasheet/download/1N4148W.pdf</datasheet>
       <fields>
-        <field name="MPN">1N4148W,115</field>
-        <field name="Manufacturer">Nexperia</field>
-        <field name="LCSC"/>
+        <field name="MPN">1N4148W-7-F</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="LCSC">C83528</field>
         <field name="Footprint">Diode_SMD:D_SOD-123</field>
-        <field name="Datasheet">https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf</field>
+        <field name="Datasheet">https://www.diodes.com/datasheet/download/1N4148W.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D" description="Diode"/>
-      <property name="MPN" value="1N4148W,115"/>
-      <property name="Manufacturer" value="Nexperia"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="1N4148W-7-F"/>
+      <property name="Manufacturer" value="Diodes Incorporated"/>
+      <property name="LCSC" value="C83528"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode"/>

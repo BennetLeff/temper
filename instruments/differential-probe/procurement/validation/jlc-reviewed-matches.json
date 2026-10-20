@@ -1,13 +1,13 @@
 {
-  "status": "incomplete; not a production release",
-  "selected_references": 80,
+  "checked_date": "2026-10-20",
+  "status": "87 selected exact-MPN references; 48 require sourcing/allocation; not an assembly release",
   "rows": [
     {
       "cells": [
         "C42",
         "C0805C222J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C222J5GACTU\nC2169606\n2.2nF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C222J5GACTU\nC2169606\n2.2nF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "20",
         "JLCPCB",
         "Extended",
@@ -21,7 +21,7 @@
         "C52",
         "C0805C222J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C222J5GACTU\nC2169606\n2.2nF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C222J5GACTU\nC2169606\n2.2nF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -31,7 +31,7 @@
         "C43",
         "C0805C681J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C681J5GACTU\nC2169158\n50V 680pF C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C681J5GACTU\nC2169158\n50V 680pF C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "8",
         "JLCPCB",
         "Extended",
@@ -45,7 +45,7 @@
         "C53",
         "C0805C681J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C681J5GACTU\nC2169158\n50V 680pF C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C681J5GACTU\nC2169158\n50V 680pF C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -55,7 +55,7 @@
         "C45",
         "C0805C470J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C470J5GACTU\nC452755\n47pF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C470J5GACTU\nC452755\n47pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "20",
         "JLCPCB",
         "Extended",
@@ -69,7 +69,7 @@
         "C55",
         "C0805C470J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C470J5GACTU\nC452755\n47pF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C470J5GACTU\nC452755\n47pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -127,7 +127,7 @@
         "C61",
         "C0805C181J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C181J5GACTU\nC2168941\n180pF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C181J5GACTU\nC2168941\n180pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "20",
         "JLCPCB",
         "Extended",
@@ -141,7 +141,7 @@
         "C71",
         "C1210C106K3RACTU",
         "Capacitor_SMD:C_1210_3225Metric",
-        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R \u00b110% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R ±10% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "8",
         "JLCPCB",
         "Extended",
@@ -155,7 +155,7 @@
         "C72",
         "C1210C106K3RACTU",
         "Capacitor_SMD:C_1210_3225Metric",
-        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R \u00b110% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R ±10% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -165,7 +165,7 @@
         "C73",
         "C1210C106K3RACTU",
         "Capacitor_SMD:C_1210_3225Metric",
-        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R \u00b110% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R ±10% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -175,7 +175,7 @@
         "C74",
         "C1210C106K3RACTU",
         "Capacitor_SMD:C_1210_3225Metric",
-        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R \u00b110% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C1210C106K3RACTU\nC2167571\n10uF 25V X7R ±10% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -185,7 +185,7 @@
         "C81",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "42",
         "JLCPCB",
         "Extended",
@@ -199,7 +199,7 @@
         "C82",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -209,7 +209,7 @@
         "C83",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -219,7 +219,7 @@
         "C84",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -229,7 +229,7 @@
         "C85",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -239,7 +239,7 @@
         "C86",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -249,7 +249,7 @@
         "C87",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -259,7 +259,7 @@
         "C88",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -269,7 +269,7 @@
         "C89",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -279,7 +279,7 @@
         "C90",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -289,7 +289,7 @@
         "C91",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -299,7 +299,7 @@
         "C92",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -309,7 +309,7 @@
         "C93",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -319,7 +319,7 @@
         "C94",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -329,7 +329,7 @@
         "C95",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -339,7 +339,7 @@
         "C96",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -349,7 +349,7 @@
         "C97",
         "C0805C104K5RACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R \u00b110% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C104K5RACTU\nC3018562\n100nF 50V X7R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         ""
       ],
       "checked": true
@@ -391,53 +391,67 @@
     {
       "cells": [
         "D4",
-        "SS14",
+        "B140-13-F",
         "Diode_SMD:D_SMA",
-        "SS14\nC2480\n-55\u2103~+150\u2103 1A 25A 300uA@40V 40V 550mV@1A Independent SMA(DO-214AC) Schottky Diodes ROHS",
-        "0",
+        "B140-13-F\nC15759\n-65℃~+150℃ 1 Independent 1A 30A 40V 500mV@1A 500uA@40V SMA(DO-214AC) Schottky Diodes ROHS",
+        "12",
         "JLCPCB",
-        "Basic",
-        "$0.00",
+        "Extended",
+        "$1.0476",
         ""
       ],
-      "checked": false
+      "checked": true
     },
     {
       "cells": [
         "D5",
-        "SS14",
+        "B140-13-F",
         "Diode_SMD:D_SMA",
-        "SS14\nC2480\n-55\u2103~+150\u2103 1A 25A 300uA@40V 40V 550mV@1A Independent SMA(DO-214AC) Schottky Diodes ROHS",
+        "B140-13-F\nC15759\n-65℃~+150℃ 1 Independent 1A 30A 40V 500mV@1A 500uA@40V SMA(DO-214AC) Schottky Diodes ROHS",
         ""
       ],
-      "checked": false
+      "checked": true
     },
     {
       "cells": [
         "D6",
-        "SS14",
+        "B140-13-F",
         "Diode_SMD:D_SMA",
-        "SS14\nC2480\n-55\u2103~+150\u2103 1A 25A 300uA@40V 40V 550mV@1A Independent SMA(DO-214AC) Schottky Diodes ROHS",
+        "B140-13-F\nC15759\n-65℃~+150℃ 1 Independent 1A 30A 40V 500mV@1A 500uA@40V SMA(DO-214AC) Schottky Diodes ROHS",
         ""
       ],
-      "checked": false
+      "checked": true
     },
     {
       "cells": [
         "D7",
-        "SS14",
+        "B140-13-F",
         "Diode_SMD:D_SMA",
-        "SS14\nC2480\n-55\u2103~+150\u2103 1A 25A 300uA@40V 40V 550mV@1A Independent SMA(DO-214AC) Schottky Diodes ROHS",
+        "B140-13-F\nC15759\n-65℃~+150℃ 1 Independent 1A 30A 40V 500mV@1A 500uA@40V SMA(DO-214AC) Schottky Diodes ROHS",
         ""
       ],
-      "checked": false
+      "checked": true
+    },
+    {
+      "cells": [
+        "D8",
+        "1N4148W-7-F",
+        "Diode_SMD:D_SOD-123",
+        "1N4148W-7-F\nC83528\n-65℃~+150℃@(Tj) 1.25V@150mA 100V 1uA@75V 300mA 4ns Standalone SOD-123 Switching Diodes ROHS",
+        "20",
+        "JLCPCB",
+        "Extended",
+        "$0.5340",
+        ""
+      ],
+      "checked": true
     },
     {
       "cells": [
         "D9",
         "LTST-C170KRKT",
         "LED_SMD:LED_0805_2012Metric",
-        "LTST-C170KRKT\nC94868\n-55\u2103~+85\u2103 130\u00b0 20mA 2V 54mcd 631nm 639nm 75mW Discrete Diode Red Water Clear 0805 LED Indication - Discrete ROHS",
+        "LTST-C170KRKT\nC94868\n-55℃~+85℃ 130° 20mA 2V 54mcd 631nm 639nm 75mW Discrete Diode Red Water Clear 0805 LED Indication - Discrete ROHS",
         "20",
         "JLCPCB",
         "Extended",
@@ -465,7 +479,11 @@
         "R11",
         "RNCF0603TKY4K99",
         "Resistor_SMD:R_0603_1608Metric",
-        "RNCF0603TKY4K99\nC3942722\n-55\u2103~+155\u2103 100mW 4.99k\u03a9 Thin Film Resistor \u00b10.01% \u00b15ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "RNCF0603TKY4K99\nC3942722\n-55℃~+155℃ 100mW 4.99kΩ Thin Film Resistor ±0.01% ±5ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+        "4",
+        "JLCPCB",
+        "Extended",
+        "$8.9612",
         ""
       ],
       "checked": true
@@ -475,7 +493,31 @@
         "R31",
         "RNCF0603TKY4K99",
         "Resistor_SMD:R_0603_1608Metric",
-        "RNCF0603TKY4K99\nC3942722\n-55\u2103~+155\u2103 100mW 4.99k\u03a9 Thin Film Resistor \u00b10.01% \u00b15ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "RNCF0603TKY4K99\nC3942722\n-55℃~+155℃ 100mW 4.99kΩ Thin Film Resistor ±0.01% ±5ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+        ""
+      ],
+      "checked": true
+    },
+    {
+      "cells": [
+        "R12",
+        "RT0805BRD07220RL",
+        "Resistor_SMD:R_0805_2012Metric",
+        "RT0805BRD07220RL\nC865304\n-55℃~+155℃ 125mW 150V 220Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "8",
+        "JLCPCB",
+        "Extended",
+        "$0.4040",
+        ""
+      ],
+      "checked": true
+    },
+    {
+      "cells": [
+        "R32",
+        "RT0805BRD07220RL",
+        "Resistor_SMD:R_0805_2012Metric",
+        "RT0805BRD07220RL\nC865304\n-55℃~+155℃ 125mW 150V 220Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -485,7 +527,11 @@
         "R61",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+        "0",
+        "JLCPCB",
+        "Extended",
+        "",
         ""
       ],
       "checked": false
@@ -495,7 +541,7 @@
         "R62",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -505,7 +551,7 @@
         "R63",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -515,7 +561,7 @@
         "R64",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -525,7 +571,7 @@
         "R65",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -535,7 +581,7 @@
         "R66",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -545,7 +591,7 @@
         "R67",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -555,7 +601,7 @@
         "R68",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -565,7 +611,7 @@
         "R97",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -575,7 +621,7 @@
         "R98",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -585,7 +631,7 @@
         "R99",
         "RNCF0603TKY499R",
         "Resistor_SMD:R_0603_1608Metric",
-        "FRC0603F4990TS\nC2933227\n-55\u2103~+155\u2103 100mW 499\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+        "FRC0603F4990TS\nC2933227\n-55℃~+155℃ 100mW 499Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": false
@@ -595,7 +641,7 @@
         "R69",
         "RC0805FR-0797R6L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RC0805FR-0797R6L\nC483266\n-55\u2103~+155\u2103 125mW 150V 97.6\u03a9 Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RC0805FR-0797R6L\nC483266\n-55℃~+155℃ 125mW 150V 97.6Ω Thick Film Resistor ±1% ±100ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         "20",
         "JLCPCB",
         "Extended",
@@ -609,7 +655,11 @@
         "R70",
         "RT0805BRD0749R9L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0749R9L\nC865524\n-55\u2103~+155\u2103 125mW 150V 49.9\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0749R9L\nC865524\n-55℃~+155℃ 125mW 150V 49.9Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "12",
+        "JLCPCB",
+        "Extended",
+        "$0.6600",
         ""
       ],
       "checked": true
@@ -619,7 +669,7 @@
         "R100",
         "RT0805BRD0749R9L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0749R9L\nC865524\n-55\u2103~+155\u2103 125mW 150V 49.9\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0749R9L\nC865524\n-55℃~+155℃ 125mW 150V 49.9Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -629,7 +679,7 @@
         "R101",
         "RT0805BRD0749R9L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0749R9L\nC865524\n-55\u2103~+155\u2103 125mW 150V 49.9\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0749R9L\nC865524\n-55℃~+155℃ 125mW 150V 49.9Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -639,7 +689,7 @@
         "R102",
         "RT0805BRD0749R9L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0749R9L\nC865524\n-55\u2103~+155\u2103 125mW 150V 49.9\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0749R9L\nC865524\n-55℃~+155℃ 125mW 150V 49.9Ω Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -649,7 +699,11 @@
         "R71",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "30",
+        "JLCPCB",
+        "Extended",
+        "$1.1340",
         ""
       ],
       "checked": true
@@ -659,7 +713,7 @@
         "R72",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -669,7 +723,7 @@
         "R73",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -679,7 +733,7 @@
         "R75",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -689,7 +743,7 @@
         "R82",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -699,7 +753,7 @@
         "R84",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -709,7 +763,7 @@
         "R88",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -719,7 +773,7 @@
         "R90",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -729,7 +783,7 @@
         "R92",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -739,7 +793,7 @@
         "R94",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -749,7 +803,7 @@
         "R96",
         "RT0805BRD0710KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0710KL\nC110775\n-55\u2103~+155\u2103 10k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0710KL\nC110775\n-55℃~+155℃ 10kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -759,7 +813,7 @@
         "R74",
         "RT0805BRD0747KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0747KL\nC865515\n-55\u2103~+155\u2103 125mW 150V 47k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0747KL\nC865515\n-55℃~+155℃ 125mW 150V 47kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         "10",
         "JLCPCB",
         "Extended",
@@ -773,7 +827,7 @@
         "R81",
         "RT0805BRD0730KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0730KL\nC728649\n-55\u2103~+155\u2103 125mW 150V 30k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0730KL\nC728649\n-55℃~+155℃ 125mW 150V 30kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         "6",
         "JLCPCB",
         "Extended",
@@ -787,7 +841,11 @@
         "R83",
         "RT0805BRD0729K4L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0729K4L\nC865361\n-55\u2103~+155\u2103 125mW 150V 29.4k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0729K4L\nC865361\n-55℃~+155℃ 125mW 150V 29.4kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "10",
+        "JLCPCB",
+        "Extended",
+        "$0.4690",
         ""
       ],
       "checked": true
@@ -797,7 +855,7 @@
         "R89",
         "RT0805BRD0729K4L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0729K4L\nC865361\n-55\u2103~+155\u2103 125mW 150V 29.4k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0729K4L\nC865361\n-55℃~+155℃ 125mW 150V 29.4kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -807,7 +865,7 @@
         "R93",
         "RT0805BRD0729K4L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0729K4L\nC865361\n-55\u2103~+155\u2103 125mW 150V 29.4k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0729K4L\nC865361\n-55℃~+155℃ 125mW 150V 29.4kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -817,7 +875,11 @@
         "R85",
         "RT0805BRD071KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD071KL\nC110774\n-55\u2103~+155\u2103 125mW 150V 1k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD071KL\nC110774\n-55℃~+155℃ 125mW 150V 1kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "12",
+        "JLCPCB",
+        "Extended",
+        "$0.5436",
         ""
       ],
       "checked": true
@@ -827,7 +889,7 @@
         "R86",
         "RT0805BRD071KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD071KL\nC110774\n-55\u2103~+155\u2103 125mW 150V 1k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD071KL\nC110774\n-55℃~+155℃ 125mW 150V 1kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -837,7 +899,11 @@
         "R87",
         "RT0805BRD0725K5L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0725K5L\nC865332\n-55\u2103~+155\u2103 125mW 150V 25.5k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0725K5L\nC865332\n-55℃~+155℃ 125mW 150V 25.5kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+        "8",
+        "JLCPCB",
+        "Extended",
+        "$0.3480",
         ""
       ],
       "checked": true
@@ -847,7 +913,7 @@
         "R91",
         "RT0805BRD0725K5L",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD0725K5L\nC865332\n-55\u2103~+155\u2103 125mW 150V 25.5k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD0725K5L\nC865332\n-55℃~+155℃ 125mW 150V 25.5kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         ""
       ],
       "checked": true
@@ -857,7 +923,7 @@
         "R95",
         "RT0805BRD07100KL",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD07100KL\nC122537\n-55\u2103~+155\u2103 100k\u03a9 125mW 150V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD07100KL\nC122537\n-55℃~+155℃ 100kΩ 125mW 150V Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         "20",
         "JLCPCB",
         "Extended",
@@ -871,7 +937,7 @@
         "R103",
         "RT0805BRD071ML",
         "Resistor_SMD:R_0805_2012Metric",
-        "RT0805BRD071ML\nC706228\n-55\u2103~+155\u2103 125mW 150V 1M\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0805 Chip Resistor - Surface Mount ROHS",
+        "RT0805BRD071ML\nC706228\n-55℃~+155℃ 125mW 150V 1MΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
         "6",
         "JLCPCB",
         "Extended",
@@ -885,7 +951,11 @@
         "RV1",
         "3296W-1-500LF",
         "Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical",
-        "3296W-1-500LF\nC83692\n50\u03a9 \u00b110% SIP-3P,9.5x4.8mm Potentiometers, Variable Resistors ROHS",
+        "3296W-1-500LF\nC83692\n50Ω ±10% SIP-3P,9.5x4.8mm Potentiometers, Variable Resistors ROHS",
+        "4",
+        "JLCPCB",
+        "Extended",
+        "$4.0264",
         ""
       ],
       "checked": true
@@ -895,7 +965,7 @@
         "RV2",
         "3296W-1-500LF",
         "Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical",
-        "3296W-1-500LF\nC83692\n50\u03a9 \u00b110% SIP-3P,9.5x4.8mm Potentiometers, Variable Resistors ROHS",
+        "3296W-1-500LF\nC83692\n50Ω ±10% SIP-3P,9.5x4.8mm Potentiometers, Variable Resistors ROHS",
         ""
       ],
       "checked": true
@@ -905,7 +975,11 @@
         "U1",
         "ADA4817-1ARDZ-R7",
         "Probe:ADA4817_RD-8-4",
-        "ADA4817-1ARDZ-R7\nC207502\n-40\u2103~+105\u2103 -5V~5V -83dB 1 14mA 2pA 40mA 410MHz 4nV/\u221aHz@100kHz 500uV 5V~10V 7uV/\u2103 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
+        "ADA4817-1ARDZ-R7\nC207502\n-40℃~+105℃ -5V~5V -83dB 1 14mA 2pA 40mA 410MHz 4nV/√Hz@100kHz 500uV 5V~10V 7uV/℃ 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
+        "4",
+        "JLCPCB",
+        "Extended",
+        "$39.7000",
         ""
       ],
       "checked": true
@@ -915,7 +989,7 @@
         "U2",
         "ADA4817-1ARDZ-R7",
         "Probe:ADA4817_RD-8-4",
-        "ADA4817-1ARDZ-R7\nC207502\n-40\u2103~+105\u2103 -5V~5V -83dB 1 14mA 2pA 40mA 410MHz 4nV/\u221aHz@100kHz 500uV 5V~10V 7uV/\u2103 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
+        "ADA4817-1ARDZ-R7\nC207502\n-40℃~+105℃ -5V~5V -83dB 1 14mA 2pA 40mA 410MHz 4nV/√Hz@100kHz 500uV 5V~10V 7uV/℃ 870V/us Enable/shutdown function SOIC-8-EP FET Input Amplifiers ROHS",
         ""
       ],
       "checked": true
@@ -925,7 +999,11 @@
         "U3",
         "OPA810IDR",
         "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
-        "OPA810IDR\nC1852077\n-12V~-2.375V\u30012.375V~12V -40\u2103~+125\u2103 1 100dB 100uV 192V/us 2.5uV/\u2103 20pA 2pA 3.7mA 4.75V~27V 6.3nV/\u221aHz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit Protection\u3001Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
+        "OPA810IDR\nC1852077\n-12V~-2.375V、2.375V~12V -40℃~+125℃ 1 100dB 100uV 192V/us 2.5uV/℃ 20pA 2pA 3.7mA 4.75V~27V 6.3nV/√Hz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit Protection、Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
+        "6",
+        "JLCPCB",
+        "Extended",
+        "$16.8336",
         ""
       ],
       "checked": true
@@ -935,7 +1013,7 @@
         "U4",
         "OPA810IDR",
         "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
-        "OPA810IDR\nC1852077\n-12V~-2.375V\u30012.375V~12V -40\u2103~+125\u2103 1 100dB 100uV 192V/us 2.5uV/\u2103 20pA 2pA 3.7mA 4.75V~27V 6.3nV/\u221aHz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit Protection\u3001Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
+        "OPA810IDR\nC1852077\n-12V~-2.375V、2.375V~12V -40℃~+125℃ 1 100dB 100uV 192V/us 2.5uV/℃ 20pA 2pA 3.7mA 4.75V~27V 6.3nV/√Hz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit Protection、Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
         ""
       ],
       "checked": true
@@ -945,7 +1023,7 @@
         "U12",
         "OPA810IDR",
         "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
-        "OPA810IDR\nC1852077\n-12V~-2.375V\u30012.375V~12V -40\u2103~+125\u2103 1 100dB 100uV 192V/us 2.5uV/\u2103 20pA 2pA 3.7mA 4.75V~27V 6.3nV/\u221aHz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit Protection\u3001Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
+        "OPA810IDR\nC1852077\n-12V~-2.375V、2.375V~12V -40℃~+125℃ 1 100dB 100uV 192V/us 2.5uV/℃ 20pA 2pA 3.7mA 4.75V~27V 6.3nV/√Hz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit Protection、Built-in compensation SOIC-8 FET Input Amplifiers ROHS",
         ""
       ],
       "checked": true
@@ -955,7 +1033,7 @@
         "U5",
         "TLV1704AIPWR",
         "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
-        "TLV1704AIPWR\nC181596\n-18V~-1.1V\u30011.1V~18V -40\u2103~+125\u2103 0.5nA 2.2V~36V 20uV/\u2103 300uV 365ns 36V 55uA 560ns 5nA Four channels Open Collector Rail-to-Rail Input TSSOP-14 Comparators ROHS",
+        "TLV1704AIPWR\nC181596\n-18V~-1.1V、1.1V~18V -40℃~+125℃ 0.5nA 2.2V~36V 20uV/℃ 300uV 365ns 36V 55uA 560ns 5nA Four channels Open Collector Rail-to-Rail Input TSSOP-14 Comparators ROHS",
         "2",
         "JLCPCB",
         "Extended",
@@ -969,7 +1047,7 @@
         "U6",
         "TLV1702AIDGKR",
         "Package_SO:VSSOP-8_3x3mm_P0.65mm",
-        "TLV1702AIDGKR\nC2870937\n-18V~-1.1V\u30011.1V~18V -40\u2103~+125\u2103 0.37us 0.5nA 2 2.2V~36V 20uV/\u2103 3.5mV 36V 55uA 560ns 5nA Open Collector Rail-to-Rail Input VSSOP-8 Comparators ROHS",
+        "TLV1702AIDGKR\nC2870937\n-18V~-1.1V、1.1V~18V -40℃~+125℃ 0.37us 0.5nA 2 2.2V~36V 20uV/℃ 3.5mV 36V 55uA 560ns 5nA Open Collector Rail-to-Rail Input VSSOP-8 Comparators ROHS",
         "2",
         "JLCPCB",
         "Extended",
@@ -983,7 +1061,7 @@
         "U7",
         "CD4013BM96",
         "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
-        "CD4013BM96\nC13527\n-55\u2103~+125\u2103 1 10ns 2 24MHz 2ns 3V~18V 4000B Series 4uA 5pF 6.8mA 6.8mA 90ns@15V,50pF Asynchronous Complementary D-Type Rising Edge Set and Reset SOIC-14 Flip Flops ROHS",
+        "CD4013BM96\nC13527\n-55℃~+125℃ 1 10ns 2 24MHz 2ns 3V~18V 4000B Series 4uA 5pF 6.8mA 6.8mA 90ns@15V,50pF Asynchronous Complementary D-Type Rising Edge Set and Reset SOIC-14 Flip Flops ROHS",
         "2",
         "JLCPCB",
         "Extended",
@@ -997,7 +1075,7 @@
         "U8",
         "ADP7142AUJZ-R7",
         "Package_TO_SOT_SMD:TSOT-23-5",
-        "ADP7142AUJZ-R7\nC514356\n-40\u2103~+125\u2103@(Tj) 1 11uVrms 200mA 40V Adjustable Over Current Protection\u3001Over Temperature Protection\u3001Soft Start\u3001Enable Positive TSOT-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "ADP7142AUJZ-R7\nC514356\n-40℃~+125℃@(Tj) 1 11uVrms 200mA 40V Adjustable Over Current Protection、Over Temperature Protection、Soft Start、Enable Positive TSOT-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
         "2",
         "JLCPCB",
         "Extended",
@@ -1011,7 +1089,7 @@
         "U9",
         "ADP7182AUJZ-R7",
         "Package_TO_SOT_SMD:TSOT-23-5",
-        "ADP7182AUJZ-R7\nC514358\n-40\u2103~+125\u2103@(Tj) 1 1.22V~27V 185mV@(200mA) 18uVrms 200mA 28V 650uA 66dB@(10kHz) Adjustable Negative Over Current Protection\u3001Over Temperature Protection\u3001Enable TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+        "ADP7182AUJZ-R7\nC514358\n-40℃~+125℃@(Tj) 1 1.22V~27V 185mV@(200mA) 18uVrms 200mA 28V 650uA 66dB@(10kHz) Adjustable Negative Over Current Protection、Over Temperature Protection、Enable TSOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
         "2",
         "JLCPCB",
         "Extended",
@@ -1025,7 +1103,11 @@
         "U10",
         "TL431BIDBZR",
         "Package_TO_SOT_SMD:SOT-23",
-        "TL431BIDBZR\nC41283\n-40\u2103~+85\u2103 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel \u00b10.5% SOT-23-3 Voltage Reference ROHS",
+        "TL431BIDBZR\nC41283\n-40℃~+85℃ 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel ±0.5% SOT-23-3 Voltage Reference ROHS",
+        "8",
+        "JLCPCB",
+        "Extended",
+        "$0.5680",
         ""
       ],
       "checked": true
@@ -1035,7 +1117,7 @@
         "U11",
         "TL431BIDBZR",
         "Package_TO_SOT_SMD:SOT-23",
-        "TL431BIDBZR\nC41283\n-40\u2103~+85\u2103 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel \u00b10.5% SOT-23-3 Voltage Reference ROHS",
+        "TL431BIDBZR\nC41283\n-40℃~+85℃ 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel ±0.5% SOT-23-3 Voltage Reference ROHS",
         ""
       ],
       "checked": true
@@ -1045,7 +1127,11 @@
         "C41",
         "C1206C103F5GACTU",
         "Capacitor_SMD:C_1206_3216Metric",
-        "C1206C103F5GACTU\nC1917476\n10nF 50V \u00b11% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C1206C103F5GACTU\nC1917476\n10nF 50V ±1% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "4",
+        "",
+        "Extended",
+        "$11.3468",
         "4 shortfall"
       ]
     },
@@ -1054,7 +1140,7 @@
         "C51",
         "C1206C103F5GACTU",
         "Capacitor_SMD:C_1206_3216Metric",
-        "C1206C103F5GACTU\nC1917476\n10nF 50V \u00b11% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C1206C103F5GACTU\nC1917476\n10nF 50V ±1% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "4 shortfall"
       ]
     },
@@ -1063,7 +1149,11 @@
         "C44",
         "C0805C221J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C221J5GACTU\nC2169015\n220pF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C221J5GACTU\nC2169015\n220pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "8",
+        "",
+        "Extended",
+        "$0.1936",
         "8 shortfall"
       ]
     },
@@ -1072,7 +1162,7 @@
         "C54",
         "C0805C221J5GACTU",
         "Capacitor_SMD:C_0805_2012Metric",
-        "C0805C221J5GACTU\nC2169015\n220pF 50V C0G \u00b15% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+        "C0805C221J5GACTU\nC2169015\n220pF 50V C0G ±5% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
         "8 shortfall"
       ]
     },
@@ -1081,7 +1171,11 @@
         "CT1",
         "GKG60015",
         "Probe:GKG60015_TopAdjust",
-        "GKG60015\nC3273413\n-25\u2103~+85\u2103 100V 12pF~60pF 200@1MHz 5mm \u63d2\u4ef6 Trimmers, Variable Capacitors ROHS",
+        "GKG60015\nC3273413\n-25℃~+85℃ 100V 12pF~60pF 200@1MHz 5mm 插件 Trimmers, Variable Capacitors ROHS",
+        "4",
+        "",
+        "Extended",
+        "$6.8436",
         "4 shortfall"
       ]
     },
@@ -1090,7 +1184,7 @@
         "CT2",
         "GKG60015",
         "Probe:GKG60015_TopAdjust",
-        "GKG60015\nC3273413\n-25\u2103~+85\u2103 100V 12pF~60pF 200@1MHz 5mm \u63d2\u4ef6 Trimmers, Variable Capacitors ROHS",
+        "GKG60015\nC3273413\n-25℃~+85℃ 100V 12pF~60pF 200@1MHz 5mm 插件 Trimmers, Variable Capacitors ROHS",
         "4 shortfall"
       ]
     },
@@ -1099,7 +1193,11 @@
         "R1",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
+        "40",
+        "",
+        "Extended",
+        "$356.6080",
         "40 shortfall"
       ]
     },
@@ -1108,7 +1206,7 @@
         "R2",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1117,7 +1215,7 @@
         "R3",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1126,7 +1224,7 @@
         "R4",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1135,7 +1233,7 @@
         "R5",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1144,7 +1242,7 @@
         "R6",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1153,7 +1251,7 @@
         "R7",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1162,7 +1260,7 @@
         "R8",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1171,7 +1269,7 @@
         "R9",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1180,7 +1278,7 @@
         "R10",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1189,7 +1287,7 @@
         "R21",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1198,7 +1296,7 @@
         "R22",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1207,7 +1305,7 @@
         "R23",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1216,7 +1314,7 @@
         "R24",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1225,7 +1323,7 @@
         "R25",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1234,7 +1332,7 @@
         "R26",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1243,7 +1341,7 @@
         "R27",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1252,7 +1350,7 @@
         "R28",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1261,7 +1359,7 @@
         "R29",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1270,7 +1368,7 @@
         "R30",
         "HVCB2512BDE1M00",
         "Resistor_SMD:R_2512_6332Metric",
-        "HVCB2512BDE1M00\nC2482550\n-55\u2103~+150\u2103 1M\u03a9 2W 3kV Thick Film Resistor \u00b10.1% \u00b125ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+        "HVCB2512BDE1M00\nC2482550\n-55℃~+150℃ 1MΩ 2W 3kV Thick Film Resistor ±0.1% ±25ppm/℃ 2512 Chip Resistor - Surface Mount ROHS",
         "40 shortfall"
       ]
     },
@@ -1279,7 +1377,7 @@
         "SW3",
         "PTS645SL43SMTR92LFS",
         "Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92",
-        "PTS645SL43SMTR92LFS\nC221875\n-40\u2103~+85\u2103 0.85mm 1.3N 12V 50mA 6mm 6mm Gull Wing Round Button SPST Surface Mount,Vertical SMD-4P,6x6mm Tactile Switches ROHS",
+        "PTS645SL43SMTR92LFS\nC221875\n-40℃~+85℃ 0.85mm 1.3N 12V 50mA 6mm 6mm Gull Wing Round Button SPST Surface Mount,Vertical SMD-4P,6x6mm Tactile Switches ROHS",
         "3",
         "",
         "Extended",
@@ -1409,45 +1507,6 @@
         "C25",
         "C1812C330JHGACTU",
         "Probe:C_1812_HV_Slot",
-        "No Part Selected\nSearch",
-        "Pre-order",
-        "",
-        "",
-        "",
-        ""
-      ]
-    },
-    {
-      "cells": [
-        "D8",
-        "1N4148W,115",
-        "Diode_SMD:D_SOD-123",
-        "No Part Selected\nSearch",
-        "Pre-order",
-        "",
-        "",
-        "",
-        ""
-      ]
-    },
-    {
-      "cells": [
-        "R12",
-        "RT0805BRD07220L",
-        "Resistor_SMD:R_0805_2012Metric",
-        "No Part Selected\nSearch",
-        "Pre-order",
-        "",
-        "",
-        "",
-        ""
-      ]
-    },
-    {
-      "cells": [
-        "R32",
-        "RT0805BRD07220L",
-        "Resistor_SMD:R_0805_2012Metric",
         "No Part Selected\nSearch",
         "Pre-order",
         "",

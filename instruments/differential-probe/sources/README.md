@@ -17,3 +17,7 @@ Do not substitute a part based on a matching family name alone. The board-level 
 `CST3015.pdf` and its text extract preserve Coilcraft document 1608 for the stage-53 CT correction. The [calculation record](../docs/stage53-ct-correction.md) includes the document identity, verified board hash and limits of the sinusoidal and DC-pulse calculations.
 
 `OPA810-model.zip` and `opa810_a.lib` archive TI’s unmodified OPA810 Rev A PSpice model (2020-06-11), retrieved from [TI SBOMB73](https://www.ti.com/lit/zip/sbomb73). Model and fixture hashes are in `../validation/spice/sha256.txt`; the limitations, including clipping slightly beyond ideal rails, are documented in the [circuit record](../docs/circuit-revb.md).
+
+## Procurement identity corrections
+
+`B140.pdf`, `1N4148W.pdf` and `Yageo-RT.pdf`, with text extracts, preserve the official manufacturer documents supporting the [three corrected orderable-part entries](../docs/part-identity-corrections.md). Earlier catalog snapshots retain the rejected identities as history.

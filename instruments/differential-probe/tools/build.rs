@@ -1051,7 +1051,7 @@ fn main() {
             0,
             &ir,
             "R_Small_US",
-            &r("220 R", "220"),
+            &r("220 R", "220R"),
             (238., y),
             90,
             &format!("TAP_{suffix}"),
@@ -1557,12 +1557,12 @@ fn main() {
     d.nc("SW2", "3");
     d.nc("SW2", "6");
     let sch = part(
-        "SS14",
-        "SS14",
+        "B140",
+        "B140-13-F",
         "Diodes Incorporated",
         "Diode_SMD:D_SMA",
-        "https://www.diodes.com/assets/Datasheets/ds23001.pdf",
-        "",
+        "https://www.diodes.com/datasheet/download/B140.pdf",
+        "C15759",
     );
     d.two(
         2,
@@ -1836,12 +1836,12 @@ fn main() {
     );
     d.two(2, "C95", "C", &dec, (277., 154.), 0, "+4V8", "RESET", false);
     let small_d = part(
-        "1N4148W,115",
-        "1N4148W,115",
-        "Nexperia",
+        "1N4148W",
+        "1N4148W-7-F",
+        "Diodes Incorporated",
         "Diode_SMD:D_SOD-123",
-        "https://assets.nexperia.com/documents/data-sheet/1N4148W.pdf",
-        "",
+        "https://www.diodes.com/datasheet/download/1N4148W.pdf",
+        "C83528",
     );
     d.two(
         2,

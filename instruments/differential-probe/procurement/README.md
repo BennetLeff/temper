@@ -2,7 +2,7 @@
 
 **Status: files prepared and Gerbers uploaded to JLCPCB; order not placed.** The user selected **five PCBs, two populated**, after the quote form required at least two assembled boards. Destination is Austin, Texas; street address and account details are intentionally excluded from this repository.
 
-The unchanged Rev B board is the engineering prototype to build, with the existing 0.1% resistor BOM, batteries and both gain ranges. See [build decision and operating restrictions](../docs/revb-build-decision.md). Pods and lumped dividers are Rev C candidates; there is no dedicated resistor-comparison experiment.
+The Rev B board with corrected orderable part identities is the engineering prototype to build, with the existing 0.1% resistor BOM, batteries and both gain ranges. See [build decision and operating restrictions](../docs/revb-build-decision.md). Pods and lumped dividers are Rev C candidates; there is no dedicated resistor-comparison experiment.
 
 ## Prepared files
 
@@ -15,13 +15,13 @@ The unchanged Rev B board is the engineering prototype to build, with the existi
 
 Run `sh procurement/export.sh` from the probe directory (or invoke the script by path). ERC and DRC must pass before exports. The script derives BOM/placement data; it does not edit parts or the PCB. Native KiCad rotations have not yet been approved against JLC's component-placement preview. The [part map](jlc-part-map.json) supplies verified catalog IDs without changing schematic part identities. The Comment field carries the MPN because JLC ignored the separate MPN column when matching generic values. Blank LCSC entries require exact-MPN sourcing; do not accept automatic substitutions. The 50 Ω resistance trimmers and capacitance trimmers are included in the 135 onboard references; battery clips, panel switches and BNC are separate offboard purchases.
 
-The board SHA-256 is `b0c15add2b69967cee0593962e1b3b22795725ed36ccbfc408b05c3fb4002b65`. Fresh KiCad 10.0.4 ERC and DRC returned zero violations and zero PCB unconnected items. The rendered copper preserves both straight ladders and no underlying planes; the outline contains ten capacitor slots. The top paste render includes the divided exposed-pad apertures. These checks do not qualify the completed instrument at high voltage.
+The board SHA-256 is `604e952625fdf0bee6176bbb5e2e02778484c29c6bb4ab5200f05fe5e825ef09`. Fresh KiCad 10.0.4 ERC and DRC returned zero violations and zero PCB unconnected items. The rendered copper preserves both straight ladders and no underlying planes; the outline contains ten capacitor slots. The top paste render includes the divided exposed-pad apertures. These checks do not qualify the completed instrument at high voltage.
 
 ## JLC quote state
 
 Uploaded ZIP parsed as 240 × 84 mm, four layers. Configured five PCBs, Standard top-side assembly, two populated, ENIG, and explicit layer sequence F.Cu / In1.Cu / In2.Cu / B.Cu. Production-file and parts-placement confirmation were enabled with automatic confirmation disabled. JLC added two 5 mm assembly rails and displayed 240 × 94 mm for the panel envelope. Require the production drawing to preserve the original finished outline and slots.
 
-The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. The user explicitly approved assembly-terms acceptance, and both BOM and CPL were uploaded. The assembly project is saved in JLC. Automatic matches included incorrect dielectric, tolerance and manufacturer choices; the uploaded BOM now uses MPN comments and verified catalog IDs. Eighty of 135 references are selected with matching MPNs; the rest remain unresolved or unselected. Seven exact-part global-sourcing lines have been added to a separate cart, with a displayed subtotal of USD 692.89; sourcing checkout adds USD 7.00 handling for USD 699.89. This is a partial component quote, not the completed-board total. No payment has been authorized or submitted. See [live quote review](quote-review.md).
+The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. The user explicitly approved assembly-terms acceptance, and both BOM and CPL were uploaded. The assembly project is saved in JLC. Automatic matches included incorrect dielectric, tolerance and manufacturer choices; the uploaded BOM now uses MPN comments and verified catalog IDs. Eighty-seven of 135 references are selected with matching MPNs; the remaining 48 await global sourcing/allocation. The three identity gaps were corrected in the schematic and reuploaded; see [part-selection checks](../docs/part-identity-corrections.md). Seven exact-part global-sourcing lines have been added to a separate cart, with a displayed subtotal of USD 692.89; sourcing checkout adds USD 7.00 handling for USD 699.89. This is a partial component quote, not the completed-board total. No payment has been authorized or submitted. See [live quote review](quote-review.md).
 
 Saved assembly remark:
 
@@ -29,7 +29,7 @@ Saved assembly remark:
 
 ## Sourcing evidence
 
-[Raw catalog and live JLC results](catalog-check.json) distinguish local-index results from live stock calls. The BOM has been processed by JLC; exact-part mapping and global sourcing remain incomplete. See [live quote review](quote-review.md).
+[Raw catalog and live JLC results](catalog-check.json) distinguish local-index results from live stock calls. The BOM has been processed by JLC; the remaining seven exact part lines await purchase/allocation. Authorized contact details were saved to JLC only. The separate sourcing Customer Compliance Statement has not been accepted. See [live quote review](quote-review.md).
 
 | Exact MPN | Quantity for two populated boards, before attrition | Current evidence / action |
 |---|---:|---|

@@ -1,0 +1,438 @@
+                                                                                                                                    B120/B - B160/B
+                                                                            1.0A SURFACE-MOUNT SCHOTTKY BARRIER RECTIFIER
+
+
+Product Summary                                                                     Features and Benefits
+B120/B, B130/B, B140/B                                                                  Guard Ring Die Construction for Transient Protection
+                                         VF Max (V)         IR Max (mA)                 Ideally Suited for Automated Assembly
+    VRRM (V)            IO (A)                                                          Low Power Loss, High Efficiency
+                                         TA = +25°C         TA = +25°C
+    20/30/40              1.0                0.5                0.5                     Surge Overload Rating to 30A Peak
+                                                                                        For Use in Low-Voltage, High-Frequency Inverters, Free
+B150/B, B160/B
+                                                                                         Wheeling, and Polarity Protection Application
+                                          VF Max (V)        IR Max (mA)
+    VRRM (V)            IO (A)                                                          Lead-Free Finish; RoHS Compliant (Notes 1 & 2)
+                                         TA = +25°C         TA = +25°C
+      50/60               1.0                0.7                0.5                     Halogen and Antimony Free. “Green” Device (Notes 3)
+                                                                                        For automotive applications requiring specific change
+                                                                                         control (i.e. parts qualified to AEC-Q100/101/104/200, PPAP
+                                                                                         capable, and manufactured in IATF 16949 certified facilities),
+                                                                                         please contact us or your local Diodes representative.
+Description and Applications                                                             https://www.diodes.com/quality/product-definitions/
+This Schottky barrier rectifier is designed to meet the general
+requirements of commercial applications. It is ideally suited for use
+as:
+                                                                                    Mechanical Data
+                                                                                        Package: SMA/SMB
+    Polarity protection diodes                                                         Package Material: Molded Plastic. UL Flammability Classification
+    Re-circulating diodes                                                               Rating 94V-0
+    Switching diodes                                                                   Moisture Sensitivity: Level 1 per J-STD-020
+                                                                                        Terminals: Lead Free Plating (Matte Tin Finish). Solderable per
+                                                                                         MIL-STD-202, Method 208
+                                                                                        Polarity: Cathode Band or Cathode Notch
+                                                                                        Weight: SMA 0.064 grams (Approximate)
+                                                                                                   SMB 0.093 grams (Approximate)
+
+
+
+
+                                                              Top View             Bottom View
+
+
+Ordering Information (Note 4)
+                                                                                                                                    Packing
+              Part Number                                            Package
+                                                                                                                      Qty.                         Carrier
+              B1XX-13-F                                                SMA                                            5,000                      Tape & Reel
+              B1XXB-13-F                                               SMB                                            3,000                      Tape & Reel
+*XX = Device Type, e.g., B120-13-F (SMA Package); B120B-13-F (SMB Package).
+Notes:    1. EU Directive 2002/95/EC (RoHS), 2011/65/EU (RoHS 2) & 2015/863/EU (RoHS 3) compliant. All applicable RoHS exemptions applied.
+          2. See https://www.diodes.com/quality/lead-free/ for more information about Diodes Incorporated’s definitions of Halogen- and Antimony-free, "Green" and
+             Lead-free.
+          3. Halogen- and Antimony-free "Green” products are defined as those which contain <900ppm bromine, <900ppm chlorine (<1500ppm total Br + Cl) and
+             <1000ppm antimony compounds.
+          4. For packaging details, go to our website at https://www.diodes.com/design/support/packaging/diodes-packaging/.
+
+
+
+Marking Information
+
+                                                                    B1X0 = Product Type Marking Code, e.g., B120 (SMA Package)
+                                                       YW
+                                                       YWW          B1X0B = Product Type Marking Code, e.g., B160B (SMB Package)
+                                                                        = Manufacturers’ Code Marking
+                                                                    YWW = Date Code Marking
+                                                   0(B)
+                                                B1X0(B)             Y = Last Digit of Year (ex: 3 for 2023)
+                                                                    WW = Week Code (01 to 53)
+
+
+B120/B - B160/B                                                           1 of 6                                                                            April 2023
+Document number: DS13002 Rev. 20 - 2                                  www.diodes.com                            © 2023 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                                                                                                                             B120/B - B160/B
+
+
+Maximum Ratings (@TA = +25°C, unless otherwise specified.)
+Single phase, half wave, 60Hz, resistive or inductive load
+For capacitive load, derate current by 20%.
+                        Characteristic                                                                                  Symbol                         B120/B                              B130/B           B140/B       B150/B           B160/B        Unit
+Peak Repetitive Reverse Voltage                                                                                          VRRM
+Working Peak Reverse Voltage                                                                                             VRWM                                               20                30              40             50             60           V
+DC Blocking Voltage                                                                                                       VR
+RMS Reverse Voltage                                                                                                     VR(RMS)                                             14                21              28             35             42           V
+Average Rectified Output Current @ TT = +130°C                                                                            IO                                                                                  1.0                                        A
+Non-Repetitive Peak Forward Surge Current 8.3ms
+                                                                                                                         IFSM                                                                                 30                                         A
+Single Half Sine Wave Superimposed on Rated Load
+
+
+
+
+Thermal Characteristics
+                        Characteristic                                                                                  Symbol                         B120/B                              B130/B         B140/B    B150/B                B160/B       Unit
+Typical Thermal Resistance Junction to Terminal (Note 5)                                                                  RJT                                                                               20                                        °C/W
+Operating and Storage Temperature Range                                                                                 TJ, TSTG                                                                        -65 to +150                                     °C
+
+
+
+
+Electrical Characteristics (@TA = +25°C, unless otherwise specified.)
+                                                                              Characteristic                            Symbol                                              Min              Typ            Max       Unit            Test Condition
+                                                                                               B120/B, B130/B, B140/B                                                       —                 —             0.5                 IF = 1.0A
+Forward Voltage Drop                                                                                                       VF                                                                                           V
+                                                                                                       B150/B, B160/B                                                       —                 —             0.7                 IF = 1.0A
+                                                                                                                                                                            —                 —             0.5                 @ Rated VR, TA = +25°C
+Leakage Current (Note 6)                                                                                                   IR                                                                                         mA
+                                                                                                                                                                            —                 —             10                  @ Rated VR, TA = +100°C
+Total Capacitance                                                                                                          CT                                               —                110            —          pF       VR = 4V, f = 1MHz
+Notes:                                             5. Thermal Resistance: Junction to terminal, unit mounted on PC board with 5.0mm2 (0.013mm thick) copper pads as heat sink.
+                                                   6. Short duration pulse test used to minimize self-heating effect.
+
+
+
+
+                                                   10                                                                                                                        10
+                                                                                                                                   IF , INSTANTANEOUS FORWARD CURRENT (A)
+         IF , INSTANTANEOUS FORWARD CURRENT (A)
+
+
+
+
+                                                                     T A = 150°C
+                                                                                                                                                                                                      T A = 150°C
+
+
+                                                                T A = 125°C
+                                                                                                                                                                                              T A = 125°C
+                                                     1                                                                                                                           1
+
+                                                                                                                                                                                                                             TA = 25°C
+                                                             T A = 100°C                                                                                                                 T A = 75°C
+                                                                                          T A = 85°C
+
+
+
+                                                                                                                                                                                                                            T A = -25°C
+                                                   0.1                                     T A = 25°C                                                                        0.1
+
+
+                                                                                          T A = -55°C
+
+
+
+                                                                                                                                                                            0.01
+                                                  0.01                                                                                                                               0         0.2      0.4     0.6   0.8     1       1.2 1.4
+                                                         0                      0.4               0.8            1.2
+                                                                                                                                                                                         VF , INSTANTANEOUS FORWARD VOLTAGE (V)
+                                                         V F, INSTANTANEOUS FORWARD VOLTAGE (V)                                                                                             Figure
+                                                                                                                                                                                               Figure2.2 Typical Forward Characteristics
+                                                               Figure
+                                                                Figure1.
+                                                                       1 Typical Forward Characteristics                                                                                                B150/B through B160/B
+
+
+
+
+B120/B - B160/B                                                                                                       2 of 6                                                                                                                        April 2023
+Document number: DS13002 Rev. 20 - 2                                                                              www.diodes.com                                                                        © 2023 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                                                                                                                                                                 B120/B - B160/B
+
+                                                      10000                                                                                                                                10000
+    IR, INSTANTANEOUS REVERSE CURRENT (µA)
+
+
+
+
+                                                                                                                                        IR, INSTANTANEOUS REVERSE CURRENT (µA)
+                                                                                            T A = 150°C
+                                                                                                                                                                                                                                       T A = 150°C
+                                                                                                                                                                                                          1000
+                                                                1000
+                                                                                            T A = 125°C
+                                                                                                                                                                                                                                          TA = 125°C
+                                                                                            T A = 100°C                                                                                                              100
+                                                                 100
+                                                                                             T A = 85°C
+                                                                                                                                                                                                                                          TA = 75°C
+                                                                                                                                                                                                                      10
+
+                                                                     10
+                                                                                                                                                                                                                           1
+                                                                                                                                                                                                                                          T A = 25°C
+                                                                         1
+                                                                                             T A = 25°C
+                                                                                                                                                                                                                      0.1
+
+                                                                  0.1
+                                                                          0          10        20          30         40       50                                                                                    0.01
+                                                                                                                                                                                                                            0        10          20         30         40         50          60
+                                                                              VR , INSTANTANEOUS REVERSE VOLTAGE (V)
+                                                                                                                                                                                                                                VR, INSTANTANEOUS REVERSE VOLTAGE (V)
+                                                                                 Figure
+                                                                                   Figure3.
+                                                                                          3 Typical Reverse Characteristics
+                                                                                            B120/B through B140/B                                                                                                                   Figure 4.
+                                                                                                                                                                                                                                    Figure 4 Typical Reverse Characteristics
+                                                                                                                                                                                                                                              B150/B through B160/B
+
+                                         1,000
+                                                                                                                       1MHz
+
+
+                                                                                                                                                                                 IO, AVERAGE RECTIFIED CURRENT (A)   1.0
+                            CT, TOTAL CAPACITANCE (pF)
+
+
+
+
+                                                                100
+
+                                                                                                                                                                                                                     0.5
+
+
+
+
+                                                                 10                                                                                                                                                   0
+                                                                      0.1                  1              10             100                                                                                           25             50      75       100        125                   150
+                                                                                   VR, DC REVERSE VOLTAGE (V)                                                                                                                       TT, TERMINAL TEMPERATURE (°     (篊C)
+                                                                         Figure
+                                                                            Fig. 5. Total Capacitance vs. Reverse Voltage                                                                                                       Figure
+                                                                                                                                                                                                                                   Fig. 6.
+                                                                                                                                                                                                                                        6 Forward Current Derating Curve
+
+                                                                40
+                         IFSM, PEAK FORWARD SURGE CURRENT (A)
+
+
+
+
+                                                                                                    Single
+                                                                                                       SingleHalf  Sine Wave
+                                                                                                              Half Sine-Wave
+
+
+                                                                30
+
+
+
+
+                                                                20
+
+
+
+
+                                                                10
+
+
+
+
+                                                                 0
+                                                        10           1        100
+                                          NUMBER OF CYCLES AT 60 Hz
+                           Figure
+                              Fig. 7.
+                                   7 Max Non-Repetitive Peak Forward Surge Current
+
+
+B120/B - B160/B                                                                                                                    3 of 6                                                                                                                                                April 2023
+Document number: DS13002 Rev. 20 - 2                                                                                           www.diodes.com                                                                                                © 2023 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                         B120/B - B160/B
+
+
+Package Outline Dimensions
+Please see http://www.diodes.com/package-outlines.html for the latest version.
+
+
+                                                                           SMA
+
+
+                                              B
+
+
+
+                                                                                          SMA
+                            A                                      C              Dim     Min     Max
+                                                                                    A     2.29    2.92
+                                                                                    B     4.00    4.60
+                                                                                    C     1.27    1.63
+                                                               D                    D     0.15    0.31
+                                                                                    E     4.80    5.59
+                                                                                    G     0.05    0.20
+                                J                                                   H     0.76    1.52
+                                                                                    J     1.96    2.40
+                                                                                 All Dimensions in mm
+                                        H         G
+
+                                              E
+
+
+
+
+                                                                           SMB
+
+
+
+                                            E1
+
+
+
+                                                                                              SMB
+                      D                                                b               Dim     Min    Max
+                                                                                        A     2.00    2.50
+                                                                                       A1     0.05    0.20
+                                                                                         b    1.96    2.21
+                                                                                         c    0.15    0.31
+                                                                                        D     3.30    3.94
+                                                                                         E    5.00    5.59
+                                                                                        E1    4.06    4.57
+                                                                                         L    0.76    1.52
+                                                                   c                  All Dimensions in mm
+
+
+                        A
+
+
+                                    L        A1
+                                            E
+
+
+
+
+B120/B - B160/B                                                    4 of 6                                                        April 2023
+Document number: DS13002 Rev. 20 - 2                           www.diodes.com        © 2023 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                          B120/B - B160/B
+
+
+Suggested Pad Layout
+Please see http://www.diodes.com/package-outlines.html for the latest version.
+
+
+                                                                      SMA
+
+
+
+                                            X1
+                                    X                                                                  Value
+                                                                                 Dimensions
+                                                                                                     (in mm)
+                                                                                     C                  4.00
+                         Y                                                           G                  1.50
+                                                                                     X                  2.50
+                                            G                                        X1                 6.50
+                                                                                     Y                  1.70
+                                            C
+
+
+
+
+                                                                      SMB
+
+
+                                             X1
+                                X
+                                                                                                       Value
+                                                                                 Dimensions
+                                                                                                     (in mm)
+                                                                                    C                   4.30
+                    Y                                                               G                   1.80
+                                                                                    X                   2.50
+                                                                                    X1                  6.80
+                                                                                    Y                   2.30
+                                             G
+                                             C
+
+
+
+
+B120/B - B160/B                                                    5 of 6                                                         April 2023
+Document number: DS13002 Rev. 20 - 2                           www.diodes.com         © 2023 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                             B120/B - B160/B
+
+
+                                                                IMPORTANT NOTICE
+
+1.      DIODES INCORPORATED (Diodes) AND ITS SUBSIDIARIES MAKE NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, WITH
+REGARDS TO ANY INFORMATION CONTAINED IN THIS DOCUMENT, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+RIGHTS (AND THEIR EQUIVALENTS UNDER THE LAWS OF ANY JURISDICTION).
+
+2.         The Information contained herein is for informational purpose only and is provided only to illustrate the operation of Diodes’ products
+described herein and application examples. Diodes does not assume any liability arising out of the application or use of this document or any
+product described herein. This document is intended for skilled and technically trained engineering customers and users who design with Diodes’
+products. Diodes’ products may be used to facilitate safety-related applications; however, in all instances customers and users are responsible for
+(a) selecting the appropriate Diodes products for their applications, (b) evaluating the suitability of Diodes’ products for their intended applications,
+(c) ensuring their applications, which incorporate Diodes’ products, comply the applicable legal and regulatory requirements as well as safety and
+functional-safety related standards, and (d) ensuring they design with appropriate safeguards (including testing, validation, quality control
+techniques, redundancy, malfunction prevention, and appropriate treatment for aging degradation) to minimize the risks associated with their
+applications.
+
+3.           Diodes assumes no liability for any application-related information, support, assistance or feedback that may be provided by Diodes
+from time to time. Any customer or user of this document or products described herein will assume all risks and liabilities associated with such
+use, and will hold Diodes and all companies whose products are represented herein or on Diodes’ websites, harmless against all damages and
+liabilities.
+
+4.         Products described herein may be covered by one or more United States, international or foreign patents and pending patent
+applications. Product names and markings noted herein may also be covered by one or more United States, international or foreign trademarks
+and trademark applications. Diodes does not convey any license under any of its intellectual property rights or the rights of any third parties
+(including third parties whose products and services may be described in this document or on Diodes’ website) under this document.
+
+5.         Diodes’    products   are      provided    subject   to    Diodes’     Standard       Terms      and     Conditions   of    Sale
+(https://www.diodes.com/about/company/terms-and-conditions/terms-and-conditions-of-sales/) or other applicable terms. This document does not
+alter or expand the applicable warranties provided by Diodes. Diodes does not warrant or accept any liability whatsoever in respect of any
+products purchased through unauthorized sales channel.
+
+6.        Diodes’ products and technology may not be used for or incorporated into any products or systems whose manufacture, use or sale is
+prohibited under any applicable laws and regulations. Should customers or users use Diodes’ products in contravention of any applicable laws or
+regulations, or for any unintended or unauthorized application, customers and users will (a) be solely responsible for any damages, losses or
+penalties arising in connection therewith or as a result thereof, and (b) indemnify and hold Diodes and its representatives and agents harmless
+against any and all claims, damages, expenses, and attorney fees arising out of, directly or indirectly, any claim relating to any noncompliance with
+the applicable laws and regulations, as well as any unintended or unauthorized application.
+
+7.          While efforts have been made to ensure the information contained in this document is accurate, complete and current, it may contain
+technical inaccuracies, omissions and typographical errors. Diodes does not warrant that information contained in this document is error-free and
+Diodes is under no obligation to update or otherwise correct this information. Notwithstanding the foregoing, Diodes reserves the right to make
+modifications, enhancements, improvements, corrections or other changes without further notice to this document and any product described
+herein. This document is written in English but may be translated into multiple languages for reference. Only the English version of this document
+is the final and determinative format released by Diodes.
+
+8.        Any unauthorized copying, modification, distribution, transmission, display or other use of this document (or any portion hereof) is
+prohibited. Diodes assumes no responsibility for any losses incurred by the customers or users or any third parties arising from any such
+unauthorized use.
+
+9. This Notice may be periodically updated with the most recent version available at https://www.diodes.com/about/company/terms-and-
+conditions/important-notice
+
+
+The Diodes logo is a registered trademark of Diodes Incorporated in the United States and other countries.
+All other trademarks are the property of their respective owners.
+© 2023 Diodes Incorporated. All Rights Reserved.
+
+www.diodes.com
+
+
+
+
+B120/B - B160/B                                                       6 of 6                                                                         April 2023
+Document number: DS13002 Rev. 20 - 2                              www.diodes.com                         © 2023 Copyright Diodes Incorporated. All Rights Reserved.
+

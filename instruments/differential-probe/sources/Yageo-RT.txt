@@ -1,0 +1,600 @@
+v
+
+
+
+
+    DATA SHEET
+     THIN FILM CHIP RESISTORS
+      High precision - high stability
+                          RT series
+            0.01% TO 1%, TCR 5 TO 50
+       sizes 0100/ 0201/ 0402/ 0603/ 0805/ 1206/
+                                1210/ 2010/ 2512
+                                RoHS compliant
+
+
+
+                                                   Product specification – February 12, 2026 V.17
+                                                                                                                       Product specification   2
+                                                                                                                                               10
+                     Chip Resistor Surface Mount            RT           SERIES           0100 to 2512
+
+
+
+
+SCOPE                                     ORDERING INFORMATION - GLOBAL PART NUMBER & 12NC
+This specification describes RT series    Both part numbers are identified by the series, size, tolerance, packing
+high precision - high stability chip      type, temperature coefficient, taping reel and resistance value.
+resistors with lead-free terminations     YAGEO BRAND ordering code
+made by thin film process.
+                                          GLOBAL PART NUMBER (PREFERRED )
+
+APPLICATIONS                              RT XXXX F X X XX XXXX L
+                                                   (1)     (2) (3) (4)    (5)       (6)      (7)
+⚫   Converters
+                                          (1) SIZE
+⚫   Printing equipment
+                                              RT0100 / 0201 / 0402 / 0603 / 0805 / 1206 / 1210 / 2010 / 2512
+⚫   Server board
+                                          (2) TOLERANCE
+⚫   Telecom
+                                              L = ± 0.01%
+⚫   Consumer
+                                              P = ± 0.02%
+                                              W = ± 0.05%
+FEATURES                                      B = ± 0.1%
+⚫   Halogen Free Epoxy                        C = ± 0.25%
+⚫   RoHS compliant                            D = ± 0.5%
+⚫   Reducing environmentally                  F = ± 1%
+    hazardous wastes                      (3) PACKAGING TYPE
+⚫   High component and equipment              R = Paper/PE taping reel             K = Embossed taping reel
+    reliability                           (4) TEMPERATURE COEFFICIENT OF RESISTANCE
+⚫   Saving of PCB space                       A = 5 ppm/°C
+⚫   None forbidden-materials used in          B = 10 ppm/°C
+    products/production                       C = 15 ppm/°C
+⚫   Moisture sensitivity level: MSL 1         D = 25 ppm/°C
+                                              E = 50 ppm/°C
+                                          (5) TAPING REEL
+                                              07 = 7 inch dia. Reel               10 = 10 inch dia. Reel          13 = 13 inch dia. Reel
+                                              7W= 7 inch dia. Reel with high power (1W for 2512)
+                                          (6) RESISTANCE VALUE
+                                              There are 2~4 digits indicated the resistor value. Letter R/K/M is decimal point.
+                                              Detailed resistance rules show in table of “Resistance rule of global part number”.
+                                          (7) DEFAULT CODE
+                                              Letter L is system default code for order only (Note)
+
+
+                                             Resistance rule of global part                        O RDERING EXAMPLE
+                                             number
+                                                                                                   The ordering code of a RT0603
+                                          Resistance code rule           Example
+                                                                                                   chip resistor, TC 50 value 56 Ω
+                                                                             1R = 1 Ω
+                                          XRXX
+                                                                           1R5 = 1.5 Ω             with ± 0.5% tolerance, supplied in
+                                          (1 to 9.76 Ω)                                            7-inch tape reel is:
+                                                                         9R76 = 9.76 Ω
+                                          XXRX                             10R = 10 Ω              RT0603DRE0756RL.
+                                          (10 to 97.6 Ω)                 97R6 = 97.6 Ω
+                                                                                                   NOTE
+                                          XXXR                                                     1. All our RSMD products meet RoHS
+                                                                          100R = 100 Ω
+                                          (100 to 976 Ω)
+                                                                                                      compliant and Halogen Free. "LFP" of
+                                          XKXX                             1K = 1,000 Ω               the internal 2D reel label mentions
+                                          (1 to 9.76 KΩ)                 9K76 = 9760 Ω                "Lead Free Process"
+                                          XMXX                      1M = 1,000,000 Ω
+                                                                                                   2. On customized label, "LFP" or
+                                          (1 to 9.76 MΩ)           9M76= 9,760,000 Ω                  specific symbol can be printed
+
+
+
+                                                                                                                              www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                                         Product specification   3
+                                                                                                                                                 10
+                     Chip Resistor Surface Mount                    RT            SERIES    0100 to 2512
+
+
+
+
+PHYCOMP BRAND ordering codes
+Both GLOBAL PART NUMBER (preferred) and 12NC (traditional) codes are acceptable to order Phycomp
+brand products. For matching traditional types with size codes, please refer to “Comparison table of traditional
+types and sizes”.
+
+GLOBAL PART NUMBER (PREFERRED )
+For detailed information of GLOBAL PART NUMBER and ordering example, please refer to page 2.
+12NC CODE
+2390       X          XX                         X        XXXX                     L
+  (1)      (2)         (3)                       (4)         (5)                   (6)
+                                                                                                     Comparison table of traditional
+           TCR (2)                                                                 DEFAULT           types and sizes
+START             PACKING CODE TOL . (4)                  RESISTANCE
+                                                                                   CODE            TF     X          X        X
+WITH (1) (ppm/°C) BY SIZE (inch) (3) (%)                  RANGE                    (NOTE)          (1)     (2)        (3)            (4)
+2390       8 = ± 10 0402: 07 = 7'' reel          7 = ±1
+                                                    The remaining 4 digits Letter L is
+                                                                                                   START SIZE         TCR      TOL.
+           7 = ± 15       47 = 13'' reel 6 = ± 0.5 represent the resistance system                 WITH CODE          (ppm/°C) (%)
+                                                    value with the last digit default
+           6 = ± 25 0603: 04 = 7'' reel 5 = ± 0.25 indicating the multiplier code for              TF      3 = 0402 4 = ± 10 0 = ± 1
+           4 = ± 50       24 = 10'' reel 4 = ± 0.1 as shown in the table of order only                     2 = 0603 3 = ± 15 1 = ± 0.5
+                                                                              (Note)
+                          44 = 13'' reel 3 = ± 0.05 “Last digit of 12NC”.                                  1 = 0805 1 = ± 25 2 = ± 0.25
+                      0805: 01 = 7'' reel                 0402: 4.7Ω ≤ R ≤ 240KΩ                           0 = 1206 2 = ± 50 3 = ± 0.1
+                             41 = 13'' reel               0603: 1 Ω ≤ R ≤ 1MΩ                              5 = 1210                  4 = ± 0.05
+                      1206: 11 = 7'' reel                 0805: 1Ω ≤ R ≤ 1.5 MΩ                            7 = 2010
+                             51 = 13'' reel               1206: 1Ω ≤ R ≤ 1.5 MΩ                            6 = 2512
+                      1210: 12 = 7'' reel                 1210: 4.7Ω ≤ R ≤ 1 MΩ                     Example:
+
+                             52 = 13'' reel               2010: 4.7Ω ≤ R ≤ 1 MΩ                    TF321 = RT0402, TC50, ± 0.5% tolerance
+
+                      2010: 15 = 7'' reel                 2512: 4.7Ω ≤ R ≤ 1 MΩ
+                      2512: 18 = 7'' reel                                                          Resistance decade (3)               Last digit
+                                                                                                   1 to 9.76 Ω                                       8
+                                                                                                   10 to 97.6 Ω                                      9
+                                                                                                   100 to 976 Ω                                      1
+Exceptions to above packing code definitions:                                                      1 to 9.76 kΩ                                      2
+0805 TC50 with 1%, supplied in 13" reel, the packing code is 02.
+                                                                                                   10 to 97.6 kΩ                                     3
+0603 TC50 with 1%, supplied in 13" reel, the packing code is 03.
+                                                                                                   100 to 976 kΩ                                     4
+2512 TC15, in 7" reel, the packing code is 35.
+                                                                                                   1 to 9.76 MΩ                                      5
+2010 TC15, in 7" reel, the packing code is 31.
+                                                                                                   10 to 97.6 MΩ                                     6
+O RDERING EXAMPLE                                                                                  Example:      1Ω         =     1008 or 108
+                                                                                                                 33 kΩ      =     3303 or 333
+The ordering code of a TF221 resistor, TC50, value 56 Ω, with ± 0.5%
+                                                                                                                 10 MΩ      =     1006 or 106
+tolerance, supplied in tape of 5,000 units per reel is: 239040465609L or
+RT0603DRE0756RL.
+
+NOTE
+1. All our RSMD products meet RoHS compliant and Halogen Free. "LFP" of the internal 2D reel label mentions "Lead Free Process"
+2. On customized label, "LFP" or specific symbol can be printed
+
+
+
+
+                                                                                                                                www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                                  Product specification      4
+                                                                                                                                            10
+                     Chip Resistor Surface Mount                      RT          SERIES        0100 to 2512
+
+
+
+
+MARKING
+RT0100 / RT0201 / RT0402 / RESISTANCE VALUE IS NOT IN E-24 / E96 SERIES
+
+
+
+                         ynsc007
+                                      No marking
+   Fig. 1
+
+RT0603
+
+                                      E-24 series: exception values 10/11/13/15/20/75 of E -24 series, one short bar
+             563          ynsc003
+                                      under marking letter
+   Fig. 2 Value = 56 kΩ
+
+
+                                      E-96 series: including values 10/11/13/15/20/75 of E-24 series, 3 digits
+   Fig. 3 Value = 12.4 kΩ
+
+RT0805 / RT1206 / RT1210 / RT2010 / RT2512
+
+
+                                      Either resistance in E-24 or E-96: 4 digits
+             00          YNSC004
+                                      First three digits for significant figure and 4th digit for number of zeros
+   Fig. 4 Value = 10 kΩ
+
+For further marking information, please see special data sheet “Chip resistors marking”.
+
+
+CONSTRUCTION
+The resistors are constructed out of a high-grade ceramic                    OUTLINES
+body. Internal metal electrodes are added at each end and
+                                                                              For dimension see Table 1
+connected by a resistive layer. The resistive layer is adjusted
+to give the approximate required resistance and laser cutting
+                                                                                                                   marking layer
+of this resistive layer that achieves tolerance trims the value.
+                                                                                                                   protective coat
+The resistive layer is covered with a protective coat and                                                          resistive layer
+printed with the resistance value. Finally, the two external                                                       inner electrode
+terminations (matte tin) are added. See fig. 5.                               H
+                                                                                                                   termination (Ni / matte tin)
+
+                                                                                                                   ceramic substrate
+                                                                                           I2
+
+DIMENSION
+  Table 1 For outlines see fig. 5                                                          I1
+
+
+TYPE         L (mm)      W (mm)       H (mm)        I1 (mm)      I2 (mm)
+RT0100      0.40± 0.02   0.20± 0.02   0.13± 0.02   0.10± 0.03   0.10± 0.03
+RT0201 0.60 ± 0.03 0.30 ± 0.03 0.23 ± 0.03         0.10 ± 0.05 0.15 ± 0.05
+                                                                              W
+
+
+RT0402 1.00 ± 0.10 0.50 ± 0.05 0.30 ± 0.05         0.20 ± 0.10 0.25 ± 0.10
+RT0603 1.60 ± 0.10 0.80 ± 0.10 0.45 ± 0.10         0.25 ± 0.15 0.25 ± 0.15
+                                                                                                                    YNSC064
+
+                                                                                                          L
+RT0805 2.00 ± 0.10 1.25 ± 0.10 0.50 ± 0.10         0.35 ± 0.20 0.35 ± 0.20
+RT1206 3.10 ± 0.10 1.60 ± 0.10 0.55 ± 0.10         0.45 ± 0.20 0.40 ± 0.20
+                                                                                  Fig. 5 Chip resistor outlines
+RT1210 3.10 ± 0.10 2.60 ± 0.15 0.55 ± 0.10         0.50 ± 0.20 0.50 ± 0.20
+RT2010 5.00 ± 0.10 2.50 ± 0.15 0.55 ± 0.10         0.60 ± 0.20 0.50 ± 0.20
+RT2512 6.35 ± 0.10 3.20 ± 0.15 0.55 ± 0.10         0.60 ± 0.20 0.50 ± 0.20
+
+
+
+
+                                                                                                                         www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                                                           Product specification    5
+                                                                                                                                                                    10
+                     Chip Resistor Surface Mount                     RT            SERIES         0100 to 2512
+
+
+
+
+ELECTRICAL CHARACTERISTICS
+  Table 2
+
+         Operating            Max.     Max.                                     Resistance Range (E-24/E-96 series)(2) & Tolerance
+                       Power Work               T.C.R.                                                                                                        Unit weight
+TYPE     Temperature                   Overload
+                       Rating                   (ppm/°C)                                                                                                       (mg/pcs)
+         Range                Vol. (1) Vol.              ± 0.01%      ± 0.02%         ± 0.05%        ± 0.1%        ± 0.25%      ± 0.5%          ± 1.0%
+            –55°C                                ± 50      ---            ---            ---         50R~5K        50R~5K       50R~5K          50R~5K
+RT0100        to       1/32W 15V         30V                                                                                                                       0.037
+            +125°C                               ± 25      ---            ---            ---         50R~5K        50R~5K       50R~5K          50R~5K
+
+                                                 ± 50      ---            ---            ---         10~75K        10~75K       10~75K          10~75K
+
+            –55°C                                ± 25      ---            ---            ---         10~75K        10~75K       10~75K          10~75K
+
+RT0201        to       1/20W 25V         50V     ± 15      ---            ---            ---         22~5K         22~5K             ---           ---             0.169
+            +125°C                               ± 10      ---            ---            ---         22~5K         22~5K             ---           ---
+
+                                                 ±5        ---            ---            ---            ---           ---            ---           ---
+                                                 ± 50    50.1~12K     50.1~12K        20~12K         4.7~500K      4.7~500K 4.7~500K 4.7~500K
+                                                 ± 25    50.1~12K     50.1~12K        20~12K         4.7~240K      4.7~240K 4.7~240K 4.7~240K
+RT0402                 1/16W 50V         100V    ± 15    20~12K       20~12K          20~12K         10~200K       10~200K     ---      ---                        0.564
+                                                 ± 10    20~12K       20~12K          20~12K         10~200K       10~200K     ---      ---
+                                                 ±5      20~10K       20~10K          20~10K         20~10K        20~10K      ---      ---
+                                                 ± 50    50.1~30K     50.1~30K        4.7~100K       1~2M          1~2M     1~2M     1~2M
+                                                 ± 25    50.1~30K     50.1~30K        4.7~100K       1~1M          1~1M     1~1M     1~1M
+RT0603                 1/10W 75V         150V    ± 15    50.1~100K    50.1~100K       4.7~100K       4.7~680K      4.7~680K    ---      ---                        2.128
+                                                 ± 10    50.1~100K    50.1~100K       4.7~100K       4.7~680K      4.7~680K    ---      ---
+             –55°C
+                                                 ±5      20~30K       20~30K          20~30K         20~30K        20~30K      ---      ---
+               to
+                                                 ± 50    50.1~30K     50.1~30K        4.7~200K       1~3M          1~3M     1~3M     1~3M
+            +155°C
+                                                 ± 25    50.1~30K     50.1~30K        4.7~200K       1~1.5M        1~1.5M 1~1.5M 1~1.5M
+RT0805                 1/8W    150V      300V    ± 15    50.1~200K    50.1~200K       4.7~200K       4.7~1M        4.7~1M      ---      ---                        4.642
+                                                 ± 10    50.1~200K    50.1~200K       4.7~200K       4.7~1M        4.7~1M      ---      ---
+                                                 ±5      20~50K       20~50K          20~50K         20~50K        20~50K      ---      ---
+                                                 ± 50    50.1~30K     50.1~30K        5.6~500K       1~3M          1~3M     1~3M     1~3M
+                                                 ± 25    50.1~30K     50.1~30K        5.6~500K       1~1.5M        1~1.5M 1~1.5M 1~1.5M
+RT1206                 1/4W    200V      400V    ± 15    50.1~500K    50.1~500K       5.6~500K       5.6~1.5M      5.6~1.5M    ---      ---                        9.996
+                                                 ± 10    50.1~500K    50.1~500K       5.6~500K       5.6~1.5M      5.6~1.5M    ---      ---
+                                                 ±5      20~100K      20~100K         20~100K        20~100K       20~100K     ---      ---
+                                                 ± 50      ---            ---         4.7~1M         4.7~1M        4.7~1M       4.7~1M          4.7~1M
+                                                 ± 25      ---            ---         4.7~1M         4.7~1M        4.7~1M       4.7~1M          4.7~1M
+RT1210                 1/4W    200V      400V    ± 15      ---            ---         100~100K       4.7~100K      4.7~100K          ---           ---             16.370
+                                                 ± 10      ---            ---         100~100K       4.7~100K      4.7~100K          ---           ---
+                                                 ±5        ---            ---            ---            ---           ---            ---           ---
+                                                 ± 50      ---            ---         4.7~1M         4.7~1M        4.7~1M       4.7~1M          4.7~1M
+                                                 ± 25      ---            ---         4.7~1M         4.7~1M        4.7~1M       4.7~1M          4.7~1M
+RT2010      –55°C      1/2W    200V      400V    ± 15      ---            ---         100~100K       4.7~100K      4.7~100K          ---           ---             25.011
+              to                                 ± 10      ---            ---         100~100K       4.7~100K      4.7~100K          ---           ---
+            +125°C                               ±5        ---            ---            ---            ---           ---            ---           ---
+                                                 ± 50      ---            ---         4.7~1M         4.7~1M        4.7~1M       4.7~1M          4.7~1M
+                                                 ± 25      ---            ---         4.7~1M         4.7~1M        4.7~1M       4.7~1M          4.7~1M
+                       3/4W    200V      400V    ± 15      ---            ---         100~100K       4.7~100K      4.7~100K          ---           ---
+RT2512                                           ± 10      ---            ---         100~100K       4.7~100K      4.7~100K          ---           ---             40.351
+                                                 ±5        ---            ---            ---            ---           ---            ---           ---
+                                                 ± 50      ---            ---         10Ω~1M         10Ω~1M        10Ω~1M 10Ω~1M 10Ω~1M
+                       1W      200V      400V
+                                                 ± 25      ---            ---         10Ω~1M         10Ω~1M        10Ω~1M 10Ω~1M 10Ω~1M
+
+NOTE
+1. The maximum working voltage that may be continuously applied to the resistor element, see “IEC publication 60115-8”
+2. Value of E-192 series is on request
+
+
+                                                                                                                                                  www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                                                        Product specification   6
+                                                                                                                                                                10
+                     Chip Resistor Surface Mount                   RT         SERIES                0100 to 2512
+
+
+
+
+FOOTPRINT AND SOLDERING PROFILES
+For recommended footprint and soldering profiles, please see the special data sheet “Chip resistors mounting”.
+
+
+PACKING STYLE AND PACKAGING QUANTITY
+   Table 3 Packing style and packaging quantity
+PACKING STYLE                        REEL RT0100 RT0201 RT0402 RT0603 RT0805 RT1206 RT1210 RT2010 RT2512
+                                DIMENSION
+Paper/PE taping reel (R)          7" (178 mm)     10,000     10,000     10,000         5,000           5,000       5,000         5,000             ---           ---
+                                10" (254 mm)      20,000     20,000     20,000      10,000            10,000    10,000          10,000             ---           ---
+                                13" (330 mm)      50,000     50,000     50,000      20,000            20,000    20,000          20,000             ---           ---
+Embossed taping reel (K)          7" (178 mm)          ---        ---       ---               ---         ---        ---           ---        4,000         4,000
+
+NOTE
+1. For Paper/Embossed tape and reel specification/dimensions, please see the special data sheet “Chip resistors packing”
+
+
+
+
+FUNCTIONAL DESCRIPTION
+POWER RATING                                                                       P                                                          MLB206_RT_1
+                                                                            (%Prated )
+Each type rated power at 70°C:
+                                                                                  100
+RT0100=1/32W
+RT0201=1/20W, RT0402=1/16W, RT0603=1/10W,
+                                                                                                                                           RT0402~1206
+RT0805=1/8W, RT1206=1/4W, RT1210=1/4W,
+                                                                                   50
+RT2010=1/2W, RT2512=3/4W, 1W                                                              RT0100,RT0201, RT1210 ~ 2512
+
+R ATED VOLTAGE
+The DC or AC (rms) continuous working voltage                                        0
+                                                                                         55              0          50     70     100    125 155
+corresponding to the rated power is determined by                                                                                               o
+                                                                                                                                          Tamb ( C)
+the following formula:
+                                                                         Fig. 6 Maximum dissipation (P) in percentage of rated power as a
+  V= (PxR)                                                                      function of the operating ambient temperature (T amb )
+
+  or max. working voltage whichever is less
+  Where
+  V=Continuous rated DC or
+    AC (rms) working voltage (V)
+  P=Rated power (W)
+  R=Resistance value (Ω)
+
+
+
+
+                                                                                                                                               www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                                      Product specification   7
+                                                                                                                                              10
+                     Chip Resistor Surface Mount               RT            SERIES         0100 to 2512
+
+
+
+
+TESTS AND REQUIREMENTS
+   Table 4 Test condition, procedure and requirements
+TEST                   TEST METHOD               PROCEDURE                                                 REQUIREMENTS
+Temperature            MIL-STD-202 Method 304    At +25/–55 °C and +25/+125 °C                             Refer to table 2
+Coefficient of
+Resistance                                       Formula:
+(T.C.R.)                                                       R2–R1
+                                                 T.C.R= ------------------------- × 106 (ppm/°C)
+                                                            R1(t2–t1)
+
+                                                 Where
+                                                 t1=+25 °C or specified room temperature
+                                                 t2=–55 °C or +125 °C test temperature
+                                                 R1=resistance at reference temperature in ohms
+                                                 R2=resistance at test temperature in ohms
+
+
+Life/Endurance         IEC 60115-1 4.25.1        At 70± 5 °C for 1,000 hours, rated voltage applied        ± (0.5%+0.05 Ω)
+                       MIL-STD-202 Method 108A   for 1.5 hours on, 0.5 hour off, still air required
+
+
+High                   IEC 60068-2-2             1000 hours at maximum operating temperature               ± (0.5%+0.05 Ω)
+Temperature                                      depending on specification, unpowered
+Exposure
+
+
+Moisture               MIL-STD-202 Method 106G   Each temperature / humidity cycle is defined at 8         ± (0.5%+0.05 Ω)
+Resistance                                       hours, 3 cycles / 24 hours for 10d. with 25 °C /
+                                                 65 °C 95% R.H, without steps 7a & 7b,
+                                                 unpowered
+                                                 Parts mounted on test-boards, without
+                                                 condensation on parts
+                                                 Measurement at 24± 2 hours after
+                                                 test conclusion
+
+
+Thermal Shock          MIL-STD-202 Method 107G   -55/+125 °C                                               ± (0.5%+0.05 Ω)
+                                                 Number of cycles required is 300.
+                                                 Devices mounted
+                                                 Maximum transfer time is 20 seconds.
+                                                 Dwell time is 15 minutes. Air – Air
+
+
+Humidity                IEC 60115-1 4.24.2       Steady state for 1000 hours at 40 °C / 95% R.H.           ± (0.5%+0.05 Ω)
+(steady state)                                   rated voltage applied for 1.5 hours on and
+                                                 0.5 hour off
+
+
+
+
+                                                                                                                              www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                                Product specification   8
+                                                                                                                                        10
+                     Chip Resistor Surface Mount           RT           SERIES       0100 to 2512
+
+
+
+
+TEST                       TEST METHOD                 PROCEDURE                                        REQUIREMENTS
+Short Time Overload        IEC60115-1 4.13             2.5 times of rated voltage or maximum           ± (0.5%+0.05 Ω)
+                                                       overload voltage whichever is less for 5 sec at No visible damage
+                                                       room temperature
+
+
+Board Flex/                IEC 60115-1 4.33            Chips mounted on a glass epoxy resin PCB      ± (0.25%+0.05 Ω)
+Bending                                                (FR4)                                         No visible damage
+                                                       Bending: see table 5 for each size            RT0100± (0.5%+0.05 Ω)
+                                                       Bending time: 60± 5 seconds
+
+
+Solderability
+                                                      Electrical Test not required                      Well tinned (≥95%
+    - Wetting              J-STD-002 test B
+                                                      Magnification 50X                                 covered)
+                                                                                                        No visible damage
+                                                      SMD conditions:
+                                                      1st step: method B, aging 4 hours at 155°C
+                                                                dry heat
+                                                      2nd step: leadfree solder bath at 245± 3°C
+                                                                Dipping time: 3± 0.5 seconds
+
+
+    - Leaching             J-STD-002 test D            Leadfree solder, 260 °C, 30 seconds              No visible damage
+                                                       immersion time
+
+
+     - Resistance to       IEC 60115-1 4.18            Condition B, no pre-heat of samples.             ± (0.5%+0.05 Ω)
+      Soldering Heat                                   Leadfree solder, 260 °C, 10 seconds              No visible damage
+                                                       immersion time
+                                                       Procedure 2 for SMD: devices fluxed and
+                                                       cleaned with isopropanol
+
+
+
+
+   Table 5 Bending for sizes 0100 to 2512
+TYPE                        RT0100       RT0201   RT0402    RT0603         RT0805       RT1206      RT1210      RT2010          RT2512
+Specification (mm)                 5          5        5            3            3             2          2              2                   2
+
+
+
+
+Application guidance and safety reminders are provided in the“YAGEO Group SMD Chip Resistor Application & Safety
+Guide”, available on the YAGEO Group official website.
+
+
+
+
+                                                                                                                       www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                         Product specification   9
+                                                                                                                                 10
+                     Chip Resistor Surface Mount   RT         SERIES         0100 to 2512
+
+
+
+
+REVISION HISTORY
+
+REVISION DATE                CHANGE NOTIFICATION   DESCRIPTION
+Version 17   Feb. 12, 2026 -                       - Add application guidance and safety reminders
+                                                   - RT0201 extend resistance range
+Version 16   May 06, 2025 -                        - Add feature MSL=1
+Version 15   Mar. 13, 2023 -                       - RT0402 extend resistance range
+Version 14   Nov. 23, 2022 -                       - Add unit weight information
+                                                   - RT0402/RT0603/RT0805/RT1206 Extend resistor range
+Version 13   July 07, 2022   -
+                                                   - Add RT0100
+Version 12   Apr. 21, 2020 -                       - Modified resistance range
+Version 11   July 2, 2019    -                     - Add 1W for 2512
+Version 10   Jun. 12, 2019   -                     - Extend resistor value
+Version 9    Sep. 12, 2017 -                       - Add ± 0.02% tol. for 0402 to 1206
+Version 8    May 31, 2017 -                        - Add 10" packing
+Version 7    Jan. 17, 2017   -                     - Add ± 0.01% tol. for 0402 to 1206
+Version 6    May. 11, 2015 -                       - Extend resistor value
+                                                   - Add RT0201
+                                                   - RT0402/0603/0805/1206: resistance range and operating temperature
+Version 5    Aug. 22, 2014 -
+                                                     range updated
+                                                   - Fig. 6 updated
+
+                                                   - Test Items and methods updated
+Version 4    Oct 21, 2009 -
+                                                   - Test requirements upgraded
+
+                                                   - Change to dual brand datasheet that describe RT0402 to RT2512 with
+                                                     RoHS compliant
+Version 3    Jul 11, 2008    -                     - Description of "Halogen Free Epoxy" added
+                                                   - Define global part number
+                                                   - Modify electrical characteristic
+
+                                                   - New datasheet for thin film high precision - high stability chip resistors
+                                                     sizes of 0201/0402/0603/0805/1206/1210/2010/2512, 1%, 0.5%, 0.25%,
+                                                     0.1%, 0.05%, TC25/50 with lead-free terminations
+                                                   - Replace the 0402 to 1210 parts of pdf files: TFx10_1_1, TFx11_.5_2,
+Version 2    Dec 26, 2005 -
+                                                     TFx12_.25_2, TFx13_.1_3, TFx14_.05_1, TFx20_1_2, TFx21_.5_2,
+                                                     TFx22_.25_2, TFx23_.1_2, TFx24_.05_1, and combine into a document.
+                                                   - Test method and procedure updated
+                                                   - PE tape added (paper tape will be replaced by PE tape)
+
+
+
+
+                                                                                                                www.yageo.com
+Feb. 12, 2026 V.17
+                                                                                                     Product specification   10
+                                                                                                                             10
+                     Chip Resistor Surface Mount        RT       SERIES    0100 to 2512
+
+
+
+
+LEGAL DISCLAIMER
+
+
+YAGEO, its distributors and agents (collectively, “YAGEO”), hereby disclaims any and all liabilities for any
+errors, inaccuracies or incompleteness contained in any product related information, including but not limited
+to product specifications, datasheets, pictures and/or graphics. YAGEO may make changes, modifications and/or
+improvements to product related information at any time and without notice.
+
+
+YAGEO makes no representation, warranty, and/or guarantee about the fitness of its products for any
+particular purpose or the continuing production of any of its products. To the maximum extent permitted by
+law, YAGEO disclaims (i) any and all liability arising out of the application or use of any YAGEO product, (ii)
+any and all liability, including without limitation special, consequential or incidental damages, and (iii) any and all
+implied warranties, including warranties of fitness for a particular purpose, non -infringement and
+merchantability.
+
+
+YAGEO products are designed for general purpose applications under normal operation and usage conditions.
+Please contact YAGEO for the applications listed below which require especially high reliability for the
+prevention of defects which might directly cause damage to the third party's life, body or property: Aerospace
+equipment (artificial satellite, rocket, etc.), Atomic energy -related equipment, Aviation equipment, Disaster
+prevention equipment, crime prevention equipment, Electric heating apparatus, burning equipment, Highly
+public information network equipment, data-processing equipment , Medical devices, Military equipment, Power
+generation control equipment, Safety equipment, Traffic signal equipment, Transportation equipment and
+Undersea equipment, or for any other application or use in which the failure of YAGEO products could result
+in personal injury or death, or serious property damage. Particularly YAGEO Corporation and its affiliates
+do not recommend the use of commercial, automotive, and/or COTS grade products for high
+reliability applications or manned space flight.
+
+
+Information provided here is intended to indicate product specifications only. YAGEO reserves all the rights
+for revising this content without further notification, as long as products are unchanged. Any product change
+will be announced by PCN.
+
+
+
+
+                                                                                                            www.yageo.com
+Feb. 12, 2026 V.17
+

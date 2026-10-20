@@ -1,0 +1,313 @@
+                                                                                                                                   BAV16W/1N4148W
+                                                                                                  SURFACE-MOUNT FAST SWITCHING DIODE
+
+
+Features                                                                            Mechanical Data
+•   Fast Switching Speed                                                            •      Package: SOD123
+•   Low-Forward Voltage: maximum of 0.715V at 1mA                                   •      Package Material: Molded Plastic, “Green” Molding Compound.
+•   Fast Reverse Recovery: maximum of 4ns                                                  UL Flammability Classification Rating 94V-0
+•   Low Capacitance: maximum of 2pF                                                 •      Moisture Sensitivity: Level 1 per J-STD-020
+•   Surface-Mount Package Ideally Suited for Automated Insertion                    •      Terminals: Matte Tin Finish Annealed over Alloy 42 Leadframe
+•   For General Purpose Switching Applications                                             (Lead-Free Plating). Solderable per MIL-STD-202, Method 208
+•   Totally Lead-Free & Fully RoHS Compliant (Notes 1 & 2)                          •      Polarity: Cathode Band
+•   Halogen and Antimony Free. “Green” Device (Note 3)                              •      Weight: 0.01 grams (Approximate)
+•   The 1N4148WQ is suitable for automotive applications
+    requiring specific change control; this part is AEC-Q101
+    qualified, PPAP capable, and manufactured in IATF 16949
+    certified facilities.
+    https://www.diodes.com/quality/product-definitions/
+
+
+
+
+                                                                            SOD123
+
+
+
+
+                                                                            Top View
+
+
+
+Ordering Information (Note 4)
+                                                                                                                         Packing
+         Orderable Part Number                           Package
+                                                                                                     Qty.                                        Carrier
+              BAV16W-7-F                                  SOD123                                    3,000                                      Tape & Reel
+              1N4148W-7-F                                 SOD123                                    3,000                                      Tape & Reel
+             1N4148WQ-7-F                                 SOD123                                    3,000                                      Tape & Reel
+             1N4148W-13-F                                 SOD123                                    10,000                                     Tape & Reel
+            1N4148WQ-13-F                                 SOD123                                    10,000                                     Tape & Reel
+Notes:      1. No purposely added lead. Fully EU Directive 2002/95/EC (RoHS), 2011/65/EU (RoHS 2) & 2015/863/EU (RoHS 3) compliant.
+            2. See https://www.diodes.com/quality/lead-free/ for more information about Diodes Incorporated’s definitions of Halogen- and Antimony-free, "Green" and
+               Lead-free.
+            3. Halogen- and Antimony-free "Green” products are defined as those which contain <900ppm bromine, <900ppm chlorine (<1500ppm total Br + Cl) and
+               <1000ppm antimony compounds.
+            4. For packaging details, go to our website at https://www.diodes.com/design/support/packaging/diodes-packaging/.
+
+
+
+Marking Information
+                                                          SOD123
+                                                                                  xx = Product Type Marking Code (T4)
+                                                                                  YM = Date Code Marking
+                                                                                  Y = Year (ex: L = 2024)
+                                                                                  M = Month (ex: 9 = September)
+                                                                                  A Bar around the Date Code Marking Denotes Assembly Site
+
+
+Date Code Key
+       Year               2001          -         2024        2025        2026          2027     2028        2029          2030          2031         2032          2033
+      Code                 M            -          L           M           N             P        R           S             T             U            V             W
+         Month             Jan         Feb         Mar         Apr        May           Jun        Jul       Aug            Sep          Oct           Nov          Dec
+         Code               1           2           3           4          5             6          7           8             9            O             N            D
+
+
+BAV16W/1N4148W                                                              1 of 5                                                                      September 2024
+Document number: DS30086 Rev. 31 - 2                                    www.diodes.com                              © 2024 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                             BAV16W/1N4148W
+
+
+Maximum Ratings (@ TA = +25°C, unless otherwise specified.)
+                            Characteristic                                            Symbol                      Value                             Unit
+Peak Repetitive Reverse Voltage                                                        VRRM
+Working Peak Reverse Voltage                                                           VRWM                        100                                V
+DC Blocking Voltage                                                                     VR
+RMS Reverse Voltage                                                                   VR(RMS)                       71                                V
+Forward Continuous Current                                                              IFM                        300                              mA
+Non-Repetitive Peak Forward Surge Current                  @ t = 1.0µs                                             2.0
+                                                                                       IFSM                                                           A
+                                                           @ t = 1.0s                                              1.0
+
+
+
+
+Thermal Characteristics
+                            Characteristic                                            Symbol                      Value                             Unit
+Power Dissipation (Note 5)                                                              PD                         400                              mW
+Thermal Resistance Junction to Ambient Air (Note 5)                                    RJA                        315                             °C/W
+Operating and Storage Temperature Range                                               TJ, TSTG                 -55 to +150                           °C
+
+
+
+
+Electrical Characteristics (@ TA = +25°C, unless otherwise specified.)
+                            Characteristic                                   Symbol              Min       Max            Unit              Test Condition
+Reverse Breakdown Voltage (Note 6)                                            V(BR)R             100        ⎯               V         IR = 1.0µA
+                                                                                                          0.715                       IF = 1.0mA
+                                                                                                          0.855                       IF = 10mA
+Forward Voltage                                                                VFM               ⎯                          V
+                                                                                                           1.0                        IF = 50mA
+                                                                                                           1.25                       IF = 150mA
+                                                                                                            1.0            µA         VR = 75V
+                                                                                                            50             µA         VR = 75V, TJ = +150°C
+Peak Reverse Current (Note 6)                                                   IRM              ⎯
+                                                                                                            30             µA         VR = 25V, TJ = +150°C
+                                                                                                            25             nA         VR = 20V
+Total Capacitance                                                               CT               ⎯          2.0            pF         VR = 0, f = 1.0MHz
+                                                                                                                                      IF = IR = 10mA,
+Reverse Recovery Time                                                           tRR              ⎯          4.0            ns
+                                                                                                                                      IRR = 0.1 x IR, RL = 100Ω
+Notes:    5. Part mounted on FR-4 PC board, double-sided, with 3oz copper plating and with anode and cathode terminal pad dimensions of 2" x 2".
+          6. Short duration pulse test used to minimize self-heating effect.
+
+
+
+
+BAV16W/1N4148W                                                           2 of 5                                                                   September 2024
+Document number: DS30086 Rev. 31 - 2                                 www.diodes.com                           © 2024 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                                                                                                       BAV16W/1N4148W
+
+                                                     500                                                                                                            1
+
+
+
+
+                                                                                                                        IF, INSTANTANEOUS FORWARD CURRENT (A)
+                                                                                                 Note65
+                                                                                                Note
+                       P D, POWER DISSIPATION (mW)
+
+
+
+
+                                                     400
+
+                                                                                                                                                                  0.1
+                                                     300
+
+
+
+                                                     200
+                                                                                                                                                                 0.01
+
+
+                                                     100
+
+
+
+                                                       0                                                                                                        0.001
+                                                           0         25      50     75       100     125    150                                                         0                0.5             1.0            1.5
+                                                                     TA, AMBIENT TEMPERATURE (°C)                                                                        V F, INSTANTANEOUS FORWARD VOLTAGE (V)
+                                                                       Figure 1 Power Derating Curve                                                                           Figure 2 Typical Forward Characteristics
+
+
+
+
+                                     10,000
+  IR , INSTANTANEOUS REVERSE CURRENT (nA)
+
+
+
+
+                                              1,000
+
+
+
+                                                     100
+
+
+
+                                                      10
+
+
+
+                                                       1
+
+
+
+                                                      0.1
+                                                            0             20       40        60       80       100
+                                                                V R , INSTANTANEOUS REVERSE VOLTAGE (V)
+                                                                      Figure 3 Typical Reverse Characteristics
+
+
+
+
+BAV16W/1N4148W                                                                                                      3 of 5                                                                                                  September 2024
+Document number: DS30086 Rev. 31 - 2                                                                            www.diodes.com                                                          © 2024 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                         BAV16W/1N4148W
+
+
+Package Outline Dimensions
+Please see http://www.diodes.com/package-outlines.html for the latest version.
+
+                                                                              SOD123
+
+
+
+
+                                                       00
+                   °                              0. 1                                              100
+              ll 7                           ll R                                            R 0.
+          A                              A                                             All
+                                                                                                                      SOD123
+                                                               A                                             Dim Min Max Typ
+                                                    a
+                                                                                                              A     1.00 1.35 1.05
+                                                                                                             A1     0.00 0.10 0.05
+      c                                   L                 All 7                 A1
+                                                                 °                                            b     0.52 0.62 0.57
+                                                                                                              c     0.10 0.15 0.11
+                           He                                                                                 D     1.40 1.70 1.55
+                                                                                                              E     2.55 2.85 2.65
+                           E                                                                                 He     3.55 3.85 3.65
+                                                                                                              L     0.25 0.40 0.30
+                                                                                                              a      0º    8º    --
+                                                                                                              All Dimensions in mm
+                                                    b D
+
+
+
+
+Suggested Pad Layout
+Please see http://www.diodes.com/package-outlines.html for the latest version.
+
+                                                                              SOD123
+
+
+
+
+                                               X1
+
+                                                                                                           Dimensions Value (in mm)
+                                                                                                               X          0.900
+                                                                              Y                                X1         4.050
+                                                                                                               Y          0.950
+
+                                                                     X
+
+
+
+
+BAV16W/1N4148W                                                               4 of 5                                                           September 2024
+Document number: DS30086 Rev. 31 - 2                                     www.diodes.com                   © 2024 Copyright Diodes Incorporated. All Rights Reserved.
+                                                                                                                        BAV16W/1N4148W
+
+
+                                                                IMPORTANT NOTICE
+
+1.      DIODES INCORPORATED (Diodes) AND ITS SUBSIDIARIES MAKE NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, WITH
+REGARDS TO ANY INFORMATION CONTAINED IN THIS DOCUMENT, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+RIGHTS (AND THEIR EQUIVALENTS UNDER THE LAWS OF ANY JURISDICTION).
+
+2.         The Information contained herein is for informational purpose only and is provided only to illustrate the operation of Diodes’ products
+described herein and application examples. Diodes does not assume any liability arising out of the application or use of this document or any
+product described herein. This document is intended for skilled and technically trained engineering customers and users who design with Diodes’
+products. Diodes’ products may be used to facilitate safety-related applications; however, in all instances customers and users are responsible for
+(a) selecting the appropriate Diodes products for their applications, (b) evaluating the suitability of Diodes’ products for their intended applications,
+(c) ensuring their applications, which incorporate Diodes’ products, comply the applicable legal and regulatory requirements as well as safety and
+functional-safety related standards, and (d) ensuring they design with appropriate safeguards (including testing, validation, quality control
+techniques, redundancy, malfunction prevention, and appropriate treatment for aging degradation) to minimize the risks associated with their
+applications.
+
+3.           Diodes assumes no liability for any application-related information, support, assistance or feedback that may be provided by Diodes
+from time to time. Any customer or user of this document or products described herein will assume all risks and liabilities associated with such
+use, and will hold Diodes and all companies whose products are represented herein or on Diodes’ websites, harmless against all damages and
+liabilities.
+
+4.         Products described herein may be covered by one or more United States, international or foreign patents and pending patent
+applications. Product names and markings noted herein may also be covered by one or more United States, international or foreign trademarks
+and trademark applications. Diodes does not convey any license under any of its intellectual property rights or the rights of any third parties
+(including third parties whose products and services may be described in this document or on Diodes’ website) under this document.
+
+5.         Diodes’    products   are      provided    subject   to    Diodes’     Standard       Terms      and     Conditions   of    Sale
+(https://www.diodes.com/about/company/terms-and-conditions/terms-and-conditions-of-sales/) or other applicable terms. This document does not
+alter or expand the applicable warranties provided by Diodes. Diodes does not warrant or accept any liability whatsoever in respect of any
+products purchased through unauthorized sales channel.
+
+6.        Diodes’ products and technology may not be used for or incorporated into any products or systems whose manufacture, use or sale is
+prohibited under any applicable laws and regulations. Should customers or users use Diodes’ products in contravention of any applicable laws or
+regulations, or for any unintended or unauthorized application, customers and users will (a) be solely responsible for any damages, losses or
+penalties arising in connection therewith or as a result thereof, and (b) indemnify and hold Diodes and its representatives and agents harmless
+against any and all claims, damages, expenses, and attorney fees arising out of, directly or indirectly, any claim relating to any noncompliance with
+the applicable laws and regulations, as well as any unintended or unauthorized application.
+
+7.          While efforts have been made to ensure the information contained in this document is accurate, complete and current, it may contain
+technical inaccuracies, omissions and typographical errors. Diodes does not warrant that information contained in this document is error-free and
+Diodes is under no obligation to update or otherwise correct this information. Notwithstanding the foregoing, Diodes reserves the right to make
+modifications, enhancements, improvements, corrections or other changes without further notice to this document and any product described
+herein. This document is written in English but may be translated into multiple languages for reference. Only the English version of this document
+is the final and determinative format released by Diodes.
+
+8.        Any unauthorized copying, modification, distribution, transmission, display or other use of this document (or any portion hereof) is
+prohibited. Diodes assumes no responsibility for any losses incurred by the customers or users or any third parties arising from any such
+unauthorized use.
+
+9. This Notice may be periodically updated with the most recent version available at https://www.diodes.com/about/company/terms-and-
+conditions/important-notice
+
+
+The Diodes logo is a registered trademark of Diodes Incorporated in the United States and other countries.
+All other trademarks are the property of their respective owners.
+© 2024 Diodes Incorporated. All Rights Reserved.
+
+www.diodes.com
+
+
+
+
+BAV16W/1N4148W                                                        5 of 5                                                                 September 2024
+Document number: DS30086 Rev. 31 - 2                              www.diodes.com                         © 2024 Copyright Diodes Incorporated. All Rights Reserved.
+
