@@ -1,0 +1,31 @@
+# Dual amplifiers: preserve the divider geometry
+
+Research date: 2026-10-20. Scope: Rev B differential probe only; no circuit, BOM or CAD changes. Baseline: [README](../../README.md), [circuit calculations](../circuit-revb.md), [BOM](../../bom.csv), and [placement](../../layout/placement.tsv).
+
+**Verdict:** evaluate one OPA2810 dual for the subtractor and final output buffer. Keep the continuously driven, potentially saturated fine amplifier separate. Retain distributed input buffers; changing those singles to smaller packages is a better first experiment than centralizing them. These are prototype candidates, with bandwidth, CMRR and overload acceptance still unproved.
+
+## Exact candidates and connections
+
+**ADA4817-2ACPZ-R7:** 16-lead, 4 × 4 mm LFCSP, CP-16-20. Pins 1/2 are −IN1/+IN1; 4/5/6/7/8 are −VS2/OUT2/+VS2/PD2/FB2; 9/10 are −IN2/+IN2; 12/13/14/15/16 are −VS1/OUT1/+VS1/PD1/FB1. Pins 3/11 are NIC. Exposed paddle permits ground or negative supply connection. Tie both PD pins high for operation and retain independent local bypassing. It requires a new symbol/footprint and feedback routing. At ±5 V: 19 mA/channel typical, 2/20 pA typical/maximum bias, 2 mV maximum offset; LFCSP drift is 10/50 µV/°C typical/maximum. Input capacitance is 1.3 pF common-mode and 0.1 pF differential. The 5–10 V supply range accepts the approximately 9.607 V rail span; positive input common mode stops 2.8 V below the positive rail. ±1.5 V divided inputs fit nominally. [ADI Rev I, tables 1, 4, 7 and ordering guide](https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf).
+
+**OPA2810IDGKR:** dual VSSOP-8, DGK, 3 × 3 mm body; **OPA2810IDR** is the easier-assembly SOIC-8 alternative. Pin sequence 1–8: OUT1, −IN1, +IN1, V−, +IN2, −IN2, OUT2, V+. This differs from the present single pinout. Specifications at 10 V include 70 MHz GBWP, 3.6 mA/channel typical, 2/20 pA bias, 1.5 mV maximum offset, 13 µV/°C maximum drift, and 2.5/0.5 pF common/differential capacitance. Supply range is 4.75–27 V. Channel offset mismatch has a 2.5 mV maximum; 3% GBWP mismatch and −93 dBc crosstalk at 100 kHz are typical. Input differential capability reaches 7 V under the stated conditions. The existing OPA810IDR has a tighter 500 µV offset maximum: rebuild the analog-zero budget. [TI Rev C, §§6–7](https://www.ti.com/lit/ds/symlink/opa2810.pdf?ts=1776607839273), [OPA810 Rev E](https://www.ti.com/lit/ds/symlink/opa810.pdf).
+
+## Geometry and useful area
+
+The input-buffer centers are (141,20) and (141,55) mm. The paired ladders, clamps, low-leg capacitors and trims follow the same 35 mm translation. A central 4 mm dual cannot retain both local input positions: even orienting its inputs toward the two legs leaves roughly (35−4)/2 = **15.5 mm transverse reach per leg**, before actual pad geometry and routing. These are divider-tap connections, approximately 5 kΩ at DC with substantial compensating shunt capacitance, rather than buffered outputs. Lengthening them increases exposure to the shield, output copper, contamination and unequal parasitics. A symmetric central layout is possible, but equal lengths alone do not establish equal capacitance or transfer functions.
+
+An ideal two-path 60 dB rejection budget allows approximately 0.1% relative transfer mismatch. If entirely spent on delay, that is only about **32 ps at 5 MHz**. This illustrates why a physically compact dual does not automatically improve system CMRR. Calibration must include the fitted shield and actual taps.
+
+Existing ADA and OPA footprints each have a 7.4 × 5.4 mm courtyard bounding rectangle: 39.96 mm². The KiCad DGK footprint bounds 6.36 × 3.5 mm: 22.26 mm². Replacing two output singles saves **57.66 mm² of courtyard bounding area**, only **0.286%** of the 240 × 84 = 20,160 mm² board. SOIC dual saves 39.96 mm², 0.198%. These are component-envelope comparisons, not recoverable board-outline area; passives, routing and HV geometry remain controlling constraints. ADA dual body area is 16 mm² versus 38.22 mm² for two current SOIC bodies. Its validated courtyard remains to be designed, so no exact courtyard saving is claimed.
+
+The verified **ADA4817-1ACPZ-R7** alternative keeps one 3 × 3 mm LFCSP at each tap. Two such bodies occupy 18 mm², just 2 mm² more than the dual, while preserving distributed placement. Reflow, exposed-pad inspection and fresh pin mapping are required.
+
+## Coupling, power and acceptance
+
+The dual ADA still consumes about 365 mW quiescent using the ±5 V typical current and actual rail span; packaging does not halve current. Published JEDEC thermal resistance predicts approximately 23°C rise for the dual versus 14°C per present SOIC single, excluding drive power. OPA2810 similarly consumes about 69 mW for both channels. These are estimates, not board temperatures. Shared silicon may improve temperature correlation, but guaranteed channel tracking of offset drift and input-capacitance temperature coefficient was not established from these datasheets. Thermal correlation alone cannot establish CMRR.
+
+Prefer pairing U3 subtractor with U4 output buffer; their signals are already buffered and compact feedback loops can be retained. Pairing U12 fine gain with either introduces a continuously clipping neighbor during wide operation. TI's typical linear crosstalk data and the existing single-amplifier macromodel saturation result cannot establish isolation through shared silicon and supplies.
+
+Test an amplifier coupon at actual rail impedances: sweep both ranges DC–5 MHz with real cable loading; measure zero and gain versus temperature; drive common-mode and differential signals separately; and hold fine gain in both clipping polarities while observing wide-output error, spectrum and recovery. Include startup, range switching, overload duration and regulator disturbance. Recalibrate and repeat CMRR with the complete divider/shield before adopting a dual input layout.
+
+Catalog evidence: PCBParts cached JLC search returned ADA4817-2ACPZ-R7/C578929, OPA2810IDGKR/C2864204 and OPA2810IDR/C1849413 as extended parts. This supports catalog presence only; live inventory, price and procurement are unverified. No dual substitution has been simulated or measured here.

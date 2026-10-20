@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-10-20T15:44:52",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "pitch21-slot-air-fail.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Clearance violation (rule 'TIP_P to Net-(R21-Pad2)' clearance 10.0000 mm; actual 9.6250 mm)",
+            "items": [
+                {
+                    "description": "Pad 1 [Net-(R21-Pad2)] of R21_2_geometry on F.Cu",
+                    "pos": {
+                        "x": 37.4625,
+                        "y": 41.0
+                    },
+                    "uuid": "71e7b12a-95df-4263-afab-ed31c1096045"
+                },
+                {
+                    "description": "Pad 1 [TIP_P] of C1_1_geometry on F.Cu",
+                    "pos": {
+                        "x": 36.95,
+                        "y": 28.0
+                    },
+                    "uuid": "f8691525-d6e9-4bd8-b3c3-e69108a08866"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        }
+    ]
+}

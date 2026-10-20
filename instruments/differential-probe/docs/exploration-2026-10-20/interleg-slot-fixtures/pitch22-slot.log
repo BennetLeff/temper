@@ -1,0 +1,5 @@
+command: kicad-cli pcb drc --all-track-errors --format json -o instruments/differential-probe/docs/exploration-2026-10-20/interleg-slot-fixtures/pitch22-slot.json instruments/differential-probe/docs/exploration-2026-10-20/interleg-slot-fixtures/pitch22-slot.kicad_pcb
+returncode: 0
+Found 0 violations
+Found 0 unconnected items
+Saved DRC Report to instruments/differential-probe/docs/exploration-2026-10-20/interleg-slot-fixtures/pitch22-slot.json
