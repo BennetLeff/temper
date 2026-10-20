@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T17:17:09</date>
+    <date>2026-10-20T17:26:22</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -1267,21 +1267,21 @@
       </units>
     </comp>
     <comp ref="J3">
-      <value>BNC / PCB right-angle / 50 R</value>
-      <footprint>Connector_Coaxial:BNC_TEConnectivity_1478035_Horizontal</footprint>
-      <datasheet>https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer+Drawing%7F1478035%7FB1%7Fpdf%7FEnglish%7FENG_CD_1478035_B1.pdf%7F1-1478035-0</datasheet>
+      <value>BNC / PCB right-angle bulkhead / 50 R</value>
+      <footprint>Probe:BNC_Amphenol_031-5431_Horizontal</footprint>
+      <datasheet>https://www.amphenolrf.com/en-us/assets/file/4065791754/</datasheet>
       <fields>
-        <field name="MPN">1-1478035-0</field>
-        <field name="Manufacturer">TE Connectivity</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Connector_Coaxial:BNC_TEConnectivity_1478035_Horizontal</field>
-        <field name="Datasheet">https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer+Drawing%7F1478035%7FB1%7Fpdf%7FEnglish%7FENG_CD_1478035_B1.pdf%7F1-1478035-0</field>
+        <field name="MPN">031-5431-10RFX</field>
+        <field name="Manufacturer">Amphenol RF</field>
+        <field name="LCSC">C6956217</field>
+        <field name="Footprint">Probe:BNC_Amphenol_031-5431_Horizontal</field>
+        <field name="Datasheet">https://www.amphenolrf.com/en-us/assets/file/4065791754/</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BNC" description=""/>
-      <property name="MPN" value="1-1478035-0"/>
-      <property name="Manufacturer" value="TE Connectivity"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="031-5431-10RFX"/>
+      <property name="Manufacturer" value="Amphenol RF"/>
+      <property name="LCSC" value="C6956217"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
@@ -1853,18 +1853,19 @@
       </units>
     </comp>
     <comp ref="SW1">
-      <value>SPDT / ON-ON / gold</value>
-      <footprint>Probe:Toggle_SPDT_RightAngle</footprint>
+      <value>SPDT / ON-ON / gold / threaded</value>
+      <footprint>Probe:CK_7101_AV2_SPDT</footprint>
+      <datasheet>https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</datasheet>
       <fields>
-        <field name="MPN">TBD</field>
+        <field name="MPN">7101SDAV2BE</field>
         <field name="Manufacturer">C&amp;K</field>
         <field name="LCSC"/>
-        <field name="Footprint">Probe:Toggle_SPDT_RightAngle</field>
-        <field name="Datasheet"/>
+        <field name="Footprint">Probe:CK_7101_AV2_SPDT</field>
+        <field name="Datasheet">https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="SPDT" description=""/>
-      <property name="MPN" value="TBD"/>
+      <property name="MPN" value="7101SDAV2BE"/>
       <property name="Manufacturer" value="C&amp;K"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
@@ -2070,18 +2071,18 @@
     </comp>
     <comp ref="BT1">
       <value>9 V PCB holder</value>
-      <footprint>Battery:BatteryHolder_MPD_BA9VPC_1xPP3</footprint>
-      <datasheet>http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</datasheet>
+      <footprint>Probe:BatteryHolder_MPD_BH9VPC</footprint>
+      <datasheet>https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf</datasheet>
       <fields>
-        <field name="MPN">BA9VPC</field>
+        <field name="MPN">BH9VPC</field>
         <field name="Manufacturer">MPD (Memory Protection Devices)</field>
         <field name="LCSC"/>
-        <field name="Footprint">Battery:BatteryHolder_MPD_BA9VPC_1xPP3</field>
-        <field name="Datasheet">http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</field>
+        <field name="Footprint">Probe:BatteryHolder_MPD_BH9VPC</field>
+        <field name="Datasheet">https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BATTERY" description=""/>
-      <property name="MPN" value="BA9VPC"/>
+      <property name="MPN" value="BH9VPC"/>
       <property name="Manufacturer" value="MPD (Memory Protection Devices)"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>
@@ -2099,18 +2100,18 @@
     </comp>
     <comp ref="BT2">
       <value>9 V PCB holder</value>
-      <footprint>Battery:BatteryHolder_MPD_BA9VPC_1xPP3</footprint>
-      <datasheet>http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</datasheet>
+      <footprint>Probe:BatteryHolder_MPD_BH9VPC</footprint>
+      <datasheet>https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf</datasheet>
       <fields>
-        <field name="MPN">BA9VPC</field>
+        <field name="MPN">BH9VPC</field>
         <field name="Manufacturer">MPD (Memory Protection Devices)</field>
         <field name="LCSC"/>
-        <field name="Footprint">Battery:BatteryHolder_MPD_BA9VPC_1xPP3</field>
-        <field name="Datasheet">http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf</field>
+        <field name="Footprint">Probe:BatteryHolder_MPD_BH9VPC</field>
+        <field name="Datasheet">https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BATTERY" description=""/>
-      <property name="MPN" value="BA9VPC"/>
+      <property name="MPN" value="BH9VPC"/>
       <property name="Manufacturer" value="MPD (Memory Protection Devices)"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>
@@ -3212,18 +3213,19 @@
       </units>
     </comp>
     <comp ref="SW2">
-      <value>POWER / DPDT / ON-ON</value>
-      <footprint>Probe:Toggle_DPDT_RightAngle</footprint>
+      <value>POWER / DPDT / ON-ON / threaded</value>
+      <footprint>Probe:CK_7201_AV2_DPDT</footprint>
+      <datasheet>https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</datasheet>
       <fields>
-        <field name="MPN">TBD</field>
+        <field name="MPN">7201P3DAV2QE</field>
         <field name="Manufacturer">C&amp;K</field>
         <field name="LCSC"/>
-        <field name="Footprint">Probe:Toggle_DPDT_RightAngle</field>
-        <field name="Datasheet"/>
+        <field name="Footprint">Probe:CK_7201_AV2_DPDT</field>
+        <field name="Datasheet">https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="DPDT" description=""/>
-      <property name="MPN" value="TBD"/>
+      <property name="MPN" value="7201P3DAV2QE"/>
       <property name="Manufacturer" value="C&amp;K"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>

@@ -203,7 +203,8 @@ fn main() {
             .split("(pad \"")
             .skip(1)
             .map(|p| p.split('"').next().unwrap().to_string())
-            .filter(|p| !p.is_empty())
+            // Unnumbered holes and "MP" mechanical support pins carry no net.
+            .filter(|p| !p.is_empty() && p != "MP")
             .collect();
         let wanted: BTreeSet<String> = by_pin
             .keys()

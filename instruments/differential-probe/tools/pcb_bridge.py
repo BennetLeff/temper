@@ -34,6 +34,15 @@ def export_pads(board: k.BOARD) -> None:
         kind = 'via' if isinstance(item, k.PCB_VIA) else 'track'
         lines.append(f'{kind}\t{item.GetNetname()}\t{board.GetLayerName(item.GetLayer())}\t{k.ToMM(item.GetWidth()):.6f}\t{k.ToMM(a.x):.6f}\t{k.ToMM(a.y):.6f}\t{k.ToMM(b.x):.6f}\t{k.ToMM(b.y):.6f}')
     (ROOT / 'validation/pcb-tracks.tsv').write_text('\n'.join(lines) + '\n')
+    lines = ['reference\tside\tarea\tx1\ty1\tx2\ty2']
+    for fp in board.GetFootprints():
+        for side, layer in (('F', k.F_CrtYd), ('B', k.B_CrtYd)):
+            poly = fp.GetCourtyard(layer)
+            if poly.OutlineCount() == 0:
+                continue
+            bb = poly.BBox()
+            lines.append(f'{fp.GetReference()}\t{side}\t{poly.Area() / 1e12:.4f}\t{k.ToMM(bb.GetLeft()):.4f}\t{k.ToMM(bb.GetTop()):.4f}\t{k.ToMM(bb.GetRight()):.4f}\t{k.ToMM(bb.GetBottom()):.4f}')
+    (ROOT / 'validation/pcb-courtyards.tsv').write_text('\n'.join(lines) + '\n')
 
 def seed() -> None:
     board = k.BOARD()
@@ -80,7 +89,8 @@ def seed() -> None:
         fp.Reference().SetTextSize(vec(.8, .8))
         fp.Reference().SetTextThickness(k.FromMM(.12))
         fp.Reference().SetTextAngle(k.EDA_ANGLE(0, k.DEGREES_T))
-        fp.Reference().SetLayer(k.F_SilkS if side == 'F' else k.B_SilkS)
+        # Reference designators live on the assembly (Fab) layer; silk keeps outlines only.
+        fp.Reference().SetLayer(k.F_Fab if side == 'F' else k.B_Fab)
         fp.Reference().SetPosition(vec(*labels[ref]))
         fp.Value().SetVisible(False)
         for pad in fp.Pads():
@@ -93,7 +103,7 @@ def seed() -> None:
             # Flip onto B.Cu (mirror about the footprint's horizontal axis);
             # the footprint must belong to the board first.
             fp.SetLayerAndFlip(k.B_Cu)
-            fp.Reference().SetLayer(k.B_SilkS)
+            fp.Reference().SetLayer(k.B_Fab)
     save(board)
     export_pads(board)
     print(f'Seeded {len(list(board.GetFootprints()))} footprints')

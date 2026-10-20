@@ -18,12 +18,16 @@ const PITCH: f64 = 16.;
 const CAP_OFFSET: f64 = 7.;
 /// Section pitch along the ladder and first section centre.
 const SECTION: f64 = 9.;
-const FIRST: f64 = 34.;
-const TIP_X: f64 = 24.;
-/// Long inter-leg routed slot, 1.6 mm nominal (>= 1.4 mm finished at JLC +/-0.2 mm).
-const SLOT: (f64, f64, f64) = (12., 53., 1.6);
+const FIRST: f64 = 17.;
+const TIP_X: f64 = 7.;
+/// Inter-leg notch: open to the tip-end board edge, 1.6 mm nominal (>= 1.4 mm
+/// finished at JLC +/-0.2 mm), ending at x = NOTCH.0. Being open at the edge it
+/// leaves no surface path around its tip-end.
+const NOTCH: (f64, f64) = (36., 1.6);
 /// Inner/bottom pours and hidden-layer routing are allowed only for x >= PLANE_X.
-const PLANE_X: f64 = 76.;
+const PLANE_X: f64 = 59.;
+/// Low-leg (tap) cell origin shift relative to the Rev C draft coordinates.
+const CELL_DX: f64 = -17.;
 
 fn mirror(y: f64) -> f64 {
     2. * AXIS - y
@@ -69,6 +73,9 @@ fn low_leg_cell() -> Vec<(&'static str, &'static str, f64, f64, i32)> {
         ("R12", "R32", 80.0, 29.5, 0),
         ("D1", "D2", 85.0, 28.4, 270),
     ]
+    .into_iter()
+    .map(|(p, n, x, y, a)| (p, n, x + CELL_DX, y, a))
+    .collect()
 }
 fn mirrored_angle(a: i32) -> i32 {
     // Mirroring about a horizontal line: 90 <-> 270, 0 and 180 keep their pad rows.
@@ -127,11 +134,8 @@ fn placement() -> Result<()> {
         let r = a[0];
         let x: f64 = a[1].parse()?;
         let y: f64 = a[2].parse()?;
-        let below = y > AXIS;
-        let mut xy = (x, if below { y + 2.6 } else { y - 2.6 });
-        if let Some((dx, dy)) = label_offset(r) {
-            xy = (x + dx, y + dy);
-        }
+        // References sit on the Fab layer at the footprint origin.
+        let xy = label_offset(r).map_or((x, y), |(dx, dy)| (x + dx, y + dy));
         labels += &format!("{r}\t{}\t{}\n", xy.0, xy.1);
     }
     fs::write("layout/references.tsv", labels)?;
@@ -293,24 +297,22 @@ impl Copper {
             self.path(&tip, "F.Cu", 0.25, &[w, (node_x(0), ry)]);
             assert_eq!(tip, format!("TIP_{leg}"));
         }
-        // Long inter-leg slot on the axis.
-        let (x1, x2, wdt) = SLOT;
-        self.rect("Edge.Cuts", x1, AXIS - wdt / 2., x2, AXIS + wdt / 2.);
-        // Low-leg cells, authored for leg P and mirrored for leg N.
+        // Low-leg cells, authored for leg P (draft coordinates + CELL_DX) and mirrored for leg N.
         let tap_x = node_x(5);
-        let bus = 76.5;
+        let d = CELL_DX;
+        let bus = 76.5 + d;
         let cell: Vec<(&str, Vec<(f64, f64)>)> = vec![
             // TAP bus from the ladder node to the bank, trimmer, DC trim and R12.
             ("TAP", vec![(tap_x, rows(0).0), (bus, rows(0).0)]),
             ("TAP", vec![(bus, 7.0), (bus, 29.5)]),
-            ("TAP", vec![(bus, 7.0), (77.175, 7.0)]),
-            ("TAP", vec![(bus, 11.0), (76.525, 11.0)]),
-            ("TAP", vec![(bus, 29.5), (79.0875, 29.5)]),
+            ("TAP", vec![(bus, 7.0), (77.175 + d, 7.0)]),
+            ("TAP", vec![(bus, 11.0), (76.525 + d, 11.0)]),
+            ("TAP", vec![(bus, 29.5), (79.0875 + d, 29.5)]),
             // DC trim: R11 to RV1 pin 1; RV1 pins 2-3 tied (wiper to end).
-            ("TRIM", vec![(78.825, 7.0), (82.0, 7.0)]),
-            ("GND", vec![(84.54, 7.0), (87.08, 7.0)]),
+            ("TRIM", vec![(78.825 + d, 7.0), (82.0 + d, 7.0)]),
+            ("GND", vec![(84.54 + d, 7.0), (87.08 + d, 7.0)]),
             // R12 to the clamp junction; the buffer input route is per-leg below.
-            ("IN", vec![(80.9125, 29.5), (85.0, 29.5)]),
+            ("IN", vec![(80.9125 + d, 29.5), (85.0 + d, 29.5)]),
         ];
         for j in 0..2 {
             let leg = if j == 0 { "P" } else { "N" };
@@ -328,11 +330,11 @@ impl Copper {
             }
             // Bank and trimmer ground returns: short stubs to GND vias, mirrored.
             for (key, v) in [
-                ("C41.2", (80.6, 11.0)),
-                ("C42.2", (79.6, 14.5)),
-                ("C43.2", (79.6, 17.5)),
-                ("CT1.2", (83.5, 23.0)),
-                ("RV1.3", (87.08, 9.6)),
+                ("C41.2", (80.6 + d, 11.0)),
+                ("C42.2", (79.6 + d, 14.5)),
+                ("C43.2", (79.6 + d, 17.5)),
+                ("CT1.2", (83.5 + d, 23.0)),
+                ("RV1.3", (87.08 + d, 9.6)),
             ] {
                 let key = if j == 0 {
                     key.to_string()
@@ -346,6 +348,7 @@ impl Copper {
     }
     fn outline(&mut self) {
         let c = 3.;
+        let (nx, nw) = NOTCH;
         let pts = [
             (c, 0.),
             (LENGTH - c, 0.),
@@ -354,6 +357,11 @@ impl Copper {
             (LENGTH - c, HEIGHT),
             (c, HEIGHT),
             (0., HEIGHT - c),
+            // Inter-leg notch, open at the tip-end edge.
+            (0., AXIS + nw / 2.),
+            (nx, AXIS + nw / 2.),
+            (nx, AXIS - nw / 2.),
+            (0., AXIS - nw / 2.),
             (0., c),
             (c, 0.),
         ];
@@ -444,88 +452,97 @@ impl Copper {
     }
 }
 
-/// Low-voltage placement: (reference, x, y, angle). Board-edge parts last.
+/// Low-voltage placement: (reference, x, y, angle).
+///
+/// Bands: the analog chain runs along the slot axis from the buffers (U1) to
+/// the BNC; the range-select x5 stage and the warning latch sit above it; the
+/// warning comparators, threshold ladders and supplies sit below it. The
+/// panel strip x > 126 holds the PCB-mount BNC and toggles.
 fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
     vec![
         // Dual input buffer on the slot axis between the two tap cells.
-        ("U1", 92.0, 35.0, 270),
-        ("C82", 87.4, 32.6, 0),
-        ("C81", 95.0, 41.4, 0),
+        ("U1", 76.0, 35.0, 270),
+        ("C81", 80.60, 37.600, 0),
+        ("C82", 72.2, 33.4, 90),
         // U3: channel 2 = x2 subtractor (left column), channel 1 = coax driver.
-        ("U3", 104.0, 35.0, 180),
-        ("R61", 98.0, 32.6, 0),
-        ("R62", 97.5, 34.2, 0),
-        ("R65", 99.6, 35.0, 270),
-        ("R63", 99.9, 30.7, 90),
-        ("C83", 101.0, 39.6, 0),
-        ("C84", 105.0, 30.4, 0),
-        // Shared filter, coax driver output and clamp toward the BNC.
-        ("R69", 110.0, 34.4, 180),
-        ("C61", 110.0, 31.8, 0),
-        ("R70", 110.0, 37.0, 0),
-        ("D3", 132.0, 38.0, 0),
-        // Fine x5 stage and range-selection feeds.
-        ("U12", 118.0, 45.0, 0),
-        ("R100", 113.0, 45.6, 0),
-        ("R67", 113.4, 42.4, 90),
-        ("R68", 118.0, 41.2, 0),
-        ("C85", 123.0, 42.0, 90),
-        ("C86", 114.0, 49.0, 0),
-        ("R101", 126.0, 50.0, 0),
-        ("R102", 126.0, 46.0, 0),
-        ("R103", 132.0, 58.0, 90),
-        // Initial-envelope warning comparators and threshold ladders.
-        ("U5", 100.0, 53.0, 0),
-        ("C87", 96.0, 48.0, 0),
-        ("C88", 104.0, 48.0, 0),
-        ("R87", 96.0, 60.0, 90),
-        ("R88", 99.0, 60.0, 90),
-        ("R89", 102.0, 60.0, 90),
-        ("R91", 96.0, 65.0, 90),
-        ("R92", 99.0, 65.0, 90),
-        ("R93", 102.0, 65.0, 90),
-        ("U6", 112.0, 57.0, 0),
-        ("C89", 108.0, 61.0, 0),
-        ("C90", 116.0, 61.0, 0),
-        ("R71", 120.0, 54.0, 90),
-        ("R72", 117.0, 54.0, 90),
-        // Latch, reset and indicator.
-        ("R73", 106.0, 66.0, 0),
-        ("R74", 110.0, 66.0, 0),
-        ("Q1", 114.0, 66.0, 0),
-        ("R75", 118.0, 66.0, 0),
-        ("U7", 125.0, 60.0, 0),
-        ("C91", 122.0, 66.0, 0),
-        ("C92", 129.0, 54.0, 0),
-        ("SW3", 133.0, 65.0, 0),
-        ("R95", 128.0, 66.5, 0),
-        ("C95", 131.0, 52.0, 90),
-        ("D8", 134.0, 52.0, 90),
-        ("R96", 128.0, 50.0, 0),
-        ("D9", 133.0, 47.0, 0),
-        // Supplies: switch-side reverse protection, LDOs, bulk capacitors.
-        ("D4", 128.0, 8.0, 0),
-        ("D5", 128.0, 20.0, 0),
-        ("U8", 118.0, 8.0, 0),
-        ("U9", 118.0, 20.0, 0),
-        ("C71", 123.0, 12.0, 0),
-        ("C72", 112.0, 8.0, 90),
-        ("C73", 123.0, 16.0, 0),
-        ("C74", 112.0, 20.0, 90),
-        ("R81", 114.0, 4.0, 0),
-        ("R82", 118.0, 4.0, 0),
-        ("R83", 114.0, 24.0, 0),
-        ("R84", 118.0, 24.0, 0),
-        ("D6", 104.0, 8.0, 90),
-        ("D7", 104.0, 20.0, 90),
-        // Board-edge, panel-mounted through-hole parts (owner hand-solders).
-        ("J3", 142.0, 35.0, 270),
-        ("SW1", 141.0, 55.0, 0),
-        ("SW2", 141.0, 15.0, 0),
+        ("U3", 89.0, 35.0, 180),
+        ("R61", 83.77, 30.0, 0),
+        ("R62", 82.5, 40.0, 0),
+        ("R63", 86.9, 28.6, 0),
+        ("R65", 84.4, 35.0, 270),
+        ("C83", 88.0, 39.0, 0),
+        ("C84", 90.6, 30.6, 0),
+        // Shared output pole, series resistor and output clamp toward the BNC.
+        ("R69", 95.2, 34.365, 180),
+        ("C61", 93.90, 31.000, 90),
+        ("R70", 95.2, 36.905, 0),
+        ("D3", 132.0, 40.0, 0),
+        // Range select: x5 stage and selection resistors.
+        ("U12", 88.0, 16.0, 0),
+        ("R100", 82.0, 16.635, 0),
+        ("R67", 82.0, 13.5, 180),
+        ("R68", 88.0, 12.0, 0),
+        ("C85", 91.5, 21.0, 0),
+        ("C86", 85.5, 20.5, 0),
+        ("R101", 80.0, 20.5, 180),
+        ("R102", 96.0, 16.635, 0),
+        ("R103", 128.5, 24.0, 90),
+        // Warning latch, reset and indicator.
+        ("U7", 106.0, 19.0, 180),
+        ("C91", 100.6, 23.6, 90),
+        ("C92", 106.0, 13.0, 0),
+        ("Q1", 112.4, 16.46, 180),
+        ("R73", 117.21, 14.400, 270),
+        ("R74", 116.30, 17.410, 180),
+        ("R75", 110.6, 12.6, 90),
+        ("R96", 111.5, 24.0, 0),
+        ("D9", 115.0, 24.0, 180),
+        ("R95", 113.0, 20.7, 270),
+        ("C95", 116.5, 20.9, 90),
+        ("D8", 119.0, 21.2, 270),
+        ("SW3", 120.0, 28.5, 180),
+        // Warning comparators, threshold ladders and the selected-output divider.
+        ("U5", 80.0, 52.0, 0),
+        ("C87", 74.5, 49.5, 90),
+        ("C88", 86.0, 49.0, 90),
+        ("R87", 77.50, 57.500, 0),
+        ("R88", 81.0, 57.500, 0),
+        ("R89", 84.50, 57.500, 0),
+        ("R91", 74.4, 60.0, 0),
+        ("R92", 77.8, 60.0, 0),
+        ("R93", 81.2, 60.0, 0),
+        ("U6", 93.0, 52.0, 0),
+        ("C89", 97.5, 49.0, 0),
+        ("C90", 89.0, 56.0, 0),
+        ("R71", 98.0, 53.2, 180),
+        ("R72", 97.09, 56.000, 270),
+        // Supplies: switch-side reverse protection, LDOs, bulk and clamp diodes.
+        ("D4", 118.50, 45.500, 0),
+        ("U8", 112.0, 46.000, 180),
+        ("C71", 116.50, 41.700, 0),
+        ("C72", 107.0, 47.000, 90),
+        ("R81", 107.50, 43.500, 0),
+        ("R82", 108.41, 40.500, 90),
+        ("D6", 103.50, 45.000, 90),
+        ("D5", 119.50, 62.500, 180),
+        ("U9", 112.0, 57.000, 180),
+        ("C73", 117.0, 56.500, 0),
+        ("C74", 107.0, 58.500, 90),
+        ("R83", 107.50, 54.500, 0),
+        ("R84", 108.41, 51.500, 90),
+        ("D7", 103.50, 57.500, 90),
+        // Board-edge, panel-mounted through-hole parts. Panel faces point +x.
+        ("J3", 142.4, 35.0, 270),
+        ("SW1", 135.3, 14.0, 270),
+        ("SW2", 135.3, 56.0, 270),
     ]
 }
+/// Bottom-side 9 V holders under the low-voltage section, clear of every
+/// top-side through-hole tail (tap cells x < 71, panel parts x > 126). A
+/// bottom flip mirrors the holder, so BT1 (contacts toward the tap cell) and
+/// BT2 (contacts toward the panel) both keep their two-screw edge outboard.
 fn bottom_parts() -> Vec<(&'static str, f64, f64, i32)> {
-    vec![("BT1", 100.0, 8.0, 270), ("BT2", 133.0, 8.0, 270)]
+    vec![("BT1", 73.9, 25.6, 180), ("BT2", 124.0, 44.4, 0)]
 }
 fn mounting_holes() -> Vec<(usize, f64, f64, &'static str)> {
     vec![

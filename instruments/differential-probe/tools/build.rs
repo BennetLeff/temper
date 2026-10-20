@@ -450,8 +450,6 @@ impl Design {
             "Button_Switch_SMD",
             "LED_SMD",
             "MountingHole",
-            "Connector_Coaxial",
-            "Battery",
         ] {
             table+=&format!("(lib (name {0}) (type \"KiCad\") (uri \"${{KICAD10_FOOTPRINT_DIR}}/{lib}.pretty\") (options \"\") (descr \"KiCad 10 standard library\"))",q(lib));
         }
@@ -1815,53 +1813,126 @@ fn main() {
 }
 
 /// PCB-mount board-edge parts (Rev C): hand-soldered through-hole.
+///
+/// Footprints are drawn in component-side view with the panel (mating) face
+/// toward -y; layout rotates them by 270 degrees so the panel face points to +x.
+/// Dimensions are transcribed from the manufacturer drawings named in each
+/// description; docs/revc.md lists the ones still to confirm on a sample.
 mod edge_parts {
     use super::{part, Part};
     pub fn bnc() -> Part {
         part(
-            "BNC / PCB right-angle / 50 R",
-            "1-1478035-0",
-            "TE Connectivity",
-            "Connector_Coaxial:BNC_TEConnectivity_1478035_Horizontal",
-            "https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Customer+Drawing%7F1478035%7FB1%7Fpdf%7FEnglish%7FENG_CD_1478035_B1.pdf%7F1-1478035-0",
-            "",
+            "BNC / PCB right-angle bulkhead / 50 R",
+            "031-5431-10RFX",
+            "Amphenol RF",
+            "Probe:BNC_Amphenol_031-5431_Horizontal",
+            "https://www.amphenolrf.com/en-us/assets/file/4065791754/",
+            "C6956217",
         )
     }
     pub fn range_switch() -> Part {
-        part("SPDT / ON-ON / gold", "TBD", "C&K", "Probe:Toggle_SPDT_RightAngle", "", "")
+        part(
+            "SPDT / ON-ON / gold / threaded",
+            "7101SDAV2BE",
+            "C&K",
+            "Probe:CK_7101_AV2_SPDT",
+            "https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e",
+            "",
+        )
     }
     pub fn power_switch() -> Part {
-        part("POWER / DPDT / ON-ON", "TBD", "C&K", "Probe:Toggle_DPDT_RightAngle", "", "")
+        part(
+            "POWER / DPDT / ON-ON / threaded",
+            "7201P3DAV2QE",
+            "C&K",
+            "Probe:CK_7201_AV2_DPDT",
+            "https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e",
+            "",
+        )
     }
     pub fn battery_holder() -> Part {
         part(
             "9 V PCB holder",
-            "BA9VPC",
+            "BH9VPC",
             "MPD (Memory Protection Devices)",
-            "Battery:BatteryHolder_MPD_BA9VPC_1xPP3",
-            "http://www.memoryprotectiondevices.com/datasheets/BA9VPC-datasheet.pdf",
+            "Probe:BatteryHolder_MPD_BH9VPC",
+            "https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf",
             "",
         )
     }
-    fn tht(name: &str, descr: &str, pads: &[(&str, f64, f64)], drill: f64, ring: f64, crt: (f64, f64, f64, f64)) -> String {
-        let mut s = format!("(footprint \"{name}\" (version 20241229) (generator \"temper_probe\") (layer \"F.Cu\") (descr \"{descr}\") (attr through_hole) (property \"Reference\" \"SW\" (at 0 -3) (layer \"F.SilkS\") (effects (font (size .8 .8) (thickness .12)))) (property \"Value\" \"{name}\" (at 0 3) (layer \"F.Fab\") (effects (font (size .8 .8) (thickness .12))))");
-        s += &format!("(fp_rect (start {} {}) (end {} {}) (stroke (width .05) (type default)) (fill none) (layer \"F.CrtYd\"))", crt.0, crt.1, crt.2, crt.3);
-        s += &format!("(fp_rect (start {} {}) (end {} {}) (stroke (width .1) (type default)) (fill none) (layer \"F.Fab\"))", crt.0 + 0.25, crt.1 + 0.25, crt.2 - 0.25, crt.3 - 0.25);
-        for (n, x, y) in pads {
-            s += &format!("(pad \"{n}\" thru_hole circle (at {x} {y}) (size {ring} {ring}) (drill {drill}) (layers \"*.Cu\" \"*.Mask\"))");
+    struct Fp<'a> {
+        name: &'a str,
+        descr: &'a str,
+        /// (number, x, y, drill, copper diameter)
+        pads: Vec<(&'a str, f64, f64, f64, f64)>,
+        /// Unplated holes (x, y, drill).
+        holes: Vec<(f64, f64, f64)>,
+        /// Component-side body outline (x1, y1, x2, y2).
+        body: (f64, f64, f64, f64),
+        /// Opposite-side keep-outs for screw heads and solder fillets (x, y, r).
+        far: Vec<(f64, f64, f64)>,
+    }
+    fn render(f: &Fp) -> String {
+        let (x1, y1, x2, y2) = f.body;
+        let mut s = format!("(footprint \"{}\" (version 20241229) (generator \"temper_probe\") (layer \"F.Cu\") (descr \"{}\") (attr through_hole) (property \"Reference\" \"REF**\" (at 0 {}) (layer \"F.SilkS\") (effects (font (size .8 .8) (thickness .12)))) (property \"Value\" \"{}\" (at 0 {}) (layer \"F.Fab\") (effects (font (size .8 .8) (thickness .12))))", f.name, f.descr, y2 + 1.2, f.name, y1 + 1.5);
+        s += &format!("(fp_rect (start {x1} {y1}) (end {x2} {y2}) (stroke (width .1) (type default)) (fill none) (layer \"F.Fab\"))");
+        s += &format!("(fp_rect (start {} {}) (end {} {}) (stroke (width .05) (type default)) (fill none) (layer \"F.CrtYd\"))", x1 - 0.25, y1 - 0.25, x2 + 0.25, y2 + 0.25);
+        for &(x, y, r) in &f.far {
+            s += &format!("(fp_circle (center {x} {y}) (end {} {y}) (stroke (width .05) (type default)) (fill none) (layer \"B.CrtYd\"))", x + r);
+        }
+        for &(n, x, y, drill, dia) in &f.pads {
+            let shape = if n == "1" { "rect" } else { "circle" };
+            s += &format!("(pad \"{n}\" thru_hole {shape} (at {x} {y}) (size {dia} {dia}) (drill {drill}) (layers \"*.Cu\" \"*.Mask\"))");
+        }
+        for &(x, y, d) in &f.holes {
+            s += &format!("(pad \"\" np_thru_hole circle (at {x} {y}) (size {d} {d}) (drill {d}) (layers \"*.Cu\" \"*.Mask\"))");
         }
         s + ")\n"
     }
+    /// C&K 7000 AV2 ("vertical right angle") bracket: contact rows 0.150 in
+    /// apart, two support pins 0.200 in apart and 0.500 in ahead of row 1, all
+    /// holes 0.073 in; bushing axis 0.250 in above the board, centred on x = 0.
+    fn toggle(name: &'static str, descr: &'static str, columns: &[f64]) -> Fp<'static> {
+        let mut pads = Vec::new();
+        let mut n = 1;
+        for &x in columns {
+            for row in 0..3 {
+                let num: &'static str = ["1", "2", "3", "4", "5", "6"][n - 1];
+                pads.push((num, x, 3.81 * row as f64, 1.85, 2.6));
+                n += 1;
+            }
+        }
+        // Support pins are mechanical; they solder to isolated pads.
+        pads.push(("MP", -2.54, -12.7, 1.85, 2.6));
+        pads.push(("MP", 2.54, -12.7, 1.85, 2.6));
+        Fp { name, descr, pads, holes: vec![], body: (-5.75, -14.4, 5.75, 9.4), far: vec![] }
+    }
     pub fn footprints() -> Vec<(&'static str, String)> {
+        let bnc = Fp {
+            name: "BNC_Amphenol_031-5431_Horizontal",
+            descr: "Amphenol RF 031-5431-10RFX right-angle PCB bulkhead BNC jack. Pins 0.89 mm on 2.54 mm, board locks 2.0 mm on 10.16 mm, 5.08 mm behind the pins; housing face 7.37 mm ahead of the pins; axis 8.6 mm above the board. Panel D-hole 12.83 mm / 11.7 mm flat, panel <= 5 mm.",
+            pads: vec![("1", 0., 0., 1.0, 1.8), ("2", 2.54, 0., 1.0, 1.8)],
+            holes: vec![(-5.08, 5.08, 2.0), (5.08, 5.08, 2.0)],
+            body: (-7.25, -7.37, 7.25, 6.6),
+            far: vec![],
+        };
+        let spdt = toggle("CK_7101_AV2_SPDT", "C&K 7101 AV2 vertical right-angle SPDT toggle; pin 2 common, panel hole 6.35 mm (1/4-40), bushing axis 6.35 mm above the board.", &[0.]);
+        let dpdt = toggle("CK_7201_AV2_DPDT", "C&K 7201 AV2 vertical right-angle DPDT toggle; pins 2 and 5 common, panel hole 6.35 mm (1/4-40), bushing axis 6.35 mm above the board.", &[-2.415, 2.415]);
+        // MPD BH9VPC PCB layout (rev J), component-side view, origin on the + pin.
+        let bat = Fp {
+            name: "BatteryHolder_MPD_BH9VPC",
+            descr: "MPD BH9VPC 9 V holder with PC pins, rev J 09/24/24. Pin 1 = +, pin 2 = -, 12.70 mm; three 2.34 mm holes for 2-56 screws or 0.089 in eyelets; body 54.61 x 29.97 x 20.62 mm.",
+            pads: vec![("1", 0., 0., 1.3, 2.2), ("2", 0., 12.70, 1.3, 2.2)],
+            holes: vec![(11.58, 17.44, 2.34), (38.55, 17.44, 2.34), (25.06, -4.91, 2.34)],
+            body: (-2.25, -8.72, 52.36, 21.25),
+            // Screw heads and pin fillets on the far (component) side once flipped.
+            far: vec![(11.58, 17.44, 2.6), (38.55, 17.44, 2.6), (25.06, -4.91, 2.6)],
+        };
         vec![
-            (
-                "Toggle_SPDT_RightAngle",
-                tht("Toggle_SPDT_RightAngle", "Placeholder right-angle SPDT toggle", &[("1", 0., -4.7), ("2", 0., 0.), ("3", 0., 4.7)], 1.3, 2.2, (-3., -7.5, 13., 7.5)),
-            ),
-            (
-                "Toggle_DPDT_RightAngle",
-                tht("Toggle_DPDT_RightAngle", "Placeholder right-angle DPDT toggle", &[("1", 0., -4.7), ("2", 0., 0.), ("3", 0., 4.7), ("4", -4.7, -4.7), ("5", -4.7, 0.), ("6", -4.7, 4.7)], 1.3, 2.2, (-7.5, -7.5, 13., 7.5)),
-            ),
+            (bnc.name, render(&bnc)),
+            (spdt.name, render(&spdt)),
+            (dpdt.name, render(&dpdt)),
+            (bat.name, render(&bat)),
         ]
     }
 }
