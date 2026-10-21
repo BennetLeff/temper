@@ -210,3 +210,92 @@ On the two SOURCE_BUF coupling rows:
 - SOURCE_BUF ↔ TIA_SUM stays ≤ 0.0001 pF.
 
 Stability: `../stability-full-chain/README.md`, mode `reverelaycng100_r104`. The source driver recovers to **46.77°** at stress parasitics on the high board corner.
+
+## Four-terminal BNC board (`reve_bnc`)
+
+Board `cad/temper-lcr.kicad_pcb`, SHA-256 `80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5`. **The board was uncommitted when it was extracted.** `run_reve.sh reve_bnc` refuses any other file. Pass `BNC_COMMIT=<sha>` once it lands, and `BNC_SHA=` if the board changes.
+
+**Layout.**
+
+| Item | Detail |
+|---|---|
+| J3 HCUR | DUT_HI, at (108, 51) |
+| J7 HPOT | at (130, 51) |
+| J8 LPOT | at (152, 51) |
+| J9 LCUR | DUT_LO, at (174, 51) |
+| R105 | 1 k, DUT_HI–HPOT |
+| R106 | 1 k, DUT_LO–LPOT |
+| K4 reference relay | TQ2SA at (182, 70). Pin 8 = DUT_HI, pin 7 = REF_A |
+| R107 | 1 k, REF_A–DUT_LO |
+| Followers | HPOT drives U6.5 (HIGH follower +IN); LPOT drives U7.5 (LOW follower +IN) |
+
+**Method changes from `reve_r104`.**
+
+- **L-shaped domain.** The window `reve_bnc` (102.5–190.5 × 45.5–139.5) is solved as the union of 102.5–190.5 × 45.5–66.0 and 150.5–190.5 × 45.5–139.5 (`DOMAINS` in `fd3d.py`). Nodes outside the L are dropped, with zero flux. At 0.4 mm the L matches the full box (`reve_bnc_box`) to 0.04 % max relative difference.
+- **Zoom windows.** New windows `bnc_band`, `bnc_corner` and `bnc_vert`, each solved from 0.14 to 0.05 mm. Factors applied per net:
+
+  | Net | Window | Factor |
+  |---|---|---|
+  | HPOT | `bnc_band` | 1.169 |
+  | DUT_HI | `bnc_band` | 1.024 |
+  | LPOT | `bnc_vert` | 1.120 |
+  | DUT_LO | `bnc_vert` | 0.925 |
+  | REF_A | `bnc_corner` | 1.040 |
+  | SOURCE_BUF | `reve_hiside_r104` | 1.171 |
+
+  Pair factors are applied only where the zoom value is at least 0.01 pF: DUT_HI–HPOT 0.984, DUT_LO–LPOT 1.045, DUT_HI–DUT_LO 1.046.
+- **Grid uncertainty is 11.8 %.** The DUT_LO `bnc_vert` series oscillates (0.50 / 0.35 / 0.48 / 0.43 / 0.47 pF), which widens U.
+- **No two-dx whole-board check.** The whole board is solved at 0.2 mm on 7628 (4.6 M unknowns) and on 1080. The 0.4 mm run drops traces (SOURCE_BUF 2.7 pF against 7.2 pF), so it is used only to validate the L-domain. Convergence rests on the zooms.
+- **BNC jacks are an ESTIMATE.** Each jack is 1.5 / 2.5 / 3.5 pF (`BNC_JACK_PF`), modelled as a 50 Ω line 15 / 22 / 30 mm long. There is no jack datasheet in `sources/`.
+- **Kelvin extras.** Added analytically:
+  - U6 pins 5–6: HPOT–HIGH_BUF and HPOT–GND.
+  - U7 pins 5–6: LPOT–LOW_BUF and LPOT–GND.
+  - R105, R106 and R107 bodies.
+  - The J3 header posts are gone.
+- **Relay body and internals are not modelled**, as on the earlier boards. K4 Coc (HCUR–REF_A) and Ccc are the harness estimates: Coc 0.3 / 2 pF and Ccc 1 / 5 pF per side (nominal / stress).
+- **Inductance.** Unchanged: RF branch 64.93 / 64.41 / 92.44 nH; C104 branch 5.04 nH.
+
+**Capacitances.** Values are low / nom / high in pF, worst over ranges, jack estimate included:
+
+| Quantity | low / nom / high (pF) |
+|---|---|
+| DUT_HI (HCUR) → GND | **10.70 / 12.93 / 16.49** |
+| DUT_LO (LCUR) → GND | **5.87 / 7.45 / 10.89** |
+| HPOT → GND | **7.10 / 8.87 / 10.70** |
+| LPOT → GND | **8.86 / 10.86 / 16.94** |
+| REF_A → GND (board only) | 0.80 / 0.91 / 2.10 |
+| HCUR ↔ LCUR | 0.014 / 0.017 / 0.020 |
+| HPOT ↔ LPOT | 0.010 / 0.012 / 0.014 |
+| HPOT ↔ HCUR | 0.18 / 0.24 / 0.33 |
+| LPOT ↔ LCUR | 0.093 / 0.137 / 0.207 |
+| HPOT ↔ LCUR | ≤ 0.002 |
+| LPOT ↔ HCUR | ≤ 0.004 |
+| SOURCE_BUF ↔ HCUR | 0.045 / 0.080 / 0.136 |
+| SOURCE_BUF ↔ LCUR | 0.083 / 0.099 / 0.121 |
+| SOURCE_BUF ↔ HPOT | ≈ 0 |
+| SOURCE_BUF ↔ LPOT | 0.010 / 0.012 / 0.015 |
+| SRC_DRV ↔ the four (sum) | 0.09 / 0.11 / 0.14 |
+| TIA_SUM ↔ LCUR (incl. R94 body) | 0.030 / 0.062 / 0.115 |
+| HCUR ↔ REF_A (board; K4 Coc separate) | 0.002–0.003 |
+| REF_A ↔ LCUR (incl. R107 body) | 0.021 / 0.051 / 0.102 |
+| HPOT ↔ HIGH_BUF | 0.07 / 0.10 / 0.15 |
+| LPOT ↔ LOW_BUF | 0.06 / 0.09 / 0.14 |
+| TIA_OUT ↔ any Kelvin net | ≤ 0.019 |
+| SOURCE_BUF → GND | 8.27 / 9.38 / 13.72 |
+| SRC_DRV → GND | 1.13 / 1.28 / 1.55 |
+| TIA_OUT → GND | 7.97 / 10.21 / 14.70 |
+| TIA_SUM → GND / ↔ TIA_OUT | 0.81 / 0.94 / 1.09; 0.13 / 0.23 / 0.35 |
+
+The ground loads are larger than on `reve_r104`. DUT_HI was 8.17 pF nominal, and the long routes out to the jack row add to it, as does the jack. Every cross-coupling between the four terminals stays below 0.35 pF. The jack and cable ground loads are far larger than any of them.
+
+**Outputs.**
+
+- `geometry_reve_bnc.json`
+- `inductance_reve_bnc.json`
+- `fd_results/*_reve_bnc.json`
+- `extracted_reve_bnc.json`
+- `../stability-full-chain/reve_bnc_extracted.rs`
+
+**Reproduce** with `sh run_reve.sh reve_bnc`. Add `STAB=1` to also run the `kelvincng100` loop matrix and `kelvin_summary.py`.
+
+Stability: `../stability-full-chain/README.md`, mode `kelvincng100`.

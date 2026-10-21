@@ -41,7 +41,19 @@ FD = HERE / 'fd_results'
 VARIANT = os.environ.get('LP_VARIANT', 'reve')
 CFG = {'reve': dict(whole='reve', zoom_variant='reve', hiside='reve_hiside', extra=[]),
        'reve_r104': dict(whole='reve_r104', zoom_variant='reve', hiside='reve_hiside_r104',
-                         extra=['SRC_DRV'])}[VARIANT]
+                         extra=['SRC_DRV']),
+       # four-terminal BNC board (80d44838, uncommitted working tree when extracted): J3/J7/J8/J9
+       # HCUR/HPOT/LPOT/LCUR, R105/R106 1k CUR-POT, K4 reference relay (REF_A, R107 1k to DUT_LO).
+       # Per-net ground factors and pair factors come from zooms on the new routes.
+       'reve_bnc': dict(whole='reve_bnc', zoom_variant='reve_bnc', hiside='reve_hiside_r104',
+                        extra=['SRC_DRV', 'HPOT', 'LPOT', 'REF_A'], kelvin=True,
+                        net_ground={'HPOT': 'bnc_band', 'DUT_HI': 'bnc_band', 'LPOT': 'bnc_vert',
+                                    'DUT_LO': 'bnc_vert', 'REF_A': 'bnc_corner',
+                                    'SOURCE_BUF': 'reve_hiside_r104'},
+                        pairs=[('SOURCE_BUF', 'DUT_HI', 'reve_hiside_r104'), ('DUT_HI', 'HPOT', 'bnc_band'),
+                               ('DUT_LO', 'LPOT', 'bnc_corner'), ('HPOT', 'LPOT', 'bnc_vert'),
+                               ('DUT_HI', 'DUT_LO', 'bnc_corner'), ('DUT_HI', 'REF_A', 'bnc_corner')]),
+       }[VARIANT]
 NAMES = ['TIA_SUM', 'DUT_LO', 'TIA_OUT', 'DUT_HI', 'RF100', 'RF5K', 'RF100K', 'LOW_BUF', 'HIGH_BUF',
          'SOURCE_BUF', 'RG100', 'RG5K', 'RG100K'] + CFG['extra']
 # harness RANGES order: r100, r5k, r100k (k = 0, 1, 2)
@@ -50,7 +62,11 @@ RF_RES = {'RF100': 'R43', 'RF5K': 'R44', 'RF100K': 'R45'}
 RG_RES = {'RG100': 'R40', 'RG5K': 'R41', 'RG100K': 'R42'}
 NODE = {'TIA_SUM': 'sum', 'DUT_LO': 'low', 'TIA_OUT': 'tia', 'DUT_HI': 'hi', 'LOW_BUF': 'lowbuf',
         'HIGH_BUF': 'highbuf', 'SOURCE_BUF': 'source',
-        'SRC_DRV': 'srcdrv'}  # srcdrv: driver side of R104 (loop_matrix.rs maps it to the X6A node)
+        'SRC_DRV': 'srcdrv',  # srcdrv: driver side of R104 (loop_matrix.rs maps it to the X6A node)
+        'HPOT': 'hpot', 'LPOT': 'lpot', 'REF_A': 'refa'}
+# SAMZO BNC-KYWE-295 right-angle jack, centre pin to grounded shell, pF.  ESTIMATE (no datasheet in
+# sources/): 50 ohm line of 15 / 22 / 30 mm in PTFE-POM (97-115 pF/m).
+BNC_JACK_PF = {'low': 1.5, 'nom': 2.5, 'high': 3.5}
 U_MIN = 0.10
 REVD_HIGH = {  # loop_matrix.rs REVD_BOARD / RANGES (Rev D extraction, high corner)
     'c_tiaout_gnd_pf': 10.53, 'c_sum_gnd_pf': 1.274, 'c_sum_tiaout_pf': 0.399, 'c_lo_gnd_pf': 5.666,
@@ -104,10 +120,46 @@ def grid_factors(dx_whole):
         hs, lambda d: mutual(d, 'SOURCE_BUF', 'DUT_HI'), dx_whole)
     f_g = ratios['TIA_OUT_ground (reve_relay)']
     f_m = ratios['TIA_SUM_TIA_OUT_mutual (zoom U7)']
+    if CFG.get('kelvin'):
+        return kelvin_factors(dx_whole, f_g, f_m, table, ratios, rel)
     spread = max(abs(r / (f_g if 'ground' in k else f_m) - 1) for k, r in ratios.items())
     ratios['SOURCE_BUF_DUT_HI_mutual (reve_hiside, applied to that pair only)'] = pair
     return f_g, f_m, max(U_MIN, spread), {'convergence_pF_by_dx': table, 'finest_over_whole_dx_ratio': ratios,
                                           'zoom_dx': [d['dx_mm'] for d in rel], 'pair_factor': pair}
+
+
+def kelvin_factors(dx_whole, f_g, f_m, table, ratios, rel):
+    """Per-net ground factors and per-pair mutual factors from the BNC-route zooms (reve_bnc)."""
+    fg = np.full(len(NAMES), f_g)
+    applied = {}
+    for net, win in CFG['net_ground'].items():
+        k = f'{net}_ground ({win})'
+        table[k], r = ratio_table(runs(win, NOMINAL_STACKUP), lambda d, n=net: ground(d, n), dx_whole)
+        fg[NAMES.index(net)] = ratios[k] = r
+        applied[k] = r
+    pairs = []
+    for a, b, win in CFG['pairs']:
+        k = f'{a}_{b}_mutual ({win})'
+        series = runs(win, NOMINAL_STACKUP)
+        table[k], r = ratio_table(series, lambda d, a=a, b=b: mutual(d, a, b), dx_whole)
+        ratios[k] = r
+        if mutual(series[-1], a, b) >= 0.01:   # only resolved couplings get their own factor
+            pairs.append((a, b, r)); applied[k] = r
+    # spread: every ratio not used as its own factor, against the factor that is applied instead
+    dev = [abs(r / (f_g if 'ground' in k else f_m) - 1) for k, r in ratios.items() if k not in applied]
+    # and, for the quantities that carry their own factor, the change over the last zoom refinement
+    for k in applied:
+        v = [table[k][dx] for dx in sorted(table[k])[:2]]
+        dev.append(abs(v[0] / v[1] - 1))
+    return fg, f_m, max(U_MIN, max(dev)), {'convergence_pF_by_dx': table, 'finest_over_whole_dx_ratio': ratios,
+                                           'applied_own_factor': applied, 'zoom_dx': [d['dx_mm'] for d in rel],
+                                           'pairs': pairs}
+
+
+def pairs_fix(C, pairs, f_m):
+    for a, b, r in pairs:
+        C = pair_fix(C, r, f_m, a, b)
+    return C
 
 
 def pair_fix(C, f_pair, f_m, a='SOURCE_BUF', b='DUT_HI'):
@@ -126,10 +178,12 @@ def corner_matrices():
     d1 = d1s[-1] if d1s else None
     f_g, f_m, U, meta = grid_factors(d7['dx_mm'])
     C7 = matrix(d7, NAMES)
-    fp = meta['pair_factor']
-    out = {'nom': pair_fix(corrected(C7, f_g, f_m), fp, f_m),
-           'low': pair_fix(corrected(C7, f_g * (1 - U), f_m * (1 - U)), fp, f_m)}
-    hi = pair_fix(corrected(C7, f_g * (1 + U), f_m * (1 + U)), fp, f_m)
+    if CFG.get('kelvin'):
+        fix = lambda C: pairs_fix(C, meta['pairs'], f_m)
+    else:
+        fix = lambda C: pair_fix(C, meta['pair_factor'], f_m)
+    out = {'nom': fix(corrected(C7, f_g, f_m)), 'low': fix(corrected(C7, f_g * (1 - U), f_m * (1 - U)))}
+    hi = fix(corrected(C7, f_g * (1 + U), f_m * (1 + U)))
     if d1 is not None:
         f_g1 = grid_factors(d1['dx_mm'])[0]
         C1 = corrected(matrix(d1, NAMES), f_g1 * (1 + U), 1.0)
@@ -139,7 +193,8 @@ def corner_matrices():
     out['high'] = hi
     meta.update({'fd_nominal': f"{NOMINAL_STACKUP} dx={d7['dx_mm']} grid={d7['grid']}",
                  'fd_thin': None if d1 is None else f"{THIN_STACKUP} dx={d1['dx_mm']}",
-                 'factor_ground': f_g, 'factor_mutual': f_m, 'grid_uncertainty': U,
+                 'factor_ground': (dict(zip(NAMES, map(float, f_g))) if np.ndim(f_g) else f_g),
+                 'factor_mutual': f_m, 'grid_uncertainty': U,
                  'whole_dx_runs': [d['dx_mm'] for d in runs(CFG['whole'], NOMINAL_STACKUP)]})
     # two-dx whole-board check (raw, uncorrected)
     ws = runs(CFG['whole'], NOMINAL_STACKUP)
@@ -159,12 +214,25 @@ def with_extras(C, case):
     pp, rb = EXTRA['pkg_pin_pair'][case], EXTRA['res_body'][case]
     C = add_cap(C, i['TIA_SUM'], i['TIA_OUT'], pp)     # U7 pin 2-1
     C = add_cap(C, i['TIA_SUM'], None, pp)             # U7 pin 2-3 (GND)
-    C = add_cap(C, i['DUT_LO'], i['LOW_BUF'], pp)      # U7 pin 5-6
+    if CFG.get('kelvin'):
+        C = add_cap(C, i['LPOT'], i['LOW_BUF'], pp)    # U7 pin 5-6 (LOW follower +IN = LPOT)
+        C = add_cap(C, i['LPOT'], None, pp)            # U7 pin 5-4 (-12V)
+        C = add_cap(C, i['HPOT'], i['HIGH_BUF'], pp)   # U6 pin 5-6 (HIGH follower +IN = HPOT)
+        C = add_cap(C, i['HPOT'], None, pp)            # U6 pin 5-4 (-12V)
+    else:
+        C = add_cap(C, i['DUT_LO'], i['LOW_BUF'], pp)  # U7 pin 5-6
     for rf in RF_RES:
         C = add_cap(C, i['TIA_SUM'], i[rf], rb)        # R43-R45 bodies
     for rg in RG_RES:
         C = add_cap(C, i['DUT_HI'], i[rg], rb)         # R40-R42 bodies
     C = add_cap(C, i['TIA_SUM'], i['DUT_LO'], rb)      # R94 (R_iso) body
+    if CFG.get('kelvin'):
+        C = add_cap(C, i['DUT_HI'], i['HPOT'], rb)     # R105 body
+        C = add_cap(C, i['DUT_LO'], i['LPOT'], rb)     # R106 body
+        C = add_cap(C, i['REF_A'], i['DUT_LO'], rb)    # R107 body
+        for n in ('DUT_HI', 'HPOT', 'LPOT', 'DUT_LO'):  # J3 / J7 / J8 / J9 jack bodies
+            C = add_cap(C, i[n], None, BNC_JACK_PF[case])
+        return C
     cg, cm = headers(case)
     C = add_cap(C, i['DUT_LO'], None, cg)              # J3 LO post
     C = add_cap(C, i['DUT_HI'], None, cg)              # J3 HI post
@@ -234,6 +302,19 @@ def summary(nodes, M):
         **({'c_srcdrv_gnd_pf': float(g[i['srcdrv']]), 'c_srcdrv_all_pf': float(M[i['srcdrv'], i['srcdrv']]),
             'c_srcdrv_source_pf': m('srcdrv', 'source'), 'c_srcdrv_hi_pf': m('srcdrv', 'hi'),
             'c_srcdrv_highbuf_pf': m('srcdrv', 'highbuf')} if 'srcdrv' in i else {}),
+        **({'c_hpot_gnd_pf': float(g[i['hpot']]), 'c_lpot_gnd_pf': float(g[i['lpot']]),
+            'c_refa_gnd_pf': float(g[i['refa']]),
+            'c_hcur_lcur_pf': m('hi', 'low'), 'c_hpot_lpot_pf': m('hpot', 'lpot'),
+            'c_hpot_hcur_pf': m('hpot', 'hi'), 'c_lpot_lcur_pf': m('lpot', 'low'),
+            'c_hpot_lcur_pf': m('hpot', 'low'), 'c_lpot_hcur_pf': m('lpot', 'hi'),
+            'c_source_hcur_pf': m('source', 'hi'), 'c_source_lcur_pf': m('source', 'low'),
+            'c_source_hpot_pf': m('source', 'hpot'), 'c_source_lpot_pf': m('source', 'lpot'),
+            'c_srcdrv_kelvin_pf': sum(m('srcdrv', n) for n in ('hi', 'low', 'hpot', 'lpot')),
+            'c_sum_lcur_pf': m('sum', 'low'), 'c_sum_lpot_pf': m('sum', 'lpot'), 'c_sum_hpot_pf': m('sum', 'hpot'),
+            'c_hcur_refa_pf': m('hi', 'refa'), 'c_refa_lcur_pf': m('refa', 'low'),
+            'c_hpot_highbuf_pf': m('hpot', 'highbuf'), 'c_lpot_lowbuf_pf': m('lpot', 'lowbuf'),
+            'c_tia_kelvin_pf': sum(m('tia', n) for n in ('hi', 'low', 'hpot', 'lpot'))}
+           if 'hpot' in i else {}),
     }
 
 

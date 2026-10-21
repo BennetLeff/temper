@@ -119,6 +119,68 @@ Board `cf379f85…`, commit a04880a87, extracted as `reve_r104` (`../layout-para
 
 The remaining sensitivity is in the relay contact-capacitance stress estimates (Ccc, Cpp, Coc on SOURCE_BUF), which are UNVERIFIED. Bench-measure them before relying on the last 2°.
 
+### Four-terminal BNC board with K4 reference relay (`kelvincng100`)
+
+Board SHA-256 `80d44838…`, uncommitted at extraction time, extracted as `reve_bnc` (`../layout-parasitics/README-rev-e.md`). R104 stays fitted.
+
+**Topology.**
+
+- **Followers.** The HIGH and LOW followers now sense through the POT terminals. The `_kelvin` tag moves X6B +IN to `hpot` and X7B +IN to `lpot`, and the follower loop break moves with them.
+- **Resistors.** R105 (1 k, HCUR–HPOT), R106 (1 k, LCUR–LPOT) and R107 (1 k, REF_A–LCUR) are in the netlist.
+- **K4.** Ccc to ground on each side. When open, Coc spans HCUR–REF_A. When closed, Rc + L_rel spans the same pair (`k4_netlist`).
+- **Board strays.** From `reve_bnc_extracted.rs`.
+
+**Grid.** Every case runs four loops: TIA, drive, HIGH and LOW.
+
+- **Relay sets.** Nominal relays on the nominal board (caplead 5.04 nH). Stress relays on the high board (caplead 10 nH).
+- **DUTs.** Open, short and matched on all three ranges, plus `coil50u` on the 100 Ω range.
+- **Fixtures.**
+  - `nocable`.
+  - `coax1m`: four 1 m RG-58 leads, each 101 pF / 252.5 nH, lossless, in 20 sections, shield at board ground. HCUR and HPOT meet at the DUT high node; LCUR and LPOT meet at the DUT low node.
+  - `cur`: lumped HCUR/LCUR stray. 100 / 220 / 470 / 1000 pF on the 100 Ω range; 1000 pF on 5 k and 100 k.
+  - `k4closed`: K4 closed, leads unplugged, DUT open, on each range.
+
+360 rows, run as `SHARD=i/4` and concatenated.
+
+**Result: every loop passes 45° in every case.** Columns are worst PM / min abs(1+T).
+
+| Loop | `reverelaycng100_r104` | **`kelvincng100`, worst** | Worst fixture | No-cable / `cur` / K4 closed (stress) |
+|---|---|---|---|---|
+| `drive`, stress | 46.77° / 0.590 | **46.83° / 0.588** | coax, 100 k short | 46.85° / 46.84° / 46.85° |
+| `drive`, nominal | 49.80° / 0.622 | **50.29° / 0.615** | no cable | coax 51.75°, `cur` 52.11°, K4 50.74° |
+| TIA, stress | 58.07° / 0.629 | **57.21° / 0.491** | coax, 100 Ω short | 60.02° / 70.45° / 59.92° |
+| TIA, nominal | 60.88° / 0.673 | **59.82° / 0.588** | coax | 62.37° / 71.22° / 62.74° |
+| `high`, stress | 56.49° / 0.699 | **57.05° / 0.610** | coax, 100 Ω matched | 57.78° / 57.78° / 57.80° |
+| `low`, stress | 56.34° / 0.691 | **55.89° / 0.643** | coax, 100 Ω matched | 56.90° / 56.89° / 56.90° |
+| `high` / `low`, nominal | — | 57.27° / 56.64° | coax | ≥ 57.55° |
+
+**Effect of the Kelvin re-layout.**
+
+- **Without a cable** it changes nothing material: `drive` gains 0.06° and the followers gain about 1.3° and 0.6°.
+- **The 1 m cable set costs** 2.8° on TIA (stress) and 1° on LOW. TIA min abs(1+T) falls to 0.49.
+- **The lumped `cur` stray raises TIA margin** to 70–71°. It is not the worst case for any loop.
+
+**K4 closed, leads unplugged.** Stable on every range. Worst margins are `drive` 46.85° (stress) / 50.74° (nominal), TIA ≥ 59.92° and followers ≥ 56.90°.
+
+**Multiple crossings with the cable.** Ten TIA `coax1m` rows cross unity three times: down at about 13–20 MHz (90–141°), up at 14–25 MHz, then down again at 41–42 MHz (58–68°). An example is r100 open, stress: 19.72 MHz / 92.3° down, 23.67 MHz / 111.3° up, 41.49 MHz / 58.25° down, min abs(1+T) 0.500.
+
+`kelvin_summary.py` scans every `<name>_return.csv` for crossings of the negative real axis left of −1 and finds **0 in all 360 rows**. The extra unity crossings therefore cannot encircle −1. The table PM is the worst downward crossing.
+
+**Caveats.**
+
+- The BNC jack capacitance (1.5–3.5 pF) and the K4 Coc/Ccc values are estimates.
+- The cable is lossless and the shield is ideal.
+- The board file was uncommitted at extraction time.
+
+**Reproduce:**
+
+```
+$LCR_LOOP_BUILD/matrix final_kelvincng100
+python3 kelvin_summary.py matrix-final_kelvincng100.md
+```
+
+The `kelvin_summary.py` check needs the `_return.csv` files from a `--full` run. `run.sh --check` re-analyses existing outputs.
+
 Run one mode with `$LCR_LOOP_BUILD/matrix final_<mode>`. Set `SHARD=i/n` to split it across processes; each shard writes `matrix-final_<mode>-shard{i}of{n}.md`. Concatenate the table rows in shard order to get `matrix-final_<mode>.md`.
 
 ---

@@ -155,6 +155,14 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
             + "\n";
         s += &format!("Rsrciso source srcbus {r}\n");
     }
+    // `_kelvin` (four-terminal BNC board): the HIGH / LOW followers sense HPOT / LPOT, which reach
+    // HCUR (hi) / LCUR (low) through R105 / R106 1k on the board (in the case's DUT string).
+    let kelvin = c.name.contains("_kelvin");
+    if kelvin {
+        s = s
+            .replace("X6B hi highbuf highbuf vp vn OPA2810", "X6B hpot highbuf highbuf vp vn OPA2810")
+            .replace("X7B low lowbuf lowbuf vp vn OPA2810", "X7B lpot lowbuf lowbuf vp vn OPA2810");
+    }
     s = s.replace(" 4.02\n", &format!(" {}\n", c.riso));
     let oldcf = s
         .lines()
@@ -215,8 +223,8 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
         let (inst, positive, negative, out, model, guess) = match lp {
             "source" => ("X5", "acin", "srcfb", "excite", "OPA810", 0.00007590665),
             "drive" => ("X6A", "excite", "source", "source", "OPA2810", 0.000554524),
-            "high" => ("X6B", "hi", "highbuf", "highbuf", "OPA2810", 0.000654719),
-            "low" => ("X7B", "low", "lowbuf", "lowbuf", "OPA2810", 0.000201502),
+            "high" => ("X6B", if kelvin { "hpot" } else { "hi" }, "highbuf", "highbuf", "OPA2810", 0.000654719),
+            "low" => ("X7B", if kelvin { "lpot" } else { "low" }, "lowbuf", "lowbuf", "OPA2810", 0.000201502),
             "tia" => ("X7A", "0", sum, "tia", "OPA2810", 0.000100193),
             _ => panic!("loop {lp}"),
         };
@@ -1018,6 +1026,10 @@ fn main() {
         let (cng, r104) = match rest.strip_suffix("_r104") { Some(c) => (c, true), None => (rest, false) };
         cases = reve_relay_cases(cng.parse().unwrap(), r104);
     }
+    // kelvincng{C}: four-terminal BNC board with the K4 reference relay (reve_bnc_extracted.rs).
+    if let Some(cng) = mode.strip_prefix("kelvincng") {
+        cases = kelvin_cases(cng.parse().unwrap());
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
@@ -1069,6 +1081,8 @@ fn main() {
             || (mode == "fixedriso" && c.name.contains("_r100_") && c.name.contains("_stray1000_"))
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
+            vec!["tia", "drive", "high", "low"]
+        } else if mode.starts_with("kelvin") {
             vec!["tia", "drive", "high", "low"]
         } else if (mode.starts_with("fixedrelay") || mode.starts_with("reverelay")) && c.name.contains("_loops_") {
             vec!["drive", "high", "low"]
@@ -1245,6 +1259,7 @@ fn relay_cases(relays: bool, rout: f64, cng: f64) -> Vec<Case> {
 // ../layout-parasitics/assemble_reve.py.
 include!("reve_extracted.rs");
 include!("reve_r104_extracted.rs");
+include!("reve_bnc_extracted.rs");
 /// `reverelaycng{C}`: `fixedrelaycng{C}` with the Rev E extraction in place of REVD_BOARD and the
 /// Rev D RF leads. The board netlist already holds all TIA_OUT copper (relay pads included), so
 /// `dc` = 0; coc/ccc/cpp/lrel/rc stay the relay-internal NOMINAL/STRESS estimates. Nominal relay
@@ -1335,6 +1350,76 @@ fn reve_relay_cases(cng: f64, r104: bool) -> Vec<Case> {
     for (a, b) in [(0, 1), (0, 2), (1, 2)] {
         let (ra, rb) = (RANGES[a], RANGES[b]);
         cases.push(relay_case(format!("reverelay_weld_{}_{}_open_stray0_risolo22_bnom_nom{rt}_caplead10_local100_lead{:.2}", ra.0, rb.0, leads[a] + NOMINAL.lrel), ra.1 + NOMINAL.rc, format!("{}{}Rpar sum rfp {}\nLpar rfp tia {}n\nRGpar source hi {}\nRDUT hi low 1e12", board("bnom", a), relay_netlist(ra.1, nom, "tia"), rb.1, leads[b] + NOMINAL.lrel, rb.1), 0.));
+    }
+    cases
+}
+
+/// One metre of RG-58-class coax (50 ohm, 101 pF/m, 252.5 nH/m, lossless, 20 sections), shield at
+/// board ground, from `from` to `to`.
+fn coax_1m(tag: &str, from: &str, to: &str) -> String {
+    let n = 20;
+    let dx = 1. / n as f64;
+    let mut s = String::new();
+    let mut prev = from.to_string();
+    for k in 0..n {
+        let next = if k + 1 == n { to.to_string() } else { format!("{tag}_n{k}") };
+        s += &format!("Lw{tag}{k} {prev} {next} {}\nCw{tag}{k} {next} 0 {}\n", 252.5e-9 * dx, 101e-12 * dx);
+        prev = next;
+    }
+    s
+}
+/// R105 / R106 (CUR-POT 1k) and the K4 reference path: COM2 = DUT_HI (hi), NO2 = REF_A (refa),
+/// R107 1k REF_A-DUT_LO. Relay-internal values from the NOMINAL/STRESS set: open contact `coc`
+/// across the pole, contact-to-coil `ccc` on both sides; closed: `rc` + `lrel` in series.
+fn k4_netlist(closed: bool, p: Relay) -> String {
+    let mut s = format!("R105 hi hpot 1k\nR106 low lpot 1k\nR107 refa low 1k\nCc4h hi 0 {c}p\nCc4r refa 0 {c}p\n", c = p.ccc);
+    if closed {
+        s += &format!("Rk4 hi k4m {}\nLk4 k4m refa {}n\n", p.rc, p.lrel);
+    } else {
+        s += &format!("Coc4 hi refa {}p\n", p.coc);
+    }
+    s
+}
+/// `kelvincng{C}`: as-built four-terminal board (BNC J3/J7/J8/J9 HCUR/HPOT/LPOT/LCUR, R104, K4).
+/// Extracted board (reve_bnc_extracted.rs) incl. HPOT/LPOT/REF_A copper and jack estimates;
+/// nominal relay set on the nominal board (caplead = extracted C104 lead), stress set on the
+/// high board (caplead 10 nH). Fixtures: no cable (POT only through R105/R106); four 1 m coax
+/// Kelvin leads meeting at the DUT; lumped stray on HCUR and LCUR, no cable. K4 open throughout,
+/// plus K4 closed (R107 across HCUR-LCUR) with the leads unplugged. All four loops on every case.
+fn kelvin_cases(cng: f64) -> Vec<Case> {
+    let rt = format!("_cng{cng}_srciso47_kelvin");
+    let mut cases = vec![];
+    for (set, p, bc) in [("nom", Relay { dc: 0., ..NOMINAL }, "bnom"), ("str", Relay { dc: 0., ..STRESS }, "bhigh")] {
+        let caplead = if set == "nom" { REVE_BNC_CAPLEAD } else { 10. };
+        for (k, &(range, r, _)) in RANGES.iter().enumerate() {
+            let board = format!("Cng low 0 {cng}p\n{}", if bc == "bnom" { REVE_BNC_BOARD_NOM[k] } else { REVE_BNC_BOARD_HIGH[k] });
+            let lead = REVE_BNC_LEAD[k] + p.lrel;
+            let common = format!("{board}{}", relay_netlist(r, p, "tia"));
+            let duts = |hi: &str, lo: &str| {
+                let mut v = vec![
+                    ("open", format!("RDUT {hi} {lo} 1e12")),
+                    ("short", format!("RDUT {hi} {lo} 0.01")),
+                    ("matched", format!("RDUT {hi} {lo} {r}")),
+                ];
+                if range == "r100" {
+                    v.push(("coil50u", format!("RDUT {hi} coil 0.5\nLDUT coil {lo} 50u")));
+                }
+                v
+            };
+            let strays: Vec<f64> = if range == "r100" { vec![100., 220., 470., 1000.] } else { vec![1000.] };
+            let leads = format!("{}{}{}{}", coax_1m("hc", "hi", "h_dut"), coax_1m("hp", "hpot", "h_dut"), coax_1m("lc", "low", "l_dut"), coax_1m("lp", "lpot", "l_dut"));
+            for ((n, dut), (_, dutc)) in duts("hi", "low").into_iter().zip(duts("h_dut", "l_dut")) {
+                let mut fx: Vec<(String, String, f64)> = vec![("nocable".into(), dut.clone(), 0.), ("coax1m".into(), format!("{leads}{dutc}"), 0.)];
+                for st in &strays {
+                    fx.push(("cur".into(), dut.clone(), *st));
+                }
+                for (f, d, st) in fx {
+                    cases.push(relay_case(format!("kelvinrelay_{range}_{n}_{f}_stray{st}_risolo22_{bc}_{set}_k4open{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}{d}", k4_netlist(false, p)), st));
+                }
+            }
+            // K4 closed, leads unplugged: R107 1k (+ contact) across HCUR-LCUR, DUT open.
+            cases.push(relay_case(format!("kelvinrelay_{range}_open_nocable_stray0_risolo22_{bc}_{set}_k4closed{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}RDUT hi low 1e12", k4_netlist(true, p)), 0.));
+        }
     }
     cases
 }

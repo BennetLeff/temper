@@ -105,6 +105,11 @@ The cases are those of [range-switching §6](rev-e-range-switching.md), run on t
 | **As built, extracted Rev E layout + R104 47 Ω** (`reverelaycng100_r104`): TIA, stress | **58.07°** | 0.629 |
 | same, source-driver loop (`drive`), stress relays, high board corner | **46.77°** | 0.590 |
 | same, `high` / `low` followers, stress | 56.49° / 56.34° | 0.699 / 0.691 |
+| **Four-terminal BNC board + K4** (`kelvincng100`, board `af615c841`): drive, stress, worst of no cable / 1 m RG-58 on all four jacks / 100–1000 pF lumped / K4 closed | **46.83°** | 0.588 |
+| same, drive, nominal | 50.29° | |
+| same, TIA, stress (worst: 1 m coax, 100 Ω range, short) | **57.21°** | 0.491 |
+| same, `high` / `low` followers, stress (1 m coax) | 57.05° / 55.89° | — / 0.643 |
+| same, K4 closed, leads unplugged: drive / TIA / followers, stress | 46.85° / 59.92° / ≥ 56.90° | |
 
 The codec network loads TIA_OUT exactly as the THS4551 did. The remaining weakest loop is the source driver (X6A). The relay's contact-to-coil and pole-to-pole capacitance on SOURCE_BUF take it from Rev D's 55.3° (`fixedriso`, 1000 pF fixture) to 50.9° at the same fixture and 48.3° with no fixture. That still passes 45°. **Extracted layout (2026-10-21).** Extracting the routed board ([layout-parasitics README-rev-e](../validation/layout-parasitics/README-rev-e.md)) replaced the board estimates.
 - TIA_OUT carries 10.0 pF to ground nominal, less than the estimate.
@@ -113,6 +118,8 @@ The codec network loads TIA_OUT exactly as the THS4551 did. The remaining weakes
 - The board now has R104 (47 Ω) between U6A and the relay bus, with feedback at the pin, and the SOURCE_BUF route moved 3.4 mm off DUT_HI (coupling 0.155 pF). The driver is back to 46.77° at stress and 49.80° nominal.
 - The cost is a 147 Ω source resistance on the 100 Ω range: less drive into low impedances, no accuracy change, since HI and the current are measured directly.
 - What remains of the margin depends on the relay's contact-to-coil and pole-to-pole capacitance, which are unpublished. Measure one relay before relying on the last 2°.
+
+**Four-terminal jacks (2026-10-21).** Re-extracted with the BNC runs ([layout-parasitics README-rev-e](../validation/layout-parasitics/README-rev-e.md), `reve_bnc`): HCUR 12.9 pF to ground nominal (was 8.2), LCUR 7.5, HPOT 8.9, LPOT 10.9; HPOT↔HCUR 0.24 pF, LPOT↔LCUR 0.14 pF, HCUR↔LCUR 0.017 pF. All 360 cases stay at or above 45° ([stability](../validation/stability-full-chain/README.md), `kelvincng100`). The 1 m cables cost about 3° on the TIA and 1° on the LOW follower. With them the TIA's minimum |1+T| falls to 0.49 at 57.2° margin: three unity crossings between 13 and 41 MHz, none encircling −1. The BNC jack capacitance (1.5 / 2.5 / 3.5 pF) and K4's internal capacitances are estimates.
 
 ## Remaining risks
 

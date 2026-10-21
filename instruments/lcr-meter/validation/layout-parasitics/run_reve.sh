@@ -4,7 +4,11 @@
 #   reve       board 2f6486c4 (commit 1438ecbc9): first relay layout
 #   reve_r104  board cf379f85 (commit a04880a87): + R104 47 ohm between U6A (net SRC_DRV) and
 #              SOURCE_BUF, SOURCE_BUF moved to In2 x 185.5
-# Usage: sh run_reve.sh [reve|reve_r104|all]   (default all).  STAB=1 also reruns the stability modes.
+#   reve_bnc   board 80d44838: four-terminal BNC jacks (J3/J7/J8/J9 HCUR/HPOT/LPOT/LCUR), R105/R106
+#              1k CUR-POT, K4 reference relay + R107.  Uncommitted when extracted: taken from the
+#              working tree (or BNC_COMMIT=<sha>) and refused unless its SHA-256 matches BNC_SHA.
+# Usage: sh run_reve.sh [reve|reve_r104|reve_bnc|all]   (default all).  STAB=1 also reruns the
+# stability modes.
 # Writes geometry_<v>.json, inductance_<v>.json, fd_results/*_<v>.json, extracted_<v>.json and
 # ../stability-full-chain/<v>_extracted.rs (board capacitors + loop L for loop_matrix.rs).
 # Peak RAM ~5 GB (0.14 mm whole-board solve, ~4 M unknowns).  A 0.1 mm whole-board solve
@@ -18,9 +22,15 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 NETS=TIA_SUM,DUT_LO,TIA_OUT,DUT_HI,RF100,RF5K,RF100K,LOW_BUF,HIGH_BUF,SOURCE_BUF,RG100,RG5K,RG100K
 
-export_board() {  # $1 variant, $2 commit
+export_board() {  # $1 variant, $2 commit (or 'worktree')
   # the .kicad_pro carries the design rules the exporter's zone-refill check needs
-  for f in kicad_pcb kicad_pro; do git show "$2:instruments/lcr-meter/cad/temper-lcr.$f" > "$TMP/temper-lcr.$f"; done
+  for f in kicad_pcb kicad_pro; do
+    if [ "$2" = worktree ]; then cp "../../cad/temper-lcr.$f" "$TMP/temper-lcr.$f"
+    else git show "$2:instruments/lcr-meter/cad/temper-lcr.$f" > "$TMP/temper-lcr.$f"; fi
+  done
+  if [ -n "${3:-}" ] && [ "$(shasum -a 256 "$TMP/temper-lcr.kicad_pcb" | cut -c1-64)" != "$3" ]; then
+    echo "board SHA-256 differs from $3; refusing (set BNC_SHA to the new hash to extract it)" >&2; exit 1
+  fi
   LP_GEOMETRY="geometry_$1.json" "$KICAD_PYTHON" export_geometry.py "$TMP/temper-lcr.kicad_pcb"
   LP_GEOMETRY="geometry_$1.json" LP_SUM=TIA_SUM LP_INDUCTANCE="inductance_$1.json" $PY inductance_reve.py
 }
@@ -54,16 +64,34 @@ run_reve_r104() {
   LP_VARIANT=reve_r104 $PY assemble_reve.py
 }
 
+run_reve_bnc() {
+  export_board reve_bnc "${BNC_COMMIT:-af615c841}" "${BNC_SHA:-80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5}"
+  N=$NETS,SRC_DRV,HPOT,LPOT,REF_A
+  # L-shaped domain 'reve_bnc' (fd3d.DOMAINS) equals its bounding box 'reve_bnc_box' to 0.04 % at 0.4 mm
+  fd reve_bnc $N 0.4 JLC04161H-7628 reve_bnc
+  fd reve_bnc $N 0.4 JLC04161H-7628 reve_bnc_box
+  for dx in 0.2 0.14 0.1 0.07; do fd reve_bnc $N "$dx" JLC04161H-7628 zoom; done
+  for w in reve_relay reve_hiside_r104 bnc_band bnc_vert; do
+    for dx in 0.2 0.14 0.1 0.07 0.05; do fd reve_bnc $N "$dx" JLC04161H-7628 $w; done
+  done
+  for dx in 0.2 0.14 0.1 0.07; do fd reve_bnc $N "$dx" JLC04161H-7628 bnc_corner; done
+  fd reve_bnc $N 0.2 JLC04161H-7628 reve_bnc
+  fd reve_bnc $N 0.2 JLC04161H-1080 reve_bnc
+  LP_VARIANT=reve_bnc $PY assemble_reve.py
+}
+
 case "${1:-all}" in
   reve) run_reve ;;
   reve_r104) run_reve_r104 ;;
-  all) run_reve; run_reve_r104 ;;
-  *) echo 'Usage: sh run_reve.sh [reve|reve_r104|all]' >&2; exit 2 ;;
+  reve_bnc) run_reve_bnc ;;
+  all) run_reve; run_reve_r104; run_reve_bnc ;;
+  *) echo 'Usage: sh run_reve.sh [reve|reve_r104|reve_bnc|all]' >&2; exit 2 ;;
 esac
 
 if [ -n "${STAB:-}" ]; then
   cd ../stability-full-chain
   rustc --edition=2021 -Awarnings -O loop_matrix.rs -o "$TMP/matrix"
-  for m in reverelaycng100 reverelaycng100_r104 fixedrelaycng100; do "$TMP/matrix" "final_$m" > "check-$m.log" 2>&1; done
+  for m in reverelaycng100 reverelaycng100_r104 kelvincng100 fixedrelaycng100; do "$TMP/matrix" "final_$m" > "check-$m.log" 2>&1; done
   $PY reve_summary.py matrix-final_reverelaycng100.md matrix-final_reverelaycng100_r104.md matrix-final_fixedrelaycng100.md
+  $PY kelvin_summary.py matrix-final_kelvincng100.md
 fi

@@ -48,7 +48,18 @@ WINDOWS = {
     # R104 board: SOURCE_BUF moved to In2 x 185.5, DUT_HI still B.Cu x 188.9
     'reve_hiside_r104': (183.5, 191.0, 105.0, 120.0),
 }
-ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside', 'reve_hiside_r104'}
+# Rev E four-terminal BNC board (80d44838, geometry_reve_bnc.json): conductor copper spans
+# x 107.10-189.03, y 50.10-138.05 mm, but left of x 150.5 only the BNC routes (y <= 62.1) exist.
+# The domain is L-shaped (union of the DOMAINS rectangles; zero-flux boundary outside), which halves
+# the unknowns against the bounding box.
+WINDOWS['reve_bnc'] = (102.5, 190.5, 45.5, 139.5)
+# zooms for grid convergence on the new Kelvin routes
+WINDOWS['bnc_band'] = (128.0, 150.0, 54.0, 64.0)     # DUT_HI B.Cu y 57.5, HPOT In2 y 59.5, R105
+WINDOWS['bnc_corner'] = (170.0, 190.0, 55.0, 75.0)   # DUT_LO/LPOT F.Cu, R106, R107, K4, vertical starts
+WINDOWS['bnc_vert'] = (169.0, 191.0, 75.0, 85.0)     # HPOT/LPOT In2, DUT_LO/DUT_HI B.Cu verticals
+WINDOWS['reve_bnc_box'] = WINDOWS['reve_bnc']             # full bounding box: L-domain validation only
+DOMAINS = {'reve_bnc': [(102.5, 190.5, 45.5, 66.0), (150.5, 190.5, 45.5, 139.5)]}
+ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside', 'reve_hiside_r104', 'bnc_band', 'bnc_corner', 'bnc_vert'}
 MARGIN_MM = 1.4
 
 
@@ -59,7 +70,15 @@ def check_window(window):
     from shapely.ops import unary_union
     shapes = [s for it in geometry()['items'] if it['net'] in CONDUCTORS
               for s in (item_shape(it, l) for l in LAYERS) if s is not None]
-    bx = unary_union(shapes).bounds
+    cu = unary_union(shapes)
+    if window in DOMAINS:
+        from shapely.geometry import box as _box
+        dom = unary_union([_box(a, c, b, d) for a, b, c, d in DOMAINS[window]])
+        if not cu.within(dom.buffer(-MARGIN_MM)):
+            raise SystemExit(f'domain {window} misses conductor copper by < {MARGIN_MM} mm: '
+                             f'{cu.difference(dom.buffer(-MARGIN_MM)).bounds}')
+        return
+    bx = cu.bounds
     x0, x1, y0, y1 = WINDOWS[window]
     m = min(bx[0] - x0, x1 - bx[2], bx[1] - y0, y1 - bx[3])
     if m < MARGIN_MM:
@@ -185,6 +204,13 @@ def build(dx, window, stackup, bc):
         lab[:, :, 0][lab[:, :, 0] < 0] = 0
         lab[:, :, -1][lab[:, :, -1] < 0] = 0
 
+    if window in DOMAINS:  # nodes outside the domain are removed (label -2): no links, zero flux
+        X, Y = np.meshgrid(xs, ys)
+        inxy = np.zeros(X.shape, bool)
+        for a, b, c, d in DOMAINS[window]:
+            inxy |= (X >= a - 1e-9) & (X <= b + 1e-9) & (Y >= c - 1e-9) & (Y <= d + 1e-9)
+        lab[:, ~inxy] = -2
+    dom = (lab != -2).ravel()
     dz = np.diff(z)
     # conductances (eps0 = 1, lengths mm)
     # x-links at plane k: eps averaged over half intervals above/below
@@ -200,7 +226,9 @@ def build(dx, window, stackup, bc):
     rows, cols, vals = [], [], []
 
     def link(a, b, gval):
-        rows.append(a.ravel()); cols.append(b.ravel()); vals.append(gval.ravel())
+        a, b, gval = a.ravel(), b.ravel(), gval.ravel()
+        keep = dom[a] & dom[b]
+        rows.append(a[keep]); cols.append(b[keep]); vals.append(gval[keep])
 
     link(idx[:, :, :-1], idx[:, :, 1:], np.broadcast_to(gx[:, None, None], (nz, ny, nx - 1)))
     link(idx[:, :-1, :], idx[:, 1:, :], np.broadcast_to(gx[:, None, None], (nz, ny - 1, nx)))
@@ -219,7 +247,7 @@ def solve(dx, bc, stackup=NOMINAL_STACKUP, window='afe'):
     check_window(window)
     m = build(dx, window, stackup, bc)
     A, lab = m['A'], m['lab']
-    free = np.flatnonzero(lab < 0)
+    free = np.flatnonzero(lab == -1)
     fixed = np.flatnonzero(lab >= 0)
     Aff = A[free][:, free].tocsr()
     Afd = A[free][:, fixed].tocsr()
