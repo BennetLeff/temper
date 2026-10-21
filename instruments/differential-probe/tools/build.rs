@@ -406,6 +406,9 @@ impl Design {
             .collect::<Vec<_>>()
             .join("\n");
         let names = ["differential-probe", "signal", "power"];
+        // The signal sheet's bottom row (the J4 trigger block) runs into an A3 title
+        // block; that sheet is A2, the others stay A3.
+        let paper = ["A3", "A2", "A3"];
         let titles = [
             "Differential probe / compensated inputs",
             "Differential probe / gain, output and overload",
@@ -420,7 +423,7 @@ impl Design {
                     body+=&format!("(sheet (at {} {}) (size {} {}) (stroke (width .254) (type default)) (fill (color 0 0 0 0)) (uuid {}) {} {} (instances (project \"differential-probe\" (path {} (page {})))))\n",x*G,182.*G,45.*G,10.*G,id(&format!("sheet{j}")),prop("Sheetname",names[j],(x,180.),false),prop("Sheetfile",&format!("{}.kicad_sch",names[j]),(x,194.),false),q(&format!("/{}",id("root"))),q(&(j+1).to_string()));
                 }
             }
-            fs::write(format!("cad/{}.kicad_sch",names[s]),format!("(kicad_sch (version 20250114) (generator \"temper_probe\") (uuid {}) (paper \"A3\") (title_block (title {}) (date \"2026-10-20\") (rev \"C prototype\") (company \"Temper / instruments\") (comment 1 \"Voltage ratings are qualification targets; not CAT rated\")) (lib_symbols {syms}) {body} (embedded_fonts no))\n",id(if s==0 {"root"} else {names[s]}),q(titles[s]))).unwrap();
+            fs::write(format!("cad/{}.kicad_sch",names[s]),format!("(kicad_sch (version 20250114) (generator \"temper_probe\") (uuid {}) (paper \"{}\") (title_block (title {}) (date \"2026-10-20\") (rev \"C prototype\") (company \"Temper / instruments\") (comment 1 \"Voltage ratings are qualification targets; not CAT rated\")) (lib_symbols {syms}) {body} (embedded_fonts no))\n",id(if s==0 {"root"} else {names[s]}),paper[s],q(titles[s]))).unwrap();
         }
         let local = syms.replace("(symbol \"Probe:", "(symbol \"");
         fs::write(
