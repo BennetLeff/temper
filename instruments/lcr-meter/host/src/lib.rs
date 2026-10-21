@@ -1,4 +1,4 @@
-//! Acquisition and three-standard fixture correction for the TIDA-based Rev C.
+//! Acquisition and three-standard fixture correction for the TIDA-based Rev D.
 //! Digital tests do not establish the accuracy of an unbuilt analog instrument.
 use serde::{Deserialize, Serialize};
 use std::f64::consts::{PI, TAU};
@@ -70,9 +70,12 @@ pub const MAX_DECIMATION: u32 = 20;
 pub const PROTOCOL_VERSION: u32 = 2;
 /// A single conversion with |code| at or above this is treated as clipping.
 pub const CLIP_CODE: i32 = 32_700;
-pub const HARDWARE_REVISION: &str = "C-local100p";
-pub const CALIBRATION_SCHEMA_VERSION: u32 = 4;
-pub const CALIBRATION_MODEL: &str = "bilinear-short-two-resistors-v4-local100p-boxcar";
+pub const HARDWARE_REVISION: &str = "D-riso22";
+pub const CALIBRATION_SCHEMA_VERSION: u32 = 5;
+pub const CALIBRATION_MODEL: &str = "bilinear-short-two-resistors-v5-riso22-local100p-boxcar";
+/// R94, 0.1 %, between J3 LO and the TIA summing node. The LOW sense follower
+/// taps the J3 side, so channel B spans R94 + RF||CF on every range.
+pub const ISOLATION_RESISTOR_OHM: f64 = 22.0;
 /// One local 100 pF capacitor remains connected for every range. Calibrate parasitics.
 pub const FEEDBACK_CAPACITORS_PF: [(u32, f64); 3] = [(100, 100.0), (5000, 100.0), (100000, 100.0)];
 
@@ -83,6 +86,51 @@ pub fn feedback_capacitance_pf(range: u32) -> Result<f64> {
         .ok_or_else(|| "range must be 100, 5000 or 100000 ohms".into())
 }
 
+/// RP2040 ADC reference: ADC_AVDD is the board 3V3, so both monitors read
+/// ratiometrically to it and a 3V3 error scales the reported rails 1:1.
+pub const RAIL_ADC_REFERENCE_V: f64 = 3.3;
+/// Gross-fault windows for the analog rails: +-5 % rail, +-3 % 3V3, 1 % dividers.
+pub const RAIL_P12_WINDOW_V: (f64, f64) = (10.8, 13.2);
+pub const RAIL_N12_WINDOW_V: (f64, f64) = (-13.2, -10.8);
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Rails {
+    pub plus12_v: f64,
+    pub minus12_v: f64,
+    /// RP2040 die sensor, +-several degC uncalibrated; logged for drift context.
+    pub die_c: f64,
+    pub pass: bool,
+}
+/// Parses "RAILS N SUM_ADC0 SUM_ADC1 SUM_ADC4" (sums of N 12-bit conversions).
+/// ADC0: +12 V through R97 100k over R98 10k. ADC1: -12 V through R100 150k,
+/// pulled toward 3V3 by R99 10k, so it never goes negative while 3V3 is up.
+pub fn rails_from_line(line: &str) -> Result<Rails> {
+    let w: Vec<_> = line.split_whitespace().collect();
+    let parsed: Option<Vec<u32>> = w.iter().skip(1).map(|x| x.parse().ok()).collect();
+    let v = match (w.first(), parsed) {
+        (Some(&"RAILS"), Some(v))
+            if v.len() == 4
+                && v[0] > 0
+                && v[1..]
+                    .iter()
+                    .all(|&s| u64::from(s) <= u64::from(v[0]) * 4095) =>
+        {
+            v
+        }
+        _ => return Err(format!("unexpected RAILS reply: {line}")),
+    };
+    let volts = |sum: u32| f64::from(sum) / f64::from(v[0]) / 4096.0 * RAIL_ADC_REFERENCE_V;
+    let plus12_v = volts(v[1]) * (100.0 + 10.0) / 10.0;
+    let minus12_v = (volts(v[2]) * (150.0 + 10.0) - RAIL_ADC_REFERENCE_V * 150.0) / 10.0;
+    let die_c = 27.0 - (volts(v[3]) - 0.706) / 0.001721;
+    let inside = |x: f64, (lo, hi): (f64, f64)| (lo..=hi).contains(&x);
+    let pass = inside(plus12_v, RAIL_P12_WINDOW_V) && inside(minus12_v, RAIL_N12_WINDOW_V);
+    Ok(Rails {
+        plus12_v,
+        minus12_v,
+        die_c,
+        pass,
+    })
+}
 pub fn frequency_word(hz: f64) -> Result<u32> {
     if !hz.is_finite() || !(100.0..=100_000.0).contains(&hz) {
         return Err("frequency must be 100..100000 Hz".into());
@@ -119,7 +167,8 @@ pub fn feedback(range: u32, hz: f64) -> Result<Complex> {
         return Err("frequency must be positive".into());
     }
     let cap = feedback_capacitance_pf(range)? * 1e-12;
-    Ok(Complex::new(1.0, 0.0) / Complex::new(1.0 / f64::from(range), TAU * hz * cap))
+    Ok(Complex::new(ISOLATION_RESISTOR_OHM, 0.0)
+        + Complex::new(1.0, 0.0) / Complex::new(1.0 / f64::from(range), TAU * hz * cap))
 }
 /// Splits one raw PIO word (bits B15,A15,...,B0,A0) into [A, B]. Protocol 2
 /// firmware performs this on the device; the host keeps it as the reference
@@ -230,7 +279,7 @@ impl Setup {
             || self.system_clock_hz != 120_000_000
             || self.dds_clock_hz != 24_000_000
         {
-            return Err("capture metadata does not describe the C-local100p instrument".into());
+            return Err("capture metadata does not describe the D-riso22 instrument".into());
         }
         feedback(self.range_ohm, 1000.0)?;
         Ok(())
@@ -583,6 +632,9 @@ pub struct Calibration {
     pub schema_version: u32,
     #[serde(default)]
     pub feedback_capacitance_pf: f64,
+    /// Missing before schema 5 (Rev D); zero fails compatibility validation.
+    #[serde(default)]
+    pub isolation_resistor_ohm: f64,
     pub setup: Setup,
     pub model: String,
     pub standard1_ohm: f64,
@@ -698,6 +750,7 @@ pub fn calibrate(
     Ok(Calibration {
         schema_version: CALIBRATION_SCHEMA_VERSION,
         feedback_capacitance_pf: feedback_capacitance_pf(short.setup.range_ohm)?,
+        isolation_resistor_ohm: ISOLATION_RESISTOR_OHM,
         setup: short.setup.clone(),
         model: CALIBRATION_MODEL.into(),
         standard1_ohm: z1,
@@ -716,8 +769,9 @@ pub fn correct(
         || cal.model != CALIBRATION_MODEL
         || cal.schema_version != CALIBRATION_SCHEMA_VERSION
         || cal.feedback_capacitance_pf != feedback_capacitance_pf(setup.range_ohm)?
+        || cal.isolation_resistor_ohm != ISOLATION_RESISTOR_OHM
     {
-        return Err("calibration does not match schema/unit/fixture/range/clock/revision/feedback capacitor; recalibrate".into());
+        return Err("calibration does not match schema/unit/fixture/range/clock/revision/feedback network; recalibrate".into());
     }
     let p = cal
         .points

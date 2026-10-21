@@ -1,12 +1,12 @@
-# Temper LCR Rev C RP2040 firmware
+# Temper LCR Rev D RP2040 firmware
 
 Built target: bare RP2040, 12 MHz crystal, compatible 2 MiB W25Q16JV QSPI flash; Pico SDK 2.2.0, Arm GNU 14.2.rel1. Native USB CDC, no module or second PCB. Board uses external regulated 5 V power; USB VBUS is only sensed through a divider. GP25 is the status LED. BOOTSEL and SWD provide recovery.
 
-This image belongs on the final Rev C PCB with one fixed, local 100 pF TIA feedback capacitor connected in all three ranges. The waveform transport is protocol 2 (on-device boxcar decimation, int32 sums; see below); the hardware/model identity is `C-local100p`. Host 0.5.0 rejects protocol-1 firmware, capture files and calibration files with explicit errors, and still rejects Rev B and the earlier `C` identity with per-range compensation, including their calibration files. Jumper position and physical board revision cannot be sensed automatically; flashing this image does not modify an older PCB.
+This image belongs on the Rev D PCB: one fixed, local 100 pF TIA feedback capacitor connected in all three ranges, plus R94 (22 Ω, 0.1 %) isolating J3 LO from the TIA summing node, and ±12 V rail monitors on GPIO26/27 (ADC0/ADC1). The waveform transport is protocol 2 (on-device boxcar decimation, int32 sums; see below); the hardware/model identity is `D-riso22`. Host 0.6.0 rejects the Rev C identity `C-local100p` and its calibration files. Like host 0.5.0, it rejects protocol-1 firmware, capture files and calibration files with explicit errors, and still rejects Rev B and the earlier `C` identity with per-range compensation, including their calibration files. Jumper position and physical board revision cannot be sensed automatically; flashing this image does not modify an older PCB.
 
 ## Build and flash
 
-The packaged `bin/temper-lcr-rev-c.uf2` is a compiled firmware image. Hold BOOTSEL during reset, then copy it to the RP2040 RPI-RP2 drive. ELF is included for SWD debugging.
+The packaged `bin/temper-lcr-rev-d.uf2` is a compiled firmware image. Hold BOOTSEL during reset, then copy it to the RP2040 RPI-RP2 drive. ELF is included for SWD debugging.
 
 ```sh
 git clone --branch 2.2.0 https://github.com/raspberrypi/pico-sdk.git /tmp/pico-sdk
@@ -63,9 +63,10 @@ Overrun is detected, not assumed away. While DMA runs, the newest four issued wo
 
 ASCII commands end in LF. Responses are LF, without CR translation.
 
-- `INFO` → `INFO 2 C-local100p UNIT_ID 120000000 24000000 120 16384 PASS|FAIL`
+- `INFO` → `INFO 2 D-riso22 UNIT_ID 120000000 24000000 120 16384 PASS|FAIL`
 - `SELFTEST` → `SELFTEST PASS|FAIL`
 - `OFF` → `OK`
+- `RAILS` → `RAILS 256 SUM_ADC0 SUM_ADC1 SUM_ADC4`: sums of 256 RP2040 12-bit conversions each of the +12 V monitor (R97 100k / R98 10k), the −12 V monitor (R100 150k from −12 V, R99 10k to 3V3) and the die temperature sensor. The firmware reports raw sums; the host owns the divider ratios and pass windows. Allowed at any time outside a capture; it does not touch the DDS or the ADS9224R.
 - `CAPTURE WORD DECIMATION COUNT` → `DATA 2 WORD DECIMATION COUNT CRC32`
 - `NOISE WORD DECIMATION COUNT` → `NOISE 2 WORD DECIMATION COUNT CRC32`
 

@@ -1,6 +1,6 @@
 #pragma once
-/* Net names and physical ADC pins are locked to the Rev C schematic. */
-#define HARDWARE_REVISION "C-local100p"
+/* Net names and physical ADC pins are locked to the Rev D schematic. */
+#define HARDWARE_REVISION "D-riso22"
 #define PIN_ADC_A 2u       /* ADS9224R pin 24, SDO-0A */
 #define PIN_ADC_B 3u       /* ADS9224R pin 20, SDO-0B */
 #define PIN_ADC_CS 4u      /* ADS9224R pin 14 */
@@ -13,6 +13,9 @@
 #define PIN_DDS_DATA 11u   /* AD9833 pin 6 */
 #define PIN_ADC_READY 12u  /* ADS9224R pin 25 */
 #define PIN_USB_VBUS 13u   /* VBUS divided by two; no connection to board 5 V */
+#define PIN_MON12 26u     /* ADC0: +12 V via R97 100k / R98 10k; RP2040 pin 38 */
+#define PIN_MON_N12 27u   /* ADC1: -12 V via R100 150k / R99 10k to 3V3; RP2040 pin 39 */
+#define RAIL_SAMPLES 256u /* ADC0, ADC1 and the die sensor (ADC4) are each summed this often */
 #define PIN_UART_TX 28u    /* Optional UART0 header J6; RP2040 pin 40 */
 #define PIN_UART_RX 29u    /* Optional UART0 header J6; RP2040 pin 41 */
 #define PIN_DDS_MCLK 21u   /* CLK_GPOUT0: common 120 MHz system clock / 5 */

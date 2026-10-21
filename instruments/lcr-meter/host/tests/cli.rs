@@ -66,16 +66,18 @@ fn synthetic(z: Complex, range: u32) -> Record {
 }
 fn synthetic_at(z: Complex, range: u32, hz: f64) -> Record {
     let f = frequency_hz(frequency_word(hz).unwrap());
-    // Independent circuit oracle: I/V = 1/R + jwC, not the production Zf helper.
+    // Independent circuit oracle: 22 + 1/(1/R + jwC), not the production Zf helper.
     let cap = match range {
         100 => 100e-12,
         5000 => 100e-12,
         100000 => 100e-12,
         _ => panic!("unsupported test range"),
     };
-    let a = z
-        * Complex::new(1.0 / f64::from(range), std::f64::consts::TAU * f * cap)
-        * Complex::new(8000.0, 0.0);
+    // Channel B spans the 22 ohm isolation resistor in series with RF||CF.
+    let zf = Complex::new(22.0, 0.0)
+        + Complex::new(1.0, 0.0)
+            / Complex::new(1.0 / f64::from(range), std::f64::consts::TAU * f * cap);
+    let a = z / zf * Complex::new(8000.0, 0.0);
     let w = std::f64::consts::TAU * f;
     simulated(
         hz,
@@ -409,8 +411,8 @@ fn parallel_feedback_capacitance() {
     assert!(m.valid);
     assert!((m.impedance_ohm - z).abs() < 1.0);
     let f = feedback(100000, 100000.0).unwrap();
-    assert!((f.im.atan2(f.re).to_degrees() + 80.95693892).abs() < 1e-6);
-    assert!((f.abs() - 15717.672548).abs() < 1e-6);
+    assert!((f.im.atan2(f.re).to_degrees() + 80.87775639).abs() < 1e-6);
+    assert!((f.abs() - 15721.145449).abs() < 1e-6);
 }
 #[test]
 fn every_compensated_range_uses_its_fitted_capacitor() {
@@ -418,7 +420,7 @@ fn every_compensated_range_uses_its_fitted_capacitor() {
         for hz in [1000.0, 35000.0, 60000.0, 100000.0] {
             let x = std::f64::consts::TAU * hz * f64::from(r) * cap;
             let expected = Complex::new(
-                f64::from(r) / (1.0 + x * x),
+                22.0 + f64::from(r) / (1.0 + x * x),
                 -f64::from(r) * x / (1.0 + x * x),
             );
             assert!((feedback(r, hz).unwrap() - expected).abs() < 1e-10);
@@ -565,7 +567,7 @@ fn full_calibration_and_identity_checks() {
     old = cal.clone();
     old.setup.revision = "C".into();
     assert!(correct(&mut m, &r, &setup(), &old).is_err());
-    for schema in [2, 3] {
+    for schema in [2, 3, 4] {
         old = cal.clone();
         old.schema_version = schema;
         assert!(correct(&mut m, &r, &setup(), &old).is_err());
@@ -573,6 +575,7 @@ fn full_calibration_and_identity_checks() {
     for model in [
         "bilinear-short-two-resistors-v2",
         "bilinear-short-two-resistors-v3-local100p",
+        "bilinear-short-two-resistors-v4-local100p-boxcar",
     ] {
         old = cal.clone();
         old.model = model.into();
@@ -580,6 +583,10 @@ fn full_calibration_and_identity_checks() {
     }
     old = cal.clone();
     old.feedback_capacitance_pf = 0.0;
+    assert!(correct(&mut m, &r, &setup(), &old).is_err());
+    // A Rev C calibration (no isolation resistor in its feedback model) is refused.
+    old = cal.clone();
+    old.isolation_resistor_ohm = 0.0;
     assert!(correct(&mut m, &r, &setup(), &old).is_err());
     let mut old_json = serde_json::to_value(&cal).unwrap();
     old_json.as_object_mut().unwrap().remove("schema_version");
@@ -1138,4 +1145,41 @@ fn short_standard_and_calibration_use_the_source_off_check() {
     assert!(error.starts_with("standard 1: source-off"), "{error}");
     calibrate(&s, &loud_one, 20.0, &two, 100.0, true).unwrap();
     calibrate(&loud_short, &one, 20.0, &two, 100.0, true).unwrap();
+}
+#[test]
+fn rail_monitor_conversion_and_windows() {
+    // Codes a nominal board produces: 12 V * 10k/110k and -12 V into 150k/10k to 3V3.
+    let code = |v: f64| (v / 3.3 * 4096.0 * 256.0).round() as u32;
+    let p12 = code(12.0 * 10.0 / 110.0);
+    let n12 = code((3.3 * 150.0 - 12.0 * 10.0) / 160.0);
+    let die = code(0.706);
+    let r = rails_from_line(&format!("RAILS 256 {p12} {n12} {die}")).unwrap();
+    assert!((r.plus12_v - 12.0).abs() < 0.01, "{r:?}");
+    assert!((r.minus12_v + 12.0).abs() < 0.01, "{r:?}");
+    assert!((r.die_c - 27.0).abs() < 0.1, "{r:?}");
+    assert!(r.pass);
+    // A missing negative rail pulls ADC1 toward 3V3 and fails the window.
+    let absent = code(3.3 * 150.0 / 160.0);
+    assert!(
+        !rails_from_line(&format!("RAILS 256 {p12} {absent} {die}"))
+            .unwrap()
+            .pass
+    );
+    // LDO dropout on the positive side fails too.
+    let low = code(10.0 * 10.0 / 110.0);
+    assert!(
+        !rails_from_line(&format!("RAILS 256 {low} {n12} {die}"))
+            .unwrap()
+            .pass
+    );
+    for bad in [
+        "RAILS 256 1 2",
+        "RAILS 0 0 0 0",
+        "RAILS 1 4096 0 0",
+        "INFO 1 2 3 4",
+        "RAILS 256 x 1 2",
+        "RAILS 4294967296 1 2 3",
+    ] {
+        assert!(rails_from_line(bad).is_err(), "{bad}");
+    }
 }

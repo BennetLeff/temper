@@ -1,7 +1,7 @@
 //! POSIX serial transport for macOS and Linux USB CDC ports.
 use crate::{
-    crc32, decode_payload, frequency_hz, payload_len, Record, Result, Setup, DEFAULT_COUNT,
-    HARDWARE_REVISION, MAX_COUNT, PROTOCOL_VERSION,
+    crc32, decode_payload, frequency_hz, payload_len, rails_from_line, Rails, Record, Result,
+    Setup, DEFAULT_COUNT, HARDWARE_REVISION, MAX_COUNT, PROTOCOL_VERSION,
 };
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
@@ -150,6 +150,18 @@ impl Device {
         }
         Ok(())
     }
+    /// Reads the +-12 V monitors and die temperature; an out-of-window rail is an error.
+    pub fn rails(&mut self) -> Result<Rails> {
+        self.command("RAILS")?;
+        let rails = rails_from_line(&self.line()?)?;
+        if !rails.pass {
+            return Err(format!(
+                "analog rail out of window: +12 V reads {:.2} V, -12 V reads {:.2} V; check the supply before measuring",
+                rails.plus12_v, rails.minus12_v
+            ));
+        }
+        Ok(rails)
+    }
     pub fn capture(&mut self, word: u32, decimation: u32, source_enabled: bool) -> Result<Record> {
         if !frequency_hz(word).is_finite() {
             return Err("bad frequency word".into());
@@ -215,11 +227,11 @@ mod tests {
     use super::identity;
     #[test]
     fn only_fixed_local_compensation_identity_is_accepted() {
-        let line = "INFO 2 C-local100p device 120000000 24000000 120 16384 PASS";
+        let line = "INFO 2 D-riso22 device 120000000 24000000 120 16384 PASS";
         assert!(identity(line, 100, "fixture").is_ok());
-        for old in ["A", "B", "C"] {
+        for old in ["A", "B", "C", "C-local100p"] {
             assert!(identity(
-                &line.replace(" C-local100p ", &format!(" {old} ")),
+                &line.replace(" D-riso22 ", &format!(" {old} ")),
                 100,
                 "fixture"
             )
@@ -230,11 +242,11 @@ mod tests {
     }
     #[test]
     fn protocol_one_firmware_is_rejected_by_name() {
-        let v1 = "INFO 1 C-local100p device 120000000 24000000 120 32768 PASS";
+        let v1 = "INFO 1 D-riso22 device 120000000 24000000 120 32768 PASS";
         let error = identity(v1, 100, "fixture").unwrap_err();
         assert!(error.contains("protocol 1"), "{error}");
         // A v2 banner with the old v1 record limit is not accepted either.
-        let mixed = "INFO 2 C-local100p device 120000000 24000000 120 32768 PASS";
+        let mixed = "INFO 2 D-riso22 device 120000000 24000000 120 32768 PASS";
         assert!(identity(mixed, 100, "fixture").is_err());
         assert!(identity(&v1.replace("INFO 1", "INFO 3"), 100, "fixture").is_err());
     }

@@ -1,22 +1,22 @@
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running unittests src/lib.rs (/tmp/temper-lcr-host-hazard/debug/deps/temper_lcr-05e7fdd21283481d)
+     Running unittests src/lib.rs (/tmp/temper-lcr-revc-host-target/debug/deps/temper_lcr-018dd922580166f4)
 
 running 3 tests
 test transport::tests::protocol_one_firmware_is_rejected_by_name ... ok
 test transport::tests::only_fixed_local_compensation_identity_is_accepted ... ok
 test integrity::tests::closed_form_response_matches_the_fit ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
 
-     Running unittests src/main.rs (/tmp/temper-lcr-host-hazard/debug/deps/temper_lcr-9b7b422e649ef370)
+     Running unittests src/main.rs (/tmp/temper-lcr-revc-host-target/debug/deps/temper_lcr-e35bb3fc29ff49da)
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/cli.rs (/tmp/temper-lcr-host-hazard/debug/deps/cli-a5207339c36ba9fb)
+     Running tests/cli.rs (/tmp/temper-lcr-revc-host-target/debug/deps/cli-0f73b3a8b2acbeb1)
 
-running 25 tests
+running 26 tests
 test bilinear_fixture_recovers_complex_dut ... ok
 test clock_and_frequency_bounds ... ok
 test firmware_host_clock_contract ... ok
@@ -24,14 +24,15 @@ test golden_payload_matches_firmware_vector ... ok
 test hazard_prediction_matches_the_fit_of_a_synthesized_record ... ok
 test boxcar_reference_matches_direct_sums_for_every_decimation ... ok
 test corruption_and_weak_signal_rejected ... ok
-test parallel_feedback_capacitance ... ok
-test payload_encoding_round_trip_and_length_checks ... ok
 test noncoherent_capacitor_and_inductor ... ok
-test full_calibration_and_identity_checks ... ok
-test signed_wire_order_and_crc ... ok
-test boxcar_timebase_is_the_window_centre_and_gain_is_removed ... ok
-test cli_produces_correct_negative_reactance ... ok
+test payload_encoding_round_trip_and_length_checks ... ok
+test parallel_feedback_capacitance ... ok
+test rail_monitor_conversion_and_windows ... ok
 test protocol_one_files_are_rejected_with_a_clear_error ... ok
+test signed_wire_order_and_crc ... ok
+test cli_produces_correct_negative_reactance ... ok
+test full_calibration_and_identity_checks ... ok
+test boxcar_timebase_is_the_window_centre_and_gain_is_removed ... ok
 test extremes_are_crc_covered_and_must_bound_the_sums ... ok
 test noise_records_cannot_be_impedance ... ok
 test boxcar_suppresses_tone_that_undersampling_aliased ... ok
@@ -43,7 +44,7 @@ test allow_hazard_captures_and_records_the_hazard ... ok
 test hazard_check_flags_whole_khz_grid_and_passes_the_new_grid ... ok
 test short_standard_and_calibration_use_the_source_off_check ... ok
 
-test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.60s
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.57s
 
    Doc-tests temper_lcr
 

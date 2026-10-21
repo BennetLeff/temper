@@ -10,6 +10,7 @@ use temper_lcr::{
 const USAGE: &str = "Usage:
   temper-lcr info PORT
   temper-lcr selftest PORT
+  temper-lcr rails PORT
   temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard] [--no-source-off] [--short-standard]
   temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]
   temper-lcr advise-grid FREQ_HZ[,FREQ_HZ...]
@@ -70,6 +71,11 @@ fn run(args: &[String]) -> Result<()> {
             d.selftest()?;
             println!("{}", json(&d.setup)?);
             println!("ADC dual-channel fixed-pattern link test: PASS");
+            println!("{}", json(&d.rails()?)?);
+        }
+        ("rails", 2) => {
+            let mut d = Device::open(a[1], 100, "diagnostic")?;
+            println!("{}", json(&d.rails()?)?);
         }
         ("capture" | "noise", 6) => {
             let options = CaptureOptions {
@@ -88,6 +94,7 @@ fn run(args: &[String]) -> Result<()> {
             }
             let mut d = Device::open(a[1], number(a[2])?, a[3])?;
             d.selftest()?;
+            d.rails()?;
             let grid = capture_grid(&freqs, options, |word, decimation, source_on| {
                 let record = d.capture(word, decimation, source_on)?;
                 eprintln!(

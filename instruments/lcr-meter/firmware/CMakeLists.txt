@@ -9,7 +9,7 @@ pico_sdk_init()
 add_executable(temper_lcr src/main.c src/boxcar.c)
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/capture.pio)
 target_include_directories(temper_lcr PRIVATE src)
-target_link_libraries(temper_lcr pico_stdlib pico_unique_id hardware_pio hardware_dma hardware_clocks)
+target_link_libraries(temper_lcr pico_stdlib pico_unique_id hardware_pio hardware_dma hardware_clocks hardware_adc)
 target_compile_options(temper_lcr PRIVATE -Wall -Wextra -Werror)
 target_compile_definitions(temper_lcr PRIVATE
     BOXCAR_IN_RAM=1
@@ -20,7 +20,7 @@ target_compile_definitions(temper_lcr PRIVATE
     PICO_STDIO_USB_ENABLE_RESET_VIA_BAUD_RATE=0
     PICO_STDIO_USB_STDOUT_TIMEOUT_US=5000000
     USBD_MANUFACTURER="Temper"
-    USBD_PRODUCT="Temper LCR C-local100p")
+    USBD_PRODUCT="Temper LCR D-riso22")
 pico_enable_stdio_usb(temper_lcr 1)
 pico_enable_stdio_uart(temper_lcr 0)
 pico_add_extra_outputs(temper_lcr)

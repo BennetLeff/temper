@@ -5,6 +5,7 @@
 #include "pico/stdlib.h"
 #include "pico/stdio_usb.h"
 #include "pico/unique_id.h"
+#include "hardware/adc.h"
 #include "hardware/clocks.h"
 #include "hardware/dma.h"
 #include "hardware/pio.h"
@@ -171,6 +172,14 @@ static bool adc_selftest(void) {
     adc_command(0x1500u);
     return pass;
 }
+/* Sum of RAIL_SAMPLES conversions of one RP2040 ADC input (12-bit codes). */
+static uint32_t rail_sum(uint input) {
+    adc_select_input(input);
+    (void)adc_read(); /* discard the conversion after the mux change */
+    uint32_t sum = 0;
+    for (uint i = 0; i < RAIL_SAMPLES; ++i) sum += adc_read();
+    return sum;
+}
 static void process_command(const char *line) {
     if (!strcmp(line, "INFO")) {
         printf("INFO 2 %s %s %u %u %u %u %s\n", HARDWARE_REVISION, unit_id, SYSTEM_CLOCK_HZ,
@@ -180,6 +189,12 @@ static void process_command(const char *line) {
     if (!strcmp(line, "OFF")) {
         dds_off();
         puts("OK");
+        return;
+    }
+    if (!strcmp(line, "RAILS")) {
+        /* Raw sums; the host owns the divider ratios and the pass windows. */
+        uint32_t mon12 = rail_sum(0), mon_n12 = rail_sum(1), die = rail_sum(4);
+        printf("RAILS %u %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", RAIL_SAMPLES, mon12, mon_n12, die);
         return;
     }
     if (!strcmp(line, "SELFTEST")) {
@@ -249,6 +264,10 @@ int main(void) {
     gpio_set_dir(PIN_ADC_READY, GPIO_IN);
     gpio_init(PIN_USB_VBUS);
     gpio_set_dir(PIN_USB_VBUS, GPIO_IN);
+    adc_init();
+    adc_gpio_init(PIN_MON12);   /* analog input: digital buffer off at mid-rail levels */
+    adc_gpio_init(PIN_MON_N12);
+    adc_set_temp_sensor_enabled(true);
     pico_get_unique_board_id_string(unit_id, sizeof(unit_id));
     adc_sm = pio_claim_unused_sm(adc_pio, true);
     adc_offset = pio_add_program(adc_pio, &capture_program);
