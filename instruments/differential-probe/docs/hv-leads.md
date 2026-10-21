@@ -41,7 +41,7 @@ Read from public distributor pages on 2026-10-20, without logging in or using a 
 | TIP− hook clip | Cal Test CT4466-0 | "VOLTAGE: 1000V CAT III (IEC 61010)", 5 A; nylon body; 4 mm jack; 4.80 mm opening (drawing, DigiKey) | DigiKey 1768-CT4466-0-ND, $20.00, 8 | 2 |
 | TIP− fork adapter (J2) | Stäubli 23.0480-21 (B4-I/KS) | "Rated Values 1000 V, CAT II, 20 A", IEC EN 61010-031; fork slot 4.1 mm, fork width 7.5 mm (Stäubli drawing) | element14 NZ 4716554, NZD 18.13 per 2 ex GST, 7 (search listing; page not opened). Not at DigiKey or Mouser. | 1 pack of 2 |
 | Heat-shrink, 3/16 in black | Raychem RNF-100-3/16-BK-SP | UL E35586 600 V, 125 °C; 2:1; recovered wall 0.51 ± 0.08 mm (TE data sheet) | DigiKey, $3.55 per metre (stock not read) | 1 m |
-| Cable ties | Panduit PLT1M-C | Natural nylon, 99 mm | Mouser 644-PLT1M-C, $0.212 at 100 (minimum 100), 96,100 | 100 |
+| Cable ties | Panduit PLT1M-C | Natural nylon, 99 mm (strap width and thickness not read: check it passes the 3.0 × 1.4 mm bridge slots) | Mouser 644-PLT1M-C, $0.212 at 100 (minimum 100), 96,100 | 100 |
 | FR4 tip plate | JLC, [`mech/tip-plate`](../mech/tip-plate/tip-plate.kicad_pcb) | Copper-free FR4, 1.6 mm, 103.12 × 53.09 mm | JLC 5 pcs, not quoted; ≤ $10.40 (the 150 × 70 mm 2-layer quote bounds it) | 1 lot |
 | FR4 lead bridge | JLC, [`mech/lead-bridge`](../mech/lead-bridge/lead-bridge.kicad_pcb) | Copper-free FR4, 1.6 mm, 86.0 × 69.0 mm | JLC 5 pcs, ≤ $10.40 (same bound) | 1 lot |
 
