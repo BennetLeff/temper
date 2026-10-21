@@ -27,7 +27,7 @@ disagree, the script wins. This file replaces the 2026-10 text that rated UCC215
 | U9 | CA-IS3720HW | OPEN | 100 | OPEN | the consumer (controller) filter is not in this repo; rating is 15.2x the dv/dt seen |
 | U4 | AMC1311BDWVR | OPEN | 100 | OPEN | the consumer (controller ADC / firmware) is not in this repo |
 | U36 | VOL628A-2X001T | OPEN | n/a | OPEN | no datasheet CMTI number |
-| T1 | CST3015-200ED | OPEN | n/a | OPEN | Cww unspecified; break-even Cww 186 pF (5.20 mV per pF on the burden node); ask Coilcraft |
+| T1 | CST3015-200ED | OPEN | n/a | OPEN | Cww unspecified; break-even Cww 194 pF at the 67.36 A B9 corner (5.20 mV per pF on the burden node; 186 pF at the pre-s54 64.55 A); ask Coilcraft |
 | PS2 | MPM-20-24 | OPEN | n/a | OPEN | not on a switch node; no CMTI spec |
 | CTRL | hypothetical 50 kV/us | GATE | 50 | FAIL | the control: must fail (short by 52.2 kV/us) |
 
@@ -53,4 +53,4 @@ dv/dt (IPW65R018CFD7, 0.97 of rating, still a gap against the 56 V/ns screen unt
 - U9 BUS_FAULT and U4 VBUS leave the board unfiltered; the controller needs a debounce (2 consecutive samples or about
   10 us RC) before acting. The controller side is not in this repo.
 - U36 has no CMTI number; firmware should validate zero-cross period (50 / 60 Hz window) before using it.
-- T1: ask Coilcraft (cst@coilcraft.com) for Cww. My judgment (not sourced) is that a 3015 package is far below 186 pF.
+- T1: ask Coilcraft (cst@coilcraft.com) for Cww. My judgment (not sourced) is that a 3015 package is far below 194 pF.

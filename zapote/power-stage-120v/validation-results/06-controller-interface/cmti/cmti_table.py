@@ -31,6 +31,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 PS = HERE.parents[2]                      # .../zapote/power-stage-120v
 SRC = PS / "elec" / "src"
+COMMISSIONING = PS.parents[1] / "firmware" / "components" / "power" / "COMMISSIONING.md"
 
 MARGIN = 1.5                              # F6 pass margin
 # Stage-42 basis (S6 study, validation-results/11-candidates/s6-cmti-2026-10-16/README.md section 2a): the adopted gate
@@ -386,11 +387,15 @@ def main():
         if r["i_inj_hard_mA"] is not None and r["ref"] != "CTRL":
             print(f"  {r['ref']:4s} Cio {r['cio_pf']:g} pF -> {r['i_inj_hard_mA']:.0f} mA peak, {r['q_inj_nC']:.2f} nC")
     n_ct = int(re.search(r"CST3015-(\d+)E", f["ct_mpn"]).group(1))   # stage 20: 1:200 (CST3015-200ED)
-    i_sec = 64.55 / n_ct                        # A; OCP trip-band minimum / CT turns
+    # CT trip-band minimum: the B9 row of COMMISSIONING.md's generated board table (commissioning_board_table.py, gated
+    # in CI against the frozen BOM; stage 54 R44 / R45 11 k: 67.36 A, was 64.55 A from the .ato comment)
+    b9 = next(l for l in COMMISSIONING.read_text().splitlines() if l.startswith("| B9 |"))
+    ct_min = min(float(x) for x in re.findall(r"band ([0-9.]+)–[0-9.]+ A \(\+\), ([0-9.]+)–", b9)[0])
+    i_sec = ct_min / n_ct                       # A; CT trip-band minimum / CT turns
     v_trip = i_sec * f["ct_R"]
     q_per_pf = 1e-12 * V_SW_PEAK                # C per pF of Cww for a full 520 V swing
     dv_per_pf = q_per_pf / f["ct_C"]
-    print(f"CST3015: OCP trip-band min 64.55 A (power_stage_120v.ato comment) / {n_ct} turns = {i_sec*1e3:.0f} mA x burden "
+    print(f"CST3015: CT trip-band min {ct_min:g} A (COMMISSIONING.md B9) / {n_ct} turns = {i_sec*1e3:.0f} mA x burden "
           f"{f['ct_R']:g} ohm = {v_trip:.3f} V trip level; burden C {f['ct_C']*1e9:g} nF, burden RC = {f['ct_R']*f['ct_C']*1e9:.0f} ns "
           f"(>> {V_SW_PEAK/DVDT_HARD:.1f} ns edge, so the edge is charge-dominated)")
     print(f"  each pF of unspecified Cww moves the burden node by {dv_per_pf*1e3:.2f} mV (Q = Cww x {V_SW_PEAK:g} V into the burden C); "

@@ -296,8 +296,14 @@ if CR1.exists():
     ov = gcr["bom_stock_read_overrides"]
     check("consign-r1: the current order BOM has no line short at 20 boards on the default --stock list",
           gcr["bom_lines_short_proto"] == 0, [l["mpn"] for l in gcr["bom_short_lines_proto"]])
-    check("consign-r1: the bank, the RECOM modules and the J3 / J11 order variant take the 2026-10-18 read",
-          all(str(ov.get(m, "")).startswith(CR1.name) for m in ("B32643H8104J000", "R24C2T25/R-R", "B2P3-VH-H(LF)(SN)")), ov)
+    check("consign-r1: the bank and the RECOM modules take the 2026-10-18 read",
+          all(str(ov.get(m, "")).startswith(CR1.name) for m in ("B32643H8104J000", "R24C2T25/R-R")), ov)
+    # J3 / J11's order variant: the 2026-10-18 read either overrides it, or (s55 run_all.sh, OPEN-ITEMS B17) the snapshot
+    # carries that same read (C160900 detail, fetched 2026-10-18T19:35:37Z) and no override is needed
+    jv = [r for r in csv.DictReader(open(SNAPD)) if r["mpn"].strip() == "B2P3-VH-H(LF)(SN)"]
+    check("consign-r1: J3 / J11's B2P3-VH-H(LF)(SN) takes the 2026-10-18 read (override or snapshot row)",
+          str(ov.get("B2P3-VH-H(LF)(SN)", "")).startswith(CR1.name)
+          or (len(jv) == 1 and jv[0]["fetched_utc"].startswith("2026-10-18") and float(jv[0]["jlc_stock"] or 0) >= 40), (ov, jv))
     sr = {r["mpn"]: r for r in csv.DictReader(open(CR1))}
     check("consign-r1: D3 / D17's read counts only the Good-Ark offer (not the Littelfuse listing)",
           sr["30KPA150CA"]["best_auth_moq_le_need"].startswith("DigiKey"), sr["30KPA150CA"])
