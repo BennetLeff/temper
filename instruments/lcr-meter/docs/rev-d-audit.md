@@ -1,10 +1,33 @@
 # Rev D board audit: decoupling, simplification, part choices (2026-10-20)
 
-Scope: every functional group on the Rev D board (`eb2b4cf8…`), checked against the vendor layout guidance in `sources/`, the native board geometry, and the in-box studies (`validation/`). Each finding cites the measurement that supports it. Nothing here is implemented yet.
+Scope: every functional group on the Rev D board (`eb2b4cf8…`), checked against the vendor layout guidance in `sources/`, the native board geometry, and the in-box studies (`validation/`). Each finding cites the measurement that supports it. Tier 1 was applied the same day; see **Applied** below for what changed, what was withdrawn and why. The findings sections keep the original audit text.
 
 How to read the tiers:
 - **Tier 1, before ordering Rev D.** Local hand-routed edits that bring the board into line with explicit vendor requirements, or cheap changes with clear payoff. No architecture change.
 - **Tier 2, Rev E.** Larger changes worth doing if the board is re-laid out: they cut cost or parts, or add agent control, but each needs new evidence.
+
+## Applied (2026-10-20)
+
+Rebuilt board: DRC 0, unconnected 0, schematic parity 0, ERC 0; `validation/independent_check.py D` 576 pins, 0 findings; `cad/audit_dfm.py` 54 intended filled/capped via-in-pad sites, none unexpected. All routing is hand-specified segments (`cad/tools/edit_lib.py`). Numbers below are from the regenerated `validation/layout-audit-rev-d.json`.
+
+| # | Item | Result |
+|---|---|---|
+| 1 | Exposed-pad vias | Vias in pad: U1 1 → 8, U8 1 → 5, U9 1 → 5, U10 1 → 5, U11 0 → 6, U12 0 → 6, U13 1 → 9 (0.55/0.25 mm, POFV). The U1 grid skips the corner over the In2 QSPI1 diagonal. `audit_dfm.py` now expects U11.9 and U12.9 |
+| 2 | ADS9224R | C72/C73 → 10 µF X7R 0805 (C95841) at 1.56 mm from REFP. REFM runs pin → cap ground pad on F.Cu (0.3 mm), then the via at the cap's far end. C76/C77 → 1 µF 0603 at 1.67 / 2.46 mm from pins 12 / 29. **Not done:** C78 (DVDD, pin 28) stays at 7.0 mm; the pin-side row is full with the reference and AVDD caps, so it needs an 0402 or a bottom-side part |
+| 3 | LDO support parts | Both LDOs re-placed per TI's layout: CIN 100 nF and NR on the input side, COUT and the divider + CFF on the output side, each with its own ground via. FB nodes REGP_FB 13.2 → 5.2 mm and REGN_FB 12.0 → 5.3 mm of trace (most of it runs between the divider parts; pin to first pad is about 2 mm). NR 3.6/5.2 → 2.1 mm. The LDOIN_N In2 run moved from y 133.7 to y 138 to clear the PowerPAD vias |
+| 3b | Converter feedback (Tier 2 item 8, partial) | R81/R82/C87 packed into one column 1.5 mm from pin 22's trace; the FBN divider turned so its node is one F.Cu column fed by a single straight B.Cu run under the In1 plane. CONV_FBP 13.1 → 9.1 mm, CONV_FBN 16.8 → 12.3 mm. The inductors, diodes and output caps are not moved |
+| 4 | RP2040 | C5 (shared by pins 42–44, 48, 49) → 1 µF 0603 X5R (C15849), so VREG_VIN has 1 µF at 2.6 mm and the other pins keep a cap at 2.7–3.8 mm. **Not done:** no 100 nF at DVDD pin 50; the USB/QSPI/UART fan-out fills that side. Pin 50 relies on C8 (1 µF, 6.3 mm) |
+| 5 | Source settling | C36 → 100 nF 0805 (C49678). Firmware settle → max(150 ms, 20 cycles) |
+| 6 | Part swaps | Applied: D4 red LED (C2286), FB1/FB2 GZ2012D101TF (C1015), U2 W25Q128JVSIQ (C97521), C84 CL10B224KA8NNNC (C21120), the 14 V caps C89–C92, C94, C95, C99, C100 and the converter input caps C80/C82 → CL32B106KBJNNNE (C138687), C18 → CL21A106KAYNNNE 0805 (C15850), C103 → CL31A226KAHNNNE 1206 (C12891). Extended lines 34 → 30, including the new 10 µF X7R reference-cap line (C95841); about $12 of feeder fees per order instead of the ~$31 estimated, because the divider swaps were withdrawn (below). Catalog SMT parts $72.95 per board (was $73.18) |
+| 7 | `BOOT` | Firmware `BOOT` → `OK`, then `reset_usb_boot()`. Host 0.7.0 adds `temper-lcr boot PORT` |
+
+**Withdrawn after checking (the §1 and §7 claims were wrong):**
+- **Converter dividers to TI's example values.** `validation/power-spurs/regulator_check.py` had the Rev C values hard-coded (1.62 MΩ / 1.78 MΩ). It now reads `design.json`. At the full tolerance stack, 1 MΩ / 91 kΩ gives VPOS up to 15.105 V, over TI's 15 V recommended maximum. The audit said it stayed under. No basic or preferred 0603 pair puts the ratio in the 10.38–10.91 window that keeps VPOS ≤ 15 V and U11 headroom ≥ 1 V. R81–R84, C87 and C88 keep their Rev D values (1.62 MΩ / 150 kΩ / 4.3 pF; 1.74 MΩ / 150 kΩ / 4.3 pF).
+- **LDO dividers 0.1 % → 1 %.** The ±12 V set points are not references, but 1 % widens the LDO output to 12.54 V max. That leaves U12 0.74 V of headroom at the worst VNEG, under the 1 V the PSRR curves assume. R85–R89 stay 0.1 %.
+- **C80/C82 → 25 V 0805.** At 5 V the 0805 does not keep TI's 4.7 µF at INP and INN after tolerance and temperature. They use the 50 V 1210 line already on the board for the 14 V caps, so no line is added.
+- **D1 USBLC6 → SRV05-4 (C7420376).** The LCSC listing is now R+O, not the part researched. Its datasheet link returns an HTML page and the EasyEDA symbol API refused the request, so the pinout could not be checked against a primary source. A wrong ESD pinout can short VBUS. USBLC6-2SC6 stays.
+
+**Found while checking (Rev D as designed, not caused by these edits).** With the real R83 (1.74 MΩ) and the 1 Ω R96 that Rev D fits, U12 headroom at the full tolerance stack and 2× the estimated load is 0.949 V. That is above the 0.6 V dropout and below the 1 V PSRR-curve condition (`regulator_check.json`, "Option R5" row, which now describes the fitted part). The stale 1.78 MΩ value had shown 1.256 V. At the estimated load, headroom is 0.99 V. Measure −12 V ripple at bring-up.
 
 ## Summary
 

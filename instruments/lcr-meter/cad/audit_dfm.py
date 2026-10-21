@@ -28,7 +28,7 @@ for via in board.GetTracks():
                              'process': 'resin filled, copper capped, planarized (POFV)'})
 rows.sort(key=lambda row: (row['reference'], row['pad'], row['x_mm'], row['y_mm']))
 expected = {('U1','57'), ('R3','2'), ('U10','13'), ('U10','15'),
-            ('U8','17'), ('U9','17'), ('U10','33'), ('U13','25'),
+            ('U8','17'), ('U9','17'), ('U10','33'), ('U11','9'), ('U12','9'), ('U13','25'),
             ('C107','1'), ('C109','1'), ('C62','2'), ('C63','2'), ('C68','2'), ('C69','2'), ('C75','2')}
 actual = {(row['reference'], row['pad']) for row in rows}
 assert actual == expected, f'Unexpected drill/SMT overlap set: {actual ^ expected}'

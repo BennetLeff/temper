@@ -9,7 +9,7 @@ pico_sdk_init()
 add_executable(temper_lcr src/main.c src/boxcar.c)
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/capture.pio)
 target_include_directories(temper_lcr PRIVATE src)
-target_link_libraries(temper_lcr pico_stdlib pico_unique_id hardware_pio hardware_dma hardware_clocks hardware_adc)
+target_link_libraries(temper_lcr pico_stdlib pico_bootrom pico_unique_id hardware_pio hardware_dma hardware_clocks hardware_adc)
 target_compile_options(temper_lcr PRIVATE -Wall -Wextra -Werror)
 target_compile_definitions(temper_lcr PRIVATE
     BOXCAR_IN_RAM=1

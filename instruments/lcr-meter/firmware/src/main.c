@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pico/stdlib.h"
+#include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
 #include "pico/unique_id.h"
 #include "hardware/adc.h"
@@ -197,6 +198,16 @@ static void process_command(const char *line) {
         printf("RAILS %u %" PRIu32 " %" PRIu32 " %" PRIu32 "\n", RAIL_SAMPLES, mon12, mon_n12, die);
         return;
     }
+    if (!strcmp(line, "BOOT")) {
+        /* Reboot into the ROM USB mass-storage bootloader so a host can flash a UF2
+           without the BOOTSEL button. Reply first; the USB device disappears. */
+        dds_off();
+        puts("OK");
+        stdio_flush();
+        sleep_ms(100);
+        reset_usb_boot(0, 0);
+        return;
+    }
     if (!strcmp(line, "SELFTEST")) {
         dds_off();
         adc_ok = adc_selftest();
@@ -227,9 +238,10 @@ static void process_command(const char *line) {
     if (source_off) dds_off();
     else dds_start(word);
     gpio_put(PIN_LED, true);
-    /* RC coupling + coil transient settling. Twenty cycles, at least 1000 ms. */
+    /* RC coupling (C36 100 nF x 100 kOhm, tau 10 ms) + coil transient settling.
+       Twenty cycles, at least 150 ms (15 tau). */
     uint settle_ms = (uint)(20000.0 / frequency) + 1u;
-    if (settle_ms < 1000) settle_ms = 1000;
+    if (settle_ms < 150) settle_ms = 150;
     sleep_ms(settle_ms);
     boxcar_t box;
     capture_result result = capture(decimation, count, &box);

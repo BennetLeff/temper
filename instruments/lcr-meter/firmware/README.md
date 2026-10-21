@@ -1,12 +1,12 @@
 # Temper LCR Rev D RP2040 firmware
 
-Built target: bare RP2040, 12 MHz crystal, compatible 2 MiB W25Q16JV QSPI flash; Pico SDK 2.2.0, Arm GNU 14.2.rel1. Native USB CDC, no module or second PCB. Board uses external regulated 5 V power; USB VBUS is only sensed through a divider. GP25 is the status LED. BOOTSEL and SWD provide recovery.
+Built target: bare RP2040, 12 MHz crystal, 16 MiB W25Q128JV QSPI flash (Rev D; the image is linked for 2 MiB and runs unchanged); Pico SDK 2.2.0, Arm GNU 14.2.rel1. Native USB CDC, no module or second PCB. Board uses external regulated 5 V power; USB VBUS is only sensed through a divider. GP25 is the status LED. The `BOOT` command enters the USB bootloader; BOOTSEL and SWD provide recovery.
 
 This image belongs on the Rev D PCB: one fixed, local 100 pF TIA feedback capacitor connected in all three ranges, plus R94 (22 Ω, 0.1 %) isolating J3 LO from the TIA summing node, and ±12 V rail monitors on GPIO26/27 (ADC0/ADC1). The waveform transport is protocol 2 (on-device boxcar decimation, int32 sums; see below); the hardware/model identity is `D-riso22`. Host 0.6.0 rejects the Rev C identity `C-local100p` and its calibration files. Like host 0.5.0, it rejects protocol-1 firmware, capture files and calibration files with explicit errors, and still rejects Rev B and the earlier `C` identity with per-range compensation, including their calibration files. Jumper position and physical board revision cannot be sensed automatically; flashing this image does not modify an older PCB.
 
 ## Build and flash
 
-The packaged `bin/temper-lcr-rev-d.uf2` is a compiled firmware image. Hold BOOTSEL during reset, then copy it to the RP2040 RPI-RP2 drive. ELF is included for SWD debugging.
+The packaged `bin/temper-lcr-rev-d.uf2` is a compiled firmware image. Send `BOOT` (host: `temper-lcr boot PORT`), or hold BOOTSEL during reset, then copy it to the RP2040 RPI-RP2 drive. ELF is included for SWD debugging.
 
 ```sh
 git clone --branch 2.2.0 https://github.com/raspberrypi/pico-sdk.git /tmp/pico-sdk
@@ -57,7 +57,7 @@ A boxcar is a sinc-shaped low-pass filter with nulls at multiples of 1 MSPS/N; i
 
 Cycle budget at 120 MHz (120 system clocks per conversion): `tools/hot_loop_bound.rs` reads the disassembled ELF and bounds the compiled per-conversion loop at **88 clocks**, summing every loop instruction once with every branch charged as taken (Cortex-M0+ zero-wait-state timings; DMA bus-arbitration stalls are not modelled). Per-batch work (DMA count reads, PIO flag and timer polling) is a fixed cost per batch; because each batch consumes everything that has arrived, batches grow until the loop keeps pace, so sustained throughput needs only the per-conversion cost below 120. USB interrupts on core 0 are absorbed by the 4.096 ms ring. This design keeps the verified single-state-machine PIO timing; two lane-per-state-machine PIO programs would avoid the deinterleave but need lock-step state machines and two rings for no needed throughput.
 
-Overrun is detected, not assumed away. While DMA runs, the newest four issued words are left unread so a word whose write is still in flight is never consumed. After each batch the firmware re-reads the DMA transfer count; if DMA could have issued word i + 4096 before word i was read, the capture fails with `ERR acquisition_overrun`. A READY fault, timeout, incomplete DMA, missing PIO end IRQ or RX FIFO stall fails with `ERR acquisition_timing`. Either error invalidates the capture and clears the selftest status. The firmware holds the DDS off outside capture, allows1000 ms or20 cycles settling (10 time constants of the 1 µF/100 kΩ source coupling), and shuts it off after acquisition. USB removal also disables the source.
+Overrun is detected, not assumed away. While DMA runs, the newest four issued words are left unread so a word whose write is still in flight is never consumed. After each batch the firmware re-reads the DMA transfer count; if DMA could have issued word i + 4096 before word i was read, the capture fails with `ERR acquisition_overrun`. A READY fault, timeout, incomplete DMA, missing PIO end IRQ or RX FIFO stall fails with `ERR acquisition_timing`. Either error invalidates the capture and clears the selftest status. The firmware holds the DDS off outside capture, allows 150 ms or 20 cycles settling, whichever is longer (15 time constants of the 100 nF/100 kΩ source coupling), and shuts it off after acquisition. USB removal also disables the source.
 
 ## Protocol v2
 
@@ -65,6 +65,7 @@ ASCII commands end in LF. Responses are LF, without CR translation.
 
 - `INFO` → `INFO 2 D-riso22 UNIT_ID 120000000 24000000 120 16384 PASS|FAIL`
 - `SELFTEST` → `SELFTEST PASS|FAIL`
+- `BOOT` → `OK`, then the RP2040 reboots into its ROM USB bootloader (RPI-RP2 drive) with the DDS off; the CDC port disappears
 - `OFF` → `OK`
 - `RAILS` → `RAILS 256 SUM_ADC0 SUM_ADC1 SUM_ADC4`: sums of 256 RP2040 12-bit conversions each of the +12 V monitor (R97 100k / R98 10k), the −12 V monitor (R100 150k from −12 V, R99 10k to 3V3) and the die temperature sensor. The firmware reports raw sums; the host owns the divider ratios and pass windows. Allowed at any time outside a capture; it does not touch the DDS or the ADS9224R.
 - `CAPTURE WORD DECIMATION COUNT` → `DATA 2 WORD DECIMATION COUNT CRC32`
@@ -80,6 +81,6 @@ Protocol 1 (raw packed 16-bit pairs, up to 32,768, at a PIO clock divided by N) 
 
 Primary references: [ADS9224R SBAS876C](https://www.ti.com/lit/gpn/ads9224r), [AD9833 Rev G](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9833.pdf), [RP2040 datasheet](https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf), [Pico SDK2.2.0](https://github.com/raspberrypi/pico-sdk/tree/2.2.0).
 
-The source coupling network is 1 µF into 100 kΩ (nominal100 ms time constant). Both source-on and source-off commands therefore wait at least1000 ms before acquisition. This nominal10τ delay is a design allowance, not measured transient performance. On the first board, scope DUT high/low and both ADC inputs through the transition and verify the DC transient has settled below the intended measurement error at the lowest frequency and worst load; increase the delay if needed.
+The source coupling network is 100 nF into 100 kΩ (nominal 10 ms time constant; Rev D audit, was 1 µF). Both source-on and source-off commands therefore wait at least 150 ms, or 20 cycles at low frequency, before acquisition. This nominal 15τ delay is a design allowance, not measured transient performance. On the first board, scope DUT high/low and both ADC inputs through the transition and verify the DC transient has settled below the intended measurement error at the lowest frequency and worst load; increase the delay if needed.
 
 The optional J6 UART0 header uses GPIO28/TX and GPIO29/RX (RP2040 pins40/41). UART stdio is disabled in the supplied firmware; USB CDC is the operational interface. The SDK UART defaults match the header for future diagnostics.

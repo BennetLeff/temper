@@ -150,6 +150,15 @@ impl Device {
         }
         Ok(())
     }
+    /// Reboots the RP2040 into its ROM USB bootloader (RPI-RP2 drive) for a UF2 update.
+    pub fn boot(&mut self) -> Result<()> {
+        self.command("BOOT")?;
+        let line = self.line()?;
+        if line != "OK" {
+            return Err(format!("BOOT refused: {line}"));
+        }
+        Ok(())
+    }
     /// Reads the +-12 V monitors and die temperature; an out-of-window rail is an error.
     pub fn rails(&mut self) -> Result<Rails> {
         self.command("RAILS")?;

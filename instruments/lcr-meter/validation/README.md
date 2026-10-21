@@ -13,9 +13,10 @@ Rev D is the Rev C board plus R94 (22 Ω R_iso), R95/R96 (1 Ω LDO inputs), R83 
 | Independent audit (Rev D) | 576 source pins = native pads = exported netlist; no non-GND In1 copper; OPA2810/THS4551 input relief on In1/In2/B; bypass 2.031–2.050 mm; R_iso topology | `independent-verification-rev-d.json` (`python independent_check.py D` with KiCad Python) |
 | Independent native audit (*Rev C*) | Separate checks on the Rev C frozen board | `independent-erc-rev-c.json`, `independent-drc-rev-c.json`, `independent-layout-rev-c.json` |
 | Source/schematic/PCB pin and part parity | 184 fitted components match | `cad-bom-parity.json` |
-| Native coordinates and audited CPL rotations | 173 SMT placements, 55 BOM lines match | `cad-bom-parity.json`, `placement-library-audit.md` |
+| Native coordinates and audited CPL rotations | 173 SMT placements, 58 BOM lines match | `cad-bom-parity.json`, `placement-library-audit.md` |
 | Ground/analog layout | No non-GND In1 tracks; OPA/FDA signal relief and compact feedback preserved | `independent-layout-rev-c.json` |
-| Via/SMT drill intersection audit | 15 intended filled/capped vias; no unexpected intersections | `via-in-pad-process.json` |
+| Via/SMT drill intersection audit | 54 intended filled/capped vias on 17 pads (5–9 per exposed pad); no unexpected intersections | `via-in-pad-process.json` |
+| Layout audit (Rev D, after the audit fixes) | Supply-pin decoupling distances, vias per exposed pad, LDO/converter support-part distances and feedback-trace lengths | `layout-audit-rev-d.json` (`cad/tools/audit_layout.py` with KiCad Python); see `../docs/rev-d-audit.md` |
 | Manufacturing exports and visual review | Four copper layers, masks, paste, silk, outline, PTH/NPTH drills and six schematic pages | `visual-review.json` |
 | Firmware and host | D-riso22 identity; feedback 22 Ω + RF‖100 pF; calibration schema 5; RAILS gross-fault check; firmware build, PIO and boxcar checks, hot loop 88/120 cycles; 29 Rust tests and Clippy pass | `../firmware/verification/`, `../host/verification/` |
 | Coupled amplifier simulation (*Rev C*) | True DC, AC and transient data, exact models, negative false-OP regression and declaration-order identity checks | `solver-resolution-fixed-local/README.md` |

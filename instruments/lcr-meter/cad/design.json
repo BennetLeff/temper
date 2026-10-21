@@ -1006,7 +1006,7 @@
     },
     {
       "ref": "U2",
-      "value": "W25Q16JVSSIQ",
+      "value": "W25Q128JVSIQ",
       "kind": "FLASH",
       "footprint": "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
       "pins": {
@@ -1025,14 +1025,14 @@
         0
       ],
       "sheet": "digital",
-      "mpn": "W25Q16JVSSIQ",
+      "mpn": "W25Q128JVSIQ",
       "manufacturer": "Winbond Elec",
-      "lcsc": "C131025",
-      "unit_usd": 1.42,
-      "stock": 561,
-      "library_type": "extended",
+      "lcsc": "C97521",
+      "unit_usd": 2.4501,
+      "stock": 60850,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "W25Q16JVSSIQ"
+      "source_query": "rev-d-audit: same SOIC-8 208 mil; Raspberry Pi minimal design flash; old part had 561 in stock"
     },
     {
       "ref": "U3",
@@ -1545,7 +1545,7 @@
     },
     {
       "ref": "FB1",
-      "value": "120R@100MHz 3A",
+      "value": "100R@100MHz 800mA",
       "kind": "L",
       "footprint": "Inductor_SMD:L_0805_2012Metric",
       "pins": {
@@ -1558,18 +1558,18 @@
         0
       ],
       "sheet": "power",
-      "mpn": "BLM21PG121SN1D",
-      "manufacturer": "Murata Electronics",
-      "lcsc": "C79382",
-      "unit_usd": 0.0406,
-      "stock": 138346,
-      "library_type": "extended",
+      "mpn": "GZ2012D101TF",
+      "manufacturer": "Sunlord",
+      "lcsc": "C1015",
+      "unit_usd": 0.0311,
+      "stock": 2232853,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "ferrite bead 120ohm 0805 1A"
+      "source_query": "rev-d-audit: basic 0805 ferrite bead, 150 mOhm"
     },
     {
       "ref": "FB2",
-      "value": "120R@100MHz 3A",
+      "value": "100R@100MHz 800mA",
       "kind": "L",
       "footprint": "Inductor_SMD:L_0805_2012Metric",
       "pins": {
@@ -1582,14 +1582,14 @@
         0
       ],
       "sheet": "source",
-      "mpn": "BLM21PG121SN1D",
-      "manufacturer": "Murata Electronics",
-      "lcsc": "C79382",
-      "unit_usd": 0.0406,
-      "stock": 138346,
-      "library_type": "extended",
+      "mpn": "GZ2012D101TF",
+      "manufacturer": "Sunlord",
+      "lcsc": "C1015",
+      "unit_usd": 0.0311,
+      "stock": 2232853,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "ferrite bead 120ohm 0805 1A"
+      "source_query": "rev-d-audit: basic 0805 ferrite bead, 150 mOhm"
     },
     {
       "ref": "Y1",
@@ -1667,7 +1667,7 @@
     },
     {
       "ref": "D4",
-      "value": "GREEN",
+      "value": "RED",
       "kind": "LED",
       "footprint": "LED_SMD:LED_0603_1608Metric",
       "pins": {
@@ -1680,14 +1680,14 @@
         0
       ],
       "sheet": "digital",
-      "mpn": "PSC-1608U52GC-G4",
-      "manufacturer": "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))",
-      "lcsc": "C22371297",
-      "unit_usd": 0.0147,
-      "stock": 350515,
-      "library_type": "extended",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 8330838,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "LED green 0603"
+      "source_query": "rev-d-audit: red 0603, Vf 1.8-2.4 V so R12 1k gives ~1.2 mA from 3V3"
     },
     {
       "ref": "J1",
@@ -2681,9 +2681,9 @@
         "2": "CONV_FBP"
       },
       "pcb": [
-        84,
-        122.3,
-        90
+        84.5,
+        122.55,
+        270
       ],
       "sheet": "power",
       "mpn": "RC0603FR-071M62L",
@@ -2706,8 +2706,8 @@
       },
       "pcb": [
         84.5,
-        125.5,
-        90
+        125.6,
+        270
       ],
       "sheet": "power",
       "mpn": "0603WAF1503T5E",
@@ -2729,8 +2729,8 @@
         "2": "CONV_FBN"
       },
       "pcb": [
-        88,
-        127,
+        88.4,
+        127.0,
         0
       ],
       "sheet": "power",
@@ -2753,9 +2753,9 @@
         "2": "CONV_REF"
       },
       "pcb": [
-        89,
+        88.4,
         125.5,
-        0
+        180
       ],
       "sheet": "power",
       "mpn": "0603WAF1503T5E",
@@ -2777,9 +2777,9 @@
         "2": "REGP_FB"
       },
       "pcb": [
-        105,
-        132,
-        90
+        105.0,
+        132.75,
+        0
       ],
       "sheet": "power",
       "mpn": "RT0603BRD0791KL",
@@ -2801,9 +2801,9 @@
         "2": "GND"
       },
       "pcb": [
-        105,
-        136,
-        90
+        105.0,
+        135.95,
+        180
       ],
       "sheet": "power",
       "mpn": "RT0603BRD0710KL",
@@ -2825,9 +2825,9 @@
         "2": "REGN_DIV"
       },
       "pcb": [
-        118,
-        131,
-        90
+        115.6,
+        133.5,
+        270
       ],
       "sheet": "power",
       "mpn": "RT0603BRD0791KL",
@@ -2849,9 +2849,9 @@
         "2": "REGN_FB"
       },
       "pcb": [
-        118,
-        134,
-        90
+        118.0,
+        134.33,
+        0
       ],
       "sheet": "power",
       "mpn": "RT0603BRD071KL",
@@ -2873,9 +2873,9 @@
         "2": "GND"
       },
       "pcb": [
-        118,
-        137,
-        90
+        118.0,
+        135.95,
+        180
       ],
       "sheet": "power",
       "mpn": "RT0603BRD0710KL",
@@ -3273,7 +3273,7 @@
     },
     {
       "ref": "C5",
-      "value": "100nF 50V",
+      "value": "1uF 50V X5R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
@@ -3286,14 +3286,14 @@
         0
       ],
       "sheet": "digital",
-      "mpn": "CC0603KRX7R9BB104",
-      "manufacturer": "YAGEO",
-      "lcsc": "C14663",
-      "unit_usd": 0.0084,
-      "stock": 40417537,
+      "mpn": "CL10A105KB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C15849",
+      "unit_usd": 0.0153,
+      "stock": 14890903,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "100nF 50V 0603"
+      "source_query": "RP2040 HDG 2.1.3: 1 uF close to VREG_VIN"
     },
     {
       "ref": "C6",
@@ -3585,9 +3585,9 @@
     },
     {
       "ref": "C18",
-      "value": "10uF 50V",
+      "value": "10uF 25V X5R",
       "kind": "C",
-      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
         "1": "3V3",
         "2": "GND"
@@ -3598,14 +3598,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
-      "library_type": "extended",
+      "mpn": "CL21A106KAYNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C15850",
+      "unit_usd": 0.0773,
+      "stock": null,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "jlcsearch 2026-10-20 (stock not reported; confirm at BOM upload); 5 V / 3V3 nodes"
     },
     {
       "ref": "C30",
@@ -3753,7 +3753,7 @@
     },
     {
       "ref": "C36",
-      "value": "1uF 50V",
+      "value": "100nF 50V",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -3766,14 +3766,14 @@
         0
       ],
       "sheet": "source",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
+      "mpn": "CC0805KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C49678",
+      "unit_usd": 0.015,
+      "stock": null,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "rev-d-audit: coupling tau 100 ms -> 10 ms (100 kOhm); 98.7 % amplitude at 100 Hz"
     },
     {
       "ref": "C37",
@@ -4305,51 +4305,51 @@
     },
     {
       "ref": "C72",
-      "value": "22uF 25V",
+      "value": "10uF 16V X7R",
       "kind": "C",
-      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
         "1": "ADC_REFA",
         "2": "GND"
       },
       "pcb": [
-        141.5,
-        104.5,
+        141.25,
+        102.95,
         270
       ],
       "sheet": "adc",
-      "mpn": "GRM32ER71E226KE15L",
-      "manufacturer": "Murata Electronics",
-      "lcsc": "C21397",
-      "unit_usd": 0.4151,
-      "stock": 75959,
+      "mpn": "CL21B106KOQNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C95841",
+      "unit_usd": 0.12,
+      "stock": 248000,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "22uF 16V 1210"
+      "source_query": "ADS9224R 10.1.4: 10 uF X7R >=10 V 0805"
     },
     {
       "ref": "C73",
-      "value": "22uF 25V",
+      "value": "10uF 16V X7R",
       "kind": "C",
-      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
         "1": "ADC_REFB",
         "2": "GND"
       },
       "pcb": [
-        141.5,
-        91.5,
+        141.25,
+        93.05,
         90
       ],
       "sheet": "adc",
-      "mpn": "GRM32ER71E226KE15L",
-      "manufacturer": "Murata Electronics",
-      "lcsc": "C21397",
-      "unit_usd": 0.4151,
-      "stock": 75959,
+      "mpn": "CL21B106KOQNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C95841",
+      "unit_usd": 0.12,
+      "stock": 248000,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "22uF 16V 1210"
+      "source_query": "ADS9224R 10.1.4: 10 uF X7R >=10 V 0805"
     },
     {
       "ref": "C74",
@@ -4401,51 +4401,51 @@
     },
     {
       "ref": "C76",
-      "value": "1uF 50V",
+      "value": "1uF 50V X5R",
       "kind": "C",
-      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
         "1": "5VA",
         "2": "GND"
       },
       "pcb": [
-        137.5,
-        92.5,
+        139.5,
+        93.3,
         90
       ],
       "sheet": "adc",
-      "mpn": "CL21B105KBFNNNE",
+      "mpn": "CL10A105KB8NNNC",
       "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
+      "lcsc": "C15849",
+      "unit_usd": 0.0153,
+      "stock": 14890903,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "100nF 50V 0603"
+      "source_query": "C15849"
     },
     {
       "ref": "C77",
-      "value": "1uF 50V",
+      "value": "1uF 50V X5R",
       "kind": "C",
-      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
         "1": "5VA",
         "2": "GND"
       },
       "pcb": [
-        137.5,
-        103.5,
-        90
+        138.3,
+        102.6,
+        180
       ],
       "sheet": "adc",
-      "mpn": "CL21B105KBFNNNE",
+      "mpn": "CL10A105KB8NNNC",
       "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
+      "lcsc": "C15849",
+      "unit_usd": 0.0153,
+      "stock": 14890903,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "100nF 50V 0603"
+      "source_query": "C15849"
     },
     {
       "ref": "C78",
@@ -4497,7 +4497,7 @@
     },
     {
       "ref": "C80",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4510,14 +4510,14 @@
         90
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: TPS65131 INP/INN need 4.7 uF each after tolerance/temperature; a 25 V 0805 does not hold that at 5 V"
     },
     {
       "ref": "C81",
@@ -4545,7 +4545,7 @@
     },
     {
       "ref": "C82",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4558,14 +4558,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: TPS65131 INP/INN need 4.7 uF each after tolerance/temperature; a 25 V 0805 does not hold that at 5 V"
     },
     {
       "ref": "C83",
@@ -4593,7 +4593,7 @@
     },
     {
       "ref": "C84",
-      "value": "220nF 50V",
+      "value": "220nF 25V",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
@@ -4606,14 +4606,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "CC0603KRX7R9BB224",
-      "manufacturer": "YAGEO",
-      "lcsc": "C107083",
-      "unit_usd": 0.0152,
-      "stock": 359588,
-      "library_type": "extended",
+      "mpn": "CL10B224KA8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C21120",
+      "unit_usd": 0.0097,
+      "stock": null,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "220nF 50V 0603"
+      "source_query": "jlcsearch 2026-10-20 (stock not reported; confirm at BOM upload)"
     },
     {
       "ref": "C85",
@@ -4673,9 +4673,9 @@
         "2": "CONV_FBP"
       },
       "pcb": [
-        86,
-        123,
-        90
+        86.05,
+        123.55,
+        270
       ],
       "sheet": "power",
       "mpn": "CC0603CRNPO9BN4R3",
@@ -4697,8 +4697,8 @@
         "2": "CONV_FBN"
       },
       "pcb": [
-        88,
-        129,
+        88.4,
+        129.0,
         0
       ],
       "sheet": "power",
@@ -4713,7 +4713,7 @@
     },
     {
       "ref": "C89",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4726,18 +4726,18 @@
         0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C90",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4750,18 +4750,18 @@
         0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C91",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4774,18 +4774,18 @@
         0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C92",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4798,14 +4798,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C93",
@@ -4817,9 +4817,9 @@
         "2": "GND"
       },
       "pcb": [
-        114,
-        135,
-        90
+        114.0,
+        134.75,
+        270
       ],
       "sheet": "power",
       "mpn": "0603B103K500NT",
@@ -4833,7 +4833,7 @@
     },
     {
       "ref": "C94",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4841,23 +4841,23 @@
         "2": "GND"
       },
       "pcb": [
-        115,
-        125,
-        90
+        113.0,
+        128.3,
+        0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C95",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4865,19 +4865,19 @@
         "2": "GND"
       },
       "pcb": [
-        105,
-        127,
-        0
+        104.9,
+        129.6,
+        90
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C96",
@@ -4889,8 +4889,8 @@
         "2": "REGP_FB"
       },
       "pcb": [
-        106,
-        141,
+        105.0,
+        134.33,
         0
       ],
       "sheet": "power",
@@ -4913,8 +4913,8 @@
         "2": "GND"
       },
       "pcb": [
-        114.5,
-        130,
+        114.0,
+        131.6,
         90
       ],
       "sheet": "power",
@@ -4937,9 +4937,9 @@
         "2": "GND"
       },
       "pcb": [
-        127,
-        135,
-        90
+        127.0,
+        134.75,
+        270
       ],
       "sheet": "power",
       "mpn": "0603B103K500NT",
@@ -4953,7 +4953,7 @@
     },
     {
       "ref": "C99",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4961,23 +4961,23 @@
         "2": "GND"
       },
       "pcb": [
-        129,
-        125,
-        90
+        126.0,
+        128.3,
+        0
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C100",
-      "value": "10uF 50V",
+      "value": "10uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
@@ -4985,19 +4985,19 @@
         "2": "GND"
       },
       "pcb": [
-        122,
-        126,
-        0
+        117.9,
+        129.6,
+        90
       ],
       "sheet": "power",
-      "mpn": "UMK325AB7106KM-P",
-      "manufacturer": "Taiyo Yuden",
-      "lcsc": "C337485",
-      "unit_usd": 0.3394,
-      "stock": 215697,
+      "mpn": "CL32B106KBJNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C138687",
+      "unit_usd": 0.33,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10uF 50V 1210"
+      "source_query": "rev-d-audit: ~7.3 uF at 14 V vs ~4.2 uF for UMK325AB7106KM-P"
     },
     {
       "ref": "C101",
@@ -5009,8 +5009,8 @@
         "2": "REGN_FB"
       },
       "pcb": [
-        119,
-        141,
+        118.0,
+        132.75,
         0
       ],
       "sheet": "power",
@@ -5033,8 +5033,8 @@
         "2": "GND"
       },
       "pcb": [
-        127.5,
-        130,
+        127.0,
+        131.6,
         90
       ],
       "sheet": "power",
@@ -5049,9 +5049,9 @@
     },
     {
       "ref": "C103",
-      "value": "22uF 25V",
+      "value": "22uF 25V X5R",
       "kind": "C",
-      "footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
       "pins": {
         "1": "5VA",
         "2": "GND"
@@ -5062,14 +5062,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "GRM32ER71E226KE15L",
-      "manufacturer": "Murata Electronics",
-      "lcsc": "C21397",
-      "unit_usd": 0.4151,
-      "stock": 75959,
-      "library_type": "extended",
+      "mpn": "CL31A226KAHNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C12891",
+      "unit_usd": 0.1798,
+      "stock": null,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "22uF 16V 1210"
+      "source_query": "jlcsearch 2026-10-20 (stock not reported; confirm at BOM upload); 5VA bulk"
     },
     {
       "ref": "C50",

@@ -42,8 +42,19 @@ def assumed_retention(v_bias, v_rated):
     the repo): 0.75 at <= 12 % of rated voltage, 0.40 at <= 35 %, else 0.25."""
     r = v_bias / v_rated
     return 0.75 if r <= 0.12 else (0.40 if r <= 0.35 else 0.25)
-RES_TOL = {"R81": 0.01, "R82": 0.01, "R83": 0.01, "R84": 0.01,   # 1 % parts
-           "R85": 0.001, "R86": 0.001, "R87": 0.001, "R88": 0.001, "R89": 0.001}
+def ohms(ref):
+    """Resistance from the design.json value, e.g. '1.5M', '130k', '91k 0.1%'."""
+    v = PARTS[ref]["value"].split()[0]
+    return float(v[:-1]) * {"k": 1e3, "M": 1e6}[v[-1]] if v[-1] in "kM" else float(v)
+
+
+def farads(ref):
+    v = PARTS[ref]["value"].split()[0]
+    return float(v[:-2]) * {"pF": 1e-12, "nF": 1e-9, "uF": 1e-6}[v[-2:]]
+
+
+RES_TOL = {r: (0.001 if "0.1%" in PARTS[r]["value"] else 0.01)
+           for r in ("R81", "R82", "R83", "R84", "R85", "R86", "R87", "R88", "R89")}
 VIN_SUPPLY = (4.75, 5.0, 5.25)     # README: regulated 5 V +-5 %
 L_NOM, L_TOL, L_ISAT, L_DCR = 4.7e-6, 0.20, 3.8, 0.039   # FNR5040S4R7MT catalog
 DIODE_VR, DIODE_IF, DIODE_VF = 40.0, 1.0, 0.55           # SS14 catalog (0.55 V @ 1 A)
@@ -79,7 +90,7 @@ def breakeven(required_f, nominal_f):
 
 def boost_vpos(corner):
     s = c.TPS65131
-    r1, r2 = 1.62e6, 150e3
+    r1, r2 = ohms("R81"), ohms("R82")
     if corner == "nom":
         return s["vfbp"][1] * (1 + r1 / r2)
     if corner == "max":
@@ -89,7 +100,7 @@ def boost_vpos(corner):
 
 def inverter_vneg(corner):
     s = c.TPS65131
-    r3, r4 = 1.78e6, 150e3
+    r3, r4 = ohms("R83"), ohms("R84")
     if corner == "nom":
         return -s["vref"][1] * r3 / r4
     if corner == "max":   # most negative
@@ -101,10 +112,11 @@ def inverter_vneg(corner):
 
 def ldo_vout(kind, corner):
     if kind == "pos":
-        vfb, ratio_nom, acc = c.TPS7A49["vfb_typ"], 1 + 91e3 / 10e3, c.TPS7A49["acc_overall"]
+        vfb, ratio_nom, acc = c.TPS7A49["vfb_typ"], 1 + ohms("R85") / ohms("R86"), c.TPS7A49["acc_overall"]
+        tol = RES_TOL["R85"] + RES_TOL["R86"]
     else:
-        vfb, ratio_nom, acc = c.TPS7A30["vfb_typ"], 1 + 92e3 / 10e3, c.TPS7A30["acc_overall"]
-    tol = 0.002   # two 0.1 % resistors
+        vfb, ratio_nom, acc = c.TPS7A30["vfb_typ"], 1 + (ohms("R87") + ohms("R88")) / ohms("R89"), c.TPS7A30["acc_overall"]
+        tol = RES_TOL["R87"] + RES_TOL["R89"]   # divider ratio error bound, two resistors
     v = abs(vfb) * ratio_nom
     if corner == "max":
         v *= (1 + acc) * (1 + tol)
@@ -156,13 +168,15 @@ def main():
           ">= -15 V recommended, -17 V abs max", vneg["max"] >= s["vneg_min_rec"],
           f"worst-case stack {vneg['max']:.3f} V is {abs(vneg['max']) - 15:.3f} V beyond the recommended range; "
           f"{17 + vneg['max']:.2f} V inside abs max")
-    check("TPS65131 feedback lower resistors R82/R84 < 200 kOhm", 150e3, s["r_lower_max_ohm"], 150e3 < s["r_lower_max_ohm"])
-    for name, r_up, rule in (("C87 (boost CFF)", 1.62e6, s["cff_rule_v"][0]), ("C88 (inverter CFF)", 1.78e6, s["cff_rule_v"][1])):
+    r_low = max(ohms("R82"), ohms("R84"))
+    check("TPS65131 feedback lower resistors R82/R84 < 200 kOhm", r_low, s["r_lower_max_ohm"], r_low < s["r_lower_max_ohm"])
+    for name, ref, r_up, rule in (("C87 (boost CFF)", "C87", ohms("R81"), s["cff_rule_v"][0]),
+                                  ("C88 (inverter CFF)", "C88", ohms("R83"), s["cff_rule_v"][1])):
         want = rule * 1e-12 * 1e6 / r_up       # C[pF] = 6.8 (7.5) / R[MOhm]
-        check(f"TPS65131 {name} vs Eq. 11/12", 4.3, round(want * 1e12, 2), abs(4.3e-12 / want - 1) < 0.1,
-              "pF; within 10 % of the datasheet rule")
+        check(f"TPS65131 {name} vs Eq. 11/12", round(farads(ref) * 1e12, 2), round(want * 1e12, 2),
+              abs(farads(ref) / want - 1) < 0.1, "pF; within 10 % of the datasheet rule")
     check("TPS65131 CP / CN / VREF caps", [val("C86"), val("C85"), val("C84")], "10 nF / 4.7 nF / 220 nF",
-          (val("C86"), val("C85"), val("C84")) == ("10nF 50V", "4.7nF 50V", "220nF 50V"))
+          [round(farads(r) * 1e9, 3) for r in ("C86", "C85", "C84")] == [10.0, 4.7, 220.0])
     check("TPS65131 PSP/PSN tied to GND (forced PWM)", [PARTS["U13"]["pins"]["9"], PARTS["U13"]["pins"]["11"]],
           "LOW disables power-save", PARTS["U13"]["pins"]["9"] == "GND" and PARTS["U13"]["pins"]["11"] == "GND")
     check("TPS65131 VIN RC filter R80/C81", [val("R80"), val("C81")], ">= 100 ohm, 0.1 uF (8.2.3.1)", True,
@@ -200,7 +214,7 @@ def main():
     cin_nom = 2 * 10e-6 + 1e-6 + 100e-9
     be = breakeven(2 * s["cin_min_f"], 2 * 10e-6)
     ra = assumed_retention(VIN[2], 50)
-    check("TPS65131 input caps C80+C82 (10 uF 50 V 1210 at 5 V) >= 2 x 4.7 uF (INP and INN)", f"break-even retention {be:.2f}",
+    check(f"TPS65131 input caps C80+C82 ({val('C80')}, {PARTS['C80']['footprint'].split('_')[1]}, at 5 V) >= 2 x 4.7 uF (INP and INN)", f"break-even retention {be:.2f}",
           f"<= assumed {ra}", be <= ra,
           f"C82 is {dist('C82', 'U13'):.1f} mm, C80 {dist('C80', 'U13'):.1f} mm from U13 (centres)")
     for rail, caps, vo, iout in (("RAW_P", ("C89", "C90", "C94"), vpos["max"], LOAD["pos"] * 2),
@@ -229,13 +243,14 @@ def main():
     # --------------------------------------------------------------- LDOs
     ldo = {}
     for kind, ref, spec, cout, cin_ref, r2, rup in (
-            ("pos", "U11", c.TPS7A49, "C95", "C94", 10e3, 91e3),
-            ("neg", "U12", c.TPS7A30, "C100", "C99", 10e3, 92e3)):
+            ("pos", "U11", c.TPS7A49, "C95", "C94", ohms("R86"), ohms("R85")),
+            ("neg", "U12", c.TPS7A30, "C100", "C99", ohms("R89"), ohms("R87") + ohms("R88"))):
         vmax, vnom, vmin = ldo_vout(kind, "max"), ldo_vout(kind, "nom"), ldo_vout(kind, "min")
         raw_min = vpos["min"] if kind == "pos" else abs(vneg["min"])
         head = raw_min - vmax
         ldo[kind] = {"vout": [vmin, vnom, vmax], "raw_min": raw_min, "headroom_min": head}
-        check(f"{ref} output voltage range", [round(vmin, 3), round(vnom, 3), round(vmax, 3)], "+-2.5 % overall + 0.2 % divider", True)
+        check(f"{ref} output voltage range", [round(vmin, 3), round(vnom, 3), round(vmax, 3)],
+              "+-2.5 % overall + divider tolerance", True)
         check(f"{ref} headroom at worst corner (raw min - out max)", round(head, 3),
               f">= dropout {spec.get('vdo_150ma_max_v', spec.get('vdo_200ma_max_v'))} V and >= 1 V PSRR-curve condition",
               head >= 1.0, f"load {LOAD[kind]*1e3:.1f} mA est.")

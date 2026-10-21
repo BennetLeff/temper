@@ -33,7 +33,7 @@ ASSUMPTIONS = {
     "A6_load_scale": [2.0, 1.0],                 # x regulator_check load estimate
     "A7_adc_avdd_psrr_above_100k_db": 30.0,      # spec only < 100 kHz (70 dB)
     "A8_ferrite_fb1": "variant 'no_fb1': no attenuation credited; variant 'fb1_1ohm': FB1 >= 1 ohm "
-                      "at >= 1 MHz into C103 22 uF (25 V, 75 % retention) || 3 x 1 uF || 2 x 100 nF",
+                      "at >= 1 MHz into C103 22 uF (25 V X5R 1206, ASSUMED 50 % retention at 5 V) || 3 x 1 uF || 2 x 100 nF",
     "A9_usb_digital_pulse": {"delta_i_a": 0.02, "width_s": 20e-6, "z_5v_ohm": 0.3},
 }
 SIGNALS = {  # ADC differential peaks (V): brief + docs/analog-validation-rev-c.md
@@ -149,7 +149,7 @@ def propagate(corner, mode="undersample", divider=1):
     adc_psrr = np.where(f < 1e5, c.ADS9224R_PSRR_DB, ASSUMPTIONS["A7_adc_avdd_psrr_above_100k_db"])
     v5_adc = ir["v_harm"] * (10 ** (-pths / 20) * np.abs(1 / (1 + 2j * np.pi * f * 8.64 * 3.465e-9))
                              + 10 ** (-adc_psrr / 20)) * c.boxcar_gain(f, divider if mode == "boxcar" else 1)
-    z5a = 1 / (1 / (1 / (2j * np.pi * f * 22e-6 * 0.75 * 0.9) + 0.003 + 2j * np.pi * f * 1e-9)
+    z5a = 1 / (1 / (1 / (2j * np.pi * f * 22e-6 * 0.50 * 0.9) + 0.003 + 2j * np.pi * f * 1e-9)
                + 3 / (1 / (2j * np.pi * f * 1e-6) + 0.01 + 2j * np.pi * f * 0.8e-9)
                + 2 / (1 / (2j * np.pi * f * 100e-9) + 0.02 + 2j * np.pi * f * 0.7e-9))
     fb1 = np.abs(z5a / (z5a + 1.0))

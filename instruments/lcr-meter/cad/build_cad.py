@@ -124,6 +124,7 @@ for p in PARTS:
     if ref == 'U13': f.Reference().SetPosition(pos(80,135))
     if ref == 'U7': f.Reference().SetPosition(pos(170.2,105.6))  # Rev D: clear of R94
     if ref in ('U8','U9'): f.Reference().SetPosition(pos(151.5,p['pcb'][1]+5.2))
+    if ref == 'U10': f.Reference().SetPosition(pos(145.0,104.8))  # audit fix: clear of the pin-adjacent REF/AVDD caps
     if not ref.startswith('U'):
         f.Reference().SetLayer(k.F_Fab)
     for name,value in {'MPN':p['mpn'],'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}.items():

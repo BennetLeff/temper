@@ -339,9 +339,9 @@
     },
     {
      "cap": "C18",
-     "mm": 6.0,
+     "mm": 6.31,
      "return_net": "GND",
-     "return_via_mm": 2.06
+     "return_via_mm": 2.12
     },
     {
      "cap": "C7",
@@ -633,7 +633,7 @@
      "cap": "C78",
      "mm": 21.99,
      "return_net": "GND",
-     "return_via_mm": 2.71
+     "return_via_mm": 2.7
     },
     {
      "cap": "C10",
@@ -759,7 +759,7 @@
      "cap": "C78",
      "mm": 24.47,
      "return_net": "GND",
-     "return_via_mm": 2.71
+     "return_via_mm": 2.7
     },
     {
      "cap": "C1",
@@ -802,9 +802,9 @@
    "nearest": [
     {
      "cap": "C73",
-     "mm": 2.6,
+     "mm": 1.56,
      "return_net": "GND",
-     "return_via_mm": 2.3
+     "return_via_mm": 0.95
     }
    ]
   },
@@ -813,21 +813,21 @@
    "nearest": [
     {
      "cap": "C76",
-     "mm": 3.47,
+     "mm": 1.67,
      "return_net": "GND",
      "return_via_mm": 0.97
+    },
+    {
+     "cap": "C77",
+     "mm": 7.13,
+     "return_net": "GND",
+     "return_via_mm": 0.9
     },
     {
      "cap": "C79",
      "mm": 7.37,
      "return_net": "GND",
      "return_via_mm": 1.25
-    },
-    {
-     "cap": "C77",
-     "mm": 9.3,
-     "return_net": "GND",
-     "return_via_mm": 0.97
     }
    ]
   },
@@ -838,7 +838,7 @@
      "cap": "C78",
      "mm": 7.01,
      "return_net": "GND",
-     "return_via_mm": 2.71
+     "return_via_mm": 2.7
     },
     {
      "cap": "C10",
@@ -859,13 +859,13 @@
    "nearest": [
     {
      "cap": "C77",
-     "mm": 4.86,
+     "mm": 2.46,
      "return_net": "GND",
-     "return_via_mm": 0.97
+     "return_via_mm": 0.9
     },
     {
      "cap": "C76",
-     "mm": 7.51,
+     "mm": 6.41,
      "return_net": "GND",
      "return_via_mm": 0.97
     },
@@ -882,9 +882,9 @@
    "nearest": [
     {
      "cap": "C72",
-     "mm": 2.6,
+     "mm": 1.56,
      "return_net": "GND",
-     "return_via_mm": 2.3
+     "return_via_mm": 1.05
     }
    ]
   },
@@ -893,13 +893,13 @@
    "nearest": [
     {
      "cap": "C95",
-     "mm": 6.63,
+     "mm": 3.1,
      "return_net": "GND",
-     "return_via_mm": 2.39
+     "return_via_mm": 1.53
     },
     {
      "cap": "C96",
-     "mm": 9.35,
+     "mm": 4.3,
      "return_net": "REGP_FB",
      "return_via_mm": null
     },
@@ -916,15 +916,15 @@
    "nearest": [
     {
      "cap": "C97",
-     "mm": 3.97,
+     "mm": 2.45,
      "return_net": "GND",
-     "return_via_mm": 1.48
+     "return_via_mm": 1.32
     },
     {
      "cap": "C94",
-     "mm": 8.02,
+     "mm": 5.71,
      "return_net": "GND",
-     "return_via_mm": 1.47
+     "return_via_mm": 1.91
     }
    ]
   },
@@ -933,15 +933,15 @@
    "nearest": [
     {
      "cap": "C97",
-     "mm": 2.66,
+     "mm": 1.88,
      "return_net": "GND",
-     "return_via_mm": 1.48
+     "return_via_mm": 1.32
     },
     {
      "cap": "C94",
-     "mm": 6.24,
+     "mm": 3.78,
      "return_net": "GND",
-     "return_via_mm": 1.47
+     "return_via_mm": 1.91
     }
    ]
   },
@@ -950,13 +950,13 @@
    "nearest": [
     {
      "cap": "C100",
-     "mm": 6.03,
+     "mm": 3.1,
      "return_net": "GND",
-     "return_via_mm": 2.17
+     "return_via_mm": 1.53
     },
     {
      "cap": "C101",
-     "mm": 9.35,
+     "mm": 3.7,
      "return_net": "REGN_FB",
      "return_via_mm": null
     },
@@ -973,15 +973,15 @@
    "nearest": [
     {
      "cap": "C102",
-     "mm": 3.97,
+     "mm": 2.45,
      "return_net": "GND",
-     "return_via_mm": 1.66
+     "return_via_mm": 1.32
     },
     {
      "cap": "C99",
-     "mm": 8.43,
+     "mm": 5.71,
      "return_net": "GND",
-     "return_via_mm": 2.04
+     "return_via_mm": 1.91
     }
    ]
   },
@@ -990,15 +990,15 @@
    "nearest": [
     {
      "cap": "C102",
-     "mm": 2.66,
+     "mm": 1.88,
      "return_net": "GND",
-     "return_via_mm": 1.66
+     "return_via_mm": 1.32
     },
     {
      "cap": "C99",
-     "mm": 6.75,
+     "mm": 3.78,
      "return_net": "GND",
-     "return_via_mm": 2.04
+     "return_via_mm": 1.91
     }
    ]
   },
@@ -1064,9 +1064,9 @@
    "nearest": [
     {
      "cap": "C18",
-     "mm": 29.97,
+     "mm": 29.79,
      "return_net": "GND",
-     "return_via_mm": 2.06
+     "return_via_mm": 2.12
     },
     {
      "cap": "C11",
@@ -1087,9 +1087,9 @@
    "nearest": [
     {
      "cap": "C18",
-     "mm": 30.34,
+     "mm": 30.15,
      "return_net": "GND",
-     "return_via_mm": 2.06
+     "return_via_mm": 2.12
     },
     {
      "cap": "C11",
@@ -1110,9 +1110,9 @@
    "nearest": [
     {
      "cap": "C88",
-     "mm": 5.38,
+     "mm": 5.77,
      "return_net": "CONV_FBN",
-     "return_via_mm": 2.6
+     "return_via_mm": 1.06
     },
     {
      "cap": "C91",
@@ -1133,7 +1133,7 @@
    "nearest": [
     {
      "cap": "C87",
-     "mm": 7.97,
+     "mm": 8.58,
      "return_net": "CONV_FBP",
      "return_via_mm": null
     },
@@ -1155,47 +1155,88 @@
  "exposed_pads": {
   "U1.57": {
    "net": "GND",
-   "vias_in_pad": 1,
+   "vias_in_pad": 8,
    "drills_mm": [
-    0.3
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.3,
+    0.25
    ]
   },
   "U8.17": {
    "net": "GND",
-   "vias_in_pad": 1,
+   "vias_in_pad": 5,
    "drills_mm": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
     0.25
    ]
   },
   "U9.17": {
    "net": "GND",
-   "vias_in_pad": 1,
+   "vias_in_pad": 5,
    "drills_mm": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
     0.25
    ]
   },
   "U10.33": {
    "net": "GND",
-   "vias_in_pad": 1,
+   "vias_in_pad": 5,
    "drills_mm": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
     0.25
    ]
   },
   "U11.9": {
    "net": "GND",
-   "vias_in_pad": 0,
-   "drills_mm": []
+   "vias_in_pad": 6,
+   "drills_mm": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+   ]
   },
   "U12.9": {
    "net": "GND",
-   "vias_in_pad": 0,
-   "drills_mm": []
+   "vias_in_pad": 6,
+   "drills_mm": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+   ]
   },
   "U13.25": {
    "net": "GND",
-   "vias_in_pad": 1,
+   "vias_in_pad": 9,
    "drills_mm": [
-    0.3
+    0.25,
+    0.25,
+    0.25,
+    0.3,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
    ]
   }
  },
@@ -1204,34 +1245,34 @@
    140.05,
    100.05
   ],
-  "courtyard_fraction": 0.14,
+  "courtyard_fraction": 0.138,
   "sheets": {
-   "digital": {
-    "courtyard_mm2": 485,
-    "centroid_span_mm": [
-     38,
-     56
-    ]
-   },
-   "power": {
-    "courtyard_mm2": 662,
-    "centroid_span_mm": [
-     69,
-     43
-    ]
-   },
-   "adc": {
-    "courtyard_mm2": 265,
-    "centroid_span_mm": [
-     27,
-     24
-    ]
-   },
    "afe": {
     "courtyard_mm2": 282,
     "centroid_span_mm": [
      27,
      46
+    ]
+   },
+   "power": {
+    "courtyard_mm2": 650,
+    "centroid_span_mm": [
+     67,
+     43
+    ]
+   },
+   "adc": {
+    "courtyard_mm2": 244,
+    "centroid_span_mm": [
+     27,
+     24
+    ]
+   },
+   "digital": {
+    "courtyard_mm2": 485,
+    "centroid_span_mm": [
+     38,
+     56
     ]
    },
    "source": {
@@ -1252,23 +1293,23 @@
  },
  "support_part_distance_mm": {
   "U11": {
-   "C93": 4.5,
-   "C94": 9.4,
-   "C95": 7.8,
-   "C96": 8.9,
-   "C97": 5.4,
-   "R85": 5.1,
+   "C93": 4.4,
+   "C94": 5.6,
+   "C95": 6.1,
+   "C96": 5.2,
+   "C97": 4.2,
+   "R85": 5.0,
    "R86": 5.8
   },
   "U12": {
-   "C98": 4.5,
-   "C99": 10.0,
-   "C100": 7.1,
-   "C101": 8.9,
-   "C102": 5.4,
-   "R87": 5.4,
-   "R88": 5.1,
-   "R89": 6.4
+   "C98": 4.4,
+   "C99": 5.6,
+   "C100": 6.1,
+   "C101": 5.0,
+   "C102": 4.2,
+   "R87": 7.4,
+   "R88": 5.2,
+   "R89": 5.8
   },
   "U13": {
    "L1": 8.6,
@@ -1278,12 +1319,12 @@
    "C82": 7.5,
    "C83": 4.0,
    "C84": 5.0,
-   "C87": 9.2,
-   "C88": 8.1,
+   "C87": 8.8,
+   "C88": 8.5,
    "R81": 8.7,
-   "R82": 6.4,
-   "R83": 8.5,
-   "R84": 10.1
+   "R82": 6.3,
+   "R83": 8.9,
+   "R84": 9.5
   },
   "D2": {
    "C89": 6.2,
@@ -1295,12 +1336,12 @@
   }
  },
  "feedback_trace_mm": {
-  "REGP_FB": 13.2,
-  "REGN_FB": 12.0,
-  "REGN_DIV": 5.6,
-  "REGP_NR": 3.6,
-  "REGN_NR": 5.2,
-  "CONV_FBP": 13.1,
-  "CONV_FBN": 16.8
+  "REGP_FB": 5.2,
+  "REGN_FB": 5.3,
+  "REGN_DIV": 1.6,
+  "REGP_NR": 2.1,
+  "REGN_NR": 2.1,
+  "CONV_FBP": 9.1,
+  "CONV_FBN": 12.3
  }
 }

@@ -11,6 +11,7 @@ const USAGE: &str = "Usage:
   temper-lcr info PORT
   temper-lcr selftest PORT
   temper-lcr rails PORT
+  temper-lcr boot PORT
   temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard] [--no-source-off] [--short-standard]
   temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]
   temper-lcr advise-grid FREQ_HZ[,FREQ_HZ...]
@@ -76,6 +77,11 @@ fn run(args: &[String]) -> Result<()> {
         ("rails", 2) => {
             let mut d = Device::open(a[1], 100, "diagnostic")?;
             println!("{}", json(&d.rails()?)?);
+        }
+        ("boot", 2) => {
+            let mut d = Device::open(a[1], 100, "diagnostic")?;
+            d.boot()?;
+            println!("rebooted into the USB bootloader: copy the UF2 to the RPI-RP2 drive");
         }
         ("capture" | "noise", 6) => {
             let options = CaptureOptions {

@@ -1,5 +1,5 @@
 {
-  "board_sha256": "eb2b4cf88b29e294e98f1766a12dccc939111215430d9607c3cb765b6c7ed8dc",
+  "board_sha256": "e84865066279c7e0f2c845e5a0d5f5fa6f95843dc5a0bf07cb41984e63b4651e",
   "method": "native pcbnew PAD.HitTest with drill-radius accuracy; all SMT pads/all through vias",
   "required_process": "4-layer filled/capped via-in-pad (POFV); obtain vendor quote and DFM approval",
   "intended_overlaps": [
@@ -87,10 +87,80 @@
       "reference": "U1",
       "pad": "57",
       "net": "GND",
+      "x_mm": 81.0,
+      "y_mm": 86.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 81.0,
+      "y_mm": 87.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 81.0,
+      "y_mm": 88.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 82.0,
+      "y_mm": 86.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
       "x_mm": 82.0,
       "y_mm": 87.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.6,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 82.0,
+      "y_mm": 88.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 83.0,
+      "y_mm": 86.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 83.0,
+      "y_mm": 87.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
       "process": "resin filled, copper capped, planarized (POFV)"
     },
     {
@@ -117,8 +187,208 @@
       "reference": "U10",
       "pad": "33",
       "net": "GND",
+      "x_mm": 139.2,
+      "y_mm": 97.2,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U10",
+      "pad": "33",
+      "net": "GND",
+      "x_mm": 139.2,
+      "y_mm": 98.8,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U10",
+      "pad": "33",
+      "net": "GND",
       "x_mm": 140.0,
       "y_mm": 98.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U10",
+      "pad": "33",
+      "net": "GND",
+      "x_mm": 140.8,
+      "y_mm": 97.2,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U10",
+      "pad": "33",
+      "net": "GND",
+      "x_mm": 140.8,
+      "y_mm": 98.8,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 109.6,
+      "y_mm": 132.449999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 109.6,
+      "y_mm": 133.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 109.6,
+      "y_mm": 133.55,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 110.4,
+      "y_mm": 132.449999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 110.4,
+      "y_mm": 133.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 110.4,
+      "y_mm": 133.55,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 122.6,
+      "y_mm": 132.449999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 122.6,
+      "y_mm": 133.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 122.6,
+      "y_mm": 133.55,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 123.4,
+      "y_mm": 132.449999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 123.4,
+      "y_mm": 133.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 123.4,
+      "y_mm": 133.55,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 79.3,
+      "y_mm": 129.3,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 79.3,
+      "y_mm": 130.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 79.3,
+      "y_mm": 130.699999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 80.0,
+      "y_mm": 129.3,
       "drill_mm": 0.25,
       "diameter_mm": 0.55,
       "process": "resin filled, copper capped, planarized (POFV)"
@@ -134,6 +404,66 @@
       "process": "resin filled, copper capped, planarized (POFV)"
     },
     {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 80.0,
+      "y_mm": 130.699999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 80.7,
+      "y_mm": 129.3,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 80.7,
+      "y_mm": 130.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 80.7,
+      "y_mm": 130.699999,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U8",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.1,
+      "y_mm": 101.6,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U8",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.1,
+      "y_mm": 102.4,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
       "reference": "U8",
       "pad": "17",
       "net": "GND",
@@ -144,11 +474,71 @@
       "process": "resin filled, copper capped, planarized (POFV)"
     },
     {
+      "reference": "U8",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.9,
+      "y_mm": 101.6,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U8",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.9,
+      "y_mm": 102.4,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U9",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.1,
+      "y_mm": 90.6,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U9",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.1,
+      "y_mm": 91.4,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
       "reference": "U9",
       "pad": "17",
       "net": "GND",
       "x_mm": 156.5,
       "y_mm": 91.0,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U9",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.9,
+      "y_mm": 90.6,
+      "drill_mm": 0.25,
+      "diameter_mm": 0.55,
+      "process": "resin filled, copper capped, planarized (POFV)"
+    },
+    {
+      "reference": "U9",
+      "pad": "17",
+      "net": "GND",
+      "x_mm": 156.9,
+      "y_mm": 91.4,
       "drill_mm": 0.25,
       "diameter_mm": 0.55,
       "process": "resin filled, copper capped, planarized (POFV)"
