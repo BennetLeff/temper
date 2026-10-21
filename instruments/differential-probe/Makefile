@@ -4,7 +4,7 @@ RUSTC ?= rustc
 NGSPICE ?= ngspice
 KICAD_PYTHON ?= /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3
 
-.PHONY: all generate export check leads pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
+.PHONY: all generate export check leads cost pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
 all:
 	$(MAKE) generate
 	$(MAKE) export
@@ -25,6 +25,13 @@ check:
 	$(RUSTC) --edition 2021 tools/check.rs -o /tmp/temper-differential-probe-check
 	/tmp/temper-differential-probe-check
 	$(MAKE) leads
+	$(MAKE) cost
+
+# Cost-down trade calculations (docs/cost-down.md) and the two-board cost / JLC fee model.
+cost:
+	$(RUSTC) --edition 2021 tools/cost_down.rs -o /tmp/temper-probe-cost-down
+	/tmp/temper-probe-cost-down > /dev/null
+	python3 procurement/cost.py > validation/cost.txt
 
 # HV lead budget, setback gates, section view and FR4 part geometry; stage-53 probe points.
 leads:

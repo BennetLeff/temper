@@ -1,0 +1,69 @@
+Rev C cost-down trade calculations (ideal network + datasheet ratings; not measurements).
+Divider: 5 x 2 MOhm || 33 pF per leg, Rbottom = Rtop/1999; crossover fc = 2411.44 Hz.
+
+1. HV resistor stress per 2 MOhm body versus ratings (70 C ambient; sqrt(P*R) = power-limited continuous voltage).
+   HVCB2512BDE2M00 (incumbent): 0.1 %, 25 ppm/C, 2 W at 70 C (zero at 155 C), max working 3000 V; continuous limit 2000 V.
+      3 kV DC, intact leg (extension)                               600 V  0.180 W    9.0 % of P,  30.0 % of V -> within
+      1.5 kV DC, intact leg (guaranteed)                            300 V  0.045 W    2.2 % of P,  15.0 % of V -> within
+      3 kV DC, one section shorted                                  750 V  0.281 W   14.0 % of P,  37.5 % of V -> within
+      3 kV DC, 3 bodies bypassed (2-body group holds the tip)      1500 V  1.125 W   56.2 % of P,  75.0 % of V -> within
+      1.5 kV DC, 3 bodies bypassed                                  750 V  0.281 W   14.1 % of P,  37.5 % of V -> within
+      3 kVpk sine, 3 bodies bypassed (rms)                         1061 V  0.562 W   28.1 % of P,  53.0 % of V -> within
+      3 kV DC, 2 bodies bypassed (3-body group holds the tip)      1000 V  0.500 W   25.0 % of P,  50.0 % of V -> within
+   HV121WF2004T4E (Uni-Royal HV12): 1.0 %, 100 ppm/C, 1 W at 70 C (zero at 155 C), max working 3000 V, max overload 4000 V; continuous limit 1414 V.
+      3 kV DC, intact leg (extension)                               600 V  0.180 W   18.0 % of P,  42.4 % of V -> within
+      1.5 kV DC, intact leg (guaranteed)                            300 V  0.045 W    4.5 % of P,  21.2 % of V -> within
+      3 kV DC, one section shorted                                  750 V  0.281 W   28.1 % of P,  53.0 % of V -> within
+      3 kV DC, 3 bodies bypassed (2-body group holds the tip)      1500 V  1.125 W  112.5 % of P, 106.1 % of V -> EXCEEDS
+      1.5 kV DC, 3 bodies bypassed                                  750 V  0.281 W   28.1 % of P,  53.0 % of V -> within
+      3 kVpk sine, 3 bodies bypassed (rms)                         1061 V  0.562 W   56.2 % of P,  75.0 % of V -> within
+      3 kV DC, 2 bodies bypassed (3-body group holds the tip)      1000 V  0.500 W   50.0 % of P,  70.7 % of V -> within
+   HV733ATTE2004F (KOA HV73): 1.0 %, 100 ppm/C, 1 W at 70 C (zero at 155 C), max working 3000 V; continuous limit 1414 V.
+      3 kV DC, intact leg (extension)                               600 V  0.180 W   18.0 % of P,  42.4 % of V -> within
+      1.5 kV DC, intact leg (guaranteed)                            300 V  0.045 W    4.5 % of P,  21.2 % of V -> within
+      3 kV DC, one section shorted                                  750 V  0.281 W   28.1 % of P,  53.0 % of V -> within
+      3 kV DC, 3 bodies bypassed (2-body group holds the tip)      1500 V  1.125 W  112.5 % of P, 106.1 % of V -> EXCEEDS
+      1.5 kV DC, 3 bodies bypassed                                  750 V  0.281 W   28.1 % of P,  53.0 % of V -> within
+      3 kVpk sine, 3 bodies bypassed (rms)                         1061 V  0.562 W   56.2 % of P,  75.0 % of V -> within
+      3 kV DC, 2 bodies bypassed (3-body group holds the tip)      1000 V  0.500 W   50.0 % of P,  70.7 % of V -> within
+   CHV2512-FX-2004ELF (Bourns CHV): 1.0 %, 100 ppm/C, 1 W at 70 C (zero at 155 C), max working 3000 V; continuous limit 1414 V.
+      3 kV DC, intact leg (extension)                               600 V  0.180 W   18.0 % of P,  42.4 % of V -> within
+      1.5 kV DC, intact leg (guaranteed)                            300 V  0.045 W    4.5 % of P,  21.2 % of V -> within
+      3 kV DC, one section shorted                                  750 V  0.281 W   28.1 % of P,  53.0 % of V -> within
+      3 kV DC, 3 bodies bypassed (2-body group holds the tip)      1500 V  1.125 W  112.5 % of P, 106.1 % of V -> EXCEEDS
+      1.5 kV DC, 3 bodies bypassed                                  750 V  0.281 W   28.1 % of P,  53.0 % of V -> within
+      3 kVpk sine, 3 bodies bypassed (rms)                         1061 V  0.562 W   56.2 % of P,  75.0 % of V -> within
+      3 kV DC, 2 bodies bypassed (3-body group holds the tip)      1000 V  0.500 W   50.0 % of P,  70.7 % of V -> within
+   HV12 exceeds its 1 W / sqrt(P*R) rating only in the continuous 3 kV DC case with three bodies bypassed: 1.125 W (112.5 %) and 1500 V against 1414 V.
+
+2. DC trim coverage (fixed part tolerance at its corners, every upper-string corner; pot reaches max(1 %, 2 ohm) .. 0.9 x nominal).
+   incumbent: 0.1 % string, 4.99 k 0.01 %, 50 ohm pot: need 7.000..18.003 ohm, pot reaches 2.0..45.0 ohm -> covered; nominal setting 12.5 ohm (2.0 ohm per turn of 25).
+   1 % string, 4.99 k 0.01 %, 50 ohm pot: need -38.023..63.025 ohm, pot reaches 2.0..45.0 ohm -> GAP; nominal setting 12.5 ohm (2.0 ohm per turn of 25).
+   1 % string, 4.87 k 0.1 %, 200 ohm pot: need 77.606..187.396 ohm, pot reaches 2.0..180.0 ohm -> GAP; nominal setting 132.5 ohm (8.0 ohm per turn of 25).
+   1 % string, 4.87 k + 22.1 ohm 0.1 %, 200 ohm pot (study 06): need 55.484..165.318 ohm, pot reaches 2.0..180.0 ohm -> covered; nominal setting 110.4 ohm (8.0 ohm per turn of 25).
+   1 % string, 4.87 k 0.1 %, 500 ohm pot (chosen): need 77.606..187.396 ohm, pot reaches 5.0..450.0 ohm -> covered; nominal setting 132.5 ohm (20.0 ohm per turn of 25).
+   Bourns 3296 contact-resistance variation max(1 %, 3 ohm): 3 ohm (600 ppm of Rbottom) at 50/200 ohm, 5 ohm (1000 ppm) at 500 ohm.
+
+3. DC differential-ratio drift between legs from TCR (worst-case from datasheet TCR limits, linear TCR assumed).
+   incumbent (25 ppm string; 4.99 k 5 ppm + 12.5 ohm of 100 ppm pot): bottom 5.24 ppm/C; leg mismatch <= 60.5 ppm/C. |dT| 5 C: 302 ppm (70.4 dB) |dT| 10 C: 605 ppm (64.4 dB) |dT| 30 C: 1814 ppm (54.8 dB) |dT| 60 C: 3628 ppm (48.8 dB)
+   chosen (100 ppm string; 4.87 k 25 ppm + 132.5 ohm of 100 ppm pot): bottom 26.99 ppm/C; leg mismatch <= 254.0 ppm/C. |dT| 5 C: 1270 ppm (57.9 dB) |dT| 10 C: 2540 ppm (51.9 dB) |dT| 30 C: 7619 ppm (42.4 dB) |dT| 60 C: 15238 ppm (36.3 dB)
+   Above crossover the resistive error reaches the output scaled by |1/(1+jf/fc)| = 0.06874 at 35 kHz, 0.04016 at 60 kHz:
+      incumbent: |dT| 10 C -> 42 ppm (87.6 dB) at 35 kHz, 24 ppm (92.3 dB) at 60 kHz.
+      chosen: |dT| 10 C -> 175 ppm (75.2 dB) at 35 kHz, 102 ppm (79.8 dB) at 60 kHz.
+
+4. Self-heating (body rise = P x theta; theta 42.5..85.0 K/W from the two derating curves, applied to both parts; an estimate, not a bound).
+   incumbent, 3 kV DC: 0.180 W/body, rise 7.6..15.3 K. Common-mode (both legs heated equally) mismatch <= 382..764 ppm (68.4..62.3 dB); one tip only: that leg's gain moves <= 191..382 ppm.
+   incumbent, 1.5 kV DC: 0.045 W/body, rise 1.9..3.8 K. Common-mode (both legs heated equally) mismatch <= 96..191 ppm (80.4..74.4 dB); one tip only: that leg's gain moves <= 48..96 ppm.
+   incumbent, 3 kVpk sine: 0.090 W/body, rise 3.8..7.6 K. Common-mode (both legs heated equally) mismatch <= 191..382 ppm (74.4..68.4 dB); one tip only: that leg's gain moves <= 96..191 ppm.
+   chosen, 3 kV DC: 0.180 W/body, rise 7.6..15.3 K. Common-mode (both legs heated equally) mismatch <= 1528..3057 ppm (56.3..50.3 dB); one tip only: that leg's gain moves <= 764..1528 ppm.
+   chosen, 1.5 kV DC: 0.045 W/body, rise 1.9..3.8 K. Common-mode (both legs heated equally) mismatch <= 382..764 ppm (68.4..62.3 dB); one tip only: that leg's gain moves <= 191..382 ppm.
+   chosen, 3 kVpk sine: 0.090 W/body, rise 3.8..7.6 K. Common-mode (both legs heated equally) mismatch <= 764..1528 ppm (62.3..56.3 dB); one tip only: that leg's gain moves <= 382..764 ppm.
+   Neither part specifies a voltage coefficient; that remains a measured qualification item for both.
+
+5. AC ratio error from +/-1 % section mismatch, equal 33 pF, all 32 corners after DC trim: <= 6.59 ppm at 35 kHz, 3.86 ppm at 60 kHz (complex).
+
+6. Low-leg compensation coverage (tools/check.rs algorithm) at candidate tolerances of the fixed 10 nF part:
+   1 % (incumbent KEMET and chosen Yageo CC1206FKNPO9BN103), S1 1.8-3.9 nF: PASS; stage-1 residual 1988.6..3845.5 pF; overlaps >= 29.4 pF (S1), 11.1 pF (S2).
+   2 %, S1 1.8-3.9 nF: PASS; stage-1 residual 1888.6..3945.5 pF; overlaps >= 29.4 pF (S1), 11.1 pF (S2).
+   5 %, S1 1.8-3.9 nF: FAIL (stage-1 gap at 1588.6 pF).
+   5 %, S1 1.5-3.9 nF: PASS; stage-1 residual 1588.6..4245.5 pF; overlaps >= 29.4 pF (S1), 11.1 pF (S2).
