@@ -968,8 +968,8 @@
         "35": null,
         "36": null,
         "37": "STATUS",
-        "38": null,
-        "39": null,
+        "38": "MON12",
+        "39": "MON_N12",
         "40": "UART_TX",
         "41": "UART_RX",
         "42": "3V3",
@@ -5382,6 +5382,150 @@
       "library_type": "basic",
       "assembly": "SMT",
       "source_query": "100pF C0G 5% 50V 0603; live stock 2026-10-20"
+    },
+    {
+      "ref": "R97",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "MON12",
+        "2": "12V"
+      },
+      "pcb": [
+        107.0,
+        112.6,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0031,
+      "stock": 18966769,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100kohm 0603"
+    },
+    {
+      "ref": "R98",
+      "value": "10k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "MON12"
+      },
+      "pcb": [
+        67.6,
+        90.3,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "stock": 38200936,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10kohm 0603"
+    },
+    {
+      "ref": "R99",
+      "value": "10k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "3V3",
+        "2": "MON_N12"
+      },
+      "pcb": [
+        72.4,
+        90.3,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25804",
+      "unit_usd": 0.0054,
+      "stock": 38200936,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10kohm 0603"
+    },
+    {
+      "ref": "R100",
+      "value": "150k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "MON_N12",
+        "2": "-12V"
+      },
+      "pcb": [
+        122.9,
+        110.5,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1503T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22807",
+      "unit_usd": 0.0017,
+      "stock": 1005853,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "150kohm 0603"
+    },
+    {
+      "ref": "C110",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "MON12"
+      },
+      "pcb": [
+        69.2,
+        90.3,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
+    },
+    {
+      "ref": "C111",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "MON_N12"
+      },
+      "pcb": [
+        74.0,
+        90.3,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0084,
+      "stock": 40417537,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "100nF 50V 0603"
     }
   ],
   "power_flags": [
