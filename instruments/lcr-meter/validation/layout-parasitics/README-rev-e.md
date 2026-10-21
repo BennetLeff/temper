@@ -1,14 +1,19 @@
 # PCB parasitics — Rev E (relay range switching)
 
-This extraction comes from the routed Rev E board, `cad/temper-lcr.kicad_pcb`, SHA-256 `2f6486c4…4bd8`. When it ran, that board was a working-tree change that had not been committed yet; `geometry_reve.json` records the hash. Before quoting these numbers, check that the committed board has the same hash. The CAD was only read.
+Two Rev E boards are extracted. `run_reve.sh` takes each one from git, so the inputs are pinned. The CAD was only read.
 
-`run_reve.sh` regenerates every number below. It writes:
+| Variant | Board SHA-256 | Commit | What it is |
+|---|---|---|---|
+| `reve` | `2f6486c4…4bd8` | 1438ecbc9 | First relay layout |
+| `reve_r104` | `cf379f85…95dc` | a04880a87 | As built: R104 (47 Ω) between U6A, net SRC_DRV, and SOURCE_BUF; SOURCE_BUF moved to In2 x 185.5, off DUT_HI. See [the R104 section](#r104-board-reve_r104) |
 
-- `geometry_reve.json`
-- `inductance_reve.json`
-- `fd_results/*_reve.json`
-- `extracted_reve.json`
-- `../stability-full-chain/reve_extracted.rs` (the harness include)
+`sh run_reve.sh [reve|reve_r104|all]` regenerates every number below. For each variant `<v>` it writes:
+
+- `geometry_<v>.json`
+- `inductance_<v>.json`
+- `fd_results/*_<v>.json`
+- `extracted_<v>.json`
+- `../stability-full-chain/<v>_extracted.rs` (the harness include)
 
 `STAB=1 sh run_reve.sh` also reruns the stability modes. The Rev C and Rev D files are unchanged. Method and conventions are the same as in `README.md`. Every value is **low / nominal / high**, in pF and nH. No range is a bound unless the text says so.
 
@@ -161,4 +166,47 @@ Validation:
   - Free space is the upper value only for the modelled path. Current spreading in the In2 bus and relay internals are not represented.
   - The VSSOP package closure and the relay hop are assumed geometry.
 - **Relay-internal parameters are unchanged estimates** and are UNVERIFIED (range-switching §6): Ccc, Coc, Cpp, L_rel and Rc. The `drive` loop failure depends on them; see the stability README.
-- **Extraction is from the uncommitted working-tree board `2f6486c4…`.** Re-run `run_reve.sh` if the committed board differs.
+- **The `reve` numbers are for board `2f6486c4…`, which is superseded.** The as-built board is `reve_r104`; see the next section.
+
+## R104 board (`reve_r104`)
+
+Board `cf379f85…95dc`, commit a04880a87.
+
+- **SRC_DRV.** U6 pins 1/2 (unity follower, feedback at the pin) are now net SRC_DRV. It runs on F.Cu to the via at (169.66, 88.96), then about 8 mm on In2, then to R104.1 at (176.5, 85.8).
+- **SOURCE_BUF.** It leaves R104.2 through In2 down x 185.5, no longer stacked over DUT_HI at B.Cu x 188.9, then joins the y 129.6 bus as before.
+- **Conductors.** SRC_DRV is a 14th conductor. It maps to the harness X6A node (`srcdrv`); SOURCE_BUF sits behind R104.
+- **Window.** `reve_r104` is 150.5–190.5 × 83.9–139.5 mm. The conductor bounding box is x 152.00–189.03, y 85.33–138.05.
+
+**Shorter schedule**
+
+| Solve | Status |
+|---|---|
+| Whole board, 7628 at 0.2 and 0.14 mm | re-solved |
+| Whole board, 1080 at 0.2 mm (high corner) | re-solved; cheap |
+| New window `reve_hiside_r104` (183.5–191 × 105–120), 0.14 to 0.05 mm | solved |
+| K1-relay and U7 zoom series | **reused from `reve`**: inside those windows (+3 mm) every conductor's copper and the In1 fill are identical on the two boards |
+| Finest whole-board grid | not re-solved |
+| Loop inductances | recomputed; unchanged (TIA_OUT, RF and TIA_SUM copper did not move) |
+
+Grid uncertainty is 12.3 %. It is set by the SOURCE_BUF ground ratio in the new zoom window, 0.96.
+
+All values in pF:
+
+| Quantity | `reve` (stacked) | **`reve_r104`** (low / nom / high) |
+|---|---|---|
+| SOURCE_BUF node (+ selected RG) → GND | 8.66 / 9.82 / 13.23 | **7.86 / 9.04 / 13.11** |
+| SOURCE_BUF ↔ DUT_HI | 2.03 / 2.42 / 2.99 | **0.107 / 0.155 / 0.229** |
+| SRC_DRV → GND (driver side of R104) | — | **1.20 / 1.36 / 1.61** |
+| SRC_DRV ↔ SOURCE_BUF / DUT_HI / HIGH_BUF | — | 0.005 / 0.015 / 0.005 (high) |
+| SOURCE_BUF ↔ selected RF / TIA_OUT | 0.04 / 0.05 / 0.07 | 0.04 / 0.14 / 0.17 |
+| SOURCE_BUF ↔ unselected RF nets | ≤ 0.016 | ≤ 0.11 |
+| TIA_OUT node → GND | 8.17 / 10.07 / 14.62 | 8.06 / 10.01 / 14.72 |
+| DUT_HI → GND | 6.28 / 7.40 / 10.23 | 6.87 / 8.17 / 11.22 |
+| TIA_SUM → GND / ↔ TIA_OUT | 0.78 / 0.90 / 1.06; 0.12 / 0.21 / 0.32 | 0.77 / 0.90 / 1.07; 0.12 / 0.21 / 0.32 |
+
+On the two SOURCE_BUF coupling rows:
+
+- At x 185.5, SOURCE_BUF passes 0.66 mm from the In2 stub and via of RF100K at x 184.84, y 123.5–125.3. That coupling joins TIA_OUT on the 100 kΩ range and an unselected RF node on the others. It is still at most 0.17 pF, about 10× below the relay pole-to-pole estimate (Cpp 0.5 / 2 pF).
+- SOURCE_BUF ↔ TIA_SUM stays ≤ 0.0001 pF.
+
+Stability: `../stability-full-chain/README.md`, mode `reverelaycng100_r104`. The source driver recovers to **46.77°** at stress parasitics on the high board corner.

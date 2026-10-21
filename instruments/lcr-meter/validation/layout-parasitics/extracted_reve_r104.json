@@ -1,0 +1,448 @@
+{
+ "board_sha256": "cf379f8555688caf6fcd4368d13f690cc38a2d9a8b61e8acf5d1e6e40df395dc",
+ "units": "pF, nH",
+ "fd": {
+  "convergence_pF_by_dx": {
+   "SOURCE_BUF_ground (reve_hiside)": {
+    "0.14": 0.832713701699417,
+    "0.1": 0.7761562711499186,
+    "0.07": 0.8020835332727699,
+    "0.05": 0.802513713107307
+   },
+   "TIA_OUT_ground (reve_relay)": {
+    "0.2": 1.8355255027410076,
+    "0.14": 1.8910110831427236,
+    "0.1": 2.005189937315293,
+    "0.07": 2.0570116415402904,
+    "0.05": 2.077249717350904
+   },
+   "SOURCE_BUF_ground (reve_relay)": {
+    "0.2": 1.719340044845486,
+    "0.14": 1.7189522828658994,
+    "0.1": 1.8410010239333092,
+    "0.07": 1.892929257652045,
+    "0.05": 1.9208547741243582
+   },
+   "RF100_ground (reve_relay)": {
+    "0.2": 1.3242967244310293,
+    "0.14": 1.393885018368645,
+    "0.1": 1.41488260154062,
+    "0.07": 1.4803272117888333,
+    "0.05": 1.4599590850493278
+   },
+   "TIA_SUM_ground (zoom U7)": {
+    "0.2": 0.6690046378395292,
+    "0.14": 0.767611259656724,
+    "0.1": 0.8011501840743379,
+    "0.07": 0.8159783024276575
+   },
+   "TIA_OUT_RF100_mutual (reve_relay)": {
+    "0.2": 0.14972976245353947,
+    "0.14": 0.16707494847795884,
+    "0.1": 0.17410040867388782,
+    "0.07": 0.18972782899337565,
+    "0.05": 0.19036422910962147
+   },
+   "RF100_RF100K_mutual (reve_relay)": {
+    "0.2": 0.2895412950578769,
+    "0.14": 0.3359602252147229,
+    "0.1": 0.31127846945022875,
+    "0.07": 0.3314006176110505,
+    "0.05": 0.33954097996413846
+   },
+   "TIA_SUM_TIA_OUT_mutual (zoom U7)": {
+    "0.2": 0.0740459722572399,
+    "0.14": 0.08643749428470299,
+    "0.1": 0.07907433407323762,
+    "0.07": 0.09033992046974576
+   },
+   "SOURCE_BUF_DUT_HI_mutual (reve_hiside)": {
+    "0.14": 0.022921875974144048,
+    "0.1": 0.022299804322007188,
+    "0.07": 0.021030852998672245,
+    "0.05": 0.021648796322030792
+   }
+  },
+  "finest_over_whole_dx_ratio": {
+   "SOURCE_BUF_ground (reve_hiside)": 0.9637330471079347,
+   "TIA_OUT_ground (reve_relay)": 1.0984862732262073,
+   "SOURCE_BUF_ground (reve_relay)": 1.117456716670366,
+   "RF100_ground (reve_relay)": 1.047402809995055,
+   "TIA_SUM_ground (zoom U7)": 1.0630098140985622,
+   "TIA_OUT_RF100_mutual (reve_relay)": 1.1393942110641144,
+   "RF100_RF100K_mutual (reve_relay)": 1.0106582698803912,
+   "TIA_SUM_TIA_OUT_mutual (zoom U7)": 1.0451473775048266,
+   "SOURCE_BUF_DUT_HI_mutual (reve_hiside, applied to that pair only)": 0.9444600584372198
+  },
+  "zoom_dx": [
+   0.2,
+   0.14,
+   0.1,
+   0.07,
+   0.05
+  ],
+  "pair_factor": 0.9444600584372198,
+  "fd_nominal": "JLC04161H-7628 dx=0.14 grid=[39, 398, 286]",
+  "fd_thin": "JLC04161H-1080 dx=0.2",
+  "factor_ground": 1.0984862732262073,
+  "factor_mutual": 1.0451473775048266,
+  "grid_uncertainty": 0.12267174329134589,
+  "whole_dx_runs": [
+   0.2,
+   0.14
+  ],
+  "whole_board_raw_by_dx": {
+   "0.2": {
+    "TIA_OUT_ground": 6.605222779749583,
+    "SOURCE_BUF_ground": 6.882207704578576,
+    "TIA_SUM_ground": 0.8176092688507549,
+    "TIA_SUM_TIA_OUT": 0.0743342920434555,
+    "SOURCE_BUF_DUT_HI": 0.11540575111944008
+   },
+   "0.14": {
+    "TIA_OUT_ground": 6.724279203944633,
+    "SOURCE_BUF_ground": 7.257055249261978,
+    "TIA_SUM_ground": 0.7822518603058113,
+    "TIA_SUM_TIA_OUT": 0.06662869298079566,
+    "SOURCE_BUF_DUT_HI": 0.10470177275640101
+   }
+  }
+ },
+ "ranges": {
+  "r100": {
+   "low": {
+    "c_tiaout_gnd_pf": 8.367,
+    "c_tiaout_all_pf": 9.1456,
+    "c_source_gnd_pf": 7.8615,
+    "c_source_all_pf": 8.0915,
+    "c_sum_gnd_pf": 0.7739,
+    "c_sum_tiaout_pf": 0.1317,
+    "c_sum_lo_pf": 0.0321,
+    "c_lo_gnd_pf": 3.0782,
+    "c_lo_lowbuf_pf": 0.0627,
+    "c_hi_gnd_pf": 6.87,
+    "c_hi_lo_pf": 0.1048,
+    "c_source_hi_pf": 0.1074,
+    "c_source_tia_pf": 0.0424,
+    "c_source_sum_pf": 0.0,
+    "c_source_unsel_rf_pf": 0.0734,
+    "c_tia_unsel_rf_pf": 0.4678,
+    "c_tia_highbuf_pf": 0.1184,
+    "c_srcdrv_gnd_pf": 1.1946,
+    "c_srcdrv_all_pf": 1.2118,
+    "c_srcdrv_source_pf": 0.0033,
+    "c_srcdrv_hi_pf": 0.01,
+    "c_srcdrv_highbuf_pf": 0.0035
+   },
+   "nom": {
+    "c_tiaout_gnd_pf": 9.537,
+    "c_tiaout_all_pf": 10.5109,
+    "c_source_gnd_pf": 8.9607,
+    "c_source_all_pf": 9.262,
+    "c_sum_gnd_pf": 0.8993,
+    "c_sum_tiaout_pf": 0.1997,
+    "c_sum_lo_pf": 0.0645,
+    "c_lo_gnd_pf": 3.8474,
+    "c_lo_lowbuf_pf": 0.0912,
+    "c_hi_gnd_pf": 8.1694,
+    "c_hi_lo_pf": 0.1441,
+    "c_source_hi_pf": 0.1546,
+    "c_source_tia_pf": 0.0508,
+    "c_source_sum_pf": 0.0001,
+    "c_source_unsel_rf_pf": 0.0878,
+    "c_tia_unsel_rf_pf": 0.5599,
+    "c_tia_highbuf_pf": 0.1417,
+    "c_srcdrv_gnd_pf": 1.3616,
+    "c_srcdrv_all_pf": 1.3822,
+    "c_srcdrv_source_pf": 0.004,
+    "c_srcdrv_hi_pf": 0.012,
+    "c_srcdrv_highbuf_pf": 0.0042
+   },
+   "high": {
+    "c_tiaout_gnd_pf": 14.1864,
+    "c_tiaout_all_pf": 15.4532,
+    "c_source_gnd_pf": 13.1109,
+    "c_source_all_pf": 13.5199,
+    "c_sum_gnd_pf": 1.0711,
+    "c_sum_tiaout_pf": 0.3149,
+    "c_sum_lo_pf": 0.1178,
+    "c_lo_gnd_pf": 6.3936,
+    "c_lo_lowbuf_pf": 0.1429,
+    "c_hi_gnd_pf": 11.2151,
+    "c_hi_lo_pf": 0.1631,
+    "c_source_hi_pf": 0.2287,
+    "c_source_tia_pf": 0.0624,
+    "c_source_sum_pf": 0.0001,
+    "c_source_unsel_rf_pf": 0.108,
+    "c_tia_unsel_rf_pf": 0.6884,
+    "c_tia_highbuf_pf": 0.1742,
+    "c_srcdrv_gnd_pf": 1.6084,
+    "c_srcdrv_all_pf": 1.6337,
+    "c_srcdrv_source_pf": 0.0049,
+    "c_srcdrv_hi_pf": 0.0147,
+    "c_srcdrv_highbuf_pf": 0.0052
+   }
+  },
+  "r5k": {
+   "low": {
+    "c_tiaout_gnd_pf": 8.0579,
+    "c_tiaout_all_pf": 8.6751,
+    "c_source_gnd_pf": 7.9326,
+    "c_source_all_pf": 8.1625,
+    "c_sum_gnd_pf": 0.7739,
+    "c_sum_tiaout_pf": 0.119,
+    "c_sum_lo_pf": 0.0321,
+    "c_lo_gnd_pf": 3.0782,
+    "c_lo_lowbuf_pf": 0.0627,
+    "c_hi_gnd_pf": 6.87,
+    "c_hi_lo_pf": 0.1048,
+    "c_source_hi_pf": 0.1075,
+    "c_source_tia_pf": 0.0395,
+    "c_source_sum_pf": 0.0,
+    "c_source_unsel_rf_pf": 0.0764,
+    "c_tia_unsel_rf_pf": 0.3225,
+    "c_tia_highbuf_pf": 0.1183,
+    "c_srcdrv_gnd_pf": 1.1946,
+    "c_srcdrv_all_pf": 1.2118,
+    "c_srcdrv_source_pf": 0.0033,
+    "c_srcdrv_hi_pf": 0.01,
+    "c_srcdrv_highbuf_pf": 0.0035
+   },
+   "nom": {
+    "c_tiaout_gnd_pf": 9.1846,
+    "c_tiaout_all_pf": 9.9653,
+    "c_source_gnd_pf": 9.0417,
+    "c_source_all_pf": 9.3429,
+    "c_sum_gnd_pf": 0.8993,
+    "c_sum_tiaout_pf": 0.1845,
+    "c_sum_lo_pf": 0.0645,
+    "c_lo_gnd_pf": 3.8474,
+    "c_lo_lowbuf_pf": 0.0912,
+    "c_hi_gnd_pf": 8.1694,
+    "c_hi_lo_pf": 0.1441,
+    "c_source_hi_pf": 0.1547,
+    "c_source_tia_pf": 0.0473,
+    "c_source_sum_pf": 0.0001,
+    "c_source_unsel_rf_pf": 0.0914,
+    "c_tia_unsel_rf_pf": 0.3859,
+    "c_tia_highbuf_pf": 0.1416,
+    "c_srcdrv_gnd_pf": 1.3616,
+    "c_srcdrv_all_pf": 1.3822,
+    "c_srcdrv_source_pf": 0.004,
+    "c_srcdrv_hi_pf": 0.012,
+    "c_srcdrv_highbuf_pf": 0.0042
+   },
+   "high": {
+    "c_tiaout_gnd_pf": 14.317,
+    "c_tiaout_all_pf": 15.3463,
+    "c_source_gnd_pf": 13.1107,
+    "c_source_all_pf": 13.5196,
+    "c_sum_gnd_pf": 1.0711,
+    "c_sum_tiaout_pf": 0.2962,
+    "c_sum_lo_pf": 0.1178,
+    "c_lo_gnd_pf": 6.3936,
+    "c_lo_lowbuf_pf": 0.1429,
+    "c_hi_gnd_pf": 11.2151,
+    "c_hi_lo_pf": 0.1631,
+    "c_source_hi_pf": 0.2287,
+    "c_source_tia_pf": 0.0581,
+    "c_source_sum_pf": 0.0001,
+    "c_source_unsel_rf_pf": 0.1124,
+    "c_tia_unsel_rf_pf": 0.4745,
+    "c_tia_highbuf_pf": 0.1741,
+    "c_srcdrv_gnd_pf": 1.6084,
+    "c_srcdrv_all_pf": 1.6337,
+    "c_srcdrv_source_pf": 0.0049,
+    "c_srcdrv_hi_pf": 0.0147,
+    "c_srcdrv_highbuf_pf": 0.0052
+   }
+  },
+  "r100k": {
+   "low": {
+    "c_tiaout_gnd_pf": 8.7856,
+    "c_tiaout_all_pf": 9.821,
+    "c_source_gnd_pf": 7.8785,
+    "c_source_all_pf": 8.1088,
+    "c_sum_gnd_pf": 0.7739,
+    "c_sum_tiaout_pf": 0.1365,
+    "c_sum_lo_pf": 0.0321,
+    "c_lo_gnd_pf": 3.0782,
+    "c_lo_lowbuf_pf": 0.0627,
+    "c_hi_gnd_pf": 6.87,
+    "c_hi_lo_pf": 0.1048,
+    "c_source_hi_pf": 0.1077,
+    "c_source_tia_pf": 0.1126,
+    "c_source_sum_pf": 0.0,
+    "c_source_unsel_rf_pf": 0.0032,
+    "c_tia_unsel_rf_pf": 0.6474,
+    "c_tia_highbuf_pf": 0.1183,
+    "c_srcdrv_gnd_pf": 1.1946,
+    "c_srcdrv_all_pf": 1.2118,
+    "c_srcdrv_source_pf": 0.0033,
+    "c_srcdrv_hi_pf": 0.01,
+    "c_srcdrv_highbuf_pf": 0.0035
+   },
+   "nom": {
+    "c_tiaout_gnd_pf": 10.0141,
+    "c_tiaout_all_pf": 11.2954,
+    "c_source_gnd_pf": 8.9801,
+    "c_source_all_pf": 9.2818,
+    "c_sum_gnd_pf": 0.8993,
+    "c_sum_tiaout_pf": 0.2055,
+    "c_sum_lo_pf": 0.0645,
+    "c_lo_gnd_pf": 3.8474,
+    "c_lo_lowbuf_pf": 0.0912,
+    "c_hi_gnd_pf": 8.1694,
+    "c_hi_lo_pf": 0.1441,
+    "c_source_hi_pf": 0.1549,
+    "c_source_tia_pf": 0.1348,
+    "c_source_sum_pf": 0.0001,
+    "c_source_unsel_rf_pf": 0.0038,
+    "c_tia_unsel_rf_pf": 0.7748,
+    "c_tia_highbuf_pf": 0.1416,
+    "c_srcdrv_gnd_pf": 1.3616,
+    "c_srcdrv_all_pf": 1.3822,
+    "c_srcdrv_source_pf": 0.004,
+    "c_srcdrv_hi_pf": 0.012,
+    "c_srcdrv_highbuf_pf": 0.0042
+   },
+   "high": {
+    "c_tiaout_gnd_pf": 14.7216,
+    "c_tiaout_all_pf": 16.3664,
+    "c_source_gnd_pf": 13.1107,
+    "c_source_all_pf": 13.5201,
+    "c_sum_gnd_pf": 1.0711,
+    "c_sum_tiaout_pf": 0.322,
+    "c_sum_lo_pf": 0.1178,
+    "c_lo_gnd_pf": 6.3936,
+    "c_lo_lowbuf_pf": 0.1429,
+    "c_hi_gnd_pf": 11.2151,
+    "c_hi_lo_pf": 0.1631,
+    "c_source_hi_pf": 0.229,
+    "c_source_tia_pf": 0.1657,
+    "c_source_sum_pf": 0.0001,
+    "c_source_unsel_rf_pf": 0.0047,
+    "c_tia_unsel_rf_pf": 0.9527,
+    "c_tia_highbuf_pf": 0.1741,
+    "c_srcdrv_gnd_pf": 1.6084,
+    "c_srcdrv_all_pf": 1.6337,
+    "c_srcdrv_source_pf": 0.0049,
+    "c_srcdrv_hi_pf": 0.0147,
+    "c_srcdrv_highbuf_pf": 0.0052
+   }
+  }
+ },
+ "spice": {
+  "low": {
+   "r100": "Cxg_sum sum 0 0.7739p\nCxg_low low 0 3.0782p\nCxg_tia tia 0 8.3670p\nCxg_hi hi 0 6.8700p\nCxg_ru1 ru1 0 1.5775p\nCxg_ru2 ru2 0 2.3052p\nCxg_lowbuf lowbuf 0 1.9915p\nCxg_highbuf highbuf 0 1.5222p\nCxg_source source 0 7.8615p\nCxg_rgu1 rgu1 0 0.9387p\nCxg_rgu2 rgu2 0 0.8847p\nCxg_srcdrv srcdrv 0 1.1946p\nCxm_sum_low sum low 0.0321p\nCxm_sum_tia sum tia 0.1317p\nCxm_sum_ru1 sum ru1 0.0379p\nCxm_sum_ru2 sum ru2 0.0554p\nCxm_sum_lowbuf sum lowbuf 0.0164p\nCxm_low_tia low tia 0.0095p\nCxm_low_hi low hi 0.1048p\nCxm_low_lowbuf low lowbuf 0.0627p\nCxm_low_highbuf low highbuf 0.0011p\nCxm_tia_hi tia hi 0.0014p\nCxm_tia_ru1 tia ru1 0.0065p\nCxm_tia_ru2 tia ru2 0.4613p\nCxm_tia_lowbuf tia lowbuf 0.0069p\nCxm_tia_highbuf tia highbuf 0.1184p\nCxm_tia_source tia source 0.0424p\nCxm_hi_ru2 hi ru2 0.0025p\nCxm_hi_highbuf hi highbuf 0.0513p\nCxm_hi_source hi source 0.1074p\nCxm_hi_rgu1 hi rgu1 0.0207p\nCxm_hi_rgu2 hi rgu2 0.0209p\nCxm_hi_srcdrv hi srcdrv 0.0100p\nCxm_ru1_ru2 ru1 ru2 0.0131p\nCxm_ru2_source ru2 source 0.0733p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0323p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0035p\nCxm_source_rgu1 source rgu1 0.0017p\nCxm_source_rgu2 source rgu2 0.0015p\nCxm_source_srcdrv source srcdrv 0.0033p\n",
+   "r5k": "Cxg_sum sum 0 0.7739p\nCxg_low low 0 3.0782p\nCxg_tia tia 0 8.0579p\nCxg_hi hi 0 6.8700p\nCxg_ru0 ru0 0 1.8866p\nCxg_ru2 ru2 0 2.3052p\nCxg_lowbuf lowbuf 0 1.9915p\nCxg_highbuf highbuf 0 1.5222p\nCxg_source source 0 7.9326p\nCxg_rgu0 rgu0 0 0.8676p\nCxg_rgu2 rgu2 0 0.8847p\nCxg_srcdrv srcdrv 0 1.1946p\nCxm_sum_low sum low 0.0321p\nCxm_sum_tia sum tia 0.1190p\nCxm_sum_ru0 sum ru0 0.0506p\nCxm_sum_ru2 sum ru2 0.0554p\nCxm_sum_lowbuf sum lowbuf 0.0164p\nCxm_low_tia low tia 0.0094p\nCxm_low_hi low hi 0.1048p\nCxm_low_lowbuf low lowbuf 0.0627p\nCxm_low_highbuf low highbuf 0.0011p\nCxm_tia_hi tia hi 0.0014p\nCxm_tia_ru0 tia ru0 0.2418p\nCxm_tia_ru2 tia ru2 0.0806p\nCxm_tia_lowbuf tia lowbuf 0.0068p\nCxm_tia_highbuf tia highbuf 0.1183p\nCxm_tia_source tia source 0.0395p\nCxm_hi_ru2 hi ru2 0.0025p\nCxm_hi_highbuf hi highbuf 0.0513p\nCxm_hi_source hi source 0.1075p\nCxm_hi_rgu0 hi rgu0 0.0207p\nCxm_hi_rgu2 hi rgu2 0.0209p\nCxm_hi_srcdrv hi srcdrv 0.0100p\nCxm_ru0_ru2 ru0 ru2 0.3938p\nCxm_ru0_source ru0 source 0.0031p\nCxm_ru2_source ru2 source 0.0733p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0323p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0035p\nCxm_source_rgu0 source rgu0 0.0015p\nCxm_source_rgu2 source rgu2 0.0015p\nCxm_source_srcdrv source srcdrv 0.0033p\n",
+   "r100k": "Cxg_sum sum 0 0.7739p\nCxg_low low 0 3.0782p\nCxg_tia tia 0 8.7856p\nCxg_hi hi 0 6.8700p\nCxg_ru0 ru0 0 1.8866p\nCxg_ru1 ru1 0 1.5775p\nCxg_lowbuf lowbuf 0 1.9915p\nCxg_highbuf highbuf 0 1.5222p\nCxg_source source 0 7.8785p\nCxg_rgu0 rgu0 0 0.8676p\nCxg_rgu1 rgu1 0 0.9387p\nCxg_srcdrv srcdrv 0 1.1946p\nCxm_sum_low sum low 0.0321p\nCxm_sum_tia sum tia 0.1365p\nCxm_sum_ru0 sum ru0 0.0506p\nCxm_sum_ru1 sum ru1 0.0379p\nCxm_sum_lowbuf sum lowbuf 0.0164p\nCxm_low_tia low tia 0.0095p\nCxm_low_hi low hi 0.1048p\nCxm_low_lowbuf low lowbuf 0.0627p\nCxm_low_highbuf low highbuf 0.0011p\nCxm_tia_hi tia hi 0.0038p\nCxm_tia_ru0 tia ru0 0.6317p\nCxm_tia_ru1 tia ru1 0.0157p\nCxm_tia_lowbuf tia lowbuf 0.0069p\nCxm_tia_highbuf tia highbuf 0.1183p\nCxm_tia_source tia source 0.1126p\nCxm_hi_highbuf hi highbuf 0.0513p\nCxm_hi_source hi source 0.1077p\nCxm_hi_rgu0 hi rgu0 0.0207p\nCxm_hi_rgu1 hi rgu1 0.0207p\nCxm_hi_srcdrv hi srcdrv 0.0100p\nCxm_ru0_ru1 ru0 ru1 0.0039p\nCxm_ru0_source ru0 source 0.0031p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0323p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0035p\nCxm_source_rgu0 source rgu0 0.0015p\nCxm_source_rgu1 source rgu1 0.0017p\nCxm_source_srcdrv source srcdrv 0.0033p\n"
+  },
+  "nom": {
+   "r100": "Cxg_sum sum 0 0.8993p\nCxg_low low 0 3.8474p\nCxg_tia tia 0 9.5370p\nCxg_hi hi 0 8.1694p\nCxg_ru1 ru1 0 1.7981p\nCxg_ru2 ru2 0 2.6275p\nCxg_lowbuf lowbuf 0 2.2700p\nCxg_highbuf highbuf 0 1.7351p\nCxg_source source 0 8.9607p\nCxg_rgu1 rgu1 0 1.0699p\nCxg_rgu2 rgu2 0 1.0084p\nCxg_srcdrv srcdrv 0 1.3616p\nCxm_sum_low sum low 0.0645p\nCxm_sum_tia sum tia 0.1997p\nCxm_sum_ru1 sum ru1 0.0714p\nCxm_sum_ru2 sum ru2 0.0924p\nCxm_sum_lowbuf sum lowbuf 0.0196p\nCxm_low_tia low tia 0.0114p\nCxm_low_hi low hi 0.1441p\nCxm_low_lowbuf low lowbuf 0.0912p\nCxm_low_highbuf low highbuf 0.0013p\nCxm_tia_hi tia hi 0.0017p\nCxm_tia_ru1 tia ru1 0.0078p\nCxm_tia_ru2 tia ru2 0.5521p\nCxm_tia_lowbuf tia lowbuf 0.0083p\nCxm_tia_highbuf tia highbuf 0.1417p\nCxm_tia_source tia source 0.0508p\nCxm_hi_ru2 hi ru2 0.0030p\nCxm_hi_highbuf hi highbuf 0.0614p\nCxm_hi_source hi source 0.1546p\nCxm_hi_rgu1 hi rgu1 0.0508p\nCxm_hi_rgu2 hi rgu2 0.0511p\nCxm_hi_srcdrv hi srcdrv 0.0120p\nCxm_ru1_ru2 ru1 ru2 0.0157p\nCxm_ru2_source ru2 source 0.0877p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0387p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0042p\nCxm_source_rgu1 source rgu1 0.0020p\nCxm_source_rgu2 source rgu2 0.0018p\nCxm_source_srcdrv source srcdrv 0.0040p\n",
+   "r5k": "Cxg_sum sum 0 0.8993p\nCxg_low low 0 3.8474p\nCxg_tia tia 0 9.1846p\nCxg_hi hi 0 8.1694p\nCxg_ru0 ru0 0 2.1504p\nCxg_ru2 ru2 0 2.6275p\nCxg_lowbuf lowbuf 0 2.2700p\nCxg_highbuf highbuf 0 1.7351p\nCxg_source source 0 9.0417p\nCxg_rgu0 rgu0 0 0.9889p\nCxg_rgu2 rgu2 0 1.0084p\nCxg_srcdrv srcdrv 0 1.3616p\nCxm_sum_low sum low 0.0645p\nCxm_sum_tia sum tia 0.1845p\nCxm_sum_ru0 sum ru0 0.0866p\nCxm_sum_ru2 sum ru2 0.0924p\nCxm_sum_lowbuf sum lowbuf 0.0196p\nCxm_low_tia low tia 0.0112p\nCxm_low_hi low hi 0.1441p\nCxm_low_lowbuf low lowbuf 0.0912p\nCxm_low_highbuf low highbuf 0.0013p\nCxm_tia_hi tia hi 0.0016p\nCxm_tia_ru0 tia ru0 0.2894p\nCxm_tia_ru2 tia ru2 0.0965p\nCxm_tia_lowbuf tia lowbuf 0.0082p\nCxm_tia_highbuf tia highbuf 0.1416p\nCxm_tia_source tia source 0.0473p\nCxm_hi_ru2 hi ru2 0.0030p\nCxm_hi_highbuf hi highbuf 0.0614p\nCxm_hi_source hi source 0.1547p\nCxm_hi_rgu0 hi rgu0 0.0508p\nCxm_hi_rgu2 hi rgu2 0.0511p\nCxm_hi_srcdrv hi srcdrv 0.0120p\nCxm_ru0_ru2 ru0 ru2 0.4713p\nCxm_ru0_source ru0 source 0.0037p\nCxm_ru2_source ru2 source 0.0877p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0387p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0042p\nCxm_source_rgu0 source rgu0 0.0018p\nCxm_source_rgu2 source rgu2 0.0017p\nCxm_source_srcdrv source srcdrv 0.0040p\n",
+   "r100k": "Cxg_sum sum 0 0.8993p\nCxg_low low 0 3.8474p\nCxg_tia tia 0 10.0141p\nCxg_hi hi 0 8.1694p\nCxg_ru0 ru0 0 2.1504p\nCxg_ru1 ru1 0 1.7981p\nCxg_lowbuf lowbuf 0 2.2700p\nCxg_highbuf highbuf 0 1.7351p\nCxg_source source 0 8.9801p\nCxg_rgu0 rgu0 0 0.9889p\nCxg_rgu1 rgu1 0 1.0699p\nCxg_srcdrv srcdrv 0 1.3616p\nCxm_sum_low sum low 0.0645p\nCxm_sum_tia sum tia 0.2055p\nCxm_sum_ru0 sum ru0 0.0866p\nCxm_sum_ru1 sum ru1 0.0714p\nCxm_sum_lowbuf sum lowbuf 0.0196p\nCxm_low_tia low tia 0.0113p\nCxm_low_hi low hi 0.1441p\nCxm_low_lowbuf low lowbuf 0.0912p\nCxm_low_highbuf low highbuf 0.0013p\nCxm_tia_hi tia hi 0.0046p\nCxm_tia_ru0 tia ru0 0.7560p\nCxm_tia_ru1 tia ru1 0.0188p\nCxm_tia_lowbuf tia lowbuf 0.0082p\nCxm_tia_highbuf tia highbuf 0.1416p\nCxm_tia_source tia source 0.1348p\nCxm_hi_highbuf hi highbuf 0.0614p\nCxm_hi_source hi source 0.1549p\nCxm_hi_rgu0 hi rgu0 0.0508p\nCxm_hi_rgu1 hi rgu1 0.0508p\nCxm_hi_srcdrv hi srcdrv 0.0120p\nCxm_ru0_ru1 ru0 ru1 0.0047p\nCxm_ru0_source ru0 source 0.0037p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0387p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0042p\nCxm_source_rgu0 source rgu0 0.0018p\nCxm_source_rgu1 source rgu1 0.0020p\nCxm_source_srcdrv source srcdrv 0.0040p\n"
+  },
+  "high": {
+   "r100": "Cxg_sum sum 0 1.0711p\nCxg_low low 0 6.3936p\nCxg_tia tia 0 14.1864p\nCxg_hi hi 0 11.2151p\nCxg_ru1 ru1 0 3.2145p\nCxg_ru2 ru2 0 3.6191p\nCxg_lowbuf lowbuf 0 3.6402p\nCxg_highbuf highbuf 0 2.1071p\nCxg_source source 0 13.1109p\nCxg_rgu1 rgu1 0 2.2987p\nCxg_rgu2 rgu2 0 2.2987p\nCxg_srcdrv srcdrv 0 1.6084p\nCxm_sum_low sum low 0.1178p\nCxm_sum_tia sum tia 0.3149p\nCxm_sum_ru1 sum ru1 0.1263p\nCxm_sum_ru2 sum ru2 0.1521p\nCxm_sum_lowbuf sum lowbuf 0.0241p\nCxm_low_tia low tia 0.0140p\nCxm_low_hi low hi 0.1631p\nCxm_low_lowbuf low lowbuf 0.1429p\nCxm_low_highbuf low highbuf 0.0016p\nCxm_tia_hi tia hi 0.0021p\nCxm_tia_ru1 tia ru1 0.0096p\nCxm_tia_ru2 tia ru2 0.6788p\nCxm_tia_lowbuf tia lowbuf 0.0102p\nCxm_tia_highbuf tia highbuf 0.1742p\nCxm_tia_source tia source 0.0624p\nCxm_hi_ru2 hi ru2 0.0036p\nCxm_hi_highbuf hi highbuf 0.0755p\nCxm_hi_source hi source 0.2287p\nCxm_hi_rgu1 hi rgu1 0.1010p\nCxm_hi_rgu2 hi rgu2 0.1013p\nCxm_hi_srcdrv hi srcdrv 0.0147p\nCxm_ru1_ru2 ru1 ru2 0.0193p\nCxm_ru2_source ru2 source 0.1078p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0476p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0052p\nCxm_source_rgu1 source rgu1 0.0024p\nCxm_source_rgu2 source rgu2 0.0022p\nCxm_source_srcdrv source srcdrv 0.0049p\n",
+   "r5k": "Cxg_sum sum 0 1.0711p\nCxg_low low 0 6.3936p\nCxg_tia tia 0 14.3170p\nCxg_hi hi 0 11.2151p\nCxg_ru0 ru0 0 3.0839p\nCxg_ru2 ru2 0 3.6191p\nCxg_lowbuf lowbuf 0 3.6402p\nCxg_highbuf highbuf 0 2.1071p\nCxg_source source 0 13.1107p\nCxg_rgu0 rgu0 0 2.2989p\nCxg_rgu2 rgu2 0 2.2987p\nCxg_srcdrv srcdrv 0 1.6084p\nCxm_sum_low sum low 0.1178p\nCxm_sum_tia sum tia 0.2962p\nCxm_sum_ru0 sum ru0 0.1450p\nCxm_sum_ru2 sum ru2 0.1521p\nCxm_sum_lowbuf sum lowbuf 0.0241p\nCxm_low_tia low tia 0.0138p\nCxm_low_hi low hi 0.1631p\nCxm_low_lowbuf low lowbuf 0.1429p\nCxm_low_highbuf low highbuf 0.0016p\nCxm_tia_hi tia hi 0.0020p\nCxm_tia_ru0 tia ru0 0.3559p\nCxm_tia_ru2 tia ru2 0.1186p\nCxm_tia_lowbuf tia lowbuf 0.0100p\nCxm_tia_highbuf tia highbuf 0.1741p\nCxm_tia_source tia source 0.0581p\nCxm_hi_ru2 hi ru2 0.0036p\nCxm_hi_highbuf hi highbuf 0.0755p\nCxm_hi_source hi source 0.2287p\nCxm_hi_rgu0 hi rgu0 0.1010p\nCxm_hi_rgu2 hi rgu2 0.1013p\nCxm_hi_srcdrv hi srcdrv 0.0147p\nCxm_ru0_ru2 ru0 ru2 0.5795p\nCxm_ru0_source ru0 source 0.0045p\nCxm_ru2_source ru2 source 0.1078p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0476p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0052p\nCxm_source_rgu0 source rgu0 0.0023p\nCxm_source_rgu2 source rgu2 0.0022p\nCxm_source_srcdrv source srcdrv 0.0049p\n",
+   "r100k": "Cxg_sum sum 0 1.0711p\nCxg_low low 0 6.3936p\nCxg_tia tia 0 14.7216p\nCxg_hi hi 0 11.2151p\nCxg_ru0 ru0 0 3.0839p\nCxg_ru1 ru1 0 3.2145p\nCxg_lowbuf lowbuf 0 3.6402p\nCxg_highbuf highbuf 0 2.1071p\nCxg_source source 0 13.1107p\nCxg_rgu0 rgu0 0 2.2989p\nCxg_rgu1 rgu1 0 2.2987p\nCxg_srcdrv srcdrv 0 1.6084p\nCxm_sum_low sum low 0.1178p\nCxm_sum_tia sum tia 0.3220p\nCxm_sum_ru0 sum ru0 0.1450p\nCxm_sum_ru1 sum ru1 0.1263p\nCxm_sum_lowbuf sum lowbuf 0.0241p\nCxm_low_tia low tia 0.0139p\nCxm_low_hi low hi 0.1631p\nCxm_low_lowbuf low lowbuf 0.1429p\nCxm_low_highbuf low highbuf 0.0016p\nCxm_tia_hi tia hi 0.0056p\nCxm_tia_ru0 tia ru0 0.9296p\nCxm_tia_ru1 tia ru1 0.0231p\nCxm_tia_lowbuf tia lowbuf 0.0101p\nCxm_tia_highbuf tia highbuf 0.1741p\nCxm_tia_source tia source 0.1657p\nCxm_hi_highbuf hi highbuf 0.0755p\nCxm_hi_source hi source 0.2290p\nCxm_hi_rgu0 hi rgu0 0.1010p\nCxm_hi_rgu1 hi rgu1 0.1010p\nCxm_hi_srcdrv hi srcdrv 0.0147p\nCxm_ru0_ru1 ru0 ru1 0.0058p\nCxm_ru0_source ru0 source 0.0045p\nCxm_lowbuf_highbuf lowbuf highbuf 0.0476p\nCxm_highbuf_srcdrv highbuf srcdrv 0.0052p\nCxm_source_rgu0 source rgu0 0.0023p\nCxm_source_rgu1 source rgu1 0.0024p\nCxm_source_srcdrv source srcdrv 0.0049p\n"
+  }
+ },
+ "raw_net_ground_pf": {
+  "low": {
+   "TIA_SUM": 0.7739,
+   "DUT_LO": 3.0782,
+   "TIA_OUT": 6.4804,
+   "DUT_HI": 6.87,
+   "RF100": 1.8866,
+   "RF5K": 1.5775,
+   "RF100K": 2.3052,
+   "LOW_BUF": 1.9915,
+   "HIGH_BUF": 1.5222,
+   "SOURCE_BUF": 6.9939,
+   "RG100": 0.8676,
+   "RG5K": 0.9387,
+   "RG100K": 0.8847,
+   "SRC_DRV": 1.1946
+  },
+  "nom": {
+   "TIA_SUM": 0.8993,
+   "DUT_LO": 3.8474,
+   "TIA_OUT": 7.3865,
+   "DUT_HI": 8.1694,
+   "RF100": 2.1504,
+   "RF5K": 1.7981,
+   "RF100K": 2.6275,
+   "LOW_BUF": 2.27,
+   "HIGH_BUF": 1.7351,
+   "SOURCE_BUF": 7.9718,
+   "RG100": 0.9889,
+   "RG5K": 1.0699,
+   "RG100K": 1.0084,
+   "SRC_DRV": 1.3616
+  },
+  "high": {
+   "TIA_SUM": 1.0711,
+   "DUT_LO": 6.3936,
+   "TIA_OUT": 11.1025,
+   "DUT_HI": 11.2151,
+   "RF100": 3.0839,
+   "RF5K": 3.2145,
+   "RF100K": 3.6191,
+   "LOW_BUF": 3.6402,
+   "HIGH_BUF": 2.1071,
+   "SOURCE_BUF": 10.812,
+   "RG100": 2.2989,
+   "RG5K": 2.2987,
+   "RG100K": 2.2987,
+   "SRC_DRV": 1.6084
+  }
+ },
+ "rev_d_high_in_harness": {
+  "c_tiaout_gnd_pf": 10.53,
+  "c_sum_gnd_pf": 1.274,
+  "c_sum_tiaout_pf": 0.399,
+  "c_lo_gnd_pf": 5.666,
+  "c_hi_gnd_pf": 5.232,
+  "c_hi_lo_pf": 0.158,
+  "c_sum_lo_pf": 0.118,
+  "c_lo_lowbuf_pf": 0.15,
+  "l_rf_nh": {
+   "r100": 21.65,
+   "r5k": 50.46,
+   "r100k": 33.14
+  },
+  "l_c104_nh": 4.87
+ },
+ "inductance_nh": {
+  "c104": {
+   "low": 2.36,
+   "nom": null,
+   "high": 5.04,
+   "nom_geometry_free": 4.34,
+   "nom_geometry_solid_plane": 3.69
+  },
+  "r100": {
+   "low": 50.39,
+   "nom": null,
+   "high": 64.93,
+   "nom_geometry_free": 63.87,
+   "nom_geometry_solid_plane": 54.1
+  },
+  "r5k": {
+   "low": 39.49,
+   "nom": null,
+   "high": 64.41,
+   "nom_geometry_free": 63.42,
+   "nom_geometry_solid_plane": 45.55
+  },
+  "r100k": {
+   "low": 73.92,
+   "nom": null,
+   "high": 92.44,
+   "nom_geometry_free": 91.35,
+   "nom_geometry_solid_plane": 77.02
+  }
+ }
+}

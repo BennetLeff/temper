@@ -19,10 +19,17 @@ and RG nets stay separate nodes (harness ru{k} / rgu{k}).  Every board ground an
 mutual term >= 1 fF is emitted as a SPICE capacitor in
 ../stability-full-chain/reve_extracted.rs, together with the extracted RF-branch
 and C104-branch inductances (free-space 'high' values from inductance_reve.json).
+
+LP_VARIANT selects the board: 'reve' (board 2f6486c4, default) or 'reve_r104' (board
+cf379f85: R104 47 ohm between the source driver U6A, net SRC_DRV, and SOURCE_BUF; SOURCE_BUF
+rerouted to In2 x 185.5).  For reve_r104 the K1-relay and U7 zoom series are reused from
+'reve': the copper of every conductor and the In1 fill inside those windows (+3 mm) are
+identical on the two boards (only the SOURCE_BUF bus end outside the windows moved).
 """
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -31,14 +38,19 @@ from assemble import EXTRA, add_cap, corrected, headers, matrix
 from common import HERE, NOMINAL_STACKUP, THIN_STACKUP
 
 FD = HERE / 'fd_results'
+VARIANT = os.environ.get('LP_VARIANT', 'reve')
+CFG = {'reve': dict(whole='reve', zoom_variant='reve', hiside='reve_hiside', extra=[]),
+       'reve_r104': dict(whole='reve_r104', zoom_variant='reve', hiside='reve_hiside_r104',
+                         extra=['SRC_DRV'])}[VARIANT]
 NAMES = ['TIA_SUM', 'DUT_LO', 'TIA_OUT', 'DUT_HI', 'RF100', 'RF5K', 'RF100K', 'LOW_BUF', 'HIGH_BUF',
-         'SOURCE_BUF', 'RG100', 'RG5K', 'RG100K']
+         'SOURCE_BUF', 'RG100', 'RG5K', 'RG100K'] + CFG['extra']
 # harness RANGES order: r100, r5k, r100k (k = 0, 1, 2)
 RANGES = [('r100', '100R', 'RF100', 'RG100'), ('r5k', '5k', 'RF5K', 'RG5K'), ('r100k', '100k', 'RF100K', 'RG100K')]
 RF_RES = {'RF100': 'R43', 'RF5K': 'R44', 'RF100K': 'R45'}
 RG_RES = {'RG100': 'R40', 'RG5K': 'R41', 'RG100K': 'R42'}
 NODE = {'TIA_SUM': 'sum', 'DUT_LO': 'low', 'TIA_OUT': 'tia', 'DUT_HI': 'hi', 'LOW_BUF': 'lowbuf',
-        'HIGH_BUF': 'highbuf', 'SOURCE_BUF': 'source'}
+        'HIGH_BUF': 'highbuf', 'SOURCE_BUF': 'source',
+        'SRC_DRV': 'srcdrv'}  # srcdrv: driver side of R104 (loop_matrix.rs maps it to the X6A node)
 U_MIN = 0.10
 REVD_HIGH = {  # loop_matrix.rs REVD_BOARD / RANGES (Rev D extraction, high corner)
     'c_tiaout_gnd_pf': 10.53, 'c_sum_gnd_pf': 1.274, 'c_sum_tiaout_pf': 0.399, 'c_lo_gnd_pf': 5.666,
@@ -51,8 +63,9 @@ def load(name):
     return json.loads(p.read_text()) if p.exists() else None
 
 
-def runs(window, stackup):
-    out = [json.loads(p.read_text()) for p in FD.glob(f'fd_{window}_{stackup}_*_neumann_reve.json')]
+def runs(window, stackup, variant=None):
+    v = variant or VARIANT
+    out = [json.loads(p.read_text()) for p in FD.glob(f'fd_{window}_{stackup}_*_neumann_{v}.json')]
     return sorted(out, key=lambda d: -d['dx_mm'])
 
 
@@ -71,8 +84,9 @@ def ratio_table(series, fn, dx_ref):
 
 
 def grid_factors(dx_whole):
-    rel, u7 = runs('reve_relay', NOMINAL_STACKUP), runs('zoom', NOMINAL_STACKUP)
-    hs = runs('reve_hiside', NOMINAL_STACKUP)
+    zv = CFG['zoom_variant']
+    rel, u7 = runs('reve_relay', NOMINAL_STACKUP, zv), runs('zoom', NOMINAL_STACKUP, zv)
+    hs = runs(CFG['hiside'], NOMINAL_STACKUP)
     q = {
         'SOURCE_BUF_ground (reve_hiside)': (hs, lambda d: ground(d, 'SOURCE_BUF')),
         'TIA_OUT_ground (reve_relay)': (rel, lambda d: ground(d, 'TIA_OUT')),
@@ -107,8 +121,8 @@ def pair_fix(C, f_pair, f_m, a='SOURCE_BUF', b='DUT_HI'):
 
 
 def corner_matrices():
-    d7 = runs('reve', NOMINAL_STACKUP)[-1]
-    d1s = runs('reve', THIN_STACKUP)
+    d7 = runs(CFG['whole'], NOMINAL_STACKUP)[-1]
+    d1s = runs(CFG['whole'], THIN_STACKUP)
     d1 = d1s[-1] if d1s else None
     f_g, f_m, U, meta = grid_factors(d7['dx_mm'])
     C7 = matrix(d7, NAMES)
@@ -126,9 +140,9 @@ def corner_matrices():
     meta.update({'fd_nominal': f"{NOMINAL_STACKUP} dx={d7['dx_mm']} grid={d7['grid']}",
                  'fd_thin': None if d1 is None else f"{THIN_STACKUP} dx={d1['dx_mm']}",
                  'factor_ground': f_g, 'factor_mutual': f_m, 'grid_uncertainty': U,
-                 'whole_dx_runs': [d['dx_mm'] for d in runs('reve', NOMINAL_STACKUP)]})
+                 'whole_dx_runs': [d['dx_mm'] for d in runs(CFG['whole'], NOMINAL_STACKUP)]})
     # two-dx whole-board check (raw, uncorrected)
-    ws = runs('reve', NOMINAL_STACKUP)
+    ws = runs(CFG['whole'], NOMINAL_STACKUP)
     meta['whole_board_raw_by_dx'] = {d['dx_mm']: {
         'TIA_OUT_ground': ground(d, 'TIA_OUT'), 'SOURCE_BUF_ground': ground(d, 'SOURCE_BUF'),
         'TIA_SUM_ground': ground(d, 'TIA_SUM'), 'TIA_SUM_TIA_OUT': mutual(d, 'TIA_SUM', 'TIA_OUT'),
@@ -217,13 +231,16 @@ def summary(nodes, M):
         'c_source_unsel_rf_pf': sum(m('source', r) for r in rf_unsel),
         'c_tia_unsel_rf_pf': sum(m('tia', r) for r in rf_unsel),
         'c_tia_highbuf_pf': m('tia', 'highbuf'),
+        **({'c_srcdrv_gnd_pf': float(g[i['srcdrv']]), 'c_srcdrv_all_pf': float(M[i['srcdrv'], i['srcdrv']]),
+            'c_srcdrv_source_pf': m('srcdrv', 'source'), 'c_srcdrv_hi_pf': m('srcdrv', 'hi'),
+            'c_srcdrv_highbuf_pf': m('srcdrv', 'highbuf')} if 'srcdrv' in i else {}),
     }
 
 
 def main():
     mats, meta = corner_matrices()
-    ind = json.loads((HERE / 'inductance_reve.json').read_text())
-    geo_sha = json.loads((HERE / 'geometry_reve.json').read_text())['board_sha256']
+    ind = json.loads((HERE / f'inductance_{VARIANT}.json').read_text())
+    geo_sha = json.loads((HERE / f'geometry_{VARIANT}.json').read_text())['board_sha256']
     ext = {'board_sha256': geo_sha, 'units': 'pF, nH', 'fd': meta, 'ranges': {}, 'spice': {},
            'raw_net_ground_pf': {}, 'rev_d_high_in_harness': REVD_HIGH}
     for c in ('low', 'nom', 'high'):
@@ -239,20 +256,21 @@ def main():
         'c104': {k: (round(v, 2) if v is not None else None) for k, v in L['C104']['summary_nH'].items()},
         **{rng: {k: (round(v, 2) if v is not None else None) for k, v in L[f'RF_{key}']['summary_nH'].items()}
            for rng, key, _, _ in RANGES}}
-    (HERE / 'extracted_reve.json').write_text(json.dumps(ext, indent=1, default=float))
+    (HERE / f'extracted_{VARIANT}.json').write_text(json.dumps(ext, indent=1, default=float))
     # stability-harness include (loop_matrix.rs: include!("reve_extracted.rs"))
     lead = [ext['inductance_nh'][r]['high'] for r, _, _, _ in RANGES]
-    rs = ['// GENERATED by ../layout-parasitics/assemble_reve.py from extracted_reve.json -- do not edit.',
+    P = VARIANT.upper()  # const prefix: REVE_ / REVE_R104_
+    rs = [f'// GENERATED by ../layout-parasitics/assemble_reve.py (LP_VARIANT={VARIANT}) from extracted_{VARIANT}.json -- do not edit.',
           f'// Rev E board {geo_sha[:8]}...{geo_sha[-4:]}; FD {meta["fd_nominal"]}, thin {meta["fd_thin"]}.',
           '// RF-branch / C104-branch loop L: free-space (high) value incl. OPA2810 package, nH.',
-          f'const REVE_LEAD: [f64; 3] = [{", ".join(f"{v:.2f}" for v in lead)}];',
-          f'const REVE_CAPLEAD: f64 = {ext["inductance_nh"]["c104"]["high"]:.2f};']
+          f'const {P}_LEAD: [f64; 3] = [{", ".join(f"{v:.2f}" for v in lead)}];',
+          f'const {P}_CAPLEAD: f64 = {ext["inductance_nh"]["c104"]["high"]:.2f};']
     for c in ('nom', 'high'):
-        rs.append(f'const REVE_BOARD_{c.upper()}: [&str; 3] = [')
+        rs.append(f'const {P}_BOARD_{c.upper()}: [&str; 3] = [')
         for rng, _, _, _ in RANGES:
             rs.append('    ' + json.dumps(ext['spice'][c][rng]) + ',')
         rs.append('];')
-    out = HERE.parent / 'stability-full-chain' / 'reve_extracted.rs'
+    out = HERE.parent / 'stability-full-chain' / f'{VARIANT}_extracted.rs'
     out.write_text('\n'.join(rs) + '\n')
     print(json.dumps(meta, indent=1, default=float)[:3000])
     for rng in ext['ranges']:

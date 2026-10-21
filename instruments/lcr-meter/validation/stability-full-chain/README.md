@@ -87,6 +87,38 @@ Smaller resistors are not enough: 22 Ω gives 43.1°, and 10 Ω gives 40.6°.
 
 **Better long-term fix.** Bench-measure the TQ2SA Ccc and Cpp, which are the stress values driving the other 6.6°. Also shorten SOURCE_BUF by placing U6A's output near the relay row, or un-stacking it from DUT_HI.
 
+### As-built R104 board (`reverelaycng100_r104`)
+
+Board `cf379f85…`, commit a04880a87, extracted as `reve_r104` (`../layout-parasitics/README-rev-e.md`). R104 is fitted and SOURCE_BUF is un-stacked from DUT_HI.
+
+**Topology.** X6A output and feedback node → C(SRC_DRV) → R104 47 Ω → SOURCE_BUF bus. The bus carries C(SOURCE_BUF board), RG, the relay contact capacitances, and the coupling to DUT_HI, now 0.23 pF high (was 3.0).
+
+- **Harness mechanics.** The case names carry `_r104_srciso47`. Board elements on SOURCE_BUF land on `srcbus`; SRC_DRV elements land on the X6A node.
+- **Unchanged.** Everything else is as in `reverelaycng100`.
+- **Size.** 206 rows. All crossings are downward. Reproduce with `matrix final_reverelaycng100_r104`, then `python3 reve_summary.py matrix-final_reverelaycng100_r104.md`.
+
+| Loop (worst case, PM / min abs(1+T)) | `fixedrelaycng100` (estimates) | `reverelaycng100` (`2f6486c4`, no R104) | **`reverelaycng100_r104` (as built)** |
+|---|---|---|---|
+| TIA, nominal set, 64 cases | 59.95° / 0.665 | 60.88° / 0.673 | **60.88° / 0.673** |
+| TIA, stress set, 64 cases | 55.97° / 0.608 | 58.10° / 0.628 | **58.07° / 0.629** |
+| TIA, weld | 59.78° / 0.665 | 60.69° / 0.675 | **60.69° / 0.676** |
+| `drive`, stress / high board, 6 cases | 48.29° / 0.563 | 38.46° / 0.451 | **46.77° / 0.590** (100 Ω, stray 0; 5 k / 100 k 47.0–47.2°; 51.42° at 1000 pF on 100 Ω) |
+| `drive`, nominal / nominal | — | 47.87° / 0.563 | **49.80° / 0.622** (100 Ω); 52.33–52.37° (5 k, 100 k) |
+| `high`, stress | 57.23° / 0.704 | 56.34° / 0.695 | **56.49° / 0.699** |
+| `low`, stress | 57.87° / 0.718 | 56.35° / 0.691 | **56.34° / 0.691** |
+
+**Every loop passes 45°.** The `drive` loop still sits below the 51.3° Rev D floor.
+
+**What is left on the `drive` loop, 100 Ω range, open DUT, stray 0 (stress relays / high board = 46.77°):**
+
+| Change | Margin |
+|---|---|
+| nominal relays, high board | 48.62° |
+| stress relays, nominal board | 47.30° |
+| board capacitors on SOURCE_BUF removed (SRC_DRV kept) | 49.22° |
+
+The remaining sensitivity is in the relay contact-capacitance stress estimates (Ccc, Cpp, Coc on SOURCE_BUF), which are UNVERIFIED. Bench-measure them before relying on the last 2°.
+
 Run one mode with `$LCR_LOOP_BUILD/matrix final_<mode>`. Set `SHARD=i/n` to split it across processes; each shard writes `matrix-final_<mode>-shard{i}of{n}.md`. Concatenate the table rows in shard order to get `matrix-final_<mode>.md`.
 
 ---

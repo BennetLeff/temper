@@ -42,8 +42,13 @@ WINDOWS = {
     'reve_relay': (158.0, 176.0, 119.5, 136.0),
     # Rev E zoom on the broadside-coupled SOURCE_BUF (In2, x 188.8) / DUT_HI (B.Cu, x 188.9) run
     'reve_hiside': (185.0, 192.0, 105.0, 120.0),
+    # Rev E with R104 (board cf379f85, geometry_reve_r104.json): SRC_DRV / R104 at y 85.3-92,
+    # conductor bbox x 152.00-189.03, y 85.33-138.05 mm
+    'reve_r104': (150.5, 190.5, 83.9, 139.5),
+    # R104 board: SOURCE_BUF moved to In2 x 185.5, DUT_HI still B.Cu x 188.9
+    'reve_hiside_r104': (183.5, 191.0, 105.0, 120.0),
 }
-ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside'}
+ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside', 'reve_hiside_r104'}
 MARGIN_MM = 1.4
 
 
