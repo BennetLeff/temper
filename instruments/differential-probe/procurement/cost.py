@@ -101,7 +101,8 @@ INSPECTED_PREFIX = ("SW", "J", "BT")  # switches, connectors, battery holders
 # deposits; the owner's courier to the Hong Kong warehouse is not included here.
 CONSIGN_RATE, CONSIGN_MIN = 0.02, 10.0
 PCB_5PCS = 36.80        # JLC 5 pcs 150 x 70 mm 4-layer HASL (docs/revc.md)
-ENCLOSURES = 76.86      # 2 x Hammond 1455N2201 (docs/revc.md)
+# The enclosure is owner-designed and not priced. The Hammond 1455N2201 (2 x $38.43,
+# docs/revc.md) remains the reference geometry in tools/leads.rs only.
 LEADS_ASSUMED = 100.0   # owner's working figure for AliExpress wire and cheap ties (not priced here)
 
 # Select-on-test S1/S2 parts are fitted from E24 kits at calibration; no listing had
@@ -277,12 +278,12 @@ for label, a, b in (
     ("JLC assembly fees", cur["fees"], rec["fees"]),
     ("bare PCB, 5 pcs", PCB_5PCS, PCB_5PCS),
     ("HV leads (assumed)", LEADS_ASSUMED, LEADS_ASSUMED),
-    ("enclosures, 2 x 1455N2201", ENCLOSURES, ENCLOSURES),
 ):
     print(f"  {label:<34} ${a:>9.2f} ${b:>9.2f}")
-tot_a = cur["parts"] + cur["fees"] + PCB_5PCS + LEADS_ASSUMED + ENCLOSURES
-tot_b = rec["parts"] + rec["fees"] + PCB_5PCS + LEADS_ASSUMED + ENCLOSURES
-print(f"  {'total':<34} ${tot_a:>9.2f} ${tot_b:>9.2f}  (saving ${tot_a - tot_b:.2f}, {100 * (tot_a - tot_b) / tot_a:.0f} %)")
+print(f"  {'enclosures':<34} {'owner-designed, not priced':>21}")
+tot_a = cur["parts"] + cur["fees"] + PCB_5PCS + LEADS_ASSUMED
+tot_b = rec["parts"] + rec["fees"] + PCB_5PCS + LEADS_ASSUMED
+print(f"  {'total, enclosure excluded':<34} ${tot_a:>9.2f} ${tot_b:>9.2f}  (saving ${tot_a - tot_b:.2f}, {100 * (tot_a - tot_b) / tot_a:.0f} %)")
 print(f"  Distributor-ledger components: before ${ledger['Rev C before cost-down (5b9a9530b)']:.2f}, "
       f"cost-down {'$%.2f' % ledger['Rev C'] if cost_down_applied else '(not yet applied)'}")
 print(f"  Documented HV-lead BOM (leads-bom.csv) instead of the assumption: ${leads:.2f}")

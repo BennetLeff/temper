@@ -78,7 +78,7 @@ How each section meets the 4 mm creepage rule:
 
 ## Enclosure, shield and mounting
 
-**Enclosure:** Hammond 1455N2201 extruded aluminium, bonded to the BNC shell and scope earth. The 3-D setback calculation is in [revc.md §9](revc.md#9-size-layers-enclosure).
+**Enclosure:** owner-designed, earthed and bonded to the BNC shell and scope earth. It must provide a fixed earthed shield (per-node strays stable to about 0.01 pF for CMRR), ≥ 20 mm from exposed HV conductors to metal, the tip-end insulating feedthrough and strain relief, the 22.0 mm standoff height below, and panel access for the BNC, toggles, reset button and trimmer tools; the full list is in [revc.md §9](revc.md#9-size-layers-enclosure). The Hammond 1455N2201 is the reference geometry used by the 3-D setback calculation there and by `tools/leads.rs`.
 
 **Mounting.** Put the board on standoffs so its underside is 22.0 mm above the inner floor. The BNC and toggle faces sit at the output end plate. Keep every exposed HV conductor at least **20 mm from metal**, including W_HV lead loops (≤ 5.5 mm above the board) and trimmed lead tails (≤ 1 mm). Put an insulating sheet on the floor under the battery holders.
 

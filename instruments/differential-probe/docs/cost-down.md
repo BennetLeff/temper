@@ -21,8 +21,8 @@ Both columns use the same assumptions: the owner hand-solders the ten THT parts 
 | JLC assembly fees | $131.80 | **$81.09** |
 | Bare PCB, JLC 5 pcs, 4-layer HASL | $36.80 | $36.80 |
 | HV leads (assumed) | $100.00 | $100.00 |
-| Enclosures, 2 × Hammond 1455N2201 | $76.86 | $76.86 |
-| **Total** | **$866.44** | **$424.88** (−$441.56, −51 %) |
+| Enclosures | owner-designed, not priced | owner-designed, not priced |
+| **Total, enclosure excluded** | **$789.58** | **$348.02** (−$441.56, −56 %) |
 
 The documented HV-lead BOM ([`leads-bom.csv`](../procurement/leads-bom.csv), Rowe R800-1020 spool) is $234.72 instead of $100. That raises both columns by $134.72 and leaves the saving unchanged. At distributor-ledger prices alone (the basis of [revc.md](revc.md#cost-dated-2026-10-20)) the components fall from $535.81 to $148.39.
 

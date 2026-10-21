@@ -19,7 +19,7 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 |---|---|---|
 | Board outline | 240 × 84 mm = 20,160 mm² (20,046 mm² net of slots and chamfers) | **150 × 70 mm = 10,500 mm² (10,328 mm² net)**, −48% |
 | Copper layers | 4 | 4 (2-layer option evaluated below, not adopted) |
-| Enclosure | Not selected | **Hammond 1455N2201** extruded aluminium, 220 mm long, internal height 49.7 mm |
+| Enclosure | Not selected | **Owner-designed**, not priced; the Hammond 1455N2201 (extruded aluminium, 220 mm long, internal height 49.7 mm) is the reference geometry ([requirements](#9-size-layers-enclosure)) |
 | Components | 140: 135 on the board + 5 hand-wired off-board | **105, all on the board**: 95 SMD + 10 THT (BNC, 2 toggles, reset button, 2 holders, 4 trimmers) |
 | Unique MPNs | 45 | **42** |
 | Tolerance-bearing parts (definition below) | 77 | **52** |
@@ -229,7 +229,19 @@ The LV region (x ≥ 59 mm, 6,361 mm²) has 32.8% top-side courtyard coverage (R
 | 4 layers (includes $25 engineering fee) | $36.80 | $49.30 |
 | **Saving if 2-layer were adopted** | **$26.40** | **$22.40** |
 
-**Enclosure: Hammond 1455N2201** ([drawing](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf); DigiKey $38.43, 52 in stock; Mouser not checked).
+**Enclosure: owner-designed (2026-10-20).** The owner is designing the enclosure, so it is not priced. The **Hammond 1455N2201** ([drawing](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf); DigiKey $38.43, 52 in stock on 2026-10-20) stays as the reference design: the setback figures below, `tools/leads.rs` and the FR4 tip plate use its dimensions.
+
+Any owner enclosure must provide:
+
+1. **An earthed conductive shield around the board, fixed in position.** Bond it to GND at H1/H2 and the BNC shell. The per-leg compensation absorbs static strays but not movement after calibration: a 0.0066 pF change at a tap alone limits CMRR to 60 dB (`validation/leads/leads.txt`), so each node's stray capacitance to the shield must stay stable to about 0.01 pF. No flexing walls, loose lids or movable metal near the ladder.
+2. **≥ 20 mm from every exposed HV conductor to metal**, in three dimensions: ladder copper and bodies, the W_HV landings, the trimmed lead tails (≤ 1 mm below the board) and the lead loops (≤ 5.5 mm above it).
+3. **The tip-end insulating feedthrough and strain relief**: the copper-free FR4 tip plate with its two PG7 nylon glands (12.7 mm holes), or an equivalent insulating wall, and the FR4 lead bridge clamped under the H3/H4 nylon screws.
+4. **Board standoffs** that put the board underside 22.0 mm above the inner floor (the 9 V holders hang 20.6 mm below the board; insulating sheet on the floor): metal at H1/H2, nylon at H3/H4.
+5. **Panel access**: an output panel (≤ 5 mm thick at the BNC) with the BNC D-hole (Ø12.83 mm, 11.7 mm flat) and the two 6.35 mm toggle holes, and holes for the SW3 reset button, the CT1/CT2 and RV1/RV2 trimmer tools and the D9 LED, with every hole edge ≥ 20 mm from HV copper.
+
+The Hammond 1455N2201 numbers in this section are the reference design. To check an owner enclosure, re-enter its dimensions in the constants at the top of [`tools/leads.rs`](../tools/leads.rs) (the enclosure block `BOX_H`, `BOX_H_NOM`, `BOX_W`, `BOARD_UNDER`, `OUT_PANEL_X`, `BOX_L_INT`, and the tip-plate block) and run `make check`: every setback gate, the section drawing and the FR4 parts regenerate, and a failed gate stops the check.
+
+**Reference design: Hammond 1455N2201.**
 
 The board sits on four standoffs so its underside is **22.0 mm above the inner floor**, for example a 20 mm M3 standoff plus a 2 mm spacer. Use metal at H1/H2 and nylon at H3/H4. The BNC and toggle faces sit at the output end plate. 3-D setback from exposed HV conductors to metal, using the drawing's minimum internal height of 49.14 mm:
 
@@ -279,11 +291,10 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | Components (Rev B includes its 5 off-board parts) | $768.27 | $535.81 |
 | HV divider resistors | $406.43 (40 × 1 MΩ) | $239.90 (20 × 2 MΩ) |
 | Bare PCB, JLC 5 pcs, 4-layer HASL | $43.00 | $36.80 |
-| Enclosure, 2 × Hammond 1455N2201 | none selected | $76.86 |
-| **Total** | **$811.27** | **$649.47** |
-| Total without the enclosure | $811.27 | $572.61 (−29%) |
+| Enclosure | none selected | owner-designed, not priced |
+| **Total** | **$811.27** | **$572.61** (−29%) |
 | HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
-| **Total with HV leads** | — | **$884.19** |
+| **Total with HV leads** | — | **$807.33** |
 
 The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.39 at the same ledger prices and adds a JLC assembly-fee model (`validation/cost.txt`).
 
@@ -311,4 +322,4 @@ Caveats on the prices:
    - Clamp current shared with the OPA2810 ESD diodes.
    - Range-switch transients with the PCB-mount switch (E-Switch does not state break-before-make).
    - Cost-down items ([cost-down](cost-down.md#new-bench-items)): DC ratio tracking with temperature and self-heating for the 1% HV12 string, 500 Ω trim settability, Yageo 1812 body height.
-7. **HV leads ([HV leads](hv-leads.md)).** The per-tip loading estimate is 11.6 pF, so the tentative 10 pF target was revised to 12 pF; measure it. The FR4 tip-end plate opens the shield at the tip end; measure the shield edge current and CMRR with it fitted. Fit-check the FR4 plate against a received 1455N2201 before relying on the drawing dimensions.
+7. **HV leads ([HV leads](hv-leads.md)).** The per-tip loading estimate is 11.6 pF, so the tentative 10 pF target was revised to 12 pF; measure it. The FR4 tip-end plate opens the shield at the tip end; measure the shield edge current and CMRR with it fitted. Fit-check the FR4 plate against the owner's enclosure (or a received 1455N2201, if the reference is built) before relying on drawing dimensions.

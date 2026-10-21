@@ -43,7 +43,7 @@ Native KiCad DRC reports zero violations and zero unconnected items with the exp
 | Input loading | Ideal 10.005 MΩ and about 6.6 pF per tip; with leads and enclosure about 11.6 pF per tip (estimate, target ≤ 12 pF; [HV leads](docs/hv-leads.md#capacitance-budget)) |
 | Scope | 1 MΩ input, short BNC cable; do not select 50 Ω termination |
 | Power | Two 9 V batteries, regulated to approximately +4.80 / −4.81 V |
-| Enclosure | Hammond 1455N2201 extruded aluminium; 20 mm HV-to-metal setback in 3-D (see [Rev C record](docs/revc.md#9-size-layers-enclosure)) |
+| Enclosure | Owner-designed earthed shield (Hammond 1455N2201 is the reference geometry); 20 mm HV-to-metal setback in 3-D and the other requirements in the [Rev C record](docs/revc.md#9-size-layers-enclosure) |
 
 All voltage ratings and performance limits above are **qualification targets**. Full voltage at 5 MHz is not implied. Input-to-earth voltage, differential voltage, frequency, temperature and duration must all stay inside the eventual measured envelope.
 

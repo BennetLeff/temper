@@ -126,7 +126,7 @@ Record each CMRR and each tip's capacitance to GND. Proposed acceptance: CMRR ch
 | DC ratio tracking after warm-up and ≥ 10 °C ambient change; self-heating at high DC | NOT RUN | |
 | 500 Ω DC trim settability (≤ 100 ppm) | NOT RUN | |
 | Clamp current shared with OPA2810 input ESD diodes (R12/R32 limit) | NOT RUN | |
-| PCB-mount BNC/E-Switch toggle fit (axis height, B5 flanged bushing, 1.5 mm end plate), Yageo 1812 body height, panel bonding, 3-D 20 mm setback in the 1455N2201 | NOT RUN | |
+| PCB-mount BNC/E-Switch toggle fit (axis height, B5 flanged bushing, 1.5 mm end plate), Yageo 1812 body height, panel bonding, 3-D 20 mm setback in the owner's enclosure | NOT RUN | |
 | Lead wire incoming hipot, 5 kV DC 60 s, each lead | NOT RUN | |
 | Lead and feedthrough hipot, 4.5 kV DC 60 s, to enclosure and between leads | NOT RUN | |
 | Assembled lead setback (conductor to lid ≥ 20 mm), tail length, H3/H4 nylon | NOT RUN | |
