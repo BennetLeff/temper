@@ -1323,10 +1323,10 @@
         "2": "REGP_FB",
         "3": null,
         "4": "GND",
-        "5": "RAW_P",
+        "5": "LDOIN_P",
         "6": "REGP_NR",
         "7": null,
-        "8": "RAW_P",
+        "8": "LDOIN_P",
         "9": "GND"
       },
       "pcb": [
@@ -1354,10 +1354,10 @@
         "2": "REGN_FB",
         "3": null,
         "4": "GND",
-        "5": "RAW_N",
+        "5": "LDOIN_N",
         "6": "REGN_NR",
         "7": null,
-        "8": "RAW_N",
+        "8": "LDOIN_N",
         "9": "GND"
       },
       "pcb": [
@@ -2598,6 +2598,54 @@
       "library_type": "extended",
       "assembly": "SMT",
       "source_query": "22ohm 0.1% 25ppm thin film 0603 (jlcsearch 2026-10-20; stock to confirm at BOM upload)"
+    },
+    {
+      "ref": "R95",
+      "value": "1R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RAW_P",
+        "2": "LDOIN_P"
+      },
+      "pcb": [
+        109.6,
+        141.7678,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF100KT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22936",
+      "unit_usd": 0.0024,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1ohm 1% 0603 (jlcsearch 2026-10-20, basic; stock to confirm at BOM upload)"
+    },
+    {
+      "ref": "R96",
+      "value": "1R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RAW_N",
+        "2": "LDOIN_N"
+      },
+      "pcb": [
+        98.6,
+        136.0,
+        270
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF100KT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22936",
+      "unit_usd": 0.0024,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1ohm 1% 0603 (jlcsearch 2026-10-20, basic; stock to confirm at BOM upload)"
     },
     {
       "ref": "R80",
@@ -4789,7 +4837,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
-        "1": "RAW_P",
+        "1": "LDOIN_P",
         "2": "GND"
       },
       "pcb": [
@@ -4861,7 +4909,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
-        "1": "RAW_P",
+        "1": "LDOIN_P",
         "2": "GND"
       },
       "pcb": [
@@ -4909,7 +4957,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_1210_3225Metric",
       "pins": {
-        "1": "RAW_N",
+        "1": "LDOIN_N",
         "2": "GND"
       },
       "pcb": [
@@ -4981,7 +5029,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
-        "1": "RAW_N",
+        "1": "LDOIN_N",
         "2": "GND"
       },
       "pcb": [
@@ -5344,7 +5392,9 @@
     "3V3_DDS",
     "RAW_P",
     "RAW_N",
-    "CONV_VIN"
+    "CONV_VIN",
+    "LDOIN_P",
+    "LDOIN_N"
   ],
   "stage53": {
     "path": "worktrees/runs-native21/s53/c53int/section.kicad_pcb",

@@ -4945,7 +4945,7 @@
       "locked": true
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           125.4291,
@@ -4961,7 +4961,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           129.0,
@@ -5025,7 +5025,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           129.0,
@@ -5041,7 +5041,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           126.161,
@@ -5105,7 +5105,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           126.161,
@@ -5121,7 +5121,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           126.161,
@@ -5137,7 +5137,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           125.8024,
@@ -5169,7 +5169,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           126.25,
@@ -5185,7 +5185,7 @@
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           125.4291,
@@ -5233,7 +5233,7 @@
       "locked": true
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "points": [
         [
           125.15,
@@ -5316,20 +5316,54 @@
       "net": "RAW_N",
       "points": [
         [
-          99.2343,
-          133.7217
-        ],
-        [
           98.0093,
           132.4967
-        ]
+        ],
+        [
+          98.6,
+          133.0874
+        ],
+        "R96.1"
       ],
+      "layer": "F.Cu",
       "width": 0.2,
-      "layer": "In2.Cu",
       "locked": false
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
+      "points": [
+        "R96.2",
+        [
+          98.6,
+          138.0
+        ]
+      ],
+      "layer": "F.Cu",
+      "width": 0.2,
+      "locked": false
+    },
+    {
+      "net": "LDOIN_N",
+      "points": [
+        [
+          98.6,
+          138.0
+        ],
+        [
+          102.8783,
+          133.7217
+        ],
+        [
+          124.4361,
+          133.7217
+        ]
+      ],
+      "layer": "In2.Cu",
+      "width": 0.2,
+      "locked": false
+    },
+    {
+      "net": "LDOIN_N",
       "points": [
         [
           125.4291,
@@ -5337,22 +5371,6 @@
         ],
         [
           124.4361,
-          133.7217
-        ]
-      ],
-      "width": 0.2,
-      "layer": "In2.Cu",
-      "locked": false
-    },
-    {
-      "net": "RAW_N",
-      "points": [
-        [
-          124.4361,
-          133.7217
-        ],
-        [
-          99.2343,
           133.7217
         ]
       ],
@@ -8945,7 +8963,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           111.5296,
@@ -8961,7 +8979,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           113.4,
@@ -8993,7 +9011,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           115.2617,
@@ -9073,7 +9091,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           112.15,
@@ -9105,7 +9123,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           111.153,
@@ -9158,6 +9176,20 @@
         [
           107.2002,
           141.7678
+        ],
+        "R95.1"
+      ],
+      "width": 0.2,
+      "layer": "F.Cu",
+      "locked": false
+    },
+    {
+      "net": "LDOIN_P",
+      "points": [
+        "R95.2",
+        [
+          112.15,
+          140.0428
         ],
         [
           112.15,
@@ -9217,7 +9249,7 @@
       "locked": true
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           111.153,
@@ -9281,7 +9313,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           112.15,
@@ -9297,7 +9329,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           115.2617,
@@ -9345,7 +9377,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           112.15,
@@ -9361,7 +9393,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           115.0,
@@ -9377,7 +9409,7 @@
       "locked": false
     },
     {
-      "net": "RAW_P",
+      "net": "LDOIN_P",
       "points": [
         [
           111.5006,
@@ -21327,7 +21359,7 @@
       "drill": 0.3
     },
     {
-      "net": "RAW_N",
+      "net": "LDOIN_N",
       "at": [
         125.4291,
         134.7147
@@ -22357,6 +22389,13 @@
       "at": [
         166.175,
         104.25
+      ]
+    },
+    {
+      "net": "LDOIN_N",
+      "at": [
+        98.6,
+        138.0
       ]
     }
   ],
