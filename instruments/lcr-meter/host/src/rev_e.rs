@@ -383,14 +383,18 @@ pub const REFERENCE_FIXTURE: &str = "internal-reference-1k";
 /// Current-channel peak at the TIA output that reaches ADC full scale: 2 Vrms differential
 /// (2.828 V peak) behind the 1k/1k divider (`CHANNEL_DIVIDER_K`).
 pub const TIA_FULL_SCALE_PEAK_V: f64 = 2.0 * std::f64::consts::SQRT_2 / CHANNEL_DIVIDER_K;
+/// R104 between the source driver and the range resistor. The range resistor RG equals R_F and
+/// sits in series with DUT_HI, so the source sees RG + R104 + the DUT + R_iso.
+pub const SOURCE_SERIES_OHM: f64 = 47.0;
 /// Default `refcheck` level on `range`: the current channel at 75 % of full scale with the
-/// reference (plus R_iso) as the DUT at DC, capped at the source limit. 100 ohm: 1700 mV;
-/// 5 kOhm: 863 mV; 100 kOhm: 43 mV.
+/// reference as the DUT at DC, behind RG + R104, capped at the source limit. RG equals R_F, so
+/// the channel stays below the source level and the default is 1700 mV on every range.
 pub fn reference_default_mv(range: u32) -> Result<u32> {
     feedback(range, 1000.0)?;
     let iso = ISOLATION_RESISTOR_OHM;
-    let mv =
-        0.75 * TIA_FULL_SCALE_PEAK_V * 1000.0 * (REFERENCE_OHM + iso) / (f64::from(range) + iso);
+    let rf = f64::from(range);
+    let mv = 0.75 * TIA_FULL_SCALE_PEAK_V * 1000.0 * (rf + SOURCE_SERIES_OHM + REFERENCE_OHM + iso)
+        / (rf + iso);
     Ok((mv.floor() as u32).clamp(1, TONE_MAX_MV))
 }
 

@@ -89,15 +89,16 @@ impl Virtual {
         }
     }
     /// Channel A and B phasors per volt at SOURCE_BUF, solved from the circuit, not from the
-    /// host's formula: the source drives HIGH, the DUT current splits at DUT_LO between the 100 pF
-    /// to ground and R_iso into the TIA summing node, TIA out = -I_riso Z_f.
+    /// host's formula: the source drives HIGH through RG (= R_F) and R104, the DUT current splits
+    /// at DUT_LO between the 100 pF to ground and R_iso into the TIA summing node,
+    /// TIA out = -I_riso Z_f.
     fn responses(&self, hz: f64) -> (Complex, Complex) {
         let w = TAU * hz;
         let z = (self.dut)(hz);
         let cap_factor = cx(1.0, w * 100e-12 * 22.0);
-        let i_riso = inv(cap_factor * z + cx(22.0, 0.0));
-        let i_dut = i_riso * cap_factor;
         let rf = f64::from(self.range);
+        let i_dut = inv(cx(rf + SOURCE_SERIES_OHM, 0.0) + z + cx(22.0, 0.0) / cap_factor);
+        let i_riso = i_dut / cap_factor;
         let zf = cx(rf, 0.0) / cx(1.0, w * rf * 100e-12);
         let a = cx(K, 0.0) * i_dut * z;
         let b = cx(K, 0.0) * i_riso * (cx(22.0, 0.0) + zf);
@@ -494,8 +495,10 @@ fn virtual_instrument_payload_is_aligned_quantised_and_summed() {
     let words = tone_words(cycles, period, mv);
     let record = model.record(SourceE::Tone { cycles, mv }, &words, &[cycles], 3, 7);
     record.validate().unwrap();
-    // Gain per DAC word: K Z/(Z + R_iso) V/code codes/V (the 100 pF at DUT_LO is ~1e-5 here).
-    let gain = K * 30.0 / 52.0 * SOURCE_V_PER_CODE * CODES_PER_VOLT;
+    // Gain per DAC word: K Z/(RG + R104 + Z + R_iso) V/code codes/V (the 100 pF at DUT_LO is
+    // ~1e-5 here).
+    let gain =
+        K * 30.0 / (100.0 + SOURCE_SERIES_OHM + 30.0 + 22.0) * SOURCE_V_PER_CODE * CODES_PER_VOLT;
     // Rounding (0.5 code) plus the 5.8e-6 rad phase of the 100 pF at DUT_LO on the tone peak.
     let peak = gain * f64::from(SOURCE_LIMIT_CODE) * 400.0 / 1700.0;
     for bin in 0..period as usize {
@@ -621,8 +624,10 @@ fn averaging_noise_and_period_4096() {
 }
 #[test]
 fn clipping_is_reported_from_the_header_against_full_scale() {
-    // 1.7 V into 1 ohm on the 100 ohm range puts channel B several times over full scale.
-    let model = Virtual::new(100, resistor(1.0));
+    // RG in series keeps both channels below 30 % of full scale at the 1.7 V cap, so overload
+    // comes from outside the tone: a large out-of-band signal on channel B.
+    let mut model = Virtual::new(100, resistor(1.0));
+    model.interferer = Some((1, 2.0 * f64::from(MAX_CODE)));
     let record = model.tone_record(1000.0, 1700, 0, 4);
     record.validate().unwrap();
     assert_eq!(record.min[1], MIN_CODE);
@@ -888,7 +893,8 @@ fn calibration_refuses_mismatches_and_bad_standards() {
     // Standards must share the grid; a clipped or weak standard is refused.
     let off_grid = sweep_of(100, resistor(100.0), &[60_000.0]);
     assert!(calibrate_e(&short, &a, 20.0, &off_grid, 100.0).is_err());
-    let model = Virtual::new(100, resistor(2.0));
+    let mut model = Virtual::new(100, resistor(2.0));
+    model.interferer = Some((1, 2.0 * f64::from(MAX_CODE)));
     let clipped = SweepE {
         setup: setup_e(100),
         records: vec![model.tone_record(27_000.0, 1700, 0, 4)],
@@ -1464,10 +1470,11 @@ fn client_speaks_every_protocol_3_command() {
 }
 #[test]
 fn reference_capture_measures_the_internal_1k_and_keeps_the_range() {
-    // Defaults: the current channel at 75 % of full scale with 1 kOhm + R_iso as the DUT.
-    assert_eq!(reference_default_mv(100).unwrap(), 1700);
-    assert_eq!(reference_default_mv(5000).unwrap(), 863);
-    assert_eq!(reference_default_mv(100_000).unwrap(), 43);
+    // Defaults: RG = R_F in series keeps the current channel below the source level, so full
+    // level on every range.
+    for range in [100, 5000, 100_000] {
+        assert_eq!(reference_default_mv(range).unwrap(), 1700);
+    }
     assert!(reference_default_mv(7).is_err());
     let state = fake_e_state(Virtual::new(100, coil(0.5, 100e-6)));
     let fake = spawn_fake_e(state.clone());
@@ -1482,9 +1489,6 @@ fn reference_capture_measures_the_internal_1k_and_keeps_the_range() {
         assert!(m.valid, "range {range}: {:?}", m.issues);
         assert_close(m.impedance_ohm, cx(REFERENCE_OHM, 0.0), 2e-3, "reference");
     }
-    // Full level clips the current channel on 5 kOhm: the reason for the default.
-    let clipped = d.reference_tone(5000, 27_000.0, 1700, None, None).unwrap();
-    assert!(clipped.clipped(1));
     // The coil on the DUT terminals was never measured, and the range is unchanged.
     assert_eq!(d.refresh_info().unwrap().range_ohm, 100);
     assert_eq!(d.setup.range_ohm, 100);
@@ -1524,9 +1528,9 @@ fn cli_refcheck_reports_and_saves_the_reference() {
     let sent = commands(&state);
     for expected in [
         "SELFTEST",
-        "TONE 2 375 863",
+        "TONE 2 375 1700",
         "REFCAPTURE 5000 2 40",
-        "TONE 18 125 863",
+        "TONE 18 125 1700",
         "OFF",
     ] {
         assert!(
