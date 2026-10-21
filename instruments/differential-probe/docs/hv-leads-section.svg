@@ -11,20 +11,20 @@
 <polygon points="164.0,122.0 473.7,122.0 473.7,158.0 429.7,158.0 429.7,362.0 473.7,362.0 473.7,398.0 164.0,398.0 164.0,270.0 129.6,270.0 129.6,250.0 164.0,250.0" fill="#e8d2a6" fill-opacity="0.8" stroke="#8d6e3f"/>
 <circle cx="453.7199999999999" cy="140" r="6.8" fill="white" stroke="#333"/>
 <circle cx="453.7199999999999" cy="380" r="6.8" fill="white" stroke="#333"/>
-<path d="M40.0,210.0 L140.0,210.0 L417.7,228.0 L461.7,228.0" fill="none" stroke="#c62828" stroke-width="11.8872" stroke-linecap="round"/>
-<rect x="97.60000000000002" y="180" width="36" height="60" fill="#bbb" stroke="#555"/>
-<rect x="140" y="175" width="20" height="70" fill="#bbb" stroke="#555"/>
+<path d="M40.0,202.0 L140.0,202.0 L417.7,228.0 L461.7,228.0" fill="none" stroke="#c62828" stroke-width="11.8872" stroke-linecap="round"/>
+<rect x="97.60000000000002" y="172" width="36" height="60" fill="#bbb" stroke="#555"/>
+<rect x="140" y="158" width="20" height="88" fill="#bbb" stroke="#555"/>
 <circle cx="461.7199999999999" cy="228" r="8" fill="#d4a017" stroke="#7a5c00"/>
-<rect x="184.7199999999999" y="197.67892628546736" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
-<rect x="298.7199999999999" y="205.0676631427337" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
+<rect x="184.7199999999999" y="191.11116019011953" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
+<rect x="298.7199999999999" y="201.78378009505977" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
 <rect x="412.7199999999999" y="212.4564" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
 <text x="473.7199999999999" y="218">W_HV1 (7, 27)</text>
-<path d="M40.0,310.0 L140.0,310.0 L417.7,292.0 L461.7,292.0" fill="none" stroke="#222" stroke-width="11.8872" stroke-linecap="round"/>
-<rect x="97.60000000000002" y="280" width="36" height="60" fill="#bbb" stroke="#555"/>
-<rect x="140" y="275" width="20" height="70" fill="#bbb" stroke="#555"/>
+<path d="M40.0,318.0 L140.0,318.0 L417.7,292.0 L461.7,292.0" fill="none" stroke="#222" stroke-width="11.8872" stroke-linecap="round"/>
+<rect x="97.60000000000002" y="288" width="36" height="60" fill="#bbb" stroke="#555"/>
+<rect x="140" y="274" width="20" height="88" fill="#bbb" stroke="#555"/>
 <circle cx="461.7199999999999" cy="292" r="8" fill="#d4a017" stroke="#7a5c00"/>
-<rect x="184.7199999999999" y="291.2338737145326" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
-<rect x="298.7199999999999" y="283.8451368572663" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
+<rect x="184.7199999999999" y="297.8016398098805" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
+<rect x="298.7199999999999" y="287.12901990494026" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
 <rect x="412.7199999999999" y="276.45640000000003" width="10" height="31.0872" fill="#fff" stroke="#1565c0" stroke-width="2"/>
 <text x="473.7199999999999" y="312">W_HV2 (7, 43)</text>
 <text x="209.7199999999999" y="340" fill="#1565c0">blue: cable ties through slot pairs at x = -61, -32.5, -4</text>
@@ -32,8 +32,8 @@
 <text x="291.9" y="408.0" font-size="11" fill="#333">73.4 plate inner face to board edge</text>
 <line x1="401.7" y1="228.0" x2="401.7" y2="292.0" stroke="#333" marker-start="url(#a)" marker-end="url(#a)"/>
 <text x="406.7" y="256.0" font-size="11" fill="#333">16.0</text>
-<line x1="84.0" y1="210.0" x2="84.0" y2="310.0" stroke="#333" marker-start="url(#a)" marker-end="url(#a)"/>
-<text x="89.0" y="256.0" font-size="11" fill="#333">25 gland pitch</text>
+<line x1="84.0" y1="202.0" x2="84.0" y2="318.0" stroke="#333" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="89.0" y="256.0" font-size="11" fill="#333">29 gland pitch</text>
 <line x1="513.7" y1="70.0" x2="513.7" y2="120.0" stroke="#333" marker-start="url(#a)" marker-end="url(#a)"/>
 <text x="518.7" y="91.0" font-size="11" fill="#333">12.5</text>
 <text x="20" y="66" font-size="11">leads leave left, toward stage 53: twisted pair 130 mm + tails 70 mm</text>
@@ -49,7 +49,7 @@
 <rect x="453.7199999999999" y="661.76" width="16" height="1.2" fill="#d4a017"/>
 <rect x="453.7199999999999" y="668.56" width="16" height="1.2" fill="#d4a017"/>
 <rect x="97.60000000000002" y="619.8163999999999" width="36" height="60" fill="#bbb" stroke="#555"/>
-<rect x="140" y="614.8163999999999" width="20" height="70" fill="#bbb" stroke="#555"/>
+<rect x="140" y="605.8163999999999" width="20" height="88" fill="#bbb" stroke="#555"/>
 <rect x="184.7199999999999" y="641.4728" width="10" height="25.487199999999998" fill="none" stroke="#1565c0" stroke-width="2"/>
 <rect x="298.7199999999999" y="641.4728" width="10" height="25.487199999999998" fill="none" stroke="#1565c0" stroke-width="2"/>
 <rect x="412.7199999999999" y="641.4728" width="10" height="25.487199999999998" fill="none" stroke="#1565c0" stroke-width="2"/>

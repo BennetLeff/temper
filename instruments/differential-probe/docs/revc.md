@@ -226,9 +226,9 @@ The board sits on four standoffs so its underside is **22.0 mm above the inner f
 | Direction | Clearance |
 |---|---|
 | Down | 22.0 mm minus a 1 mm trimmed W_HV lead tail = 21 mm. The SMD HV parts have no tails. |
-| Up | Lid at ≥ 49.14 mm; board top at 23.6 mm. HV parts are ≤ 1.1 mm (1812 C0G T max) and ≤ 0.76 mm (2512). Lead loops at W_HV must stay ≤ 5.5 mm high to keep ≥ 20 mm. |
+| Up | Lid at ≥ 49.14 mm; board top at 23.6 mm. HV parts are ≤ 1.1 mm (1812 C0G T max) and ≤ 0.76 mm (2512). Lead loops at W_HV must stay ≤ 5.5 mm high to keep ≥ 20 mm; the lead bridge holds them at 4.67 mm. |
 | Sides | 12.5 mm from the board edge to the rib tips (95 mm internal width), plus ≥ 16 mm from the edge to the nearest HV copper: ≥ 28 mm. |
-| Tip end | With the panel parts at the output plate, the 220 mm box leaves roughly 60 mm between the board's tip edge and the tip-end plate (confirm against the drawing's internal length). The leads leave through insulating feedthroughs; their selection is still open, as in Rev B. |
+| Tip end | With the panel parts at the output plate, the board's tip edge is 73.4 mm from the tip-end plate (the Hammond drawing: 220 mm extrusion plus a 1.6 mm polycarbonate bezel lip at each end). That plate is **copper-free FR4**, not aluminium, so the nearest metal at the tip end is the lid and floor. The leads leave through nylon glands and are carried on an FR4 lead bridge; see [HV leads](hv-leads.md). The lead conductor is 22.45 mm from the lid. |
 
 **Trimmer access.** Lid holes go over:
 
@@ -272,10 +272,12 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | Enclosure, 2 × Hammond 1455N2201 | none selected | $76.86 |
 | **Total** | **$811.27** | **$649.47** |
 | Total without the enclosure | $811.27 | $572.61 (−29%) |
+| HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $771.05, of which the 100 ft wire spool is $664.22 |
+| **Total with HV leads** | — | **$1,420.52** |
 
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 
-Not included: shipping, tax, Digi-Reel fees, JLC assembly (needs an account upload), the S1/S2 select-on-test capacitor kits, HV leads and feedthroughs.
+Not included: shipping, tax, Digi-Reel fees, JLC assembly (needs an account upload) and the S1/S2 select-on-test capacitor kits. The HV leads, tips, glands and the two FR4 parts are priced separately in [HV leads](hv-leads.md#parts-and-prices-2026-10-20) and by `procurement/cost.py`.
 
 Caveats on the prices:
 
@@ -296,3 +298,4 @@ Caveats on the prices:
    - OPA2810 input-stage crossover (≈ +2.3 V on +4.8 V) for the ×5 and driver inputs on the extended wide range.
    - Clamp current shared with the OPA2810 ESD diodes.
    - Range-switch transients with the PCB-mount switch.
+7. **HV leads ([HV leads](hv-leads.md)).** The per-tip loading estimate is 11.6 pF, so the tentative 10 pF target was revised to 12 pF; measure it. The FR4 tip-end plate opens the shield at the tip end; measure the shield edge current and CMRR with it fitted. Fit-check the FR4 plate against a received 1455N2201 before relying on the drawing dimensions.

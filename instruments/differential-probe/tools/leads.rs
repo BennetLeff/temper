@@ -72,12 +72,14 @@ const PLATE_CZ: f64 = BOX_H_NOM / 2.0;
 /// End-panel screw holes, offsets from the plate centre (u, v) and diameter.
 const PLATE_SCREWS: [(f64, f64); 4] = [(-47.5, -22.735), (47.5, -22.735), (-47.5, 22.735), (47.5, 22.735)];
 const PLATE_SCREW_D: f64 = 4.2;
-/// Gland: panel hole, locknut across corners (keep-out), centres +/- GLAND_DY.
-/// PROVISIONAL (M12 nylon gland class) until the gland part is selected.
-const GLAND_HOLE: f64 = 12.2;
-const GLAND_NUT_AC: f64 = 17.5;
-const GLAND_DY: f64 = 12.5;
-/// Gland locknut thickness on the plate's inner face.
+/// Gland: Essentra CG-PG7-1-BK (PG7, clamps 2.00-5.00 mm, panel hole 0.500 in
+/// = 12.7 mm) with locknut CGLN-PG7-BK (width 19.00 mm, thickness 5.00 mm,
+/// DigiKey attributes). The 19 mm width is taken as across flats, so the
+/// keep-out is the across-corners 19 / cos 30 deg = 21.94 mm.
+const GLAND_HOLE: f64 = 12.7;
+const GLAND_NUT_AC: f64 = 22.0;
+const GLAND_DY: f64 = 14.5;
+/// Gland locknut thickness on the plate's inner face (CGLN-PG7-BK).
 const NUT_T: f64 = 5.0;
 /// Bridge tab through the plate: width (y), protrusion beyond the plate's
 /// outer face, and the slot clearance.
@@ -614,8 +616,13 @@ fn main() {
     let gap_nuts = 2.0 * GLAND_DY - GLAND_NUT_AC;
     gate(gap_nuts >= 3.0, format!("gland locknuts clear each other by {gap_nuts:.1} mm"), &mut r);
     let nut_lid = BOX_H - (wz + GLAND_NUT_AC / 2.0);
-    gate(nut_lid >= 2.0 && wz - GLAND_NUT_AC / 2.0 >= BOARD_TOP - 6.0, format!("gland locknut inside the box clears the lid by {nut_lid:.1} mm"), &mut r);
+    let nut_floor = wz - GLAND_NUT_AC / 2.0;
+    gate(nut_lid >= 2.0 && nut_floor >= 2.0, format!("gland locknut inside the box clears the lid by {nut_lid:.1} mm and the floor by {nut_floor:.1} mm"), &mut r);
 
+    let bo = bridge_outline();
+    let (bx0, bx1) = bo.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |a, p| (a.0.min(p.0), a.1.max(p.0)));
+    let (by0, by1) = bo.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |a, p| (a.0.min(p.1), a.1.max(p.1)));
+    writeln!(r, "\nFR4 parts: tip plate {PLATE_W} x {PLATE_H} x {PLATE_T} mm; lead bridge {:.1} x {:.1} x {BRIDGE_T} mm overall (x {bx0:.2}..{bx1:.2}, y {by0:.1}..{by1:.1}, tab included).", bx1 - bx0, by1 - by0).unwrap();
     fs::create_dir_all("validation/leads").unwrap();
     fs::write("validation/leads/leads.txt", &r).unwrap();
     bridge().write("mech/lead-bridge/lead-bridge.kicad_pcb", BRIDGE_T);

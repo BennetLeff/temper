@@ -18,10 +18,10 @@ Per-leg capacitance to earth in common mode:
 
 Enclosure: end-plate inner faces 223.2 mm apart (220.0 extrusion + 2 x 1.60 bezel lip); output plate at x = 149.77 (BNC housing face), so the tip plate's inner face is at x = -73.43, 73.43 mm from the board's tip edge.
 Internal run: lead axis z = 26.69 mm, 22.45 mm below the lid and 26.69 mm above the floor.
-  leg P: gland (-73.43, 22.5) to W_HV1 (7, 27): 84.78 mm.
-  leg N: gland (-73.43, 47.5) to W_HV2 (7, 43): 84.78 mm.
-  C to earth: estimate 1.436 pF (16.9 pF/m between lid and floor, shell in series); coax at the lid distance 1.593 pF. Neither models the FR4 bridge under the lead or the board copper near W_HV, so neither is a bound.
-PASS internal routes are mirror images of equal length 84.78 mm
+  leg P: gland (-73.43, 20.5) to W_HV1 (7, 27): 84.93 mm.
+  leg N: gland (-73.43, 49.5) to W_HV2 (7, 43): 84.93 mm.
+  C to earth: estimate 1.439 pF (16.9 pF/m between lid and floor, shell in series); coax at the lid distance 1.596 pF. Neither models the FR4 bridge under the lead or the board copper near W_HV, so neither is a bound.
+PASS internal routes are mirror images of equal length 84.93 mm
 
 Per-tip capacitance to earth (estimate):
   ladder max 6.93 + board/enclosure reserve 1.00 + tip reserve 0.50 + internal 1.44 + external at 50 mm 1.76 = 11.63 pF.
@@ -37,12 +37,12 @@ PASS per-tip loading 11.63 pF <= 12 pF (lead >= 50 mm from earthed metal)
   open tip end: tap 131 mm inside; below-cutoff estimate 38 dB for a 95 mm aperture (27.3 dB per aperture width).
 
 Differential loop inductance (upper estimate: equal-area conductor, low-frequency internal inductance):
-  twisted 0.114 + tails opening to 58.5 mm 0.123 + internal 0.141 = 0.378 uH.
-  C = ladder/2 3.46 + lead-to-lead bound 12.96 + tip 0.50 = 16.92 pF, all lumped at the probe end: f0 = 62.9 MHz (lower estimate).
+  twisted 0.114 + tails opening to 58.5 mm 0.123 + internal 0.145 = 0.382 uH.
+  C = ladder/2 3.46 + lead-to-lead bound 12.96 + tip 0.50 = 16.92 pF, all lumped at the probe end: f0 = 62.6 MHz (lower estimate).
 Common mode: pair over an earth return 300 mm away, 0.368 uH with both tips' 23.3 pF: f0 = 54.4 MHz.
 Quarter-wave resonance of the whole lead, er_max throughout: 132 MHz.
-PASS differential lead resonance 62.9 MHz >= 10 x the 5 MHz bandwidth
-  undamped differential LC rise: 0.64 % at 5 MHz, 9.1e-5 % at 60 kHz.
+PASS differential lead resonance 62.6 MHz >= 10 x the 5 MHz bandwidth
+  undamped differential LC rise: 0.64 % at 5 MHz, 9.2e-5 % at 60 kHz.
   CM-to-DM conversion through the lead for a 1.16 pF leg-load mismatch at 0.06 MHz: 3.1e-8 (150 dB).
   CM-to-DM conversion through the lead for a 1.16 pF leg-load mismatch at 1 MHz: 8.7e-6 (101 dB).
   CM-to-DM conversion through the lead for a 1.16 pF leg-load mismatch at 5 MHz: 2.2e-4 (73 dB).
@@ -53,15 +53,17 @@ Magnetic pickup example: tails' open triangle 2049 mm2 in 0.28 mT peak (28 A pea
 Setback from exposed HV conductors to earthed metal (>= 20 mm required):
   W_HV1 joint: lid 24.04, floor 21.00, side wall 37.50 mm; the tip-end plate is FR4 (78.4 mm away).
   W_HV2 joint: lid 24.04, floor 21.00, side wall 37.50 mm; the tip-end plate is FR4 (78.4 mm away).
-  tip plate: metal end-panel screw edge to gland-hole edge 32.56 mm (the lead inside the hole is insulated twice: wire and gland).
-  internal lead conductor to lid 22.45 mm, insulation surface to lid 20.92 mm, to side wall >= 33.46 mm.
+  tip plate: metal end-panel screw edge to gland-hole edge 30.61 mm (the lead inside the hole is insulated twice: wire and gland).
+  internal lead conductor to lid 22.45 mm, insulation surface to lid 20.92 mm, to side wall >= 31.46 mm.
 PASS every exposed HV joint >= 20 mm from metal (worst 21.00 mm)
 PASS internal lead conductor 22.45 mm >= 20 mm from the lid
-PASS plate screw to gland hole 32.56 mm >= 20 mm
+PASS plate screw to gland hole 30.61 mm >= 20 mm
 PASS lead height above the board 4.67 mm <= 5.5 mm
 PASS wire DC rating 10 kV >= 3 x the 3 kV extension
-PASS FR4 web between a gland hole and the tab slot 3.50 mm >= 3 mm
-PASS bridge tab clears the gland locknuts by 1.25 mm
+PASS FR4 web between a gland hole and the tab slot 5.25 mm >= 3 mm
+PASS bridge tab clears the gland locknuts by 1.00 mm
 PASS first tie slot 4.93 mm from the bridge's plate-end edge
-PASS gland locknuts clear each other by 7.5 mm
-PASS gland locknut inside the box clears the lid by 13.7 mm
+PASS gland locknuts clear each other by 7.0 mm
+PASS gland locknut inside the box clears the lid by 11.5 mm and the floor by 15.7 mm
+
+FR4 parts: tip plate 103.12 x 53.09 x 1.6 mm; lead bridge 86.0 x 69.0 x 1.6 mm overall (x -76.03..10.00, y 0.5..69.5, tab included).

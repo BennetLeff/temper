@@ -40,7 +40,7 @@ Native KiCad DRC reports zero violations and zero unconnected items with the exp
 | Initial-envelope warning | Nominal 1.363 kV per tip; 1.239 kV wide / 248 V fine differential, latched |
 | Main measurement band | 35–60 kHz; proposed acceptance ±2% amplitude, ≤1° phase after calibration |
 | Common-mode rejection | 60 dB goal; measure versus frequency and apply a measurement-specific error budget |
-| Input loading | Ideal 10.005 MΩ and about 6.6 pF per tip; shield/lead/PCB capacitance adds to this |
+| Input loading | Ideal 10.005 MΩ and about 6.6 pF per tip; with leads and enclosure about 11.6 pF per tip (estimate, target ≤ 12 pF; [HV leads](docs/hv-leads.md#capacitance-budget)) |
 | Scope | 1 MΩ input, short BNC cable; do not select 50 Ω termination |
 | Power | Two 9 V batteries, regulated to approximately +4.80 / −4.81 V |
 | Enclosure | Hammond 1455N2201 extruded aluminium; 20 mm HV-to-metal setback in 3-D (see [Rev C record](docs/revc.md#9-size-layers-enclosure)) |
@@ -74,7 +74,7 @@ The BOM contains every component.
 
 - **Divider resistors are the cost driver.** The ten 2 MΩ 0.1% bodies dominate the cost, and their stock is thin (9 at DigiKey and 0 at LCSC on 2026-10-20). See the owner decision in the [Rev C record](docs/revc.md#risks-and-open-owner-decisions).
 - **No 1% substitutes.** Do not substitute 1% parts into this trim design.
-- **Still to select.** Rated input leads, the lead feedthroughs and strain relief remain open. Ordinary SMA or low-voltage terminal blocks are not acceptable for the HV inputs.
+- **HV leads.** Captive Alpha Wire 392040 leads (UL AWM 3239, 10 kV DC), 200 mm outside the box, leave through nylon glands in a copper-free FR4 tip-end plate and are tied to an FR4 lead bridge inside. Tips, strain relief and the loading budget are in [HV leads](docs/hv-leads.md). Ordinary SMA, 1 kV test leads or low-voltage terminal blocks are not acceptable for the HV inputs.
 
 ## Stage-53 identity
 

@@ -40,7 +40,7 @@ Use matching amplitude conventions (RMS or peak) and report frequency, range, ex
 
 The input-referred common-mode error is `|Vcm| / 10^(CMRR_dB/20)`. For example, at 1 kV common mode and 60 dB CMRR, the possible error is 1 V. It is 0.2% of a 500 V wanted signal but 10% of a 10 V wanted signal. Allocate this error alongside gain, offset, noise and reference uncertainty for each coil/capacitor measurement. The 60 dB goal does not override that calculation.
 
-Measure input-to-earth capacitance and the edge current in the shield return, with the intended physical assembly. Compare 33 pF and 15 pF segment populations using separately compensated low legs. The 15 pF population requires approximately 5.997 nF ideal total bottom capacitance; changing only the top capacitors invalidates compensation. Compare measured rejection, edge current and DUT perturbation before accepting 33 pF. A tentative ≤10 pF per-tip loading target includes the entire lead and enclosure, not just the 6.6 pF ideal ladder.
+Measure input-to-earth capacitance and the edge current in the shield return, with the intended physical assembly. Compare 33 pF and 15 pF segment populations using separately compensated low legs. The 15 pF population requires approximately 5.997 nF ideal total bottom capacitance; changing only the top capacitors invalidates compensation. Compare measured rejection, edge current and DUT perturbation before accepting 33 pF. The per-tip loading target includes the entire lead and enclosure, not just the 6.6 pF ideal ladder. The tentative 10 pF target cannot be met by a lead that reaches both stage-53 bank nodes; it is revised to **12 pF**, against an 11.6 pF estimate (see [HV leads](hv-leads.md#capacitance-budget)). Measure each tip to GND at 1 MHz, with the leads in the recorded dress and ≥ 50 mm from earthed metal.
 
 ## 5. Voltage extension and overload recovery
 
@@ -66,6 +66,41 @@ For the ideal CT/burden model use `Hct(f) = (Rb / 200) / (1 + j·2πf·Rb·Cb)`.
 
 Nominal 3 Ω / 100 nF gives −6.4526° and 0.993665 voltage magnitude relative to the DC scale at 60 kHz; the inverse correction advances current by +6.4526° and multiplies its magnitude by 1.006375. These are calculated examples, **not calibration values**. Use the measured complex CT response where available and do not apply this RC correction twice. Integrate only within the characterized bandwidth; differentiation implicit in the inverse RC correction amplifies high-frequency noise. Record the integration constant/baseline for time-domain reconstruction. Allocate probe, CT, channel/cable and reference uncertainty together against the ≤1° residual target.
 
+## 7. Leads, feedthroughs and tips
+
+The design and its calculated budget are in [HV leads](hv-leads.md) and [`validation/leads/leads.txt`](../validation/leads/leads.txt). These tests check what the calculation assumes. Record the lead lengths, the dress photograph and the tip accessories with every result.
+
+**Incoming wire hipot.** The Alpha 392040 specification gives a UL 3239 10 kV DC rating but no withstand voltage. Before fitting, wrap each cut lead in aluminium foil over its whole insulated length, leaving 25 mm bare at each end. Apply **5 kV DC for 60 s** between conductor and foil. Pass: no breakdown, leakage ≤ 1 µA. This is half the UL rating and 1.67 × the 3 kV extension.
+
+**Lead and feedthrough hipot**, after assembly step 3 and before soldering (the divider would otherwise carry the test current and limit it to the ±3 kV envelope):
+
+1. Fit the FR4 plate to the empty extrusion with its screws, the leads through the glands and the glands tightened. Cap each lead's internal cut end with heat-shrink and hold it ≥ 25 mm from metal.
+2. Wrap foil around the external lead length up to the gland nut, and bond the foil to the extrusion.
+3. Apply **4.5 kV DC (1.5 × the 3 kV extension) for 60 s**, conductor to extrusion and foil, each lead in turn. Pass: no breakdown, leakage ≤ 1 µA, no audible or visible discharge in a darkened room.
+4. Repeat between the two conductors (twisted together, foil removed), 4.5 kV DC for 60 s, same pass criteria. This covers |V+ − V−| ≤ 3 kV with both insulations in series.
+
+After soldering, the leads are tested only inside the ±3 kV envelope, as part of section 5.
+
+**Assembled setback inspection.** With the lid off, measure lead conductor to lid plane (gated ≥ 20 mm; design 22.45 mm), W_HV joint to lid and floor, and tail length (≤ 1.0 mm). Confirm H3/H4 hardware is nylon. Photograph the bridge ties.
+
+**Lead-movement CMRR sensitivity.** Using section 4's method, calibrate and measure CMRR at 60 kHz, 1 MHz and 5 MHz with the leads in the recorded dress (J5 and J2 tied together on the fixture). Then, without recalibrating, repeat with:
+
+- the twisted section moved 50 mm toward an earthed plate (axis ≥ 50 mm from it);
+- the tails spread to the bank spacing (58.5 mm) and closed to the coil spacing (15 mm);
+- the probe box rotated 90° on the bench;
+- the lid removed and refitted.
+
+Record each CMRR and each tip's capacitance to GND. Proposed acceptance: CMRR change ≤ 3 dB and per-tip capacitance change ≤ 0.5 pF across these cases. The estimate (`leads.txt`) puts lead-path CM-to-DM conversion at −74 dB at 5 MHz; a larger measured change points to coupling inside the box. As a stress case only, lay one lead on the earthed plate and record the CMRR and capacitance change; this configuration is not permitted in use.
+
+**Tip retention.**
+
+- *Hook clip on the C22 test pin:* 20 cycles of attach and detach, then 5 N pull along the tail in three directions (along the pin, and both ways across it), 10 s each. Pass: the clip stays on the pin and the pin joint is undamaged.
+- *TIP+ M4 ring on J5 and the TIP− fork adapter on J2:* torque to 1.2 N·m. Then 15 N pull on the lead at the ring or adapter for 10 s. Pass: no rotation past the stop, no movement of the crimp or solder joint, no damage to the barrel insulation, and the fork does not slide out from under the washer.
+- *Shrouded plug in the clip and in the adapter:* 10 insertions each, then the 5 N pull above.
+- *Gland:* 20 N pull on the external lead for 60 s, 25 times (the wire's maximum pull tension is 35 N). Pass: the length mark at the gland face moves ≤ 1 mm and the internal slack between the last bridge tie and the W_HV joint is unchanged. These numbers are chosen for this prototype, not quoted from a standard.
+
+**Thermal.** The wire, gland and FR4 are rated 100 °C or higher; no lead self-heating is expected (the leads carry milliamps). Record the plate temperature during the section 5 60-minute holds.
+
 ## Required result record
 
 | Test | Result | Conditions / uncertainty |
@@ -86,3 +121,9 @@ Nominal 3 Ω / 100 nF gives −6.4526° and 0.993665 voltage magnitude relative 
 | 2 MΩ HVCB2512 linearity at 600 V per body (VCR) | NOT RUN | |
 | Clamp current shared with OPA2810 input ESD diodes (R12/R32 limit) | NOT RUN | |
 | PCB-mount BNC/toggle fit, panel bonding, 3-D 20 mm setback in the 1455N2201 | NOT RUN | |
+| Lead wire incoming hipot, 5 kV DC 60 s, each lead | NOT RUN | |
+| Lead and feedthrough hipot, 4.5 kV DC 60 s, to enclosure and between leads | NOT RUN | |
+| Assembled lead setback (conductor to lid ≥ 20 mm), tail length, H3/H4 nylon | NOT RUN | |
+| Per-tip capacitance to GND, recorded dress (target ≤ 12 pF) | NOT RUN | |
+| Lead-movement CMRR and capacitance sensitivity | NOT RUN | |
+| Tip retention: hook clip, M4 rings, shrouded plugs, gland pull | NOT RUN | |

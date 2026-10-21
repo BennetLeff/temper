@@ -63,11 +63,13 @@ Assembly was not quoted, because that needs an account upload. Slots of at least
 
 The enclosure is a Hammond 1455N2201. Mounting, standoff height and lid holes are in [`../docs/layout.md`](../docs/layout.md#enclosure-shield-and-mounting).
 
-Still to select:
+The HV leads, tips, feedthroughs and strain relief are designed in [`../docs/hv-leads.md`](../docs/hv-leads.md), which lists every part with its rating basis and its 2026-10-20 price and stock. Quantities for two probes are in [`leads-bom.csv`](leads-bom.csv); `python3 procurement/cost.py` gives **$771.05**, of which the single 100 ft spool of Alpha Wire 392040 RD005 (UL AWM 3239, 10 kV DC) is $664.22. The Stäubli 23.0480-21 J2 adapter was only found at element14 (NZD 18.13 per 2) and is not in the USD total.
 
-- Rated HV input leads.
-- Tip assemblies.
-- Feedthroughs at the tip-end plate.
-- Strain relief.
+Two copper-free FR4 parts are made by JLC. Run `sh procurement/export-mech.sh` from the probe directory to regenerate them from [`../tools/leads.rs`](../tools/leads.rs); it DRC-checks both boards and writes:
 
-Do not substitute ordinary 1 kV DMM leads.
+- [Tip plate Gerbers](tip-plate-gerbers.zip) and [DXF](mech/tip-plate/tip-plate-outline.dxf): 103.12 × 53.09 mm, 1.6 mm, replaces the Hammond aluminium tip-end plate. Order with no copper (or with the empty copper layers as supplied), any solder-mask colour, white silkscreen. Ask for countersunk screw holes (Ø5.84 mm × 82°) to reuse the Hammond flat-head screws; otherwise use #6 pan-head thread-forming screws.
+- [Lead bridge Gerbers](lead-bridge-gerbers.zip) and [DXF](mech/lead-bridge/lead-bridge-outline.dxf): 86.0 × 69.0 mm, 1.6 mm.
+
+Neither part has been quoted; the 150 × 70 mm two-layer quote above ($10.40 for 5) bounds each. Checksums are in [`mech/sha256.txt`](mech/sha256.txt).
+
+Do not substitute ordinary 1 kV DMM leads, and do not substitute wire without a UL style or a stated test voltage.
