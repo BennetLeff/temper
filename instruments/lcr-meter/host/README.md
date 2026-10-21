@@ -136,10 +136,10 @@ temper-lcr tone PORT CYCLES PERIOD MV            # TONE: 187500 x CYCLES / PERIO
 temper-lcr tone-hz PORT 27000 1000               # smallest exact PERIOD (see below), at most 85 kHz
 temper-lcr wave PORT wave.txt                    # WAVE: int32 DAC words, whitespace/comma separated, # comments
 temper-lcr raw PORT 4096 raw.json                # RAW: up to 8192 consecutive frames, with rms/min/max
-temper-lcr capture PORT 100 fixture-1 1500,27000,60000 coil.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]
+temper-lcr capture PORT 100 fixture-1 1500,27500,60500 coil.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]
 temper-lcr capture-wave PORT 100 fixture-1 wave.txt 3,7,11 multi.json [--skip=PERIODS] [--periods=N | --seconds=S]
-temper-lcr tone-plan 100 1500,27000,60000        # no device: what capture will do per frequency
-temper-lcr refcheck PORT 5000 1000,27000 ref.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]
+temper-lcr tone-plan 100 1500,27500,60500        # no device: what capture will do per frequency
+temper-lcr refcheck PORT 5000 1500,27500 ref.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]
 ```
 
 `refcheck PORT RANGE_OHM FREQ... OUT` measures the internal 1 kΩ 0.1 % reference (relay K4) on RANGE_OHM, for a drift or self check: `selftest`, `rails`, then per frequency `TONE` and `REFCAPTURE RANGE SKIP PERIODS`, and `OFF`. The firmware closes K4 together with that range, captures, then RESETs all relays and re-selects the range that was selected before, so the board's range is unchanged. It prints the uncalibrated |Z| and phase per frequency and saves an ordinary Rev E capture whose fixture is `internal-reference-1k`. K4 adds the reference across HCUR–LCUR without disconnecting the jacks, so leave the DUT terminals open. The default level is 1700 mV on every range. The range resistor RG (equal to R_F) and R104 (47 Ω) sit in series with the reference, so the current channel stays below the source level and cannot clip (`reference_default_mv`). Compare readings over time on the same range and frequency. The reference does not pass through the external fixture, so a fixture calibration does not apply to it.
@@ -183,17 +183,17 @@ Multitone: `capture-wave` uploads a waveform and analyses every bin you list, on
 | 60 kHz | 8/25 | 2.36 ms | 18 | 1875 | 0.25 s |
 | 85 kHz | 34/75 | 2.36 ms | 6 | 625 | 0.25 s |
 
-Override with `--skip=PERIODS` and `--periods=N` or `--seconds=S`. **A coil's L/R time constant and the codec's input coupling (1 µF into 40 kΩ, a 40 ms time constant whose transient is nearly DC) are not waited for by default**; raise `--skip` for a large inductance and check that the residual stays small. USB start-of-frame lines sit at every multiple of 1 kHz of the host's clock (±560 ppm), and a coherent line has no defence on top of one: `capture` warns when a frequency is inside that reach (1 kHz, 27 kHz, 60 kHz and 85 kHz in the table are; 1500 Hz and 45.776 Hz are not). Rev D's DDS-harmonic and boxcar hazard checks do not apply and are not run.
+Override with `--skip=PERIODS` and `--periods=N` or `--seconds=S`. **A coil's L/R time constant and the codec's input coupling (1 µF into 40 kΩ, a 40 ms time constant whose transient is nearly DC) are not waited for by default**; raise `--skip` for a large inductance and check that the residual stays small. USB start-of-frame lines sit at every multiple of 1 kHz of the host's clock (±560 ppm), and a coherent line has no defence on top of one: `capture` warns when a frequency is inside that reach (1 kHz, 27 kHz, 60 kHz and 85 kHz in the table are; 1500 Hz and 45.776 Hz are not). Use the half-kHz grid 1500, 27500, 35500, 40500, 50500, 60500 Hz: every point is an exact tone (1/125, 11/75, 71/375, 27/125, 101/375, 121/375) with −51 to −54 dB SOF rejection ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md)). Rev D's DDS-harmonic and boxcar hazard checks do not apply and are not run.
 
 ### Calibration
 
 `calibrate` fits `measured = (a·true + b)/(c·true + 1)` per bin from a short and two resistors, as Rev D (the same `calibration_coefficients`). The Rev E calibration file is schema 1, model `bilinear-short-two-resistors-e1-riso22-lo100p-codec-dft`, with the setup (`E-codec`, unit, fixture, range, 120 MHz, 187.5 kHz), the feedback capacitance, the isolation resistor and the DUT_LO capacitance; `analyze` and `validate` refuse any mismatch. There is no source-off record on Rev E (the OFF command and `raw` can be used to look at the quiet board by hand), so `--allow-source-off-fail` is refused.
 
 ```sh
-temper-lcr capture PORT 100 fixture-1 1500,27000,60000 short.json --mv=200
+temper-lcr capture PORT 100 fixture-1 1500,27500,60500 short.json --mv=200
 # Replace the short with standard 1, then standard 2 (and pick --mv so neither channel clips).
-temper-lcr capture PORT 100 fixture-1 1500,27000,60000 load20.json --mv=500
-temper-lcr capture PORT 100 fixture-1 1500,27000,60000 load100.json --mv=500
+temper-lcr capture PORT 100 fixture-1 1500,27500,60500 load20.json --mv=500
+temper-lcr capture PORT 100 fixture-1 1500,27500,60500 load100.json --mv=500
 temper-lcr calibrate short.json load20.json 20.000 load100.json 100.000 calibration.json
 temper-lcr analyze dut.json calibration.json
 ```

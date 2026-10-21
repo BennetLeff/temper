@@ -300,7 +300,7 @@ def main():
           [round(r5["headroom_pos_2x_load"], 3), round(r5["headroom_neg_2x_load"], 3), round(r5["rc_corner_hz"])],
           ">= 1 V", min(r5["headroom_pos_2x_load"], r5["headroom_neg_2x_load"]) >= 1.0, "proposed, not fitted")
     near = min((dist(l, u), l, u) for l in ("L1", "L2", "D2", "D3", "U13")
-               for u in ("U4", "U5", "U6", "U7", "U8", "U9", "U10"))
+               for u in ("U4", "U5", "U6", "U7", "U8", "U9", "U10", "U14") if u in POS)   # U14: Rev E codec
     check("Switcher magnetics/switch nodes to nearest analog IC (CPL centres)", f"{near[0]:.1f} mm ({near[1]}-{near[2]})",
           "information only: magnetic pickup not modelled", True)
     out = {"r5_option": r5, "nearest_switcher_to_analog_mm": near, "r83_alternative": alt, "loads_a": LOAD, "load_note": LOAD_NOTE, "vpos": vpos, "vneg": vneg, "ldo": ldo,

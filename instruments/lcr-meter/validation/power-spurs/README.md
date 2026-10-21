@@ -1,5 +1,7 @@
 # Power-supply interference and regulator check (Rev C, before ordering)
 
+**Rev E (codec) rerun: [README-rev-e.md](README-rev-e.md).** This page covers the Rev C/D SAR chain.
+
 **Rev D rerun (2026-10-20, after the [audit fixes](../../docs/rev-d-audit.md)).** `regulator_check.py` now reads every divider and feed-forward value from `cad/design.json`; before, it hard-coded the Rev C values, including R83 = 1.78 MΩ. With Rev D's R83 = 1.74 MΩ, VNEG is −13.347 / −14.071 / −14.805 V (min/nom/max), inside the −15 V recommendation. Finding 4 below is closed. U12 headroom is 1.028 V at the worst corner. Through the fitted 1 Ω R96 at 2× the estimated load it is 0.949 V: above the 0.6 V dropout, under the 1 V PSRR-curve condition (the "Option R5" row, which now describes fitted parts). The ripple chain now assumes 50 % DC-bias retention for C103 (22 µF 25 V X5R 1206). The other numbers below are Rev C text. They moved by under 1 % in the regenerated JSON.
 
 This is a desk analysis of datasheets, `cad/design.json`, the CPL, the host fit and the firmware. No hardware exists. All numbers come from the scripts in this directory: `python3 run_all.py` reruns everything in about 3 minutes and needs numpy. Numbers read from datasheet curves are typical values. Values called "estimate" depend on the assumptions listed under **Limits**. Only the tolerance stacks in the regulator check use full-temperature datasheet limits.

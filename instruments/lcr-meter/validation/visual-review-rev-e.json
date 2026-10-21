@@ -1,0 +1,34 @@
+{
+ "revision": "E",
+ "board_sha256": "80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5",
+ "review_date": "2026-10-21",
+ "method": "Each listed render of the af615c841 board opened and inspected individually (rendered by cad/render_previews.py at that commit). Supplements, does not replace, the native ERC/DRC/parity and the independent pin audit.",
+ "images_sha256": {
+  "pcb-front.png": "5c10ac3a850306118a7bdf300fe648d6fed2b66aa65becdbb2c803cac6bed3c6",
+  "gerber-top-copper.png": "a0b6d0116991a5e51b411bae4597f9064715aa81257d342f3d6ead53be0528b3",
+  "gerber-inner-routing.png": "35c1c05d1974b7b7ae483e651dda7556f7f84bc48039d0668b00c8b421652f5b",
+  "gerber-ground.png": "d5baae5e6333028b7567077d3b4a87e1fe05c7555919885a2f289fb9f0294a80",
+  "gerber-bottom-copper.png": "56d45f1bddb8ef63d9581dbd028949e25e48d2320d02a2c62bb432ab43fe166b",
+  "gerber-top-mask.png": "a08a0b82295412b78e7c63707b3a82bc5b2bd621d80ca5abae7de1c0c5816dda",
+  "gerber-bottom-mask.png": "fab3e71b54d0250e5061414a16913876e2b3ceff39d604bf320d0e0f36ce10d3",
+  "gerber-top-paste.png": "b3a87450df95a11b58725cc5b6852c2058218143e024a39a10cad5f5dfe4d3be",
+  "assembly-top.png": "10687758036d4a9a091a710fa2b4a3dba1ef44e28a1f5a5ca772f405832d27cd"
+ },
+ "not_reviewed_this_pass": [
+  "gerber-top-silk.png (silk checked on pcb-front.png instead)",
+  "gerber-outline.png",
+  "schematic pages (unchanged review basis: native ERC and parity)"
+ ],
+ "observations": {
+  "gerber-ground.png": "In1.Cu is one GND pour. Voids only at the intended op-amp input relief (U5 block, U6, the L-shaped U7/TIA region); BNC centre pins and signal vias cleared; four NPTH mounting holes.",
+  "gerber-inner-routing.png": "In2.Cu carries HPOT from J7 east then south to U6 (about 45 mm; in the reve_bnc extraction at 8.9 pF), LPOT after its F.Cu start, relay-coil runs to K1-K3, and rails. Sparse; no unexplained long runs.",
+  "gerber-bottom-copper.png": "HCUR on B.Cu along the back of the jacks and down the east edge to the range relays, as documented. The RP2040 relay-drive bundle runs on B.Cu to Q2-Q6 (static during captures: latching relays). No B.Cu components; THT pads for J2, J4-J6 and BNCs only.",
+  "pcb-front.png": "F.Cu and silk: BNC labels HCUR/HPOT/LPOT/LCUR match design.json (J3/J7/J8/J9); K1-K4 labelled with ranges; U14 decoupling clustered; switcher (U13, L1/L2, D2/D3) bottom-left, about 65 mm from the codec.",
+  "gerber-top-mask.png": "Openings for all SMT pads, exposed pads, BNC and header THT; mounting holes cleared.",
+  "gerber-bottom-mask.png": "Bottom openings only for THT pads, USB shell anchors, DC jack and mounting holes: vias tented.",
+  "gerber-top-paste.png": "Exposed pads windowpaned (U1 2x2, U14 2x2, U13 3x3, U11/U12 split); no paste on THT.",
+  "assembly-top.png": "Designators placed and legible at review zoom. Fab-layer reference text overlaps on D5-D8 next to their bodies (cosmetic, Fab layer only, not fabricated).",
+  "gerber-top-copper.png": "F.Cu matches pcb-front.png: codec input network (four identical legs) between U14 and U6/U7; LPOT and LCUR leave J8/J9 on F.Cu toward K4 and R105/R106; switcher loop compact around U13."
+ },
+ "findings": []
+}

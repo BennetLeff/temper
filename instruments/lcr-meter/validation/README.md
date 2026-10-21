@@ -1,4 +1,33 @@
-# Revision D verification receipt
+# Verification receipts
+
+## Revision E verification receipt
+
+Board `cad/temper-lcr.kicad_pcb` at commit `af615c841` (four-terminal BNCs, K4), SHA256:
+
+`80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5`
+
+KiCad 10.0.4. Rows marked *rerun 2026-10-21* were rerun on that exact file after the later commits (none of which touch `cad/`). Rev E is the TIDA-060029 analog core with a TAC5112 codec in place of the AD9833, both THS4551s and the ADS9224R; latching range relays K1–K3; four-terminal BNC jacks; K4 internal 1 kΩ reference ([rev-e-plan](../docs/rev-e-plan.md)).
+
+| Check | Result | Evidence |
+|---|---|---|
+| Native schematic ERC, all severities | 0 violations (*rerun 2026-10-21* on a copy: 0) | `erc.json` |
+| Native PCB DRC, all track errors, zones refilled, schematic parity | 0 violations, 0 unconnected, 0 parity findings (*rerun 2026-10-21*: same) | `drc.json` |
+| Independent audit (Rev E) | 620 source pins = 620 native pads = 620 netlist nodes; four-terminal topology (J3 DUT_HI, J7 HPOT → U6.5, J8 LPOT → U7.5, J9 DUT_LO → R94 → TIA_SUM); op-amp input plane relief on In1/In2/B; OPA2810 bypass 2.031–2.050 mm; 0 findings | `independent-verification-rev-e.json` (`python independent_check.py E` with KiCad Python) |
+| Source/schematic/PCB parts and placements | 199 fitted components, 191 SMT placements, 60 SMT lines; pin parity and coordinates PASS; keyed-part rotation offsets applied | `cad-bom-parity.json`, `placement-library-audit.md` |
+| Layout audit | Supply-pin decoupling distances (codec 1.3–3.9 mm), vias per exposed pad (U1 8, U11 6, U12 6, U13 9, U14 4), regulator support-part distances, feedback-trace lengths | `layout-audit-rev-e.json` (`cad/tools/audit_layout.py`) |
+| Via/SMT drill intersection audit | 34 intended filled/capped vias in SMT lands (exposed pads and R3.2); no unexpected intersections | `via-in-pad-process.json` |
+| Visual review of the exported layers | F.Cu, In1 (GND), In2, B.Cu, both masks, paste and the assembly drawing opened and checked; no findings (one cosmetic Fab-text overlap) | `visual-review-rev-e.json` |
+| Extracted parasitics, BNC board | HCUR 12.9 pF, LCUR 7.5, HPOT 8.9, LPOT 10.9 pF to ground; HPOT–HCUR 0.24 pF | `layout-parasitics/README-rev-e.md` (`reve_bnc`) |
+| Loop stability, as built | 360 cases (no cable, 1 m RG-58 on all four jacks, 100–1000 pF lumped, K4 closed), stress relay parasitics: every loop ≥ 45°; worst drive 46.83°, TIA 57.21° | `stability-full-chain/` (`kelvincng100`), `../docs/rev-e-front-end.md` |
+| Regulators, Rev E part set | 44 of 45 design-rule and tolerance-stack rows pass; the FLAG is the R5 option, fitted as R95/R96 | `power-spurs/regulator_check.json` (*rerun 2026-10-21*) |
+| Interference, codec chain | SOF: 0 dB at whole kHz, −51 to −54 dB on the half-kHz grid; switcher collision chance 0.01–0.09 % per frequency (Rev D 2 %); DAC images at the modulator rate: pessimistic up to 0.75 % on a coil, settled by bring-up gate B-E1 | `power-spurs/README-rev-e.md`, `rev_e_spurs.json` (*new 2026-10-21*) |
+| Accuracy map (simulation) | ≤ 0.2 % (typical and corner) 3.16 Ω–10 kΩ at every frequency 50 Hz–85 kHz | `rev-e-accuracy-map/` |
+| Firmware (Rev E) | Host tests both builds; PIO model of `tdm`/`tdm375` with negative controls; hot-loop bound 209 of 640 cycles | `../firmware-rev-e/verification/` |
+| Host | 3 + 26 + 32 tests pass (*rerun 2026-10-21*, `cargo test --release`); clippy `-D warnings` in `build.sh` | `../host/` |
+
+**Not established by any of this:** physical-board accuracy, noise, solder quality, codec behaviour at 187.5 kHz (clock acceptance, wideband response to 85 kHz, CM_TOL with wideband), relay-internal capacitances, the DAC-image level, and the self-capacitance of the calibration standards. Those are bring-up items ([bring-up-rev-e.md](../docs/bring-up-rev-e.md)). Ordering steps still open: JLC re-quote at 140 × 105 mm, POFV via option, vendor DFM and the placement-preview approval. No manufacturer upload or purchase has occurred.
+
+## Revision D verification receipt (superseded by Rev E; kept as history)
 
 Verified on 2026-10-20 with KiCad 10.0.4. Board SHA256:
 

@@ -1,5 +1,7 @@
 # Revision D bring-up and stage53 qualification
 
+**For the Rev E board (codec, relays, BNCs) use [bring-up-rev-e.md](bring-up-rev-e.md).** This page is the Rev D procedure.
+
 Applies to TIDA-based revision D with an external regulated **5 V, 1 A, center-positive supply** and USB data. Confirm fitted compensation: one local C104 = 100 pF directly between U7A output and summing input, shared by all three ranges. C105 and C41 are removed. The feedback capacitor must not pass through a range jumper. Verify R90–R93 = 22 Ω, C106–C109 = 100 pF, and R64/R65/R70/R71 = 4.32 Ω in the revised FDA feedback/output networks. Verify R94 = 22 Ω 0.1 % between J3 LO and the U7A summing node (the LOW follower U7B +IN stays on the J3 side), R95/R96 = 1 Ω at the LDO inputs, R83 = 1.74 MΩ and the rail monitors R97–R100. Use Rev D (`D-riso22`) firmware/host software and fresh calibration for this feedback network. Earlier revisions have different behavior. No physical board has been tested during design.
 
 Use a DMM, current-limited supply, oscilloscope and independently known impedance standards. The DUT interface shares USB ground. Test isolated, externally discharged components or disconnected subassemblies; verify residual voltage separately before connection.

@@ -9,9 +9,9 @@
   ]
  },
  "nearest_switcher_to_analog_mm": [
-  63.51377803280167,
+  64.62391198310421,
   "D3",
-  "U10"
+  "U14"
  ],
  "r83_alternative": {
   "min": -13.347469306930693,
@@ -440,7 +440,7 @@
   },
   {
    "item": "Switcher magnetics/switch nodes to nearest analog IC (CPL centres)",
-   "value": "63.5 mm (D3-U10)",
+   "value": "64.6 mm (D3-U14)",
    "limit": "information only: magnetic pickup not modelled",
    "status": "PASS",
    "note": ""
