@@ -28,9 +28,14 @@ const COND_BUNDLE: f64 = 0.037 * 25.4;
 /// Conductor cross-section, ten 30 AWG strands (0.0509 mm2 each): its
 /// equal-area diameter is used for lower estimates and inductance upper estimates.
 const COND_AREA_MM2: f64 = 10.0 * 0.0509;
-/// Insulation outer diameter, nominal and tolerance.
-const OD_NOM: f64 = 0.117 * 25.4;
-const OD_TOL: f64 = 0.004 * 25.4;
+/// Insulation outer diameter envelope, as centre and half-width. It spans
+/// Alpha 392040 (0.117 +/- 0.004 in = 2.87..3.07 mm) and Rowe R800-1020
+/// (UL 3239 10 kV DC, same 20 AWG 10/30 conductor, 0.12 in nominal; Rowe
+/// publishes no tolerance, so Alpha's +/- 0.004 in is applied: 2.95..3.15 mm).
+/// Incoming inspection rejects wire outside 2.87..3.15 mm (qualification 7),
+/// which is what makes every OD-dependent gate here hold for either wire.
+const OD_NOM: f64 = (2.87 + 3.15) / 2.0;
+const OD_TOL: f64 = (3.15 - 2.87) / 2.0;
 /// Relative permittivity bracket for silicone rubber insulation. The Alpha
 /// specification gives none; published silicone-rubber values are about
 /// 2.7-3.6, and the bracket is widened to 2.5-4.0.

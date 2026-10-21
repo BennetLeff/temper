@@ -70,7 +70,7 @@ Nominal 3 Ω / 100 nF gives −6.4526° and 0.993665 voltage magnitude relative 
 
 The design and its calculated budget are in [HV leads](hv-leads.md) and [`validation/leads/leads.txt`](../validation/leads/leads.txt). These tests check what the calculation assumes. Record the lead lengths, the dress photograph and the tip accessories with every result.
 
-**Incoming wire hipot.** The Alpha 392040 specification gives a UL 3239 10 kV DC rating but no withstand voltage. Before fitting, wrap each cut lead in aluminium foil over its whole insulated length, leaving 25 mm bare at each end. Apply **5 kV DC for 60 s** between conductor and foil. Pass: no breakdown, leakage ≤ 1 µA. This is half the UL rating and 1.67 × the 3 kV extension.
+**Incoming wire OD and hipot.** Measure the insulation OD with calipers at both ends of each cut lead: accept 2.87–3.15 mm, the envelope `leads.rs` gates over (Rowe publishes no tolerance). Neither the Rowe R800-1020 listing nor the Alpha 392040 specification gives a withstand voltage, only the UL 3239 10 kV DC rating. Before fitting, wrap each cut lead in aluminium foil over its whole insulated length, leaving 25 mm bare at each end. Apply **5 kV DC for 60 s** between conductor and foil. Pass: no breakdown, leakage ≤ 1 µA. This is half the UL rating and 1.67 × the 3 kV extension.
 
 **Lead and feedthrough hipot**, after assembly step 3 and before soldering (the divider would otherwise carry the test current and limit it to the ±3 kV envelope):
 
@@ -81,7 +81,7 @@ The design and its calculated budget are in [HV leads](hv-leads.md) and [`valida
 
 After soldering, the leads are tested only inside the ±3 kV envelope, as part of section 5.
 
-**Assembled setback inspection.** With the lid off, measure lead conductor to lid plane (gated ≥ 20 mm; design 22.45 mm), W_HV joint to lid and floor, and tail length (≤ 1.0 mm). Confirm H3/H4 hardware is nylon. Photograph the bridge ties.
+**Assembled setback inspection.** With the lid off, measure lead conductor to lid plane (gated ≥ 20 mm; design 22.43 mm), W_HV joint to lid and floor, and tail length (≤ 1.0 mm). Confirm H3/H4 hardware is nylon. Photograph the bridge ties.
 
 **Lead-movement CMRR sensitivity.** Using section 4's method, calibrate and measure CMRR at 60 kHz, 1 MHz and 5 MHz with the leads in the recorded dress (J5 and J2 tied together on the fixture). Then, without recalibrating, repeat with:
 

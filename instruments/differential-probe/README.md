@@ -74,7 +74,7 @@ The BOM contains every component.
 
 - **Divider resistors are the cost driver.** The ten 2 MΩ 0.1% bodies dominate the cost, and their stock is thin (9 at DigiKey and 0 at LCSC on 2026-10-20). See the owner decision in the [Rev C record](docs/revc.md#risks-and-open-owner-decisions).
 - **No 1% substitutes.** Do not substitute 1% parts into this trim design.
-- **HV leads.** Captive Alpha Wire 392040 leads (UL AWM 3239, 10 kV DC), 200 mm outside the box, leave through nylon glands in a copper-free FR4 tip-end plate and are tied to an FR4 lead bridge inside. Tips, strain relief and the loading budget are in [HV leads](docs/hv-leads.md). Ordinary SMA, 1 kV test leads or low-voltage terminal blocks are not acceptable for the HV inputs.
+- **HV leads.** Captive Rowe R800-1020 leads (UL 3239, 10 kV DC), 200 mm outside the box, leave through nylon glands in a copper-free FR4 tip-end plate and are tied to an FR4 lead bridge inside. Tips, strain relief and the loading budget are in [HV leads](docs/hv-leads.md). Ordinary SMA, 1 kV test leads or low-voltage terminal blocks are not acceptable for the HV inputs.
 
 ## Stage-53 identity
 

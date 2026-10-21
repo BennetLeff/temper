@@ -95,7 +95,7 @@ H3 and H4 sit on the two prongs on either side of the notch. A metal screw throu
 
 ## Leads and panel components
 
-**HV landings.** `W_HV1` and `W_HV2` are 4 mm solder pads with 1.6 mm plated holes for the captive HV leads. They are not a rated connector. The leads are Alpha Wire 392040 (UL AWM 3239, 10 kV DC), entered from the top, with the insulation ending ≤ 1 mm above the pad and the tail ≤ 1.0 mm below the board. Each lead is tied to a copper-free FR4 lead bridge 11 mm before its joint, and leaves through a nylon gland in a copper-free FR4 tip-end plate. The design, budget and assembly steps are in [HV leads](hv-leads.md); the landings did not change.
+**HV landings.** `W_HV1` and `W_HV2` are 4 mm solder pads with 1.6 mm plated holes for the captive HV leads. They are not a rated connector. The leads are Rowe R800-1020 (UL 3239, 10 kV DC; Alpha Wire 392040 fallback), entered from the top, with the insulation ending ≤ 1 mm above the pad and the tail ≤ 1.0 mm below the board. Each lead is tied to a copper-free FR4 lead bridge 11 mm before its joint, and leaves through a nylon gland in a copper-free FR4 tip-end plate. The design, budget and assembly steps are in [HV leads](hv-leads.md); the landings did not change.
 
 **Panel components.** The BNC (J3), range switch (SW1) and power switch (SW2) are PCB-mounted. Their faces point at the output end plate:
 

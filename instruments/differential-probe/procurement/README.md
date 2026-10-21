@@ -63,7 +63,7 @@ Assembly was not quoted, because that needs an account upload. Slots of at least
 
 The enclosure is a Hammond 1455N2201. Mounting, standoff height and lid holes are in [`../docs/layout.md`](../docs/layout.md#enclosure-shield-and-mounting).
 
-The HV leads, tips, feedthroughs and strain relief are designed in [`../docs/hv-leads.md`](../docs/hv-leads.md), which lists every part with its rating basis and its 2026-10-20 price and stock. Quantities for two probes are in [`leads-bom.csv`](leads-bom.csv); `python3 procurement/cost.py` gives **$771.05**, of which the single 100 ft spool of Alpha Wire 392040 RD005 (UL AWM 3239, 10 kV DC) is $664.22. The Stäubli 23.0480-21 J2 adapter was only found at element14 (NZD 18.13 per 2) and is not in the USD total.
+The HV leads, tips, feedthroughs and strain relief are designed in [`../docs/hv-leads.md`](../docs/hv-leads.md), which lists every part with its rating basis and its 2026-10-20 price and stock. Quantities for two probes are in [`leads-bom.csv`](leads-bom.csv); `python3 procurement/cost.py` gives **$234.72**, of which the single 50 ft spool of Rowe R800-1020-0-50 (UL 3239, 10 kV DC) is $127.89. If Rowe cannot be had, the Alpha Wire 392040 RD005 100 ft spool ($664.22) is the fallback and the total becomes $771.05. The Stäubli 23.0480-21 J2 adapter was only found at element14 (NZD 18.13 per 2) and is not in the USD total.
 
 Two copper-free FR4 parts are made by JLC. Run `sh procurement/export-mech.sh` from the probe directory to regenerate them from [`../tools/leads.rs`](../tools/leads.rs); it DRC-checks both boards and writes:
 

@@ -3,36 +3,36 @@ Calculated from stated geometry and datasheet dimensions; nothing here is measur
 inequality given the stated permittivity bracket and geometry; 'estimate' marks a model value the bench must confirm.
 
 Ladder input capacitance per tip (5 x 33 pF +/-5 % in series): 6.270..6.930 pF (nominal 6.600).
-Wire: conductor 0.805 mm equal-area / 0.94 mm bundle; OD 2.97 +/- 0.10 mm; silicone er 2.5..4; rated 10 kV DC.
+Wire: conductor 0.805 mm equal-area / 0.94 mm bundle; OD 3.01 +/- 0.14 mm; silicone er 2.5..4; rated 10 kV DC.
 Insulation stress at the conductor, wire lying on earthed metal (coaxial limit, thinnest wall): 5.72 kV/mm at 3000 V; 19.1 kV/mm at the 10 kV rating.
 
 External lead: 200 mm, gland face to tip contact: twisted pair 130 mm, then 70 mm untwisted tails.
-Lead-to-lead (twisted, insulations touching): air-filled lower estimate 15.0 pF/m; bound <= 99.7 pF/m
+Lead-to-lead (twisted, insulations touching): air-filled lower estimate 14.8 pF/m; bound <= 99.7 pF/m
   (concentric conductors, thinnest OD, both shells at er_max, the space between them shorted) -> <= 12.96 pF over the twisted section.
 Per-leg capacitance to earth in common mode:
-  axis  50 mm from earthed metal: lone wire 12.30 pF/m (estimate, series shell, er_max); twisted pair per leg 6.92 pF/m (estimate, equivalent radius 1.20 mm, +10 % for the shells); air lower estimate (lone, equal-area) 10.09 pF/m.
-  axis 100 mm from earthed metal: lone wire 10.67 pF/m (estimate, series shell, er_max); twisted pair per leg 5.98 pF/m (estimate, equivalent radius 1.20 mm, +10 % for the shells); air lower estimate (lone, equal-area) 8.96 pF/m.
-  axis 300 mm from earthed metal: lone wire 8.81 pF/m (estimate, series shell, er_max); twisted pair per leg 4.92 pF/m (estimate, equivalent radius 1.20 mm, +10 % for the shells); air lower estimate (lone, equal-area) 7.61 pF/m.
+  axis  50 mm from earthed metal: lone wire 12.30 pF/m (estimate, series shell, er_max); twisted pair per leg 6.94 pF/m (estimate, equivalent radius 1.22 mm, +10 % for the shells); air lower estimate (lone, equal-area) 10.09 pF/m.
+  axis 100 mm from earthed metal: lone wire 10.67 pF/m (estimate, series shell, er_max); twisted pair per leg 6.00 pF/m (estimate, equivalent radius 1.22 mm, +10 % for the shells); air lower estimate (lone, equal-area) 8.96 pF/m.
+  axis 300 mm from earthed metal: lone wire 8.81 pF/m (estimate, series shell, er_max); twisted pair per leg 4.93 pF/m (estimate, equivalent radius 1.22 mm, +10 % for the shells); air lower estimate (lone, equal-area) 7.61 pF/m.
   bound, any route in air with the axis >= 50 mm from earth (lone wire, er_max everywhere): <= 41.5 pF/m -> <= 8.3 pF per leg.
   lying on earthed metal along its whole length: bound <= 199.3 pF/m (concentric conductor, thinnest OD, er_max) -> <= 39.9 pF per leg.
 
 Enclosure: end-plate inner faces 223.2 mm apart (220.0 extrusion + 2 x 1.60 bezel lip); output plate at x = 149.77 (BNC housing face), so the tip plate's inner face is at x = -73.43, 73.43 mm from the board's tip edge.
-Internal run: lead axis z = 26.69 mm, 22.45 mm below the lid and 26.69 mm above the floor.
+Internal run: lead axis z = 26.71 mm, 22.43 mm below the lid and 26.71 mm above the floor.
   leg P: gland (-73.43, 20.5) to W_HV1 (7, 27): 84.93 mm.
   leg N: gland (-73.43, 49.5) to W_HV2 (7, 43): 84.93 mm.
-  C to earth: estimate 1.439 pF (16.9 pF/m between lid and floor, shell in series); coax at the lid distance 1.596 pF. Neither models the FR4 bridge under the lead or the board copper near W_HV, so neither is a bound.
+  C to earth: estimate 1.450 pF (17.1 pF/m between lid and floor, shell in series); coax at the lid distance 1.610 pF. Neither models the FR4 bridge under the lead or the board copper near W_HV, so neither is a bound.
 PASS internal routes are mirror images of equal length 84.93 mm
 
 Per-tip capacitance to earth (estimate):
-  ladder max 6.93 + board/enclosure reserve 1.00 + tip reserve 0.50 + internal 1.44 + external at 50 mm 1.76 = 11.63 pF.
-  the tentative 10 pF leaves 0.13 pF for the external lead: 11 mm even as a lone wire, too short to reach J5 and the C22 free hole (58.5 mm apart).
-PASS per-tip loading 11.63 pF <= 12 pF (lead >= 50 mm from earthed metal)
-  longest external lead within 12 pF at this mix: 242 mm (chosen 200 mm; 8.80 pF/m).
+  ladder max 6.93 + board/enclosure reserve 1.00 + tip reserve 0.50 + internal 1.45 + external at 50 mm 1.76 = 11.64 pF.
+  the tentative 10 pF leaves 0.12 pF for the external lead: 10 mm even as a lone wire, too short to reach J5 and the C22 free hole (58.5 mm apart).
+PASS per-tip loading 11.64 pF <= 12 pF (lead >= 50 mm from earthed metal)
+  longest external lead within 12 pF at this mix: 240 mm (chosen 200 mm; 8.82 pF/m).
   far-field (axis 300 mm, air) lower estimate for the external lead: 0.76 pF.
   lead lying on earthed metal: up to 49.7 pF per tip (bound); the operating rule forbids it.
-  switch-edge current at 70 V/ns: ideal ladder 0.46 A, this budget 0.81 A, lead lying on metal (bound) 3.5 A.
+  switch-edge current at 70 V/ns: ideal ladder 0.46 A, this budget 0.82 A, lead lying on metal (bound) 3.5 A.
   reactance of the per-tip budget at 60 kHz: 228 kOhm.
-  lead-to-lead over the twisted section: air-filled estimate 1.95 pF.
+  lead-to-lead over the twisted section: air-filled estimate 1.92 pF.
   tap stray that alone limits CMRR to 60 dB: 0.0066 pF (0.1 % of the 6.6 pF top capacitance).
   open tip end: tap 131 mm inside; below-cutoff estimate 38 dB for a 95 mm aperture (27.3 dB per aperture width).
 
@@ -53,17 +53,17 @@ Magnetic pickup example: tails' open triangle 2049 mm2 in 0.28 mT peak (28 A pea
 Setback from exposed HV conductors to earthed metal (>= 20 mm required):
   W_HV1 joint: lid 24.04, floor 21.00, side wall 37.50 mm; the tip-end plate is FR4 (78.4 mm away).
   W_HV2 joint: lid 24.04, floor 21.00, side wall 37.50 mm; the tip-end plate is FR4 (78.4 mm away).
-  tip plate: metal end-panel screw edge to gland-hole edge 30.61 mm (the lead inside the hole is insulated twice: wire and gland).
-  internal lead conductor to lid 22.45 mm, insulation surface to lid 20.92 mm, to side wall >= 31.46 mm.
+  tip plate: metal end-panel screw edge to gland-hole edge 30.60 mm (the lead inside the hole is insulated twice: wire and gland).
+  internal lead conductor to lid 22.43 mm, insulation surface to lid 20.86 mm, to side wall >= 31.43 mm.
 PASS every exposed HV joint >= 20 mm from metal (worst 21.00 mm)
-PASS internal lead conductor 22.45 mm >= 20 mm from the lid
-PASS plate screw to gland hole 30.61 mm >= 20 mm
-PASS lead height above the board 4.67 mm <= 5.5 mm
+PASS internal lead conductor 22.43 mm >= 20 mm from the lid
+PASS plate screw to gland hole 30.60 mm >= 20 mm
+PASS lead height above the board 4.75 mm <= 5.5 mm
 PASS wire DC rating 10 kV >= 3 x the 3 kV extension
 PASS FR4 web between a gland hole and the tab slot 5.25 mm >= 3 mm
 PASS bridge tab clears the gland locknuts by 1.00 mm
 PASS first tie slot 4.93 mm from the bridge's plate-end edge
 PASS gland locknuts clear each other by 7.0 mm
-PASS gland locknut inside the box clears the lid by 11.5 mm and the floor by 15.7 mm
+PASS gland locknut inside the box clears the lid by 11.4 mm and the floor by 15.7 mm
 
 FR4 parts: tip plate 103.12 x 53.09 x 1.6 mm; lead bridge 86.0 x 69.0 x 1.6 mm overall (x -76.03..10.00, y 0.5..69.5, tab included).

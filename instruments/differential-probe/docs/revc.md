@@ -272,8 +272,8 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | Enclosure, 2 × Hammond 1455N2201 | none selected | $76.86 |
 | **Total** | **$811.27** | **$649.47** |
 | Total without the enclosure | $811.27 | $572.61 (−29%) |
-| HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $771.05, of which the 100 ft wire spool is $664.22 |
-| **Total with HV leads** | — | **$1,420.52** |
+| HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
+| **Total with HV leads** | — | **$884.19** |
 
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 
