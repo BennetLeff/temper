@@ -39,7 +39,7 @@ W = 38.0                       # card width (H tab edge to L tab edge)
 TAB_DEPTH = 10.0               # tab land from the card edge inward
 TAB_PULLBACK = 0.5             # copper pulled back from the milled edge
 TAB_H = 8.0                    # tab land height along the edge (clip jaw is ~4-7 mm wide)
-PITCH = 12.0                   # row pitch: 8 mm land + 4 mm bare FR-4 between neighbours
+PITCH = 11.0                   # row pitch: 8 mm land + 3 mm bare FR-4; a centred jaw over 14 mm wide reaches a neighbour
 FIRST_ROW = 18.0               # first row centre below the top edge (header above)
 TRACK = 1.0                    # both Kelvin paths are equal: either jaw may be force or sense
 STUB = 0.6                     # F.Cu stub from the bottom-path via into the pad
@@ -79,7 +79,7 @@ ROWS = [
     ('two',   ['R7'], '20K',  '20kΩ  STD1',    'R7  100kΩ RANGE',     'R7'),
     ('two',   ['R8'], '49K9', '49.9kΩ  CHECK', 'R8  100kΩ RANGE',     'R8'),
     ('two',   ['R9'], '100K', '100kΩ  STD2',   'R9  100kΩ RANGE',     'R9'),
-    ('two',   ['R11'], '1M',  '1MΩ  HIGH-Z STD', 'R11  100kΩ RANGE',    'R11'),
+    ('two',   ['R11'], '1M',  '1MΩ  HIGH-Z', 'R11  100kΩ RANGE',    'R11'),
     ('two',   ['C1'], '100N', '100nF C0G 1%',  'C1  LOW-LOSS CHECK',  'C1'),
     ('bank',  ['C2', 'C3', 'C4', 'C5', 'C6'], '100N', '0.5µF  5×100nF', 'C2-C6  BANK CLASS', 'C2-6'),
     ('two',   ['L1'], '47U',  '47µH  L CHECK', 'L1  SHIELDED',        'L1'),
@@ -340,7 +340,7 @@ for i, (kind, refs, key, label, note, back) in enumerate(ROWS):
             via(CX, vy, n)
             track([(CX, vy), (CX, ry)], k.F_Cu, STUB, n)
     # Labels: nominal value above, role below (front); write-in field for the characterised value (back).
-    dy = 7.6 if key == '47U' else 4.7
+    dy = 7.6 if key == '47U' else 4.4
     text(label, CX, y - dy, 1.2, thick=0.18)
     text(note, CX, y + dy, 0.8, thick=0.12)
     text(f'{back} = __________', CX, y - dy, 1.0, k.B_SilkS)
