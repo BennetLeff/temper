@@ -47,11 +47,25 @@ T('TIA_OUT', 'F.Cu', (165.4, 106.7), (164.0, 106.7))                    # U7.1 t
 T('TIA_OUT', 'B.Cu', (165.1, 102.0), (158.6, 102.0), (158.6, 126.2))
 V('TIA_OUT', 158.6, 126.2)
 T('TIA_OUT', 'In2.Cu', (152.5, 126.2), (182.3, 126.2))
-# ------------------------------------------------------------ SOURCE_BUF: In2 down the east edge, bus y 129.6
-# U6 output leaves north under the package to the Rev D via, as in Rev D
-T('SOURCE_BUF', 'F.Cu', (169.3115, 91.8727), (169.0423, 91.6035), (169.0423, 89.5806), (169.6604, 88.9625))
-V('SOURCE_BUF', 169.6604, 88.9625)
-T('SOURCE_BUF', 'In2.Cu', (169.6604, 88.9625), (170.2229, 88.4), (187.2, 88.4), (188.8, 90.0), (188.8, 129.6), (152.5, 129.6))
+# ------------------------------------------------------------ SOURCE_BUF: 47 ohm isolation, In2 bus y 129.6
+# U6A (unity follower, feedback at the pin) drives SRC_DRV; R104 47 ohm isolates the relay bus,
+# whose extracted board copper (9.8 pF) plus the relay capacitances took the driver loop to 38.5 deg
+# (validation/stability-full-chain, reverelaycng100).  The Rev D pin straps under U6 follow the pins.
+parts['U6']['pins'].update({'1': 'SRC_DRV', '2': 'SRC_DRV'})
+for t in routing['tracks']:
+    if t['net'] == 'SOURCE_BUF' and all(168.5 <= x <= 171.0 and 88.5 <= y <= 92.5 for x, y in t['points']):
+        t['net'] = 'SRC_DRV'
+T('SRC_DRV', 'F.Cu', (169.3115, 91.8727), (169.0423, 91.6035), (169.0423, 89.5806), (169.6604, 88.9625))
+V('SRC_DRV', 169.6604, 88.9625)
+T('SRC_DRV', 'In2.Cu', (169.6604, 88.9625), (170.2229, 88.4), (173.0, 88.4), (174.6, 86.8), (174.6, 85.8))
+V('SRC_DRV', 174.6, 85.8)
+T('SRC_DRV', 'F.Cu', (174.6, 85.8), (175.675, 85.8))
+add('R104', 'R47', 'afe', {'1': 'SRC_DRV', '2': 'SOURCE_BUF'}, (176.5, 85.8, 0))
+T('SOURCE_BUF', 'F.Cu', (177.325, 85.8), (178.4, 85.8))
+V('SOURCE_BUF', 178.4, 85.8)
+# down x 185.5, 3.4 mm clear of DUT_HI on B.Cu at x 188.9 (stacked at x 188.8 it coupled 2.4 pF)
+T('SOURCE_BUF', 'In2.Cu', (178.4, 85.8), (178.4, 87.6), (179.2, 88.4), (184.5, 88.4), (185.5, 89.4),
+  (185.5, 129.6), (152.5, 129.6))
 for ref, x, *_ in RELAYS:
     V('TIA_OUT', x, 125.3)
     T('TIA_OUT', 'F.Cu', (x, TOP), (x, 125.3))

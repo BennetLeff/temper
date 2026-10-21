@@ -260,7 +260,13 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
         label(parts[res]['pins']['1'],(70,y))
     path((95,38),(95,46),(95,54),(95,60),(112,60))
     junction((39,60));junction((95,46));junction((95,54))
-    label('SOURCE_BUF',(39,72),180)
+    label(parts['U6']['pins']['1'],(39,72),180)
+    if 'R104' in parts:
+        # Rev E: R104 isolates the relay bus (board copper + relay capacitance) from U6A.
+        component('R104','AFE_R',(48,60))
+        path((39,60),(45,60));path((51,60),(56,60))
+        label('SOURCE_BUF',(56,60),180)
+        note('Rev E: R104 47R isolates the SOURCE_BUF relay bus from U6A.',(30,80))
     component('J3','AFE_DUT',(115,60))
     label('DUT_HI',(102,60),180)
     note('J3: connect external, isolated DUT between HI and LO.\nNo DUT component is fitted on this PCB.',(98,68))

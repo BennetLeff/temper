@@ -38,6 +38,7 @@ CAT = {
     'R4k7': ('4.7k', R0603, '0603WAF4701T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23162', 0.002, 'basic'),
     'R100': ('100R', R0603, '0603WAF1000T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C22775', 0.0026, 'basic'),
     'R100k': ('100k', R0603, '0603WAF1003T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C25803', 0.0031, 'basic'),
+    'R47': ('47R', R0603, '0603WAF470JT5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23182', 0.002, 'basic'),
     'R2R2': ('2.2R', R0603, '0603WAF220KT5E', 'UNI-ROYAL(Uniroyal Elec)', 'C22939', 0.0034, 'basic'),
     'C100n': ('100nF 50V', C0603, 'CC0603KRX7R9BB104', 'YAGEO', 'C14663', 0.0082, 'basic'),
     'C1u0603': ('1uF 50V X5R', C0603, 'CL10A105KB8NNNC', 'Samsung Electro-Mechanics', 'C15849', 0.0153, 'basic'),

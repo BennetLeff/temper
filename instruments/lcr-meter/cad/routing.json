@@ -2356,7 +2356,7 @@
       ]
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -2371,7 +2371,7 @@
       ]
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -2386,7 +2386,7 @@
       ]
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -2401,7 +2401,7 @@
       ]
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -13457,7 +13457,7 @@
       ]
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -13480,7 +13480,7 @@
       ]
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -13493,15 +13493,76 @@
           88.4
         ],
         [
-          187.2,
+          173.0,
           88.4
         ],
         [
-          188.8,
-          90.0
+          174.6,
+          86.8
         ],
         [
-          188.8,
+          174.6,
+          85.8
+        ]
+      ]
+    },
+    {
+      "net": "SRC_DRV",
+      "layer": "F.Cu",
+      "width": 0.2,
+      "points": [
+        [
+          174.6,
+          85.8
+        ],
+        [
+          175.675,
+          85.8
+        ]
+      ]
+    },
+    {
+      "net": "SOURCE_BUF",
+      "layer": "F.Cu",
+      "width": 0.2,
+      "points": [
+        [
+          177.325,
+          85.8
+        ],
+        [
+          178.4,
+          85.8
+        ]
+      ]
+    },
+    {
+      "net": "SOURCE_BUF",
+      "layer": "In2.Cu",
+      "width": 0.2,
+      "points": [
+        [
+          178.4,
+          85.8
+        ],
+        [
+          178.4,
+          87.6
+        ],
+        [
+          179.2,
+          88.4
+        ],
+        [
+          184.5,
+          88.4
+        ],
+        [
+          185.5,
+          89.4
+        ],
+        [
+          185.5,
           129.6
         ],
         [
@@ -18405,10 +18466,28 @@
       "drill": 0.3
     },
     {
-      "net": "SOURCE_BUF",
+      "net": "SRC_DRV",
       "at": [
         169.6604,
         88.9625
+      ],
+      "diameter": 0.6,
+      "drill": 0.3
+    },
+    {
+      "net": "SRC_DRV",
+      "at": [
+        174.6,
+        85.8
+      ],
+      "diameter": 0.6,
+      "drill": 0.3
+    },
+    {
+      "net": "SOURCE_BUF",
+      "at": [
+        178.4,
+        85.8
       ],
       "diameter": 0.6,
       "drill": 0.3

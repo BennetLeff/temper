@@ -1036,8 +1036,8 @@
       "kind": "OPA2810",
       "footprint": "Package_SO:VSSOP-8_3x3mm_P0.65mm",
       "pins": {
-        "1": "SOURCE_BUF",
-        "2": "SOURCE_BUF",
+        "1": "SRC_DRV",
+        "2": "SRC_DRV",
         "3": "EXCITE",
         "4": "-12V",
         "5": "DUT_HI",
@@ -5542,6 +5542,30 @@
       "manufacturer": "Samsung Electro-Mechanics",
       "lcsc": "C12891",
       "unit_usd": 0.1706,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
+      "ref": "R104",
+      "value": "47R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "SRC_DRV",
+        "2": "SOURCE_BUF"
+      },
+      "pcb": [
+        176.5,
+        85.8,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "0603WAF470JT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23182",
+      "unit_usd": 0.002,
       "stock": null,
       "library_type": "basic",
       "assembly": "SMT",

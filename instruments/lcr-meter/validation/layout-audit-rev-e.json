@@ -954,13 +954,13 @@
    140.05,
    100.05
   ],
-  "courtyard_fraction": 0.172,
+  "courtyard_fraction": 0.173,
   "sheets": {
-   "source": {
-    "courtyard_mm2": 60,
+   "power": {
+    "courtyard_mm2": 650,
     "centroid_span_mm": [
-     13,
-     17
+     67,
+     43
     ]
    },
    "codec": {
@@ -970,13 +970,6 @@
      20
     ]
    },
-   "afe": {
-    "courtyard_mm2": 162,
-    "centroid_span_mm": [
-     30,
-     50
-    ]
-   },
    "digital": {
     "courtyard_mm2": 491,
     "centroid_span_mm": [
@@ -984,18 +977,18 @@
      56
     ]
    },
-   "power": {
-    "courtyard_mm2": 650,
+   "afe": {
+    "courtyard_mm2": 166,
     "centroid_span_mm": [
-     67,
-     43
+     30,
+     50
     ]
    },
-   "mechanical": {
-    "courtyard_mm2": 149,
+   "source": {
+    "courtyard_mm2": 60,
     "centroid_span_mm": [
-     132,
-     92
+     13,
+     17
     ]
    },
    "range": {
@@ -1003,6 +996,13 @@
     "centroid_span_mm": [
      46,
      17
+    ]
+   },
+   "mechanical": {
+    "courtyard_mm2": 149,
+    "centroid_span_mm": [
+     132,
+     92
     ]
    }
   }
