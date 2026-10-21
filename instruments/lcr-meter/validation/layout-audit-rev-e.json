@@ -952,22 +952,36 @@
  "placement": {
   "board_mm": [
    140.05,
-   100.05
+   105.05
   ],
-  "courtyard_fraction": 0.173,
+  "courtyard_fraction": 0.223,
   "sheets": {
-   "power": {
-    "courtyard_mm2": 650,
-    "centroid_span_mm": [
-     67,
-     43
-    ]
-   },
    "codec": {
     "courtyard_mm2": 228,
     "centroid_span_mm": [
      30,
      20
+    ]
+   },
+   "afe": {
+    "courtyard_mm2": 810,
+    "centroid_span_mm": [
+     77,
+     85
+    ]
+   },
+   "range": {
+    "courtyard_mm2": 892,
+    "centroid_span_mm": [
+     46,
+     83
+    ]
+   },
+   "power": {
+    "courtyard_mm2": 650,
+    "centroid_span_mm": [
+     67,
+     43
     ]
    },
    "digital": {
@@ -977,24 +991,10 @@
      56
     ]
    },
-   "afe": {
-    "courtyard_mm2": 166,
-    "centroid_span_mm": [
-     30,
-     50
-    ]
-   },
    "source": {
     "courtyard_mm2": 60,
     "centroid_span_mm": [
      13,
-     17
-    ]
-   },
-   "range": {
-    "courtyard_mm2": 676,
-    "centroid_span_mm": [
-     46,
      17
     ]
    },

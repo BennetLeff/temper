@@ -143,11 +143,12 @@ for p in PARTS:
                 net=k.NETINFO_ITEM(b,name);b.Add(net);pad.SetNet(net)
     b.Add(f);fps[ref]=f
 # Board edge, mechanical fixing holes and clear labels.
-for a,c in [((50,50),(190,50)),((190,50),(190,150)),((190,150),(50,150)),((50,150),(50,50))]:
+# Rev E: top edge at y 45 (was 50) so the four BNC jacks sit on it; the holes stay put.
+for a,c in [((50,45),(190,45)),((190,45),(190,150)),((190,150),(50,150)),((50,150),(50,45))]:
     s=k.PCB_SHAPE();s.SetShape(k.SHAPE_T_SEGMENT);s.SetStart(pos(*a));s.SetEnd(pos(*c));s.SetLayer(k.Edge_Cuts);s.SetWidth(mm(.05));b.Add(s)
 for i,(x,y) in enumerate([(54,54),(186,54),(54,146),(186,146)],1):
     f=k.FootprintLoad(str(LIBS/'MountingHole.pretty'),'MountingHole_3.2mm_M3');f.SetReference('H'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY);b.Add(f)
-for text,x,y,size in [('TEMPER LCR / REV E / TIDA-060029 + TAC5112',121,54,1.5),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',174,95,1),('HI',179,98,1),('LO',179,100.54,1),('K2 5k',152.5,128,.8),('K1 100R',167.5,128,.8),('K3 100k',182.3,128,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
+for text,x,y,size in [('TEMPER LCR / REV E / TIDA-060029 + TAC5112',79,47.6,1.2),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',79,50.4,1),('HCUR',108,58.6,1),('HPOT',130,58.6,1),('LPOT',152,58.6,1),('LCUR',174,58.6,1),('K4 REF',182,70,.8),('K2 5k',152.5,128,.8),('K1 100R',167.5,128,.8),('K3 100k',182.3,128,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
 # Explicit human-authored track list. All segments are in board millimetres.
 routing=ROOT/'routing.json'

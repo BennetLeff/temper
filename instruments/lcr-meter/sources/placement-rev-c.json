@@ -73,7 +73,10 @@
     "D11": 180,
     "D12": 180,
     "D13": 180,
-    "D14": 180
+    "D14": 180,
+    "K4": 0,
+    "Q6": 180,
+    "D9": 0
   },
   "parts": [
     {
@@ -5497,7 +5500,8 @@
       "references": [
         "K1",
         "K2",
-        "K3"
+        "K3",
+        "K4"
       ],
       "native_footprint": "LCR:Relay_DPDT_Panasonic_TQ2SA_SMD",
       "source_url": "https://lceda.cn/api/products/C2684450/components?version=6.4.19.5",
@@ -5534,7 +5538,8 @@
         "Q2",
         "Q3",
         "Q4",
-        "Q5"
+        "Q5",
+        "Q6"
       ],
       "native_footprint": "Package_TO_SOT_SMD:SOT-23",
       "source_url": "https://lceda.cn/api/products/C20917/components?version=6.4.19.5",
@@ -5571,7 +5576,8 @@
         "D5",
         "D6",
         "D7",
-        "D8"
+        "D8",
+        "D9"
       ],
       "native_footprint": "Diode_SMD:D_SOD-323",
       "source_url": "https://lceda.cn/api/products/C2128/components?version=6.4.19.5",

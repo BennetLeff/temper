@@ -837,6 +837,28 @@
         "passive"
       ]
     },
+    "BNC": {
+      "1": [
+        "GND",
+        "passive"
+      ],
+      "2": [
+        "GND",
+        "passive"
+      ],
+      "3": [
+        "GND",
+        "passive"
+      ],
+      "4": [
+        "GND",
+        "passive"
+      ],
+      "5": [
+        "SIG",
+        "passive"
+      ]
+    },
     "NMOS": {
       "1": [
         "G",
@@ -889,7 +911,7 @@
         "14": "RNG_SET_MED",
         "15": null,
         "16": "USB_SENSE",
-        "17": null,
+        "17": "RNG_SET_REF",
         "18": null,
         "19": "GND",
         "20": "XIN",
@@ -1040,7 +1062,7 @@
         "2": "SRC_DRV",
         "3": "EXCITE",
         "4": "-12V",
-        "5": "DUT_HI",
+        "5": "HPOT",
         "6": "HIGH_BUF",
         "7": "HIGH_BUF",
         "8": "12V"
@@ -1070,7 +1092,7 @@
         "2": "TIA_SUM",
         "3": "GND",
         "4": "-12V",
-        "5": "DUT_LO",
+        "5": "LPOT",
         "6": "LOW_BUF",
         "7": "LOW_BUF",
         "8": "12V"
@@ -1532,28 +1554,6 @@
       "library_type": "extended",
       "assembly": "Hand fit",
       "source_query": "DC-005"
-    },
-    {
-      "ref": "J3",
-      "value": "DUT HI / LO",
-      "kind": "H",
-      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
-      "mpn": "TSW-102-07-G-S",
-      "manufacturer": "Samtec",
-      "lcsc": "C7402729",
-      "unit_usd": 0.3002,
-      "pins": {
-        "1": "DUT_HI",
-        "2": "DUT_LO"
-      },
-      "pcb": [
-        176,
-        98,
-        0
-      ],
-      "group": "AFE",
-      "assembly": "Hand fit",
-      "sheet": "afe"
     },
     {
       "ref": "J4",
@@ -5001,9 +5001,9 @@
         "2": "GND"
       },
       "pcb": [
-        178.775,
-        104.5,
-        0
+        179.5,
+        102.4,
+        270
       ],
       "sheet": "afe",
       "mpn": "CL10C101JB8NNNC",
@@ -5013,7 +5013,167 @@
       "stock": null,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "Rev E TIA stability: 100 pF C0G DUT_LO to ground at J3"
+      "source_query": "Rev E TIA stability: 100 pF C0G DUT_LO (LCUR) to ground"
+    },
+    {
+      "ref": "J3",
+      "value": "BNC HCUR",
+      "kind": "BNC",
+      "footprint": "LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal",
+      "pins": {
+        "1": "GND",
+        "2": "GND",
+        "3": "GND",
+        "4": "GND",
+        "5": "DUT_HI"
+      },
+      "pcb": [
+        108.0,
+        51.0,
+        0
+      ],
+      "sheet": "afe",
+      "group": "AFE",
+      "mpn": "BNC-KYWE-295-W4-N",
+      "manufacturer": "SAMZO",
+      "lcsc": "C41416668",
+      "unit_usd": 1.29,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "Hand fit",
+      "source_query": "BNC-KYWE-295 C41416668"
+    },
+    {
+      "ref": "J7",
+      "value": "BNC HPOT",
+      "kind": "BNC",
+      "footprint": "LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal",
+      "pins": {
+        "1": "GND",
+        "2": "GND",
+        "3": "GND",
+        "4": "GND",
+        "5": "HPOT"
+      },
+      "pcb": [
+        130.0,
+        51.0,
+        0
+      ],
+      "sheet": "afe",
+      "group": "AFE",
+      "mpn": "BNC-KYWE-295-W4-N",
+      "manufacturer": "SAMZO",
+      "lcsc": "C41416668",
+      "unit_usd": 1.29,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "Hand fit",
+      "source_query": "BNC-KYWE-295 C41416668"
+    },
+    {
+      "ref": "J8",
+      "value": "BNC LPOT",
+      "kind": "BNC",
+      "footprint": "LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal",
+      "pins": {
+        "1": "GND",
+        "2": "GND",
+        "3": "GND",
+        "4": "GND",
+        "5": "LPOT"
+      },
+      "pcb": [
+        152.0,
+        51.0,
+        0
+      ],
+      "sheet": "afe",
+      "group": "AFE",
+      "mpn": "BNC-KYWE-295-W4-N",
+      "manufacturer": "SAMZO",
+      "lcsc": "C41416668",
+      "unit_usd": 1.29,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "Hand fit",
+      "source_query": "BNC-KYWE-295 C41416668"
+    },
+    {
+      "ref": "J9",
+      "value": "BNC LCUR",
+      "kind": "BNC",
+      "footprint": "LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal",
+      "pins": {
+        "1": "GND",
+        "2": "GND",
+        "3": "GND",
+        "4": "GND",
+        "5": "DUT_LO"
+      },
+      "pcb": [
+        174.0,
+        51.0,
+        0
+      ],
+      "sheet": "afe",
+      "group": "AFE",
+      "mpn": "BNC-KYWE-295-W4-N",
+      "manufacturer": "SAMZO",
+      "lcsc": "C41416668",
+      "unit_usd": 1.29,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "Hand fit",
+      "source_query": "BNC-KYWE-295 C41416668"
+    },
+    {
+      "ref": "R105",
+      "value": "1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_HI",
+        "2": "HPOT"
+      },
+      "pcb": [
+        137.0,
+        58.5,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "0603WAF1001T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C21190",
+      "unit_usd": 0.0021,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E HPOT default to HCUR"
+    },
+    {
+      "ref": "R106",
+      "value": "1k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "LPOT"
+      },
+      "pcb": [
+        177.0,
+        61.15,
+        270
+      ],
+      "sheet": "afe",
+      "mpn": "0603WAF1001T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C21190",
+      "unit_usd": 0.0021,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E LPOT default to LCUR"
     },
     {
       "ref": "K2",
@@ -5487,6 +5647,159 @@
       "pcb": [
         160.5575,
         141.4,
+        180
+      ],
+      "sheet": "range",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0031,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
+      "ref": "K4",
+      "value": "TQ2SA-L2-5V REF",
+      "kind": "RELAY2L",
+      "footprint": "LCR:Relay_DPDT_Panasonic_TQ2SA_SMD",
+      "pins": {
+        "1": "VRLY",
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": "RLY_SET_REF",
+        "6": "RLY_RST",
+        "7": "REF_A",
+        "8": "DUT_HI",
+        "9": null,
+        "10": "VRLY"
+      },
+      "pcb": [
+        182.0,
+        70.0,
+        0
+      ],
+      "sheet": "range",
+      "mpn": "TQ2SA-L2-5V-Z",
+      "manufacturer": "Panasonic",
+      "lcsc": "C2684450",
+      "unit_usd": 2.27,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "docs/rev-e-range-switching.md"
+    },
+    {
+      "ref": "R107",
+      "value": "1k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "REF_A"
+      },
+      "pcb": [
+        184.54,
+        62.0,
+        270
+      ],
+      "sheet": "range",
+      "mpn": "RT0603BRD071KL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C110776",
+      "unit_usd": 0.0313,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "Rev E K4 reference, 0.1 %"
+    },
+    {
+      "ref": "Q6",
+      "value": "AO3400A",
+      "kind": "NMOS",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "pins": {
+        "1": "RNG_SET_REF_G",
+        "2": "GND",
+        "3": "RLY_SET_REF"
+      },
+      "pcb": [
+        186.1425,
+        81.0,
+        0
+      ],
+      "sheet": "range",
+      "mpn": "AO3400A",
+      "manufacturer": "Alpha & Omega Semicon",
+      "lcsc": "C20917",
+      "unit_usd": 0.0973,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "AO3400A relay driver"
+    },
+    {
+      "ref": "D9",
+      "value": "1N4148WS",
+      "kind": "DIODE",
+      "footprint": "Diode_SMD:D_SOD-323",
+      "pins": {
+        "1": "VRLY",
+        "2": "RLY_SET_REF"
+      },
+      "pcb": [
+        188.6,
+        78.4,
+        90
+      ],
+      "sheet": "range",
+      "mpn": "1N4148WS",
+      "manufacturer": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+      "lcsc": "C2128",
+      "unit_usd": 0.0143,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1N4148WS coil flyback"
+    },
+    {
+      "ref": "R108",
+      "value": "100R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RNG_SET_REF",
+        "2": "RNG_SET_REF_G"
+      },
+      "pcb": [
+        182.70000000000002,
+        80.05,
+        0
+      ],
+      "sheet": "range",
+      "mpn": "0603WAF1000T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22775",
+      "unit_usd": 0.0026,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
+      "ref": "R109",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "RNG_SET_REF_G",
+        "2": "GND"
+      },
+      "pcb": [
+        182.70000000000002,
+        81.8,
         180
       ],
       "sheet": "range",

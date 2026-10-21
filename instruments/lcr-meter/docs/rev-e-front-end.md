@@ -43,13 +43,30 @@ Each of the four legs is identical:
 
 ## TIA stability capacitor
 
-A **100 pF C0G from DUT_LO (the J3 LO pin side of R_iso) to ground** is new in Rev E, placed at J3 next to R_iso.
+A **100 pF C0G from DUT_LO (LCUR, the jack side of R_iso) to ground** is new in Rev E. C78 sits on the LCUR run at (179.5, 102.4), between the J9 jack and R_iso.
 - **Why.** The range relays put pad copper, contact-to-coil and pole-to-pole capacitance on TIA_OUT. With the stress estimates of those parasitics, the TIA's worst margin falls to 38.5°.
 - **What it does.** It lowers the TIA's loop gain near crossover, as fixture capacitance already does. The worst case then becomes 56.0°, above the Rev D floor of 51.3°.
-- **Effect on measurement.** DUT_LO is a virtual ground measured by the LOW follower, so the capacitor's current is the TIA error current only. It is linear and removed by calibration.
+- **Effect on measurement.** DUT_LO is a virtual ground, so the capacitor's current is the TIA error current only. It is linear and removed by calibration.
 - **Noise.** No change at the precision of the noise table.
 
 Details and the rejected alternatives are in [stability-full-chain](../validation/stability-full-chain/README.md).
+
+## Four-terminal jacks (2026-10-21)
+
+The 2-pin DUT header is replaced by four right-angle BNCs on the top edge (SAMZO BNC-KYWE-295-W4-N, C41416668, hand fit). They are at 22 mm pitch, the usual 4TP spacing, and in the Keysight front-panel order read facing the jacks: L CUR, L POT, H POT, H CUR. Shells go to GND. The board grows 5 mm, to 140 × 105 mm, to carry them.
+
+| Jack | Net | Connects to |
+|---|---|---|
+| J3 HCUR | DUT_HI | the RG resistors (source side), as the header's HI pin did |
+| J7 HPOT | HPOT | U6B +IN (HIGH follower) |
+| J8 LPOT | LPOT | U7B +IN (LOW follower) |
+| J9 LCUR | DUT_LO | R94 (R_iso) into the TIA summing node, as the header's LO pin did |
+
+- **What changes.** Channel A = HPOT − LPOT is now the voltage at the DUT's own terminals, so lead and contact resistance drop out of it.
+- **Current channel.** Channel B = LPOT − TIA_OUT = I·(R94 + RF‖CF + R_LCUR). R_LCUR is the LCUR lead plus its contacts: tens of mΩ against 122 Ω or more of Zf + R94. It is a real gain term that calibration with the same leads absorbs; per-insertion contact variation is ≤ 1e-4 of it. The host model (Zf = R94 + RF‖CF) is unchanged.
+- **Two-terminal use.** R105 and R106 (1 kΩ, basic) tie HPOT to HCUR and LPOT to LCUR on the board. Two-terminal leads therefore still read, with lead resistance included. A Kelvin lead in parallel is about 0.1 Ω, so the 1 kΩ carries a fraction of 1e-4 of the sense signal.
+- **Routing.** Each run is on its own layer where the others cross: HCUR on B.Cu along the back of the jacks and down the east edge; HPOT on In2; LPOT on F.Cu then In2; LCUR on F.Cu then B.Cu into the Rev D approach to R94. Hand routed in `cad/tools/rev_e_routes.py`.
+- **Reference relay K4.** A fourth TQ2SA closes HCUR onto R107 (1 kΩ 0.1 %) to LCUR for the firmware `REFCAPTURE` self-check ([range switching §3.5](rev-e-range-switching.md)).
 
 ## Supplies, clocks and control
 
@@ -60,7 +77,7 @@ Details and the rejected alternatives are in [stability-full-chain](../validatio
 - **RP2040 pins** ([firmware wiring contract](../firmware-rev-e/README.md#wiring-contract)):
   - DIN GPIO2 (out), DOUT GPIO3 (in), BCLK GPIO4 and FSYNC GPIO5 on one PIO state machine (full duplex, 10 system clocks per BCLK);
   - I2C0 on GPIO8/9, with the codec at 0x50 (ADDR to ground);
-  - relay drive: SET_HI (100 kΩ) GPIO6, SET_LO (100 Ω) GPIO7, shared RESET GPIO10, SET_MED (5 kΩ) GPIO11.
+  - relay drive: SET_HI (100 kΩ) GPIO6, SET_LO (100 Ω) GPIO7, shared RESET GPIO10, SET_MED (5 kΩ) GPIO11, SET_REF (K4 reference) GPIO14.
 
   All of these come from the pins freed by removing the ADS9224R and AD9833.
 

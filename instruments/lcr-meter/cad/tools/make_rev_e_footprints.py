@@ -9,6 +9,12 @@
   ("Recommendable mounting pad (Top view)", TQ SMD datasheet p.3). Pin 1 bottom left, 1-5 along
   the bottom row, 6-10 right to left along the top row; the same numbering and pin-1 corner as
   the JLC/EasyEDA record for C2684450. Body 14 x 9 mm.
+- SAMZO BNC-KYWE-295-W4-N (LCSC C41416668): right-angle PCB BNC. Signal pin 5 at the centre,
+  1.8 mm pad / 1.2 mm drill; ground legs 1-4 at (+-4, +-4) mm, 2.0 mm pad / 1.4 mm drill: the
+  pad numbers, positions and holes of the JLC/EasyEDA record (sources/rev-e/BNC-KYWE-295 notes in
+  docs/rev-e-plan.md).  10 mm square body, 13.55 mm flange; the jack faces -y and the board edge
+  sits 6.0 mm in front of the centre.  The square pad pattern does not key the jack, so the
+  footprint marks the opening on silk and fab.
 """
 from pathlib import Path
 
@@ -121,6 +127,40 @@ line(fp, k.F_SilkS, (-6.5, -3.1), (-6.5, 3.1), 0.12)
 rect(fp, k.F_CrtYd, -7.25, -6.5, 7.25, 6.5, 0.05)
 fp.Reference().SetPosition(vec(0, 0))
 fp.Value().SetPosition(vec(0, 1.5))
+fp.Value().SetLayer(k.F_Fab)
+k.FootprintSave(str(LIB), fp)
+
+
+def tht(fp, number, x, y, size, drill):
+    p = k.PAD(fp)
+    p.SetNumber(number)
+    p.SetAttribute(k.PAD_ATTRIB_PTH)
+    p.SetShape(k.PAD_SHAPE_CIRCLE)
+    p.SetSize(vec(size, size))
+    p.SetDrillSize(vec(drill, drill))
+    p.SetPosition(vec(x, y))
+    p.SetLayerSet(k.PAD.PTHMask())
+    fp.Add(p)
+
+
+# SAMZO BNC-KYWE-295-W4-N, right angle, through hole
+name = 'BNC_SAMZO_KYWE-295-W4-N_Horizontal'
+fp = base(name, 'SAMZO BNC-KYWE-295-W4-N right-angle PCB BNC (LCSC C41416668); jack faces -y')
+fp.SetAttributes(k.FP_THROUGH_HOLE)
+tht(fp, '5', 0, 0, 1.8, 1.2)
+for number, x, y in [('1', 4, -4), ('2', 4, 4), ('3', -4, 4), ('4', -4, -4)]:
+    tht(fp, number, x, y, 2.0, 1.4)
+rect(fp, k.F_Fab, -5, -4.5, 5, 5.5, 0.1)                # body
+rect(fp, k.F_Fab, -6.775, -6.0, 6.775, -4.5, 0.1)       # flange at the board edge
+rect(fp, k.F_Fab, -4.8, -18.0, 4.8, -6.0, 0.1)          # barrel beyond the edge
+line(fp, k.F_SilkS, (-5.1, 5.6), (5.1, 5.6), 0.12)       # back of the body
+line(fp, k.F_SilkS, (-5.1, 5.6), (-5.1, 5.1), 0.12)
+line(fp, k.F_SilkS, (5.1, 5.6), (5.1, 5.1), 0.12)
+line(fp, k.F_SilkS, (-1.0, -4.3), (0, -5.0), 0.12)       # opening mark toward the edge
+line(fp, k.F_SilkS, (1.0, -4.3), (0, -5.0), 0.12)
+rect(fp, k.F_CrtYd, -7.0, -6.0, 7.0, 5.75, 0.05)
+fp.Reference().SetPosition(vec(0, 2.0))
+fp.Value().SetPosition(vec(0, 3.5))
 fp.Value().SetLayer(k.F_Fab)
 k.FootprintSave(str(LIB), fp)
 print('wrote', LIB)

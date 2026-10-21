@@ -88,7 +88,9 @@ V('RF100K', 184.84, 125.3)
 T('RF100K', 'F.Cu', (184.84, TOP), (184.84, 125.3))
 
 # ------------------------------------------------------------ RG legs and DUT_HI (B.Cu, east edge)
-T('DUT_HI', 'B.Cu', (176.0, 98.0), (188.9, 98.0), (188.9, 137.75), (155.04, 137.75), w=0.25)
+# HCUR (J3) along y 57.5 behind the jacks, under H2's corner at y 59, down the east edge to the RG row
+T('DUT_HI', 'B.Cu', (108.0, 51.0), (108.0, 57.5), (180.5, 57.5), (182.0, 59.0), (188.9, 59.0), (188.9, 137.75),
+  (155.04, 137.75), w=0.25)
 for ref, x, rng, rg, rf, rgnet, setnet in RELAYS:
     T(rgnet, 'F.Cu', (x + 2.54, BOT), (x + 2.54, RLY_Y + 8.0 - 0.825))
     V('DUT_HI', x + 2.54, 137.75)
@@ -158,9 +160,71 @@ ROW = [  # net, MCU pin breakout y on B.Cu, vertical x, driver-row y
 for net, by, vx, ry in ROW:
     T(net, 'B.Cu', (vx, by), (vx, ry), (gpio_via[net], ry), (gpio_via[net], 138.6))
 
-# ------------------------------------------------------------ C78: DUT_LO pad on the J3 run, GND via east
-V('GND', 180.45, 104.5)
-T('GND', 'F.Cu', (179.55, 104.5), (180.45, 104.5))
+# ------------------------------------------------------------ four-terminal jacks (J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR)
+# The J3 header's copper is pruned with it; each jack gets its own run.  Layers keep the four apart:
+# HCUR B.Cu, HPOT In2, LPOT F.Cu then In2, LCUR F.Cu then B.Cu.
+# HPOT: In2 along y 59.5, down x 171 to U6.5 (HIGH follower +IN) on the Rev D F.Cu approach
+T('HPOT', 'In2.Cu', (130.0, 51.0), (130.0, 59.5), (171.0, 59.5), (171.0, 87.6))
+V('HPOT', 171.0, 87.6)
+T('HPOT', 'F.Cu', (171.0, 87.6), (171.0, 88.3), (167.0, 88.3), (167.0, 89.0), (165.0, 89.0), (165.0, 90.025),
+  (165.8875, 90.025), w=0.25)
+# R105 (HCUR-HPOT default) between the two runs
+V('DUT_HI', 135.0, 57.5)
+T('DUT_HI', 'F.Cu', (135.0, 57.5), (136.175, 58.5))
+V('HPOT', 139.0, 59.5)
+T('HPOT', 'F.Cu', (139.0, 59.5), (137.825, 58.5))
+# LPOT: F.Cu along y 62 to R106, In2 down x 175.8 (west of the SOURCE_BUF via, east of the GND via at
+# 174.98,104.8), back to F.Cu on the Rev D approach to U7.5 (LOW follower +IN)
+T('LPOT', 'F.Cu', (152.0, 51.0), (152.0, 62.0), (177.0, 62.0), (177.0, 61.975), w=0.25)
+V('LPOT', 175.8, 62.0)
+T('LPOT', 'In2.Cu', (175.8, 62.0), (175.8, 110.275))
+V('LPOT', 175.8, 110.275)
+T('LPOT', 'F.Cu', (175.8, 110.275), (174.3, 110.275), (173.0, 108.975), (170.1125, 108.975), w=0.25)
+# LCUR (DUT_LO): F.Cu along y 60.3 past R106 to R107, B.Cu down x 179.5 to the Rev D run into R94
+T('DUT_LO', 'F.Cu', (174.0, 51.0), (174.0, 60.3), (184.54, 60.3), (184.54, 61.175), w=0.25)
+V('DUT_LO', 179.5, 60.3)
+T('DUT_LO', 'B.Cu', (179.5, 60.3), (179.5, 100.54), (173.71, 100.54), (170.0, 104.25), (166.175, 104.25), w=0.25)
+V('DUT_LO', 166.175, 104.25)
+T('DUT_LO', 'F.Cu', (166.175, 104.25), (166.175, 105.3), w=0.25)
+# C78 (100 pF to GND) on the LCUR corner
+V('DUT_LO', 179.5, 100.54)
+T('DUT_LO', 'F.Cu', (179.5, 100.54), (179.5, 101.575), w=0.25)
+T('GND', 'F.Cu', (179.5, 103.225), (179.5, 104.2))
+V('GND', 179.5, 104.2, 0.45)
+
+# ------------------------------------------------------------ K4 reference relay (182, 70) and its driver
+T('DUT_HI', 'B.Cu', (182.6, 59.0), (182.6, 61.8), w=0.25)             # COM2 tap off the HCUR run
+V('DUT_HI', 182.6, 61.8)
+T('DUT_HI', 'F.Cu', (182.6, 61.8), (182.0, 62.4), (182.0, 65.22), w=0.25)
+T('REF_A', 'F.Cu', (184.54, 62.825), (184.54, 65.22))                  # R107 to NO2 (pin 7)
+T('RLY_RST', 'F.Cu', (187.08, 65.22), (187.08, 62.6))                   # RESET coil: B.Cu to the RST bus
+V('RLY_RST', 187.08, 62.6)
+T('RLY_RST', 'B.Cu', (187.08, 62.6), (187.08, 120.6))
+V('RLY_RST', 187.08, 120.6)
+# VRLY: In2 up x 186.2 from the coil bus, west along y 77 to pins 1/10, stub to the D9 cathode via
+T('VRLY', 'In2.Cu', (186.2, 143.6), (186.2, 77.0), (176.92, 77.0))
+V('VRLY', 176.92, 77.0)
+T('VRLY', 'F.Cu', (176.92, 77.0), (176.92, 65.22))
+T('VRLY', 'F.Cu', (188.6, 79.45), (188.0, 80.05), (188.0, 80.2))
+V('VRLY', 188.0, 80.2)
+T('VRLY', 'In2.Cu', (188.0, 80.2), (186.2, 80.2))
+# SET: pin 5 to the Q6 drain, D9 anode beside it
+T('RLY_SET_REF', 'F.Cu', (187.08, 74.78), (187.08, 81.0))
+T('RLY_SET_REF', 'F.Cu', (188.6, 77.35), (187.08, 77.35))
+# gate network (R108 at 182.7, 80.05; R109 at 182.7, 81.8) and grounds
+T('RNG_SET_REF_G', 'F.Cu', (183.525, 80.05), (185.205, 80.05))
+T('RNG_SET_REF_G', 'F.Cu', (183.525, 80.05), (183.525, 81.8))
+T('GND', 'F.Cu', (181.875, 81.8), (181.875, 82.9))
+V('GND', 181.875, 82.9, 0.45)
+T('GND', 'F.Cu', (185.205, 81.95), (185.205, 82.9))
+V('GND', 185.205, 82.9, 0.45)
+# GPIO14 (U1 pin 17): north to a via, B.Cu along y 81.6 (between the GND vias at 89.6 and 93.3),
+# F.Cu over the 12 V B.Cu run at x 173.6 to R108
+T('RNG_SET_REF', 'F.Cu', (83.8, 83.5625), (83.8, 82.1))
+V('RNG_SET_REF', 83.8, 82.1, 0.45)
+T('RNG_SET_REF', 'B.Cu', (83.8, 82.1), (84.3, 81.6), (172.5, 81.6))
+V('RNG_SET_REF', 172.5, 81.6, 0.45)
+T('RNG_SET_REF', 'F.Cu', (172.5, 81.6), (174.05, 80.05), (181.875, 80.05))
 
 # ------------------------------------------------------------ Rev D leftovers under the codec and legs
 for x, y in [(133.7476, 105.4147), (134.8592, 95.25), (150.2422, 83.5845), (149.2643, 107.8039),

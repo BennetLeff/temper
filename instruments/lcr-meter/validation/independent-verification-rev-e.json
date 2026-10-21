@@ -1,60 +1,12 @@
 {
  "revision": "E",
- "board_sha256": "cf379f8555688caf6fcd4368d13f690cc38a2d9a8b61e8acf5d1e6e40df395dc",
+ "board_sha256": "80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5",
  "kicad_version": "10.0.4",
  "method": "Independent post-build audit of the native board against cad/design.json (read-only).",
- "source_pins_checked": 577,
- "native_pads": 577,
- "netlist_nodes": 577,
+ "source_pins_checked": 620,
+ "native_pads": 620,
+ "netlist_nodes": 620,
  "plane_relief": [
-  {
-   "pin": "U6.1",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.2",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.3",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.5",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.6",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.7",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
   {
    "pin": "U7.1",
    "layers": [
@@ -102,6 +54,54 @@
     "In1.Cu",
     "In2.Cu"
    ]
+  },
+  {
+   "pin": "U6.1",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.2",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.3",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.5",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.6",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.7",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
   }
  ],
  "opa_bypass": [
@@ -131,8 +131,12 @@
   }
  ],
  "r_iso_topology": {
-  "J3.2": "DUT_LO",
-  "U7.5": "DUT_LO",
+  "J9.5": "DUT_LO",
+  "J3.5": "DUT_HI",
+  "J7.5": "HPOT",
+  "J8.5": "LPOT",
+  "U6.5": "HPOT",
+  "U7.5": "LPOT",
   "R94.1": "DUT_LO",
   "R94.2": "TIA_SUM",
   "U7.2": "TIA_SUM",
@@ -154,17 +158,17 @@
  "pass": true,
  "limits": "Pad-centre and net checks on native data; not electromagnetic extraction or physical qualification.",
  "files_sha256": {
-  "cad/temper-lcr.kicad_pcb": "cf379f8555688caf6fcd4368d13f690cc38a2d9a8b61e8acf5d1e6e40df395dc",
+  "cad/temper-lcr.kicad_pcb": "80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5",
   "cad/temper-lcr.kicad_pro": "2a88c5d30f3031b6fbcea98ba304bcf75032400ac3bee7344b46b61517301a33",
-  "cad/design.json": "567a73fc53707c97d91ed78b844574d4fe06c1d60e22070076b3f4e5c9025905",
-  "cad/routing.json": "294865aae9cc4646b86cef3d6c390f4edddeece0b1d740351c7ab81af7f0764d",
+  "cad/design.json": "22422e3e0dc71af4d531e43ccb327ef868448caff3331122fd301e32f1ba1c36",
+  "cad/routing.json": "625a5cdd0cba2eb8083777d2b0f23fe4b5ddea7a75b4ee89ddf45e9eed0ecc77",
   "cad/temper-lcr.kicad_sch": "846d49be1efd5758c78c4a923d3c04813f4cfeeebeee0a9fa492c7a2360bfcea",
   "cad/adc.kicad_sch": "6d6360129cf91d93a9535f7501e108cccc343f8c19bdd4b8a9c4a114016a7aa8",
-  "cad/afe.kicad_sch": "dfca03b5ddad4505a4a1ff0b26200e7d6b0659c26159c08cad53eca35411251f",
-  "cad/codec.kicad_sch": "a0bde33135ff6b33cad79ef202d6188fff9ac0ca5b8bc707d8f3c5fc1b3be959",
-  "cad/digital.kicad_sch": "0be7f4a6b91c955d850d142ecbf10a671d899dfe4839aacfaa14b7a0155bb3d5",
-  "cad/power.kicad_sch": "31617616be658a5657a6872692c95ba41c8f149bc8589319366ffc361f95ba4b",
-  "cad/range.kicad_sch": "dbd5f00d90140d1eefe825ee36585621152a7b4329932f85a8ac6b981a1b409f",
-  "cad/source.kicad_sch": "ca2b5f2fc89165127feba013d74965c01cada4e42a8baec2bdb74e9c958d6994"
+  "cad/afe.kicad_sch": "d25da87687fb329cc63f9b5cd7a7e56f22285ec7fcec053a762bd438e3b80f3a",
+  "cad/codec.kicad_sch": "e34fed8e8413085804cf01caf1c567c5a126a3250c7e9e9f4b43f8f2ed18c14d",
+  "cad/digital.kicad_sch": "b63f017f0b68caa4771a391acfa89190b713ce801b642f5596fa8df2b3d2daa5",
+  "cad/power.kicad_sch": "20bf5d16fe354bef54e731eb324c9e5c5d5f19cd743062ddefe24f3f7f56149a",
+  "cad/range.kicad_sch": "23be9f2c8f5fb5f0f2871058c033f8201859e9ea84ff923b25298180cf60237c",
+  "cad/source.kicad_sch": "e194e556c733c30269aaf9174fd5f3baa34ee93ec3ad85e1cfea24de18278584"
  }
 }

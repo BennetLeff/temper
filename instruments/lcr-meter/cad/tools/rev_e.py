@@ -38,6 +38,7 @@ CAT = {
     'R4k7': ('4.7k', R0603, '0603WAF4701T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23162', 0.002, 'basic'),
     'R100': ('100R', R0603, '0603WAF1000T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C22775', 0.0026, 'basic'),
     'R100k': ('100k', R0603, '0603WAF1003T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C25803', 0.0031, 'basic'),
+    'R1k': ('1k', R0603, '0603WAF1001T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C21190', 0.0021, 'basic'),
     'R47': ('47R', R0603, '0603WAF470JT5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23182', 0.002, 'basic'),
     'R2R2': ('2.2R', R0603, '0603WAF220KT5E', 'UNI-ROYAL(Uniroyal Elec)', 'C22939', 0.0034, 'basic'),
     'C100n': ('100nF 50V', C0603, 'CC0603KRX7R9BB104', 'YAGEO', 'C14663', 0.0082, 'basic'),
@@ -94,6 +95,8 @@ pinouts['RELAY2L'] = {
     '1': ['SET+', 'passive'], '2': ['NC1', 'passive'], '3': ['COM1', 'passive'], '4': ['NO1', 'passive'],
     '5': ['SET-', 'passive'], '6': ['RST-', 'passive'], '7': ['NO2', 'passive'], '8': ['COM2', 'passive'],
     '9': ['NC2', 'passive'], '10': ['RST+', 'passive']}
+pinouts['BNC'] = {'1': ['GND', 'passive'], '2': ['GND', 'passive'], '3': ['GND', 'passive'],
+                  '4': ['GND', 'passive'], '5': ['SIG', 'passive']}
 pinouts['NMOS'] = {'1': ['G', 'passive'], '2': ['S', 'passive'], '3': ['D', 'passive']}
 pinouts['BAT54S'] = {'1': ['A1', 'passive'], '2': ['K2', 'passive'], '3': ['K1A2', 'passive']}
 
@@ -104,6 +107,7 @@ for pin in ('8', '9', '13', '14', '15', '32'):   # GPIO6, 7, 10, 11, 12, 21 lose
 u1.update({'4': 'I2S_DIN', '5': 'I2S_DOUT', '6': 'I2S_BCLK', '7': 'I2S_FSYNC',
            '11': 'I2C_SDA', '12': 'I2C_SCL',
            '8': 'RNG_SET_HI', '9': 'RNG_SET_LO', '13': 'RNG_RESET', '14': 'RNG_SET_MED'})
+u1['17'] = 'RNG_SET_REF'   # GPIO14: K4 reference relay (GPIO12, pin 15, sits under the USB_SENSE run)
 
 # ---------------------------------------------------------------- source: OPA810 difference stage
 parts['R33'].update(value='2k 0.1%', mpn=CAT['R2k01'][2], lcsc=CAT['R2k01'][4], unit_usd=CAT['R2k01'][5],
@@ -165,8 +169,29 @@ for i, (name, rs, src, y, pin, side) in enumerate(LEGS):
     add(RPIN[i], 'R470', 'codec', {'1': f'{name}_PIN', '2': f'{name}_CLP'}, (145.9, y, 0))
 
 # ---------------------------------------------------------------- AFE: DUT_LO capacitor
-add('C78', 'C100p', 'afe', {'1': 'DUT_LO', '2': 'GND'}, (178.775, 104.5, 0),
-    query='Rev E TIA stability: 100 pF C0G DUT_LO to ground at J3')
+add('C78', 'C100p', 'afe', {'1': 'DUT_LO', '2': 'GND'}, (179.5, 102.4, 270),
+    query='Rev E TIA stability: 100 pF C0G DUT_LO (LCUR) to ground')
+
+# ---------------------------------------------------------------- four-terminal BNC jacks on the top edge
+# The J3 header (DUT_HI / DUT_LO) becomes four BNCs, 22 mm pitch (the usual 4TP spacing), in the
+# Keysight front-panel order L CUR, L POT, H POT, H CUR read facing the jacks (board x descending).
+# HCUR keeps the net DUT_HI (source side, RG resistors) and LCUR keeps DUT_LO (R94 to the TIA); the
+# HIGH and LOW followers (U6.5, U7.5) now sense HPOT and LPOT.  R105/R106 (1k) tie each POT to its
+# CUR so two-terminal use still reads; a Kelvin lead in parallel is ~0.1 ohm, so they carry no
+# measurement current.
+del parts['J3']
+for ref, x, net, use in [('J3', 108.0, 'DUT_HI', 'HCUR'), ('J7', 130.0, 'HPOT', 'HPOT'),
+                         ('J8', 152.0, 'LPOT', 'LPOT'), ('J9', 174.0, 'DUT_LO', 'LCUR')]:
+    parts[ref] = {'ref': ref, 'value': f'BNC {use}', 'kind': 'BNC',
+                  'footprint': 'LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal',
+                  'pins': {'1': 'GND', '2': 'GND', '3': 'GND', '4': 'GND', '5': net},
+                  'pcb': [x, 51.0, 0], 'sheet': 'afe', 'group': 'AFE', 'mpn': 'BNC-KYWE-295-W4-N',
+                  'manufacturer': 'SAMZO', 'lcsc': 'C41416668', 'unit_usd': 1.29, 'stock': None,
+                  'library_type': 'extended', 'assembly': 'Hand fit', 'source_query': 'BNC-KYWE-295 C41416668'}
+add('R105', 'R1k', 'afe', {'1': 'DUT_HI', '2': 'HPOT'}, (137.0, 58.5, 0), query='Rev E HPOT default to HCUR')
+add('R106', 'R1k', 'afe', {'1': 'DUT_LO', '2': 'LPOT'}, (177.0, 61.15, 270), query='Rev E LPOT default to LCUR')
+parts['U6']['pins']['5'] = 'HPOT'
+parts['U7']['pins']['5'] = 'LPOT'
 
 # ---------------------------------------------------------------- relays (row below the TIA)
 RLY_Y = 128.0
@@ -210,6 +235,20 @@ for (ref, x, *_), (q, setnet, gpio, dio, rg_, rpd) in zip(RELAYS, [
         ('Q5', 'RLY_SET_HI', 'RNG_SET_HI', 'D8', 'R102', 'R103')]):
     driver(q, setnet, gpio + '_G', gpio, dio, rg_, rpd, x + 5.08 - 0.9375, (x + 6.4, RLY_Y + 8.6, 90))
 driver('Q2', 'RLY_RST', 'RNG_RESET_G', 'RNG_RESET', 'D5', 'R74', 'R75', 164.0, (163.3, RLY_Y + 7.6, 0))
+# K4: reference relay.  Pole 2 closes HCUR (COM2, pin 8) onto R107 (1k 0.1 %) to LCUR, a known
+# impedance across the jacks for the firmware REFCAPTURE self-check.  Its RESET coil shares RLY_RST,
+# so every range change opens it; its SET driver Q6 is on GPIO14.  Pole 1 is unused.
+parts['K4'] = {'ref': 'K4', 'value': 'TQ2SA-L2-5V REF', 'kind': 'RELAY2L',
+               'footprint': 'LCR:Relay_DPDT_Panasonic_TQ2SA_SMD',
+               'pins': {'1': 'VRLY', '2': None, '3': None, '4': None, '5': 'RLY_SET_REF', '6': 'RLY_RST',
+                        '7': 'REF_A', '8': 'DUT_HI', '9': None, '10': 'VRLY'},
+               'pcb': [182.0, 70.0, 0], 'sheet': 'range', 'mpn': 'TQ2SA-L2-5V-Z', 'manufacturer': 'Panasonic',
+               'lcsc': 'C2684450', 'unit_usd': 2.27, 'stock': None, 'library_type': 'extended',
+               'assembly': 'SMT', 'source_query': 'docs/rev-e-range-switching.md'}
+add('R107', 'R1k01', 'range', {'1': 'DUT_LO', '2': 'REF_A'}, (184.54, 62.0, 270), query='Rev E K4 reference, 0.1 %')
+DRV_Y, _drv_y = 81.0, DRV_Y      # driver() places from DRV_Y: K4's driver sits under the relay
+driver('Q6', 'RLY_SET_REF', 'RNG_SET_REF_G', 'RNG_SET_REF', 'D9', 'R108', 'R109', 187.08 - 0.9375, (188.6, 78.4, 90))
+DRV_Y = _drv_y
 # Coil supply from the unfiltered 5 V rail (relay pulses stay off 5VA, which feeds the codec LDO).
 add('R101', 'R2R2', 'range', {'1': '5V', '2': 'VRLY'}, (143.2, 145.2, 0))
 add('C112', 'C22u', 'range', {'1': 'VRLY', '2': 'GND'}, (148.2, 145.2, 0))
@@ -234,6 +273,11 @@ design['ranges'] = [
 ]
 design['frequency'] = {'codec_fs_hz': 187500, 'bclk_hz': 12000000, 'mcu_clock_hz': 120000000,
                        'min_hz': 100, 'max_hz': 85000}
+
+# ---------------------------------------------------------------- In1 ground plane follows the taller board
+for z in routing['zones']:
+    if z['net'] == 'GND' and z['layer'] == 'In1.Cu':
+        z['points'] = [[x, 45.5 if y == 50.5 else y] for x, y in z['points']]
 
 # ---------------------------------------------------------------- routing: drop removed nets
 nets = {n for p in parts.values() for n in p['pins'].values() if n}

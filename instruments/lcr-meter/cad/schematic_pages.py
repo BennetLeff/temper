@@ -13,6 +13,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
         "afe": ("TI TIDA-060029 analog front end",
                 "U6A source buffer; U6B HI sense; U7A transimpedance; U7B LO sense.\n"
                 "Ranges: latching relays K1/K2/K3 (range sheet) close one matched RG/RF pair.\n"
+                "Four-terminal BNC jacks: HCUR = DUT_HI, LCUR = DUT_LO; followers sense HPOT / LPOT.\n"
                 "One local C104=100pF compensates all ranges; C78 100pF DUT_LO to GND (Rev E stability).\n"
                 "No BUF634A: maximum source current approximately 18mA. Isolated, discharged DUT only."),
         "source": ("Codec DAC excitation",
@@ -25,10 +26,11 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
                   "TDM controller: RP2040 drives BCLK 12MHz / FSYNC 187.5kHz. I2C address 0x50.\n"
                   "AVDD from U15 AP2112K-3.3 on 5VA; IOVDD from 3V3."),
         "range": ("Range relays",
-                  "K1 100R, K2 5k, K3 100k: Panasonic TQ2SA-L2-5V dual-coil latching DPDT.\n"
+                  "K1 100R, K2 5k, K3 100k, K4 reference: Panasonic TQ2SA-L2-5V dual-coil latching DPDT.\n"
                   "Pole 1: SOURCE_BUF -> RGx. Pole 2: TIA_OUT -> RFx. NC contacts unconnected.\n"
-                  "RESET coils in parallel on Q2; SET coils on Q3/Q4/Q5. 1N4148WS flyback per drain.\n"
-                  "VRLY = 5VA through 2.2R + 22uF. Firmware: source off, RESET 20ms, SET 20ms."),
+                  "RESET coils (K1-K4) in parallel on Q2; SET coils on Q3/Q4/Q5/Q6. 1N4148WS flyback per drain.\n"
+                  "K4 reference: COM2 on HCUR, NO2 through R107 1k 0.1% to LCUR (REFCAPTURE, leads unplugged).\n"
+                  "VRLY = 5V through R101 2.2R + C112 22uF. Firmware: source off, RESET 20ms, SET 20ms."),
         "digital": ("USB, RP2040 and boot / debug",
                     "External 5V input powers the instrument. USB VBUS is sensed only; no backfeed.\n"
                     "Native USB CDC; 120MHz MCU; dual-lane ADC acquisition at up to 1MSPS.\n"
@@ -181,6 +183,9 @@ def _afe_symbols(q):
         nums = ['2','1'] if reverse else ['1','2']
         pins = pin(nums[0],nums[0],'passive',-7.62,0,0,length) + pin(nums[1],nums[1],'passive',7.62,0,180,length)
         result.append(base(name,'C' if capacitor else 'J' if connector else 'R',f'(symbol "{name}_0_1" {body}) (symbol "{name}_1_1" {pins})'))
+    body = f'(circle (center 0 0) (radius 2.54) {stroke}) (circle (center 0 0) (radius 0.508) {stroke})'
+    pins = pin('5','~','passive',-7.62,0,0,5.08) + ''.join(pin(n,'~','passive',7.62,0,180,5.08) for n in '1234')
+    result.append(base('AFE_BNC','J',f'(symbol "AFE_BNC_0_1" {body}) (symbol "AFE_BNC_1_1" {pins})'))
     return result
 
 
@@ -232,6 +237,8 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
             top,bottom=(-7,7) if unit!=3 else (-6,6)
         else:
             coords={'1':(-3,0),'2':(3,0)} if kind!='AFE_JPR' else {'1':(3,0),'2':(-3,0)}
+            if kind=='AFE_BNC':
+                coords={'5':(-3,0),'1':(3,0),'2':(3,0),'3':(3,0),'4':(3,0)}
             top,bottom=-4,3
         props={'Reference':ref,'Value':p['value'],'Footprint':local_fp(p),'MPN':p['mpn'],
                'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}
@@ -260,6 +267,7 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
         label(parts[res]['pins']['1'],(70,y))
     path((95,38),(95,46),(95,54),(95,60),(112,60))
     junction((39,60));junction((95,46));junction((95,54))
+    label('DUT_HI',(112,60),180)
     label(parts['U6']['pins']['1'],(39,72),180)
     if 'R104' in parts:
         # Rev E: R104 isolates the relay bus (board copper + relay capacitance) from U6A.
@@ -267,15 +275,22 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
         path((39,60),(45,60));path((51,60),(56,60))
         label('SOURCE_BUF',(56,60),180)
         note('Rev E: R104 47R isolates the SOURCE_BUF relay bus from U6A.',(30,80))
-    component('J3','AFE_DUT',(115,60))
-    label('DUT_HI',(102,60),180)
-    note('J3: connect external, isolated DUT between HI and LO.\nNo DUT component is fitted on this PCB.',(98,68))
+    # Rev E: four-terminal BNC jacks; HCUR keeps DUT_HI, LCUR keeps DUT_LO.
+    for ref,net,y in [('J3','DUT_HI',72),('J7','HPOT',80),('J8','LPOT',88),('J9','DUT_LO',96)]:
+        component(ref,'AFE_BNC',(68,y))
+        label(net,(65,y));label('GND',(71,y),180)
+    for ref,a,b,y in [('R105','DUT_HI','HPOT',72),('R106','DUT_LO','LPOT',88)]:
+        component(ref,'AFE_R',(84,y))
+        label(a,(81,y));label(b,(87,y),180)
+    note('J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR: BNC, 22 mm pitch, shells to GND.\n'
+         'Connect an external, isolated, discharged DUT with Kelvin leads.\n'
+         'R105/R106 1k tie each POT to its CUR for two-terminal leads.',(56,103))
     # Rev D: R94 isolates fixture/cable capacitance from the summing node; the LOW
     # follower taps the J3 side, so channel A stays the DUT voltage.
     component('R94','AFE_R',(136,60))
-    path((118,60),(133,60));path((139,60),(145,60),(145,62),(155,62))
+    path((124,60),(133,60));path((139,60),(145,60),(145,62),(155,62))
     label('DUT_LO',(124,60),180);label('TIA_SUM',(142,60),180)
-    note('Rev D: R94 22R 0.1% between J3 LO and the TIA summing node.\nLOW follower senses J3 LO; host uses Zf = R94 + RF||C104.',(118,50))
+    note('Rev D: R94 22R 0.1% between LCUR and the TIA summing node.\nRev E: LOW follower senses LPOT; host uses Zf = R94 + RF||C104.',(118,50))
     component('U7','OPA2810_DUAL',(160,60))
     path((155,58),(151,58));label('GND',(151,58))
     path((165,60),(190,60),(190,49))
@@ -291,12 +306,12 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
     path((145,49),(157,49));path((163,49),(190,49));junction((145,49))
     component('C78','AFE_C',(124,72))
     label('DUT_LO',(121,72));label('GND',(127,72),180)
-    note('Rev E: C78 100pF C0G from J3 LO to GND (TIA margin with relay parasitics).',(112,76))
+    note('Rev E: C78 100pF C0G from LCUR (DUT_LO) to GND (TIA margin with relay parasitics).',(112,76))
     note('TI transimpedance topology; Rev C compensation\nC104=100pF directly across U7.1 and U7.2 in all ranges',(138,12),1.8)
-    for ref,at,inputnet,outputnet,start in [('U6',(105,100),'DUT_HI','HIGH_BUF',(95,60)),('U7',(160,100),'DUT_LO','LOW_BUF',(128,60))]:
+    for ref,at,inputnet,outputnet in [('U6',(105,100),'HPOT','HIGH_BUF'),('U7',(160,100),'LPOT','LOW_BUF')]:
         component(ref,'OPA2810_DUAL',at,2)
         x,y=at
-        path(start,(start[0],y-2),(x-5,y-2));junction(start)
+        label(inputnet,(x-12,y-2));path((x-12,y-2),(x-5,y-2))
         path((x-5,y+2),(x-10,y+2),(x-10,y+12),(x+9,y+12),(x+9,y))
         path((x+5,y),(x+9,y),(x+16,y));junction((x+9,y))
         label(outputnet,(x+16,y),180)

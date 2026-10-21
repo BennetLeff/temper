@@ -8,7 +8,8 @@ Checks:
   - no non-GND copper on In1 (the ground plane layer);
   - OPA2810 signal pins and THS4551 inputs sit inside In1/In2/B.Cu rule areas (plane relief);
   - OPA2810 supply bypass pad-centre distances;
-  - R_iso topology: J3 LO and the LOW follower on DUT_LO; U7A -IN, C104 and RF on TIA_SUM.
+  - R_iso topology: Rev D J3 LO and the LOW follower on DUT_LO; Rev E LCUR (J9) on DUT_LO, the
+    followers on HPOT/LPOT (J7/J8); U7A -IN, C104 and RF on TIA_SUM.
 """
 import hashlib
 import json
@@ -99,7 +100,11 @@ for ref in ('U6', 'U7'):
 # 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged).
 topology = {}
 if REV in ('d', 'e'):
-    expect = {('J3', '2'): 'DUT_LO', ('U7', '5'): 'DUT_LO', ('R94', '1'): 'DUT_LO', ('R94', '2'): 'TIA_SUM',
+    # Rev E: four-terminal jacks; LCUR (J9.5) feeds R94, the followers sense HPOT/LPOT (J7.5/J8.5)
+    lo = {('J3', '2'): 'DUT_LO', ('U7', '5'): 'DUT_LO'} if REV == 'd' else {
+        ('J9', '5'): 'DUT_LO', ('J3', '5'): 'DUT_HI', ('J7', '5'): 'HPOT', ('J8', '5'): 'LPOT',
+        ('U6', '5'): 'HPOT', ('U7', '5'): 'LPOT'}
+    expect = {**lo, ('R94', '1'): 'DUT_LO', ('R94', '2'): 'TIA_SUM',
               ('U7', '2'): 'TIA_SUM', ('C104', '1'): 'TIA_SUM', ('C104', '2'): 'TIA_OUT',
               ('R43', '1'): 'TIA_SUM', ('R44', '1'): 'TIA_SUM', ('R45', '1'): 'TIA_SUM'}
     for (ref, num), net in expect.items():

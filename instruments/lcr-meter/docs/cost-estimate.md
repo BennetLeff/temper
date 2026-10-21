@@ -6,35 +6,43 @@ This complete meter occupies one PCB. Budget for obtaining one usable instrument
 
 `manufacturing/order_estimate.py 5` (KiCad Python) reproduces these figures and writes `manufacturing/order-estimate-5.json`. Inputs:
 - JLC assembly-library snapshot, read 2026-10-21 by `manufacturing/prices/fetch_jlc_parts.py` (`manufacturing/prices/jlc-parts-2026-10-21.json`): price tiers, stock, library class, attrition (`lossNumber`) and minimum quantity (`leastPatchNumber`) per part;
-- board counts: 183 placements, 569 SMT joints per board, leadless parts U1, U13 and U14, and 11 THT joints on J2–J6;
+- board counts: 191 placements, 594 SMT joints per board, leadless parts U1, U13 and U14, and 29 THT joints on J2–J9;
 - the published fee table;
-- the 2026-10-20 fabrication instant quote.
+- the 2026-10-20 fabrication instant quote, for the 140 × 100 mm outline. The board is now 140 × 105 mm and has not been re-quoted; if the "Board" line ($8.70) scaled with area it would become about $9.14, but that scaling is an assumption, not a quote. Re-quote at upload.
 
-Each line buys max(5 × per-board quantity + attrition, minimum). That is our reading of JLC's library fields; the quote from the uploaded BOM is authoritative. Every line has stock for this order. The thinnest are OPA2810 (251 in stock against 10 needed) and TAC5112 (136 against 5, down from 181 the day before).
+Each line buys max(5 × per-board quantity + attrition, minimum). That is our reading of JLC's library fields; the quote from the uploaded BOM is authoritative. Every line has stock for this order. The thinnest are OPA2810 (251 in stock against 10 needed), the BNC jack (319 against 20) and TAC5112 (136 against 5, down from 181 the day before).
 
 | Item | USD |
 |---|---:|
-| SMT parts (60 lines; attrition and minimums add $8.45) | 214.87 |
+| SMT parts (60 lines; attrition and minimums add $8.45) | 225.74 |
 | Extended-part fee, 27 × $3.07 | 82.89 |
 | Setup + stencil | 9.71 |
-| SMT joints, 5 × 569 × $0.0016 | 4.55 |
+| SMT joints, 5 × 594 × $0.0016 | 4.75 |
 | X-ray, 15 leadless parts × $0.82 | 12.30 |
 | Confirm placement | 0.45 |
 | PCB fabrication, 5 pcs (detail below) | 80.98 |
-| **Economic PCBA total** | **405.76** |
-| JLC fits J2–J6: parts $6.35, 55 manual joints $0.90, labour $3.58 | 10.83 |
-| **Five complete boards, before shipping and taxes** | **416.59** |
+| **Economic PCBA total** | **416.82** |
+| JLC fits J2–J9: parts $30.68 (four BNCs $25.83), 145 manual joints $2.38, labour $3.58 | 36.64 |
+| **Five complete boards, before shipping and taxes** | **453.46** |
 
-That is $83.32 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $496.73 before hand fitting: higher setup and stencil fees, feeder loading on all 60 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
+That is $90.69 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $507.79 before hand fitting: higher setup and stencil fees, feeder loading on all 60 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
 
-**Where Rev E saves, against Rev D's $613.44.**
+**Five boards with two assembled** (`order_estimate.py 2`, five bare PCBs in the fabrication quote): Economic PCBA $290.36 plus JLC hand fitting $18.95 = **$309.31**.
+
+**What the 2026-10-21 accuracy upgrades added: +$36.87 for five boards** (from $416.59).
+- Four BNC jacks for four-terminal (Kelvin) connection, against one 2-pin header: +$25.83 in parts and +$1.48 in manual joints. Hand fit, so no extended-part fee.
+- K4 reference relay on the existing TQ2SA line: +$10.10.
+- Its driver (AO3400A, 1N4148WS, 100 Ω, 100 kΩ), R107 on the existing 0.1 % line, and R105/R106 on the new basic 1 kΩ line (C21190): about $0.77, with no new extended line.
+- The calibration-kit card is a separate order ([calkit/README.md](../calkit/README.md)): about $113.64 for five. Kelvin clip leads are bought separately: $13–35 generic, $72 Tonghui TH26011AS, $169 B&K TL889A.
+
+**Where Rev E saves, against Rev D's $613.44** (before the BNC/K4 additions above).
 - Parts −$136.68. The codec front end removes ADS9224R, AD9833 and both THS4551s and adds a TAC5112, three TQ2SA relays and their drivers.
 - Fabrication −$35.75. Every via is now 0.3 mm (see below).
 - Extended-part fees −$9.21. 27 extended lines instead of 30, after the basic-library swaps in [rev-e-plan.md](rev-e-plan.md).
 - X-ray −$8.20. Three leadless packages instead of five.
 - Hand fitting −$7.12. The relays replace JP1–JP6.
 
-**Fabrication quote.** 4 layers, 140 × 100 mm, 1.6 mm, 1 oz outer and 0.5 oz inner copper, ENIG 1 µin, epoxy filled and capped vias, 3–4-day build.
+**Fabrication quote.** 4 layers, 140 × 100 mm (quoted before the 105 mm outline), 1.6 mm, 1 oz outer and 0.5 oz inner copper, ENIG 1 µin, epoxy filled and capped vias, 3–4-day build.
 
 | Line | USD |
 |---|---:|
@@ -49,7 +57,7 @@ That is $83.32 per board, against $613.44 ($122.69 per board) for Rev D. Standar
 - Every via on Rev E has a 0.3 mm drill and a 0.45 mm or larger pad, JLC's standard "0.3mm/(0.4/0.45mm)" option. The 0.2 mm option that Rev D needed added "Min via hole 0.2 mm" ($18.28) and a 4-wire Kelvin test ($17.47); the same quote page gave $80.98 without them. Re-quote at upload: the lines above are the 2026-10-20 quote less those two.
 - JLC leaves vias over 0.5 mm unfilled. Every via on this board is 0.30 mm.
 
-**Where the money goes.** Parts at $1 or more are $172.20, 78 % of the parts: OPA2810 $45.40, TQ2SA relays $30.31, TAC5112 $29.64, OPA810 $15.48, TPS65131 $14.38, W25Q128 $14.26, TPS7A3001 $10.10, TPS7A4901 $7.25, RP2040 $5.38. The 27 extended-line fees ($82.89) are now the largest single item after the parts. The extended lines that remain are ICs, the crystal, the inductor, the USB connector, the 0.1 % network resistors, the C0G stability and anti-alias capacitors, the 1.62 MΩ/1.74 MΩ rail dividers and the 10 µF 1210; [rev-e-plan.md](rev-e-plan.md) gives the reason each one stays.
+**Where the money goes.** Parts at $1 or more are $182.30, 81 % of the SMT parts: OPA2810 $45.40, TQ2SA relays $40.41, TAC5112 $29.64, OPA810 $15.48, TPS65131 $14.38, W25Q128 $14.26, TPS7A3001 $10.10, TPS7A4901 $7.25, RP2040 $5.38. The 27 extended-line fees ($82.89) are now the largest single item after the parts. The extended lines that remain are ICs, the crystal, the inductor, the USB connector, the 0.1 % network resistors, the C0G stability and anti-alias capacitors, the 1.62 MΩ/1.74 MΩ rail dividers and the 10 µF 1210; [rev-e-plan.md](rev-e-plan.md) gives the reason each one stays.
 
 ## BOM arithmetic checkpoint
 
@@ -57,11 +65,11 @@ Catalog snapshot checked 2026-10-21:
 
 | Item | Quantity | USD |
 |---|---:|---:|
-| All components for one instrument | 188 | 45.07 |
-| Machine-placed components per PCB | 183 | 43.82 |
-| Hand-fitted components per PCB | 5 | 1.26 |
+| All components for one instrument | 199 | 52.47 |
+| Machine-placed components per PCB | 191 | 46.36 |
+| Hand-fitted components per PCB | 8 | 6.12 |
 
-Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is the DC jack and four two-pin headers. The 60 unique SMT lines comprise 27 extended, 30 basic and three preferred lines (BAT54S, SRV05-4 and the 27 Ω resistor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
+Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is the DC jack, three two-pin headers and four BNC jacks. The 60 unique SMT lines comprise 27 extended, 30 basic and three preferred lines (BAT54S, SRV05-4 and the 27 Ω resistor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
 
 **Epoxy-filled and copper-capped vias (POFV) are kept** for the exposed pads (U1, U11, U12, U13, U14: 33 vias, 4–9 per pad) and R3 pad 2 (34 via-in-pad locations, `validation/via-in-pad-process.json`). No other via sits in an SMT pad. The four-layer board does not qualify for JLC's free 6–20-layer POFV offer. The quote above includes it.
 
@@ -86,7 +94,7 @@ Sources checked 2026-10-20 (part snapshot 2026-10-21): [assembly prices](https:/
 | Investment | Benefit | Required work |
 |---|---|---|
 | Characterized standards and rigid shielded fixture | Better calibration/repeatability; first priority | Bound AC parasitics; validate after fixture changes |
-| Remote Kelvin sensing | Less lead/contact error | Circuit/fixture redesign and fresh stability/calibration work |
+| Remote Kelvin sensing | Less lead/contact error | Done in Rev E: four BNC jacks (HCUR/HPOT/LPOT/LCUR) |
 | Four-wire DC resistance channel | Addresses 1 mΩ shunt/winding DC resistance | New current source, offset/thermal-EMF control and calibration |
 | Relay state sensing | Confirms the latched range | Latching relays have no spare pole ([range-switching §3.4](rev-e-range-switching.md)) |
 | USB isolation | Breaks computer-ground loops | New interface/power design and noise qualification; no energized-DUT rating implied |
