@@ -1,6 +1,6 @@
-# Revision C reference inheritance and review
+# Revision D reference inheritance and review
 
-Revision C uses **TIDA-060029 as its analog measurement core**. Excitation, acquisition, USB control and power conversion are integrated on the same PCB. Full-chain simulation exposed insufficient stability margin in the derivative's low and middle ranges; a fixed local C104 = 100 pF now bypasses the range headers, and the host accounts for it. Earlier range-specific feedback capacitors C105/C41 are removed: placing compensation behind the header caused a sensitive inductive resonance. The ADC drivers also use the complete EVM feedback/filter topology with increased inside-feedback output resistance. This derivative has no established accuracy specification before hardware qualification.
+Revision D uses **TIDA-060029 as its analog measurement core**. Excitation, acquisition, USB control and power conversion are integrated on the same PCB. Full-chain simulation exposed insufficient stability margin in the derivative's low and middle ranges; a fixed local C104 = 100 pF now bypasses the range headers, and the host accounts for it. Earlier range-specific feedback capacitors C105/C41 are removed: placing compensation behind the header caused a sensitive inductive resonance. The ADC drivers also use the complete EVM feedback/filter topology with increased inside-feedback output resistance. Revision D adds R94 = 22 Ω between the DUT LO terminal and the summing node, which TIDA-060029 does not have; see **Revision D changes** below. This derivative has no established accuracy specification before hardware qualification.
 
 The selected test article is stage53, `worktrees/runs-native21/s53/c53int/section.kicad_pcb`, SHA-256 `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`, with its adjacent scoped manifest. The separate repository stage15b baseline check passed; that does not make the two boards interchangeable. This instrument does not modify or release either power-stage design.
 
@@ -19,13 +19,13 @@ TI documents are retained under `sources/ti/`:
 
 ## Circuit inheritance
 
-| Block | Revision C | Relationship |
+| Block | Revision D | Relationship |
 |---|---|---|
 | Source buffer | U6A, OPA2810IDGKR; feedback at its own output | Retains TI topology/package; optional booster omitted |
 | Ranges | R40–R45; matched RG/RF pairs of 100 Ω, 5 kΩ, 100 kΩ | Retains the topology underlying TI's bounded capacitive noise gain; one matching jumper pair required |
-| Auto-balancing amplifier | U7A; grounded noninverting input, DUT low at summing input | Retained; feedback from actual amplifier output |
+| Auto-balancing amplifier | U7A; grounded noninverting input; DUT low reaches the summing input through R94 = 22 Ω 0.1 % | Feedback from actual amplifier output retained. R94 is a deliberate Rev D change: it isolates cable/fixture capacitance on LO from the summing node |
 | TIA compensation | C104 = 100 pF directly between U7A output and summing input, common to all ranges; C41/C105 removed | Deliberate stability change. Keeps capacitor feedback local and independent of the selected RF header’s inductance; lowers high-range bandwidth and is included in software |
-| Voltage sensing | U6B senses DUT high; U7B senses DUT low | Retains both followers; low follower does not sense TIA output |
+| Voltage sensing | U6B senses DUT high; U7B senses DUT low at J3, on the connector side of R94 | Retains both followers; low follower does not sense TIA output. The current channel therefore spans R94 + RF‖CF, which the host models |
 | BUF634A | Omitted | Deliberate change at intended approximately 20 mA peak current ceiling; other loads require review |
 | Acquisition | U8/U9 THS4551, U10 ADS9224R | Same device types as TI's test setup; added on this board using ADC application circuit |
 | ADC network | Four 1 kΩ resistors per FDA; C106–C109 = 100 pF across RF; R90–R93 = 22 Ω before the feedback takeoff; R64/R65/R70/R71 = 4.32 Ω after the takeoff; 330 pF per ADC input to ground and 3.3 nF differential | Complete ADS9224REVM page 26 topology, with inside-feedback resistance increased from 10 Ω to 22 Ω for modelled stability margin |
@@ -33,7 +33,7 @@ TI documents are retained under `sources/ti/`:
 | FDA common-mode reference | REFby2 directly drives both VOCM inputs with C74 = 1 µF | EVM per-driver 100 Ω / 100 nF VOCM filters omitted; modelled reference is ideal and hardware qualification remains required |
 | Excitation | AD9833, reconstruction filter, AC coupling, OPA810 gain stage | New integration outside TIDA validation |
 | Control | Bare RP2040, QSPI flash, USB CDC, burst DMA | New integration; compiled digital tests do not validate analog behavior |
-| Power | TPS65131 raw bipolar rails; TPS7A49/30 approximately ±12 V postregulation | New supply preserves intended OPA operating rails, not TI bench supplies |
+| Power | TPS65131 raw bipolar rails; R95/R96 = 1 Ω into TPS7A49/30 approximately ±12 V postregulation; ±12 V monitors on RP2040 ADC0/ADC1 | New supply preserves intended OPA operating rails, not TI bench supplies |
 | Fixture | Two-pin contact plane | Custom two-terminal fixture; not remote Kelvin sensing |
 
 TI's unused VCA and evaluation connectors are omitted. Its source and ADC were outside the TIDA PCB boundary. Those additions make a complete one-PCB instrument and require separate qualification.
@@ -71,11 +71,24 @@ The final Rev C CAD checkpoint is identified by `validation/independent-verifica
 | Reference | REFby2 C74 pad-center distance 1.847 mm; REFOUT C75 4.894 mm; separate 22 µF REFP reservoirs C72/C73 each 2.600 mm from their ADC reference pads. FDA common mode is REFby2. These distances are geometry, not settling measurements. |
 | Switcher | Hand-routed switching-current loops, shielded inductors, forced PWM, local ground vias and separation from the analog input cluster. Converter placement/top copper reviewed against its application guidance. |
 | Digital | Zero non-ground track segments on In1; actual ground Gerber shows a continuous plane outside deliberate amplifier relief and ordinary pad/via clearances. Crystal relocated beside MCU with local clock routes. |
-| Manufacturing | 175 electrical source/schematic/PCB components and pin maps agree (179 footprints including four mounting holes); 164 SMT placements across 53 BOM lines. Exact-part footprint/rotation audit, native DRC and printed control/range labels reviewed. Fifteen intentional SMT-land vias require four-layer resin-filled, copper-capped, planarized POFV; no unexpected drill/SMT overlap. |
+| Manufacturing | Rev D: 184 electrical source/schematic/PCB components and pin maps agree (188 footprints including four mounting holes); 173 SMT placements across 55 BOM lines (Rev C: 175, 164, 53). Exact-part footprint/rotation audit, native DRC and printed control/range labels reviewed. Fifteen intentional SMT-land vias require four-layer resin-filled, copper-capped, planarized POFV; no unexpected drill/SMT overlap. |
 
 Independent native and geometry receipts are retained in `validation/independent-erc-rev-c.json`, `independent-drc-rev-c.json` and `independent-layout-rev-c.json`. Earlier `*-final.json` files describe Rev B and do not qualify Rev C. `independent-verification-rev-c.json` ties these native results, the 558-pin independent netlist comparison and the source files to exact SHA-256 values. The geometry receipt uses native pad positions and rectangular relief bounds; visual Gerber review supplements its pin-center coverage checks. The assembly, mask, paste, copper, plane and outline exports belong to the same frozen PCB. The package manifest identifies their exact bytes.
 
 The native/geometry receipts describe the candidate’s **CAD review**; the analog report separately records simulation acceptance. Vendor process/stackup acceptance, final JLC component-orientation preview and first-board measurements remain outstanding. The required POFV process and its unquoted surcharge are stated in the manufacturing instructions and cost estimate. These checks do not certify physical stability, calibrated accuracy or mains safety.
+
+## Revision D changes
+
+Rev D is the Rev C board with four local edits, all hand-routed in `cad/routing.json`. The rationale and the in-box studies behind each are in [rev-d-decision.md](rev-d-decision.md).
+
+| Change | Where | Evidence |
+|---|---|---|
+| R94 22 Ω 0.1 % (R_iso) between J3 LO and the U7A summing node; new net TIA_SUM | Above U7; pad relief keepout on the summing-side pad | `../validation/stability-full-chain/fixture-envelope.md`, `../validation/layout-parasitics/` (`rev_d_board` in `extracted.json`) |
+| R95/R96 1 Ω at the LDO inputs (LDOIN_P/N) | Beside U11/U12 | `../validation/power-spurs/` |
+| R83 1.78 MΩ → 1.74 MΩ (VNEG set point) | Unchanged footprint | `../validation/power-spurs/` |
+| ±12 V monitors: R97/R98/C110 to GPIO26, R100/R99/C111 to GPIO27 | Divider tops at the rails, filter caps at U1 | Firmware `RAILS`, host `rails` |
+
+`validation/independent-verification-rev-d.json` (from `validation/independent_check.py D`) checks the Rev D board: 576 source pins against native pads and a freshly exported schematic netlist; no non-GND In1 copper; all twelve OPA2810 signal-pin centres and the four THS4551 input-pin centres inside In1/In2/B.Cu relief; OPA2810 bypass distances 2.031–2.050 mm; and the R_iso topology, with exactly U7.2, C104.1, R43–R45.1 and R94.2 on TIA_SUM. The Rev C geometry items it does not repeat (FDA feedback-pad relief, reference-capacitor distances, switcher loops) are in board regions that Rev D did not edit: every added or removed Rev D track point is at least 9.7 mm from the FDAs, 17 mm from the ADC reference capacitors and 13 mm from the switcher inductors. Native ERC/DRC/parity come from `rebuild.sh` (`validation/erc.json`, `drc.json`, `cad-bom-parity.json`).
 
 ## Limits of inherited evidence
 

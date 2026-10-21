@@ -12,7 +12,7 @@ with ZipFile(fab / "temper-lcr-gerbers.zip", "w", ZIP_DEFLATED) as z:
     for p in sorted((fab / "gerbers").iterdir()):
         if p.is_file() and p.suffix != ".pdf":
             z.write(p, p.name)
-excluded = {"manifest-sha256.json", "temper-lcr-rev-a-package.zip", "temper-lcr-rev-b-package.zip", "temper-lcr-rev-c-package.zip", ".DS_Store",
+excluded = {"manifest-sha256.json", "temper-lcr-rev-a-package.zip", "temper-lcr-rev-b-package.zip", "temper-lcr-rev-c-package.zip", "temper-lcr-rev-d-package.zip", ".DS_Store",
             "assembly-preview.kicad_pcb", "temper-lcr.kicad_prl"}
 files = [p for p in sorted(root.rglob("*")) if p.is_file()
          and p.name not in excluded and "__pycache__" not in p.parts
@@ -25,7 +25,7 @@ manifest = {
 }
 manifest_path = root / "manifest-sha256.json"
 manifest_path.write_text(json.dumps(manifest, indent=2)+"\n")
-with ZipFile(root / "temper-lcr-rev-c-package.zip", "w", ZIP_DEFLATED) as z:
+with ZipFile(root / "temper-lcr-rev-d-package.zip", "w", ZIP_DEFLATED) as z:
     for p in files + [manifest_path]:
-        z.write(p, str(Path("temper-lcr-rev-c") / p.relative_to(root)))
+        z.write(p, str(Path("temper-lcr-rev-d") / p.relative_to(root)))
 print(f"Archived {len(files)} files with SHA256 manifest")
