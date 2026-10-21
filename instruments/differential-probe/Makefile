@@ -32,6 +32,7 @@ cost:
 	$(RUSTC) --edition 2021 tools/cost_down.rs -o /tmp/temper-probe-cost-down
 	/tmp/temper-probe-cost-down > /dev/null
 	python3 procurement/cost.py > validation/cost.txt
+	python3 tools/tradeoff_stage53.py > validation/tradeoff-stage53.txt
 
 # HV lead budget, setback gates, section view and FR4 part geometry; stage-53 probe points.
 leads:

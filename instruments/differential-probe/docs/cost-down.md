@@ -70,6 +70,21 @@ The HVCB part stays a **drop-in upgrade**: same 2512 footprint, and the new trim
 
 **This departs from a recorded decision.** The [Rev B build decision](revb-build-decision.md) kept the 0.1 % grade and cancelled a 0.1 %-versus-1 % experiment as not worth its cost for a one-off instrument. The cost-down replaces that experiment with calculated margins and three bench checks (temperature tracking, self-heating, trim settability), with the 0.1 % part as the fallback.
 
+### At stage 53 (`validation/tradeoff-stage53.txt`, `tools/tradeoff_stage53.py`)
+
+The margin costs above are stated at 3 kV DC. The probe's job is the stage-53 bank and coil at 35–60 kHz, so the trade is judged there, with worst-case datasheet TCRs and a 10 °C ambient change after trimming:
+
+| Error at 35–60 kHz | HVCB 0.1 % | HV12 1 % | Shared by both: NP0/C0G capacitors |
+|---|---:|---:|---:|
+| Leg-to-leg ratio mismatch | 24–42 ppm | 102–174 ppm | 1,197–1,198 ppm |
+| SW_B common-mode leak (0–170 V square), referred to input | 2.6–4.5 mV | 11–19 mV | 130 mV |
+| Self-heating, design case 566 Vpk (3.2 mW per body) | ≤ 0.5 ppm | ≤ 1.9 ppm | — |
+| Self-heating, OCP-trip fault 1.79 kVpk if held | ≤ 4.7 ppm | ≤ 18.7 ppm | — |
+
+The HV12 adds 133 ppm (about 0.01 %, under 0.01°) at 35 kHz, about a tenth of what the capacitors' own ±30 ppm/°C allowance can already contribute. Its larger penalties are DC-only: 52 dB instead of 64 dB DC rejection, and a 215 mV instead of 51 mV DC offset from SW_B's 85 V average, neither of which enters the AC bank or coil reading. **The $238 saving is worth it for this probe's purpose.** Fit the HVCB drop-in if the probe is later wanted as a precision DC instrument.
+
+The same calculation shows that the capacitor allowance alone permits 58.4 dB leg-to-leg rejection after a 10 °C change, below the 60 dB goal. That is independent of the cost-down (KEMET and Yageo share the 0 ± 30 ppm/°C limit); parts from one reel normally track far closer, and the bench temperature-tracking item measures it.
+
 ## 2. DC trim
 
 With a 1 % string, the bottom must reach 5002.5 Ω × (1 ± 1 %). `cost_down.rs` §2 sweeps every upper-string corner with the fixed part at its tolerance limits and the pot usable from max(1 %, 2 Ω) to 0.9 × nominal (3296 ±10 %):

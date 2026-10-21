@@ -1,0 +1,40 @@
+Cost-down HV-resistor trade at stage-53 operating points (docs/cost-down.md, "At stage 53").
+Divider: 5 x 2 MOhm || 33 pF per leg, 2000:1, crossover 2411.4 Hz. Bus 170 V peak; theta <= 85 K/W.
+
+A. Leg-to-leg ratio mismatch after a 10 C ambient change from the trim temperature (worst-case datasheet TCR).
+   This is both a differential gain error and the common-mode leak.
+   HVCB2512BDE2M00 (0.1 %, 25 ppm/C):
+      DC   :   604.3 ppm ( -64.4 dB), phase +0.0000 deg
+      35 kHz:    41.5 ppm ( -87.6 dB), phase +0.0024 deg
+      60 kHz:    24.3 ppm ( -92.3 dB), phase +0.0014 deg
+   HV121WF2004T4E (1 %, 100 ppm/C):
+      DC   :  2532.3 ppm ( -51.9 dB), phase +0.0000 deg
+      35 kHz:   174.1 ppm ( -75.2 dB), phase +0.0099 deg
+      60 kHz:   101.7 ppm ( -79.9 dB), phase +0.0058 deg
+   NP0/C0G capacitors, leg to leg (both options, +/-30 ppm/C, worst signs):
+      35 kHz:  1196.6 ppm ( -58.4 dB), phase +0.0047 deg
+      60 kHz:  1198.4 ppm ( -58.4 dB), phase +0.0028 deg
+
+B. Common-mode leak of SW_B switching (0..170 V square; fundamental 4/pi x 85 V) through the A mismatch,
+   referred to the input, as a fraction of the design-case 566 V bank reading.
+   HVCB2512BDE2M00 (0.1 %, 25 ppm/C)    35 kHz:     4.5 mV = 0.0008 % of 566 V
+   HVCB2512BDE2M00 (0.1 %, 25 ppm/C)    60 kHz:     2.6 mV = 0.0005 % of 566 V
+   HV121WF2004T4E (1 %, 100 ppm/C)      35 kHz:    18.8 mV = 0.0033 % of 566 V
+   HV121WF2004T4E (1 %, 100 ppm/C)      60 kHz:    11.0 mV = 0.0019 % of 566 V
+   NP0/C0G capacitors (shared)          worst :   129.7 mV = 0.0229 % of 566 V
+   DC offset from the 85 V average of SW_B, HVCB2512BDE2M00 (0.1 %, 25 ppm/C): 51.4 mV (DC only; not in the AC reading)
+   DC offset from the 85 V average of SW_B, HV121WF2004T4E (1 %, 100 ppm/C): 215.2 mV (DC only; not in the AC reading)
+
+C. Self-heating of the TIP+ leg (RES_A) at each operating point, if held: P per body = (Vpk/sqrt2/5)^2 / 2 MOhm.
+   design case, 28 A               566 Vpk:    80 V rms/body,   3.2 mW, rise <= 0.27 K
+      HVCB2512BDE2M00 (0.1 %, 25 ppm/C)    gain error <=   0.5 ppm at 35-60 kHz
+      HV121WF2004T4E (1 %, 100 ppm/C)      gain error <=   1.9 ppm at 35-60 kHz
+   no pan                          775 Vpk:   110 V rms/body,   6.0 mW, rise <= 0.51 K
+      HVCB2512BDE2M00 (0.1 %, 25 ppm/C)    gain error <=   0.9 ppm at 35-60 kHz
+      HV121WF2004T4E (1 %, 100 ppm/C)      gain error <=   3.5 ppm at 35-60 kHz
+   OCP-trip fault (transient)     1790 Vpk:   253 V rms/body,  32.0 mW, rise <= 2.72 K
+      HVCB2512BDE2M00 (0.1 %, 25 ppm/C)    gain error <=   4.7 ppm at 35-60 kHz
+      HV121WF2004T4E (1 %, 100 ppm/C)      gain error <=  18.7 ppm at 35-60 kHz
+
+D. Difference the cost-down makes, design case, 10 C ambient: worst A at 35 kHz (HV12 minus HVCB) vs the shared capacitor term.
+   added by HV12: 133 ppm; shared NP0/C0G: 1198 ppm; ratio 0.11.
