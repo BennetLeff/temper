@@ -1,17 +1,17 @@
 #pragma once
-/* Rev E wiring contract (docs/rev-e-front-end.md). The Rev E schematic must follow it. */
+/* Rev E wiring contract (docs/rev-e-front-end.md), as routed on the Rev E board (cad/design.json U1). */
 #define HARDWARE_REVISION "E-codec"
-#define PIN_I2S_DOUT 2u    /* TAC5112 pin 4 DOUT -> RP2040 (ADC data) */
-#define PIN_I2S_DIN 3u     /* RP2040 -> TAC5112 pin 5 DIN (DAC data) */
+#define PIN_I2S_DIN 2u     /* RP2040 -> TAC5112 pin 5 DIN (DAC data) */
+#define PIN_I2S_DOUT 3u    /* TAC5112 pin 4 DOUT -> RP2040 (ADC data) */
 #define PIN_I2S_BCLK 4u    /* RP2040 -> TAC5112 pin 2 BCLK; side-set base */
 #define PIN_I2S_FSYNC 5u   /* RP2040 -> TAC5112 pin 3 FSYNC; side-set base + 1 */
 #define PIN_I2C_SDA 8u     /* I2C0 SDA -> TAC5112 pin 8, 4.7 kOhm pull-up to 3V3 */
 #define PIN_I2C_SCL 9u     /* I2C0 SCL -> TAC5112 pin 7, 4.7 kOhm pull-up to 3V3 */
+#define PIN_RNG_SET_HI 6u  /* AO3400A gate: K3 SET coil, 100 kOhm range */
+#define PIN_RNG_SET_LO 7u  /* AO3400A gate: K1 SET coil, 100 Ohm range (RG100/RF100) */
+#define PIN_RNG_RESET 10u  /* AO3400A gate: the three RESET coils in parallel */
+#define PIN_RNG_SET_MED 11u /* AO3400A gate: K2 SET coil, 5 kOhm range */
 #define PIN_USB_VBUS 13u   /* VBUS divided by two */
-#define PIN_RNG_RESET 14u  /* AO3400A gate: the three RESET coils in parallel */
-#define PIN_RNG_SET_LO 15u /* AO3400A gate: K1 SET coil, 100 Ohm range (RG100/RF100) */
-#define PIN_RNG_SET_MED 16u /* AO3400A gate: K2 SET coil, 5 kOhm range */
-#define PIN_RNG_SET_HI 17u /* AO3400A gate: K3 SET coil, 100 kOhm range */
 #define PIN_LED 25u
 #define PIN_MON12 26u      /* ADC0: +12 V via 100k / 10k */
 #define PIN_MON_N12 27u    /* ADC1: -12 V via 150k from -12 V / 10k to 3V3 */

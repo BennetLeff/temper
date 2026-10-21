@@ -28,22 +28,24 @@ Flash `bin/temper-lcr-rev-e.uf2` the same way as Rev D: send `BOOT`, or hold BOO
 
 ## Wiring contract
 
-The Rev E schematic must follow `src/pins.h`.
+`src/pins.h` matches the routed Rev E board (`cad/design.json`, U1 pins).
 
 | RP2040 GPIO | Function | Other end |
 |---|---|---|
-| 2 | I2S DOUT (in) | TAC5112 pin 4 |
-| 3 | I2S DIN (out) | TAC5112 pin 5 |
+| 2 | I2S DIN (out) | TAC5112 pin 5 |
+| 3 | I2S DOUT (in) | TAC5112 pin 4 |
 | 4, 5 | BCLK, FSYNC (out; PIO side-set, consecutive) | TAC5112 pins 2, 3 |
+| 6 | RNG_SET_HI: SET coil AO3400A for 100 kΩ | K3 |
+| 7 | RNG_SET_LO: SET coil AO3400A for 100 Ω | K1 |
 | 8, 9 | I2C0 SDA, SCL, 4.7 kΩ pull-ups to 3V3 | TAC5112 pins 8, 7; ADDR (13) to ground = 0x50 |
+| 10 | RNG_RESET: the three RESET coils' AO3400A | K1–K3 |
+| 11 | RNG_SET_MED: SET coil AO3400A for 5 kΩ | K2 |
 | 13 | USB VBUS / 2 sense | connector divider |
-| 14 | RNG_RESET: the three RESET coils' AO3400A | K1–K3 |
-| 15, 16, 17 | RNG_SET_LO / MED / HI: SET coil AO3400A for 100 Ω / 5 kΩ / 100 kΩ | K1, K2, K3 |
 | 25 | capture LED | |
 | 26, 27 | ±12 V monitors (ADC0, ADC1), unchanged from Rev D | |
 | 28, 29 | optional UART0 header | |
 
-The relay GPIOs come from the free set in range-switching §3.2. The relay gates need 100 kΩ pull-downs: the RP2040 pads reset with pull-down, so the relays stay put through reset.
+DIN and DOUT trade places against the first wiring draft so the board reuses the Rev D ADC/DDS breakouts. The relay GPIOs are the ADS9224R/AD9833 pins next to the codec bus, so the drive lines leave the RP2040 on the same side. The relay gates need 100 kΩ pull-downs: the RP2040 pads reset with pull-down, so the relays stay put through reset.
 
 ## Codec configuration (`src/tac5112.c`)
 

@@ -99,7 +99,8 @@ static bool wait_snapshot(uint32_t *issued) {
 static void stream_start(void) {
     memset(wave_buffer, 0, sizeof wave_buffer);
     tx_source = wave_buffer[0];
-    for (uint pin = PIN_I2S_DOUT; pin <= PIN_I2S_FSYNC; ++pin) pio_gpio_init(tdm_pio, pin);
+    const uint tdm_pins[] = {PIN_I2S_DIN, PIN_I2S_DOUT, PIN_I2S_BCLK, PIN_I2S_FSYNC};
+    for (unsigned i = 0; i < 4; ++i) pio_gpio_init(tdm_pio, tdm_pins[i]);
     uint offset = pio_add_program(tdm_pio, &tdm_program);
     pio_sm_config config = tdm_program_get_default_config(offset);
     sm_config_set_out_pins(&config, PIN_I2S_DIN, 1);
@@ -110,7 +111,8 @@ static void stream_start(void) {
     sm_config_set_clkdiv_int_frac(&config, 1, 0);
     pio_sm_init(tdm_pio, tdm_sm, offset, &config);
     pio_sm_set_consecutive_pindirs(tdm_pio, tdm_sm, PIN_I2S_DOUT, 1, false);
-    pio_sm_set_consecutive_pindirs(tdm_pio, tdm_sm, PIN_I2S_DIN, 3, true);
+    pio_sm_set_consecutive_pindirs(tdm_pio, tdm_sm, PIN_I2S_DIN, 1, true);
+    pio_sm_set_consecutive_pindirs(tdm_pio, tdm_sm, PIN_I2S_BCLK, 2, true);
     /* DOUT is synchronous to our own BCLK and stable for the whole bit around the sampling
        edge, so the input synchronizer only costs margin: without it the falling-edge sample
        sees the pad 41.7 ns after the codec's launch edge (td <= 14 ns + pad and rise). */
