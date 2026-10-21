@@ -44,17 +44,17 @@ PS2 and the heatsink keep-out (assumptions), both probe boxes' extrusions and a 
 Each 1 mm of lead takes the nearest earth distance h; estimate = series silicone / resin / air layers to a plane at h (where
 the other leg is within s <= h/2: one conductor of radius sqrt(r s), half per leg); bound = lone conductor (1.05 mm) over a plane at h, er 5 throughout.
   inside the box (Hammond reference): 84.83 mm per lead, axis 26.61 mm above the floor, 22.54 mm below the lid: estimate 1.45 pF (coaxial bound at the lid distance, er 5: 6.28 pF).
-  probe 1 TIP+: external estimate 1.81 pF (entry 0.29, spine 0.36, dock 1.17; bound 7.30 pF); nearest earth 23.8 mm (probe-1 box); per-tip total 11.69 pF.
-  probe 1 TIP-: external estimate 1.83 pF (entry 0.29, spine 0.36, dock 1.18; bound 7.34 pF); nearest earth 23.8 mm (probe-1 box); per-tip total 11.70 pF.
-  probe 2 TIP+: external estimate 1.90 pF (entry 0.28, spine 0.93, dock 0.69; bound 9.34 pF); nearest earth 23.8 mm (probe-2 box); per-tip total 11.78 pF.
-  probe 2 TIP-: external estimate 2.02 pF (entry 0.28, spine 1.04, dock 0.70; bound 9.48 pF); nearest earth 23.8 mm (probe-2 box); per-tip total 11.90 pF.
+  probe 1 TIP+: external estimate 1.83 pF (entry 0.29, spine 0.38, dock 1.17; bound 7.30 pF); nearest earth 23.8 mm (probe-1 box); per-tip total 11.71 pF.
+  probe 1 TIP-: external estimate 1.85 pF (entry 0.29, spine 0.38, dock 1.18; bound 7.34 pF); nearest earth 23.8 mm (probe-1 box); per-tip total 11.72 pF.
+  probe 2 TIP+: external estimate 1.93 pF (entry 0.28, spine 0.95, dock 0.69; bound 9.34 pF); nearest earth 23.8 mm (probe-2 box); per-tip total 11.80 pF.
+  probe 2 TIP-: external estimate 2.05 pF (entry 0.28, spine 1.08, dock 0.70; bound 9.48 pF); nearest earth 23.8 mm (probe-2 box); per-tip total 11.93 pF.
   fixed part: ladder max 6.93 + board/enclosure reserve 1.00 + tip reserve 0.50 + inside the box 1.45 = 9.88 pF.
-PASS probe 1 TIP+ per-tip loading 11.69 pF <= 12 pF (estimate; lead part bounded by 7.30 pF)
-PASS probe 1 TIP- per-tip loading 11.70 pF <= 12 pF (estimate; lead part bounded by 7.34 pF)
-PASS probe 2 TIP+ per-tip loading 11.78 pF <= 12 pF (estimate; lead part bounded by 9.34 pF)
-PASS probe 2 TIP- per-tip loading 11.90 pF <= 12 pF (estimate; lead part bounded by 9.48 pF)
+PASS probe 1 TIP+ per-tip loading 11.71 pF <= 12 pF (estimate; lead part bounded by 7.30 pF)
+PASS probe 1 TIP- per-tip loading 11.72 pF <= 12 pF (estimate; lead part bounded by 7.34 pF)
+PASS probe 2 TIP+ per-tip loading 11.80 pF <= 12 pF (estimate; lead part bounded by 9.34 pF)
+PASS probe 2 TIP- per-tip loading 11.93 pF <= 12 pF (estimate; lead part bounded by 9.48 pF)
   with every lead term at its bound (inside 6.28, external bound): worst tip 24.19 pF, reserves still estimates.
-  switch-edge current at 70 V/ns: ideal ladder 0.46 A, worst tip estimate 0.83 A; reactance at 60 kHz 223 kOhm.
+  switch-edge current at 70 V/ns: ideal ladder 0.46 A, worst tip estimate 0.84 A; reactance at 60 kHz 222 kOhm.
   tap stray that alone limits CMRR to 60 dB: 0.0066 pF (0.1 % of the 6.6 pF top capacitance).
 
 Lead-to-lead capacitance (loads the DUT differentially; symmetric, so it converts no common mode):
@@ -69,10 +69,10 @@ PASS probe 1 differential lead resonance 86.4 MHz >= 10 x the 5 MHz bandwidth
   probe 2: internal 0.145 + entry 0.036 + paired 0.142 + dock (spacing 15.0 mm) 0.108 = 0.430 uH; C 10.20 pF; f0 = 76.0 MHz.
 PASS probe 2 differential lead resonance 76.0 MHz >= 10 x the 5 MHz bandwidth
     undamped differential LC rise at 5 MHz: 0.44 %.
-  probe 1 common mode: pair over an earth return 100 mm away, 0.169 uH with both tips' 23.4 pF: f0 = 80.1 MHz; quarter-wave (er 4) 177 MHz.
-PASS probe 1 common-mode lead resonance 80.1 MHz >= 10 x the 5 MHz bandwidth
-  probe 2 common mode: pair over an earth return 100 mm away, 0.204 uH with both tips' 23.8 pF: f0 = 72.3 MHz; quarter-wave (er 4) 147 MHz.
-PASS probe 2 common-mode lead resonance 72.3 MHz >= 10 x the 5 MHz bandwidth
+  probe 1 common mode: pair over an earth return 100 mm away, 0.169 uH with both tips' 23.4 pF: f0 = 80.0 MHz; quarter-wave (er 4) 177 MHz.
+PASS probe 1 common-mode lead resonance 80.0 MHz >= 10 x the 5 MHz bandwidth
+  probe 2 common mode: pair over an earth return 100 mm away, 0.204 uH with both tips' 23.9 pF: f0 = 72.2 MHz; quarter-wave (er 4) 147 MHz.
+PASS probe 2 common-mode lead resonance 72.2 MHz >= 10 x the 5 MHz bandwidth
 
 Common-mode to differential conversion through the leads at 5 MHz. Load mismatch dC (ladder +/-5 % twice, 0.5 pF tip
 asymmetry, and the two legs' computed external-capacitance difference) through the leakage inductance L_dm/2, plus the
@@ -81,7 +81,7 @@ conductor-length difference (partial self-inductance x the tip's CM current):
     leg external-C difference 0.01 pF, dC = 1.17 pF -> 2.3e-4; total 4.0e-4 (68 dB).
 PASS probe 1 lead CM-to-DM conversion at 5 MHz 68 dB >= 60 dB
   probe 2: legs 181.3 / 181.3 mm conductor; length residual 0.0 mm + 2 mm cutting = 2.0 mm (2.5 nH) -> 2.9e-5;
-    leg external-C difference 0.12 pF, dC = 1.28 pF -> 2.7e-4; total 3.0e-4 (70 dB).
+    leg external-C difference 0.13 pF, dC = 1.29 pF -> 2.7e-4; total 3.0e-4 (70 dB).
 PASS probe 2 lead CM-to-DM conversion at 5 MHz 70 dB >= 60 dB
 
 Magnetic pickup from stage-53 currents (28 A peak at 35 kHz). Open loop area per probe, each part in the field of one
@@ -107,8 +107,10 @@ PASS internal lead conductor 22.54 mm >= 20 mm from the lid
 PASS insert screw to gland hole 30.65 mm >= 20 mm (the lead in the hole is insulated by the wire)
 PASS lead height above the board at W_HV 4.65 mm <= 5.5 mm
 PASS gland thread 8 mm spans the 2.5 mm insert seat and the 5 mm locknut with >= 0.5 mm spare
-PASS bridge tab clears the gland locknuts by 1.00 mm
-PASS insert web between a gland hole and the tab slot 5.25 mm >= 3 mm (resin wall rule)
+PASS insert ledge clears the gland locknuts by 1.00 mm
+  insert ledge top 23.60 mm above the floor carries the bridge's insert end; locknut bottoms at 15.61 mm.
+PASS spine socket boss (8.0 mm wide) fits between the gland domes (9.0 mm gap) with >= 0.5 mm each side
+PASS spine rod clears the leads by 1.21 mm at the tightest twist radius
 PASS gland locknuts clear each other by 7.0 mm
 PASS gland locknut inside the box clears the lid by 11.5 mm and the floor by 15.6 mm
 PASS internal routes are mirror images of equal length 84.83 mm
@@ -121,8 +123,8 @@ PASS dock-coil clears stage-53 bodies and Litz keep-outs by 1.00 mm >= 1 mm
 PASS dock-bank clears stage-53 bodies and Litz keep-outs by 1.20 mm >= 1 mm
   spine-coil: 25.50 mm (converging half twist to U41).
 PASS spine-coil clears stage-53 bodies and Litz keep-outs by 25.50 mm >= 1 mm
-  spine-bank: 19.89 mm (entry to PS2).
-PASS spine-bank clears stage-53 bodies and Litz keep-outs by 19.89 mm >= 1 mm
+  spine-bank: 20.42 mm (entry to L1).
+PASS spine-bank clears stage-53 bodies and Litz keep-outs by 20.42 mm >= 1 mm
   probe 1 TIP+ lead surface: 1.43 mm (C22).
 PASS probe 1 TIP+ lead surface clears stage-53 bodies by 1.43 mm >= 1 mm
   probe 1 TIP- lead surface: 1.50 mm (C22).
@@ -140,8 +142,8 @@ PASS the two spines are 70 mm apart
 Asymmetric printed material. First-order dielectric perturbation of a lead's capacitance by a resin volume V at distance d:
 dC ~ (er - 1) eps0 (C'/(2 pi eps0))^2 V / d^2, with C' the lead's per-length capacitance (12 pF/m upper). Outside the divider it only
 loads the source; it is fixed, and enters the CM-to-DM budget above only through dC.
-  largest single asymmetric feature: dock-bank TIP- clamp -> 0.019 pF (estimate).
-PASS asymmetric printed features shift a leg by <= 0.1 pF (0.019 pF), inside the 0.5 pF tip-asymmetry reserve
+  largest single asymmetric feature: dock-bank TIP- clamp -> 0.021 pF (estimate).
+PASS asymmetric printed features shift a leg by <= 0.1 pF (0.021 pF), inside the 0.5 pF tip-asymmetry reserve
 
-Printed parts: wall insert 103.12 x 53.09 x 3 mm (gland seats 2.5 mm); lead bridge 87.4 x 69.0 x 3 mm overall
-(x -77.43..10.00, y 0.5..69.5, tab included); docks and spines as in geometry.json (mech3d/ builds them).
+Printed parts: wall insert 103.12 x 53.09 x 3 mm (gland seats 2.5 mm); lead bridge 77.4 x 69.0 x 3 mm overall
+(x -67.43..10.00, y 0.5..69.5); docks and spines as in geometry.json (mech3d/ builds them).

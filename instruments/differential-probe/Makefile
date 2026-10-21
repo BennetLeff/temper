@@ -4,7 +4,7 @@ RUSTC ?= rustc
 NGSPICE ?= ngspice
 KICAD_PYTHON ?= /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3
 
-.PHONY: all generate export check leads cost pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
+.PHONY: all generate export check leads cost mech3d pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
 all:
 	$(MAKE) generate
 	$(MAKE) export
@@ -36,11 +36,18 @@ cost:
 	$(RUSTC) --edition 2021 tools/fee_consolidation.rs -o /tmp/temper-probe-fee-consolidation
 	/tmp/temper-probe-fee-consolidation > /dev/null
 
-# HV lead budget, setback gates, section view and FR4 part geometry; stage-53 probe points.
+# HV lead budget, setback gates, section view and printed-part geometry (geometry.json); stage-53 probe points.
 leads:
 	$(RUSTC) --edition 2021 tools/leads.rs -o /tmp/temper-probe-leads
 	/tmp/temper-probe-leads > /dev/null
 	python3 tools/stage53_probe_points.py > /dev/null
+
+# Printed parts from validation/leads/geometry.json (CadQuery venv, see mech3d/README.md):
+# STEP/STL/json to mech3d/out, renders to mech3d/renders. Not part of check (1.3 GB kernel).
+MECH3D_PARTS = lead_bridge wall_insert spine dock_coil dock_bank trim_tools cal_jigs
+mech3d: leads
+	cd mech3d && for p in $(MECH3D_PARTS); do .venv/bin/python $$p.py || exit 1; done
+	cd mech3d && .venv/bin/python render.py
 
 # Ordered recursive calls keep generation/export dependencies safe under make -j.
 pcb:

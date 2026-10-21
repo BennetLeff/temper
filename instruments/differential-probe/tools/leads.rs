@@ -121,11 +121,19 @@ const NUT_T: f64 = 5.0;
 /// insert's outer face). Not on the distributor page; an estimate to fit-check.
 const GLAND_OUT_D: f64 = 20.0;
 const GLAND_OUT_L: f64 = 20.0;
-/// Bridge tab through the insert: width (y), protrusion beyond the outer face,
-/// slot clearance.
-const TAB_W: f64 = 5.0;
-const TAB_OUT: f64 = 1.0;
-const SLOT_CLR: f64 = 0.4;
+/// Ledge on the insert's inner face, between the locknuts, that carries the
+/// lead bridge's insert end (the FR4 design passed a bridge tab through a slot;
+/// the insert centre now takes the spine socket instead). Width (y), overlap
+/// under the bridge (x), thickness (z, below the board-top plane).
+const LEDGE_W: f64 = 5.0;
+const LEDGE_OVERLAP: f64 = 6.0;
+const LEDGE_T: f64 = 3.0;
+/// Spine: a rod on the spine axis (between the gland domes) carrying saddles
+/// every SADDLE_PITCH; the rod enters a socket boss on the insert's outer face.
+const ROD_W: f64 = 5.0;
+const ROD_H: f64 = 8.0;
+const BOSS_WALL: f64 = 1.5;
+const BOSS_L: f64 = 12.0;
 
 // ---- HV landings on the probe board ----
 const W_HV: [(f64, f64); 2] = [(7.0, 27.0), (7.0, 43.0)];
@@ -194,6 +202,13 @@ const ENGAGE_MIN: f64 = 3.5;
 const RING_L: f64 = 14.58;
 const RING_W: f64 = 7.14;
 const BARREL_DZ: f64 = 1.3;
+/// Heat-shrink sleeve over the ring's barrel and neck (docs/hv-leads.md: two
+/// layers of RNF-100 3/16 in, recovered wall 0.51 +/- 0.08 mm, overlapping the
+/// wire by SLEEVE_ON_WIRE): diameter over the barrel (estimated 3.3 mm OD, as
+/// BARREL_DZ) with both layers at maximum wall. The docks' sleeve channels and
+/// grooves add 0.5 mm all round.
+const SLEEVE_D: f64 = 3.3 + 4.0 * 0.59;
+const SLEEVE_ON_WIRE: f64 = 10.0;
 const WASHER_D: f64 = 9.0;
 /// Stage-53 rule: insulated ring, bare ring <= 10.0 mm wide; J2-J5 exposed
 /// metal >= 5.0 mm apart at any rotation.
@@ -213,19 +228,25 @@ const Z_BENCH: f64 = 50.0;
 /// Spine lead-axis height above the stage-53 board top; spine lead spacing.
 const Z_SP: f64 = 50.0;
 const S_SP: f64 = 15.0;
-/// Spine body section: half-width, depth below the lead axis, top above it.
+/// Spine body section: half-width, depth below the lead axis, top above it (the
+/// rod is ROD_H tall on the axis; a horizontal saddle reaches R_RESIN). The dock
+/// seats' tops are at Z_SP - SP_BELOW, under the rod.
 const SP_HALF_W: f64 = 12.5;
-const SP_BELOW: f64 = 6.0;
-const SP_ABOVE: f64 = 1.0;
+const SP_BELOW: f64 = ROD_H / 2.0;
+const SP_ABOVE: f64 = if ROD_H / 2.0 > R_RESIN { ROD_H / 2.0 } else { R_RESIN };
 /// Resin envelope around a lead in a spine or dock groove (radius from the lead
 /// axis) and the fraction of the lead's surface it wraps. Dock: continuous
 /// grooves holding about half the circumference. Spine: the lead is held in
-/// saddles SADDLE_L long every SADDLE_PITCH and crosses air between them.
+/// snap saddles SADDLE_L long (pitch <= SADDLE_PITCH, saddle_stations) and crosses
+/// air between them; a saddle wraps the lead except its snap mouth (about 95
+/// degrees of the groove, so 0.75 wraps).
 const R_RESIN: f64 = 4.0;
 const WRAP_DOCK: f64 = 0.5;
 const SADDLE_L: f64 = 12.0;
 const SADDLE_PITCH: f64 = 30.0;
-const WRAP_SPINE: f64 = 0.5 * SADDLE_L / SADDLE_PITCH;
+const WRAP_SADDLE: f64 = 0.75;
+/// Length of each dock's spine seat (along the spine axis, ending at the spine end).
+const SEAT_L: f64 = 10.0;
 /// Probe 1's risers run in air between the dock-bank fork legs, held by one clip
 /// band (RISER_CLIP_Z) each; below the arm band the wrap is the clip's share.
 const RISER_CLIP_Z: (f64, f64) = (24.0, 28.0);
@@ -256,6 +277,27 @@ const CLAMP_L: f64 = 5.0;
 const H_SO: f64 = 10.0;
 /// Dock post half-width (sits on an M3 hex standoff, 5.5 mm across flats).
 const POST_R: f64 = 3.0;
+
+// ---- Trimmer access (probe board frame) and tools ----
+/// CT1/CT2 GKG60015 (tools/build.rs envelope: body 4.5 mm, rotor to 5.0 mm);
+/// RV1/RV2 Bourns 3296W (10.03 mm tall; screw position to be read from a sample).
+const TRIMMERS: [(&str, f64, f64, f64); 4] = [("CT1", 62.0, 23.0, 5.0), ("CT2", 62.0, 47.0, 5.0), ("RV1", 65.0, 7.0, 10.03), ("RV2", 65.0, 63.0, 10.03)];
+/// Vessel CA-18 zirconia blade (code 125672): slotted 1.8 x 0.4 mm tip, shank
+/// D1.8, 21 mm long (vessel.co.jp product page).
+const BLADE: (f64, f64, f64, f64) = (1.8, 0.4, 1.8, 21.0);
+/// Guide: sleeve bore, sleeve OD (lid hole = OD + 0.4), flange, and the gap left
+/// above the trimmer at the minimum lid height.
+const GUIDE_BORE: f64 = 4.3;
+const GUIDE_OD: f64 = 7.0;
+const GUIDE_FLANGE: (f64, f64) = (14.0, 2.0);
+const GUIDE_GAP: f64 = 2.0;
+const NOSE_D: f64 = 4.0;
+const BLADE_OUT: f64 = 10.0;
+
+// ---- Calibration jigs: replica of the stage-53 attachment region ----
+const JIG_X: (f64, f64) = (80.0, 200.0);
+const JIG_Y: (f64, f64) = (26.0, 136.0); // reaches under dock-bank's north foot (y 31..39)
+const JIG_T: f64 = 6.0;
 
 // ---- Budgets ----
 const C_TIP_TARGET: f64 = 12.0;
@@ -447,6 +489,26 @@ fn probe1_lead(j: usize) -> Lead {
         jog(&mut p, x_r + JOG, yr, z_c1 - CLAMP_L, -JOG, JOG_L);
         Lead { probe: 1, name: "TIP-", metal: S53_BOARD_T, contact: [C22_HOLE.0, C22_HOLE.1, 0.0], path: p }
     }
+}
+/// Spine axis length (insert outer face to the spine end) and the saddle
+/// stations along it: the first clears the gland dome by 1 mm, the last ends
+/// 1 mm before the dock seat, evenly spaced at <= SADDLE_PITCH (one saddle when
+/// the spine is too short for two; it may then rest on the seat).
+fn spine_len(probe: usize) -> f64 {
+    if probe == 1 { P1_Y_SPINE_END + G1 } else { P2_X_DOCK + G2 }
+}
+fn saddle_stations(probe: usize) -> Vec<f64> {
+    let s0 = GLAND_OUT_L + 1.0 + SADDLE_L / 2.0;
+    let s1 = spine_len(probe) - SEAT_L - 1.0 - SADDLE_L / 2.0;
+    if s1 <= s0 {
+        return vec![s0];
+    }
+    let n = ((s1 - s0) / SADDLE_PITCH).ceil() as usize;
+    (0..=n).map(|i| s0 + (s1 - s0) * i as f64 / n as f64).collect()
+}
+/// Axial coordinate of a point along probe `probe`'s spine.
+fn spine_s(probe: usize, p: P) -> f64 {
+    if probe == 1 { p[1] + G1 } else { p[0] + G2 }
 }
 /// Top of the TIP- strain-relief clamp band (above the board top).
 fn clamp_top() -> f64 {
@@ -750,12 +812,9 @@ fn l_int(j: usize) -> f64 {
 fn bridge_outline() -> Vec<(f64, f64)> {
     let x0 = bridge_x0();
     let (y0, y1) = (H34[0].1 - ARM_W / 2.0, H34[1].1 + ARM_W / 2.0);
-    let xt = TIP_PLATE_X - WALL_T - TAB_OUT;
     vec![
         (x0, y0), (ARM_X2, y0), (ARM_X2, y0 + ARM_W), (BRIDGE_X1, y0 + ARM_W),
         (BRIDGE_X1, y1 - ARM_W), (ARM_X2, y1 - ARM_W), (ARM_X2, y1), (x0, y1),
-        (x0, 35.0 + TAB_W / 2.0), (xt, 35.0 + TAB_W / 2.0),
-        (xt, 35.0 - TAB_W / 2.0), (x0, 35.0 - TAB_W / 2.0),
     ]
 }
 fn bridge_x0() -> f64 {
@@ -783,8 +842,8 @@ fn hole(n: &str) -> (f64, f64) {
 /// Dock A (probe 2 and the J5/J2 ring guard). Everything within 15 mm of either
 /// probe-2 lead is mirror-symmetric about y = P2_Y; the legs beyond are not.
 fn dock_coil() -> Part {
-    let (x0, x1) = (P2_X_DOCK - 10.0, P2_X_DOCK + 2.0 * R_BEND);
-    let (yi0, yi1) = (J5.1 + 0.5, J2.1 - 0.5); // between the lead planes; grooves cut later
+    let (x0, x1) = (P2_X_DOCK - SEAT_L, P2_X_DOCK + 2.0 * R_BEND);
+    let (yi0, yi1) = (J5.1, J2.1); // faces on the lead planes; mech3d cuts half-depth grooves
     let zc = Z_SP - SP_BELOW;
     let mirror = |y: f64| 2.0 * P2_Y - y;
     let h6 = hole("H6");
@@ -827,10 +886,11 @@ fn dock_bank() -> Part {
             post("H10 post", h10, za),
             post("H8 post", h8, za),
             ("cross member", [h10.0 - 3.5, h10.1 - 3.5, za], [h8.0 + 3.5, h8.1 + 3.5, zb]),
-            ("arm", [P1_X - 13.0, P1_Y_SPINE_END - 10.0, za], [P1_X + 13.0, h10.1, zb]),
-            ("spine-1 seat", [P1_X - SP_HALF_W - 3.0, P1_Y_SPINE_END - 10.0, zb], [P1_X + SP_HALF_W + 3.0, P1_Y_SPINE_END, Z_SP - SP_BELOW]),
+            ("arm", [P1_X - 13.0, P1_Y_SPINE_END - SEAT_L, za], [P1_X + 13.0, h10.1, zb]),
+            ("spine-1 seat", [P1_X - SP_HALF_W - 3.0, P1_Y_SPINE_END - SEAT_L, zb], [P1_X + SP_HALF_W + 3.0, P1_Y_SPINE_END, Z_SP - SP_BELOW]),
             ("north foot", [P1_X - 4.0, 31.0, 0.0], [P1_X + 4.0, 39.0, za]),
-            ("guide plate", [xl - 3.5, P1_Y_SPINE_END, zb], [xr + 3.5, yr - 7.5, Z_SP - SP_BELOW + 2.0]),
+            // Top on the lead plane: mech3d cuts half-depth grooves along the plan S-bends.
+            ("guide plate", [xl - 3.5, P1_Y_SPINE_END, zb], [xr + 3.5, yr - 7.5, Z_SP]),
             ("riser bridge", [fwl - 1.5, yr - 7.5, za], [fwh + 1.5, yr + 7.5, zb]),
             ("fork W1", f1.0, f1.1),
             ("fork W2", f2.0, f2.1),
@@ -838,7 +898,9 @@ fn dock_bank() -> Part {
             ("fork E2", f4.0, f4.1),
             ("riser clip W", [fwl - 1.5, yr - 7.5, RISER_CLIP_Z.0], [xl + 1.0, yr + 7.5, RISER_CLIP_Z.1]),
             ("riser clip E", [xr - 1.0, yr - 7.5, RISER_CLIP_Z.0], [fwh + 1.5, yr + 7.5, RISER_CLIP_Z.1]),
-            ("TIP- clamp", [xr + JOG - 3.0, yr - 4.0, zc1 - CLAMP_L], [fwh + 1.5, yr + 4.0, zc1]),
+            // Spans the fork legs' inner faces (fused to them); the tie round the
+            // legs at this band presses the lead into the clamp channel.
+            ("TIP- clamp", [xr + JOG - 3.0, yr - 4.5, zc1 - CLAMP_L], [fwh + 1.5, yr + 4.5, zc1]),
         ],
     }
 }
@@ -1164,7 +1226,10 @@ fn main() {
             // Local spacing to the other leg; the pair model needs s <= h / 2.
             let s_loc = other.path.pts.iter().map(|q| dist(*q, mid)).fold(f64::INFINITY, f64::min);
             let wrap = match tag {
-                0 => WRAP_SPINE,
+                0 => {
+                    let sm = spine_s(l.probe, mid);
+                    if saddle_stations(l.probe).iter().any(|st| (sm - st).abs() <= SADDLE_L / 2.0) { WRAP_SADDLE } else { 0.0 }
+                }
                 1 if l.probe == 1 && mid[2] < ARM_Z.1 => WRAP_RISER,
                 1 => WRAP_DOCK,
                 _ => 0.0,
@@ -1392,10 +1457,16 @@ fn main() {
     let loop_h = BRIDGE_T - GROOVE + od_hi;
     gate(loop_h <= 5.5, format!("lead height above the board at W_HV {loop_h:.2} mm <= 5.5 mm"), &mut r);
     gate(SEAT_T + NUT_T + 0.5 <= GLAND_THREAD, format!("gland thread {GLAND_THREAD} mm spans the {SEAT_T} mm insert seat and the {NUT_T} mm locknut with >= 0.5 mm spare"), &mut r);
-    let nut_tab = GLAND_DY - GLAND_NUT_AC / 2.0 - TAB_W / 2.0;
-    gate(nut_tab >= 1.0, format!("bridge tab clears the gland locknuts by {nut_tab:.2} mm"), &mut r);
-    let web = GLAND_DY - GLAND_HOLE / 2.0 - (TAB_W / 2.0 + SLOT_CLR);
-    gate(web >= 3.0, format!("insert web between a gland hole and the tab slot {web:.2} mm >= 3 mm (resin wall rule)"), &mut r);
+    let nut_ledge = GLAND_DY - GLAND_NUT_AC / 2.0 - LEDGE_W / 2.0;
+    gate(nut_ledge >= 1.0, format!("insert ledge clears the gland locknuts by {nut_ledge:.2} mm"), &mut r);
+    let ledge_top = BOARD_TOP;
+    let nut_bottom = wire_z() - GLAND_NUT_AC / 2.0;
+    writeln!(r, "  insert ledge top {ledge_top:.2} mm above the floor carries the bridge's insert end; locknut bottoms at {nut_bottom:.2} mm.").unwrap();
+    let boss_w = ROD_W + 2.0 * BOSS_WALL;
+    let dome_gap = 2.0 * GLAND_DY - GLAND_OUT_D;
+    gate(boss_w + 1.0 <= dome_gap, format!("spine socket boss ({boss_w:.1} mm wide) fits between the gland domes ({dome_gap:.1} mm gap) with >= 0.5 mm each side"), &mut r);
+    let rod_clear = S_SP / 2.0 - od_hi / 2.0 - ((ROD_W / 2.0).powi(2) + (ROD_H / 2.0).powi(2)).sqrt();
+    gate(rod_clear >= 0.5, format!("spine rod clears the leads by {rod_clear:.2} mm at the tightest twist radius"), &mut r);
     let gap_nuts = 2.0 * GLAND_DY - GLAND_NUT_AC;
     gate(gap_nuts >= 3.0, format!("gland locknuts clear each other by {gap_nuts:.1} mm"), &mut r);
     let nut_lid = BOX_H - (wz + GLAND_NUT_AC / 2.0);
@@ -1533,7 +1604,7 @@ fn main() {
     let (bx0, bx1) = bo.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |a, p| (a.0.min(p.0), a.1.max(p.0)));
     let (by0, by1) = bo.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |a, p| (a.0.min(p.1), a.1.max(p.1)));
     writeln!(r, "\nPrinted parts: wall insert {PLATE_W} x {PLATE_H} x {WALL_T} mm (gland seats {SEAT_T} mm); lead bridge {:.1} x {:.1} x {BRIDGE_T} mm overall", bx1 - bx0, by1 - by0).unwrap();
-    writeln!(r, "(x {bx0:.2}..{bx1:.2}, y {by0:.1}..{by1:.1}, tab included); docks and spines as in geometry.json (mech3d/ builds them).").unwrap();
+    writeln!(r, "(x {bx0:.2}..{bx1:.2}, y {by0:.1}..{by1:.1}); docks and spines as in geometry.json (mech3d/ builds them).").unwrap();
 
     // ---- geometry.json ----
     let mut js = String::new();
@@ -1544,7 +1615,7 @@ fn main() {
     writeln!(js, "  \"clearances\": {{\"setback_hv_to_metal\": {SETBACK}, \"body_clearance\": {BODY_CLR}, \"lead_clearance\": {LEAD_CLR}, \"lead_groove_r\": {:.3}, \"resin_wall_min\": 3.0, \"litz_offset\": {LITZ_OFF}, \"litz_keepout_half\": {LITZ_KO}}},", od_hi / 2.0 + 0.15).unwrap();
     writeln!(js, "  \"bench\": {{\"z_board_top_above_bench\": {Z_BENCH}, \"spine_z\": {Z_SP}, \"spine_pitch\": {S_SP}, \"spine_half_width\": {SP_HALF_W}, \"spine_below\": {SP_BELOW}, \"spine_above\": {SP_ABOVE}, \"half_twist_length\": {L_TWIST}, \"box_riser\": {:.3}, \"standoff_h\": {H_SO}}},", Z_SP + Z_BENCH - gland_z_box()).unwrap();
     writeln!(js, "  \"stage53\": {{\"board\": [{S53_W}, {S53_H}], \"board_t\": {S53_BOARD_T}, \"J5\": {}, \"J2\": {}, \"C22_hole\": {}, \"C22_hole_d\": {C22_HOLE_D},", J::p([J5.0, J5.1, 0.0]), J::p([J2.0, J2.1, 0.0]), J::p([C22_HOLE.0, C22_HOLE.1, 0.0])).unwrap();
-    writeln!(js, "    \"redcube\": {{\"d\": {REDCUBE_D}, \"h\": {REDCUBE_H}, \"thread\": {REDCUBE_THREAD}}}, \"washer_d\": {WASHER_D}, \"stack_top\": {:.3}, \"ring\": {{\"l\": {RING_L}, \"w\": {RING_W}, \"z_probe1\": {:.3}, \"z_probe2\": {:.3}}},", stack_top, ring_z(1, 0), ring_z(2, 0)).unwrap();
+    writeln!(js, "    \"redcube\": {{\"d\": {REDCUBE_D}, \"h\": {REDCUBE_H}, \"thread\": {REDCUBE_THREAD}}}, \"washer_d\": {WASHER_D}, \"stack_top\": {:.3}, \"ring\": {{\"l\": {RING_L}, \"w\": {RING_W}, \"barrel_dz\": {BARREL_DZ}, \"sleeve_d\": {SLEEVE_D:.2}, \"sleeve_on_wire\": {SLEEVE_ON_WIRE}, \"z_probe1\": {:.3}, \"z_probe2\": {:.3}}},", stack_top, ring_z(1, 0), ring_z(2, 0)).unwrap();
     let hs: Vec<String> = S53_HOLES.iter().map(|h| format!("{{\"name\": \"{}\", \"at\": {}, \"metal\": {}}}", h.0, J::p([h.1, h.2, 0.0]), h.3)).collect();
     writeln!(js, "    \"holes\": [{}],", hs.join(", ")).unwrap();
     let lz: Vec<String> = litz.iter().map(|(n, a, b)| format!("{{\"name\": \"{n}\", \"box\": {}}}", J::bx(*a, *b))).collect();
@@ -1583,11 +1654,21 @@ fn main() {
     let glands: Vec<String> = (0..2).map(|j| format!("[{:.3},{:.3},{:.3}]", gland(j).0, -gland(j).1, wire_z())).collect();
     writeln!(js, "  \"box\": {{\"hammond\": {{\"box_h_min\": {BOX_H}, \"box_h_nom\": {BOX_H_NOM}, \"box_w\": {BOX_W}, \"out_w\": {BOX_OUT_W}, \"out_h\": {BOX_OUT_H}, \"floor_t\": {BOX_FLOOR_T:.3}, \"l_int\": {BOX_L_INT}, \"board_under\": {BOARD_UNDER}, \"board_t\": {BOARD_T}}},").unwrap();
     let screws: Vec<String> = PLATE_SCREWS.iter().map(|(u, v)| format!("[{u},{v}]")).collect();
-    writeln!(js, "    \"insert\": {{\"inner_face_x\": {TIP_PLATE_X:.4}, \"t\": {WALL_T}, \"seat_t\": {SEAT_T}, \"seat_d\": {SEAT_D}, \"w\": {PLATE_W}, \"h\": {PLATE_H}, \"centre_y\": {:.3}, \"centre_z\": {PLATE_CZ:.3}, \"screws_uv\": [{}], \"screw_d\": {PLATE_SCREW_D}, \"gland_hole\": {GLAND_HOLE}, \"glands\": [{}], \"gland_out_d\": {GLAND_OUT_D}, \"gland_out_l\": {GLAND_OUT_L}, \"nut_ac\": {GLAND_NUT_AC}, \"nut_t\": {NUT_T}, \"tab_w\": {TAB_W}, \"tab_t\": {BRIDGE_T}, \"slot_clr\": {SLOT_CLR}}},", -PLATE_CY, screws.join(","), glands.join(",")).unwrap();
+    writeln!(js, "    \"insert\": {{\"inner_face_x\": {TIP_PLATE_X:.4}, \"t\": {WALL_T}, \"seat_t\": {SEAT_T}, \"seat_d\": {SEAT_D}, \"w\": {PLATE_W}, \"h\": {PLATE_H}, \"centre_y\": {:.3}, \"centre_z\": {PLATE_CZ:.3}, \"screws_uv\": [{}], \"screw_d\": {PLATE_SCREW_D}, \"gland_hole\": {GLAND_HOLE}, \"glands\": [{}], \"gland_out_d\": {GLAND_OUT_D}, \"gland_out_l\": {GLAND_OUT_L}, \"nut_ac\": {GLAND_NUT_AC}, \"nut_t\": {NUT_T}, \"ledge_w\": {LEDGE_W}, \"ledge_t\": {LEDGE_T}, \"ledge_x1\": {:.4}, \"ledge_top_z\": {BOARD_TOP}, \"rod_w\": {ROD_W}, \"rod_h\": {ROD_H}, \"boss_wall\": {BOSS_WALL}, \"boss_l\": {BOSS_L}}},", -PLATE_CY, screws.join(","), glands.join(","), bridge_x0() + LEDGE_OVERLAP).unwrap();
     let h34: Vec<String> = H34.iter().map(|&(x, y)| format!("[{x},{:.3}]", -y)).collect();
     let whv: Vec<String> = W_HV.iter().map(|&(x, y)| format!("[{x},{:.3}]", -y)).collect();
     writeln!(js, "    \"bridge\": {{\"outline\": [{}], \"t\": {BRIDGE_T}, \"groove\": {GROOVE}, \"board_top_z\": {BOARD_TOP}, \"h34\": [{}], \"tie_points\": [{}], \"tie_slot\": [{}, {}], \"tie_gap\": {TIE_GAP}, \"arm_x2\": {ARM_X2}}},", br.join(","), h34.join(","), ties.join(","), TIE_SLOT.0, TIE_SLOT.1).unwrap();
     writeln!(js, "    \"w_hv\": [{}], \"internal_leads\": [{}], \"wire_z\": {:.4}}}", whv.join(","), ints.join(","), wire_z()).unwrap();
+    let st = |pr: usize| saddle_stations(pr).iter().map(|v| format!("{v:.3}")).collect::<Vec<_>>().join(", ");
+    writeln!(js, "  ,\"spine\": {{\"rod_w\": {ROD_W}, \"rod_h\": {ROD_H}, \"saddle_l\": {SADDLE_L}, \"saddle_pitch\": {SADDLE_PITCH}, \"r_resin\": {R_RESIN}, \"seat_l\": {SEAT_L}, \"probe1_axis\": [{}, {}], \"probe2_axis\": [{}, {}], \"probe1_saddles\": [{}], \"probe2_saddles\": [{}]}}", J::p([P1_X, -G1, Z_SP]), J::p([P1_X, P1_Y_SPINE_END, Z_SP]), J::p([-G2, P2_Y, Z_SP]), J::p([P2_X_DOCK, P2_Y, Z_SP]), st(1), st(2)).unwrap();
+    // Trimmer access: lid inner face at the minimum internal height.
+    let tr: Vec<String> = TRIMMERS.iter().map(|&(n, x, y, h)| {
+        let top = BOARD_TOP + h;
+        let sleeve = BOX_H - top - GUIDE_GAP; // below the lid's inner face
+        format!("{{\"ref\": \"{n}\", \"xy\": [{x},{:.3}], \"top_z\": {top:.3}, \"sleeve_below_lid\": {sleeve:.3}, \"reach_from_flange_top\": {:.3}}}", -y, GUIDE_FLANGE.1 + BOX_FLOOR_T + (BOX_H - top))
+    }).collect();
+    writeln!(js, "  ,\"trim\": {{\"lid_inner_z_min\": {BOX_H}, \"lid_t\": {BOX_FLOOR_T:.3}, \"trimmers\": [{}], \"guide\": {{\"bore\": {GUIDE_BORE}, \"od\": {GUIDE_OD}, \"flange_d\": {}, \"flange_t\": {}, \"gap\": {GUIDE_GAP}}}, \"blade\": {{\"w\": {}, \"t\": {}, \"shank_d\": {}, \"l\": {}, \"part\": \"Vessel CA-18 (code 125672), zirconia\"}}, \"nose_d\": {NOSE_D}, \"blade_out\": {BLADE_OUT}}}", tr.join(", "), GUIDE_FLANGE.0, GUIDE_FLANGE.1, BLADE.0, BLADE.1, BLADE.2, BLADE.3).unwrap();
+    writeln!(js, "  ,\"jig\": {{\"region\": {}, \"t\": {JIG_T}, \"holes\": [\"H6\", \"H7\", \"H8\", \"H10\"]}}", J::bx([JIG_X.0, JIG_Y.0, -JIG_T], [JIG_X.1, JIG_Y.1, 0.0])).unwrap();
     writeln!(js, "}}").unwrap();
 
     fs::create_dir_all("validation/leads").unwrap();
