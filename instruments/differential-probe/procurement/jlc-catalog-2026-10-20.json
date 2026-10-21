@@ -5669,6 +5669,140 @@
      0.0043
     ]
    ]
+  },
+  "0805W8F2202T5E": {
+   "query": "0805W8F2202T5E",
+   "status": "Basic",
+   "lcsc": "C17560",
+   "mpn": "0805W8F2202T5E",
+   "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+   "jlc_stock": 1547027,
+   "jlc_prices": [
+    [
+     1,
+     0.0048
+    ],
+    [
+     1000,
+     0.0039
+    ],
+    [
+     5000,
+     0.0031
+    ],
+    [
+     10000,
+     0.0027
+    ],
+    [
+     50000,
+     0.0025
+    ],
+    [
+     100000,
+     0.0023
+    ]
+   ],
+   "describe": "-55℃~+155℃ 125mW 150V 22kΩ Thick Film Resistor ±1% ±100ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "other_codes": [],
+   "jlc_least_patch": 20,
+   "jlc_loss": 10,
+   "jlc_min_purchase": 1,
+   "lcsc_stock": 1062900,
+   "lcsc_min_buy": 100,
+   "lcsc_prices": [
+    [
+     100,
+     0.0048
+    ],
+    [
+     1000,
+     0.0039
+    ],
+    [
+     5000,
+     0.0031
+    ],
+    [
+     10000,
+     0.0028
+    ],
+    [
+     50000,
+     0.0025
+    ],
+    [
+     100000,
+     0.0023
+    ]
+   ]
+  },
+  "0805W8F4700T5E": {
+   "query": "0805W8F4700T5E",
+   "status": "Basic",
+   "lcsc": "C17710",
+   "mpn": "0805W8F4700T5E",
+   "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+   "jlc_stock": 2447002,
+   "jlc_prices": [
+    [
+     1,
+     0.0048
+    ],
+    [
+     1000,
+     0.0038
+    ],
+    [
+     5000,
+     0.0032
+    ],
+    [
+     10000,
+     0.0028
+    ],
+    [
+     50000,
+     0.0026
+    ],
+    [
+     100000,
+     0.0024
+    ]
+   ],
+   "describe": "-55℃~+155℃ 125mW 150V 470Ω Thick Film Resistor ±1% ±100ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "other_codes": [],
+   "jlc_least_patch": 20,
+   "jlc_loss": 10,
+   "jlc_min_purchase": 1,
+   "lcsc_stock": 1407700,
+   "lcsc_min_buy": 100,
+   "lcsc_prices": [
+    [
+     100,
+     0.0049
+    ],
+    [
+     1000,
+     0.0039
+    ],
+    [
+     5000,
+     0.0032
+    ],
+    [
+     10000,
+     0.0029
+    ],
+    [
+     50000,
+     0.0026
+    ],
+    [
+     100000,
+     0.0024
+    ]
+   ]
   }
  },
  "merged": {
@@ -5682,6 +5816,8 @@
   "RT0603BRD071KL": "2026-10-20",
   "0805W8F1000T5E": "2026-10-20",
   "CL10C331JB8NNNC": "2026-10-21",
-  "CL21C470JBANNNC": "2026-10-21"
+  "CL21C470JBANNNC": "2026-10-21",
+  "0805W8F2202T5E": "2026-10-21",
+  "0805W8F4700T5E": "2026-10-21"
  }
 }

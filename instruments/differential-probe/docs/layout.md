@@ -17,7 +17,7 @@ Canonical board: [`cad/differential-probe.kicad_pcb`](../cad/differential-probe.
 | General clearance | 0.20 mm; explicit HV rules override it |
 | Fine-pitch exception | U6 pad-to-pad only: 0.15 mm, matching the selected VSSOP land pattern |
 | Slots | Ten non-plated 1.2 × 8 mm cutouts, one under each HV capacitor, plus the notch |
-| Assembly | 105 circuit footprints (95 SMD, 10 THT), two HV landings, four mounting holes |
+| Assembly | 112 circuit footprints (101 SMD, 11 THT) plus the copper jumper JP1, two HV landings, four mounting holes |
 | Reference designators | F.Fab / B.Fab layers; silk carries outlines and board text only |
 
 The fabricator stackup, laminate CTI, copper weight and finish are not yet selected, and there is no controlled-impedance claim. Keep the In1 ground reference directly below F.Cu. Changing the dielectric thickness or copper geometry requires a new compensation/CMRR assessment.
@@ -84,7 +84,7 @@ How each section meets the 4 mm creepage rule:
 
 | Mount | Position, mm | Hardware |
 |---|---|---|
-| H1 | (145.5, 4.5) | GND, plated 3.2 mm; metal M3 standoff and screw |
+| H1 | (131.0, 31.2) | GND, plated 3.2 mm; metal M3 standoff and screw (moved from the (145.5, 4.5) corner for the trigger BNC J4) |
 | H2 | (145.5, 65.5) | GND, plated 3.2 mm; metal M3 standoff and screw |
 | H3 | (5, 5) | Unplated 3.2 mm; **nylon** standoff and **nylon** screw |
 | H4 | (5, 65) | Unplated 3.2 mm; **nylon** standoff and **nylon** screw |
@@ -97,7 +97,7 @@ H3 and H4 sit on the two prongs on either side of the notch. A metal screw throu
 
 **HV landings.** `W_HV1` and `W_HV2` are 4 mm solder pads with 1.6 mm plated holes for the captive HV leads. They are not a rated connector. The leads are generic 20 AWG silicone wire accepted by incoming hipot (rated fallbacks Rowe R800-1020 and Alpha Wire 392040, UL 3239 10 kV DC), entered from the top, with the insulation ending ≤ 1 mm above the pad and the tail ≤ 1.0 mm below the board. Each lead is tied to the printed lead bridge 11 mm before its joint, and leaves through a nylon gland in the printed tip-end wall insert. The design, budget and assembly steps are in [HV leads](hv-leads.md); the landings did not change.
 
-**Panel components.** The BNC (J3), range switch (SW1) and power switch (SW2) are PCB-mounted. Their faces point at the output end plate:
+**Panel components.** The output BNC (J3), trigger BNC (J4), range switch (SW1) and power switch (SW2) are PCB-mounted. Their faces point at the output end plate. Along the panel from the y = 0 edge: J4 at y = 7.72, SW1 at 21.36, J3 at 35.0 and SW2 at 56.0 mm; SW3 is set back at (131.85, 46.25).
 
 | Part | Panel cut-out | Axis height |
 |---|---|---|

@@ -1512,26 +1512,31 @@ fn main() {
         "C13527",
     );
     d.place(1, "U7", "CD4013", &ff, (283., 161.), 0, false, true);
+    // Flip-flop 2 is a second latch, set and reset with flip-flop 1, that
+    // drives only the trigger output (J4): a shorted or overdriven trigger BNC
+    // cannot reach the warning latch or the comparators (docs/design.md).
     for (p, n) in [
         ("14", "+4V8"),
         ("7", "-4V8"),
         ("6", "SET"),
         ("4", "RESET"),
-        ("10", "+4V8"),
+        ("8", "SET"),
+        ("10", "RESET"),
         ("1", "OV_LED"),
+        ("12", "TRIG_DRV"),
     ] {
         d.link("U7", p, n)
     }
-    for p in ["2", "13", "12"] {
+    for p in ["2", "13"] {
         d.nc("U7", p)
     }
-    for p in ["5", "3", "8", "9", "11"] {
+    for p in ["5", "3", "9", "11"] {
         d.tag("U7", p, "-4V8");
         let xy = d.point("U7", p);
         d.wire(1, xy, (260., xy.1));
     }
     d.wire(1, (260., 157.), (260., 181.));
-    for y in [161., 165., 173., 177.] {
+    for y in [161., 173., 177.] {
         d.dot(1, (260., y));
     }
     d.power(1, (260., 181.), "-4V8");
@@ -1541,6 +1546,22 @@ fn main() {
         "Reset / LED on power sheet. Verify both rails first.",
         1.27,
     );
+    d.block(1, (200., 199.), (318., 229.), "OVERVOLTAGE TRIGGER OUTPUT (J4) / latched, 0 V idle, ~4.7 V on 1 MR");
+    d.two(1, "R110", "R_Small_US", &rb("22 kR", "0805W8F2202T5E", "C17560"), (214., 214.), 90, "TRIG_DRV", "TRIG_B", false);
+    d.place(1, "Q3", "PNP", &pnp, (236., 214.), 0, false, true);
+    for (p, n) in [("1", "TRIG_B"), ("2", "+4V8"), ("3", "TRIG_C")] {
+        d.link("Q3", p, n)
+    }
+    d.two(1, "R111", "R_Small_US", &r("10 kR", "10K"), (252., 220.), 0, "TRIG_C", "GND", false);
+    d.two(1, "R112", "R_Small_US", &rb("470 R", "0805W8F4700T5E", "C17710"), (268., 210.), 90, "TRIG_C", "TRIG", false);
+    d.place(1, "D10", "BAV199", &clamp, (285., 218.), 0, false, true);
+    for (p, n) in [("1", "GND"), ("2", "+4V8"), ("3", "TRIG_C")] {
+        d.link("D10", p, n)
+    }
+    d.place(1, "J4", "BNC", &edge_parts::bnc(), (306., 214.), 0, false, true);
+    d.link("J4", "1", "TRIG");
+    d.link("J4", "2", "GND");
+    d.text(1, (203., 225.), "Scope trigger, not a peak-capture guarantee. Edge <= 1.35 us after the comparator output (validation/checks.txt).", 1.27);
     // Sheet 3: battery supply, decoupling, rail-referenced thresholds, latch UI.
     d.text(
         2,

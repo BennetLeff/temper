@@ -272,6 +272,13 @@ FEATURE_SUBS = {
 }
 FEATURE_ADDS = [
     ("C62", "CL10C331JB8NNNC"),  # 330 pF C0G shunt at the BNC, through JP1 (PCB copper)
+    # Overvoltage trigger output (docs/design.md): CD4013 flip-flop 2 -> Q3 -> J4.
+    ("J4", "031-5431-10RFX"),
+    ("Q3", "MMBT5401"),
+    ("R110", "0805W8F2202T5E"),
+    ("R111", "RT0805BRD0710KL"),
+    ("R112", "0805W8F4700T5E"),
+    ("D10", "BAV199,215"),
 ]
 feat_rows = [(ref, FEATURE_SUBS.get(ref, mpn)) for ref, mpn in rec_rows] + FEATURE_ADDS
 

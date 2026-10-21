@@ -132,6 +132,38 @@ Scope zero subtraction does not remove an offset that the comparator sees.
 
 The open-drain comparator outputs (OV_N) drive Q1 and the CD4013 set input, and the LED stays on until reset (SW3, a thru-hole C&K PTS645 tactile switch pressed through a lid hole). This latch is an initial-envelope warning, not a fast protective trip: the comparators have roughly 560 ns typical delay.
 
+### Trigger output (J4)
+
+A second BNC, J4, gives the scope a trigger edge when the warning latches. It marks that the warning latched. **It is a trigger, not a peak-capture guarantee.**
+
+- **Drive.** CD4013 flip-flop 2 (U7 pins 8–13) is set and reset with flip-flop 1: SET2 = SET, RESET2 = RESET, D2/CLK2 tied to −4.8 V. Its /Q2 output (TRIG_DRV) drives the base of Q3, an MMBT5401 PNP high-side switch, through R110 (22 kΩ). Q3 pulls TRIG_C to +4.8 V. R112 (470 Ω) feeds the BNC centre, R111 (10 kΩ) holds the output at 0 V when idle, and D10 (BAV199) clamps TRIG_C to GND and +4.8 V.
+- **Isolation.** J4 connects only through R112 to TRIG_C. Nothing from the BNC reaches SET, RESET, OV_N or the comparators, so a shorted or back-driven trigger cable cannot disturb the warning LED. Pressing reset clears both flip-flops together.
+- **Levels** (`validation/checks.txt`, worst-case rail and resistor corners): idle 0 V; latched 4.445–4.920 V into 1 MΩ and 0.418–0.484 V into 50 Ω. Set the scope trigger to a 2 V rising edge on a 1 MΩ input, or 0.25 V on 50 Ω.
+- **Drive margin.** The Q3 base current is at least 0.355 mA. At the 11.1 mA short-circuit current that is a forced beta of 31 or less, against hFE ≥ 100. The CD4013 sinks at most 0.43 mA, against its 1.1 mA IOL at 0.5 V and 85 °C.
+- **Abuse.** A shorted BNC puts at most 54 mW in R112 (125 mW rating). Continuous drive applied to J4 is tolerated from −7.5 V to +11.4 V. The negative limit is R112 power; the positive limit is current through D10 into +4.8 V staying below that rail's 14.7 mA minimum load, with no diode drop credited.
+- **Latency estimate.** This is a charge-control estimate after the comparator output falls, using 25 °C datasheet maxima where they exist:
+
+| Stage | Time |
+|---|---|
+| Q1 drives SET past 70 % VDD (base current ≥ 0.166 mA, Miller charge on Cob ≤ 6 pF at 10 V, Ceb assumed 30 pF) | 620 ns |
+| CD4013 set to /Q plus output transition (VDD = 5 V maxima, slower than the 9.6 V used here) | 600 ns |
+| Q3 turn-on (base current ≥ 0.355 mA) | 289 ns |
+| Output to 90 % on 1 MΩ ∥ 122 pF through R112 | 134 ns |
+| **Total** | **1.64 µs** |
+
+The TLV1704 adds 460 ns typical tpHL before this; it has no maximum. The 30 pF Ceb is an assumption: twice the 15 pF maximum of the MMBT5401M3, because the SOT-23 datasheet gives none. So the total is an estimate, not a bound. Qualification measures it ([qualification.md §3](qualification.md)).
+
+New parts and ratings (functional low-voltage circuit; no safety approval is claimed or needed for any of them):
+
+| Ref | Part | Ratings used | Approval basis |
+|---|---|---|---|
+| J4 | Amphenol 031-5431-10RFX, as J3 | 50 Ω PCB right-angle bulkhead BNC | None (non-safety signal connector; same part as J3) |
+| Q3 | JSCJ MMBT5401 (LCSC C8326), as Q1 | VCEO −150 V, IC −0.6 A, PC 0.3 W, hFE 100–300 at −10 mA, VCE(sat) ≤ 0.2 V at −10/−1 mA, fT ≥ 100 MHz | None |
+| R110 | Uni-Royal 0805W8F2202T5E 22 kΩ (C17560, JLC Basic) | 1 %, 100 ppm/°C, 125 mW, 150 V | None |
+| R111 | Yageo RT0805BRD0710KL 10 kΩ (already on the board) | 0.1 %, 25 ppm/°C, 125 mW | None |
+| R112 | Uni-Royal 0805W8F4700T5E 470 Ω (C17710, JLC Basic) | 1 %, 100 ppm/°C, 125 mW, 150 V | None |
+| D10 | Nexperia BAV199,215, as D1–D3 | 75 V continuous / 85 V repetitive reverse, 160 mA continuous forward, 4 A surge, ≤ 5 nA leakage at 75 V | None |
+
 ## Supply, grounding and assembly
 
 ### Batteries and regulators
@@ -143,6 +175,7 @@ Two 9 V batteries sit in PCB-mount MPD BH9VPC holders on the underside. They fee
 | Amplifiers: four OPA2810 channels + one OPA810 | ~18 mA |
 | Rev B for comparison | ~50 mA |
 | Lit LED | about 0.8 mA extra |
+| Latched trigger output (J4) | about 0.9 mA extra into 1 MΩ, up to 11 mA into 50 Ω or a short; 0 when idle |
 
 Verify the actual current and the regulator temperature. There is no low-battery indicator: record both rails before and after measurements.
 
@@ -150,7 +183,7 @@ The 10 µF, 25 V, 1210 X7R regulator capacitors need an effective-capacitance ch
 
 ### Grounding
 
-GND is the BNC shell, scope earth and enclosure. Battery power does **not** make this a galvanically isolated input. Keep the scope's protective earth intact. The grounded mounting holes H1/H2 and the BNC shell bond the board to the enclosure at the output end.
+GND is the BNC shell, scope earth and enclosure. Battery power does **not** make this a galvanically isolated input. Keep the scope's protective earth intact. The grounded mounting holes H1/H2 and the two BNC shells bond the board to the enclosure at the output end.
 
 ### HV ladder ratings
 
@@ -167,6 +200,8 @@ Custom symbols use the selected package pinout, not a generic op-amp pinout:
 | ADP7142, TSOT-5 | 1 VIN, 2 GND, 3 EN, 4 ADJ, 5 VOUT |
 | ADP7182, TSOT-5 | 1 GND, 2 VIN, 3 EN, 4 ADJ, 5 VOUT |
 | BAV199, SOT-23 | 1 outer anode, 2 outer cathode, 3 series junction |
+| MMBT5401, SOT-23 | 1 B, 2 E, 3 C |
+| CD4013B, SOIC-14 | flip-flop 2: 8 SET2, 9 D2, 10 RESET2, 11 CLK2, 12 /Q2, 13 Q2 |
 | BH9VPC | 1 = +, 2 = − (MPD rev J PCB layout) |
 | E-Switch 100 M7 DPDT | 2 and 5 common; 3 and 6 unused |
 

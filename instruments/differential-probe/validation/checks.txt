@@ -1,5 +1,5 @@
-PASS: 107 exact-MPN components; 107 board footprints; no offboard (hand-wired) components.
-PASS: 279 pins, 61 independent connectivity groups agree with KiCad export.
+PASS: 113 exact-MPN components; 113 board footprints; no offboard (hand-wired) components.
+PASS: 293 pins, 64 independent connectivity groups agree with KiCad export.
 PASS: critical package pin mappings and power polarity assertions.
 
 Ideal circuit calculations (not measurements):
@@ -29,5 +29,7 @@ Conditional late-trip budget (-25..85C): tip < 1454.52 V; selected comparator < 
 Ladder classes: R87/R91 0.1 % + 25 ppm/C, R88/R92 1 % + 100 ppm/C, R89/R93 0.1 % + 25 ppm/C; sense R71/R72 0.1 % + 25 ppm/C.
 Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits and both rails inside their regulated range; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.
 Clamp return: single fault (one bottom bank open, 3 kVpk at 60 kHz) injects <= 7.5 mA peak into a rail whose minimum load is ~14.7 mA, so neither LDO output is back-driven. Normal in-range inputs (|tap| <= 1.5 V) never forward-bias the rail clamps.
+Trigger output J4 (CD4013 flip-flop 2, latched with the LED; Q3 MMBT5401 high-side, 470 ohm source): idle 0 V (R111 10 k to GND); set 4.445..4.920 V into 1 Mohm, 0.418..0.484 V into 50 ohm. Q3 base drive >= 0.355 mA (forced beta <= 31 at the 11.1 mA short-circuit current, hFE >= 100); CD4013 sinks <= 0.427 mA (IOL >= 1.1 mA at 85 C). Shorted BNC: R112 dissipates <= 54 mW (125 mW rating). Tolerated continuous drive at J4: -7.5 V to +11.4 V (R112 power, and positive injection through D10 below the +4V8 rail's 14.7 mA minimum load); no path from J4 reaches SET, RESET or the comparators.
+Trigger latency estimate after the comparator output falls (charge-control, 25 C datasheet maxima, assumed Ceb 30 pF): Q1 to SET threshold 620 ns (Ib >= 0.166 mA), CD4013 set to /Q 600 ns, Q3 turn-on 289 ns, output to 90 % on 1 Mohm || 122 pF 134 ns; total 1.64 us. The TLV1704 adds 460 ns typical (no maximum). This is an estimate, not a bound: the trigger marks that the warning latched; it is not a peak-capture guarantee.
 
 Not established by these checks: CMRR, amplitude/phase accuracy, 5 MHz system bandwidth, input-to-earth capacitance, overload recovery, unpowered input survival, transient withstand, creepage or clearance. PCB, fixed shield and fixture must be qualified together.

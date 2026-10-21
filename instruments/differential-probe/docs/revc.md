@@ -20,12 +20,12 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Board outline | 240 × 84 mm = 20,160 mm² (20,046 mm² net of slots and chamfers) | **150 × 70 mm = 10,500 mm² (10,328 mm² net)**, −48% |
 | Copper layers | 4 | 4 (2-layer option evaluated below, not adopted) |
 | Enclosure | Not selected | **Owner-designed**, not priced; the Hammond 1455N2201 (extruded aluminium, 220 mm long, internal height 49.7 mm) is the reference geometry ([requirements](#9-size-layers-enclosure)) |
-| Components | 140: 135 on the board + 5 hand-wired off-board | **106, all on the board**: 96 SMD + 10 THT (BNC, 2 toggles, reset button, 2 holders, 4 trimmers), plus the copper solder jumper JP1 |
-| Unique MPNs | 45 | **43** |
+| Components | 140: 135 on the board + 5 hand-wired off-board | **112, all on the board**: 101 SMD + 11 THT (2 BNCs, 2 toggles, reset button, 2 holders, 4 trimmers), plus the copper solder jumper JP1 |
+| Unique MPNs | 45 | **45** |
 | Tolerance-bearing parts (definition below) | 77 | **52** |
 | HV divider resistors | 20 × 1 MΩ HVCB2512 | **10 × 2 MΩ** (HVCB2512, then 1% HV12 after the [cost-down](cost-down.md)) |
 | Mounting holes | 6 | **4** |
-| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **33.0%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 43.4%; `validation/pcb-checks.txt`) |
+| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **37.0%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 45.4%; `validation/pcb-checks.txt`) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
 | Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.10 after the [cost-down](cost-down.md) and [fee consolidation](fee-consolidation.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
@@ -173,11 +173,13 @@ The six comparisons (both polarities at both tips, plus both polarities of the s
 
 Each saved at most one or two parts while weakening the latched-until-reset behaviour, so neither was adopted. **Declined.**
 
+**Rev C feature: trigger output (J4).** The CD4013's second flip-flop was unused. It now latches with the first and drives a second BNC through a PNP high-side stage (Q3, R110–R112, D10): 0 V idle, 4.45–4.92 V into 1 MΩ when latched, 0.42–0.48 V into 50 Ω. The scope can then trigger on the warning. It marks that the warning latched; it is not a peak-capture guarantee, and the latency estimate is 1.64 µs after the comparator output plus the comparator's typical 460 ns. Nothing on J4 can reach the warning latch. Details, ratings and margins are in [design.md](design.md#trigger-output-j4). Cost: +$7.42 for two boards (strategy H − E, `validation/cost.txt`), mostly the second owner-soldered BNC; two new JLC Basic resistors and no new Extended MPNs.
+
 ### 7. PCB-mount panel parts
 
 | Part | MPN | Notes |
 |---|---|---|
-| BNC | Amphenol RF **031-5431-10RFX** | Right-angle PCB bulkhead. Panel D-hole 12.83 mm / 11.7 mm flat; panel ≤ 5 mm; axis 8.6 mm above the board. |
+| BNC × 2 (J3 output, J4 trigger) | Amphenol RF **031-5431-10RFX** | Right-angle PCB bulkhead. Panel D-hole 12.83 mm / 11.7 mm flat each; panel ≤ 5 mm; axis 8.6 mm above the board. |
 | Range switch | E-Switch **100SP1T1B5M7RE** (was C&K 7101SDAV2BE) | Gold SPDT, threaded 1/4-40 high-torque bushing, M7 vertical right-angle PC mount. |
 | Power switch | E-Switch **100DP1T1B1M7QEH** (was C&K 7201P3DAV2QE) | Silver DPDT, threaded 1/4-40, M7. |
 | 9 V holders | **MPD BH9VPC** × 2 | Bottom side, under the LV section. Pin 1 = +, as in the MPD drawing. |
@@ -209,12 +211,12 @@ None of these parts has a 3D model in the render.
 
 Holes go from 6 to 4:
 
-- **H1/H2:** grounded M3, at the panel end.
+- **H1/H2:** grounded M3, at the panel end. H2 is at (145.5, 65.5). H1 moved from the (145.5, 4.5) corner to (131.0, 31.2), between SW1 and J3, because the trigger BNC J4 now occupies that corner.
 - **H3/H4:** unplated, at the tip end, one on each side of the notch. Use **nylon screws and standoffs** there.
 
-The LV region (x ≥ 59 mm, 6,361 mm²) has 33.0% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 43.4% of the two-sided placement area (`check_pcb.rs`; the same calculation gave 32.9 / 52.8 / 42.8% before the button moved).
+The LV region (x ≥ 59 mm, 6,361 mm²) has 37.0% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 45.4% of the two-sided placement area (`check_pcb.rs`). The same calculation gave 33.0 / 53.8 / 43.4% before the trigger output (J4 and its stage) was added, and 32.9 / 52.8 / 42.8% before the button moved.
 
-**Only the two-sided figure meets ≥ 35%.** Reaching 35% on the top side alone needs a 150 × 64 mm board (estimated 35.7%), which means re-placing every band. I kept 150 × 70 mm, the stated stretch target. The holders still fit, and the extra 6 mm buys routing corridors (WIDE_SEL/FINE_SEL along the top edge). This can be reversed if the top-side number matters.
+**Top side and both sides now meet ≥ 35%**; the top side got there by adding the trigger output, not by shrinking the board. Before that, reaching 35% on the top side alone needed a 150 × 64 mm board (estimated 35.7%), which means re-placing every band. I kept 150 × 70 mm, the stated stretch target. The holders still fit, and the extra 6 mm buys routing corridors (WIDE_SEL/FINE_SEL along the top edge). This can be reversed if the top-side number matters.
 
 ### 9. Size, layers, enclosure
 
@@ -235,7 +237,7 @@ The LV region (x ≥ 59 mm, 6,361 mm²) has 33.0% top-side courtyard coverage (R
 
 Any owner enclosure must provide:
 
-1. **An earthed conductive shield around the board, fixed in position.** Bond it to GND at H1/H2 and the BNC shell. The per-leg compensation absorbs static strays but not movement after calibration: a 0.0066 pF change at a tap alone limits CMRR to 60 dB (`validation/leads/leads.txt`), so each node's stray capacitance to the shield must stay stable to about 0.01 pF. No flexing walls, loose lids or movable metal near the ladder.
+1. **An earthed conductive shield around the board, fixed in position.** Bond it to GND at H1/H2 and both BNC shells. The per-leg compensation absorbs static strays but not movement after calibration: a 0.0066 pF change at a tap alone limits CMRR to 60 dB (`validation/leads/leads.txt`), so each node's stray capacitance to the shield must stay stable to about 0.01 pF. No flexing walls, loose lids or movable metal near the ladder.
 2. **≥ 20 mm from every exposed HV conductor to metal**, in three dimensions: ladder copper and bodies, the W_HV landings, the trimmed lead tails (≤ 1 mm below the board) and the lead loops (≤ 5.5 mm above it).
 3. **The tip-end insulating feedthrough and strain relief**: an insulating tip-end wall with two PG7 nylon glands (12.7 mm holes, 29.0 mm apart) and the printed lead bridge clamped under the H3/H4 nylon screws. The printed `wall-insert` (STEP in `mech3d/out/`) is the reference and can be merged into the owner's wall. The wall must also carry:
    - **the spine socket boss** on the outside, centred between the glands at the lead height: a 5.4 × 8.4 mm socket, 11 mm deep, in an 8 × 11 mm boss 12 mm long, with a vertical M3 pin hole 6 mm from the face;
@@ -243,7 +245,7 @@ Any owner enclosure must provide:
    - **the gland axis height**: 26.61 mm above the inner floor in the reference (28.25 mm above the box underside). On the bench the box stands on a riser that puts the gland axis 50 mm above the stage-53 board top (71.7 mm for the reference box). An owner enclosure with a different axis height needs a different riser, not a different spine.
    - **trimmer-guide holes** in the lid: Ø7.2 mm over CT1/CT2 and RV1/RV2 for the snap-in guides, lid 1.65 mm thick at the reference height (rebuild the guides with `make mech3d` if the lid differs).
 4. **Board standoffs** that put the board underside 22.0 mm above the inner floor (the 9 V holders hang 20.6 mm below the board; insulating sheet on the floor): metal at H1/H2, nylon at H3/H4.
-5. **Panel access**: an output panel (≤ 5 mm thick at the BNC) with the BNC D-hole (Ø12.83 mm, 11.7 mm flat) and the two 6.35 mm toggle holes, and holes for the SW3 reset button, the CT1/CT2 and RV1/RV2 trimmer tools and the D9 LED, with every hole edge ≥ 20 mm from HV copper.
+5. **Panel access**: an output panel (≤ 5 mm thick at the BNCs) with two BNC D-holes (Ø12.83 mm, 11.7 mm flat; J4 trigger at y = 7.72 mm and J3 output at y = 35.0 mm, both 8.6 mm above the board top) and the two 6.35 mm toggle holes (SW1 at y = 21.36 mm, SW2 at y = 56.0 mm, 6.35 mm above the board top). Board y is measured from the edge nearest J4; the panel order from that edge is J4, SW1, J3, SW2, with SW3 set back at (131.85, 46.25). The J4–SW1 pitch is 13.64 mm, so check that the BNC nut and the toggle nut or washer clear each other on the panel. Also provide holes for the SW3 reset button, the CT1/CT2 and RV1/RV2 trimmer tools and the D9 LED, with every hole edge ≥ 20 mm from HV copper.
 
 The Hammond 1455N2201 numbers in this section are the reference design. To check an owner enclosure, re-enter its dimensions in the constants at the top of [`tools/leads.rs`](../tools/leads.rs) (the enclosure block `BOX_H`, `BOX_H_NOM`, `BOX_W`, `BOARD_UNDER`, `OUT_PANEL_X`, `BOX_L_INT`, and the tip-end wall block) and run `make check`: every setback gate and the section drawing regenerate, a failed gate stops the check, and `make mech3d` rebuilds the printed parts from the new geometry.
 
@@ -262,7 +264,7 @@ The board sits on four standoffs so its underside is **22.0 mm above the inner f
 
 - CT1/CT2 at (62, 23) and (62, 47).
 - The RV1/RV2 3296W top screws (bodies at x ≈ 62–71 mm, y = 7 / 63 mm; locate the screw from a sample).
-- The SW3 reset button at (131.85, 46.25), in the panel strip between the BNC and the power switch.
+- The SW3 reset button at (131.85, 46.25), in the panel strip between the output BNC and the power switch.
 - The D9 LED at (115, 24).
 
 The lid is 25 mm above the board, so hole edges stay ≥ 20 mm from HV copper. The holders hang 20.6 mm under the board, leaving 1.4 mm. Put an insulating sheet on the floor.
@@ -319,7 +321,7 @@ Caveats on the prices:
 
 1. **HVCB2512BDE2M00 stock** (9 at DigiKey, 0 at LCSC). Resolved by the [cost-down](cost-down.md): 1% HV12 bodies stocked at JLC, HVCB kept as a drop-in upgrade.
 2. **BNC footprint orientation and E-Switch toggle fit** must be checked against samples or drawings before fabrication.
-3. **Top-side fill is 33.0%.** Accept it, or authorize the 150 × 64 mm re-placement.
+3. **Top-side fill is 37.0%** with the trigger output added; the 150 × 64 mm re-placement is no longer needed for the fill target.
 4. **U12 kept as a separate OPA810.** Confirm, or ask for the ×2 + ×5 pairing.
 5. **Kemet 1% C0G select-on-test kits** need sourcing. Several Rev C MPNs have no reviewed LCSC identity (see [`procurement/README.md`](../procurement/README.md)).
 6. **Bench items.** Unchanged in kind from Rev B, plus:

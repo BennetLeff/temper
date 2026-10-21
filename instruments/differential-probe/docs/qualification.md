@@ -12,6 +12,8 @@ With the DUT disconnected, verify the PCB-mount switch positions, battery polari
 
 Verify the warning LED sets with either polarity at each input and at the selected-path threshold, remains set after removing the overload and clears with reset. Verify the conditional warning budget: calibrated gain at 25 °C at least 98.81% of nominal on the wide range and 98.86% on the fine range (98% after worst-case divider and gain-resistor drift over −25…85 °C; `validation/checks.txt`), buffer offsets within ±5 mV each, and actual selected-path zero within ±25 mV wide / ±130 mV fine before scope offset subtraction. Nominal warnings are about 1363 V per tip and 1239 V wide / 248 V fine; because the thresholds now derive from the rails, record both rails with every trip-point measurement. Measure the actual trip points over the stated temperature and supply ranges; confirm they warn before the initial ±1.5 kV tip limit and ±1.5 kV wide / ±300 V fine differential limits. An early warning is intentional margin, not a newly calibrated hard measurement boundary. Check startup, shutdown and loss of either battery. A lit LED immediately after startup can be cleared only after confirming valid rails. This design does not automatically inhibit measurements during low-battery operation.
 
+**Trigger output (J4).** With the LED clear, J4 must read 0 V (within 10 mV) on a 1 MΩ input. Set the latch with each comparator condition in turn and record the J4 level into 1 MΩ and into a 50 Ω termination; model 4.445–4.920 V and 0.418–0.484 V (`validation/checks.txt`). Confirm reset clears J4 and the LED together, and that J4 cannot be set while the LED is off. Shorting J4 to its shell while latched must not clear or set the LED. Driving J4 from a 50 Ω source at −7 V and +11 V for 10 s must leave the latch state, both rails and the thresholds unchanged. Measure latency with a fast overdrive step at the selected-output comparator: time from the OV_N falling edge to J4 crossing 2 V on 1 MΩ (estimate 1.64 µs, an estimate, not a bound), and from the input step to J4. Repeat the latency at −25 °C and 85 °C if the chamber allows; the CD4013 timing maxima are 25 °C figures.
+
 At low voltage first, switch ranges while observing both gain-stage outputs and the final output. Verify break-before-make behavior, the selected node's DC return, contact bounce, transient amplitude and settling. Neither feedback loop should open. Check valid wide-range signals large enough to saturate the unused ×5 stage: the wide output must remain accurate and the warning detector must respond to the selected path, not the unused saturated output. Switching can still produce an invalid transient or latch the warning; establish the settling interval before treating the new-range trace as valid. Opening a feedback loop no longer imposes the former de-energize-to-select-range rule; this does not authorize moving HV leads or opening the enclosure while energized.
 
 ## 2. DC ratio and zero
@@ -134,13 +136,14 @@ These forces are chosen for this prototype, not quoted from a standard.
 | Output clamp and overload recovery | NOT RUN | |
 | Range-change transient / settling and unused fine-stage saturation | NOT RUN | |
 | Initial-envelope warning trip limits, both polarities and ranges | NOT RUN | |
+| Trigger output J4: idle level, latched level into 1 MΩ and 50 Ω, reset, short and back-drive tolerance, latency from OV_N and from the input step | NOT RUN | |
 | Unpowered and single-rail conditions | NOT RUN | |
 | Stage-53 CT integration cross-check | NOT RUN | |
 | 2 MΩ HV12 (HV121WF2004T4E) linearity at 600 V per body (VCR) | NOT RUN | |
 | DC ratio tracking after warm-up and ≥ 10 °C ambient change; self-heating at high DC | NOT RUN | |
 | 500 Ω DC trim settability (≤ 100 ppm) | NOT RUN | |
 | Clamp current shared with OPA2810 input ESD diodes (R12/R32 limit) | NOT RUN | |
-| PCB-mount BNC/E-Switch toggle fit (axis height, B5 flanged bushing, 1.5 mm end plate), Yageo 1812 body height, panel bonding, 3-D 20 mm setback in the owner's enclosure | NOT RUN | |
+| PCB-mount BNC (J3, J4)/E-Switch toggle fit and J4–SW1 nut clearance (axis height, B5 flanged bushing, 1.5 mm end plate), Yageo 1812 body height, panel bonding, 3-D 20 mm setback in the owner's enclosure | NOT RUN | |
 | Lead wire incoming OD, conductor bundle and 5 kV DC 60 s hipot (reel sample and each lead) | NOT RUN | |
 | Lead and feedthrough hipot, 4.5 kV DC 60 s, to enclosure and between leads | NOT RUN | |
 | Assembled lead setback (conductor to lid ≥ 20 mm), tail length, nylon at H3/H4 and H6–H10 | NOT RUN | |

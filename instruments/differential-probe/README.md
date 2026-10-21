@@ -20,7 +20,7 @@ The board is 150 × 70 mm, four layers, and carries every component.
 
 - **HV dividers.** The two dividers are mirror images about an open-ended inter-leg notch, at a 23 mm leg pitch. Each leg has five 2 MΩ / 33 pF sections.
 - **Spacing.** There are ten routed capacitor slots and no planes under the HV ladders.
-- **Panel parts.** The BNC, range switch and power switch are PCB-mounted at the output edge. The two 9 V holders sit on the underside of the low-voltage section.
+- **Panel parts.** The output BNC, the overvoltage-trigger BNC, the range switch and the power switch are PCB-mounted at the output edge. The two 9 V holders sit on the underside of the low-voltage section.
 
 Native KiCad DRC reports zero violations and zero unconnected items with the explicit HV rules and `--all-track-errors`. These checks establish geometry and connectivity, not a qualified 3 kV or CAT rating.
 
@@ -62,12 +62,12 @@ The compact spacing design requires all three extended limits at once: `|V+| ≤
 | AC compensation trim | EW Electronics GKG60015, 12–60 pF | 2 |
 | Buffers, subtractor, driver | TI OPA2810IDR | 2 |
 | ×5 stage | TI OPA810IDR | 1 |
-| Low-leakage clamps | Nexperia BAV199,215 | 3 |
+| Low-leakage clamps | Nexperia BAV199,215 | 4 |
 | Overload comparators | TI TLV1704AIPWR / TLV1702AIDGKR | 1 each |
-| Overload latch | TI CD4013BM96 | 1 |
+| Overload latch (flip-flop 2 drives the trigger output) | TI CD4013BM96 | 1 |
 | Regulators | ADP7142AUJZ-R7 / ADP7182AUJZ-R7 | 1 each |
 | Range / power switches (PCB) | E-Switch 100SP1T1B5M7RE / 100DP1T1B1M7QEH | 1 each |
-| BNC (PCB, bulkhead) | Amphenol RF 031-5431-10RFX | 1 |
+| BNC (PCB, bulkhead): output J3, trigger J4 | Amphenol RF 031-5431-10RFX | 2 |
 | 9 V holders (PCB, underside) | MPD BH9VPC | 2 |
 
 The BOM contains every component.

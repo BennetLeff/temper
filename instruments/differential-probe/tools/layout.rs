@@ -496,7 +496,7 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("C86", 85.5, 20.5, 0),
         ("R101", 80.0, 20.5, 180),
         ("R102", 96.0, 16.635, 0),
-        ("R103", 128.5, 24.0, 90),
+        ("R103", 124.9, 30.0, 90),
         // Warning latch, reset and indicator.
         ("U7", 106.0, 19.0, 180),
         ("C91", 100.6, 23.6, 90),
@@ -542,7 +542,17 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("D7", 103.50, 57.500, 90),
         // Board-edge, panel-mounted through-hole parts. Panel faces point +x.
         ("J3", 142.4, 35.0, 270),
-        ("SW1", 135.3, 14.0, 270),
+        // Panel order from the y = 0 edge: J4 trigger BNC, SW1 range, J3 output,
+        // SW3 (set back), SW2 power. Toggles sit between the two BNCs so their
+        // nuts and washers clear (BNC 1/2-28 hardware against 1/4-40).
+        ("J4", 142.4, 7.72, 270),
+        ("SW1", 135.3, 21.36, 270),
+        // Trigger output stage (U7 flip-flop 2 -> Q3 -> R112 -> J4), clamped by D10.
+        ("R110", 126.6, 7.05, 0),
+        ("Q3", 130.5, 8.0, 0),
+        ("R111", 131.0, 12.6, 180),
+        ("R112", 133.9, 9.2, 270),
+        ("D10", 127.0, 12.6, 0),
         ("SW2", 135.3, 56.0, 270),
         // Through-hole latch reset, owner-soldered: in the panel strip between
         // J3 and SW2, because its tails must stay off the bottom-side holders
@@ -559,7 +569,8 @@ fn bottom_parts() -> Vec<(&'static str, f64, f64, i32)> {
 }
 fn mounting_holes() -> Vec<(usize, f64, f64, &'static str)> {
     vec![
-        (1, 145.5, 4.5, "MountingHole:MountingHole_3.2mm_M3_Pad_Via"),
+        // H1 moved off the corner for the trigger BNC J4; still bottom-clear of BT1.
+        (1, 131.0, 31.2, "MountingHole:MountingHole_3.2mm_M3_Pad_Via"),
         (2, 145.5, HEIGHT - 4.5, "MountingHole:MountingHole_3.2mm_M3_Pad_Via"),
         (3, 5.0, 5.0, "MountingHole:MountingHole_3.2mm_M3"),
         (4, 5.0, HEIGHT - 5.0, "MountingHole:MountingHole_3.2mm_M3"),
@@ -689,11 +700,11 @@ impl Copper {
         let (r1012, sw11) = (k(self, "R101.2"), k(self, "SW1.1"));
         self.run("WIDE_SEL", "F.Cu", &[r1012, (78.5, r1012.1), (78.5, 3.0), (sw11.0, 3.0), sw11]);
         let (r1022, sw13) = (k(self, "R102.2"), k(self, "SW1.3"));
-        self.run("FINE_SEL", "F.Cu", &[r1022, (97.8, r1022.1), (97.8, 5.0), (sw13.0, 5.0), sw13]);
+        self.run("FINE_SEL", "F.Cu", &[r1022, (97.8, r1022.1), (97.8, 5.0), (124.6, 5.0), (124.6, sw13.1), sw13]);
         let (sw12, r691, r1031) = (k(self, "SW1.2"), k(self, "R69.1"), k(self, "R103.1"));
-        self.run("SELECTED", "F.Cu", &[sw12, (sw12.0, 33.0), (97.6, 33.0), r691]);
-        self.run("SELECTED", "F.Cu", &[r1031, (r1031.0, 26.0), (sw12.0, 26.0)]);
-        self.rail("R103.2", (128.5, 21.9));
+        self.run("SELECTED", "F.Cu", &[sw12, (sw12.0, 25.9), (126.4, 25.9), (126.4, 33.0), (97.6, 33.0), r691]);
+        self.run("SELECTED", "F.Cu", &[r1031, (126.4, r1031.1)]);
+        self.rail("R103.2", (124.9, 27.95));
         let r711 = k(self, "R71.1");
         self.hop("SELECTED", "B.Cu", &[(100.5, 33.0), (100.5, 51.4)]);
         self.run("SELECTED", "F.Cu", &[(100.5, 51.4), r711]);
@@ -727,10 +738,34 @@ impl Copper {
         self.run("OV_LED", "F.Cu", &[u71, (109.8, u71.1), (r961.0, 23.6), r961]);
         self.run("LED_A", "F.Cu", &[k(self, "R96.2"), k(self, "D9.2")]);
         self.rail("D9.1", (117.3, 24.6));
+        // Flip-flop 2: SET2 (pin 8) and RESET2 (pin 10) cross under the body from
+        // SET (pin 6) and RESET (pin 4); /Q2 (pin 12) drives the trigger stage over
+        // an In2 run along y = 6.2.
+        let (u76b, u78, u74b, u710) = (k(self, "U7.6"), k(self, "U7.8"), k(self, "U7.4"), k(self, "U7.10"));
+        self.run("SET", "F.Cu", &[u76b, (105.5, u76b.1), (105.5, u78.1), u78]);
+        self.run("RESET", "F.Cu", &[u74b, (106.0, u74b.1), (106.0, u710.1), u710]);
+        let u712 = k(self, "U7.12");
+        self.run("TRIG_DRV", "F.Cu", &[u712, (100.3, u712.1)]);
+        self.hop("TRIG_DRV", "In2.Cu", &[(100.3, u712.1), (100.3, 4.9), (k(self, "R110.1").0, 4.9)]);
+        let r1101 = k(self, "R110.1");
+        self.run("TRIG_DRV", "F.Cu", &[(r1101.0, 4.9), r1101]);
+        let (r1102, q3b, q3c) = (k(self, "R110.2"), k(self, "Q3.1"), k(self, "Q3.3"));
+        self.run("TRIG_B", "F.Cu", &[r1102, q3b]);
+        self.rail("Q3.2", (128.6, 9.9));
+        let (r1111, r1121, d103) = (k(self, "R111.1"), k(self, "R112.1"), k(self, "D10.3"));
+        self.run("TRIG_C", "F.Cu", &[q3c, (132.3, q3c.1), (132.3, 14.4), (d103.0, 14.4), d103]);
+        self.run("TRIG_C", "F.Cu", &[(132.3, r1121.1), r1121]);
+        self.run("TRIG_C", "F.Cu", &[(132.3, r1111.1), r1111]);
+        self.rail("R111.2", (k(self, "R111.2").0, 10.9));
+        self.rail("D10.1", (126.0625, 10.2));
+        self.rail("D10.2", (126.0625, 15.0));
+        // TRIG drops to B.Cu under the WIDE_SEL descent and lands on J4's THT pin.
+        let (r1122, j41) = (k(self, "R112.2"), k(self, "J4.1"));
+        self.run("TRIG", "F.Cu", &[r1122, (r1122.0, 12.0)]);
+        self.via("TRIG", (r1122.0, 12.0));
+        self.run("TRIG", "B.Cu", &[(r1122.0, 12.0), (135.8, j41.1), j41]);
         for (key, v) in [
-            ("U7.8", (101.6, 15.19)),
             ("U7.9", (101.6, 16.46)),
-            ("U7.10", (100.5, 17.73)),
             ("U7.11", (101.6, 19.0)),
             ("U7.5", (110.3, 17.73)),
             ("U7.3", (110.3, 20.27)),

@@ -93,6 +93,22 @@ fn main() {
         ("U7", "4", "RESET"),
         ("J3", "1", "OUT"),
         ("J3", "2", "GND"),
+        // Trigger output (CD4013 flip-flop 2): SET2 8, RESET2 10, /Q2 12; Q3
+        // MMBT5401 SOT-23 1 B, 2 E, 3 C; BNC J4 1 centre, 2 shell.
+        ("U7", "8", "SET"),
+        ("U7", "10", "RESET"),
+        ("U7", "12", "TRIG_DRV"),
+        ("U7", "9", "-4V8"),
+        ("U7", "11", "-4V8"),
+        ("U7", "13", "NC:U7.13"),
+        ("Q3", "1", "TRIG_B"),
+        ("Q3", "2", "+4V8"),
+        ("Q3", "3", "TRIG_C"),
+        ("D10", "1", "GND"),
+        ("D10", "2", "+4V8"),
+        ("D10", "3", "TRIG_C"),
+        ("J4", "1", "TRIG"),
+        ("J4", "2", "GND"),
     ] {
         assert_eq!(
             by_pin[&format!("{r}.{p}")],
@@ -457,6 +473,72 @@ fn main() {
     let clamp_worst = 5.28e-3 * 2f64.sqrt(); // one tap, open bottom bank, 3 kVpk 60 kHz
     assert!(clamp_worst < rail_load_min);
     report+=&format!("Clamp return: single fault (one bottom bank open, 3 kVpk at 60 kHz) injects <= {:.1} mA peak into a rail whose minimum load is ~{:.1} mA, so neither LDO output is back-driven. Normal in-range inputs (|tap| <= 1.5 V) never forward-bias the rail clamps.\n",clamp_worst*1e3,rail_load_min*1e3);
+    // Trigger output (J4): CD4013 flip-flop 2 latches with flip-flop 1 (same SET/RESET);
+    // /Q2 low turns Q3 (MMBT5401) on through R110, Q3 pulls TRIG_C to +4V8, R112 feeds
+    // the BNC, R111 holds it at 0 V idle, D10 (BAV199) clamps TRIG_C to GND/+4V8.
+    for (r, m) in [
+        ("R110", "0805W8F2202T5E"),
+        ("R111", "RT0805BRD0710KL"),
+        ("R112", "0805W8F4700T5E"),
+        ("R74", "0805W8F4702T5E"),
+        ("R75", "RT0805BRD0710KL"),
+        ("Q1", "MMBT5401"),
+        ("Q3", "MMBT5401"),
+        ("D10", "BAV199,215"),
+        ("U7", "CD4013BM96"),
+        ("J4", "031-5431-10RFX"),
+    ] {
+        assert_eq!(mpns[r], m, "trigger calculation source {r}");
+    }
+    let tol = |r: &str| budget::tolerance(&mpns[r]);
+    let (r110, r111, r112, r74) = (22e3, 10e3, 470., 47e3);
+    // MMBT5401 (JSCJ C8326): VCEO -150 V, IC -0.6 A, PC 0.3 W, hFE 100..300 at
+    // -10 mA/-5 V, VCE(sat) <= 0.2 V at -10/-1 mA, fT >= 100 MHz. VBE taken as
+    // 0.85 V worst (cold, ~1 mA) for drive and 0.6 V for the off-state check.
+    let (hfe_min, vbe_on, vce_sat, ft) = (100., 0.85, 0.2, 100e6);
+    // CD4013B: output low sinks >= 1.1 mA at 0.5 V, VDD 10 V, 85 C.
+    let (iol_min, vol) = (1.1e-3, 0.5);
+    let ib3_min = (2. * rail_min - vbe_on - vol) / (r110 * (1. + tol("R110")));
+    let ib3_max = (2. * rail_max - 0.6) / (r110 * (1. - tol("R110")));
+    let ib1_min = (2. * rail_min - vbe_on - vol) / (r74 * (1. + tol("R74")));
+    // Short-circuit and 50-ohm collector currents (R111 plus the load path).
+    let v_hi_max = rail_max;
+    let v_hi_min = rail_min - vce_sat;
+    let ic_short = v_hi_max / (r112 * (1. - tol("R112"))) + v_hi_max / (r111 * (1. - tol("R111")));
+    assert!(hfe_min * ib3_min > 3. * ic_short, "Q3 must saturate with forced beta <= hFE/3");
+    assert!(ib3_max < iol_min, "CD4013 /Q2 sink within IOL at 0.5 V, 85 C");
+    let out_1m = (v_hi_min * 1e6 / (1e6 + r112 * (1. + tol("R112"))), v_hi_max);
+    let into = |v: f64, rl: f64, rs: f64| v * rl / (rl + rs);
+    let out_50 = (into(v_hi_min, 49.5, r112 * (1. + tol("R112"))), into(v_hi_max, 50.5, r112 * (1. - tol("R112"))));
+    let p_short = (v_hi_max / (r112 * (1. - tol("R112")))).powi(2) * r112 * (1. + tol("R112"));
+    // Overdrive at the BNC: R112 (125 mW at 70 C) sets the limit, and positive
+    // injection through D10 into +4V8 must stay below the rail's own minimum load
+    // (no clamp-diode drop credited).
+    let p_r112 = 0.125;
+    let i_r112 = (p_r112 / (r112 * (1. + tol("R112")))).sqrt();
+    let v_neg = -i_r112 * r112 * (1. - tol("R112"));
+    let v_pos = (rail_min + rail_load_min * r112 * (1. - tol("R112"))).min(rail_min + i_r112 * r112 * (1. - tol("R112")));
+    assert!(i_r112 < 0.16, "BAV199 160 mA continuous");
+    // Latency estimate after the comparator output (OV_N) falls; the TLV1704 has only
+    // a typical delay (460 ns tpHL). Charge-control: base charge = Ceb x VBE + the
+    // Miller charge integral of Cob over the collector swing + Ic/(2 pi fT), at minimum
+    // base current. Cob <= 6 pF at 10 V (MMBT5401 family datasheets), scaled as
+    // sqrt(10.75 / (V + 0.75)); Ceb 30 pF (2x the 15 pF MMBT5401M3 max; the SOT-23 part
+    // states none). SET threshold 70 % VDD; CD4013 set-to-Q 400 ns + transition 200 ns
+    // (25 C maxima at VDD 5 V, slower than at the 9.6 V used here); output edge to 90 %
+    // into 1 Mohm || 120 pF cable through R112.
+    let miller = |dv: f64| 6e-12 * 10.75f64.sqrt() * 2. * ((dv + 0.75f64).sqrt() - 0.75f64.sqrt());
+    let ceb = 30e-12;
+    let vdd = 2. * rail_max;
+    let t_q1 = (ceb * vbe_on + miller(0.7 * vdd) + 1e-3 / (2. * std::f64::consts::PI * ft)) / ib1_min
+        + (15e-12 + 5e-12) * 0.7 * vdd / (hfe_min * ib1_min - vdd / r111);
+    let t_ff = 400e-9 + 200e-9;
+    let t_q3 = (ceb * vbe_on + miller(rail_max) + ic_short / (2. * std::f64::consts::PI * ft)) / ib3_min;
+    let t_out = 2.303 * r112 * (1. + tol("R112")) * 122e-12;
+    let t_total = t_q1 + t_ff + t_q3 + t_out;
+    assert!(t_total < 2e-6);
+    report+=&format!("Trigger output J4 (CD4013 flip-flop 2, latched with the LED; Q3 MMBT5401 high-side, 470 ohm source): idle 0 V (R111 10 k to GND); set {:.3}..{:.3} V into 1 Mohm, {:.3}..{:.3} V into 50 ohm. Q3 base drive >= {:.3} mA (forced beta <= {:.0} at the {:.1} mA short-circuit current, hFE >= 100); CD4013 sinks <= {:.3} mA (IOL >= 1.1 mA at 85 C). Shorted BNC: R112 dissipates <= {:.0} mW (125 mW rating). Tolerated continuous drive at J4: {:.1} V to +{:.1} V (R112 power, and positive injection through D10 below the +4V8 rail's {:.1} mA minimum load); no path from J4 reaches SET, RESET or the comparators.\n",out_1m.0,out_1m.1,out_50.0,out_50.1,ib3_min*1e3,ic_short/ib3_min,ic_short*1e3,ib3_max*1e3,p_short*1e3,v_neg,v_pos,rail_load_min*1e3);
+    report+=&format!("Trigger latency estimate after the comparator output falls (charge-control, 25 C datasheet maxima, assumed Ceb 30 pF): Q1 to SET threshold {:.0} ns (Ib >= {:.3} mA), CD4013 set to /Q {:.0} ns, Q3 turn-on {:.0} ns, output to 90 % on 1 Mohm || 122 pF {:.0} ns; total {:.2} us. The TLV1704 adds 460 ns typical (no maximum). This is an estimate, not a bound: the trigger marks that the warning latched; it is not a peak-capture guarantee.\n",t_q1*1e9,ib1_min*1e3,t_ff*1e9,t_q3*1e9,t_out*1e9,t_total*1e6);
     report+="\nNot established by these checks: CMRR, amplitude/phase accuracy, 5 MHz system bandwidth, input-to-earth capacitance, overload recovery, unpowered input survival, transient withstand, creepage or clearance. PCB, fixed shield and fixture must be qualified together.\n";
     fs::write("validation/checks.txt", &report).unwrap();
     print!("{report}");
