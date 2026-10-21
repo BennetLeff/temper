@@ -3,11 +3,12 @@ PASS: 275 pins, 60 independent connectivity groups agree with KiCad export.
 PASS: critical package pin mappings and power polarity assertions.
 
 Ideal circuit calculations (not measurements):
-Rbottom = 5002.501251 ohm; nominal trim = 12.501251 ohm.
+Rbottom = 5002.501251 ohm; nominal trim = 132.501251 ohm.
 Cbottom TOTAL incl parasitics = 13.1934 nF; input series C = 6.6 pF.
 Divider crossover = 2411.44 Hz.
 Shared filter pole including 49.9-ohm selector source resistance and loading = 5.999689 MHz.
-DC trim at all 0.1% upper-string / 0.01% bottom-resistor corners: 7.000 to 18.003 ohm (50-ohm pot, min end-to-end 45 ohm). Five 2-Mohm 0.1% bodies give the same string-tolerance corners as ten 1-Mohm bodies.
+DC trim at all 1% upper-string / 0.1% fixed-resistor corners: 77.606 to 187.396 ohm (500-ohm pot, usable 5 to 450 ohm; 20 ohm per turn of 25).
+Divider ratio drift from TCR limits over -25..85 C: <= 0.76 % (string 100 ppm/C, bottom 27.0 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= 98.75 % calibrated gain at 25 C.
 RC filter at 35 kHz: gain 0.999983, phase -0.3342 deg.
 RC filter at 60 kHz: gain 0.999950, phase -0.5730 deg.
 Low-leg C requirement: 12103.6..13747.5 pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on 13193.4 pF), less 2..15 pF tap parasitics.
@@ -19,7 +20,7 @@ Gain 10.036104: loaded DC estimate 199.798:1; initial 300 Vpk -> 1.5015 Vpk outp
 Gain 10.036104: illustrative first-order cascaded -3dB bandwidth 4.996 MHz; NOT an IC macromodel result or qualification.
 Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and C61 only; see validation/spice for the vendor-model result.
 At 3000 V DC per tip: total dissipation 0.900 W/leg; 0.1798 W and 600 V per 2-Mohm body (five per leg); section capacitor ~600 V.
-2-Mohm 2512 power-limited continuous voltage sqrt(2 W x 2 Mohm) = 2000 V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and 1.125 W (2 W rating at 70 C; derating applies).
+2-Mohm 2512 (HV121WF2004T4E) power-limited continuous voltage sqrt(1 W x 2 Mohm) = 1414 V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and 1.125 W, 112.5 % of the 1 W rating at 70 C: this double condition (fault plus sustained 3 kV DC on the extension envelope) exceeds the rating. At the 1.5 kV guarantee the same fault is 0.281 W (28.1 %).
 At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.
 At 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitance adds to this.
 Rails: +4.8000 / -4.8068 V nominal; worst-case magnitudes 4.6476..4.9197 V (ADP7142 +/-1.8 %, ADP7182 -2.95/+1.97 % ADJ, feedback 0.1 % + 25 ppm/C).

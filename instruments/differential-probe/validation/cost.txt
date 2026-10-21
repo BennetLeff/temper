@@ -1,4 +1,4 @@
-Rev C: 105 parts/board, 42 MPNs, 2 boards $535.81 ($267.90/board)
+Rev C: 105 parts/board, 42 MPNs, 2 boards $148.63 ($74.32/board)
 Rev C before cost-down (5b9a9530b): 105 parts/board, 42 MPNs, 2 boards $535.81 ($267.90/board)
 Rev B: 140 parts/board, 45 MPNs, 2 boards $768.27 ($384.14/board)
   leads: R800-1020-0-50               1 x $127.8900 = $127.89  (lead wire: 4 x 0.295 m from one 50 ft spool (fallback Alpha 392040 RD005 100 ft))
@@ -66,5 +66,5 @@ Headline, two boards (leads at the owner's ~$100 working figure in both columns)
   HV leads (assumed)                 $   100.00 $   100.00
   enclosures, 2 x 1455N2201          $    76.86 $    76.86
   total                              $   866.44 $   448.20  (saving $418.24, 48 %)
-  Distributor-ledger components: before $535.81, cost-down (not yet applied)
+  Distributor-ledger components: before $535.81, cost-down $148.63
   Documented HV-lead BOM (leads-bom.csv) instead of the assumption: $234.72

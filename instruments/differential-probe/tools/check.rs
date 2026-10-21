@@ -225,20 +225,20 @@ fn main() {
     let tau = 2e6 * 33e-12;
     let cap = 1999. * 33e-12 / 5.;
     for (r, m) in [
-        ("C61", "C0805C181J5GACTU"),
+        ("C61", "CC0805JRNPO9BN181"),
         ("R69", "RC0805FR-0797R6L"),
-        ("R101", "RT0805BRD0749R9L"),
-        ("R102", "RT0805BRD0749R9L"),
+        ("R101", "0805W8F499JT5E"),
+        ("R102", "0805W8F499JT5E"),
         ("CT1", "GKG60015"),
         ("CT2", "GKG60015"),
-        ("C41", "C1206C103F5GACTU"),
-        ("C51", "C1206C103F5GACTU"),
+        ("C41", "CC1206FKNPO9BN103"),
+        ("C51", "CC1206FKNPO9BN103"),
         ("C42", "C0805C302F5GACTU"),
         ("C52", "C0805C302F5GACTU"),
         ("C43", "C0805C161F5GACTU"),
         ("C53", "C0805C161F5GACTU"),
-        ("R12", "RT0805BRD07220RL"),
-        ("R32", "RT0805BRD07220RL"),
+        ("R12", "0805W8F2200T5E"),
+        ("R32", "0805W8F2200T5E"),
         ("U1", "OPA2810IDR"),
         ("U3", "OPA2810IDR"),
         ("U12", "OPA810IDR"),
@@ -247,8 +247,9 @@ fn main() {
     }
     for leg in [0, 20] {
         for i in 1..=5 {
-            assert_eq!(mpns[&format!("R{}", leg + i)], "HVCB2512BDE2M00");
+            assert_eq!(mpns[&format!("R{}", leg + i)], "HV121WF2004T4E");
         }
+        assert_eq!(mpns[&format!("R{}", leg + 11)], "RT0603BRD074K87L");
     }
     for (r, m) in [
         ("R61", "RNCF0603TKY499R"),
@@ -272,11 +273,22 @@ fn main() {
     let selection_gain = load / (load + 49.9);
     let source_r = 97.6 + 1. / (1. / 49.9 + 1. / load);
     let cutoff = 1. / (2. * std::f64::consts::PI * source_r * 180e-12);
-    report+=&format!("\nIdeal circuit calculations (not measurements):\nRbottom = {bottom:.6} ohm; nominal trim = {:.6} ohm.\nCbottom TOTAL incl parasitics = {:.4} nF; input series C = 6.6 pF.\nDivider crossover = {:.2} Hz.\nShared filter pole including 49.9-ohm selector source resistance and loading = {:.6} MHz.\n",bottom-4990.,cap*1e9,1./(2.*std::f64::consts::PI*tau),cutoff/1e6);
-    let min_trim = (top * 0.999) / 1999. - 4990. * 1.0001;
-    let max_trim = (top * 1.001) / 1999. - 4990. * 0.9999;
-    assert!(min_trim >= 0. && max_trim < 45.);
-    report+=&format!("DC trim at all 0.1% upper-string / 0.01% bottom-resistor corners: {min_trim:.3} to {max_trim:.3} ohm (50-ohm pot, min end-to-end 45 ohm). Five 2-Mohm 0.1% bodies give the same string-tolerance corners as ten 1-Mohm bodies.\n");
+    report+=&format!("\nIdeal circuit calculations (not measurements):\nRbottom = {bottom:.6} ohm; nominal trim = {:.6} ohm.\nCbottom TOTAL incl parasitics = {:.4} nF; input series C = 6.6 pF.\nDivider crossover = {:.2} Hz.\nShared filter pole including 49.9-ohm selector source resistance and loading = {:.6} MHz.\n",bottom-4870.,cap*1e9,1./(2.*std::f64::consts::PI*tau),cutoff/1e6);
+    // Cost-down DC trim (docs/cost-down.md section 2): 1 % upper string (HV121WF2004T4E),
+    // 4.87 k 0.1 % fixed part (RT0603BRD074K87L), 500-ohm 3296 trimmer at +/-10 %,
+    // usable from max(1 %, 2 ohm) of nominal to 0.9 x nominal.
+    let (fixed, pot) = (4870., 500.);
+    let min_trim = (top * 0.99) / 1999. - fixed * 1.001;
+    let max_trim = (top * 1.01) / 1999. - fixed * 0.999;
+    let (pot_lo, pot_hi) = ((0.01f64 * pot).max(2.), 0.9 * pot);
+    assert!(min_trim >= pot_lo && max_trim <= pot_hi);
+    report+=&format!("DC trim at all 1% upper-string / 0.1% fixed-resistor corners: {min_trim:.3} to {max_trim:.3} ohm (500-ohm pot, usable {pot_lo:.0} to {pot_hi:.0} ohm; {:.0} ohm per turn of 25).\n",pot/25.);
+    // Ratio drift from datasheet TCR limits, -25..85 C relative to 25 C: string 100 ppm/C;
+    // bottom = 4.87 k at 25 ppm/C plus the nominal trim at the 3296's 100 ppm/C.
+    let bottom_tcr = (fixed * 25. + (bottom - fixed) * 100.) / bottom;
+    let ratio_drift = (100. + bottom_tcr) * 1e-6 * 60.;
+    assert!(ratio_drift < 0.01);
+    report+=&format!("Divider ratio drift from TCR limits over -25..85 C: <= {:.2} % (string 100 ppm/C, bottom {bottom_tcr:.1} ppm/C). The warning budget's >= 98 % gain condition therefore needs >= {:.2} % calibrated gain at 25 C.\n",ratio_drift*100.,(0.98/(1.-ratio_drift))*100.);
     for f in [35e3, 60e3] {
         let x = f / cutoff;
         report += &format!(
@@ -379,7 +391,11 @@ fn main() {
     let body = 2e6;
     let i_dc = 3000. / (top + bottom);
     report+=&format!("At 3000 V DC per tip: total dissipation {:.3} W/leg; {:.4} W and {:.0} V per 2-Mohm body (five per leg); section capacitor ~600 V.\n",3000f64.powi(2)/(top+bottom),i_dc*i_dc*body,i_dc*body);
-    report+=&format!("2-Mohm 2512 power-limited continuous voltage sqrt(2 W x 2 Mohm) = {:.0} V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and {:.3} W (2 W rating at 70 C; derating applies).\n",(2.0f64*body).sqrt(),1500f64.powi(2)/body);
+    // HV121WF2004T4E: 1 W at 70 C, 3000 V working, 4000 V overload (docs/cost-down.md section 1).
+    let p_rated = 1.0f64;
+    assert!(i_dc * i_dc * body < 0.25 * p_rated);
+    assert!((750f64).powi(2) / body < 0.3 * p_rated); // 1.5 kV DC with the 3-body group bypassed
+    report+=&format!("2-Mohm 2512 (HV121WF2004T4E) power-limited continuous voltage sqrt(1 W x 2 Mohm) = {:.0} V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and {:.3} W, {:.1} % of the 1 W rating at 70 C: this double condition (fault plus sustained 3 kV DC on the extension envelope) exceeds the rating. At the 1.5 kV guarantee the same fault is {:.3} W ({:.1} %).\n",(p_rated*body).sqrt(),1500f64.powi(2)/body,1500f64.powi(2)/body/p_rated*100.,750f64.powi(2)/body,750f64.powi(2)/body/p_rated*100.);
     report+="At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.\nAt 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitance adds to this.\n";
     // Rail-referenced warning thresholds (no TL431). Ladder per polarity:
     // rail - 66.5k - LIM - 1k - OUT_LIM - 10k - GND, 0.1 % resistors.

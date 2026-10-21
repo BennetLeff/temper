@@ -127,7 +127,7 @@ const S_TIP_MAX: f64 = 58.55;
 /// stage-53 bank nodes, and adopts 12 pF (docs/hv-leads.md "Capacitance budget").
 const C_TIP_TARGET: f64 = 12.0;
 const C_TIP_TENTATIVE: f64 = 10.0;
-/// Ladder: five 33 pF +/-5 % C0G sections in series per leg (C1812C330JHGACTU).
+/// Ladder: five 33 pF +/-5 % C0G (NP0) sections in series per leg (CC1812JKNPOEBN330).
 const C_SECTION: f64 = 33.0;
 const C_SECTION_TOL: f64 = 0.05;
 /// Unmodelled reserves inside the per-tip budget: ladder copper and bodies to

@@ -42,6 +42,7 @@ Divider: 5 x 2 MOhm || 33 pF per leg, Rbottom = Rtop/1999; crossover fc = 2411.4
    1 % string, 4.87 k 0.1 %, 200 ohm pot: need 77.606..187.396 ohm, pot reaches 2.0..180.0 ohm -> GAP; nominal setting 132.5 ohm (8.0 ohm per turn of 25).
    1 % string, 4.87 k + 22.1 ohm 0.1 %, 200 ohm pot (study 06): need 55.484..165.318 ohm, pot reaches 2.0..180.0 ohm -> covered; nominal setting 110.4 ohm (8.0 ohm per turn of 25).
    1 % string, 4.87 k 0.1 %, 500 ohm pot (chosen): need 77.606..187.396 ohm, pot reaches 5.0..450.0 ohm -> covered; nominal setting 132.5 ohm (20.0 ohm per turn of 25).
+   0.1 % string (HVCB drop-in), 4.87 k 0.1 %, 500 ohm pot: need 122.629..142.374 ohm, pot reaches 5.0..450.0 ohm -> covered; nominal setting 132.5 ohm (20.0 ohm per turn of 25).
    Bourns 3296 contact-resistance variation max(1 %, 3 ohm): 3 ohm (600 ppm of Rbottom) at 50/200 ohm, 5 ohm (1000 ppm) at 500 ohm.
 
 3. DC differential-ratio drift between legs from TCR (worst-case from datasheet TCR limits, linear TCR assumed).

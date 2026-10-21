@@ -23,11 +23,11 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Components | 140: 135 on the board + 5 hand-wired off-board | **105, all on the board**: 96 SMD + 9 THT (BNC, 2 toggles, 2 holders, 4 trimmers) |
 | Unique MPNs | 45 | **42** |
 | Tolerance-bearing parts (definition below) | 77 | **52** |
-| HV divider resistors | 20 × 1 MΩ HVCB2512 | **10 × 2 MΩ HVCB2512** |
+| HV divider resistors | 20 × 1 MΩ HVCB2512 | **10 × 2 MΩ** (HVCB2512, then 1% HV12 after the [cost-down](cost-down.md)) |
 | Mounting holes | 6 | **4** |
 | LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.7%** of the 6,361 mm² LV region (bottom side 52.8%; both sides 42.7%) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
-| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20) |
+| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.63 after the [cost-down](cost-down.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
 
 **Tolerance-bearing parts** are the parts whose value tolerance enters a stated ratio, gain, pole or warning-threshold budget:
@@ -58,6 +58,8 @@ What gets worse:
 - **Stock is the main risk.** On 2026-10-20 DigiKey listed 9 pieces ($14.50 each, $11.995 at 10; 18-week factory lead time). LCSC C4553702 listed 0. Two boards need 20. HVCB2512BDE1M00 (1 MΩ) had 2,889 pieces.
 
 The fallback is two 1 MΩ bodies per section. This brings back Rev B's resistor count and needs a re-layout of each section; the pitch would grow by about one 2512 length. This is an **owner decision**.
+
+**Superseded by the [cost-down](cost-down.md) (2026-10-20).** The sections now use Uni-Royal **HV121WF2004T4E** (2 MΩ, 1%, ±100 ppm/°C, 1 W at 70 °C, 3000 V working, 4000 V overload; JLC C2779442, 6,345 in stock). R11/R31 become 4.87 kΩ 0.1% and RV1/RV2 500 Ω, which covers a 1% string (77.6–187.4 Ω needed) and still covers a 0.1% one, so HVCB2512BDE2M00 is a drop-in upgrade. Costs: DC CMRR drift with temperature (254 instead of 60.5 ppm/°C worst case) and, at the ±3 kV extension only, the 2 + 3 split case above runs each remaining body at 112.5% of its 1 W rating (28% at the ±1.5 kV guarantee).
 
 ### 2. Leg pitch, inter-leg slot and DRC controls
 
@@ -90,7 +92,7 @@ Rev B used a seven-capacitor binary bank per leg. Rev C uses three capacitors pl
 
 | Part | Role | Value |
 |---|---|---|
-| C41/C51 | Fixed | 10 nF 1% C0G (C1206C103F5GACTU) |
+| C41/C51 | Fixed | 10 nF 1% C0G/NP0 (C1206C103F5GACTU; Yageo CC1206FKNPO9BN103 after the [cost-down](cost-down.md)) |
 | C42/C52 | Select-on-test S1 | Nominal 3.0 nF 1% (C0805C302F5GACTU), chosen from E24 1.8–3.9 nF |
 | C43/C53 | Select-on-test S2 | Nominal 160 pF 1% (C0805C161F5GACTU), chosen from E24 0–360 pF |
 | CT1/CT2 | Trimmer | GKG60015, 12–60 pF |
@@ -174,22 +176,22 @@ Each saved at most one or two parts while weakening the latched-until-reset beha
 | Part | MPN | Notes |
 |---|---|---|
 | BNC | Amphenol RF **031-5431-10RFX** | Right-angle PCB bulkhead. Panel D-hole 12.83 mm / 11.7 mm flat; panel ≤ 5 mm; axis 8.6 mm above the board. |
-| Range switch | C&K **7101SDAV2BE** | Gold SPDT, threaded 1/4-40 bushing, AV2 vertical right-angle bracket. |
-| Power switch | C&K **7201P3DAV2QE** | Silver DPDT, threaded. |
+| Range switch | E-Switch **100SP1T1B5M7RE** (was C&K 7101SDAV2BE) | Gold SPDT, threaded 1/4-40 high-torque bushing, M7 vertical right-angle PC mount. |
+| Power switch | E-Switch **100DP1T1B1M7QEH** (was C&K 7201P3DAV2QE) | Silver DPDT, threaded 1/4-40, M7. |
 | 9 V holders | **MPD BH9VPC** × 2 | Bottom side, under the LV section. Pin 1 = +, as in the MPD drawing. |
 
-The power switch carries about 20 mA, which is adequate for silver contacts. Threaded gold DPDT parts were not stocked; unthreaded `D9` bushings cannot take a panel nut.
+The power switch carries about 20 mA, which is adequate for silver contacts. Threaded gold DPDT parts were not stocked; unthreaded `D9` bushings cannot take a panel nut. The [cost-down](cost-down.md#5-toggles) replaced the C&K parts ($71.46 for two boards) with E-Switch 100-series M7 parts ($22.24), whose catalog hole pattern is the same as the AV2 bracket's.
 
 All footprints are generated in [`tools/build.rs`](../tools/build.rs) `edge_parts`, from manufacturer dimensions:
 
 - **BNC:** Ø0.89 mm pins on 2.54 mm; board locks Ø2.0 mm, 10.16 mm apart, 5.08 mm behind the pins; housing face 7.37 mm ahead of the pins.
-- **Toggles:** contact rows on 0.150 in; support pins 0.200 in apart and 0.500 in ahead of row 1; all holes 0.073 in.
+- **Toggles:** contact rows on 0.150 in; support pins 0.200 in apart and 0.500 in ahead of row 1; all holes 0.073 in (E-Switch 100 catalog, M7-SP / M7-DP; identical to the C&K AV2 pattern).
 - **Holders:** the MPD rev J PCB layout.
 
 **Verify against samples before fabrication:**
 
 - **BNC pin orientation.** The signal pin is placed on the coax axis with the ground pin beside it. The Amphenol drawing would not render in this session, so this comes from transcribed dimensions.
-- **Toggle geometry.** The 7101 single-column variant of the AV2 bracket was derived from the 7201 drawing.
+- **Toggle fit.** The E-Switch M7-SP and M7-DP hole patterns are both drawn by the manufacturer (this removes the earlier "7101 derived from the 7201 drawing" item). The bushing axis height and the B5 flanged bushing against the 1.5 mm end plate are not dimensioned directly and must be checked on a sample.
 
 None of these parts has a 3D model in the render.
 
@@ -275,6 +277,8 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
 | **Total with HV leads** | — | **$884.19** |
 
+The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.63 at the same ledger prices and adds a JLC assembly-fee model (`validation/cost.txt`).
+
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 
 Not included: shipping, tax, Digi-Reel fees, JLC assembly (needs an account upload) and the S1/S2 select-on-test capacitor kits. The HV leads, tips, glands and the two FR4 parts are priced separately in [HV leads](hv-leads.md#parts-and-prices-2026-10-20) and by `procurement/cost.py`.
@@ -288,8 +292,8 @@ Caveats on the prices:
 
 ## Risks and open owner decisions
 
-1. **HVCB2512BDE2M00 stock** (9 at DigiKey, 0 at LCSC). Choose between waiting or pre-ordering, and the 2 × 1 MΩ fallback re-layout.
-2. **BNC and 7101 footprint orientation** must be checked against samples or drawings before fabrication.
+1. **HVCB2512BDE2M00 stock** (9 at DigiKey, 0 at LCSC). Resolved by the [cost-down](cost-down.md): 1% HV12 bodies stocked at JLC, HVCB kept as a drop-in upgrade.
+2. **BNC footprint orientation and E-Switch toggle fit** must be checked against samples or drawings before fabrication.
 3. **Top-side fill is 32.7%.** Accept it, or authorize the 150 × 64 mm re-placement.
 4. **U12 kept as a separate OPA810.** Confirm, or ask for the ×2 + ×5 pairing.
 5. **Kemet 1% C0G select-on-test kits** need sourcing. Several Rev C MPNs have no reviewed LCSC identity (see [`procurement/README.md`](../procurement/README.md)).
@@ -297,5 +301,6 @@ Caveats on the prices:
    - Per-body VCR at 600 V.
    - OPA2810 input-stage crossover (≈ +2.3 V on +4.8 V) for the ×5 and driver inputs on the extended wide range.
    - Clamp current shared with the OPA2810 ESD diodes.
-   - Range-switch transients with the PCB-mount switch.
+   - Range-switch transients with the PCB-mount switch (E-Switch does not state break-before-make).
+   - Cost-down items ([cost-down](cost-down.md#new-bench-items)): DC ratio tracking with temperature and self-heating for the 1% HV12 string, 500 Ω trim settability, Yageo 1812 body height.
 7. **HV leads ([HV leads](hv-leads.md)).** The per-tip loading estimate is 11.6 pF, so the tentative 10 pF target was revised to 12 pF; measure it. The FR4 tip-end plate opens the shield at the tip end; measure the shield edge current and CMRR with it fitted. Fit-check the FR4 plate against a received 1455N2201 before relying on the drawing dimensions.

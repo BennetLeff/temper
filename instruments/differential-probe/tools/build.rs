@@ -514,6 +514,18 @@ fn r(v: &str, code: &str) -> Part {
         " ",
     )
 }
+/// JLC Basic 1 % thick-film 0805 (Uni-Royal 0805W8F), for positions where 0.1 %
+/// buys nothing (docs/cost-down.md section 6).
+fn rb(v: &str, mpn: &str, lcsc: &str) -> Part {
+    part(
+        v,
+        mpn,
+        "Uni-Royal",
+        "Resistor_SMD:R_0805_2012Metric",
+        &format!("https://www.lcsc.com/product-detail/{lcsc}.html"),
+        lcsc,
+    )
+}
 fn c(v: &str, code: &str) -> Part {
     let m = if code == "010" {
         "C0805C109C5GACTU".into()
@@ -883,22 +895,24 @@ fn main() {
         d.syms.insert(k.into(), custom(k, ps, 4., 5., false));
     }
     // Rev C: one 2 MR body per compensated section (five per leg), replacing
-    // Rev B's two series 1 MR bodies. Current Stackpole HVC catalog, 2512.
+    // Rev B's two series 1 MR bodies. Cost-down (docs/cost-down.md): Uni-Royal
+    // HV12, 1 %, 100 ppm/C, 1 W at 70 C, 3000 V working, 4000 V overload.
+    // Stackpole HVCB2512BDE2M00 (0.1 %, 25 ppm/C, 2 W) is the drop-in upgrade.
     let hv = part(
-        "2 MR / 0.1%",
-        "HVCB2512BDE2M00",
-        "Stackpole",
+        "2 MR / 1% / 3 kV",
+        "HV121WF2004T4E",
+        "Uni-Royal",
         "Resistor_SMD:R_2512_6332Metric",
-        "https://www.seielect.com/Catalog/SEI-hvc.pdf",
-        "",
+        "https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf",
+        "C2779442",
     );
     let hv_c = part(
         "33 pF / 3 kV",
-        "C1812C330JHGACTU",
-        "KEMET",
+        "CC1812JKNPOEBN330",
+        "Yageo",
         "Probe:C_1812_HV_Slot",
-        "https://search.kemet.com/download/specsheet/C1812C330JHGACTU",
-        "",
+        "https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf",
+        "C2359543",
     );
     let opa2 = part(
         "OPA2810IDR",
@@ -925,12 +939,12 @@ fn main() {
         "C40919",
     );
     let trim = part(
-        "50 R / set 12.50 R",
-        "3296W-1-500LF",
+        "500 R / set 132.5 R",
+        "3296W-1-501LF",
         "Bourns",
         "Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical",
         "https://www.bourns.com/docs/product-datasheets/3296.pdf",
-        "C83692",
+        "C69564",
     );
     let rp = part(
         "499 R / 0.01%",
@@ -957,28 +971,28 @@ fn main() {
         "",
     );
     let rf = part(
-        "4.99 kR / 0.01%",
-        "RNCF0603TKY4K99",
-        "Stackpole",
+        "4.87 kR / 0.1%",
+        "RT0603BRD074K87L",
+        "Yageo",
         "Resistor_SMD:R_0603_1608Metric",
-        "https://seielect.com/Catalog/SEI-RNCF.pdf",
-        "C3942722",
+        "https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603",
+        "C861446",
     );
     let dec = part(
         "100 nF / 50 V",
-        "C0805C104K5RACTU",
-        "KEMET",
+        "CC0805KRX7R9BB104",
+        "Yageo",
         "Capacitor_SMD:C_0805_2012Metric",
-        "https://search.kemet.com/download/specsheet/C0805C104K5RACTU",
-        "",
+        "https://www.lcsc.com/product-detail/C49678.html",
+        "C49678",
     );
     let bulk = part(
         "10 uF / 25 V",
-        "C1210C106K3RACTU",
-        "KEMET",
+        "C3225X7R1E106KTJ00N",
+        "TDK",
         "Capacitor_SMD:C_1210_3225Metric",
-        "https://search.kemet.com/download/specsheet/C1210C106K3RACTU",
-        "",
+        "https://www.lcsc.com/product-detail/C342744.html",
+        "C342744",
     );
     // Sheet 1: symmetrical five-section input dividers, one 2 MR body per section.
     d.text(
@@ -1055,7 +1069,7 @@ fn main() {
             0,
             &ir,
             "R_Small_US",
-            &r("220 R", "220R"),
+            &rb("220 R", "0805W8F2200T5E", "C17557"),
             (238., y),
             90,
             &format!("TAP_{suffix}"),
@@ -1090,11 +1104,11 @@ fn main() {
     );
     let c10 = part(
         "10 nF / 1%",
-        "C1206C103F5GACTU",
-        "KEMET",
+        "CC1206FKNPO9BN103",
+        "Yageo",
         "Capacitor_SMD:C_1206_3216Metric",
-        "https://search.kemet.com/download/specsheet/C1206C103F5GACTU",
-        "",
+        "https://www.lcsc.com/product-detail/C541597.html",
+        "C541597",
     );
     for (row, suf) in ["P", "N"].iter().enumerate() {
         let y = 179. + row as f64 * 23.;
@@ -1209,7 +1223,7 @@ fn main() {
         1,
         "R100",
         "R_Small_US",
-        &r("49.9 R", "49R9"),
+        &rb("49.9 R", "0805W8F499JT5E", "C17720"),
         (118., 40.),
         90,
         "RAW_OUT",
@@ -1232,7 +1246,7 @@ fn main() {
         1,
         "R101",
         "R_Small_US",
-        &r("49.9 R", "49R9"),
+        &rb("49.9 R", "0805W8F499JT5E", "C17720"),
         (86., 30.),
         90,
         "RAW_OUT",
@@ -1243,7 +1257,7 @@ fn main() {
         1,
         "R102",
         "R_Small_US",
-        &r("49.9 R", "49R9"),
+        &rb("49.9 R", "0805W8F499JT5E", "C17720"),
         (155., 30.),
         90,
         "FINE_OUT",
@@ -1259,7 +1273,7 @@ fn main() {
         1,
         "R103",
         "R_Small_US",
-        &r("1 MR", "1M"),
+        &rb("1 MR", "0805W8F1004T5E", "C17514"),
         (280., 97.),
         0,
         "SELECTED",
@@ -1293,7 +1307,14 @@ fn main() {
         1,
         "C61",
         "C",
-        &c("180 pF", "181"),
+        &part(
+            "180 pF",
+            "CC0805JRNPO9BN181",
+            "Yageo",
+            "Capacitor_SMD:C_0805_2012Metric",
+            "https://www.lcsc.com/product-detail/C113826.html",
+            "C113826",
+        ),
         (231., 61.),
         0,
         "FILTER",
@@ -1307,7 +1328,7 @@ fn main() {
         1,
         "R70",
         "R_Small_US",
-        &r("49.9 R", "49R9"),
+        &rb("49.9 R", "0805W8F499JT5E", "C17720"),
         (294., 47.),
         90,
         "DRIVE",
@@ -1415,7 +1436,7 @@ fn main() {
         1,
         "R74",
         "R_Small_US",
-        &r("47 kR", "47K"),
+        &rb("47 kR", "0805W8F4702T5E", "C17713"),
         (216., 157.),
         90,
         "OV_N",
@@ -1423,12 +1444,12 @@ fn main() {
         false,
     );
     let pnp = part(
-        "MMBT3906,215",
-        "MMBT3906,215",
-        "Nexperia",
+        "MMBT5401",
+        "MMBT5401",
+        "CJ (Jiangsu Changjing)",
         "Package_TO_SOT_SMD:SOT-23",
-        "https://assets.nexperia.com/documents/data-sheet/MMBT3906.pdf",
-        "",
+        "https://www.lcsc.com/product-detail/C8326.html",
+        "C8326",
     );
     d.place(1, "Q1", "PNP", &pnp, (238., 146.), 0, false, true);
     for (p, n) in [("1", "Q_BASE"), ("2", "+4V8"), ("3", "SET")] {
@@ -1730,7 +1751,7 @@ fn main() {
         2,
         "R95",
         "R_Small_US",
-        &r("100 kR", "100K"),
+        &rb("100 kR", "0805W8F1003T5E", "C149504"),
         (250., 154.),
         0,
         "RESET",
@@ -1739,12 +1760,12 @@ fn main() {
     );
     d.two(2, "C95", "C", &dec, (277., 154.), 0, "+4V8", "RESET", false);
     let small_d = part(
-        "1N4148W-E3-18",
-        "1N4148W-E3-18",
-        "Vishay",
+        "1N4148W",
+        "1N4148W",
+        "ST (Semtech)",
         "Diode_SMD:D_SOD-123",
-        "https://www.vishay.com/docs/85748/1n4148w.pdf",
-        "C191428",
+        "https://www.lcsc.com/product-detail/C81598.html",
+        "C81598",
     );
     d.two(
         2,
@@ -1759,11 +1780,11 @@ fn main() {
     );
     let led = part(
         "RED / OVERLOAD",
-        "LTST-C170KRKT",
-        "Lite-On",
+        "NCD0805R1",
+        "NationStar",
         "LED_SMD:LED_0805_2012Metric",
-        "https://optoelectronics.liteon.com/upload/download/DS22-2000-073/LTST-C170KRKT.pdf",
-        "",
+        "https://www.lcsc.com/product-detail/C84256.html",
+        "C84256",
     );
     d.two(
         2,
@@ -1830,23 +1851,24 @@ mod edge_parts {
             "C6956217",
         )
     }
+    // E-Switch 100 series, M7 vertical right-angle PC mount (docs/cost-down.md section 5).
     pub fn range_switch() -> Part {
         part(
             "SPDT / ON-ON / gold / threaded",
-            "7101SDAV2BE",
-            "C&K",
-            "Probe:CK_7101_AV2_SPDT",
-            "https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e",
+            "100SP1T1B5M7RE",
+            "E-Switch",
+            "Probe:ESwitch_100_M7_SPDT",
+            "https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf",
             "",
         )
     }
     pub fn power_switch() -> Part {
         part(
             "POWER / DPDT / ON-ON / threaded",
-            "7201P3DAV2QE",
-            "C&K",
-            "Probe:CK_7201_AV2_DPDT",
-            "https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e",
+            "100DP1T1B1M7QEH",
+            "E-Switch",
+            "Probe:ESwitch_100_M7_DPDT",
+            "https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf",
             "",
         )
     }
@@ -1889,9 +1911,11 @@ mod edge_parts {
         }
         s + ")\n"
     }
-    /// C&K 7000 AV2 ("vertical right angle") bracket: contact rows 0.150 in
-    /// apart, two support pins 0.200 in apart and 0.500 in ahead of row 1, all
-    /// holes 0.073 in; bushing axis 0.250 in above the board, centred on x = 0.
+    /// E-Switch 100 series M7 ("vertical right angle PCB mount", catalog sheet
+    /// 12, 1/11/2024): contact rows 3.81 mm apart, two support pins 5.08 mm
+    /// apart and 12.70 mm ahead of row 1, all holes 1.85 mm; DP columns 4.83 mm.
+    /// The pattern equals the C&K 7000 AV2 bracket it replaces. The body box is
+    /// the DP outline (11.43 mm wide), also used for the narrower SP body.
     fn toggle(name: &'static str, descr: &'static str, columns: &[f64]) -> Fp<'static> {
         let mut pads = Vec::new();
         let mut n = 1;
@@ -1916,8 +1940,8 @@ mod edge_parts {
             body: (-7.25, -7.37, 7.25, 6.6),
             far: vec![],
         };
-        let spdt = toggle("CK_7101_AV2_SPDT", "C&K 7101 AV2 vertical right-angle SPDT toggle; pin 2 common, panel hole 6.35 mm (1/4-40), bushing axis 6.35 mm above the board.", &[0.]);
-        let dpdt = toggle("CK_7201_AV2_DPDT", "C&K 7201 AV2 vertical right-angle DPDT toggle; pins 2 and 5 common, panel hole 6.35 mm (1/4-40), bushing axis 6.35 mm above the board.", &[-2.415, 2.415]);
+        let spdt = toggle("ESwitch_100_M7_SPDT", "E-Switch 100 series M7 vertical right-angle PC-mount SPDT toggle (100SP1T1B5M7RE); pin 2 common; 1/4-40 bushing, panel hole 6.35 mm. Hole pattern from the E-Switch 100 catalog M7-SP drawing.", &[0.]);
+        let dpdt = toggle("ESwitch_100_M7_DPDT", "E-Switch 100 series M7 vertical right-angle PC-mount DPDT toggle (100DP1T1B1M7QEH); pins 2 and 5 common; 1/4-40 bushing, panel hole 6.35 mm. Hole pattern from the E-Switch 100 catalog M7-DP drawing.", &[-2.415, 2.415]);
         // MPD BH9VPC PCB layout (rev J), component-side view, origin on the + pin.
         let bat = Fp {
             name: "BatteryHolder_MPD_BH9VPC",

@@ -24,7 +24,7 @@ Both columns use the same assumptions: the owner hand-solders the nine THT parts
 | Enclosures, 2 × Hammond 1455N2201 | $76.86 | $76.86 |
 | **Total** | **$866.44** | **$448.20** (−$418.24, −48 %) |
 
-The documented HV-lead BOM ([`leads-bom.csv`](../procurement/leads-bom.csv), Rowe R800-1020 spool) is $234.72 instead of $100. That raises both columns by $134.72 and leaves the saving unchanged. At distributor-ledger prices alone (the basis of [revc.md](revc.md#cost-dated-2026-10-20)) the components fall from $535.81 to the figure `cost.py` prints after the substitution.
+The documented HV-lead BOM ([`leads-bom.csv`](../procurement/leads-bom.csv), Rowe R800-1020 spool) is $234.72 instead of $100. That raises both columns by $134.72 and leaves the saving unchanged. At distributor-ledger prices alone (the basis of [revc.md](revc.md#cost-dated-2026-10-20)) the components fall from $535.81 to $148.63.
 
 Not included: shipping, tax and duty, the owner's courier for parts bought at DigiKey, and the S1/S2 select-on-test kits (priced identically in every strategy).
 
@@ -32,7 +32,7 @@ Not included: shipping, tax and duty, the owner's courier for parts bought at Di
 
 | Group | Before | Chosen | Saving, 2 boards (ledger) | Trade |
 |---|---|---|---:|---|
-| HV divider, 20 × 2 MΩ 2512 | Vishay HVCB2512BDE2M00: 0.1 %, 25 ppm/°C, 2 W, 3000 V; $11.995; 9 at DigiKey, 0 at LCSC, 18-week lead | **Uni-Royal HV121WF2004T4E** (LCSC/JLC C2779442): 1 %, ±100 ppm/°C, 1 W at 70 °C, 3000 V working, 4000 V overload; $0.0754; JLC 6,345 | $238.39 | DC CMRR tracking with temperature; one double-fault case at the ±3 kV extension exceeds the 1 W rating; the 1 % string needs the wider DC trim below. |
+| HV divider, 20 × 2 MΩ 2512 | Stackpole HVCB2512BDE2M00: 0.1 %, 25 ppm/°C, 2 W, 3000 V; $11.995; 9 at DigiKey, 0 at LCSC, 18-week lead | **Uni-Royal HV121WF2004T4E** (LCSC/JLC C2779442): 1 %, ±100 ppm/°C, 1 W at 70 °C, 3000 V working, 4000 V overload; $0.0754; JLC 6,345 | $238.39 | DC CMRR tracking with temperature; one double-fault case at the ±3 kV extension exceeds the 1 W rating; the 1 % string needs the wider DC trim below. |
 | DC trim fixed leg + pot, 2 + 2 | RNCF0603TKY4K99 (0.01 %) + Bourns 3296W-1-500LF (50 Ω) | **RT0603BRD074K87L** (0.1 %, 25 ppm, C861446) + **3296W-1-501LF** (500 Ω, C69564) | $12.03 | Required by the 1 % string. Trim resolution 20 Ω per turn instead of 2 Ω. |
 | Divider C, 20 × 33 pF 1812 | KEMET C1812C330JHGACTU (C0G 5 %, 3 kV); $2.654; not at JLC | **Yageo CC1812JKNPOEBN330** (NP0 5 %, 3 kV, C2359543); $0.318; JLC 993 | $46.69 | Equal ratings; body up to 1.45 mm thick instead of 1.1 mm. |
 | Low-leg fixed C, 4 × 10 nF 1206 | KEMET C1206C103F5GACTU (C0G 1 %, 50 V); $7.52; JLC 0 | **Yageo CC1206FKNPO9BN103** (NP0 1 %, 50 V, C541597); $0.307; JLC 1,814 | $28.54 | None: same tolerance, dielectric and rating. |
@@ -47,8 +47,8 @@ The divider is five 2 MΩ sections per leg, each bridged by 33 pF, over a 5.0025
 
 | MPN | Tol / TCR | Power, V | Price (2 boards) | Availability 2026-10-20 |
 |---|---|---|---:|---|
-| Vishay HVCB2512BDE2M00 (before) | 0.1 % / 25 ppm | 2 W, 3000 V | $239.90 | DigiKey 9; LCSC 0; JLC 0; 18 weeks |
-| Vishay HVCB2512FKE2M00 / FKC2M00 (1 % HVCB) | 1 % / 100 ppm | 2 W, 3000 V | about $93–$114 | Not stocked; 1,000 MOQ; 18 weeks |
+| Stackpole HVCB2512BDE2M00 (before) | 0.1 % / 25 ppm | 2 W, 3000 V | $239.90 | DigiKey 9; LCSC 0; JLC 0; 18 weeks |
+| Stackpole HVCB2512FKE2M00 / FKC2M00 (1 % HVCB) | 1 % / 100 ppm | 2 W, 3000 V | $4.65–$5.71 each, but 1,000 MOQ | Not stocked; 18 weeks |
 | KOA HV733ATTE2004F | 1 % / 100 ppm | 1 W, 3000 V | $10.64 (DigiKey 10+ $0.532) | DigiKey 22,415; not at JLC (would be global-sourced) |
 | Vishay CRMA2512AF2M00FKEF | 1 % / 100 ppm | 1 W | $30.00 | DigiKey 3,982; JLC 0 |
 | Bourns CHV2512-FX-2004ELF | 1 % / 100 ppm | 1 W, 3000 V | — | JLC 0 |
@@ -57,7 +57,7 @@ The divider is five 2 MΩ sections per leg, each bridged by 33 pF, over a 5.0025
 
 No stocked 2 W 2 MΩ chip resistor was found at JLC (2 W parts in stock are axial carbon or metal film, 500 V). Every stocked 3 kV 2512 is a 1 W, 1 %, 100 ppm/°C thick-film part, so the choice among them is availability. HV12 is stocked at JLC and needs no global sourcing.
 
-**HV12 ratings** (Uni-Royal "HV" high-voltage thick-film chip resistor datasheet, as listed on Mouser): 1 W at 70 °C derating linearly to 0 at 155 °C; maximum working voltage 3000 V; maximum overload voltage 4000 V; dielectric withstanding voltage 500 V; ±100 ppm/°C; −55 to +155 °C. **Approval basis: none listed** (no UL recognition; the same as the incumbent Vishay part, which is also a component without a UL file). The voltage coefficient is not specified, as it was not for the incumbent. The protective function relies on the body count and creepage, which do not change.
+**HV12 ratings** (Uni-Royal "HV" high-voltage thick-film chip resistor datasheet, as listed on Mouser): 1 W at 70 °C derating linearly to 0 at 155 °C; maximum working voltage 3000 V; maximum overload voltage 4000 V; dielectric withstanding voltage 500 V; ±100 ppm/°C; −55 to +155 °C. **Approval basis: none listed** (no UL recognition; the same as the incumbent Stackpole part, which also has no UL file). The voltage coefficient is not specified, as it was not for the incumbent. The protective function relies on the body count and creepage, which do not change.
 
 ### Margin costs (`validation/cost-down.txt` §1, §3, §4)
 
@@ -66,7 +66,9 @@ No stocked 2 W 2 MΩ chip resistor was found at JLC (2 W parts in stock are axia
 3. **Self-heating at 3 kV DC.** Estimated rise 7.6–15.3 K per body (θ from the two derating curves; an estimate, not a bound). If both legs heat equally, the ratio mismatch is up to 1528–3057 ppm (56.3–50.3 dB) instead of 382–764 ppm. At 1.5 kV DC it is 382–764 ppm (68.4–62.3 dB).
 4. **AC ratio from 1 % sections.** With equal 33 pF the ±1 % section mismatch gives at most 6.59 ppm at 35 kHz and 3.86 ppm at 60 kHz (§5), negligible against the 5 % capacitors that per-leg compensation already absorbs.
 
-The HVCB part stays a **drop-in upgrade**: same 2512 footprint. If the bench shows the DC CMRR drift is too large for the coil measurement, fitting HVCB2512BDE2M00 and the old 4.99 k / 50 Ω trim restores the previous performance with no board change.
+The HVCB part stays a **drop-in upgrade**: same 2512 footprint, and the new trim covers a 0.1 % string (122.6–142.4 Ω needed, §2), so no other part changes. If the bench shows the DC CMRR drift is too large for the coil measurement, fit HVCB2512BDE2M00; refitting the old RNCF0603TKY4K99 + 50 Ω trim as well restores the previous TCR budget and trim resolution. No board change either way.
+
+**This departs from a recorded decision.** The [Rev B build decision](revb-build-decision.md) kept the 0.1 % grade and cancelled a 0.1 %-versus-1 % experiment as not worth its cost for a one-off instrument. The cost-down replaces that experiment with calculated margins and three bench checks (temperature tracking, self-heating, trim settability), with the 0.1 % part as the fallback.
 
 ## 2. DC trim
 
@@ -79,6 +81,7 @@ With a 1 % string, the bottom must reach 5002.5 Ω × (1 ± 1 %). `cost_down.rs`
 | 4.87 k 0.1 % + 200 Ω | 77.6–187.4 Ω | 2–180 Ω | gap |
 | 4.87 k + 22.1 Ω + 200 Ω | 55.5–165.3 Ω | 2–180 Ω | covered; one more part per leg (layout change) |
 | **4.87 k 0.1 % + 500 Ω (chosen)** | 77.6–187.4 Ω | 5–450 Ω | **covered**; nominal 132.5 Ω |
+| 4.87 k 0.1 % + 500 Ω with a 0.1 % HVCB string | 122.6–142.4 Ω | 5–450 Ω | covered (drop-in upgrade) |
 
 4.93 k 0.1 % (which would allow a 200 Ω pot) had no stock at JLC. The chosen pot gives 20 Ω per turn (4000 ppm of the bottom per turn, 160 ppm per 1/25 turn) instead of 2 Ω, and its contact-resistance variation is up to 5 Ω (1000 ppm) instead of 3 Ω (600 ppm). Trimming to 100 ppm takes about 1/40 turn. RT0603BRD074K87L: Yageo RT thin film, 0.1 %, 25 ppm/°C, 0.1 W, 75 V; it sees under 1 V. 3296W-1-501LF: same 3296W body and pinout as the 50 Ω part.
 
@@ -110,7 +113,7 @@ E-Switch 100 series, M7 vertical right-angle PC terminations (E-Switch catalog d
 | Holes | 0.073 in (1.85 mm) | Ø1.85 mm |
 | DPDT columns | 0.19 in (4.83 mm) | 4.83 mm |
 | Bushing | 1/4-40 threaded | 1/4-40 threaded (B1; B5 flanged high-torque) |
-| Axis above board | 6.35 mm | about 6.35 mm |
+| Axis above board | 6.35 mm | not dimensioned directly; check on a sample |
 | Contacts | 7101 gold, 7201 silver | SP: gold 0.4 VA at 20 V (`R` contact); DP: silver 5 A (`Q` contact) |
 | Contact resistance / IR / dielectric | — | 10 mΩ / 1000 MΩ / 1000 VRMS |
 | Mechanical life | — | 40,000 cycles |
@@ -154,6 +157,15 @@ Q1 (base drive 47 kΩ from OV_N, collector load 10 kΩ to −4.8 V) needs a forc
 ### What stays Extended, and why
 
 The precision ladder and gain resistors (RT0805 10 k, 1 k, 29.4 k, 30 k, 66.5 k; RNCF 499 Ω, 1 k, 2 k), the new 4.87 k, R69 (97.6 Ω), the seven ICs, BAV199, the 10 µF, 180 pF, 10 nF and 33 pF capacitors, the HV resistor and the PTS645 button. No Basic part replaces them without losing a stated tolerance or footprint.
+
+## Implementation (Phase 2)
+
+All six decisions are implemented with no layout change:
+
+- `tools/build.rs`: new MPNs, values and LCSC codes; a `rb()` helper for the Basic 0805 resistors; the toggle footprints are now `Probe:ESwitch_100_M7_SPDT` / `_DPDT`, generated from the E-Switch catalog M7 drawing (same pads as before), and the C&K footprint files are deleted.
+- `tools/check.rs`: MPN assertions for the calculation sources and HV bodies; the DC-trim proof for the 1 % string, 4.87 k and 500 Ω; the divider TCR drift line (≤ 0.76 % over −25..85 °C, so the warning budget's ≥ 98 % gain condition needs ≥ 98.75 % at 25 °C); the 1 W rating text with the 2 + 3 split case stated plainly.
+- `procurement/jlc-part-map.json` carries the new identities; `procurement/export.sh` regenerated the JLC BOM/CPL and Gerbers. Pads, tracks and courtyards are identical to `5b9a9530b` (order-insensitive comparison of `validation/pcb-*.tsv`); the Gerber changes are aperture renumbering and timestamps.
+- `cost.py` asserts the committed `bom-jlc.csv` equals the baseline BOM with exactly the substitutions in `SUBS`.
 
 ## Deferred
 

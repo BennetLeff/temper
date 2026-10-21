@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T17:55:28</date>
+    <date>2026-10-20T20:24:19</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -63,19 +63,19 @@
     <comp ref="C1">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -94,19 +94,19 @@
     <comp ref="C2">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -125,19 +125,19 @@
     <comp ref="C3">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -156,19 +156,19 @@
     <comp ref="C4">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -187,19 +187,19 @@
     <comp ref="C5">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -218,19 +218,19 @@
     <comp ref="C21">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -249,19 +249,19 @@
     <comp ref="C22">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -280,19 +280,19 @@
     <comp ref="C23">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -311,19 +311,19 @@
     <comp ref="C24">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -342,19 +342,19 @@
     <comp ref="C25">
       <value>33 pF / 3 kV</value>
       <footprint>Probe:C_1812_HV_Slot</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1812C330JHGACTU</datasheet>
+      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</datasheet>
       <fields>
-        <field name="MPN">C1812C330JHGACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1812JKNPOEBN330</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C2359543</field>
         <field name="Footprint">Probe:C_1812_HV_Slot</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1812C330JHGACTU</field>
+        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1812C330JHGACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1812JKNPOEBN330"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C2359543"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -373,19 +373,19 @@
     <comp ref="C41">
       <value>10 nF / 1%</value>
       <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1206C103F5GACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C541597.html</datasheet>
       <fields>
-        <field name="MPN">C1206C103F5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1206FKNPO9BN103</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C541597</field>
         <field name="Footprint">Capacitor_SMD:C_1206_3216Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1206C103F5GACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C541597.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1206C103F5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1206FKNPO9BN103"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C541597"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -466,19 +466,19 @@
     <comp ref="C51">
       <value>10 nF / 1%</value>
       <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1206C103F5GACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C541597.html</datasheet>
       <fields>
-        <field name="MPN">C1206C103F5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC1206FKNPO9BN103</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C541597</field>
         <field name="Footprint">Capacitor_SMD:C_1206_3216Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1206C103F5GACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C541597.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1206C103F5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC1206FKNPO9BN103"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C541597"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -677,21 +677,21 @@
       </units>
     </comp>
     <comp ref="R1">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -708,21 +708,21 @@
       </units>
     </comp>
     <comp ref="R2">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -739,21 +739,21 @@
       </units>
     </comp>
     <comp ref="R3">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -770,21 +770,21 @@
       </units>
     </comp>
     <comp ref="R4">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -801,21 +801,21 @@
       </units>
     </comp>
     <comp ref="R5">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -832,21 +832,21 @@
       </units>
     </comp>
     <comp ref="R11">
-      <value>4.99 kR / 0.01%</value>
+      <value>4.87 kR / 0.1%</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
       <fields>
-        <field name="MPN">RNCF0603TKY4K99</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC">C3942722</field>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY4K99"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value="C3942722"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -865,19 +865,19 @@
     <comp ref="R12">
       <value>220 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17557.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07220RL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F2200T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17557</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17557.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07220RL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F2200T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17557"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -894,21 +894,21 @@
       </units>
     </comp>
     <comp ref="R21">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -925,21 +925,21 @@
       </units>
     </comp>
     <comp ref="R22">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -956,21 +956,21 @@
       </units>
     </comp>
     <comp ref="R23">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -987,21 +987,21 @@
       </units>
     </comp>
     <comp ref="R24">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1018,21 +1018,21 @@
       </units>
     </comp>
     <comp ref="R25">
-      <value>2 MR / 0.1%</value>
+      <value>2 MR / 1% / 3 kV</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
-      <datasheet>https://www.seielect.com/Catalog/SEI-hvc.pdf</datasheet>
+      <datasheet>https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</datasheet>
       <fields>
-        <field name="MPN">HVCB2512BDE2M00</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC"/>
+        <field name="MPN">HV121WF2004T4E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C2779442</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
-        <field name="Datasheet">https://www.seielect.com/Catalog/SEI-hvc.pdf</field>
+        <field name="Datasheet">https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="HVCB2512BDE2M00"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="HV121WF2004T4E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C2779442"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1049,21 +1049,21 @@
       </units>
     </comp>
     <comp ref="R31">
-      <value>4.99 kR / 0.01%</value>
+      <value>4.87 kR / 0.1%</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
-      <datasheet>https://seielect.com/Catalog/SEI-RNCF.pdf</datasheet>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
       <fields>
-        <field name="MPN">RNCF0603TKY4K99</field>
-        <field name="Manufacturer">Stackpole</field>
-        <field name="LCSC">C3942722</field>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
-        <field name="Datasheet">https://seielect.com/Catalog/SEI-RNCF.pdf</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RNCF0603TKY4K99"/>
-      <property name="Manufacturer" value="Stackpole"/>
-      <property name="LCSC" value="C3942722"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1082,19 +1082,19 @@
     <comp ref="R32">
       <value>220 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17557.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07220RL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F2200T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17557</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17557.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07220RL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F2200T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17557"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1111,21 +1111,21 @@
       </units>
     </comp>
     <comp ref="RV1">
-      <value>50 R / set 12.50 R</value>
+      <value>500 R / set 132.5 R</value>
       <footprint>Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</footprint>
       <datasheet>https://www.bourns.com/docs/product-datasheets/3296.pdf</datasheet>
       <fields>
-        <field name="MPN">3296W-1-500LF</field>
+        <field name="MPN">3296W-1-501LF</field>
         <field name="Manufacturer">Bourns</field>
-        <field name="LCSC">C83692</field>
+        <field name="LCSC">C69564</field>
         <field name="Footprint">Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</field>
         <field name="Datasheet">https://www.bourns.com/docs/product-datasheets/3296.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="TRIM" description=""/>
-      <property name="MPN" value="3296W-1-500LF"/>
+      <property name="MPN" value="3296W-1-501LF"/>
       <property name="Manufacturer" value="Bourns"/>
-      <property name="LCSC" value="C83692"/>
+      <property name="LCSC" value="C69564"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -1141,21 +1141,21 @@
       </units>
     </comp>
     <comp ref="RV2">
-      <value>50 R / set 12.50 R</value>
+      <value>500 R / set 132.5 R</value>
       <footprint>Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</footprint>
       <datasheet>https://www.bourns.com/docs/product-datasheets/3296.pdf</datasheet>
       <fields>
-        <field name="MPN">3296W-1-500LF</field>
+        <field name="MPN">3296W-1-501LF</field>
         <field name="Manufacturer">Bourns</field>
-        <field name="LCSC">C83692</field>
+        <field name="LCSC">C69564</field>
         <field name="Footprint">Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</field>
         <field name="Datasheet">https://www.bourns.com/docs/product-datasheets/3296.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="TRIM" description=""/>
-      <property name="MPN" value="3296W-1-500LF"/>
+      <property name="MPN" value="3296W-1-501LF"/>
       <property name="Manufacturer" value="Bourns"/>
-      <property name="LCSC" value="C83692"/>
+      <property name="LCSC" value="C69564"/>
       <property name="Sheetname" value="differential-probe"/>
       <property name="Sheetfile" value="differential-probe.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
@@ -1208,19 +1208,19 @@
     <comp ref="C61">
       <value>180 pF</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C181J5GACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C113826.html</datasheet>
       <fields>
-        <field name="MPN">C0805C181J5GACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805JRNPO9BN181</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C113826</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C181J5GACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C113826.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C181J5GACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805JRNPO9BN181"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C113826"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -1296,21 +1296,21 @@
       </units>
     </comp>
     <comp ref="Q1">
-      <value>MMBT3906,215</value>
+      <value>MMBT5401</value>
       <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
-      <datasheet>https://assets.nexperia.com/documents/data-sheet/MMBT3906.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C8326.html</datasheet>
       <fields>
-        <field name="MPN">MMBT3906,215</field>
-        <field name="Manufacturer">Nexperia</field>
-        <field name="LCSC"/>
+        <field name="MPN">MMBT5401</field>
+        <field name="Manufacturer">CJ (Jiangsu Changjing)</field>
+        <field name="LCSC">C8326</field>
         <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
-        <field name="Datasheet">https://assets.nexperia.com/documents/data-sheet/MMBT3906.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C8326.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="PNP" description=""/>
-      <property name="MPN" value="MMBT3906,215"/>
-      <property name="Manufacturer" value="Nexperia"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="MMBT5401"/>
+      <property name="Manufacturer" value="CJ (Jiangsu Changjing)"/>
+      <property name="LCSC" value="C8326"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
@@ -1545,19 +1545,19 @@
     <comp ref="R70">
       <value>49.9 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17720.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0749R9L</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F499JT5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17720</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17720.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0749R9L"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F499JT5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17720"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1669,19 +1669,19 @@
     <comp ref="R74">
       <value>47 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17713.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0747KL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F4702T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17713</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17713.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0747KL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F4702T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17713"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1731,19 +1731,19 @@
     <comp ref="R100">
       <value>49.9 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17720.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0749R9L</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F499JT5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17720</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17720.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0749R9L"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F499JT5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17720"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1762,19 +1762,19 @@
     <comp ref="R101">
       <value>49.9 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17720.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0749R9L</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F499JT5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17720</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17720.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0749R9L"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F499JT5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17720"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1793,19 +1793,19 @@
     <comp ref="R102">
       <value>49.9 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17720.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD0749R9L</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F499JT5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17720</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17720.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD0749R9L"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F499JT5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17720"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1824,19 +1824,19 @@
     <comp ref="R103">
       <value>1 MR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17514.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD071ML</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F1004T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17514</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17514.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD071ML"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F1004T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17514"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -1854,19 +1854,19 @@
     </comp>
     <comp ref="SW1">
       <value>SPDT / ON-ON / gold / threaded</value>
-      <footprint>Probe:CK_7101_AV2_SPDT</footprint>
-      <datasheet>https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</datasheet>
+      <footprint>Probe:ESwitch_100_M7_SPDT</footprint>
+      <datasheet>https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf</datasheet>
       <fields>
-        <field name="MPN">7101SDAV2BE</field>
-        <field name="Manufacturer">C&amp;K</field>
+        <field name="MPN">100SP1T1B5M7RE</field>
+        <field name="Manufacturer">E-Switch</field>
         <field name="LCSC"/>
-        <field name="Footprint">Probe:CK_7101_AV2_SPDT</field>
-        <field name="Datasheet">https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</field>
+        <field name="Footprint">Probe:ESwitch_100_M7_SPDT</field>
+        <field name="Datasheet">https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="SPDT" description=""/>
-      <property name="MPN" value="7101SDAV2BE"/>
-      <property name="Manufacturer" value="C&amp;K"/>
+      <property name="MPN" value="100SP1T1B5M7RE"/>
+      <property name="Manufacturer" value="E-Switch"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
@@ -2130,19 +2130,19 @@
     <comp ref="C71">
       <value>10 uF / 25 V</value>
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1210C106K3RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C342744.html</datasheet>
       <fields>
-        <field name="MPN">C1210C106K3RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">C3225X7R1E106KTJ00N</field>
+        <field name="Manufacturer">TDK</field>
+        <field name="LCSC">C342744</field>
         <field name="Footprint">Capacitor_SMD:C_1210_3225Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1210C106K3RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C342744.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1210C106K3RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="C3225X7R1E106KTJ00N"/>
+      <property name="Manufacturer" value="TDK"/>
+      <property name="LCSC" value="C342744"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2161,19 +2161,19 @@
     <comp ref="C72">
       <value>10 uF / 25 V</value>
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1210C106K3RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C342744.html</datasheet>
       <fields>
-        <field name="MPN">C1210C106K3RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">C3225X7R1E106KTJ00N</field>
+        <field name="Manufacturer">TDK</field>
+        <field name="LCSC">C342744</field>
         <field name="Footprint">Capacitor_SMD:C_1210_3225Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1210C106K3RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C342744.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1210C106K3RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="C3225X7R1E106KTJ00N"/>
+      <property name="Manufacturer" value="TDK"/>
+      <property name="LCSC" value="C342744"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2192,19 +2192,19 @@
     <comp ref="C73">
       <value>10 uF / 25 V</value>
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1210C106K3RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C342744.html</datasheet>
       <fields>
-        <field name="MPN">C1210C106K3RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">C3225X7R1E106KTJ00N</field>
+        <field name="Manufacturer">TDK</field>
+        <field name="LCSC">C342744</field>
         <field name="Footprint">Capacitor_SMD:C_1210_3225Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1210C106K3RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C342744.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1210C106K3RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="C3225X7R1E106KTJ00N"/>
+      <property name="Manufacturer" value="TDK"/>
+      <property name="LCSC" value="C342744"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2223,19 +2223,19 @@
     <comp ref="C74">
       <value>10 uF / 25 V</value>
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C1210C106K3RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C342744.html</datasheet>
       <fields>
-        <field name="MPN">C1210C106K3RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">C3225X7R1E106KTJ00N</field>
+        <field name="Manufacturer">TDK</field>
+        <field name="LCSC">C342744</field>
         <field name="Footprint">Capacitor_SMD:C_1210_3225Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C1210C106K3RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C342744.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C1210C106K3RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="C3225X7R1E106KTJ00N"/>
+      <property name="Manufacturer" value="TDK"/>
+      <property name="LCSC" value="C342744"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2254,19 +2254,19 @@
     <comp ref="C81">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2285,19 +2285,19 @@
     <comp ref="C82">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2316,19 +2316,19 @@
     <comp ref="C83">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2347,19 +2347,19 @@
     <comp ref="C84">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2378,19 +2378,19 @@
     <comp ref="C85">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2409,19 +2409,19 @@
     <comp ref="C86">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2440,19 +2440,19 @@
     <comp ref="C87">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2471,19 +2471,19 @@
     <comp ref="C88">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2502,19 +2502,19 @@
     <comp ref="C89">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2533,19 +2533,19 @@
     <comp ref="C90">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2564,19 +2564,19 @@
     <comp ref="C91">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2595,19 +2595,19 @@
     <comp ref="C92">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2626,19 +2626,19 @@
     <comp ref="C95">
       <value>100 nF / 50 V</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://search.kemet.com/download/specsheet/C0805C104K5RACTU</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C49678.html</datasheet>
       <fields>
-        <field name="MPN">C0805C104K5RACTU</field>
-        <field name="Manufacturer">KEMET</field>
-        <field name="LCSC"/>
+        <field name="MPN">CC0805KRX7R9BB104</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C49678</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://search.kemet.com/download/specsheet/C0805C104K5RACTU</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C49678.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="C0805C104K5RACTU"/>
-      <property name="Manufacturer" value="KEMET"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="CC0805KRX7R9BB104"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C49678"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -2779,21 +2779,21 @@
       </units>
     </comp>
     <comp ref="D8">
-      <value>1N4148W-E3-18</value>
+      <value>1N4148W</value>
       <footprint>Diode_SMD:D_SOD-123</footprint>
-      <datasheet>https://www.vishay.com/docs/85748/1n4148w.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C81598.html</datasheet>
       <fields>
-        <field name="MPN">1N4148W-E3-18</field>
-        <field name="Manufacturer">Vishay</field>
-        <field name="LCSC">C191428</field>
+        <field name="MPN">1N4148W</field>
+        <field name="Manufacturer">ST (Semtech)</field>
+        <field name="LCSC">C81598</field>
         <field name="Footprint">Diode_SMD:D_SOD-123</field>
-        <field name="Datasheet">https://www.vishay.com/docs/85748/1n4148w.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C81598.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="D" description="Diode"/>
-      <property name="MPN" value="1N4148W-E3-18"/>
-      <property name="Manufacturer" value="Vishay"/>
-      <property name="LCSC" value="C191428"/>
+      <property name="MPN" value="1N4148W"/>
+      <property name="Manufacturer" value="ST (Semtech)"/>
+      <property name="LCSC" value="C81598"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="diode"/>
@@ -2812,19 +2812,19 @@
     <comp ref="D9">
       <value>RED / OVERLOAD</value>
       <footprint>LED_SMD:LED_0805_2012Metric</footprint>
-      <datasheet>https://optoelectronics.liteon.com/upload/download/DS22-2000-073/LTST-C170KRKT.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C84256.html</datasheet>
       <fields>
-        <field name="MPN">LTST-C170KRKT</field>
-        <field name="Manufacturer">Lite-On</field>
-        <field name="LCSC"/>
+        <field name="MPN">NCD0805R1</field>
+        <field name="Manufacturer">NationStar</field>
+        <field name="LCSC">C84256</field>
         <field name="Footprint">LED_SMD:LED_0805_2012Metric</field>
-        <field name="Datasheet">https://optoelectronics.liteon.com/upload/download/DS22-2000-073/LTST-C170KRKT.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C84256.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="LED" description="Light emitting diode"/>
-      <property name="MPN" value="LTST-C170KRKT"/>
-      <property name="Manufacturer" value="Lite-On"/>
-      <property name="LCSC" value=""/>
+      <property name="MPN" value="NCD0805R1"/>
+      <property name="Manufacturer" value="NationStar"/>
+      <property name="LCSC" value="C84256"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="LED diode"/>
@@ -3153,19 +3153,19 @@
     <comp ref="R95">
       <value>100 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C149504.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD07100KL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F1003T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C149504</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C149504.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD07100KL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F1003T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C149504"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -3214,19 +3214,19 @@
     </comp>
     <comp ref="SW2">
       <value>POWER / DPDT / ON-ON / threaded</value>
-      <footprint>Probe:CK_7201_AV2_DPDT</footprint>
-      <datasheet>https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</datasheet>
+      <footprint>Probe:ESwitch_100_M7_DPDT</footprint>
+      <datasheet>https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf</datasheet>
       <fields>
-        <field name="MPN">7201P3DAV2QE</field>
-        <field name="Manufacturer">C&amp;K</field>
+        <field name="MPN">100DP1T1B1M7QEH</field>
+        <field name="Manufacturer">E-Switch</field>
         <field name="LCSC"/>
-        <field name="Footprint">Probe:CK_7201_AV2_DPDT</field>
-        <field name="Datasheet">https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e</field>
+        <field name="Footprint">Probe:ESwitch_100_M7_DPDT</field>
+        <field name="Datasheet">https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="DPDT" description=""/>
-      <property name="MPN" value="7201P3DAV2QE"/>
-      <property name="Manufacturer" value="C&amp;K"/>
+      <property name="MPN" value="100DP1T1B1M7QEH"/>
+      <property name="Manufacturer" value="E-Switch"/>
       <property name="LCSC" value=""/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>

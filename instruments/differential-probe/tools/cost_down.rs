@@ -138,12 +138,13 @@ fn main() {
 
     // 2. DC trim coverage for a 1 % string.
     writeln!(r, "2. DC trim coverage (fixed part tolerance at its corners, every upper-string corner; pot reaches max(1 %, 2 ohm) .. 0.9 x nominal).").unwrap();
-    let options: [(&str, f64, Vec<(f64, f64)>, f64); 5] = [
+    let options: [(&str, f64, Vec<(f64, f64)>, f64); 6] = [
         ("incumbent: 0.1 % string, 4.99 k 0.01 %, 50 ohm pot", 0.001, vec![(4990., 1e-4)], 50.),
         ("1 % string, 4.99 k 0.01 %, 50 ohm pot", 0.01, vec![(4990., 1e-4)], 50.),
         ("1 % string, 4.87 k 0.1 %, 200 ohm pot", 0.01, vec![(4870., 1e-3)], 200.),
         ("1 % string, 4.87 k + 22.1 ohm 0.1 %, 200 ohm pot (study 06)", 0.01, vec![(4870., 1e-3), (22.1, 1e-3)], 200.),
         ("1 % string, 4.87 k 0.1 %, 500 ohm pot (chosen)", 0.01, vec![(4870., 1e-3)], 500.),
+        ("0.1 % string (HVCB drop-in), 4.87 k 0.1 %, 500 ohm pot", 0.001, vec![(4870., 1e-3)], 500.),
     ];
     for (i, (name, st, fixed, pot)) in options.iter().enumerate() {
         let (nl, nh, rl, rh) = trim(*st, fixed, *pot);
@@ -152,7 +153,7 @@ fn main() {
         writeln!(r, "   {name}: need {nl:.3}..{nh:.3} ohm, pot reaches {rl:.1}..{rh:.1} ohm -> {}; nominal setting {nominal:.1} ohm ({:.1} ohm per turn of 25).",
             if ok { "covered" } else { "GAP" }, pot / 25.).unwrap();
         match i {
-            0 | 3 | 4 => assert!(ok, "trim coverage lost: {name}"),
+            0 | 3 | 4 | 5 => assert!(ok, "trim coverage lost: {name}"),
             _ => assert!(!ok),
         }
     }

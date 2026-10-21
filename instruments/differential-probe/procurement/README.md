@@ -23,30 +23,32 @@ The JLC Comment field carries the MPN, because JLC matched generic values when t
 
 | MPN | LCSC part | LCSC stock |
 |---|---|---|
-| HVCB2512BDE2M00 | C4553702 | 0 |
 | OPA2810IDR | C1849413 | 4,074 |
 | MDD SS14 | C2480 | — |
-| Vishay 1N4148W-E3-18 | C191428 | — |
 | Amphenol 031-5431-10RFX | C6956217 | 33 |
+
+The [cost-down](../docs/cost-down.md) adds the identities of every substituted part (HV121WF2004T4E C2779442, CC1812JKNPOEBN330 C2359543, CC1206FKNPO9BN103 C541597, RT0603BRD074K87L C861446, 3296W-1-501LF C69564, the Basic 0805 parts and the E-Switch toggles). Library class, stock and price breaks for every BOM MPN are in [`jlc-catalog-2026-10-20.json`](jlc-catalog-2026-10-20.json), written by [`jlc_catalog.py`](jlc_catalog.py).
 
 These Rev C MPNs have **no reviewed LCSC identity**:
 
-- KEMET C1812C330JHGACTU (also unmapped in Rev B), C0805C302F5GACTU and C0805C161F5GACTU.
+- KEMET C0805C302F5GACTU and C0805C161F5GACTU.
 - Stackpole RNCF0603TKY499R, RNCF0603TKY1K00 and RNCF0603TKY2K00.
-- Yageo RT0805BRD07220RL and RT0805BRD0766K5L.
-- The PCB-mount C&K 7101SDAV2BE and 7201P3DAV2QE, and the MPD BH9VPC.
+- Yageo RT0805BRD0766K5L.
+- The MPD BH9VPC.
 
 Source these by exact MPN, through global sourcing or consignment. Do not accept automatic substitutions.
 
 The S1/S2 select-on-test positions also need small kits of neighbouring E24 1% C0G values, chosen at calibration (see [`../docs/design.md`](../docs/design.md)).
 
-**Stock risk.** On 2026-10-20 DigiKey had 9 × HVCB2512BDE2M00 against the 20 needed for two boards, with an 18-week lead time. This is an owner decision; see [`../docs/revc.md`](../docs/revc.md#1-2-mω-hv-resistors-10-instead-of-20).
+**Stock risk.** On 2026-10-20 DigiKey had 9 × HVCB2512BDE2M00 against the 20 needed for two boards, with an 18-week lead time. The cost-down replaced it with the JLC-stocked HV121WF2004T4E; see [`../docs/cost-down.md`](../docs/cost-down.md#1-hv-divider-resistors).
+
+**Assembly route.** The recommended JLC order is Economic, SMD only: the owner hand-solders the nine THT parts (BNC, toggles, holders, trimmers), so delete J3, SW1, SW2, BT1, BT2, RV1, RV2, CT1 and CT2 from the uploaded BOM/CPL. Bottom-side BT1/BT2 placed by JLC would force Standard double-sided assembly (`validation/cost.txt`, strategies A and D).
 
 ## Component prices
 
-Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $535.81 in components for two Rev C boards, against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
+Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $148.63 in components for two Rev C boards after the [cost-down](../docs/cost-down.md) ($535.81 before), against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
 
-Out of stock at DigiKey on that date, with LCSC stock: OPA2810IDR (C1849413), BAV199 (C40919), MMBT3906 (C75549), and RT0805BRD0749R9L, RT0805BRD0747KL and RT0805BRD0730KL. C0805C302F5GACTU and C0805C161F5GACTU were not in stock anywhere checked.
+Out of stock at DigiKey on that date, with LCSC stock: OPA2810IDR (C1849413), BAV199 (C40919), and RT0805BRD0730KL. C0805C302F5GACTU and C0805C161F5GACTU were not in stock anywhere checked.
 
 ## Fabrication quote reference
 

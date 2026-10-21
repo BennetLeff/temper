@@ -6,15 +6,15 @@ This page describes the Rev C circuit. The reasons for each change from Rev B, a
 
 ### Divider
 
-Each leg has 10 MΩ above its tap: five sections, each one 2 MΩ HVCB2512 (0.1%) in parallel with one 33 pF / 3 kV C0G.
+Each leg has 10 MΩ above its tap: five sections, each one 2 MΩ Uni-Royal HV121WF2004T4E (1%, ±100 ppm/°C, 1 W, 3000 V working) in parallel with one 33 pF / 3 kV NP0 (Yageo CC1812JKNPOEBN330). Stackpole HVCB2512BDE2M00 (0.1%, 25 ppm/°C, 2 W) is a drop-in upgrade; see [cost-down](cost-down.md) for the trade.
 
 With `Rbottom = 10 MΩ / 1999 = 5002.501 Ω`, the DC attenuation is 2000:1. Matching time constants needs a total low-leg capacitance of 13.1934 nF, including component, clamp, buffer and layout capacitance. The ideal high-frequency input capacitance is about 6.6 pF.
 
 ### DC trim
 
-R11/R31 are 4.99 kΩ, 0.01%. RV1/RV2 are 50 Ω pots with the wiper tied to one end; the nominal setting is 12.501 Ω.
+R11/R31 are 4.87 kΩ, 0.1%, 25 ppm/°C (Yageo RT0603BRD074K87L). RV1/RV2 are 500 Ω 25-turn pots (Bourns 3296W-1-501LF) with the wiper tied to one end; the nominal setting is 132.501 Ω, at 20 Ω per turn.
 
-All worst-direction corners of the 0.1% upper string and 0.01% bottom resistor need 7.000–18.003 Ω. Five 0.1% bodies give the same corners as Rev B's ten.
+All worst-direction corners of the 1% upper string and 0.1% bottom resistor need 77.606–187.396 Ω, inside the pot's usable 5–450 Ω (`tools/check.rs`). A 0.1% HVCB string needs 122.6–142.4 Ω, so the upgrade needs no trim change.
 
 ### Low-leg capacitance
 
@@ -38,7 +38,7 @@ The archived ladder model shows that one trimmer cannot correct arbitrary distri
 
 ### Input buffers
 
-U1 (OPA2810, one channel per leg) buffers each tap through 220 Ω, 0.1% (R12/R32).
+U1 (OPA2810, one channel per leg) buffers each tap through 220 Ω, 1% (R12/R32) into its high-impedance input.
 
 The JFET input stage holds to VS+ − 2.5 V typical (−3 V over temperature). That is about +1.8 V on the +4.8 V rail. The extended ±3 kV tip voltage puts ±1.5 V on the tap, inside that.
 
@@ -52,7 +52,7 @@ U12 is kept as a separate package because it is the stage that saturates in wide
 
 ### Range selection
 
-SW1 (PCB-mount C&K 7101 SPDT) selects WIDE_SEL (pin 1) or FINE_SEL (pin 3) onto SELECTED (pin 2). Each source has its own 49.9 Ω isolation resistor, and the selected signal feeds the common filter. R103 (1 MΩ) returns SELECTED to ground while the contacts are open.
+SW1 (PCB-mount E-Switch 100SP1T1B5M7RE gold SPDT) selects WIDE_SEL (pin 1) or FINE_SEL (pin 3) onto SELECTED (pin 2). Each source has its own 49.9 Ω isolation resistor, and the selected signal feeds the common filter. R103 (1 MΩ) returns SELECTED to ground while the contacts are open.
 
 Range selection does not open any feedback loop, but the changeover is not a valid measurement interval. Verify break-before-make behaviour and settling on the received switch.
 
@@ -114,7 +114,7 @@ The open-drain comparator outputs (OV_N) drive Q1 and the CD4013 set input, and 
 
 ### Batteries and regulators
 
-Two 9 V batteries sit in PCB-mount MPD BH9VPC holders on the underside. They feed ADP7142/ADP7182 regulators through the PCB-mount silver-contact 7201P3DAV2QE power switch and SS14 reverse-polarity diodes. Nominal rails are +4.800 V and −4.807 V.
+Two 9 V batteries sit in PCB-mount MPD BH9VPC holders on the underside. They feed ADP7142/ADP7182 regulators through the PCB-mount silver-contact E-Switch 100DP1T1B1M7QEH power switch and SS14 reverse-polarity diodes. Nominal rails are +4.800 V and −4.807 V.
 
 | | Typical current per rail |
 |---|---|
@@ -146,7 +146,7 @@ Custom symbols use the selected package pinout, not a generic op-amp pinout:
 | ADP7182, TSOT-5 | 1 GND, 2 VIN, 3 EN, 4 ADJ, 5 VOUT |
 | BAV199, SOT-23 | 1 outer anode, 2 outer cathode, 3 series junction |
 | BH9VPC | 1 = +, 2 = − (MPD rev J PCB layout) |
-| 7201 DPDT | 2 and 5 common; 3 and 6 unused |
+| E-Switch 100 M7 DPDT | 2 and 5 common; 3 and 6 unused |
 
 TI's two OPA2810 model files order their pins differently. The PSpice file used here is `IN+ IN- OUT VCC VEE`; the TINA file puts OUT last.
 
@@ -161,8 +161,8 @@ The pad-number audit finds missing or extra pad numbers. It does not certify lan
 - [OPA2810](https://www.ti.com/lit/ds/symlink/opa2810.pdf) and its [PSpice model SBOMB66](https://www.ti.com/lit/zip/SBOMB66); [OPA810](https://www.ti.com/lit/ds/symlink/opa810.pdf).
 - [ADP7142](https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7142.pdf), [ADP7182](https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7182.pdf).
 - [TLV170x](https://www.ti.com/lit/ds/symlink/tlv1704.pdf), [CD4013B](https://www.ti.com/lit/ds/symlink/cd4013b.pdf), [BAV199](https://assets.nexperia.com/documents/data-sheet/BAV199.pdf).
-- [Stackpole HVC](https://www.seielect.com/Catalog/SEI-HVC.pdf), [RNCF](https://seielect.com/Catalog/SEI-RNCF.pdf), [Bourns 3296](https://www.bourns.com/docs/product-datasheets/3296.pdf).
-- [C&K 7000 series](https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e), [Amphenol 031-5431-10RFX](https://www.amphenolrf.com/en-us/assets/file/4065791754/), [MPD BH9VPC](https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf), [Hammond 1455N2201](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf).
+- [Uni-Royal HV thick-film chip resistors](https://www.mouser.com/datasheet/2/1365/HighVoltageHV-2525183.pdf), [Yageo HV NP0 MLCC](https://www.yageo.com/upload/media/product/productsearch/datasheet/mlcc/UPY-HV_NP0_100V-to-5kV.pdf), [Stackpole HVC](https://www.seielect.com/Catalog/SEI-HVC.pdf) (drop-in upgrade), [RNCF](https://seielect.com/Catalog/SEI-RNCF.pdf), [Bourns 3296](https://www.bourns.com/docs/product-datasheets/3296.pdf).
+- [E-Switch 100 series](https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf), [Amphenol 031-5431-10RFX](https://www.amphenolrf.com/en-us/assets/file/4065791754/), [MPD BH9VPC](https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf), [Hammond 1455N2201](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf).
 - [Altium differential probe project](https://resources.altium.com/p/differential-oscilloscope-probe-project): the architectural starting point; its attenuator is replaced.
 
 Every other component link is in the generated BOM.

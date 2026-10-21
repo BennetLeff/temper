@@ -114,7 +114,7 @@ BT1's contacts face the tap cell. BAT_P therefore runs on B.Cu along y = 27 mm t
 
 The HV capacitor footprint uses standard 1812 lands, with the body outline on F.Fab so it does not print across the slot.
 
-The edge-part footprints are drawn from manufacturer dimensions. The BNC pin orientation and the 7101 single-column toggle geometry must be confirmed against samples (see [revc.md §7](revc.md#7-pcb-mount-panel-parts)).
+The edge-part footprints are drawn from manufacturer dimensions. The BNC pin orientation and the E-Switch toggle axis height and bushing fit must be confirmed against samples (see [revc.md §7](revc.md#7-pcb-mount-panel-parts)).
 
 The BNC, toggles and holders have no 3D model, so the render omits them.
 

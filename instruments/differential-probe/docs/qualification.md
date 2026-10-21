@@ -4,7 +4,7 @@ Status: **bench tests not executed** (Rev C board; the Rev B version of this pla
 
 Record the assembled PCB revision, component substitutions, selected compensation values, lead lengths, shield geometry, scope/cable configuration, ambient temperature and both supply voltages with every result. Calibration belongs to that complete assembly. Repeating it after moving a shield or replacing an input lead is necessary.
 
-The operating restrictions of the [Rev B build and operating decision](revb-build-decision.md) carry over to Rev C unchanged. The 0.1% resistor grade is retained (now ten 2 MΩ bodies); no separate resistor-tolerance comparison campaign is required. The restricted stage-53 setup is battery-powered, isolation-transformer-fed and free of an additional galvanic HOT-to-earth reference. It excludes BRING-UP steps 2–4 while their prescribed `hv_ret`–PE bond remains fitted. Ground-referenced calibration fixtures below are separate controlled qualification setups, not permission to use the prototype on an earthed HOT domain.
+The operating restrictions of the [Rev B build and operating decision](revb-build-decision.md) carry over to Rev C unchanged. The 2026-10-20 [cost-down](cost-down.md) replaces the 0.1% resistor grade with ten 1% Uni-Royal HV12 bodies and a wider DC trim. This departs from the Rev B decision to keep 0.1%. Instead of a resistor-comparison campaign it adds the temperature-tracking and self-heating checks in section 2; if they fail, Stackpole HVCB2512BDE2M00 is a drop-in upgrade with no trim change. The restricted stage-53 setup is battery-powered, isolation-transformer-fed and free of an additional galvanic HOT-to-earth reference. It excludes BRING-UP steps 2–4 while their prescribed `hv_ret`–PE bond remains fitted. Ground-referenced calibration fixtures below are separate controlled qualification setups, not permission to use the prototype on an earthed HOT domain.
 
 ## 1. Low-voltage bring-up
 
@@ -18,7 +18,9 @@ At low voltage first, switch ranges while observing both gain-stage outputs and 
 
 Warm the powered probe, short both tips to GND and record output offset in each range. There is no analog zero trimmer; use a documented scope offset/subtraction and record drift. Offset uncertainty matters for low-amplitude signals: several millivolts at a buffer become volts of input-referred error through a 2000:1 divider.
 
-Apply a traceable, ground-referenced low-voltage DC source to each tip in turn with the other at ground. Reverse polarity. Adjust RV1/RV2 for equal divider ratios and verify the overall 1000:1 and 200:1 gains. The nominal pot resistance is 12.501 Ω; set by ratio measurement, not an ohmmeter reading alone. Record both absolute gain and common-mode leakage; gain correction in the scope cannot repair a mismatch between the legs.
+Apply a traceable, ground-referenced low-voltage DC source to each tip in turn with the other at ground. Reverse polarity. Adjust RV1/RV2 for equal divider ratios and verify the overall 1000:1 and 200:1 gains. The nominal pot resistance is 132.5 Ω (500 Ω pot, 20 Ω per turn); set by ratio measurement, not an ohmmeter reading alone. Record both absolute gain and common-mode leakage; gain correction in the scope cannot repair a mismatch between the legs. Confirm that the ratio can be set and holds within 100 ppm of equal; the 500 Ω pot is ten times coarser than Rev B's 50 Ω.
+
+**Temperature tracking (1% HV12 string).** The datasheet TCR limits allow 254 ppm/°C of leg-to-leg ratio drift, which is 51.9 dB DC CMRR after a 10 °C change from the trim temperature (`validation/cost-down.txt` §3). After trimming at room temperature, re-measure the DC ratio of each leg after a 30-minute powered warm-up and again at an ambient at least 10 °C away. Proposed acceptance: DC CMRR ≥ 60 dB over the operating range. **Self-heating.** With one leg at the highest available DC voltage (up to 3 kV), record its ratio over 10 minutes; the estimate is up to 3057 ppm at 3 kV DC (§4).
 
 ## 3. AC compensation and frequency response
 
@@ -118,9 +120,11 @@ Record each CMRR and each tip's capacitance to GND. Proposed acceptance: CMRR ch
 | Initial-envelope warning trip limits, both polarities and ranges | NOT RUN | |
 | Unpowered and single-rail conditions | NOT RUN | |
 | Stage-53 CT integration cross-check | NOT RUN | |
-| 2 MΩ HVCB2512 linearity at 600 V per body (VCR) | NOT RUN | |
+| 2 MΩ HV12 (HV121WF2004T4E) linearity at 600 V per body (VCR) | NOT RUN | |
+| DC ratio tracking after warm-up and ≥ 10 °C ambient change; self-heating at high DC | NOT RUN | |
+| 500 Ω DC trim settability (≤ 100 ppm) | NOT RUN | |
 | Clamp current shared with OPA2810 input ESD diodes (R12/R32 limit) | NOT RUN | |
-| PCB-mount BNC/toggle fit, panel bonding, 3-D 20 mm setback in the 1455N2201 | NOT RUN | |
+| PCB-mount BNC/E-Switch toggle fit (axis height, B5 flanged bushing, 1.5 mm end plate), Yageo 1812 body height, panel bonding, 3-D 20 mm setback in the 1455N2201 | NOT RUN | |
 | Lead wire incoming hipot, 5 kV DC 60 s, each lead | NOT RUN | |
 | Lead and feedthrough hipot, 4.5 kV DC 60 s, to enclosure and between leads | NOT RUN | |
 | Assembled lead setback (conductor to lid ≥ 20 mm), tail length, H3/H4 nylon | NOT RUN | |

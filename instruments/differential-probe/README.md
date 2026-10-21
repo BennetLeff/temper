@@ -29,8 +29,8 @@ Native KiCad DRC reports zero violations and zero unconnected items with the exp
 | Item | Design target / implementation |
 |---|---|
 | Input divider | Two fixed 2000:1 dividers; five compensated sections per leg |
-| Each upper section | One 2 MΩ, 0.1% HVCB2512 resistor, shunted by 33 pF C0G / 3 kV |
-| Low leg | 4.99 kΩ, 0.01% plus 50 Ω trim; 10 nF fixed + two select-on-test C0G + 12–60 pF top-adjust trimmer |
+| Each upper section | One 2 MΩ, 1%, 3 kV HV12 2512 resistor, shunted by 33 pF NP0 / 3 kV ([cost-down](docs/cost-down.md)) |
+| Low leg | 4.87 kΩ, 0.1% plus 500 Ω trim; 10 nF fixed + two select-on-test C0G + 12–60 pF top-adjust trimmer |
 | Amplifiers | OPA2810 dual buffer; OPA2810 ×2 subtractor + coax driver; OPA810 ×5 stage |
 | Output gain | Fixed ×2 subtractor and fixed ×5 stage; output selection gives nominal 1000:1 / 200:1 ratios |
 | Initial differential range target | ±1.5 kV at 1000:1; ±300 V at 200:1 |
@@ -53,12 +53,12 @@ The compact spacing design requires all three extended limits at once: `|V+| ≤
 
 | Function | Selected MPN | Quantity |
 |---|---|---:|
-| Upper divider resistors | Stackpole HVCB2512BDE2M00 (2 MΩ) | 10 |
-| Upper compensation | KEMET C1812C330JHGACTU, 33 pF C0G, 3 kV | 10 |
-| Low-leg precision resistors | Stackpole RNCF0603TKY4K99 | 2 |
+| Upper divider resistors | Uni-Royal HV121WF2004T4E (2 MΩ, 1%, 1 W, 3 kV) | 10 |
+| Upper compensation | Yageo CC1812JKNPOEBN330, 33 pF NP0, 3 kV | 10 |
+| Low-leg fixed resistors | Yageo RT0603BRD074K87L (4.87 kΩ, 0.1%) | 2 |
 | Gain-setting precision resistors | Stackpole RNCF0603TKY499R / 1K00 / 2K00 | 3 / 2 / 1 |
-| Low-leg capacitors | KEMET C1206C103F5GACTU + select-on-test C0805C302F5GACTU / C0805C161F5GACTU | 2 + 2 + 2 |
-| DC trim | Bourns 3296W-1-500LF | 2 |
+| Low-leg capacitors | Yageo CC1206FKNPO9BN103 + select-on-test C0805C302F5GACTU / C0805C161F5GACTU | 2 + 2 + 2 |
+| DC trim | Bourns 3296W-1-501LF (500 Ω) | 2 |
 | AC compensation trim | EW Electronics GKG60015, 12–60 pF | 2 |
 | Buffers, subtractor, driver | TI OPA2810IDR | 2 |
 | ×5 stage | TI OPA810IDR | 1 |
@@ -66,14 +66,13 @@ The compact spacing design requires all three extended limits at once: `|V+| ≤
 | Overload comparators | TI TLV1704AIPWR / TLV1702AIDGKR | 1 each |
 | Overload latch | TI CD4013BM96 | 1 |
 | Regulators | ADP7142AUJZ-R7 / ADP7182AUJZ-R7 | 1 each |
-| Range / power switches (PCB) | C&K 7101SDAV2BE / 7201P3DAV2QE | 1 each |
+| Range / power switches (PCB) | E-Switch 100SP1T1B5M7RE / 100DP1T1B1M7QEH | 1 each |
 | BNC (PCB, bulkhead) | Amphenol RF 031-5431-10RFX | 1 |
 | 9 V holders (PCB, underside) | MPD BH9VPC | 2 |
 
 The BOM contains every component.
 
-- **Divider resistors are the cost driver.** The ten 2 MΩ 0.1% bodies dominate the cost, and their stock is thin (9 at DigiKey and 0 at LCSC on 2026-10-20). See the owner decision in the [Rev C record](docs/revc.md#risks-and-open-owner-decisions).
-- **No 1% substitutes.** Do not substitute 1% parts into this trim design.
+- **Cost-down (2026-10-20).** The divider uses 1% HV12 bodies stocked at JLC instead of the 0.1% HVCB2512 (9 at DigiKey, 0 at LCSC). The 4.87 kΩ + 500 Ω trim covers both a 1% and a 0.1% string, so Stackpole HVCB2512BDE2M00 remains a drop-in upgrade. The margin costs (DC CMRR drift with temperature, one fault case at the ±3 kV extension) are quantified in [cost-down](docs/cost-down.md).
 - **HV leads.** Captive Rowe R800-1020 leads (UL 3239, 10 kV DC), 200 mm outside the box, leave through nylon glands in a copper-free FR4 tip-end plate and are tied to an FR4 lead bridge inside. Tips, strain relief and the loading budget are in [HV leads](docs/hv-leads.md). Ordinary SMA, 1 kV test leads or low-voltage terminal blocks are not acceptable for the HV inputs.
 
 ## Stage-53 identity
